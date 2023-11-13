@@ -12,6 +12,8 @@ class ProbSpace (Ω : Type*) extends MeasureSpace Ω, IsProbabilityMeasure volum
 @[simps (config := .lemmasOnly)]
 def probMeasure (Ω : Type*) [ProbSpace Ω] : ProbabilityMeasure Ω := ⟨volume, inferInstance⟩
 
+def Probspace.measure (Ω : Type*) [ProbSpace Ω] : Measure Ω := volume
+
 /-- prob Ω E is the probability of E in Ω. -/
 def prob {Ω : Type*} [ProbSpace Ω] (E : Set Ω) := probMeasure Ω E
 
@@ -36,5 +38,42 @@ lemma prob_le_one' [ProbSpace Ω] (E : Set Ω) : P[ E ] ≤ 1 := by
 
 -/
 
-/-- Probability can also be computed using probMeasure. --/
+/-- Probability can be computed using probMeasure. --/
 lemma prob_eq [ProbSpace Ω] (E : Set Ω) : P[ E ] = probMeasure Ω E := rfl
+
+/-- Probability can be computed using measure (after coercion to ENNReal). --/
+lemma prob_eq' [ProbSpace Ω] (E : Set Ω) : P[ E ] = Probspace.measure Ω E := by
+   unfold prob probMeasure Probspace.measure
+   simp
+   congr
+
+/-- Give all finite types the discrete sigma-algebra by default. -/
+instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
+
+open BigOperators
+
+/-- The probability densities of a random variable sum to 1. Proof is way too long.  TODO: connect this with Mathlib.Probability.ProbabilityMassFunction.Basic -/
+lemma totalProb {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Measurable X): ∑ s : S, P[ X ⁻¹' {s} ] = 1 := by
+  rw [<-ENNReal.coe_eq_coe]
+  push_cast
+  conv =>
+    lhs; congr; rfl; intro s
+    rw [prob_eq']
+  rw [<- MeasureTheory.measure_biUnion_finset]
+  . rw [<-prob_eq']
+    norm_cast
+    convert prob_univ Ω
+    ext _
+    simp
+  . dsimp [Set.PairwiseDisjoint, Set.Pairwise,Function.onFun]
+    intro x _ y _ hxy
+    rw [disjoint_iff]
+    contrapose! hxy
+    simp at hxy
+    have : (X ⁻¹' {x} ∩ X ⁻¹' {y} ).Nonempty := by
+      exact Set.nmem_singleton_empty.mp hxy
+    rcases this with ⟨ a, ha ⟩
+    simp at ha
+    rw [<-ha.1, <-ha.2]
+  intro s _
+  exact hX trivial

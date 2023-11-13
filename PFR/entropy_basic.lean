@@ -148,6 +148,7 @@ noncomputable def entropy {Ω : Type*} [ProbSpace Ω] [Fintype S] (X : Ω → S)
 
 notation:100 "H[ " X " ]" => entropy X
 
+/-- Entropy is non-negative --/
 lemma entropy_nonneg [ProbSpace Ω] [Fintype S] (X : Ω → S) : 0 ≤ H[ X ] := by
   unfold entropy
   apply Finset.sum_nonneg
@@ -155,3 +156,5 @@ lemma entropy_nonneg [ProbSpace Ω] [Fintype S] (X : Ω → S) : 0 ≤ H[ X ] :=
   apply h_nonneg
   . simp
   apply prob_le_one
+
+
