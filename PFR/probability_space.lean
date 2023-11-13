@@ -4,7 +4,7 @@ import Mathlib
 
 open MeasureTheory
 
-/-- In this project, a ProbabilitySpace is modeled by a MeasureSpace with a finite volume measure that can potentially vanish.  The probability measure is then the normalization of this probability measure, bearing in mind that it may be zero. Thus we also consider a measure space with the zero measure to be a (degenerate) example of a ProbabilitySpace-/
+/-- In this project, a ProbabilitySpace is modeled by a MeasureSpace with a finite volume measure that can potentially vanish.  The probability measure is then the normalization of this probability measure, bearing in mind that it may be zero. Thus we also consider a measure space with the zero measure to be a (degenerate) example of a ProbabilitySpace.  This will be convenient when we wish to condition the probability space to an event, because the event may potentially have zero measure. --/
 class ProbabilitySpace (Ω : Type*) extends MeasureSpace Ω, IsFiniteMeasure volume
 
 /-- The raw, unnormalized measure.  Would only be directly used in foundational lemmas typically. --/
@@ -14,10 +14,10 @@ def ProbabilitySpace.rawMeasure (Ω : Type*) [ProbabilitySpace Ω] : Measure Ω 
 @[simps (config := .lemmasOnly)]
 def ProbabilitySpace.rawFiniteMeasure (Ω : Type*) [ProbabilitySpace Ω] : FiniteMeasure Ω := ⟨volume, inferInstance⟩
 
-/-- The total mass of the raw measure. -/
+/-- The total mass of the raw measure. Can vanish! -/
 def ProbabilitySpace.rawMass (Ω : Type*) [ProbabilitySpace Ω] : NNReal := (ProbabilitySpace.rawFiniteMeasure Ω) Set.univ
 
-/-- The assertion that a probability space is nondegenerate. --/
+/-- The assertion that a probability space is nondegenerate (non-zero raw mass). --/
 def ProbabilitySpace.isNondeg (Ω : Type*) [ProbabilitySpace Ω] : Prop := 0 < ProbabilitySpace.rawMass Ω
 
 /-- The normalized measure associated to a probability space -/
@@ -68,3 +68,8 @@ lemma prob_univ (Ω : Type*) [ProbabilitySpace Ω] (h: ProbabilitySpace.isNondeg
   have h' : ProbabilitySpace.rawMass Ω ≠ 0 := by norm_cast; contrapose! h; rw [h]
   field_simp
   apply ENNReal_cancel h'
+
+/-- Degenerate probability measures are zero -/
+lemma prob_zero [ProbabilitySpace Ω] (h: ¬ ProbabilitySpace.isNondeg Ω) (E : Set Ω): P[E] = 0 := by
+  -- may need to assume E measurable
+  sorry
