@@ -2,7 +2,7 @@ import Mathlib
 
 open Real
 
-/-! The purpose of this file is to record basic analytic properties of the function h(x) = - x * log x on the unit interval, for use in the theory of Shannon entropy. -/
+/-! The purpose of this file is to record basic analytic properties of the function h(x) = - x * log x on the unit interval, for use in the theory of Shannon entropy.  Thanks to Heather Macbeth for optimizations. -/
 
 /- In this file, inversion will always mean inversion of real numbers. -/
 local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
@@ -75,12 +75,7 @@ lemma h_cont : ContinuousOn h (Set.Icc 0 1) := by
   simp at hx; rcases hx with ⟨ hx1, hx2 ⟩
   rw [le_iff_lt_or_eq] at hx1
   rcases hx1 with hx1 | hx1
-  . unfold h
-    apply ContinuousWithinAt.mul
-    . apply Continuous.continuousWithinAt
-      continuity
-    apply ContinuousAt.continuousWithinAt
-    apply continuousAt_log
+  . refine (continuous_id.neg.continuousAt.mul (continuousAt_log ?_)).continuousWithinAt
     linarith
 -- the tricky case : continuity at zero!
   rw [<- hx1]
@@ -95,49 +90,35 @@ lemma h_cont : ContinuousOn h (Set.Icc 0 1) := by
   . simp
   . simp [h]
   . simp [h]
-  . intro y hy; simp at hy ⊢
+  . intro y hy
     exact h_nonneg hy.1 hy.2
-  intro y hy; simp at hy ⊢
+  intro y hy
   exact h_le hy.1
 
-/-- The differentiability of h. -/
-lemma h_diff : DifferentiableOn ℝ h (Set.Ioo 0 1) := by
-  unfold h
-  apply DifferentiableOn.mul
-  . apply DifferentiableOn.neg
-    apply differentiableOn_id
-  apply DifferentiableOn.log
-  . apply differentiableOn_id
-  intro x hx; simp at hx
-  linarith [hx.1]
-
 /-- The derivative of h. -/
-lemma h_deriv {x : ℝ} (hx: 0 < x) : deriv h x = - log x + (- 1) := by
-  unfold h
-  rw [deriv_mul]
-  . rw [deriv_neg]
-    rw [deriv_log]
-    field_simp [hx]
-  . apply Differentiable.differentiableAt
-    apply differentiable_neg
-  apply DifferentiableAt.log
-  . exact differentiableAt_id'
-  linarith
+lemma h_deriv {x : ℝ} (hx: 0 < x) : HasDerivAt h (- log x + (- 1)) x := by
+  convert hasDerivAt_id x |>.neg.mul (hasDerivAt_log ?_) using 1
+  · field_simp
+  · positivity
 
-/-- The concavity of h. mTODO: upgrade this to strict concavity -/
+-- how to get differentiability from `HasDerivAt`
+example : DifferentiableOn ℝ h (Set.Ioo 0 1) :=
+  fun _ hx ↦ (h_deriv hx.1).differentiableAt.differentiableWithinAt
+
+-- how to get the `deriv` from `HasDerivAt`
+example {x : ℝ} (hx: 0 < x) : deriv h x = - log x + (- 1) := (h_deriv hx).deriv
+
+/-- The concavity of h. -/
 lemma h_concave : ConcaveOn ℝ (Set.Icc 0 1) h := by
   apply AntitoneOn.concaveOn_of_deriv
   . apply convex_Icc
   . exact h_cont
-  . rw [interior_Icc]; exact h_diff
-  rw [interior_Icc]
-  have : Set.EqOn (fun x ↦ - log x + (- 1)) (deriv h) (Set.Ioo 0 1) := by
-    intro x hx; rw [h_deriv hx.1]
-  apply AntitoneOn.congr _ this
-  apply AntitoneOn.add_const
-  apply MonotoneOn.neg
-  have : (Set.Ioo (0:ℝ) 1) ⊆ (Set.Ioi (0:ℝ)) := by
+  . rw [interior_Icc]
     intro x hx
-    simp at hx ⊢
+    exact (h_deriv hx.1).differentiableAt.differentiableWithinAt
+  rw [interior_Icc]
+  refine ((strictMonoOn_log.monotoneOn.mono ?_).neg.add_const (-1)).congr ?_
+  · intro x hx
     exact hx.1
-  exact MonotoneOn.mono (StrictMonoOn.monotoneOn strictMonoOn_log) this
+  · intro x hx
+    rw [(h_deriv hx.1).deriv]
