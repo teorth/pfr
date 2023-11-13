@@ -157,4 +157,8 @@ lemma entropy_nonneg [ProbSpace Ω] [Fintype S] (X : Ω → S) : 0 ≤ H[ X ] :=
   . simp
   apply prob_le_one
 
-
+/-- The Jensen bound --/
+lemma entropy_le_log [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX : Measurable X): H[ X ] ≤ log (Fintype.card S) := by
+  set N := Fintype.card S
+  have : 0 < N := range_nonempty' S
+  sorry

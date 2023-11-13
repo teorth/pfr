@@ -52,7 +52,7 @@ instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
 
 open BigOperators
 
-/-- The probability densities of a random variable sum to 1. Proof is way too long.  TODO: connect this with Mathlib.Probability.ProbabilityMassFunction.Basic -/
+/-- The law of total probability: the probability densities of a discrete random variable sum to 1. Proof is way too long.  TODO: connect this with Mathlib.Probability.ProbabilityMassFunction.Basic -/
 lemma totalProb {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Measurable X): ∑ s : S, P[ X ⁻¹' {s} ] = 1 := by
   rw [<-ENNReal.coe_eq_coe]
   push_cast
@@ -77,3 +77,16 @@ lemma totalProb {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Meas
     rw [<-ha.1, <-ha.2]
   intro s _
   exact hX trivial
+
+/-- Random variables always take values in non-empty sets. -/
+lemma range_nonempty {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Measurable X) : Nonempty S := by
+  rcases isEmpty_or_nonempty S with hS | hS
+  . have := totalProb hX
+    simp [hS] at this
+  assumption
+
+lemma range_nonempty' {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Measurable X) : 0 < Fintype.card S := by
+  suffices : Fintype.card S ≠ 0
+  . contrapose! this; linarith
+  have := range_nonempty hX
+  apply Fintype.card_ne_zero
