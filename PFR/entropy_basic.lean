@@ -1,5 +1,5 @@
 import Mathlib
-import PFR.probability_space
+import Pfr.probability_space
 
 open Real
 
