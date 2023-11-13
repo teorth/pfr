@@ -53,6 +53,14 @@ lemma prob_eq' [ProbSpace Ω] (E : Set Ω) : P[ E ] = Probspace.measure Ω E := 
 /-- Give all finite types the discrete sigma-algebra by default. -/
 instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
 
+/-- An example of a probability space : a MeasurableSpace with a Dirac measure -/
+noncomputable def diracProbSpace [MeasurableSpace S] (a : S) : ProbSpace S where
+  volume := Measure.dirac a
+  measure_univ := by simp
+
+
+
+
 open BigOperators
 
 /-- The law of total probability: the probability densities of a discrete random variable sum to 1. Proof is way too long.  TODO: connect this with Mathlib.Probability.ProbabilityMassFunction.Basic -/

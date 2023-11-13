@@ -123,7 +123,7 @@ lemma h_deriv {x : ℝ} (hx: 0 < x) : deriv h x = - log x + (- 1) := by
   . exact differentiableAt_id'
   linarith
 
-/-- The concavity of h. -/
+/-- The concavity of h. mTODO: upgrade this to strict concavity -/
 lemma h_concave : ConcaveOn ℝ (Set.Icc 0 1) h := by
   apply AntitoneOn.concaveOn_of_deriv
   . apply convex_Icc
