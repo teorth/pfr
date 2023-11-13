@@ -195,3 +195,16 @@ lemma entropy_le_log [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX : Measurable 
     exact prob_le_one (X ⁻¹' {s})
   convert (ConcaveOn.le_map_sum hf h0 h1 hmem)
   positivity
+
+/-- Equality in Jensen is attained when X is uniform.  TODO: also establish converse -/
+lemma entropy_of_uniform [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX : isUniform X) : H[ X ] = log (Fintype.card S) := by
+  rcases hX with ⟨ hX1, hX2 ⟩
+  unfold entropy
+  conv =>
+    lhs; congr; rfl; ext s
+    rw [hX2 s]
+  simp [h]
+  have := range_nonempty' hX1
+  field_simp
+  rw [mul_comm]
+  congr

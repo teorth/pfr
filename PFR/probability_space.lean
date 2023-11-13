@@ -2,6 +2,9 @@ import Mathlib
 
 /-! Basic theory of probability spaces. -/
 
+/- In this file, inversion will always mean inversion of real numbers. -/
+local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
+
 open MeasureTheory
 
 /-- A ProbSpace is a MeasureSpace in which the canonical volume measure is also a probability measure. -/
@@ -90,3 +93,6 @@ lemma range_nonempty' {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX
   . contrapose! this; linarith
   have := range_nonempty hX
   apply Fintype.card_ne_zero
+
+/-- Definition of a uniform random variable on a set S -/
+def isUniform {Ω : Type*} [ProbSpace Ω] [Fintype S] (X : Ω → S) := (Measurable X) ∧ (∀ s : S, P[ X ⁻¹' {s} ] = (Fintype.card S)⁻¹)
