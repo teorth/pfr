@@ -30,3 +30,41 @@ noncomputable def ProbabilitySpace.finiteMeasure (Ω : Type*) [ProbabilitySpace 
 noncomputable def ProbabilitySpace.prob {Ω : Type*} [ProbabilitySpace Ω] (E : Set Ω) := (ProbabilitySpace.finiteMeasure Ω) E
 
 notation:100 "P[ " E " ]" => ProbabilitySpace.prob E
+
+/-- Probability can be computed using ProbabilitySpace.finiteMeasure. --/
+lemma ProbabilitySpace.prob_eq [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = (ProbabilitySpace.finiteMeasure Ω) E := rfl
+
+/-- Probability can also be computed using ProbabilitySpace.measure. --/
+lemma ProbabilitySpace.prob_eq' [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = (ProbabilitySpace.measure Ω) E := by
+  unfold ProbabilitySpace.prob ProbabilitySpace.measure ProbabilitySpace.finiteMeasure
+  simp
+  congr
+
+/-- A silly little lemma on how to cancel in ENNReal - should have a better proof -/
+lemma ENNReal_cancel {a : NNReal} (h : a ≠ 0) : 1 / (ENNReal.ofNNReal a) * (ENNReal.ofNNReal a) = 1 := by
+  rw [<- inv_eq_one_div, <- ENNReal.div_eq_inv_mul]
+  have : ENNReal.toNNReal ((ENNReal.ofNNReal a) / (ENNReal.ofNNReal a)) = ENNReal.toNNReal 1 := by
+    rw [ENNReal.toNNReal_div]
+    simp
+    exact div_self h
+  exact (ENNReal.toNNReal_eq_one_iff (↑a / ↑a)).mp this
+
+
+/-- If nondegenerate, we have a full measure.  Proof is unnecessarily convoluted - would like a slicker proof -/
+lemma prob_univ (Ω : Type*) [ProbabilitySpace Ω] (h: ProbabilitySpace.isNondeg Ω) : P[(⊤ : Set Ω)] = 1 := by
+  unfold ProbabilitySpace.prob ProbabilitySpace.finiteMeasure ProbabilitySpace.rawMass
+  generalize hμ : ProbabilitySpace.rawFiniteMeasure Ω = μ
+  dsimp
+  push_cast
+  rw [show 1 = ENNReal.toNNReal 1 by norm_cast]
+  congr
+  dsimp [HMul]
+  rw [<- MeasureTheory.FiniteMeasure.ennreal_mass]
+  unfold ProbabilitySpace.isNondeg at h
+  have : FiniteMeasure.mass μ = ProbabilitySpace.rawMass Ω := by
+    rw [<- hμ]
+    rfl
+  rw [this]
+  have h' : ProbabilitySpace.rawMass Ω ≠ 0 := by norm_cast; contrapose! h; rw [h]
+  field_simp
+  apply ENNReal_cancel h'
