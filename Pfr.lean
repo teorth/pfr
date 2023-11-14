@@ -11,6 +11,7 @@ open Pointwise Nat
 
 class ElementaryAddGroup (G : Type*) [AddGroup G] (p : outParam ℕ) where
   orderOf_of_ne {x : G} (hx : x ≠ 0) : addOrderOf x = p
+-- may want to change this to p . x = 0 for all x; may also want to enforce finiteness.
 
 theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddGroup G 2] [Fintype G]
     [DecidableEq G] {A : Set G} {K : ℝ} (h₀A : A.Nonempty)

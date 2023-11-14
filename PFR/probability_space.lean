@@ -134,7 +134,6 @@ lemma ProbabilitySpace.condProb_eq [ProbabilitySpace Ω] {E : Set Ω} (hE: Measu
   rw [condRaw_eq hE hF]
   sorry
 
---  by_cases h: ProbabilitySpace.isNondeg Ω
 
 
 
