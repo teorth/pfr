@@ -12,67 +12,78 @@ open Real
 open BigOperators
 
 /-- The entropy of a random variable. -/
-noncomputable def entropy {Ω : Type*} [ProbSpace Ω] [Fintype S] (X : Ω → S) := ∑ s : S, h ( P[ X ⁻¹' {s} ] )
+noncomputable def entropy {Ω : Type*} [ProbabilitySpace Ω] [Fintype S] (X : Ω → S) := ∑ s : S, h ( P[ X ⁻¹' {s} ] )
 
 notation:100 "H[ " X " ]" => entropy X
 
 /-- Entropy is non-negative --/
-lemma entropy_nonneg [ProbSpace Ω] [Fintype S] (X : Ω → S) : 0 ≤ H[ X ] := by
+lemma entropy_nonneg [ProbabilitySpace Ω] [Fintype S] (X : Ω → S) : 0 ≤ H[ X ] := by
   unfold entropy
   apply Finset.sum_nonneg
   intro s _
   apply h_nonneg
   . simp
-  apply prob_le_one
+  apply ProbabilitySpace.prob_le_one
+
+/-- Entropy vanishes in the degenerate case -/
+lemma entropy_zero [ProbabilitySpace Ω] (hΩ : ¬ProbabilitySpace.isNondeg Ω) [Fintype S] (X : Ω → S) : H[ X ] = 0 := by
+  unfold entropy
+  conv =>
+    lhs; congr; rfl; ext s
+    rw [ProbabilitySpace.prob_zero hΩ]
+  unfold h; simp
 
 /-- The Jensen bound --/
-lemma entropy_le_log [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX : Measurable X): H[ X ] ≤ log (Fintype.card S) := by
-  set N := Fintype.card S
-  have : 0 < N := range_nonempty' hX
-  unfold entropy
-  have hN : log N = N * h (∑ s : S, N⁻¹ * P[ X ⁻¹' {s} ]) := by
-    rw [<-Finset.mul_sum]
-    norm_cast
-    rw [totalProb hX]
-    simp
-    unfold h
-    rw [log_inv]
-    field_simp; ring
-  rw [hN, <- inv_mul_le_iff, Finset.mul_sum]
-  set w := fun _ : S ↦ N⁻¹
-  set p := fun s : S ↦ (P[ X ⁻¹' {s} ] : ℝ)
+lemma entropy_le_log [ProbabilitySpace Ω] [Fintype S] {X : Ω → S} (hX : Measurable X): H[ X ] ≤ log (Fintype.card S) := by
+  by_cases hΩ : ProbabilitySpace.isNondeg Ω
+  . set N := Fintype.card S
+    have : 0 < N := ProbabilitySpace.range_nonempty' hΩ hX
+    unfold entropy
+    have hN : log N = N * h (∑ s : S, N⁻¹ * P[ X ⁻¹' {s} ]) := by
+      rw [<-Finset.mul_sum]
+      norm_cast
+      rw [ProbabilitySpace.totalProb hΩ hX]
+      simp
+      unfold h
+      rw [log_inv]
+      field_simp; ring
+    rw [hN, <- inv_mul_le_iff, Finset.mul_sum]
+    set w := fun _ : S ↦ N⁻¹
+    set p := fun s : S ↦ (P[ X ⁻¹' {s} ] : ℝ)
 
-  conv =>
-    congr
-    . congr; rfl
+    conv =>
+      congr
+      . congr; rfl
+        ext s
+        rw [(show N⁻¹ = w s by simp), (show P[ X ⁻¹' {s} ] = p s by simp)]
+      congr; congr; rfl
       ext s
       rw [(show N⁻¹ = w s by simp), (show P[ X ⁻¹' {s} ] = p s by simp)]
-    congr; congr; rfl
-    ext s
-    rw [(show N⁻¹ = w s by simp), (show P[ X ⁻¹' {s} ] = p s by simp)]
-  have hf := h_concave
-  have h0 : ∀ s ∈ Finset.univ, 0 ≤ w s := by intros; simp
-  have h1 : ∑ s in Finset.univ, w s = 1 := by
-    simp
-    apply mul_inv_cancel
+    have hf := h_concave
+    have h0 : ∀ s ∈ Finset.univ, 0 ≤ w s := by intros; simp
+    have h1 : ∑ s in Finset.univ, w s = 1 := by
+      simp
+      apply mul_inv_cancel
+      positivity
+    have hmem : ∀ s ∈ Finset.univ, p s ∈ (Set.Icc 0 1) := by
+      intro s _
+      simp
+      norm_cast
+      exact ProbabilitySpace.prob_le_one (X ⁻¹' {s})
+    convert (ConcaveOn.le_map_sum hf h0 h1 hmem)
     positivity
-  have hmem : ∀ s ∈ Finset.univ, p s ∈ (Set.Icc 0 1) := by
-    intro s _
-    simp
-    norm_cast
-    exact prob_le_one (X ⁻¹' {s})
-  convert (ConcaveOn.le_map_sum hf h0 h1 hmem)
+  rw [entropy_zero hΩ]
   positivity
 
-/-- Equality in Jensen is attained when X is uniform.  TODO: also establish converse -/
-lemma entropy_of_uniform [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX : isUniform X) : H[ X ] = log (Fintype.card S) := by
+/-- Equality in Jensen is attained when X is uniform.  TODO: also establish converse.  One could also remove hΩ but this seems of little use.  -/
+lemma entropy_of_uniform [ProbabilitySpace Ω] (hΩ: ProbabilitySpace.isNondeg Ω) [Fintype S] {X : Ω → S} (hX : ProbabilitySpace.isUniform X) : H[ X ] = log (Fintype.card S) := by
   rcases hX with ⟨ hX1, hX2 ⟩
   unfold entropy
   conv =>
     lhs; congr; rfl; ext s
     rw [hX2 s]
   simp [h]
-  have := range_nonempty' hX1
+  have := ProbabilitySpace.range_nonempty' hΩ hX1
   field_simp
   rw [mul_comm]
   congr
