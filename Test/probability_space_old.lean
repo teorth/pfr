@@ -1,4 +1,8 @@
-import Mathlib
+import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+
+/-!
+# Basic theory of probability spaces
+-/
 
 /-! Basic theory of probability spaces. -/
 

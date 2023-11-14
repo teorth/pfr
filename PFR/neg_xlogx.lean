@@ -1,9 +1,16 @@
-import Mathlib
--- to do: be more specific on which part of Mathlib is being imported
+import Mathlib.Analysis.SpecialFunctions.Log.Deriv
+import Mathlib.Topology.Semicontinuous
+
+/-!
+# Entropy function
+
+The purpose of this file is to record basic analytic properties of the function
+$$h(x) = - x * log x$$ on the unit interval, for use in the theory of Shannon entropy.
+
+Thanks to Heather Macbeth for optimizations.
+-/
 
 open Real
-
-/-! The purpose of this file is to record basic analytic properties of the function h(x) = - x * log x on the unit interval, for use in the theory of Shannon entropy.  Thanks to Heather Macbeth for optimizations. -/
 
 /- In this file, inversion will always mean inversion of real numbers. -/
 local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))

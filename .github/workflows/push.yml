@@ -10,6 +10,15 @@ permissions:
   id-token: write
 
 jobs:
+  style_lint:
+    name: Lint style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Don't 'import Mathlib', use precise imports
+        if: always()
+        run: |
+          ! (find PFR -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
+
   build_project:
     runs-on: ubuntu-latest
     name: Build project
@@ -42,7 +51,7 @@ jobs:
         run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0
 
       - name: Get cache
-        run: ~/.elan/bin/lake -Kenv=dev exe cache get
+        run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
 
       - name: Build project
         run: ~/.elan/bin/lake -Kenv=dev build PFR

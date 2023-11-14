@@ -1,7 +1,8 @@
-import Mathlib
--- to do: be more specific on which part of Mathlib is being imported
+import Mathlib.MeasureTheory.Measure.FiniteMeasure
 
-/-! Basic theory of probability spaces. -/
+/-!
+# Basic theory of probability spaces
+-/
 
 open MeasureTheory
 
