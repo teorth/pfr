@@ -25,7 +25,9 @@ jobs:
 
       - name: build
         id: build
-        run: lake build
+        run: |
+          lake exe cache get || true
+          lake build
 
       - name: Check for long lines
         if: always()
