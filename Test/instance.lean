@@ -24,5 +24,3 @@ lemma foo (f : Ω → ℝ) (hf : Integrable f) (E : Set Ω) :
   Integrable (fun (x : E) ↦ f x : E → ℝ) := sorry
 
 variable [IsProbabilityMeasure (ℙ : Measure Ω)]
-
-...

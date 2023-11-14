@@ -30,4 +30,5 @@ require mathlib from git
 lean_lib «PFR» where
   moreLeanArgs := moreLeanArgs
   weakLeanArgs := weakLeanArgs
+  globs := #[.submodules `PFR, .submodules `Test]
   -- add any library configuration options here

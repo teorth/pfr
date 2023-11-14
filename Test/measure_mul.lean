@@ -1,4 +1,6 @@
-open BigOperators
+import Mathlib
+
+open BigOperators MeasureTheory
 
 noncomputable def Measure.mul (c : NNReal) {Ω : Type*} [MeasureSpace Ω] (μ : Measure Ω) : Measure Ω where
   measureOf := (fun E ↦ c * μ E)
@@ -9,7 +11,8 @@ noncomputable def Measure.mul (c : NNReal) {Ω : Type*} [MeasureSpace Ω] (μ : 
     dsimp
     rw [ENNReal.tsum_mul_left]
     gcongr
-    exact OuterMeasure.iUnion_nat ↑μ fun i => E i
+    -- exact OuterMeasure.iUnion_nat ↑μ fun i => E i
+    sorry
   m_iUnion := by
     intro E hE hDisjoint
     dsimp
@@ -17,6 +20,5 @@ noncomputable def Measure.mul (c : NNReal) {Ω : Type*} [MeasureSpace Ω] (μ : 
     congr
     exact Measure.m_iUnion μ hE hDisjoint
   trimmed := by
-    rw [MeasureTheory.OuterMeasure.trim_eq_iInf']
-
-
+    -- rw [MeasureTheory.OuterMeasure.trim_eq_iInf']
+    sorry
