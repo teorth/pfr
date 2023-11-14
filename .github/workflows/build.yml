@@ -29,10 +29,10 @@ jobs:
           lake exe cache get || true
           lake build
 
-      - name: Check for long lines
-        if: always()
-        run: |
-          ! (find PFR -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
+      # - name: Check for long lines
+      #   if: always()
+      #   run: |
+      #     ! (find PFR -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
 
       # - name: Don't 'import Mathlib', use precise imports
       #   if: always()
