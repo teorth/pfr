@@ -53,7 +53,7 @@ lemma ProbabilitySpace.prob_eq'' [ProbabilitySpace Ω] (E : Set Ω) : P[ E ; ‹
 lemma ProbabilitySpace.prob_raw [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawMeasure Ω E := by
   rw [prob_eq' E]
   unfold measure
-  rw [MeasureTheory.Measure.smul_apply]
+  rw [Measure.smul_apply]
   congr
 
 lemma ProbabilitySpace.prob_raw' [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawFiniteMeasure Ω E := by
@@ -104,9 +104,9 @@ def ProbabilitySpace.ofFiniteMeasure [MeasurableSpace Ω] (μ : FiniteMeasure Ω
     exact IsFiniteMeasure.measure_univ_lt_top
 
 /-- The formula for probability in ProbabilitySpace.ofFiniteMeasure in terms of the original measure -/
-lemma ProbabilitySpace.ofFiniteMeasure.prob_eq [MeasurableSpace Ω] (μ : FiniteMeasure Ω) (E : Set Ω) : P[ E ; ProbabilitySpace.ofFiniteMeasure μ ] = (μ Set.univ)⁻¹ * μ E := by
+lemma ProbabilitySpace.ofFiniteMeasure.prob_eq [MeasurableSpace Ω] (μ : FiniteMeasure Ω) (E : Set Ω) : P[ E ; ofFiniteMeasure μ ] = (μ Set.univ)⁻¹ * μ E := by
   unfold finiteMeasure
-  rw [MeasureTheory.FiniteMeasure.coeFn_smul]
+  rw [FiniteMeasure.coeFn_smul]
   dsimp
   congr
 
@@ -116,29 +116,26 @@ attribute [instance] MeasureTheory.Measure.Subtype.measureSpace
 /-- Every measurable subset of a probability space is also a probability space (even when the set has measure zero!).  May want to register this as an instance somehow. -/
 noncomputable def Subtype.probabilitySpace {Ω : Type*} [ProbabilitySpace Ω] {E : Set Ω} (hE: MeasurableSet E): ProbabilitySpace E where
   measure_univ_lt_top := by
-    rw [MeasureTheory.Measure.Subtype.volume_univ (MeasurableSet.nullMeasurableSet hE)]
+    rw [Measure.Subtype.volume_univ (MeasurableSet.nullMeasurableSet hE)]
     set μ := @volume Ω ProbabilitySpace.toMeasureSpace
     have : μ E ≤ μ Set.univ := by
-      apply MeasureTheory.measure_mono
+      apply measure_mono
       simp
     exact lt_of_le_of_lt this (IsFiniteMeasure.measure_univ_lt_top)
 
-lemma ProbabilitySpace.condProb_eq [ProbabilitySpace Ω] {E : Set Ω} (hE: MeasurableSet E) {F : Set E} (hF : MeasurableSet F): P[ F ; Subtype.probabilitySpace hE ] = (P[ E ])⁻¹ * P[ (F : Set Ω) ]  := by
-  set X := Subtype.probabilitySpace hE
-  have : rawMass (@Set.Elem Ω E) = rawMeasure Ω E := by
-    rawMass
-    sorry
-
-  by_cases h: ProbabilitySpace.isNondeg Ω
-  . unfold finiteMeasure
-    rw [MeasureTheory.FiniteMeasure.coeFn_smul, MeasureTheory.FiniteMeasure.coeFn_smul]
-    dsimp
-    sorry
-  rw [ProbabilitySpace.prob_zero h E]
-  unfold finiteMeasure
-  rw [MeasureTheory.FiniteMeasure.coeFn_smul]
-  simp; left
+lemma ProbabilitySpace.condRaw_eq [ProbabilitySpace Ω] {E : Set Ω} (hE: MeasurableSet E) {F : Set E} (hF : MeasurableSet F) : @rawFiniteMeasure E (Subtype.probabilitySpace hE) F = rawFiniteMeasure Ω (F : Set Ω) := by
+  rw [<-ENNReal.coe_eq_coe, rawMeasure_eq Ω (F : Set Ω), @rawMeasure_eq E (Subtype.probabilitySpace hE) F]
+  unfold rawMeasure
+  rw [Measure.Subtype.volume_def]
   sorry
+
+lemma ProbabilitySpace.condProb_eq [ProbabilitySpace Ω] {E : Set Ω} (hE: MeasurableSet E) {F : Set E} (hF : MeasurableSet F): P[ F ; Subtype.probabilitySpace hE ] = (P[ E ])⁻¹ * P[ (F : Set Ω) ]  := by
+  rw [prob_raw' E, prob_raw' (F : Set Ω), @prob_raw' E (Subtype.probabilitySpace hE)]
+  rw [condRaw_eq hE hF]
+  sorry
+
+--  by_cases h: ProbabilitySpace.isNondeg Ω
+
 
 
 open BigOperators
