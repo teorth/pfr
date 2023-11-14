@@ -1,6 +1,6 @@
 import Mathlib
-import Pfr.probability_space
-import Pfr.neg_xlogx
+import PFR.probability_space
+import PFR.neg_xlogx
 
 
 /-- The purpose of this file is to develop the basic theory of Shannon entropy. -/
