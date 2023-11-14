@@ -15,16 +15,23 @@ def ProbabilitySpace.rawMeasure (Ω : Type*) [ProbabilitySpace Ω] : Measure Ω 
 def ProbabilitySpace.rawFiniteMeasure (Ω : Type*) [ProbabilitySpace Ω] : FiniteMeasure Ω := ⟨volume, inferInstance⟩
 
 /-- The total mass of the raw measure. Can vanish! -/
-def ProbabilitySpace.rawMass (Ω : Type*) [ProbabilitySpace Ω] : NNReal := (ProbabilitySpace.rawFiniteMeasure Ω) Set.univ
+def ProbabilitySpace.rawMass (Ω : Type*) [ProbabilitySpace Ω] : NNReal := rawFiniteMeasure Ω Set.univ
+
+lemma ProbabilitySpace.rawMeasure_eq (Ω : Type*) [ProbabilitySpace Ω] (E : Set Ω) : rawFiniteMeasure Ω E = rawMeasure Ω E := by
+  unfold rawMeasure rawFiniteMeasure
+  simp; congr
+
+lemma ProbabilitySpace.rawMass_eq (Ω : Type*) [ProbabilitySpace Ω] : rawMass Ω = rawMeasure Ω Set.univ := by
+  apply rawMeasure_eq
 
 /-- The assertion that a probability space is nondegenerate (non-zero raw mass). --/
-def ProbabilitySpace.isNondeg (Ω : Type*) [ProbabilitySpace Ω] : Prop := 0 < ProbabilitySpace.rawMass Ω
+def ProbabilitySpace.isNondeg (Ω : Type*) [ProbabilitySpace Ω] : Prop := 0 < rawMass Ω
 
 /-- The normalized measure associated to a probability space -/
-noncomputable def ProbabilitySpace.measure (Ω : Type*) [ProbabilitySpace Ω] : Measure Ω := (ProbabilitySpace.rawMass Ω)⁻¹ • volume
+noncomputable def ProbabilitySpace.measure (Ω : Type*) [ProbabilitySpace Ω] : Measure Ω := (rawMass Ω)⁻¹ • volume
 
 /-- The normalized finite measure associated to a probability space -/
-noncomputable def ProbabilitySpace.finiteMeasure (Ω : Type*) [ProbabilitySpace Ω] : FiniteMeasure Ω := (ProbabilitySpace.rawMass Ω)⁻¹ •(ProbabilitySpace.rawFiniteMeasure Ω)
+noncomputable def ProbabilitySpace.finiteMeasure (Ω : Type*) [ProbabilitySpace Ω] : FiniteMeasure Ω := (rawMass Ω)⁻¹ • rawFiniteMeasure Ω
 
 /-- P[ E ] is the probability of E. -/
 notation:100 "P[ " E " ]" => (ProbabilitySpace.finiteMeasure _) E
@@ -33,85 +40,57 @@ notation:100 "P[ " E " ]" => (ProbabilitySpace.finiteMeasure _) E
 notation:100 "P[ " E " ; " X " ]" => (@ProbabilitySpace.finiteMeasure _ X) E
 
 /-- Probability can be computed using ProbabilitySpace.finiteMeasure. --/
-lemma ProbabilitySpace.prob_eq [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = (ProbabilitySpace.finiteMeasure Ω) E := rfl
+lemma ProbabilitySpace.prob_eq [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = finiteMeasure Ω E := rfl
 
 /-- Probability can also be computed using ProbabilitySpace.measure. --/
-lemma ProbabilitySpace.prob_eq' [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = (ProbabilitySpace.measure Ω) E := by
-  unfold ProbabilitySpace.measure ProbabilitySpace.finiteMeasure
+lemma ProbabilitySpace.prob_eq' [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = measure Ω E := by
+  unfold measure finiteMeasure
   simp
   congr
 
 lemma ProbabilitySpace.prob_eq'' [ProbabilitySpace Ω] (E : Set Ω) : P[ E ; ‹ ProbabilitySpace Ω› ] = P[ E ] := by rfl
 
-/-- A silly little lemma on how to cancel in ENNReal - should have a better proof -/
-lemma ENNReal_cancel {a : NNReal} (h : a ≠ 0) : 1 / (ENNReal.ofNNReal a) * (ENNReal.ofNNReal a) = 1 := by
-  rw [<- inv_eq_one_div, <- ENNReal.div_eq_inv_mul]
-  have : ENNReal.toNNReal ((ENNReal.ofNNReal a) / (ENNReal.ofNNReal a)) = ENNReal.toNNReal 1 := by
-    rw [ENNReal.toNNReal_div]
-    simp
-    exact div_self h
-  exact (ENNReal.toNNReal_eq_one_iff (↑a / ↑a)).mp this
+lemma ProbabilitySpace.prob_raw [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawMeasure Ω E := by
+  rw [prob_eq' E]
+  unfold measure
+  rw [MeasureTheory.Measure.smul_apply]
+  congr
 
-/-- another silly lemma -/
-lemma ENNReal_zero {a: NNReal} (h: ENNReal.toNNReal a = 0) : a = 0 := by
-  exact h
-
-/-- If nondegenerate, we have a full measure.  Proof is unnecessarily convoluted - would like a slicker proof -/
-@[simp]
-lemma ProbabilitySpace.prob_univ (Ω : Type*) [ProbabilitySpace Ω] (h: ProbabilitySpace.isNondeg Ω) : P[(⊤ : Set Ω)] = 1 := by
-  unfold ProbabilitySpace.finiteMeasure ProbabilitySpace.rawMass
-  generalize hμ : ProbabilitySpace.rawFiniteMeasure Ω = μ
-  dsimp
+lemma ProbabilitySpace.prob_raw' [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawFiniteMeasure Ω E := by
+  rw [<-ENNReal.coe_eq_coe, prob_raw E]
   push_cast
-  rw [show 1 = ENNReal.toNNReal 1 by norm_cast]
   congr
-  dsimp [HMul]
-  rw [<- MeasureTheory.FiniteMeasure.ennreal_mass]
-  unfold ProbabilitySpace.isNondeg at h
-  have : FiniteMeasure.mass μ = ProbabilitySpace.rawMass Ω := by
-    rw [<- hμ]
-    rfl
-  rw [this]
-  have h' : ProbabilitySpace.rawMass Ω ≠ 0 := by norm_cast; contrapose! h; rw [h]
-  field_simp
-  exact ENNReal_cancel h'
+  rw [<-rawMeasure_eq Ω E]
 
-/-- Degenerate probability measures are zero.  Again, a ridiculously convoluted proof; I have a lot of trouble working with ENNReals. -/
+/-- If nondegenerate, we have a full measure.  -/
 @[simp]
-lemma ProbabilitySpace.prob_zero [ProbabilitySpace Ω] (h: ¬ ProbabilitySpace.isNondeg Ω) (E : Set Ω): P[E] = 0 := by
-  unfold ProbabilitySpace.finiteMeasure ProbabilitySpace.rawMass
-  generalize hμ : ProbabilitySpace.rawFiniteMeasure Ω = μ
-  dsimp
-  push_cast
-  rw [show 0 = ENNReal.toNNReal 0 by norm_cast]
-  congr
-  dsimp [HMul]
-  simp; left
-  rw [show 0 = ENNReal.toNNReal 0 by norm_cast]
-  congr
-  unfold ProbabilitySpace.isNondeg at h
-  have : ProbabilitySpace.rawMass Ω = 0 := by contrapose! h; exact zero_lt_iff.mpr h
-  have h' : ProbabilitySpace.rawMass Ω = FiniteMeasure.mass μ := by
-    rw [<- hμ]
-    rfl
-  rw [h'] at this
-  apply_fun ENNReal.ofNNReal at this
-  convert this
-  unfold FiniteMeasure.mass
-  dsimp
-  exact (FiniteMeasure.ennreal_coeFn_eq_coeFn_toMeasure μ Set.univ).symm
+lemma ProbabilitySpace.prob_univ (Ω : Type*) [ProbabilitySpace Ω] (h: isNondeg Ω) : P[(⊤ : Set Ω)] = 1 := by
+  rw [prob_raw' (⊤ : Set Ω)]
+  unfold isNondeg at h
+  field_simp [h]
+  rfl
+
+
+/-- Degenerate probability measures are zero.  -/
+@[simp]
+lemma ProbabilitySpace.prob_zero [ProbabilitySpace Ω] (h: ¬ isNondeg Ω) (E : Set Ω): P[E] = 0 := by
+  rw [prob_raw' E]
+  field_simp; right
+  unfold isNondeg at h
+  contrapose! h
+  exact zero_lt_iff.mpr h
 
 /-- Larger events have larger probability. -/
 lemma ProbabilitySpace.prob_mono {Ω : Type*} [ProbabilitySpace Ω] {A B : Set Ω} (h : A ≤ B) : P[A] ≤ P[B] := by
-  rw [ProbabilitySpace.prob_eq A,ProbabilitySpace.prob_eq B]
-  exact FiniteMeasure.apply_mono (ProbabilitySpace.finiteMeasure Ω) h
+  rw [prob_eq A, prob_eq B]
+  exact FiniteMeasure.apply_mono (finiteMeasure Ω) h
 
 /-- All events occur with probability at most 1. -/
 lemma ProbabilitySpace.prob_le_one [ProbabilitySpace Ω] (E : Set Ω) : P[ E ] ≤ 1 := by
-  by_cases h: ProbabilitySpace.isNondeg Ω
-  . rw [← ProbabilitySpace.prob_univ Ω h]
-    simp [ProbabilitySpace.prob_mono]
-  rw [ProbabilitySpace.prob_zero h E]
+  by_cases h: isNondeg Ω
+  . rw [← prob_univ Ω h]
+    simp [prob_mono]
+  rw [prob_zero h E]
   norm_num
 
 /-- Give all finite types the discrete sigma-algebra by default. -/
@@ -147,6 +126,7 @@ noncomputable def Subtype.probabilitySpace {Ω : Type*} [ProbabilitySpace Ω] {E
 lemma ProbabilitySpace.condProb_eq [ProbabilitySpace Ω] {E : Set Ω} (hE: MeasurableSet E) {F : Set E} (hF : MeasurableSet F): P[ F ; Subtype.probabilitySpace hE ] = (P[ E ])⁻¹ * P[ (F : Set Ω) ]  := by
   set X := Subtype.probabilitySpace hE
   have : rawMass (@Set.Elem Ω E) = rawMeasure Ω E := by
+    rawMass
     sorry
 
   by_cases h: ProbabilitySpace.isNondeg Ω
