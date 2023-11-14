@@ -12,27 +12,25 @@ Thanks to Heather Macbeth for optimizations.
 
 open Real
 
-/- In this file, inversion will always mean inversion of real numbers. -/
-local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
+variable {x : ℝ}
 
--- the entropy function.  Note that h 0 = 0 thanks to Lean notational conventions. May want to change the name of h and/or localize it to a namespace
+/- In this file, inversion will always mean inversion of real numbers. -/
+local macro_rules | `($x ⁻¹) => `(Inv.inv ($x : ℝ))
+
+/-- The entropy function.  Note that `h 0 = 0` thanks to Lean's notational conventions. May want to
+change the name of `h` and/or localize it to a namespace. -/
 noncomputable def h := (fun x : ℝ ↦ - x * log x)
 
-/-- h is nonnegative -/
-lemma h_nonneg {x : ℝ} (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ h x := by
+/-- `h` is nonnegative. -/
+lemma h_nonneg (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ h x := by
   unfold h
   rw [neg_mul_comm]
   apply mul_nonneg h1
   simp
   exact log_nonpos h1 h2
 
-/-- h 0 = 0 -/
-@[simp]
-lemma h_zero : h 0 = 0 := by unfold h; simp
-
-/-- h 1 = 0 -/
-@[simp]
-lemma h_one : h 1 = 0 := by unfold h; simp
+@[simp] lemma h_zero : h 0 = 0 := by simp [h]
+@[simp] lemma h_one : h 1 = 0 := by simp [h]
 
 /-- a sublemma needed to get an upper bound for h. -/
 lemma log_le {x:ℝ} (hx: 0 ≤ x) : log x ≤ x / rexp 1 := by
@@ -50,7 +48,8 @@ lemma h_le {x : ℝ} (hx : 0 ≤ x) : h x ≤ 2 * (sqrt x) / rexp 1 := by
   unfold h
   rw [le_iff_lt_or_eq] at hx
   rcases hx with hx | hx
-  . rw [neg_mul_comm, <- log_inv, <- sq_sqrt (show 0 ≤ x⁻¹ by positivity), log_pow, <-mul_assoc, <- le_div_iff']
+  . rw [neg_mul_comm, ←log_inv, ←sq_sqrt (show 0 ≤ x⁻¹ by positivity), log_pow, ←mul_assoc,
+      ←le_div_iff']
     convert log_le (show 0 ≤ sqrt x⁻¹ by positivity) using 1
     field_simp
     nth_rewrite 3 [<- sq_sqrt (show 0 ≤ x by positivity)]
@@ -59,7 +58,10 @@ lemma h_le {x : ℝ} (hx : 0 ≤ x) : h x ≤ 2 * (sqrt x) / rexp 1 := by
   simp [<-hx]
 
 /-- To prove continuity of h we will need a version of the squeeze test. -/
-lemma squeeze [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [OrderTopology β] {f g h : α → β} {x : α} (hfg : f x = g x) (hgh : g x = h x) (lower : ∀ y : α, f y ≤ g y) (upper : ∀ y : α, g y ≤ h y) (f_cont : ContinuousAt f x) (h_cont : ContinuousAt h x) : ContinuousAt g x := by
+lemma squeeze [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [OrderTopology β]
+    {f g h : α → β} {x : α} (hfg : f x = g x) (hgh : g x = h x) (lower : ∀ y : α, f y ≤ g y)
+    (upper : ∀ y : α, g y ≤ h y) (f_cont : ContinuousAt f x) (h_cont : ContinuousAt h x) :
+    ContinuousAt g x := by
   rw [continuousAt_iff_lower_upperSemicontinuousAt] at f_cont h_cont ⊢
   dsimp [LowerSemicontinuousAt, UpperSemicontinuousAt] at f_cont h_cont ⊢
   rw [hfg] at f_cont
@@ -75,7 +77,10 @@ lemma squeeze [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [Orde
   exact LE.le.trans_lt (upper x) hx
 
 /-- actually we need the squeeze test restricted to a subdomain. -/
-lemma squeezeWithin [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [OrderTopology β] {f g h : α → β} {s : Set α} {x : α} (hx : x ∈ s) (hfg : f x = g x) (hgh : g x = h x) (lower : ∀ y ∈ s, f y ≤ g y) (upper : ∀ y ∈ s, g y ≤ h y) (f_cont : ContinuousWithinAt f s x) (h_cont : ContinuousWithinAt h s x) : ContinuousWithinAt g s x := by
+lemma squeezeWithin [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [OrderTopology β]
+  {f g h : α → β} {s : Set α} {x : α} (hx : x ∈ s) (hfg : f x = g x) (hgh : g x = h x)
+  (lower : ∀ y ∈ s, f y ≤ g y) (upper : ∀ y ∈ s, g y ≤ h y) (f_cont : ContinuousWithinAt f s x)
+  (h_cont : ContinuousWithinAt h s x) : ContinuousWithinAt g s x := by
   rw [continuousWithinAt_iff_continuousAt_restrict _ hx] at f_cont h_cont ⊢
   set f' := Set.restrict s f
   set g' := Set.restrict s g
@@ -142,5 +147,7 @@ lemma h_concave : ConcaveOn ℝ (Set.Icc 0 1) h := by
 
 open BigOperators
 
-lemma h_jensen [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s ∈ Finset.univ, 0 ≤ w s) (h1 : ∑ s in Finset.univ, w s = 1) (hmem : ∀ s ∈ Finset.univ, p s ∈ (Set.Icc 0 1)) : ∑ s in Finset.univ, (w s) * h (p s) ≤ h ( ∑ s in Finset.univ, (w s) * (p s)) := by
+lemma h_jensen [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s ∈ Finset.univ, 0 ≤ w s)
+    (h1 : ∑ s in Finset.univ, w s = 1) (hmem : ∀ s ∈ Finset.univ, p s ∈ (Set.Icc 0 1)) :
+    ∑ s in Finset.univ, (w s) * h (p s) ≤ h ( ∑ s in Finset.univ, (w s) * (p s)) := by
   convert ConcaveOn.le_map_sum h_concave h0 h1 hmem

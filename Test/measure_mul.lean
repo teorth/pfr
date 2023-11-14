@@ -1,9 +1,11 @@
-import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+import Mathlib.MeasureTheory.Measure.MeasureSpace
 
 open MeasureTheory
-  open scoped BigOperators
+open scoped BigOperators
 
-noncomputable def Measure.mul (c : NNReal) {Ω : Type*} [MeasureSpace Ω] (μ : Measure Ω) : Measure Ω where
+-- Using mathlib, this is just `c • μ`
+noncomputable def Measure.mul (c : NNReal) {Ω : Type*} [MeasureSpace Ω] (μ : Measure Ω) :
+    Measure Ω where
   measureOf := (fun E ↦ c * μ E)
   empty := by simp
   mono := by intros; dsimp; gcongr
