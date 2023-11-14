@@ -10,12 +10,21 @@ local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
 -- the entropy function.  Note that h 0 = 0 thanks to Lean notational conventions. May want to change the name of h and/or localize it to a namespace
 noncomputable def h := (fun x : ℝ ↦ - x * log x)
 
+/-- h is nonnegative -/
 lemma h_nonneg {x : ℝ} (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ h x := by
   unfold h
   rw [neg_mul_comm]
   apply mul_nonneg h1
   simp
   exact log_nonpos h1 h2
+
+/-- h 0 = 0 -/
+@[simp]
+lemma h_zero : h 0 = 0 := by unfold h; simp
+
+/-- h 1 = 0 -/
+@[simp]
+lemma h_one : h 1 = 0 := by unfold h; simp
 
 /-- a sublemma needed to get an upper bound for h. -/
 lemma log_le {x:ℝ} (hx: 0 ≤ x) : log x ≤ x / rexp 1 := by
