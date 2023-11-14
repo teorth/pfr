@@ -1,4 +1,4 @@
-import Pfr.probability_space
+import PFR.probability_space
 import Mathlib.GroupTheory.OrderOfElement
 import Mathlib.Data.Finset.Pointwise
 import Mathlib.Data.Real.Basic
