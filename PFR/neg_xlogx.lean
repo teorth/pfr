@@ -131,3 +131,8 @@ lemma h_concave : ConcaveOn ℝ (Set.Icc 0 1) h := by
     exact hx.1
   · intro x hx
     rw [(h_deriv hx.1).deriv]
+
+open BigOperators
+
+lemma h_jensen [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s ∈ Finset.univ, 0 ≤ w s) (h1 : ∑ s in Finset.univ, w s = 1) (hmem : ∀ s ∈ Finset.univ, p s ∈ (Set.Icc 0 1)) : ∑ s in Finset.univ, (w s) * h (p s) ≤ h ( ∑ s in Finset.univ, (w s) * (p s)) := by
+  convert ConcaveOn.le_map_sum h_concave h0 h1 hmem

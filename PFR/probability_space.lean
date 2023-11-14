@@ -53,8 +53,8 @@ lemma ENNReal_cancel {a : NNReal} (h : a ≠ 0) : 1 / (ENNReal.ofNNReal a) * (EN
 lemma ENNReal_zero {a: NNReal} (h: ENNReal.toNNReal a = 0) : a = 0 := by
   exact h
 
-@[simp]
 /-- If nondegenerate, we have a full measure.  Proof is unnecessarily convoluted - would like a slicker proof -/
+@[simp]
 lemma ProbabilitySpace.prob_univ (Ω : Type*) [ProbabilitySpace Ω] (h: ProbabilitySpace.isNondeg Ω) : P[(⊤ : Set Ω)] = 1 := by
   unfold ProbabilitySpace.prob ProbabilitySpace.finiteMeasure ProbabilitySpace.rawMass
   generalize hμ : ProbabilitySpace.rawFiniteMeasure Ω = μ
@@ -73,8 +73,8 @@ lemma ProbabilitySpace.prob_univ (Ω : Type*) [ProbabilitySpace Ω] (h: Probabil
   field_simp
   exact ENNReal_cancel h'
 
-@[simp]
 /-- Degenerate probability measures are zero.  Again, a ridiculously convoluted proof; I have a lot of trouble working with ENNReals. -/
+@[simp]
 lemma ProbabilitySpace.prob_zero [ProbabilitySpace Ω] (h: ¬ ProbabilitySpace.isNondeg Ω) (E : Set Ω): P[E] = 0 := by
   unfold ProbabilitySpace.prob ProbabilitySpace.finiteMeasure ProbabilitySpace.rawMass
   generalize hμ : ProbabilitySpace.rawFiniteMeasure Ω = μ

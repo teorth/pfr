@@ -59,18 +59,12 @@ lemma entropy_le_log [ProbabilitySpace Ω] [Fintype S] {X : Ω → S} (hX : Meas
       congr; congr; rfl
       ext s
       rw [(show N⁻¹ = w s by simp), (show P[ X ⁻¹' {s} ] = p s by simp)]
-    have hf := h_concave
-    have h0 : ∀ s ∈ Finset.univ, 0 ≤ w s := by intros; simp
-    have h1 : ∑ s in Finset.univ, w s = 1 := by
-      simp
-      apply mul_inv_cancel
-      positivity
-    have hmem : ∀ s ∈ Finset.univ, p s ∈ (Set.Icc 0 1) := by
-      intro s _
-      simp
-      norm_cast
+    apply h_jensen
+    . intros; simp
+    . simp; apply mul_inv_cancel; positivity
+    . intro s _
+      simp; norm_cast
       exact ProbabilitySpace.prob_le_one (X ⁻¹' {s})
-    convert (ConcaveOn.le_map_sum hf h0 h1 hmem)
     positivity
   rw [entropy_zero hΩ]
   positivity
