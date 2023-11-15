@@ -6,6 +6,10 @@ import Mathlib.GroupTheory.OrderOfElement
 
 Here we define the notion of a vector space over a finite field, and record basic results about it.
 
+## Main classes
+
+* `ElementaryAddGroup`: An elementary p-group.
+
 -/
 
 

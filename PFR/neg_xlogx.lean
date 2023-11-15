@@ -8,6 +8,14 @@ import Mathlib.Topology.Semicontinuous
 The purpose of this file is to record basic analytic properties of the function
 $$h(x) = - x * \log x$$ on the unit interval, for use in the theory of Shannon entropy.
 
+## Main definitions
+
+* `negIdMulLog`: the function `x ↦ - x log x`
+
+## Main results
+
+* `sum_negIdMulLog_le`: a Jensen inequality for `negIdMulLog`
+
 -/
 
 open scoped ENNReal NNReal Topology BigOperators
@@ -117,12 +125,20 @@ lemma concaveOn_negIdMulLog : ConcaveOn ℝ (Set.Ici (0 : ℝ)) negIdMulLog := b
   rw [negIdMulLog_eq_neg]
   exact convexOn_id_mul_log.neg
 
+lemma strictConcaveOn_negIdMulLog : StrictConcaveOn ℝ (Set.Ici (0 : ℝ)) negIdMulLog := by
+  sorry
+
 lemma sum_negIdMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
     (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
     ∑ s, (w s) * negIdMulLog (p s) ≤ negIdMulLog (∑ s, (w s) * (p s)) := by
   refine ConcaveOn.le_map_sum concaveOn_negIdMulLog ?_ h1 ?_
   · simp [h0]
   · simp [hmem]
+
+/-- the equality case of Jensen's inequality -/
+lemma sum_negIdMulLog_eq : 0 = 1 := by sorry
+
+
 
 end negIdMulLog
 
