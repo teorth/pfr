@@ -11,6 +11,12 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   with the convention that $0 \log \frac{1}{0} = 0$.
 \end{definition}
 
+\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy} \uses{entropy-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $H[X] = H[Y]$.
+\end{lemma}
+
+\begin{proof} Expand out both entropies and rearrange.
+\end{proof}
+
 \begin{lemma}[Jensen bound]\label{jensen-bound}
 \uses{entropy-def}
 \lean{entropy_le_log}
@@ -51,7 +57,7 @@ Given an $S$-random variable $X: \Omega \to S$ and a $T$-valued random variable 
 \begin{definition}[Conditioned event]\label{condition-event-def}  If $X: \Omega \to S$ is an $S$-valued random variable and $E$ is an event in $\Omega$, then the conditioned event $(X|E)$ is defined to be the same random variable as $X$, but now the ambient probability measure has been conditioned to $E$.
 \end{definition}
 
-Note: it may happen that $E$ has zero measure.  In which case, the ambient probability measure should be replaced with a zero measure.  (There will be support in the project for ``probability measures with zero'' to deal with this contingency.)
+Note: it may happen that $E$ has zero measure.  In which case, the ambient probability measure should be replaced with a zero measure.  (There will be support in the project for ``probability measures with zero'' to deal with this contingency.  Fortunately, with a zero probability measure all entropies are zero, so entropy inequalities are trivially true in this case.)
 
 \begin{definition}[Conditional entropy]\label{conditional-entropy-def}
   \uses{entropy-def}
@@ -68,11 +74,18 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 \begin{proof} Direct computation, I guess?
 \end{proof}
 
-\begin{lemma}[Conditional chain rule]\label{conditional-chain-rule}
+\begin{lemma}[Conditional chain rule]\label{conditional-chain-rule} \uses{chain-rule}
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
 $$ H[ \langle X,Y \rangle | Z ] = H[Y | Z] + H[X|Y, Z].$$
 \end{lemma}
 
-\begin{proof}
-...
+\begin{proof}  For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
+$$ H[ \langle (X|Z=z),(Y|Z=z) \rangle ] = H[Y|Z=z] + H[(X|Z=z)|(Y|Z=z)].$$
+Now multiply by $P[Z=z]$ and sum.  Some helper lemmas may be needed to get to the form above.  This sort of ``average over conditioning'' argument to get conditional entropy inequalities from unconditional ones is commonly used in this paper.
 \end{proof}
+
+\begin{definition}[Mutual information]\label{information-def} If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, then
+  $$ I[ X : Y ] := H[X] + H[Y] - H[X,Y].$$
+\end{definition}
+
+Should provide some small helper lemmas:
