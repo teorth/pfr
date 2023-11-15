@@ -40,10 +40,15 @@ noncomputable def finiteMeasure : FiniteMeasure Ω := (rawMass Ω)⁻¹ • rawF
 
 variable {Ω}
 
+/-- The raw finite measure and the raw measure agree. -/
 lemma rawFiniteMeasure_eq (E : Set Ω) : rawFiniteMeasure Ω E = rawMeasure Ω E := by
   simp [rawMeasure, rawFiniteMeasure]; congr
 
+/-- The raw mass is the mass of the raw measure. -/
 lemma rawMass_eq : rawMass Ω = rawMeasure Ω univ := rawFiniteMeasure_eq _
+
+/-- The raw mass is the mass of the raw finite measure. -/
+lemma rawMass_eq' : rawMass Ω = rawFiniteMeasure Ω univ := rfl
 
 /-- P[ E ] is the probability of E. -/
 notation:100 "P[ " E " ]" => (finiteMeasure _) E
@@ -63,12 +68,14 @@ lemma prob_eq' (E : Set Ω) : P[ E ] = measure Ω E := by
 
 lemma prob_eq'' (E : Set Ω) : P[ E ; ‹ ProbabilitySpace Ω› ] = P[ E ] := by rfl
 
+/-- Probability can be computed using raw measure. -/
 lemma prob_raw (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawMeasure Ω E := by
   rw [prob_eq' E]
   unfold measure
   rw [Measure.smul_apply]
   congr
 
+/-- Probability can be computed using raw finite measure. -/
 lemma prob_raw' (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawFiniteMeasure Ω E := by
   rw [<-ENNReal.coe_eq_coe, prob_raw E]
   push_cast
@@ -124,46 +131,59 @@ lemma ofFiniteMeasure.prob_eq [MeasurableSpace Ω] (μ : FiniteMeasure Ω) (E : 
   congr
 
 /-- Every measurable subset of a probability space is also a probability space (even when the set has measure zero!).  May want to register this as an instance somehow. -/
-noncomputable def Subset.probabilitySpace {Ω : Type*} [ProbabilitySpace Ω] (E : Set Ω): ProbabilitySpace Ω where
+noncomputable def Subset.probabilitySpace {Ω : Type*} [ProbabilitySpace Ω] (E : Set Ω) : ProbabilitySpace Ω where
   volume := volume.restrict E
--- Force subsets of measurable spaces to themselves be measurable spaces
-attribute [instance] MeasureTheory.Measure.Subtype.measureSpace
-
-/-- Every measurable subset of a probability space is also a probability space (even when the set
-has measure zero!).  May want to register this as an instance somehow. -/
-noncomputable def Subtype.probabilitySpace (hE : MeasurableSet E) : ProbabilitySpace E where
   measure_univ_lt_top := by
     unfold volume
     rw [Measure.restrict_apply_univ]
-    show ProbabilitySpace.rawMeasure Ω E < ⊤
-    have : ProbabilitySpace.rawMeasure Ω E ≤ ProbabilitySpace.rawMeasure Ω Set.univ := by
+    show rawMeasure Ω E < ⊤
+    have : rawMeasure Ω E ≤ rawMeasure Ω Set.univ := by
       apply MeasureTheory.measure_mono
-    rw [Measure.Subtype.volume_univ (MeasurableSet.nullMeasurableSet hE)]
-    set μ := @volume Ω toMeasureSpace
-    have : μ E ≤ μ Set.univ := by
-      apply measure_mono
       simp
-    have h : ProbabilitySpace.rawMeasure Ω Set.univ < ⊤ := by
-      unfold ProbabilitySpace.rawMeasure
+    have h : rawMeasure Ω Set.univ < ⊤ := by
+      unfold rawMeasure
       apply IsFiniteMeasure.measure_univ_lt_top
     exact lt_of_le_of_lt this h
 
+-- Force subsets of measurable spaces to themselves be measurable spaces
+attribute [instance] MeasureTheory.Measure.Subtype.measureSpace
 
-lemma ProbabilitySpace.condRaw_eq [ProbabilitySpace Ω] {E F : Set Ω} (hE: MeasurableSet E) (hF : MeasurableSet F) : @rawFiniteMeasure Ω (Subset.probabilitySpace E) F = rawFiniteMeasure Ω (F ∩ E) := by
-  rw [<-ENNReal.coe_eq_coe, rawMeasure_eq Ω _, @rawMeasure_eq Ω (Subset.probabilitySpace E) F]
-lemma condRaw_eq (hE : MeasurableSet E) {F : Set E} (hF : MeasurableSet F) :
-    @rawFiniteMeasure E (Subtype.probabilitySpace hE) F = rawFiniteMeasure Ω (F : Set Ω) := by
-  dsimp
-  let h := Subtype.probabilitySpace hE
-  rw [←ENNReal.coe_eq_coe, rawFiniteMeasure_eq, rawFiniteMeasure_eq]
+lemma condRaw_eq [hΩ: ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet F) : @rawFiniteMeasure Ω (Subset.probabilitySpace E) F = rawFiniteMeasure Ω (F ∩ E) := by
+  rw [<-ENNReal.coe_eq_coe, @rawFiniteMeasure_eq Ω hΩ (F ∩ E), @rawFiniteMeasure_eq Ω (Subset.probabilitySpace E) F]
   unfold rawMeasure
-  rw [Measure.Subtype.volume_def]
-  sorry
+  show (volume.restrict E) F = volume (F ∩ E)
+  exact Measure.restrict_apply hF
 
-lemma condProb_eq (hE : MeasurableSet E) {F : Set E} (hF : MeasurableSet F) :
-    P[ F ; Subtype.probabilitySpace hE ] = (P[ E ])⁻¹ * P[ (F : Set Ω) ]  := by
-  rw [prob_raw' E, prob_raw' (F : Set Ω), @prob_raw' E (Subtype.probabilitySpace hE)]
-  rw [condRaw_eq hE hF]
+lemma condRawMass_eq [hΩ: ProbabilitySpace Ω] {E : Set Ω} : @rawMass Ω (Subset.probabilitySpace E) = rawFiniteMeasure Ω E := by
+  rw [@rawMass_eq' Ω (Subset.probabilitySpace E), condRaw_eq]
+  simp
+  exact MeasurableSet.univ
+
+notation:100 "P[ " F " | " E " ]" => P[ F ; Subset.probabilitySpace E ]
+
+lemma condProb_eq [hΩ : ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet F) :
+    P[ F | E ] = (P[ E ])⁻¹ * P[ F ∩ E ]  := by
+  rw [@prob_raw' Ω (Subset.probabilitySpace E) F, @prob_raw' Ω hΩ (F ∩ E), @prob_raw' Ω hΩ E, condRaw_eq hF, condRawMass_eq]
+  generalize a_def : rawMass Ω = a
+  generalize b_def : rawFiniteMeasure Ω E = b
+  rcases eq_or_ne a 0 with ha | ha
+  . simp [ha]; left
+    suffices : b ≤ a
+    . rw [ha] at this; exact le_zero_iff.mp this
+    rw [<- a_def, <- b_def, rawMass_eq']
+    apply FiniteMeasure.apply_mono
+    simp
+  rcases eq_or_ne b 0 with hb | hb
+  . simp [hb]
+  . field_simp; ring
+
+/-- Larger events have larger conditional probability.  A simple example of how an unconditional lemma can instantly imply a conditional counterpart. -/
+lemma prob_mono_cond {A B E : Set Ω} (h : A ⊆ B) : P[A | E] ≤ P[B | E] :=
+  @prob_mono Ω (Subset.probabilitySpace E) _ _ h
+
+lemma posprob_isnondeg [hΩ : ProbabilitySpace Ω] {E : Set Ω} (hE : 0 < P[E]) : @isNondeg Ω (Subset.probabilitySpace E) := by
+  unfold isNondeg
+  rw [prob_raw'] at hE
   sorry
 
 open BigOperators
