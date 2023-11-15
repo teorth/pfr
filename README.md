@@ -2,6 +2,10 @@ The purpose of this repository is to hold a Lean4 formalization of the proof of 
 
 Discussion of the project will be held on this Zulip stream: https://leanprover.zulipchat.com/#narrow/stream/412902-Polynomial-Freiman-Ruzsa-conjecture
 
+A blueprint of the proof will be developed at https://teorth.github.io/pfr/blueprint
+
+Documentation of the methods is at https://teorth.github.io/pfr/docs
+
 Additional discussion of the project may be found at https://terrytao.wordpress.com/2023/11/13/on-a-conjecture-of-marton/
 
 
