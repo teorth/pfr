@@ -18,23 +18,23 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 \end{proof}
 
 \begin{lemma}[Jensen bound]\label{jensen-bound}
-\uses{entropy-def}
+\uses{entropy-def,jensen}
 \lean{entropy_le_log}
 \leanok
 If $X$ is an $S$-valued random variable, then $H[X] \leq \log |X|$.
 \end{lemma}
 
 \begin{proof}
-  This is a direct consequence of Jensen's inequality applied to the concave function $x \mapsto x \log \frac{1}{x}$.
+  This is a direct consequence of Lemma \ref{jensen}.
 \end{proof}
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
-  \uses{entropy-def}
+  \uses{entropy-def,converse-jensen}
   \lean{entropy_of_uniform}
 If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly distributed. NOTE: only one direction proved so far.
 \end{lemma}
 
-\begin{proof} Direct computation in one direction.  Converse direction needs strict concavity and some converse Jensen.
+\begin{proof} Direct computation in one direction.  Converse direction needs Lemma \ref{converse-jensen}.
 \end{proof}
 
 \begin{lemma}[Bounded entropy implies concentration]\label{bound-conc}
@@ -55,7 +55,7 @@ Given an $S$-random variable $X: \Omega \to S$ and a $T$-valued random variable 
 
 In this blueprint we will often drop the angled brackets from $\langle X, Y \rangle$ to reduce clutter (but they will be needed in the Lean formalization).
 
-\begin{lemma}[Symmetry of joint entropy]\label{joint-symm}\uses{pair-def} \uses{relabeled-entropy}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X,Y ] = H[ Y,X]$.\end{lemma}
+\begin{lemma}[Symmetry of joint entropy]\label{joint-symm}\uses{pair-def,relabeled-entropy}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X,Y ] = H[ Y,X]$.\end{lemma}
 
 \begin{proof} Set up an injection from $\langle X,Y\rangle$ to $\langle Y,X\rangle$ and use Lemma \ref{relabeled-entropy}.
 \end{proof}
@@ -67,13 +67,12 @@ In this blueprint we will often drop the angled brackets from $\langle X, Y \ran
 Note: it may happen that $E$ has zero measure.  In which case, the ambient probability measure should be replaced with a zero measure.  (There will be support in the project for ``probability measures with zero'' to deal with this contingency.  Fortunately, with a zero probability measure all entropies are zero, so entropy inequalities are trivially true in this case.)
 
 \begin{definition}[Conditional entropy]\label{conditional-entropy-def}
-  \uses{entropy-def}
-  \uses{condition-event-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, the conditional entropy $H[X|Y]$ is defined as
+  \uses{entropy-def,condition-event-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, the conditional entropy $H[X|Y]$ is defined as
   $$ H[X|Y] := \sum_{y \in Y} P[Y = y] H[(X | Y=y)].$$
 \end{definition}
 
 \begin{lemma}[Chain rule]\label{chain-rule}
-  \uses{conditional-entropy-def} \uses{pair-def}
+  \uses{conditional-entropy-def,pair-def}
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then
   $$ H[ X,Y  ] = H[Y] + H[X|Y].$$
 \end{lemma}
@@ -96,7 +95,7 @@ Now multiply by $P[Z=z]$ and sum.  Some helper lemmas may be needed to get to th
 \end{definition}
 
 \begin{lemma}[Alternative formulae for mutual information]\label{alternative-mutual}
-  \uses{information-def} \uses{joint-symm} \uses{chain-rule}
+  \uses{information-def,joint-symm,chain-rule}
   With notation as above, we have
 $$  I[X : Y] = I[Y:X]$$
 $$  I[X : Y] = H[X] - H[X|Y]$$
@@ -112,13 +111,13 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \begin{proof}  An application of Jensen.
 \end{proof}
 
-\begin{corollary}[Subadditivity]\label{subadditive}\uses{mutual-nonneg} \uses{alternative-mutual}  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
+\begin{corollary}[Subadditivity]\label{subadditive}\uses{mutual-nonneg,alternative-mutual}  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
 \end{corollary}
 
 \begin{proof}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
 \end{proof}
 
-\begin{corollary}[Conditioning reduces entropy]\label{cond-reduce}\uses{mutual-nonneg} \uses{alternative-mutual}  With notation as above, we have $H[X|Y] \leq H[X]$.
+\begin{corollary}[Conditioning reduces entropy]\label{cond-reduce}\uses{mutual-nonneg,alternative-mutual}  With notation as above, we have $H[X|Y] \leq H[X]$.
 \end{corollary}
 
 \begin{proof}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
@@ -130,7 +129,7 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \begin{proof} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
 \end{proof}
 
-\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}\uses{submodularity}\uses{chain-rule} With three random variables $X,Y,Z$, one has
+\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}\uses{submodularity,chain-rule} With three random variables $X,Y,Z$, one has
   $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$
 \end{corollary}
 
@@ -141,24 +140,24 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if $P[ X = s \wedge Y = t] = P[X=s] P[Y=t]$ for all $s \in S, t \in T$.  NOTE: will also need a notion of joint independence of $k$ random variables for any finite $k$.
 \end{definition}
 
-\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{chain-rule} \uses{conditional-entropy}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
+\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{chain-rule,conditional-entropy}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
 \end{lemma}
 
 \begin{proof} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.
 \end{proof}
 
 
-\begin{corollary}[Vanishing of mutual information]\label{vanish-entropy}\uses{add-entropy}\uses{information-def}  If $X,Y$ are random variables, then $I[X,Y] = 0$ if and only if $X,Y$ are independent.
+\begin{corollary}[Vanishing of mutual information]\label{vanish-entropy}\uses{add-entropy,information-def}  If $X,Y$ are random variables, then $I[X,Y] = 0$ if and only if $X,Y$ are independent.
 \end{corollary}
 
 \begin{proof} Immediate from Lemma \ref{add-entropy} and Definition \ref{information-def}.
 \end{proof}
 
-\begin{definition}[Conditional mutual information]\label{conditional-mutual-def}\uses{information-def} \uses{condition-event-def}  If $X,Y,Z$ are random variables, with $Z$ $U$-valued, then
+\begin{definition}[Conditional mutual information]\label{conditional-mutual-def}\uses{information-def,{condition-event-def}  If $X,Y,Z$ are random variables, with $Z$ $U$-valued, then
   $$ I[X:Y|Z] := \sum_{z \in U} P[Z=z] I[(X|Z=z): (Y|Z=z)].$$
 \end{definition}
 
-\begin{lemma}[Nonnegativity of conditional mutual information]\label{conditional-nonneg}  \uses{conditional-mutual-def} \uses{submodularity}
+\begin{lemma}[Nonnegativity of conditional mutual information]\label{conditional-nonneg}  \uses{conditional-mutual-def,submodularity}
 If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
 \end{lemma}
 
@@ -169,7 +168,7 @@ If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
   Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are conditionally independent relative to another random variable $Z: \Omega \to U$ if $P[ X = s \wedge Y = t| Z=u] = P[X=s|Z=u] P[Y=t|Z=u]$ for all $s \in S, t \in T, u \in U$.  (We won't need conditional independence for more variables than this.)
 \end{definition}
 
-\begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}  \uses{conditional-mutual-def} \uses{conditional-independent-def}\uses{conditional-nonneg}
+\begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}  \uses{conditional-mutual-def,conditional-independent-def,conditional-nonneg}
   If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
 \end{lemma}
 
