@@ -5,9 +5,6 @@ jobs:
   build_project:
     runs-on: ubuntu-latest
     name: Build project
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
     steps:
       - name: Checkout project
         uses: actions/checkout@v2

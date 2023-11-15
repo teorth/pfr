@@ -2,7 +2,7 @@
 
 In this section $G$ will be a finite additive group.  (May eventually want to generalize to infinite $G$.)
 
-\begin{lemma}[Negation preserves entropy]\label{neg-ent}\uses{entropy-def}  If $X$ is $G$-valued, then $\H[-X]=\H[X]$.
+\begin{lemma}[Negation preserves entropy]\label{neg-ent}\uses{entropy-def}  If $X$ is $G$-valued, then $\bbH[-X]=\bbH[X]$.
 \end{lemma}
 
 \begin{proof}\uses{relabeled-entropy} Immediate from Lemma \ref{relabeled-entropy}.
@@ -22,7 +22,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 
 \begin{corollary}[Conditional lower bound on sumset]\label{sumset-lower-gen-cond}\uses{conditional-mutual-def, conditional-entropy-def} If $X,Y$ are $G$-valued random variables on $\Omega$ and $Z$ is another random variable on $\Omega$ then
 \[
-  \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq \H[X\pm Y|Z],
+  \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq \bbH[X\pm Y|Z],
 \]
 \end{corollary}
 
@@ -67,7 +67,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 \begin{proof} \uses{copy-ent} Immediate from Definitions \ref{ruz-dist-def} and Lemma \ref{copy-ent}.
 \end{proof}
 
-\begin{lemma}[Ruzsa distance in inependent case]\label{ruz-indep}\uses{ruz-dist-def, entropy-def, independent-def} If $X,Y$ are independent $G$-random variables then
+\begin{lemma}[Ruzsa distance in independent case]\label{ruz-indep}\uses{ruz-dist-def, entropy-def, independent-def} If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$
 \end{lemma}
 
@@ -89,7 +89,7 @@ $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
 \end{proof}
 
 \begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}\uses{ruz-dist-def, entropy-def} If $X,Y$ are $G$-valued random variables, then
-$$  \H[X-Y] - \H[X], \H[X-Y] - \H[Y] \leq 2d[X;Y].$$
+$$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \end{lemma}
 
 \begin{proof} \uses{sumset-lower, neg-ent} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
@@ -160,13 +160,13 @@ $$ H[X_1,X_2,Y] = 2 H[X] + H[Y] + 2 I[X:Y] = 2 H[X,Y] - H[Y].$$
   \begin{equation}
   \begin{split} H[X_1, X_2, Y'] &= H[X_1,X_2|Y] + H[Y] \\
     &= 2 H[X|Y] + H[Y] \\
-    &= 2 H[X] + H[Y] + 2 \I[X:Y].
+    &= 2 H[X] + H[Y] + 2 I[X:Y].
   \end{split}  \end{equation}
 \end{proof}
 
 
 \begin{lemma}[Balog-Szemer\'edi-Gowers]\label{lem-bsg}\uses{ruz-dist-def, information-def, entropy-def}
-  Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z \coloneqq A+B$.
+  Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z \coloneq A+B$.
 Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 H[Z] - H[A] - H[B]. \end{equation}
 \end{lemma}
@@ -197,7 +197,7 @@ Substituting~\eqref{bsg-24},~\eqref{bsg-23} and~\eqref{bsg-25} into~\eqref{bsg-3
 \[ H[A_1 - B_2] \leq 2I[A:B] + H[Z]\] and so by~\eqref{cond-dec}
 \[H[A_1 - B_2 | Z]  \leq 2I[A:B] + H[Z].\]
 Since
-\begin{align*} H[A_1 | Z] & = H[A_1, A_1 + B_1] - H[Z] \\ & = H[A,B] - H[Z] \\ & = H[Z] - I[A:B] - 2 H[Z]-H[A]-\H[B]\end{align*}
-and similarly for $\H[B_2 | Z]$, we see that~\eqref{lhs-to-bound} is bounded by
+\begin{align*} H[A_1 | Z] & = H[A_1, A_1 + B_1] - H[Z] \\ & = H[A,B] - H[Z] \\ & = H[Z] - I[A:B] - 2 H[Z]-H[A]-\bbH[B]\end{align*}
+and similarly for $\bbH[B_2 | Z]$, we see that~\eqref{lhs-to-bound} is bounded by
 $3I[A:B] + 2H[Z]-H[A]-H[B]$ as claimed.
 \end{proof}
