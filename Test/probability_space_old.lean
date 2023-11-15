@@ -1,4 +1,8 @@
-import Mathlib
+import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+
+/-!
+# Basic theory of probability spaces
+-/
 
 /-! Basic theory of probability spaces. -/
 
@@ -11,7 +15,7 @@ open MeasureTheory
 class ProbSpace (Ω : Type*) extends MeasureSpace Ω, IsProbabilityMeasure volume
 
 
-/-- The probability measure associated to a ProbSpace --/
+/-- The probability measure associated to a ProbSpace -/
 @[simps (config := .lemmasOnly)]
 def probMeasure (Ω : Type*) [ProbSpace Ω] : ProbabilityMeasure Ω := ⟨volume, inferInstance⟩
 
@@ -41,10 +45,10 @@ lemma prob_le_one' [ProbSpace Ω] (E : Set Ω) : P[ E ] ≤ 1 := by
 
 -/
 
-/-- Probability can be computed using probMeasure. --/
+/-- Probability can be computed using probMeasure. -/
 lemma prob_eq [ProbSpace Ω] (E : Set Ω) : P[ E ] = probMeasure Ω E := rfl
 
-/-- Probability can be computed using measure (after coercion to ENNReal). --/
+/-- Probability can be computed using measure (after coercion to ENNReal). -/
 lemma prob_eq' [ProbSpace Ω] (E : Set Ω) : P[ E ] = Probspace.measure Ω E := by
    unfold prob probMeasure Probspace.measure
    simp
