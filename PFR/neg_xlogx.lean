@@ -8,6 +8,14 @@ import Mathlib.Topology.Semicontinuous
 The purpose of this file is to record basic analytic properties of the function
 $$h(x) = - x * \log x$$ on the unit interval, for use in the theory of Shannon entropy.
 
+## Main definitions
+
+* `negIdMulLog`: the function `x ↦ - x log x`
+
+## Main results
+
+* `sum_negIdMulLog_le`: a Jensen inequality for `negIdMulLog`
+
 -/
 
 open scoped ENNReal NNReal Topology BigOperators
