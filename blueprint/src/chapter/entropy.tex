@@ -125,7 +125,7 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 
 \begin{lemma}[Nonnegativity of mutual information]\label{mutual-nonneg}
   \uses{information-def}
-  \label{condMutualInformation_nonneg}
+  \label{mutualInformation_nonneg}
   With notation as above, we have $I[X:Y] \geq 0$.
 \end{lemma}
 
@@ -161,7 +161,10 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \begin{proof} \uses{cond-reduce} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
 \end{proof}
 
-\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}\uses{entropy-def} With three random variables $X,Y,Z$, one has
+\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}
+  \uses{entropy-def}
+  \lean{joint_plus_entropy_le_cond_plus_joint}
+  With three random variables $X,Y,Z$, one has
   $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$
 \end{corollary}
 
@@ -169,29 +172,41 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \end{proof}
 
 \begin{definition}[Independent random variables]\label{independent-def}
+  \lean{ProbabilityTheory.independent}
 Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if $P[ X = s \wedge Y = t] = P[X=s] P[Y=t]$ for all $s \in S, t \in T$.  NOTE: will also need a notion of joint independence of $k$ random variables for any finite $k$.
 \end{definition}
 
 May want to add a lemma that jointly independent random variables are pairwise independent.
 
-\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{independent-def, entropy-def}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
+\begin{lemma}[Additivity of entropy]\label{add-entropy}
+  \uses{independent-def, entropy-def}
+  \lean{jointEntropy_eq_sum}
+  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
 \end{lemma}
 
 \begin{proof} \uses{chain-rule,conditional-entropy} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.
 \end{proof}
 
 
-\begin{corollary}[Vanishing of mutual information]\label{vanish-entropy}\uses{independent-def, information-def}  If $X,Y$ are random variables, then $I[X:Y] = 0$ if and only if $X,Y$ are independent.
+\begin{corollary}[Vanishing of mutual information]\label{vanish-entropy}
+  \uses{independent-def, information-def}
+  \lean{MutualInformation_eq_zero}
+  If $X,Y$ are random variables, then $I[X:Y] = 0$ if and only if $X,Y$ are independent.
 \end{corollary}
 
 \begin{proof} \uses{add-entropy} Immediate from Lemma \ref{add-entropy} and Definition \ref{information-def}.
 \end{proof}
 
-\begin{definition}[Conditional mutual information]\label{conditional-mutual-def}\uses{information-def,condition-event-def}  If $X,Y,Z$ are random variables, with $Z$ $U$-valued, then
+\begin{definition}[Conditional mutual information]\label{conditional-mutual-def}
+  \uses{information-def,condition-event-def}
+  \lean{ProbabilityTheory.condMutualInformation_def}\leanok
+    If $X,Y,Z$ are random variables, with $Z$ $U$-valued, then
   $$ I[X:Y|Z] := \sum_{z \in U} P[Z=z] I[(X|Z=z): (Y|Z=z)].$$
 \end{definition}
 
-\begin{lemma}[Nonnegativity of conditional mutual information]\label{conditional-nonneg}  \uses{conditional-mutual-def}
+\begin{lemma}[Nonnegativity of conditional mutual information]\label{conditional-nonneg}
+  \uses{conditional-mutual-def}
+  \lean{ProbabilityTheory.condMutualInformation_nonneg}
 If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
 \end{lemma}
 
@@ -199,11 +214,14 @@ If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
 \end{proof}
 
 \begin{definition}[Conditionally independent random variables]\label{conditional-independent-def}
+  \lean{ProbabilityTheory.condIndependent}
   Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are conditionally independent relative to another random variable $Z: \Omega \to U$ if $P[ X = s \wedge Y = t| Z=u] = P[X=s|Z=u] P[Y=t|Z=u]$ for all $s \in S, t \in T, u \in U$.  (We won't need conditional independence for more variables than this.)
 \end{definition}
 
-\begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}  \uses{conditional-mutual-def,conditional-independent-def}
-  If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
+\begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}
+  \uses{conditional-mutual-def,conditional-independent-def}
+  \lean{condMutualInformation_eq_zero}
+  If $X,Y,Z$ are random variables, then $I[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
 \end{lemma}
 
 \begin{proof} \uses{conditional-nonneg} Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.

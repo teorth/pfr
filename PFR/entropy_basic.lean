@@ -444,7 +444,7 @@ end mutualInformation
 section shannonInequalities
 
 /--  We have $I[X:Y] \geq 0$.-/
-lemma condMutualInformation_nonneg : 0 = 1 := by sorry
+lemma mutualInformation_nonneg : 0 = 1 := by sorry
 
 /-- We have $H[X,Y] \leq H[X] + H[Y]$. -/
 lemma jointEntropy_le_sum : 0 = 1 := by sorry
@@ -455,8 +455,35 @@ lemma condEntropy_le_entropy : 0 = 1 := by sorry
 /-- $H[X|Y,Z] \leq H[X|Z]$ -/
 lemma entropy_submodular : 0 = 1 := by sorry
 
-/-- -/
+/-- $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
+lemma joint_plus_entropy_le_cond_plus_joint : 0 = 1 := by sorry
+
+/-- $I[X:Y|Z] \ge 0$. --/
+lemma condMutualInformation_nonneg : 0 = 1 := by sorry
+
 end shannonInequalities
+
+section independence
+
+variable {U : Type*} [Fintype U] [MeasurableSpace U]
+  {X : Ω → S} {Y : Ω → T} {Z : Ω → U} {μ : Measure Ω}
+
+/-- Definition of pairwise independence -/
+def independent (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac) : Prop := sorry
+
+/-- Definition of conditional pairwise independence -/
+def condIndependent (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) : Prop := sorry
+
+/-- We have $H[X,Y] = H[X] + H[Y]$ iff $X,Y$ are independent. -/
+lemma jointEntropy_eq_sum : 0 = 1 := by sorry
+
+/-- We have $I[X:Y]=0$ iff $X,Y$ are independent. -/
+lemma mutualInformation_eq_zero : 0 = 1 := by sorry
+
+/-- We have $I[X:Y|Z]=0$ iff $X,Y$ are conditionally independent over $Z$. -/
+lemma condMutualInformation_eq_zero : 0 = 1 := by sorry
+
+end independence
 
 end ProbabilityTheory
 
