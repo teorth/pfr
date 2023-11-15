@@ -488,6 +488,25 @@ lemma condMutualInformation_eq_zero : 0 = 1 := sorry
 
 end IsProbabilityMeasure
 end mutualInformation
+
+section copy
+
+/-- X' is a copy of X if they have the same distribution -/
+def isCopy [Fintype S] (X : Ω → S) (X' : Ω' → S) : Prop := sorry
+
+/-- If $X'$ is a copy of $X$ then $H[X'] = H[X]$. --/
+lemma entropy_of_copy : 0 = 1 := by sorry
+
+/-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.  May need to be a constructive method rather than a function -/
+def independent_copies : 0 = 1 := by sorry
+
+/-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.-/
+def condIndependent_copies : 0=1 := by sorry
+
+
+end copy
+
+
 end ProbabilityTheory
 
 

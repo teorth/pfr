@@ -54,14 +54,14 @@ We use $X,Y$ to denote the pair $\omega \mapsto (X(\omega),Y(\omega)$).
 
 \begin{lemma}[Symmetry of joint entropy]
   \label{entropy-comm}
-  \uses{pair-def,entropy-def}
+  \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_comm}
   \leanok
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X, Y] = H[Y, X]$.
 \end{lemma}
 \begin{proof}
   \uses{relabeled-entropy}
-  Set up an injection from $\langle X,Y\rangle$ to $\langle Y,X\rangle$ and use Lemma \ref{relabeled-entropy}.
+  Set up an injection from $(X,Y)$ to $(Y,X)$ and use Lemma \ref{relabeled-entropy}.
 \end{proof}
 
 
