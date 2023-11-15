@@ -5,14 +5,14 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{definition}[Entropy]
   \label{entropy-def}
-  \lean{entropy}
+  \lean{ProbabilityTheory.entropy}
   \leanok
   If $X$ is an $S$-valued random variable, the entropy $H[X]$ of $X$ is defined
   $$ H[X] := \sum_{s \in S} P[X=x] \log \frac{1}{P[X=x]}$$
   with the convention that $0 \log \frac{1}{0} = 0$.
 \end{definition}
 
-\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy} \uses{entropy-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $H[X] = H[Y]$.
+\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_of_inj_map} \uses{entropy-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $H[X] = H[Y]$.
 \end{lemma}
 
 \begin{proof} Expand out both entropies and rearrange.
@@ -20,7 +20,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{lemma}[Jensen bound]\label{jensen-bound}
 \uses{entropy-def}
-\lean{entropy_le_log}
+\lean{ProbabilityTheory.entropy_le_log_card}
 \leanok
 If $X$ is an $S$-valued random variable, then $H[X] \leq \log |X|$.
 \end{lemma}
@@ -31,8 +31,8 @@ If $X$ is an $S$-valued random variable, then $H[X] \leq \log |X|$.
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
   \uses{entropy-def}
-  \lean{entropy_of_uniform}
-If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly distributed. NOTE: only one direction proved so far.
+  \lean{entropy_eq_log_card}
+If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly distributed.
 \end{lemma}
 
 \begin{proof} \uses{converse-jensen} Direct computation in one direction.  Converse direction needs Lemma \ref{converse-jensen}.
@@ -40,6 +40,7 @@ If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ 
 
 \begin{lemma}[Bounded entropy implies concentration]\label{bound-conc}
   \uses{entropy-def}
+  \lean{prob_ge_exp_neg_entropy}
   If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that $P[X=s] \geq \exp(-H[X])$.
 \end{lemma}
 
@@ -48,15 +49,9 @@ $$ H[X] = \sum_{s \in S} P[X=s] \log \frac{1}{P[X=s]} \geq \min_{s \in S} \log \
 and the claim follows.
 \end{proof}
 
-\begin{definition}[Pair of random variables]\label{pair-def}
-  \lean{pair}
-  \leanok
-Given an $S$-random variable $X: \Omega \to S$ and a $T$-valued random variable $Y: \Omega \to T$, the pair $\langle X,Y \rangle: \Omega \to S \times T$ is defined by $\langle X, Y \rangle: \omega \mapsto (X(\omega), Y(\omega))$.
-\end{definition}
+We use $X,Y$ to denote the pair $\omega \mapsto (X(\omega),Y(\omega)$).
 
-In this blueprint we will often drop the angled brackets from $\langle X, Y \rangle$ to reduce clutter (but they will be needed in the Lean formalization).
-
-\begin{lemma}[Symmetry of joint entropy]\label{joint-symm}\uses{pair-def,entropy-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X,Y ] = H[ Y,X]$.\end{lemma}
+\begin{lemma}[Symmetry of joint entropy]\label{joint-symm}\uses{entropy-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X,Y] = H[ Y,X]$.\end{lemma}
 
 \begin{proof} \uses{relabeled-entropy}Set up an injection from $\langle X,Y\rangle$ to $\langle Y,X\rangle$ and use Lemma \ref{relabeled-entropy}.
 \end{proof}
@@ -80,7 +75,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 
 \begin{lemma}[Chain rule]\label{chain-rule}
-  \uses{conditional-entropy-def,pair-def}
+  \uses{conditional-entropy-def}
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then
   $$ H[ X,Y  ] = H[Y] + H[X|Y].$$
 \end{lemma}
@@ -88,7 +83,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 \begin{proof} Direct computation, I guess?
 \end{proof}
 
-\begin{lemma}[Conditional chain rule]\label{conditional-chain-rule} \uses{conditional-entropy-def, pair-def}
+\begin{lemma}[Conditional chain rule]\label{conditional-chain-rule} \uses{conditional-entropy-def}
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
 $$ H[  X,Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
 \end{lemma}
@@ -119,7 +114,7 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \begin{proof}  \uses{jensen, alternative-mutual} An application of Lemma \ref{jensen} and Lemma \ref{alternative-mutual}.
 \end{proof}
 
-\begin{corollary}[Subadditivity]\label{subadditive}\uses{entropy-def, pair-def}  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
+\begin{corollary}[Subadditivity]\label{subadditive}\uses{entropy-def}  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
 \end{corollary}
 
 \begin{proof}\uses{mutual-nonneg,alternative-mutual}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
@@ -131,13 +126,13 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \begin{proof}\uses{mutual-nonneg,alternative-mutual}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
 \end{proof}
 
-\begin{corollary}[Submodularity]\label{submodularity} \uses{conditional-entropy-def, pair-def} With three random variables $X,Y,Z$, one has $H[X|Y,Z] \leq H[X|Z]$.
+\begin{corollary}[Submodularity]\label{submodularity} \uses{conditional-entropy-def} With three random variables $X,Y,Z$, one has $H[X|Y,Z] \leq H[X|Z]$.
 \end{corollary}
 
 \begin{proof} \uses{cond-reduce} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
 \end{proof}
 
-\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}\uses{entropy-def, pair-def} With three random variables $X,Y,Z$, one has
+\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}\uses{entropy-def} With three random variables $X,Y,Z$, one has
   $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$
 \end{corollary}
 
@@ -150,7 +145,7 @@ Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if 
 
 May want to add a lemma that jointly independent random variables are pairwise independent.
 
-\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{independent-def, pair-def, entropy-def}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
+\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{independent-def, entropy-def}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
 \end{lemma}
 
 \begin{proof} \uses{chain-rule,conditional-entropy} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.

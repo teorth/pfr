@@ -250,6 +250,19 @@ lemma entropy_cond_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMe
   · have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure _ hy
     rw [entropy_eq_sum hX]
 
+/-- If $X$, $Y$ are $S$-valued and $T$-valued random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $H[X] = H[Y]$. -/
+lemma entropy_of_inj_map : 0 = 1 := by sorry
+
+/-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly distributed.
+ -/
+lemma entropy_eq_log_card : 0 = 1 := by sorry
+
+/-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that $P[X=s] \geq \exp(-H[X])$.
+-/
+lemma prob_ge_exp_neg_entropy : 0 = 1 := by sorry
+
+
+
 end entropy
 
 section condEntropy
@@ -376,6 +389,9 @@ lemma chain_rule [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     congr with p
     rw [negIdMulLog]
     ring
+
+
+
 
 end pair
 
