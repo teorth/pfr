@@ -13,6 +13,7 @@
 
 \usepackage{tikz-cd}
 
+\usepackage{mathtools}
 \usepackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
 \usepackage{fontspec}
 \setmathfont{Latin Modern Math}
@@ -23,18 +24,17 @@
 
 \usepackage[nameinlink, capitalize]{cleveref}
 
-\input{macro/common}
-
 \usepackage{amsthm}
 \usepackage{etexcmds}
 \usepackage{thmtools}
 
-\input{macro/print}
+\input{preamble/common}
+\input{preamble/print}
 
 \title{PFR}
 \author{Terence Tao}
 
 \begin{document}
 \maketitle
-\input{content}
+\input{chapter/main}
 \end{document}

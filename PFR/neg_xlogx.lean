@@ -6,7 +6,7 @@ import Mathlib.Topology.Semicontinuous
 # Entropy function
 
 The purpose of this file is to record basic analytic properties of the function
-$$h(x) = - x * log x$$ on the unit interval, for use in the theory of Shannon entropy.
+$$h(x) = - x * \log x$$ on the unit interval, for use in the theory of Shannon entropy.
 
 -/
 
