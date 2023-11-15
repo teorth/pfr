@@ -54,6 +54,14 @@ and the claim follows.
 Given an $S$-random variable $X: \Omega \to S$ and a $T$-valued random variable $Y: \Omega \to T$, the pair $\langle X,Y \rangle: \Omega \to S \times T$ is defined by $\langle X, Y \rangle: \omega \mapsto (X(\omega), Y(\omega))$.
 \end{definition}
 
+In this blueprint we will often drop the angled brackets from $\langle X, Y \rangle$ to reduce clutter (but they will be needed in the Lean formalization).
+
+\begin{lemma}[Symmetry of joint entropy]\label{joint-symm}\uses{pair-def} \uses{relabeled-entropy}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X,Y ] = H[ Y,X]$.\end{lemma}
+
+\begin{proof} Set up an injection from $\langle X,Y\rangle$ to $\langle Y,X\rangle$ and use Lemma \ref{relabeled-entropy}.
+\end{proof}
+
+
 \begin{definition}[Conditioned event]\label{condition-event-def}  If $X: \Omega \to S$ is an $S$-valued random variable and $E$ is an event in $\Omega$, then the conditioned event $(X|E)$ is defined to be the same random variable as $X$, but now the ambient probability measure has been conditioned to $E$.
 \end{definition}
 
@@ -68,7 +76,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 \begin{lemma}[Chain rule]\label{chain-rule}
   \uses{conditional-entropy-def} \uses{pair-def}
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then
-  $$ H[ \langle X,Y \rangle ] = H[Y] + H[X|Y].$$
+  $$ H[ X,Y  ] = H[Y] + H[X|Y].$$
 \end{lemma}
 
 \begin{proof} Direct computation, I guess?
@@ -76,11 +84,11 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{lemma}[Conditional chain rule]\label{conditional-chain-rule} \uses{chain-rule}
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
-$$ H[ \langle X,Y \rangle | Z ] = H[Y | Z] + H[X|Y, Z].$$
+$$ H[  X,Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
 \end{lemma}
 
 \begin{proof}  For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
-$$ H[ \langle (X|Z=z),(Y|Z=z) \rangle ] = H[Y|Z=z] + H[(X|Z=z)|(Y|Z=z)].$$
+$$ H[ (X|Z=z),(Y|Z=z) ] = H[Y|Z=z] + H[(X|Z=z)|(Y|Z=z)].$$
 Now multiply by $P[Z=z]$ and sum.  Some helper lemmas may be needed to get to the form above.  This sort of ``average over conditioning'' argument to get conditional entropy inequalities from unconditional ones is commonly used in this paper.
 \end{proof}
 
@@ -88,4 +96,47 @@ Now multiply by $P[Z=z]$ and sum.  Some helper lemmas may be needed to get to th
   $$ I[ X : Y ] := H[X] + H[Y] - H[X,Y].$$
 \end{definition}
 
-Should provide some small helper lemmas:
+\begin{lemma}[Alternative formulae for mutual information]\label{alternative-mutual}
+  \uses{information-def} \uses{joint-symm} \uses{chain-rule}
+  With notation as above, we have
+$$  I[X : Y] = I[Y:X]$$
+$$  I[X : Y] = H[X] - H[X|Y]$$
+$$  I[X : Y] = H[Y] - H[Y|X]$$
+\end{lemma}
+
+\begin{proof} Immediate from Lemmas \ref{joint-symm}, \ref{chain-rule}.
+\end{proof}
+
+\begin{lemma}[Nonnegativity of mutual information]\label{mutual-nonneg}\uses{information-def}  With notation as above, we have $I[X:Y] \geq 0$.
+\end{lemma}
+
+\begin{proof}  An application of Jensen.
+\end{proof}
+
+\begin{corollary}[Subadditivity]\label{subadditive}\uses{mutual-nonneg} \uses{alternative-mutual}  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
+\end{corollary}
+
+\begin{proof}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
+\end{proof}
+
+\begin{corollary}[Conditioning reduces entropy]\label{cond-reduce}\uses{mutual-nonneg} \uses{alternative-mutual}  With notation as above, we have $H[X|Y] \leq H[X]$.
+\end{corollary}
+
+\begin{proof}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
+\end{proof}
+
+\begin{corollary}[Submodularity]\label{submodularity}\uses{cond-reduce} With three random variables $X,Y,Z$, one has $H[X|Y,Z] \leq H[X|Z]$.
+\end{corollary}
+
+\begin{proof} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
+\end{proof}
+
+\begin{definition}[Independent random variables]\label{independent-def}
+Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if $P[ X = s \wedge Y = t] = P[X=s] P[Y=t]$ for all $s \in S, t \in T$.
+\end{definition}
+
+\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{chain-rule} \uses{conditional-entropy}  If $X,Y$ are independent, then $H[X,Y] = H[X] + H[Y]$.
+\end{lemma}
+
+\begin{proof} Simplest proof is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.
+\end{proof}
