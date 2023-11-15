@@ -315,6 +315,10 @@ lemma condEntropy_eq_sum_prod [MeasurableSingletonClass T] (hX : Measurable X) (
   have h_prod : (Finset.univ : Finset (S × T)) = (Finset.univ : Finset S) ×ˢ Finset.univ := rfl
   rw [condEntropy_eq_sum_sum hX Y, h_prod, Finset.sum_product_right]
 
+/-- If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $H[X|Z] = H[Y|Z]$.-/
+lemma condEntropy_of_inj_map : 0 = 1 := by sorry
+
+
 end condEntropy
 
 section pair
@@ -390,7 +394,13 @@ lemma chain_rule [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     rw [negIdMulLog]
     ring
 
+/-- Joint entropy is symmetric: If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X,Y] = H[ Y,X]$ -/
+lemma jointEntropy_symm : 0 = 1 := by sorry
 
+
+/--   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
+$$ H[  X,Y | Z ] = H[Y | Z] + H[X|Y, Z].$$ -/
+lemma cond_chain_rule : 0 = 1 := by sorry
 
 
 end pair
@@ -430,6 +440,23 @@ lemma condMutualInformation_eq_integral_mutualInformation :
     condMutualInformation X Y Z μ = (μ.map Z)[fun z ↦ I[X : Y ; μ[|Z ⁻¹' {z}]]] := rfl
 
 end mutualInformation
+
+section shannonInequalities
+
+/--  We have $I[X:Y] \geq 0$.-/
+lemma condMutualInformation_nonneg : 0 = 1 := by sorry
+
+/-- We have $H[X,Y] \leq H[X] + H[Y]$. -/
+lemma jointEntropy_le_sum : 0 = 1 := by sorry
+
+/-- We have $H[X|Y] \leq H[X]$. --/
+lemma condEntropy_le_entropy : 0 = 1 := by sorry
+
+/-- $H[X|Y,Z] \leq H[X|Z]$ -/
+lemma entropy_submodular : 0 = 1 := by sorry
+
+/-- -/
+end shannonInequalities
 
 end ProbabilityTheory
 
