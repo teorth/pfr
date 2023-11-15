@@ -29,7 +29,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 \begin{proof} \uses{sumset-lower-gen} This follows from Lemma \ref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $P[Z=z]$).
 \end{proof}
 
-\begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}\uses{entropy-def} If $X,Y$ are independent $G$-valued random variables, then
+\begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}\uses{entropy-def, independent-def} If $X,Y$ are independent $G$-valued random variables, then
 $$\max(H[X], H[Y]) \leq H[X\pm Y].
 $$
 \end{corollary}
@@ -40,7 +40,7 @@ $$
 \begin{definition}[Copy]\label{copy-def}  Let $X : \Omega \to S$.  A \emph{copy} of $X$ is a random variable $X' : \Omega' \to S$ such that $P[X=s] = P[X'=s]$ for all $s \in S$.
 \end{definition}
 
-We may want to establish that copy is an equivalence relation.
+We may want to establish that copy is an equivalence relation. Another useful helper lemma: if $X'$ is a copy of $X$, then $f(X')$ is a copy of $f(X)$ for any function $f$.
 
 \begin{lemma}[Copy preserves entropy]\label{copy-ent}\uses{copy-def,entropy-def} If $X'$ is a copy of $X$ then $H[X'] = H[X]$.
 \end{lemma}
@@ -67,7 +67,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 \begin{proof} \uses{copy-ent} Immediate from Definitions \ref{ruz-dist-def} and Lemma \ref{copy-ent}.
 \end{proof}
 
-\begin{lemma}[Ruzsa distance in inependent case]\label{ruz-indep}\uses{ruz-dist-def, entropy-def} If $X,Y$ are independent $G$-random variables then
+\begin{lemma}[Ruzsa distance in inependent case]\label{ruz-indep}\uses{ruz-dist-def, entropy-def, independent-def} If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$
 \end{lemma}
 
@@ -121,82 +121,83 @@ If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Z$ are $G$-valued)
 $$ d[X  | Z; Y | W] := \sum_{z,w} P[Z=z] P[W=w] d[(X|Z=z); (Y|(W=w))].$$
 \end{definition}
 
-\begin{lemma}[Alternate form of distance]\label{cond-dist-alt}\uses{cond-dist-def, conditional-entropy-def}  If $(X',Z')$, $(Y',W')$ are independent copies of $(X,Z), (Y,W)$, then
+\begin{lemma}[Alternate form of distance]\label{cond-dist-alt}\uses{cond-dist-def, conditional-entropy-def, independent-def}  If $(X',Z')$, $(Y',W')$ are independent copies of $(X,Z), (Y,W)$, then
 $$  d[X  | Z;Y | W] = H[X'-Y'|Z',W'] - H[X'|Z']/2 - H[Y'|W']/2$$
 \end{lemma}
 
 \begin{proof} Straightforward.
 \end{proof}
 
-
-
-
-To conclude this appendix we give the proofs of two results from the literature which were used in the main text. The first is the inequality of Kaimanovich and Vershik, stated as~\eqref{kv-2} in the main text. For the original reference see~\cite[Proposition 1.3]{kv}; in fact, there is an inequality with more summands, which follows by induction.
-
-\begin{lemma}
-Suppose that $X, Y, Z$ are independent random variables taking values in an abelian group. Then
+\begin{lemma}[Kaimonovich-Vershik inequality]\label{kv}\uses{independent-def, entropy-def}
+Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
-  \H{X + Y + Z} - \H{X + Y} \leq \H{Y+Z} - \H{Y}.
+  H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y].
 \]
 \end{lemma}
 
-\begin{proof}
-By~\eqref{cond-form-mutual} we have
-\begin{align*}
-\I{ X : Z | X+Y+Z} &= \H{X, X+Y+Z} + \H{Z, X+Y+Z} \\
-&\quad - \H{X, Z, X+Y+Z} - \H{X+Y+Z}.
-\end{align*}
-However, using~\eqref{indep} three times we have $\H{X, X+Y+Z} = \H{X, Y+Z} = \H{X} + \H{Y+Z}$, $\H{Z, X+Y + Z} = \H{Z, X+Y} = \H{Z} + \H{X+Y}$ and $\H{X, Z, X+Y+Z} = \H{X, Y, Z} = \H{X} + \H{Y} + \H{Z}$.
+\begin{proof}\uses{submodularity, additive, relabeled-entropy}
+From Lemma \ref{submodularity} we have
+$$ H[X, X+Y+Z] + H[Z, X+Y+Z] \geq H[X, Z, X+Y+Z] + H[X+Y+Z].$$
+However, using Lemmas \ref{additive}, \ref{relabeled-entropy} repeatedly we have $H[X, X+Y+Z] = H[X, Y+Z] = H[X] + H[Y+Z]$, $H[Z, X+Y + Z] = H[Z, X+Y] = H[Z] + H[X+Y]$ and $H[X, Z, X+Y+Z] = H[X, Y, Z] = H[X] + H[Y] + H[Z]$.  The claim then follows from a calculation.
+\end{proof}
 
-After a short calculation, we see that the claimed inequality is equivalent to the assertion that $\I{ X : Z | X+Y+Z} \geq 0$, which of course is an instance of~\eqref{nonneg-cond}.
+\begin{definition}[Conditionally independent trials]\label{cond-trial}  Let $X,Y$ be random variables on a space $\Omega$.
+  We say that $X_1, X_2, Y'$ are conditionally independent trials of $X$ relative to $Y$ if $X_1,X_2,Y'$ are random variables on some $\Omega'$, $(X_1,Y'), (X_2,Y')$ are copies of $(X,Y)$, and $(X_1 | Y' = y)$ and $(X_2 | Y' = y)$ to be independent copies of $(X | Y = y)$ for all $y$ in the range of $Y$.
+\end{definition}
+
+\begin{lemma}[Existence of conditional independent trials]\label{cond-indep-exist}\uses{cond-trial} For $X,Y$ as above, there is a canonical choice of independent trials $X_1,X_2,Y'$.
+\end{lemma}
+
+\begin{proof} Explicit construction.
+\end{proof}
+
+\begin{lemma}[Entropy of conditionally independent trials]\label{cond-trial-ent}\uses{entropy-def,cond-trial,information-def}  If $(X_1,Y'), (X_2,Y')$ are conditionally
+independent trials of $X$ relative to $Y$, then
+$$ H[X_1,X_2,Y] = 2 H[X] + H[Y] + 2 I[X:Y] = 2 H[X,Y] - H[Y].$$
+\end{lemma}
+
+\begin{proof} \uses{chain-rule, additive, information-def} We calculate
+  \begin{equation}
+  \begin{split} H[X_1, X_2, Y'] &= H[X_1,X_2|Y] + H[Y] \\
+    &= 2 H[X|Y] + H[Y] \\
+    &= 2 H[X] + H[Y] + 2 \I[X:Y].
+  \end{split}  \end{equation}
 \end{proof}
 
 
-
-The next lemma is not quite in the literature but is very closely related to the entropic version of the Balog--Szemer\'edi--Gowers lemma due to the fourth author~\cite[Lemma 3.3]{tao-entropy}. Here we provide slightly better constants and a slightly simpler proof.
-\begin{lemma}\label{lem-bsg}
-  Let $(A,B)$ be a $G^2$-valued random variable, and set $Z \coloneqq A+B$.
+\begin{lemma}[Balog-Szemer\'edi-Gowers]\label{lem-bsg}\uses{ruz-dist-def, information-def, entropy-def}
+  Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z \coloneqq A+B$.
 Then
-\begin{equation}\label{2-bsg-takeaway} \sum_{z} p_Z(z) \dist{(A | Z = z)}{(B | Z = z)} \leq 3\I{A:B} + 2 \H{Z} - \H{A} - \H{B}. \end{equation}
+\begin{equation}\label{2-bsg-takeaway} \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 H[Z] - H[A] - H[B]. \end{equation}
 \end{lemma}
-We stress that the quantity $2 \H{Z} - \H{A} - \H{B}$ is \emph{not} the same as $2\dist{A}{B}$, because $(A,B)$ are given a joint distribution which may not be independent. In particular, $\H{Z}=\H{A+B}$ may not match the entropy of a sum of independent copies of $A$ and $B$.
-\begin{proof}
-In the proof we will need the notion of \emph{conditionally independent trials} of a pair of random variables $(X,Y)$ (not necessarily independent). We say that $X_1, X_2$ are conditionally independent trials of $X$ relative to $Y$ by declaring $(X_1 | Y = y)$ and $(X_2 | Y = y)$ to be independent copies of $(X | Y = y)$ for all $y$ in the range of $Y$.
-We then have
-\[ \H{(X_1 | Y = y), (X_2 | Y = y)} = 2\H{X | Y = y}\] for all $y$, which upon summing over $y$ (weighted by $p_Y(y)$) gives \[ \H{X_1, X_2 | Y} = 2 \H{X | Y}\] and hence
-\begin{equation}\label{cond-trial-h}
-  \begin{split} \H{X_1, X_2, Y} &= 2 \H{X, Y} - \H{Y} \\
-    &= 2 \H{X|Y} + \H{Y} \\
-    &= 2 \H{X} + \H{Y} + 2 \I{X,Y}.
-  \end{split}  \end{equation}
-Note also that the marginal distributions of $(X_1,Y)$ and $(X_2,Y)$ each match the original distribution $(X,Y)$.
 
-Turning to the proof of \Cref{lem-bsg} itself, let $(A_1, B_1)$ and $(A_2, B_2)$ be conditionally independent trials of $(A,B)$ relative to $Z$, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
+\begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, additive}
+Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
 Observe that the left-hand side of~\eqref{2-bsg-takeaway} is
 \begin{equation}\label{lhs-to-bound}
-\H{A_1 - B_2| Z} - \tfrac{1}{2}\H{A_1 | Z} - \tfrac{1}{2} \H{B_2 | Z}.
+H[A_1 - B_2| Z] - H[A_1 | Z]/2 - H[B_2 | Z]/2.
 \end{equation}
 since, crucially, $(A_1 | Z=z)$ and $(B_2 | Z=z)$ are independent for all $z$.
 
-Applying submodularity~\eqref{cond-form-mutual} gives
+Applying submodularity (Lemma \ref{submodularity}) gives
 \begin{equation}\label{bsg-31} \begin{split}
-&\H{A_1 - B_2} + \H{A_1 - B_2, A_1, B_1} \\
-&\qquad \leq \H{A_1 - B_2, A_1} + \H{A_1 - B_2,B_1}.
+&H[A_1 - B_2] + H[A_1 - B_2, A_1, B_1] \\
+&\qquad \leq H[A_1 - B_2, A_1] + H[A_1 - B_2,B_1].
 \end{split}\end{equation}
 We estimate the second, third and fourth terms appearing here.
-First note that, by~\eqref{cond-trial-h} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
-\begin{equation}\label{bsg-24} \H{A_1 - B_2, A_1, B_1} = \H{A_1, B_1, A_2, B_2} = 2\H{A,B} - \H{Z}.\end{equation}
+First note that, by Lemma \ref{cond-trial-ent} and Lemma \ref{relabeled-entropy} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
+\begin{equation}\label{bsg-24} H[A_1 - B_2, A_1, B_1] = H[A_1, B_1, A_2, B_2] = 2H[A,B] - H[Z].\end{equation}
 Next observe that
-\begin{equation}\label{bsg-23} \H{A_1 - B_2, A_1} = \H{A_1, B_2} \leq \H{A} + \H{B}.
+\begin{equation}\label{bsg-23} H[A_1 - B_2, A_1] = H[A_1, B_2] \leq H[A] + H[B].
 \end{equation}
 Finally, we have
-\begin{equation}\label{bsg-25} \H{A_1 - B_2, B_1} = \H{A_2 - B_1, B_1} = \H{A_2, B_1} \leq \H{A} + \H{B}.\end{equation}
+\begin{equation}\label{bsg-25} H[A_1 - B_2, B_1] = H[A_2 - B_1, B_1] = H[A_2, B_1] \leq H[A] + H[B].\end{equation}
 Substituting~\eqref{bsg-24},~\eqref{bsg-23} and~\eqref{bsg-25} into~\eqref{bsg-31} yields
-\[ \H{A_1 - B_2} \leq 2\I{A:B} + \H{Z}\] and so by~\eqref{cond-dec}
-\[\H{A_1 - B_2 | Z}  \leq 2\I{A:B} + \H{Z}.\]
+\[ H[A_1 - B_2] \leq 2I[A:B] + H[Z]\] and so by~\eqref{cond-dec}
+\[H[A_1 - B_2 | Z]  \leq 2I[A:B] + H[Z].\]
 Since
-\begin{align*} \H{A_1 | Z} & = \H{A_1, A_1 + B_1} - \H{Z} \\ & = \H{A,B} - \H{Z} \\ & = \H{Z} - \I{A:B} - (2\H{Z}-\H{A}-\H{B})\end{align*}
-and similarly for $\H{B_2 | Z}$, we see that~\eqref{lhs-to-bound} is bounded by
-$3\I{A:B} + 2\H{Z}-\H{A}-\H{B}$ as claimed.
+\begin{align*} H[A_1 | Z] & = H[A_1, A_1 + B_1] - H[Z] \\ & = H[A,B] - H[Z] \\ & = H[Z] - I[A:B] - 2 H[Z]-H[A]-\H[B]\end{align*}
+and similarly for $\H[B_2 | Z]$, we see that~\eqref{lhs-to-bound} is bounded by
+$3I[A:B] + 2H[Z]-H[A]-H[B]$ as claimed.
 \end{proof}
