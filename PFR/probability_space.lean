@@ -190,7 +190,8 @@ lemma posprob_isnondeg [hΩ : ProbabilitySpace Ω] {E : Set Ω} (hE : 0 < P[E]) 
   rw [prob_raw'] at hE
   contrapose! hE
   simp at hE ⊢
-  left
+  right
+  sorry
 
 open BigOperators
 
