@@ -12,17 +12,67 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 \end{definition}
 
 \begin{lemma}[Jensen bound]\label{jensen-bound}
+\uses{entropy-def}
 \lean{entropy_le_log}
 \leanok
 If $X$ is an $S$-valued random variable, then $H[X] \leq \log |X|$.
 \end{lemma}
 
 \begin{proof}
-  This is a direct consequence of Jensen's inequality applied to the convex function $x \mapsto x \log \frac{1}{x}$.
+  This is a direct consequence of Jensen's inequality applied to the concave function $x \mapsto x \log \frac{1}{x}$.
 \end{proof}
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
+  \uses{entropy-def}
   \lean{entropy_of_uniform}
   \leanok
 If $X$ is a uniformly distributed $S$-valued random variable, then $H[X] = \log |X|$.
 \end{lemma}
+
+\begin{proof} Direct computation.
+\end{proof}
+
+\begin{lemma}[Bounded entropy implies concentration]\label{bound-conc}
+  \uses{entropy-def}
+  If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that $P[X=s] \geq \exp(-H[X])$.
+\end{lemma}
+
+\begin{proof}  We have
+$$ H[X] = \sum_{s \in S} P[X=s] \log \frac{1}{P[X=s]} \geq \min_{s \in S} \log \frac{1}{P[X=s]}$$
+and the claim follows.
+\end{proof}
+
+\begin{definition}[Pair of random variables]\label{pair-def}
+  \lean{pair}
+  \leanok
+Given an $S$-random variable $X: \Omega \to S$ and a $T$-valued random variable $Y: \Omega \to T$, the pair $\langle X,Y \rangle: \Omega \to S \times T$ is defined by $\langle X, Y \rangle: \omega \mapsto (X(\omega), Y(\omega))$.
+\end{definition}
+
+\begin{definition}[Conditioned event]\label{condition-event-def}  If $X: \Omega \to S$ is an $S$-valued random variable and $E$ is an event in $\Omega$, then the conditioned event $(X|E)$ is defined to be the same random variable as $X$, but now the ambient probability measure has been conditioned to $E$.
+\end{definition}
+
+Note: it may happen that $E$ has zero measure.  In which case, the ambient probability measure should be replaced with a zero measure.  (There will be support in the project for ``probability measures with zero'' to deal with this contingency.)
+
+\begin{definition}[Conditional entropy]\label{conditional-entropy-def}
+  \uses{entropy-def}
+  \uses{condition-event-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, the conditional entropy $H[X|Y]$ is defined as
+  $$ H[X|Y] := \sum_{y \in Y} P[Y = y] H[(X | Y=y)].$$
+\end{definition}
+
+\begin{lemma}[Chain rule]\label{chain-rule}
+  \uses{conditional-entropy-def} \uses{pair-def}
+  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then
+  $$ H[ \langle X,Y \rangle ] = H[Y] + H[X|Y].$$
+\end{lemma}
+
+\begin{proof} Direct computation, I guess?
+\end{proof}
+
+\begin{lemma}[Conditional chain rule]\label{conditional-chain-rule}
+  If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
+$$ H[ \langle X,Y \rangle | Z ] = H[Y | Z] + H[X|Y, Z].$$
+\end{lemma}
+
+\begin{proof}
+...
+\end{proof}
