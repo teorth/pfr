@@ -1,0 +1,28 @@
+\chapter{Shannon entropy inequalities}
+
+Random variables in this paper are measurable maps $X : \Omega \to S$ from a probability space $\Omega$ to a finite set $S$ (equipped with the discrete random variable), and called $S$-valued random variables.
+
+\begin{definition}[Entropy]
+  \label{entropy-def}
+  \lean{entropy}
+  \leanok
+  If $X$ is an $S$-valued random variable, the entropy $H[X]$ of $X$ is defined
+  $$ H[X] := \sum_{s \in S} P[X=x] \log \frac{1}{P[X=x]}$$
+  with the convention that $0 \log \frac{1}{0} = 0$.
+\end{definition}
+
+\begin{lemma}[Jensen bound]\label{jensen-bound}
+\lean{entropy_le_log}
+\leanok
+If $X$ is an $S$-valued random variable, then $H[X] \leq \log |X|$.
+\end{lemma}
+
+\begin{proof}
+  This is a direct consequence of Jensen's inequality applied to the convex function $x \mapsto x \log \frac{1}{x}$.
+\end{proof}
+
+\begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
+  \lean{entropy_of_uniform}
+  \leanok
+If $X$ is a uniformly distributed $S$-valued random variable, then $H[X] = \log |X|$.
+\end{lemma}
