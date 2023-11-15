@@ -1,0 +1,11 @@
+\chapter{Ruzsa calculus}
+
+\begin{definition}[Copy]\label{copy-def}  Let $X : \Omega \to S$.  A \emph{copy} of $X$ is a random variable $X' : \Omega' \to S$ such that $P[X=s] = P[X'=s]$ for all $s \in S$.
+\end{definition}
+
+\begin{lemma}[Existence of independent copies]\label{independent-exist} \uses{copy-def, independent-def} Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.
+\end{lemma}
+
+\begin{proof} Can take $\Omega' = \prod_{i=1}^k S_i$ and construct everything explicitly.
+\end{proof}
+
