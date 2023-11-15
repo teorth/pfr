@@ -1,5 +1,34 @@
 \chapter{Ruzsa calculus}
 
+In this section $G$ will be a finite additive group.  (May eventually want to generalize to infinite $G$.)
+
+\begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}\uses{cond-reduce, chain-rule, }  If
+Whenever $X,Y$ are $G$-valued random variables, we have
+$$ \max(H[X], H[Y]) - I[X:Y] \leq H[X \pm Y].$$
+\end{lemma}
+
+\begin{proof}  We have
+$$
+ H[X\pm Y] \geq H[X\pm Y|Y] = H[X|Y]= H[X] - I[X:Y]
+$$
+and similarly with the roles of $X,Y$ reversed, giving the claim.
+\end{proof}
+
+
+
+We note also the conditional variant of~\eqref{sumset-lower-gen}, namely
+\[
+  \max(\H{X|Z}, \H{Y|Z}) - \I{X:Y|Z} \leq \H{X\pm Y|Z},
+\]
+which follows from~\eqref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $p_Z(z)$).
+
+A particular consequence of~\eqref{sumset-lower-gen} is that
+\begin{equation}
+  \label{sumset-lower}
+  \max(\H{X}, \H{Y}) \leq \H{X\pm Y}
+\end{equation}
+when $X,Y$ are independent.
+
 \begin{definition}[Copy]\label{copy-def}  Let $X : \Omega \to S$.  A \emph{copy} of $X$ is a random variable $X' : \Omega' \to S$ such that $P[X=s] = P[X'=s]$ for all $s \in S$.
 \end{definition}
 
@@ -9,3 +38,112 @@
 \begin{proof} Can take $\Omega' = \prod_{i=1}^k S_i$ and construct everything explicitly.
 \end{proof}
 
+
+Continuing to suppose that $X, Y$ are independent, recall the definition~\eqref{ruz-dist-def} of the Ruzsa distance $\dist{X}{Y}$ which, since $X$ and $Y$ are independent, is that
+\[
+  \dist{X}{Y} = \H{X - Y} - \tfrac{1}{2} \H{X} - \tfrac{1}{2} \H{Y}.
+\]
+Comparing this with~\eqref{sumset-lower} we see that
+\begin{equation}
+  \label{ruzsa-diff}
+  |\H{X}-\H{Y}| \leq 2\dist{X}{Y}.
+\end{equation}
+We may also deduce that
+\[
+  \H{X-Y} - \H{X}, \H{X-Y} - \H{Y} \leq 2\dist{X}{Y}.
+\]
+%We also recall the inequality~\cite[(17)]{tao-entropy}:
+%\begin{equation}
+%  \label{eq:ruzsa-neg}
+%  \dist{X}{-Y} \le 3 \dist{X}{Y}
+%\end{equation}
+%although this is not needed when $G=\F_2^n$ since in that case $Y=-Y$ and $\dist{X}{-Y} = \dist{X}{Y}$.
+
+The most important property of the Ruzsa distance is the (Ruzsa) triangle inequality
+\[ \dist{X}{Y} \leq \dist{X}{Z} + \dist{Z}{Y}.\]
+This was shown in~\cite{ruzsa-entropy} and~\cite[(16)]{tao-entropy}; we recall a proof for completeness.
+This is equivalent to establishing
+\begin{equation}\label{submod-explicit} \H{X - Y} \leq \H{X-Z} + \H{Z-Y} - \H{Z}\end{equation}
+whenever $X, Y, Z$ are independent. To prove this, apply~\eqref{nonneg-cond} with a change of variables to get $\I{X-Z : Y | X - Y} \geq 0$ which, when written out in full as in~\eqref{cond-form-mutual}, gives
+\[ \H{X - Z, X - Y} + \H{Y, X - Y} \geq \H{X - Z, Y, X - Y} + \H{X - Y}.\]
+Using
+\[ \H{X - Z, X - Y} \leq \H{X - Z} + \H{Y - Z},\]
+\[ \H{Y, X - Y} = \H{X, Y}, \] and
+\[ \H{X - Z, Y, X - Y} = \H{X, Y, Z} = \H{X, Y} + \H{Z},\] and rearranging, we indeed obtain~\eqref{submod-explicit}. (As observed in~\cite{gmt}, we do not in fact use the independence of $X$ and $Y$ here.)
+
+
+We will also need conditional variants of the distance.
+If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Z$ are $G$-valued) we define
+\begin{equation} \dist{X  | Z}{Y | W}   \coloneqq \sum_{z,w} p_{Z}(z) p_{W}(w) \dist{(X| Z=z)}{(Y| W = w )}.\label{cond-dist-def}
+\end{equation}
+Alternatively, if $(X',Z'), (Y',W')$ are independent copies of the variables $(X,Z)$, $(Y,W)$,
+\begin{equation}\label{cond-dist-alt} \dist{X  | Z}{Y | W} = \H{X'-Y'|Z',W'} - \tfrac{1}{2} \H{X'|Z'} - \tfrac{1}{2}\H{Y'|W'} .\end{equation}
+
+To conclude this appendix we give the proofs of two results from the literature which were used in the main text. The first is the inequality of Kaimanovich and Vershik, stated as~\eqref{kv-2} in the main text. For the original reference see~\cite[Proposition 1.3]{kv}; in fact, there is an inequality with more summands, which follows by induction.
+
+\begin{lemma}
+Suppose that $X, Y, Z$ are independent random variables taking values in an abelian group. Then
+\[
+  \H{X + Y + Z} - \H{X + Y} \leq \H{Y+Z} - \H{Y}.
+\]
+\end{lemma}
+\begin{proof}
+By~\eqref{cond-form-mutual} we have
+\begin{align*}
+\I{ X : Z | X+Y+Z} &= \H{X, X+Y+Z} + \H{Z, X+Y+Z} \\
+&\quad - \H{X, Z, X+Y+Z} - \H{X+Y+Z}.
+\end{align*}
+However, using~\eqref{indep} three times we have $\H{X, X+Y+Z} = \H{X, Y+Z} = \H{X} + \H{Y+Z}$, $\H{Z, X+Y + Z} = \H{Z, X+Y} = \H{Z} + \H{X+Y}$ and $\H{X, Z, X+Y+Z} = \H{X, Y, Z} = \H{X} + \H{Y} + \H{Z}$.
+
+After a short calculation, we see that the claimed inequality is equivalent to the assertion that $\I{ X : Z | X+Y+Z} \geq 0$, which of course is an instance of~\eqref{nonneg-cond}.
+\end{proof}
+
+
+
+The next lemma is not quite in the literature but is very closely related to the entropic version of the Balog--Szemer\'edi--Gowers lemma due to the fourth author~\cite[Lemma 3.3]{tao-entropy}. Here we provide slightly better constants and a slightly simpler proof.
+\begin{lemma}\label{lem-bsg}
+  Let $(A,B)$ be a $G^2$-valued random variable, and set $Z \coloneqq A+B$.
+Then
+\begin{equation}\label{2-bsg-takeaway} \sum_{z} p_Z(z) \dist{(A | Z = z)}{(B | Z = z)} \leq 3\I{A:B} + 2 \H{Z} - \H{A} - \H{B}. \end{equation}
+\end{lemma}
+We stress that the quantity $2 \H{Z} - \H{A} - \H{B}$ is \emph{not} the same as $2\dist{A}{B}$, because $(A,B)$ are given a joint distribution which may not be independent. In particular, $\H{Z}=\H{A+B}$ may not match the entropy of a sum of independent copies of $A$ and $B$.
+\begin{proof}
+In the proof we will need the notion of \emph{conditionally independent trials} of a pair of random variables $(X,Y)$ (not necessarily independent). We say that $X_1, X_2$ are conditionally independent trials of $X$ relative to $Y$ by declaring $(X_1 | Y = y)$ and $(X_2 | Y = y)$ to be independent copies of $(X | Y = y)$ for all $y$ in the range of $Y$.
+We then have
+\[ \H{(X_1 | Y = y), (X_2 | Y = y)} = 2\H{X | Y = y}\] for all $y$, which upon summing over $y$ (weighted by $p_Y(y)$) gives \[ \H{X_1, X_2 | Y} = 2 \H{X | Y}\] and hence
+\begin{equation}\label{cond-trial-h}
+  \begin{split} \H{X_1, X_2, Y} &= 2 \H{X, Y} - \H{Y} \\
+    &= 2 \H{X|Y} + \H{Y} \\
+    &= 2 \H{X} + \H{Y} + 2 \I{X,Y}.
+  \end{split}  \end{equation}
+Note also that the marginal distributions of $(X_1,Y)$ and $(X_2,Y)$ each match the original distribution $(X,Y)$.
+
+Turning to the proof of \Cref{lem-bsg} itself, let $(A_1, B_1)$ and $(A_2, B_2)$ be conditionally independent trials of $(A,B)$ relative to $Z$, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
+
+Observe that the left-hand side of~\eqref{2-bsg-takeaway} is
+\begin{equation}\label{lhs-to-bound}
+\H{A_1 - B_2| Z} - \tfrac{1}{2}\H{A_1 | Z} - \tfrac{1}{2} \H{B_2 | Z}.
+\end{equation}
+since, crucially, $(A_1 | Z=z)$ and $(B_2 | Z=z)$ are independent for all $z$.
+
+Applying submodularity~\eqref{cond-form-mutual} gives
+\begin{equation}\label{bsg-31} \begin{split}
+&\H{A_1 - B_2} + \H{A_1 - B_2, A_1, B_1} \\
+&\qquad \leq \H{A_1 - B_2, A_1} + \H{A_1 - B_2,B_1}.
+\end{split}\end{equation}
+We estimate the second, third and fourth terms appearing here.
+First note that, by~\eqref{cond-trial-h} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
+\begin{equation}\label{bsg-24} \H{A_1 - B_2, A_1, B_1} = \H{A_1, B_1, A_2, B_2} = 2\H{A,B} - \H{Z}.\end{equation}
+Next observe that
+\begin{equation}\label{bsg-23} \H{A_1 - B_2, A_1} = \H{A_1, B_2} \leq \H{A} + \H{B}.
+\end{equation}
+Finally, we have
+\begin{equation}\label{bsg-25} \H{A_1 - B_2, B_1} = \H{A_2 - B_1, B_1} = \H{A_2, B_1} \leq \H{A} + \H{B}.\end{equation}
+Substituting~\eqref{bsg-24},~\eqref{bsg-23} and~\eqref{bsg-25} into~\eqref{bsg-31} yields
+\[ \H{A_1 - B_2} \leq 2\I{A:B} + \H{Z}\] and so by~\eqref{cond-dec}
+\[\H{A_1 - B_2 | Z}  \leq 2\I{A:B} + \H{Z}.\]
+Since
+\begin{align*} \H{A_1 | Z} & = \H{A_1, A_1 + B_1} - \H{Z} \\ & = \H{A,B} - \H{Z} \\ & = \H{Z} - \I{A:B} - (2\H{Z}-\H{A}-\H{B})\end{align*}
+and similarly for $\H{B_2 | Z}$, we see that~\eqref{lhs-to-bound} is bounded by
+$3\I{A:B} + 2\H{Z}-\H{A}-\H{B}$ as claimed.
+\end{proof}
