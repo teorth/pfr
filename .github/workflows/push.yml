@@ -29,7 +29,6 @@ jobs:
     name: Build project
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
     steps:
       - name: Free disk space
         uses: jlumbroso/free-disk-space@main
