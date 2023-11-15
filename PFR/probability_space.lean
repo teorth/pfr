@@ -148,12 +148,14 @@ noncomputable def Subset.probabilitySpace {Ω : Type*} [ProbabilitySpace Ω] (E 
 -- Force subsets of measurable spaces to themselves be measurable spaces
 attribute [instance] MeasureTheory.Measure.Subtype.measureSpace
 
+/-- The raw finite measure after conditioning. -/
 lemma condRaw_eq [hΩ: ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet F) : @rawFiniteMeasure Ω (Subset.probabilitySpace E) F = rawFiniteMeasure Ω (F ∩ E) := by
   rw [<-ENNReal.coe_eq_coe, @rawFiniteMeasure_eq Ω hΩ (F ∩ E), @rawFiniteMeasure_eq Ω (Subset.probabilitySpace E) F]
   unfold rawMeasure
   show (volume.restrict E) F = volume (F ∩ E)
   exact Measure.restrict_apply hF
 
+/-- The raw finite mass after conditioning. -/
 lemma condRawMass_eq [hΩ: ProbabilitySpace Ω] {E : Set Ω} : @rawMass Ω (Subset.probabilitySpace E) = rawFiniteMeasure Ω E := by
   rw [@rawMass_eq' Ω (Subset.probabilitySpace E), condRaw_eq]
   simp
@@ -161,6 +163,7 @@ lemma condRawMass_eq [hΩ: ProbabilitySpace Ω] {E : Set Ω} : @rawMass Ω (Subs
 
 notation:100 "P[ " F " | " E " ]" => P[ F ; Subset.probabilitySpace E ]
 
+/-- The conditional probability formula. -/
 lemma condProb_eq [hΩ : ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet F) :
     P[ F | E ] = (P[ E ])⁻¹ * P[ F ∩ E ]  := by
   rw [@prob_raw' Ω (Subset.probabilitySpace E) F, @prob_raw' Ω hΩ (F ∩ E), @prob_raw' Ω hΩ E, condRaw_eq hF, condRawMass_eq]
@@ -181,10 +184,13 @@ lemma condProb_eq [hΩ : ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet
 lemma prob_mono_cond {A B E : Set Ω} (h : A ⊆ B) : P[A | E] ≤ P[B | E] :=
   @prob_mono Ω (Subset.probabilitySpace E) _ _ h
 
+/-- Conditioning to a positive probability event gives a non-degenerate probability space. -/
 lemma posprob_isnondeg [hΩ : ProbabilitySpace Ω] {E : Set Ω} (hE : 0 < P[E]) : @isNondeg Ω (Subset.probabilitySpace E) := by
   unfold isNondeg
   rw [prob_raw'] at hE
-  sorry
+  contrapose! hE
+  simp at hE ⊢
+  left
 
 open BigOperators
 
