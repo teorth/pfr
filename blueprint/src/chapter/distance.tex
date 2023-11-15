@@ -2,39 +2,39 @@
 
 In this section $G$ will be a finite additive group.  (May eventually want to generalize to infinite $G$.)
 
-\begin{lemma}[Negation preserves entropy]\label{neg-ent}\uses{relabeled-entropy}  If $X$ is $G$-valued, then $\H[-X]=\H[X]$.
+\begin{lemma}[Negation preserves entropy]\label{neg-ent}\uses{entropy-def}  If $X$ is $G$-valued, then $\H[-X]=\H[X]$.
 \end{lemma}
 
-\begin{proof} Immediate from Lemma \ref{relabeled-entropy}.
+\begin{proof}\uses{relabeled-entropy} Immediate from Lemma \ref{relabeled-entropy}.
 \end{proof}
 
-\begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}\uses{cond-reduce, alternative-mutual, relabeled-entropy-cond, neg-ent}  If
+\begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}\uses{entropy-def, information-def} If
 Whenever $X,Y$ are $G$-valued random variables on $\Omega$, we have
 $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X \pm Y].$$
 \end{lemma}
 
-\begin{proof}  By Lemma \ref{cond-reduce}, \ref{relabeled-entropy-cond}, \ref{alternative-mutual}, \ref{neg-ent} we have
+\begin{proof}\uses{cond-reduce, alternative-mutual, relabeled-entropy-cond, neg-ent}   By Lemma \ref{cond-reduce}, \ref{relabeled-entropy-cond}, \ref{alternative-mutual}, \ref{neg-ent} we have
 $$
  H[X\pm Y] \geq H[X\pm Y|Y] = H[X|Y]= H[X] - I[X:Y]
 $$
 and similarly with the roles of $X,Y$ reversed, giving the claim.
 \end{proof}
 
-\begin{corollary}[Conditional lower bound on sumset]\label{sumset-lower-gen-cond}\uses{sumset-lower-gen, conditional-mutual-def, conditional-entropy-def} If $X,Y$ are $G$-valued random variables on $\Omega$ and $Z$ is another random variable on $\Omega$ then
+\begin{corollary}[Conditional lower bound on sumset]\label{sumset-lower-gen-cond}\uses{conditional-mutual-def, conditional-entropy-def} If $X,Y$ are $G$-valued random variables on $\Omega$ and $Z$ is another random variable on $\Omega$ then
 \[
   \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq \H[X\pm Y|Z],
 \]
 \end{corollary}
 
-\begin{proof} This follows from Lemma \ref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $P[Z=z]$).
+\begin{proof} \uses{sumset-lower-gen} This follows from Lemma \ref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $P[Z=z]$).
 \end{proof}
 
-\begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}\uses{sumset-lower-gen, vanish-entropy} If $X,Y$ are independent $G$-valued random variables, then
-$$\max(\H{X}, \H{Y}) \leq \H{X\pm Y}.
+\begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}\uses{entropy-def} If $X,Y$ are independent $G$-valued random variables, then
+$$\max(H[X], H[Y]) \leq H[X\pm Y].
 $$
 \end{corollary}
 
-\begin{proof} Combine Lemma \ref{sumset-lower-gen} with Lemma \ref{vanish-entropy}.
+\begin{proof} \uses{sumset-lower-gen, vanish-entropy} Combine Lemma \ref{sumset-lower-gen} with Lemma \ref{vanish-entropy}.
 \end{proof}
 
 \begin{definition}[Copy]\label{copy-def}  Let $X : \Omega \to S$.  A \emph{copy} of $X$ is a random variable $X' : \Omega' \to S$ such that $P[X=s] = P[X'=s]$ for all $s \in S$.
@@ -51,6 +51,8 @@ We may want to establish that copy is an equivalence relation.
 \begin{lemma}[Existence of independent copies]\label{independent-exist} \uses{copy-def, independent-def} Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.
 \end{lemma}
 
+NOTE: may need to phrase this as a definition to create canonical independent copies.
+
 \begin{proof} Can take $\Omega' = \prod_{i=1}^k S_i$ and construct everything explicitly.
 \end{proof}
 
@@ -59,52 +61,52 @@ $$ d[X;Y] := H[X' - Y'] - H[X']/2 - H[Y']/2$$
 where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{independent-exist}.
 \end{definition}
 
-\begin{lemma}[Copy preserves Ruzsa distance]\label{ruz-copy}\uses{ruz-dist-def,copy-ent}  If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$.
+\begin{lemma}[Copy preserves Ruzsa distance]\label{ruz-copy}\uses{ruz-dist-def,copy-def}  If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$.
 \end{lemma}
 
-\begin{proof}  Immediate from Definitions \ref{ruz-dist-def} and Lemma \ref{copy-ent}.
+\begin{proof} \uses{copy-ent} Immediate from Definitions \ref{ruz-dist-def} and Lemma \ref{copy-ent}.
 \end{proof}
 
-\begin{lemma}[Ruzsa distance in inependent case]\label{ruz-indep}\uses{ruz-dist-def, relabeled-entropy, copy-ent} If $X,Y$ are independent $G$-random variables then
+\begin{lemma}[Ruzsa distance in inependent case]\label{ruz-indep}\uses{ruz-dist-def, entropy-def} If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$
 \end{lemma}
 
-\begin{proof} Immediate from Definition \ref{ruz-dist-def} and Lemmas \ref{relabeled-entropy}, \ref{copy-ent}.
+\begin{proof} \uses{relabeled-entropy, copy-ent} Immediate from Definition \ref{ruz-dist-def} and Lemmas \ref{relabeled-entropy}, \ref{copy-ent}.
 \end{proof}
 
-\begin{lemma}[Distance symmetric]\label{ruzsa-symm}\uses{ruz-dist-def, neg-ent} If $X,Y$ are $G$-valued random variables, then
+\begin{lemma}[Distance symmetric]\label{ruzsa-symm}\uses{ruz-dist-def} If $X,Y$ are $G$-valued random variables, then
   $$ d[X;Y] = d[Y;X].$$
 \end{lemma}
 
-\begin{proof} Immediate from Lemma \ref{ruzsa-diff}.
+\begin{proof} \uses{neg-ent} Immediate from Lemma \ref{neg-ent} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
-\begin{lemma}[Distance controls entropy difference]\label{ruzsa-diff}\uses{sumset-lower, ruz-dist-def, neg-ent} If $X,Y$ are $G$-valued random variables, then
+\begin{lemma}[Distance controls entropy difference]\label{ruzsa-diff}\uses{entropy-def, ruz-dist-def} If $X,Y$ are $G$-valued random variables, then
 $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
 \end{lemma}
 
-\begin{proof} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
+\begin{proof} \uses{sumset-lower, neg-ent} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
 \end{proof}
 
-\begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}\uses{sumset-lower, ruz-dist-def, neg-ent} If $X,Y$ are $G$-valued random variables, then
+\begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}\uses{ruz-dist-def, entropy-def} If $X,Y$ are $G$-valued random variables, then
 $$  \H[X-Y] - \H[X], \H[X-Y] - \H[Y] \leq 2d[X;Y].$$
 \end{lemma}
 
-\begin{proof} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
+\begin{proof} \uses{sumset-lower, neg-ent} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
 \end{proof}
 
-\begin{lemma}[Distance nonnegative]\label{ruzsa-nonneg}\uses{ruzsa-diff} If $X,Y$ are $G$-valued random variables, then
+\begin{lemma}[Distance nonnegative]\label{ruzsa-nonneg}\uses{ruz-dist-def} If $X,Y$ are $G$-valued random variables, then
   $$ d[X;Y] \geq 0.$$
 \end{lemma}
 
-\begin{proof} Immediate from Lemma \ref{ruzsa-diff}.
+\begin{proof} \uses{ruzsa-diff} Immediate from Lemma \ref{ruzsa-diff}.
 \end{proof}
 
-\begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}\uses{ruz-dist-def, conditional-nonneg,subadditive, relabeled-entropy, additive, ruz-indep} If $X,Y,Z$ are $G$-valued random variables, then
+\begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}\uses{ruz-dist-def} If $X,Y,Z$ are $G$-valued random variables, then
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist, ruz-indep}, it suffices to show that
+\begin{proof}\uses{conditional-nonneg,subadditive, relabeled-entropy, additive, ruz-indep} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist, ruz-indep}, it suffices to show that
 \begin{equation}\label{submod-explicit} H[X - Y] \leq H[X-Z] + H[Z-Y] - H[Z]\end{equation}
 whenever $X, Y, Z$ are independent. To prove this, apply Corollary \ref{alt-submodularity} to obtain
 \[ H[X - Z, X - Y] + H[Y, X - Y] \geq H[X - Z, Y, X - Y] + H[X - Y].\]

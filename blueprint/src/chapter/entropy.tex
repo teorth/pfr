@@ -19,23 +19,23 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 \end{proof}
 
 \begin{lemma}[Jensen bound]\label{jensen-bound}
-\uses{entropy-def,jensen}
+\uses{entropy-def}
 \lean{entropy_le_log}
 \leanok
 If $X$ is an $S$-valued random variable, then $H[X] \leq \log |X|$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\uses{jensen}\leanok
   This is a direct consequence of Lemma \ref{jensen}.
 \end{proof}
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
-  \uses{entropy-def,converse-jensen}
+  \uses{entropy-def}
   \lean{entropy_of_uniform}
 If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly distributed. NOTE: only one direction proved so far.
 \end{lemma}
 
-\begin{proof} Direct computation in one direction.  Converse direction needs Lemma \ref{converse-jensen}.
+\begin{proof} \uses{converse-jensen} Direct computation in one direction.  Converse direction needs Lemma \ref{converse-jensen}.
 \end{proof}
 
 \begin{lemma}[Bounded entropy implies concentration]\label{bound-conc}
@@ -56,9 +56,9 @@ Given an $S$-random variable $X: \Omega \to S$ and a $T$-valued random variable 
 
 In this blueprint we will often drop the angled brackets from $\langle X, Y \rangle$ to reduce clutter (but they will be needed in the Lean formalization).
 
-\begin{lemma}[Symmetry of joint entropy]\label{joint-symm}\uses{pair-def,relabeled-entropy}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X,Y ] = H[ Y,X]$.\end{lemma}
+\begin{lemma}[Symmetry of joint entropy]\label{joint-symm}\uses{pair-def,entropy-def}  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X,Y ] = H[ Y,X]$.\end{lemma}
 
-\begin{proof} Set up an injection from $\langle X,Y\rangle$ to $\langle Y,X\rangle$ and use Lemma \ref{relabeled-entropy}.
+\begin{proof} \uses{relabeled-entropy}Set up an injection from $\langle X,Y\rangle$ to $\langle Y,X\rangle$ and use Lemma \ref{relabeled-entropy}.
 \end{proof}
 
 
@@ -72,10 +72,10 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
   $$ H[X|Y] := \sum_{y \in Y} P[Y = y] H[(X | Y=y)].$$
 \end{definition}
 
-\begin{lemma}[Conditional entropy and relabeling]\label{relabeled-entropy-cond} \uses{conditional-entropy-def, relabeled-entropy}  If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $H[X|Z] = H[Y|Z]$.
+\begin{lemma}[Conditional entropy and relabeling]\label{relabeled-entropy-cond} \uses{conditional-entropy-def}  If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $H[X|Z] = H[Y|Z]$.
 \end{lemma}
 
-\begin{proof}  Use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.
+\begin{proof}  \uses{relabeled-entropy} Use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.
 \end{proof}
 
 
@@ -88,12 +88,12 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 \begin{proof} Direct computation, I guess?
 \end{proof}
 
-\begin{lemma}[Conditional chain rule]\label{conditional-chain-rule} \uses{chain-rule}
+\begin{lemma}[Conditional chain rule]\label{conditional-chain-rule} \uses{conditional-entropy-def, pair-def}
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
 $$ H[  X,Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
 \end{lemma}
 
-\begin{proof}  For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
+\begin{proof}  \uses{chain-rule} For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
 $$ H[ (X|Z=z),(Y|Z=z) ] = H[Y|Z=z] + H[(X|Z=z)|(Y|Z=z)].$$
 Now multiply by $P[Z=z]$ and sum.  Some helper lemmas may be needed to get to the form above.  This sort of ``average over conditioning'' argument to get conditional entropy inequalities from unconditional ones is commonly used in this paper.
 \end{proof}
@@ -102,46 +102,46 @@ Now multiply by $P[Z=z]$ and sum.  Some helper lemmas may be needed to get to th
   $$ I[ X : Y ] := H[X] + H[Y] - H[X,Y].$$
 \end{definition}
 
-\begin{lemma}[Alternative formulae for mutual information]\label{alternative-mutual}
-  \uses{information-def,joint-symm,chain-rule}
+\begin{lemma}[Alternative formulae for mutual information]\label{alternative-mutual}\uses{information-def, conditional-entropy-def, entropy-def}
   With notation as above, we have
 $$  I[X : Y] = I[Y:X]$$
 $$  I[X : Y] = H[X] - H[X|Y]$$
 $$  I[X : Y] = H[Y] - H[Y|X]$$
 \end{lemma}
 
-\begin{proof} Immediate from Lemmas \ref{joint-symm}, \ref{chain-rule}.
+\begin{proof}   \uses{joint-symm,chain-rule}
+  Immediate from Lemmas \ref{joint-symm}, \ref{chain-rule}.
 \end{proof}
 
-\begin{lemma}[Nonnegativity of mutual information]\label{mutual-nonneg}\uses{information-def,jensen}  With notation as above, we have $I[X:Y] \geq 0$.
+\begin{lemma}[Nonnegativity of mutual information]\label{mutual-nonneg}\uses{information-def}  With notation as above, we have $I[X:Y] \geq 0$.
 \end{lemma}
 
-\begin{proof}  An application of Lemma \ref{jensen}.
+\begin{proof}  \uses{jensen, alternative-mutual} An application of Lemma \ref{jensen} and Lemma \ref{alternative-mutual}.
 \end{proof}
 
-\begin{corollary}[Subadditivity]\label{subadditive}\uses{mutual-nonneg,alternative-mutual}  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
+\begin{corollary}[Subadditivity]\label{subadditive}\uses{entropy-def, pair-def}  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
 \end{corollary}
 
-\begin{proof}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
+\begin{proof}\uses{mutual-nonneg,alternative-mutual}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
 \end{proof}
 
-\begin{corollary}[Conditioning reduces entropy]\label{cond-reduce}\uses{mutual-nonneg,alternative-mutual}  With notation as above, we have $H[X|Y] \leq H[X]$.
+\begin{corollary}[Conditioning reduces entropy]\label{cond-reduce}\uses{entropy-def, conditional-entropy-def}  With notation as above, we have $H[X|Y] \leq H[X]$.
 \end{corollary}
 
-\begin{proof}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
+\begin{proof}\uses{mutual-nonneg,alternative-mutual}  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
 \end{proof}
 
-\begin{corollary}[Submodularity]\label{submodularity}\uses{cond-reduce} With three random variables $X,Y,Z$, one has $H[X|Y,Z] \leq H[X|Z]$.
+\begin{corollary}[Submodularity]\label{submodularity} \uses{conditional-entropy-def, pair-def} With three random variables $X,Y,Z$, one has $H[X|Y,Z] \leq H[X|Z]$.
 \end{corollary}
 
-\begin{proof} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
+\begin{proof} \uses{cond-reduce} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
 \end{proof}
 
-\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}\uses{submodularity,chain-rule} With three random variables $X,Y,Z$, one has
+\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}\uses{entropy-def, pair-def} With three random variables $X,Y,Z$, one has
   $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$
 \end{corollary}
 
-\begin{proof}  Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
+\begin{proof}  \uses{submodularity,chain-rule} Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
 \end{proof}
 
 \begin{definition}[Independent random variables]\label{independent-def}
@@ -150,37 +150,37 @@ Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if 
 
 May want to add a lemma that jointly independent random variables are pairwise independent.
 
-\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{chain-rule,conditional-entropy}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
+\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{independent-def, pair-def, entropy-def}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
 \end{lemma}
 
-\begin{proof} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.
+\begin{proof} \uses{chain-rule,conditional-entropy} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.
 \end{proof}
 
 
-\begin{corollary}[Vanishing of mutual information]\label{vanish-entropy}\uses{add-entropy,information-def}  If $X,Y$ are random variables, then $I[X,Y] = 0$ if and only if $X,Y$ are independent.
+\begin{corollary}[Vanishing of mutual information]\label{vanish-entropy}\uses{independent-def, information-def}  If $X,Y$ are random variables, then $I[X:Y] = 0$ if and only if $X,Y$ are independent.
 \end{corollary}
 
-\begin{proof} Immediate from Lemma \ref{add-entropy} and Definition \ref{information-def}.
+\begin{proof} \uses{add-entropy} Immediate from Lemma \ref{add-entropy} and Definition \ref{information-def}.
 \end{proof}
 
 \begin{definition}[Conditional mutual information]\label{conditional-mutual-def}\uses{information-def,{condition-event-def}  If $X,Y,Z$ are random variables, with $Z$ $U$-valued, then
   $$ I[X:Y|Z] := \sum_{z \in U} P[Z=z] I[(X|Z=z): (Y|Z=z)].$$
 \end{definition}
 
-\begin{lemma}[Nonnegativity of conditional mutual information]\label{conditional-nonneg}  \uses{conditional-mutual-def,submodularity}
+\begin{lemma}[Nonnegativity of conditional mutual information]\label{conditional-nonneg}  \uses{conditional-mutual-def}
 If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
 \end{lemma}
 
-\begin{proof} Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
+\begin{proof} \uses{submodularity} Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
 \end{proof}
 
 \begin{definition}[Conditionally independent random variables]\label{conditional-independent-def}
   Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are conditionally independent relative to another random variable $Z: \Omega \to U$ if $P[ X = s \wedge Y = t| Z=u] = P[X=s|Z=u] P[Y=t|Z=u]$ for all $s \in S, t \in T, u \in U$.  (We won't need conditional independence for more variables than this.)
 \end{definition}
 
-\begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}  \uses{conditional-mutual-def,conditional-independent-def,conditional-nonneg}
+\begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}  \uses{conditional-mutual-def,conditional-independent-def}
   If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
 \end{lemma}
 
-\begin{proof} Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.
+\begin{proof} \uses{conditional-nonneg} Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.
 \end{proof}
