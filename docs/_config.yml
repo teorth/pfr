@@ -22,7 +22,7 @@ title: The Polynomial Freiman-Ruzsa Conjecture
 #email: your-email@example.com
 description: A digitisation of the proof of the Polynomial Freiman-Ruzsa Conjecture in Lean 4
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://teorth.github.io/PFR/" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://teorth.github.io/pfr/" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
 github_username: teorth
 repository: teorth/pfr
