@@ -27,8 +27,6 @@ jobs:
   build_project:
     runs-on: ubuntu-latest
     name: Build project
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - name: Free disk space
         uses: jlumbroso/free-disk-space@main
