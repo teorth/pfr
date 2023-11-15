@@ -3,6 +3,7 @@ import Mathlib.Data.Real.Basic
 import Mathlib.GroupTheory.OrderOfElement
 import PFR.f2_vec
 import PFR.ruzsa_covering
+import PFR.entropy_pfr
 
 /-!
 # Polynomial Freiman-Ruzsa conjecture

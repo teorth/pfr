@@ -45,7 +45,7 @@ We may want to establish that copy is an equivalence relation. Another useful he
 \begin{lemma}[Copy preserves entropy]\label{copy-ent}\uses{copy-def,entropy-def} If $X'$ is a copy of $X$ then $H[X'] = H[X]$.
 \end{lemma}
 
-\begin{proof} Immediate from Definitions \ref{copy-def, entropy-def}.
+\begin{proof} Immediate from Definitions \ref{copy-def}, \ref{entropy-def}.
 \end{proof}
 
 \begin{lemma}[Existence of independent copies]\label{independent-exist} \uses{copy-def, independent-def} Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.
@@ -106,7 +106,7 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{conditional-nonneg,subadditive, relabeled-entropy, additive, ruz-indep} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist, ruz-indep}, it suffices to show that
+\begin{proof}\uses{conditional-nonneg,subadditive, relabeled-entropy, additive, ruz-indep} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to show that
 \begin{equation}\label{submod-explicit} H[X - Y] \leq H[X-Z] + H[Z-Y] - H[Z]\end{equation}
 whenever $X, Y, Z$ are independent. To prove this, apply Corollary \ref{alt-submodularity} to obtain
 \[ H[X - Z, X - Y] + H[Y, X - Y] \geq H[X - Z, Y, X - Y] + H[X - Y].\]
@@ -138,7 +138,7 @@ Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \begin{proof}\uses{submodularity, additive, relabeled-entropy}
 From Lemma \ref{submodularity} we have
 $$ H[X, X+Y+Z] + H[Z, X+Y+Z] \geq H[X, Z, X+Y+Z] + H[X+Y+Z].$$
-However, using Lemmas \ref{additive}, \ref{relabeled-entropy} repeatedly we have $H[X, X+Y+Z] = H[X, Y+Z] = H[X] + H[Y+Z]$, $H[Z, X+Y + Z] = H[Z, X+Y] = H[Z] + H[X+Y]$ and $H[X, Z, X+Y+Z] = H[X, Y, Z] = H[X] + H[Y] + H[Z]$.  The claim then follows from a calculation.
+However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we have $H[X, X+Y+Z] = H[X, Y+Z] = H[X] + H[Y+Z]$, $H[Z, X+Y + Z] = H[Z, X+Y] = H[Z] + H[X+Y]$ and $H[X, Z, X+Y+Z] = H[X, Y, Z] = H[X] + H[Y] + H[Z]$.  The claim then follows from a calculation.
 \end{proof}
 
 \begin{definition}[Conditionally independent trials]\label{cond-trial}  Let $X,Y$ be random variables on a space $\Omega$.
@@ -194,7 +194,7 @@ Next observe that
 Finally, we have
 \begin{equation}\label{bsg-25} H[A_1 - B_2, B_1] = H[A_2 - B_1, B_1] = H[A_2, B_1] \leq H[A] + H[B].\end{equation}
 Substituting~\eqref{bsg-24},~\eqref{bsg-23} and~\eqref{bsg-25} into~\eqref{bsg-31} yields
-\[ H[A_1 - B_2] \leq 2I[A:B] + H[Z]\] and so by~\eqref{cond-dec}
+\[ H[A_1 - B_2] \leq 2I[A:B] + H[Z]\] and so by Corollary \ref{cond-reduce}
 \[H[A_1 - B_2 | Z]  \leq 2I[A:B] + H[Z].\]
 Since
 \begin{align*} H[A_1 | Z] & = H[A_1, A_1 + B_1] - H[Z] \\ & = H[A,B] - H[Z] \\ & = H[Z] - I[A:B] - 2 H[Z]-H[A]-\bbH[B]\end{align*}

@@ -25,6 +25,9 @@ variable {Ω Ω' Ω'' G : Type*} [mΩ : MeasurableSpace Ω] {μ : Measure Ω} [m
 /-- The Ruzsa distance `dist X Y` between two random variables is defined as $H[X'-Y'] - H[X']/2 - H[Y']/2$, where $X',Y'$ are independent copies of $X, Y$. -/
 def dist (X : Ω → G) (Y : Ω' → G) : ℝ := sorry
 
+-- may also want to make further notations for Ruzsa distance
+
+
 /-- The Ruzsa triangle inequality -/
 lemma Ruzsa_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) : dist X Z ≤ dist X Y + dist Y Z := sorry
 
