@@ -31,11 +31,10 @@ If $X$ is an $S$-valued random variable, then $H[X] \leq \log |X|$.
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
   \uses{entropy-def}
   \lean{entropy_of_uniform}
-  \leanok
-If $X$ is a uniformly distributed $S$-valued random variable, then $H[X] = \log |X|$.
+If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly distributed. NOTE: only one direction proved so far.
 \end{lemma}
 
-\begin{proof} Direct computation.
+\begin{proof} Direct computation in one direction.  Converse direction needs strict concavity and some converse Jensen.
 \end{proof}
 
 \begin{lemma}[Bounded entropy implies concentration]\label{bound-conc}
@@ -131,12 +130,48 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \begin{proof} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
 \end{proof}
 
+\begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}\uses{submodularity}\uses{chain-rule} With three random variables $X,Y,Z$, one has
+  $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$
+\end{corollary}
+
+\begin{proof}  Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
+\end{proof}
+
 \begin{definition}[Independent random variables]\label{independent-def}
-Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if $P[ X = s \wedge Y = t] = P[X=s] P[Y=t]$ for all $s \in S, t \in T$.
+Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if $P[ X = s \wedge Y = t] = P[X=s] P[Y=t]$ for all $s \in S, t \in T$.  NOTE: will also need a notion of joint independence of $k$ random variables for any finite $k$.
 \end{definition}
 
-\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{chain-rule} \uses{conditional-entropy}  If $X,Y$ are independent, then $H[X,Y] = H[X] + H[Y]$.
+\begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{chain-rule} \uses{conditional-entropy}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
 \end{lemma}
 
-\begin{proof} Simplest proof is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.
+\begin{proof} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.
+\end{proof}
+
+
+\begin{corollary}[Vanishing of mutual information]\label{vanish-entropy}\uses{add-entropy}\uses{information-def}  If $X,Y$ are random variables, then $I[X,Y] = 0$ if and only if $X,Y$ are independent.
+\end{corollary}
+
+\begin{proof} Immediate from Lemma \ref{add-entropy} and Definition \ref{information-def}.
+\end{proof}
+
+\begin{definition}[Conditional mutual information]\label{conditional-mutual-def}\uses{information-def} \uses{condition-event-def}  If $X,Y,Z$ are random variables, with $Z$ $U$-valued, then
+  $$ I[X:Y|Z] := \sum_{z \in U} P[Z=z] I[(X|Z=z): (Y|Z=z)].$$
+\end{definition}
+
+\begin{lemma}[Nonnegativity of conditional mutual information]\label{conditional-nonneg}  \uses{conditional-mutual-def} \uses{submodularity}
+If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
+\end{lemma}
+
+\begin{proof} Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
+\end{proof}
+
+\begin{definition}[Conditionally independent random variables]\label{conditional-independent-def}
+  Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are conditionally independent relative to another random variable $Z: \Omega \to U$ if $P[ X = s \wedge Y = t| Z=u] = P[X=s|Z=u] P[Y=t|Z=u]$ for all $s \in S, t \in T, u \in U$.  (We won't need conditional independence for more variables than this.)
+\end{definition}
+
+\begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}  \uses{conditional-mutual-def} \uses{conditional-independent-def}\uses{conditional-nonneg}
+  If $X,Y,Z$ are random variables, then $I[X:Y|Z] \ge 0$.
+\end{lemma}
+
+\begin{proof} Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.
 \end{proof}
