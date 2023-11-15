@@ -2,35 +2,51 @@
 
 In this section $G$ will be a finite additive group.  (May eventually want to generalize to infinite $G$.)
 
-\begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}\uses{cond-reduce, chain-rule, }  If
-Whenever $X,Y$ are $G$-valued random variables, we have
+\begin{lemma}[Negation preserves entropy]\label{neg-ent}\uses{relabeled-entropy}  If $X$ is $G$-valued, then $\H[-X]=\H[X]$.
+\end{lemma}
+
+\begin{proof} Immediate from Lemma \ref{relabeled-entropy}.
+\end{proof}
+
+\begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}\uses{cond-reduce, alternative-mutual, relabeled-entropy-cond, neg-ent}  If
+Whenever $X,Y$ are $G$-valued random variables on $\Omega$, we have
 $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X \pm Y].$$
 \end{lemma}
 
-\begin{proof}  We have
+\begin{proof}  By Lemma \ref{cond-reduce}, \ref{relabeled-entropy-cond}, \ref{alternative-mutual}, \ref{neg-ent} we have
 $$
  H[X\pm Y] \geq H[X\pm Y|Y] = H[X|Y]= H[X] - I[X:Y]
 $$
 and similarly with the roles of $X,Y$ reversed, giving the claim.
 \end{proof}
 
-
-
-We note also the conditional variant of~\eqref{sumset-lower-gen}, namely
+\begin{corollary}[Conditional lower bound on sumset]\label{sumset-lower-gen-cond}\uses{sumset-lower-gen, conditional-mutual-def, conditional-entropy-def} If $X,Y$ are $G$-valued random variables on $\Omega$ and $Z$ is another random variable on $\Omega$ then
 \[
-  \max(\H{X|Z}, \H{Y|Z}) - \I{X:Y|Z} \leq \H{X\pm Y|Z},
+  \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq \H[X\pm Y|Z],
 \]
-which follows from~\eqref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $p_Z(z)$).
+\end{corollary}
 
-A particular consequence of~\eqref{sumset-lower-gen} is that
-\begin{equation}
-  \label{sumset-lower}
-  \max(\H{X}, \H{Y}) \leq \H{X\pm Y}
-\end{equation}
-when $X,Y$ are independent.
+\begin{proof} This follows from Lemma \ref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $P[Z=z]$).
+\end{proof}
+
+\begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}\uses{sumset-lower-gen, vanish-entropy} If $X,Y$ are independent $G$-valued random variables, then
+$$\max(\H{X}, \H{Y}) \leq \H{X\pm Y}.
+$$
+\end{corollary}
+
+\begin{proof} Combine Lemma \ref{sumset-lower-gen} with Lemma \ref{vanish-entropy}.
+\end{proof}
 
 \begin{definition}[Copy]\label{copy-def}  Let $X : \Omega \to S$.  A \emph{copy} of $X$ is a random variable $X' : \Omega' \to S$ such that $P[X=s] = P[X'=s]$ for all $s \in S$.
 \end{definition}
+
+We may want to establish that copy is an equivalence relation.
+
+\begin{lemma}[Copy preserves entropy]\label{copy-ent}\uses{copy-def,entropy-def} If $X'$ is a copy of $X$ then $H[X'] = H[X]$.
+\end{lemma}
+
+\begin{proof} Immediate from Definitions \ref{copy-def, entropy-def}.
+\end{proof}
 
 \begin{lemma}[Existence of independent copies]\label{independent-exist} \uses{copy-def, independent-def} Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.
 \end{lemma}
@@ -38,46 +54,80 @@ when $X,Y$ are independent.
 \begin{proof} Can take $\Omega' = \prod_{i=1}^k S_i$ and construct everything explicitly.
 \end{proof}
 
+\begin{definition}[Ruzsa distance]\label{ruz-dist-def}\uses{entropy-def, independent-exist}  Let $X,Y$ be $G$-valued random variables (not necessarily on the same sample space).  The \emph{Ruzsa distance} $d[X;Y]$ between $X$ and $Y$ is defined to be
+$$ d[X;Y] := H[X' - Y'] - H[X']/2 - H[Y']/2$$
+where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{independent-exist}.
+\end{definition}
 
-Continuing to suppose that $X, Y$ are independent, recall the definition~\eqref{ruz-dist-def} of the Ruzsa distance $\dist{X}{Y}$ which, since $X$ and $Y$ are independent, is that
-\[
-  \dist{X}{Y} = \H{X - Y} - \tfrac{1}{2} \H{X} - \tfrac{1}{2} \H{Y}.
-\]
-Comparing this with~\eqref{sumset-lower} we see that
-\begin{equation}
-  \label{ruzsa-diff}
-  |\H{X}-\H{Y}| \leq 2\dist{X}{Y}.
-\end{equation}
-We may also deduce that
-\[
-  \H{X-Y} - \H{X}, \H{X-Y} - \H{Y} \leq 2\dist{X}{Y}.
-\]
-%We also recall the inequality~\cite[(17)]{tao-entropy}:
-%\begin{equation}
-%  \label{eq:ruzsa-neg}
-%  \dist{X}{-Y} \le 3 \dist{X}{Y}
-%\end{equation}
-%although this is not needed when $G=\F_2^n$ since in that case $Y=-Y$ and $\dist{X}{-Y} = \dist{X}{Y}$.
+\begin{lemma}[Copy preserves Ruzsa distance]\label{ruz-copy}\uses{ruz-dist-def,copy-ent}  If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$.
+\end{lemma}
 
-The most important property of the Ruzsa distance is the (Ruzsa) triangle inequality
-\[ \dist{X}{Y} \leq \dist{X}{Z} + \dist{Z}{Y}.\]
-This was shown in~\cite{ruzsa-entropy} and~\cite[(16)]{tao-entropy}; we recall a proof for completeness.
-This is equivalent to establishing
-\begin{equation}\label{submod-explicit} \H{X - Y} \leq \H{X-Z} + \H{Z-Y} - \H{Z}\end{equation}
-whenever $X, Y, Z$ are independent. To prove this, apply~\eqref{nonneg-cond} with a change of variables to get $\I{X-Z : Y | X - Y} \geq 0$ which, when written out in full as in~\eqref{cond-form-mutual}, gives
-\[ \H{X - Z, X - Y} + \H{Y, X - Y} \geq \H{X - Z, Y, X - Y} + \H{X - Y}.\]
+\begin{proof}  Immediate from Definitions \ref{ruz-dist-def} and Lemma \ref{copy-ent}.
+\end{proof}
+
+\begin{lemma}[Ruzsa distance in inependent case]\label{ruz-indep}\uses{ruz-dist-def, relabeled-entropy, copy-ent} If $X,Y$ are independent $G$-random variables then
+  $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$
+\end{lemma}
+
+\begin{proof} Immediate from Definition \ref{ruz-dist-def} and Lemmas \ref{relabeled-entropy}, \ref{copy-ent}.
+\end{proof}
+
+\begin{lemma}[Distance symmetric]\label{ruzsa-symm}\uses{ruz-dist-def, neg-ent} If $X,Y$ are $G$-valued random variables, then
+  $$ d[X;Y] = d[Y;X].$$
+\end{lemma}
+
+\begin{proof} Immediate from Lemma \ref{ruzsa-diff}.
+\end{proof}
+
+\begin{lemma}[Distance controls entropy difference]\label{ruzsa-diff}\uses{sumset-lower, ruz-dist-def, neg-ent} If $X,Y$ are $G$-valued random variables, then
+$$|H[X]-H[Y]| \leq 2 d[X;Y].$$
+\end{lemma}
+
+\begin{proof} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
+\end{proof}
+
+\begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}\uses{sumset-lower, ruz-dist-def, neg-ent} If $X,Y$ are $G$-valued random variables, then
+$$  \H[X-Y] - \H[X], \H[X-Y] - \H[Y] \leq 2d[X;Y].$$
+\end{lemma}
+
+\begin{proof} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
+\end{proof}
+
+\begin{lemma}[Distance nonnegative]\label{ruzsa-nonneg}\uses{ruzsa-diff} If $X,Y$ are $G$-valued random variables, then
+  $$ d[X;Y] \geq 0.$$
+\end{lemma}
+
+\begin{proof} Immediate from Lemma \ref{ruzsa-diff}.
+\end{proof}
+
+\begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}\uses{ruz-dist-def, conditional-nonneg,subadditive, relabeled-entropy, additive, ruz-indep} If $X,Y,Z$ are $G$-valued random variables, then
+$$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
+\end{lemma}
+
+\begin{proof} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist, ruz-indep}, it suffices to show that
+\begin{equation}\label{submod-explicit} H[X - Y] \leq H[X-Z] + H[Z-Y] - H[Z]\end{equation}
+whenever $X, Y, Z$ are independent. To prove this, apply Corollary \ref{alt-submodularity} to obtain
+\[ H[X - Z, X - Y] + H[Y, X - Y] \geq H[X - Z, Y, X - Y] + H[X - Y].\]
 Using
-\[ \H{X - Z, X - Y} \leq \H{X - Z} + \H{Y - Z},\]
-\[ \H{Y, X - Y} = \H{X, Y}, \] and
-\[ \H{X - Z, Y, X - Y} = \H{X, Y, Z} = \H{X, Y} + \H{Z},\] and rearranging, we indeed obtain~\eqref{submod-explicit}. (As observed in~\cite{gmt}, we do not in fact use the independence of $X$ and $Y$ here.)
+\[ H[X - Z, X - Y] \leq H[X - Z] + H[Y - Z],\]
+\[ H[Y, X - Y] = H[X, Y], \] and
+\[ H[X - Z, Y, X - Y] = H[X, Y, Z] = H[X, Y] + H[Z],\] and rearranging, we indeed obtain~\eqref{submod-explicit}.
+\end{proof}
 
-
-We will also need conditional variants of the distance.
+\begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}\uses{ruz-dist-def}
 If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Z$ are $G$-valued) we define
-\begin{equation} \dist{X  | Z}{Y | W}   \coloneqq \sum_{z,w} p_{Z}(z) p_{W}(w) \dist{(X| Z=z)}{(Y| W = w )}.\label{cond-dist-def}
-\end{equation}
-Alternatively, if $(X',Z'), (Y',W')$ are independent copies of the variables $(X,Z)$, $(Y,W)$,
-\begin{equation}\label{cond-dist-alt} \dist{X  | Z}{Y | W} = \H{X'-Y'|Z',W'} - \tfrac{1}{2} \H{X'|Z'} - \tfrac{1}{2}\H{Y'|W'} .\end{equation}
+$$ d[X  | Z; Y | W] := \sum_{z,w} P[Z=z] P[W=w] d[(X|Z=z); (Y|(W=w))].$$
+\end{definition}
+
+\begin{lemma}[Alternate form of distance]\label{cond-dist-alt}\uses{cond-dist-def, conditional-entropy-def}  If $(X',Z')$, $(Y',W')$ are independent copies of $(X,Z), (Y,W)$, then
+$$  d[X  | Z;Y | W] = H[X'-Y'|Z',W'] - H[X'|Z']/2 - H[Y'|W']/2$$
+\end{lemma}
+
+\begin{proof} Straightforward.
+\end{proof}
+
+
+
 
 To conclude this appendix we give the proofs of two results from the literature which were used in the main text. The first is the inequality of Kaimanovich and Vershik, stated as~\eqref{kv-2} in the main text. For the original reference see~\cite[Proposition 1.3]{kv}; in fact, there is an inequality with more summands, which follows by induction.
 
@@ -87,6 +137,7 @@ Suppose that $X, Y, Z$ are independent random variables taking values in an abel
   \H{X + Y + Z} - \H{X + Y} \leq \H{Y+Z} - \H{Y}.
 \]
 \end{lemma}
+
 \begin{proof}
 By~\eqref{cond-form-mutual} we have
 \begin{align*}

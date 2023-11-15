@@ -72,6 +72,13 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
   $$ H[X|Y] := \sum_{y \in Y} P[Y = y] H[(X | Y=y)].$$
 \end{definition}
 
+\begin{lemma}[Conditional entropy and relabeling]\label{relabeled-entropy-cond} \uses{conditional-entropy-def, relabeled-entropy}  If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $H[X|Z] = H[Y|Z]$.
+\end{lemma}
+
+\begin{proof}  Use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.
+\end{proof}
+
+
 \begin{lemma}[Chain rule]\label{chain-rule}
   \uses{conditional-entropy-def,pair-def}
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then
@@ -106,10 +113,10 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \begin{proof} Immediate from Lemmas \ref{joint-symm}, \ref{chain-rule}.
 \end{proof}
 
-\begin{lemma}[Nonnegativity of mutual information]\label{mutual-nonneg}\uses{information-def}  With notation as above, we have $I[X:Y] \geq 0$.
+\begin{lemma}[Nonnegativity of mutual information]\label{mutual-nonneg}\uses{information-def,jensen}  With notation as above, we have $I[X:Y] \geq 0$.
 \end{lemma}
 
-\begin{proof}  An application of Jensen.
+\begin{proof}  An application of Lemma \ref{jensen}.
 \end{proof}
 
 \begin{corollary}[Subadditivity]\label{subadditive}\uses{mutual-nonneg,alternative-mutual}  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
@@ -140,6 +147,8 @@ $$  I[X : Y] = H[Y] - H[Y|X]$$
 \begin{definition}[Independent random variables]\label{independent-def}
 Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if $P[ X = s \wedge Y = t] = P[X=s] P[Y=t]$ for all $s \in S, t \in T$.  NOTE: will also need a notion of joint independence of $k$ random variables for any finite $k$.
 \end{definition}
+
+May want to add a lemma that jointly independent random variables are pairwise independent.
 
 \begin{lemma}[Additivity of entropy]\label{add-entropy}\uses{chain-rule,conditional-entropy}  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
 \end{lemma}
