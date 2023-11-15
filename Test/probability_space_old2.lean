@@ -51,7 +51,7 @@ lemma rawMass_eq : rawMass Ω = rawMeasure Ω univ := rawFiniteMeasure_eq _
 lemma rawMass_eq' : rawMass Ω = rawFiniteMeasure Ω univ := rfl
 
 /-- P[ E ] is the probability of E. -/
-notation:100 "P[ " E " ]" => (finiteMeasure _) E
+notation:max "P[ " E " ]" => (finiteMeasure _) E
 
 /-- An alternate notation where one makes the probability space `X = ‹ProbabilitySpace Ω›`
 explicit. -/
@@ -165,7 +165,7 @@ notation:100 "P[ " F " | " E " ]" => P[ F ; Subset.probabilitySpace E ]
 
 /-- The conditional probability formula. -/
 lemma condProb_eq [hΩ : ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet F) :
-    P[ F | E ] = (P[ E ])⁻¹ * P[ F ∩ E ]  := by
+    P[ F | E ] = P[ E ]⁻¹ * P[ F ∩ E ]  := by
   rw [@prob_raw' Ω (Subset.probabilitySpace E) F, @prob_raw' Ω hΩ (F ∩ E), @prob_raw' Ω hΩ E, condRaw_eq hF, condRawMass_eq]
   generalize a_def : rawMass Ω = a
   generalize b_def : rawFiniteMeasure Ω E = b
