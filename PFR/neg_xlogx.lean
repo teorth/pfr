@@ -1,4 +1,5 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Deriv
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Mathlib.Topology.Semicontinuous
 
 /-!
@@ -7,147 +8,123 @@ import Mathlib.Topology.Semicontinuous
 The purpose of this file is to record basic analytic properties of the function
 $$h(x) = - x * log x$$ on the unit interval, for use in the theory of Shannon entropy.
 
-Thanks to Heather Macbeth for optimizations.
 -/
 
-open Real
+open scoped ENNReal NNReal Topology BigOperators
 
-variable {x : ℝ}
+namespace Real
 
-/- In this file, inversion will always mean inversion of real numbers. -/
-local macro_rules | `($x ⁻¹) => `(Inv.inv ($x : ℝ))
+lemma tendsto_log_mul_nhds_zero_left :
+    Filter.Tendsto (fun x ↦ log x * x) (𝓝[<] 0) (𝓝 0) := by
+  have h := tendsto_log_mul_rpow_nhds_zero zero_lt_one
+  simp only [rpow_one] at h
+  have h_eq : ∀ x ∈ Set.Iio 0, (- (fun x ↦ log x * x) ∘ (fun x ↦ |x|)) x = log x * x := by
+    intro x hx
+    simp only [Set.mem_Iio] at hx
+    simp only [Pi.neg_apply, Function.comp_apply, log_abs]
+    rw [abs_of_nonpos hx.le]
+    simp only [mul_neg, neg_neg]
+  refine tendsto_nhdsWithin_congr h_eq ?_
+  rw [← neg_zero]
+  refine Filter.Tendsto.neg ?_
+  simp only [neg_zero]
+  refine h.comp ?_
+  refine tendsto_abs_nhdsWithin_zero.mono_left ?_
+  refine nhdsWithin_mono 0 (fun x hx ↦ ?_)
+  simp only [Set.mem_Iio] at hx
+  simp only [Set.mem_compl_iff, Set.mem_singleton_iff, hx.ne, not_false_eq_true]
 
-/-- The entropy function.  Note that `h 0 = 0` thanks to Lean's notational conventions. May want to
-change the name of `h` and/or localize it to a namespace. -/
-noncomputable def h := (fun x : ℝ ↦ - x * log x)
+lemma continuous_id_mul_log : Continuous (fun x ↦ x * log x) := by
+  rw [continuous_iff_continuousAt]
+  intro x
+  by_cases hx : x = 0
+  swap; · exact (continuous_id'.continuousAt).mul (continuousAt_log hx)
+  rw [hx]
+  have h := tendsto_log_mul_rpow_nhds_zero zero_lt_one
+  simp only [rpow_one] at h
+  have h' : Filter.Tendsto (fun x ↦ log x * x) (𝓝[<] 0) (𝓝 0) := tendsto_log_mul_nhds_zero_left
+  rw [ContinuousAt, zero_mul]
+  suffices Filter.Tendsto (fun x ↦ log x * x) (𝓝 0) (𝓝 0) by
+    exact this.congr (fun x ↦ by rw [mul_comm])
+  nth_rewrite 1 [← nhdsWithin_univ]
+  have : (Set.univ : Set ℝ) = Set.Iio 0 ∪ Set.Ioi 0 ∪ {0} := by
+    ext x
+    simp only [Set.mem_univ, Set.Iio_union_Ioi, Set.union_singleton, Set.mem_compl_iff,
+      Set.mem_singleton_iff, not_true, Set.mem_insert_iff, true_iff]
+    exact em _
+  rw [this, nhdsWithin_union, nhdsWithin_union]
+  simp only [ge_iff_le, nhdsWithin_singleton, sup_le_iff, Filter.nonpos_iff, Filter.tendsto_sup]
+  refine ⟨⟨h', h⟩, ?_⟩
+  rw [Filter.tendsto_pure_left, mul_zero]
+  intro s hs
+  obtain ⟨t, hts, _, h_zero_mem⟩ := mem_nhds_iff.mp hs
+  exact hts h_zero_mem
 
-/-- `h` is nonnegative. -/
-lemma h_nonneg (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ h x := by
-  unfold h
-  rw [neg_mul_comm]
+lemma differentiableOn_id_mul_log : DifferentiableOn ℝ (fun x ↦ x * log x) {0}ᶜ :=
+  differentiable_id'.differentiableOn.mul differentiableOn_log
+
+lemma deriv_id_mul_log {x : ℝ} (hx : x ≠ 0) : deriv (fun x ↦ x * log x) x = log x + 1 := by
+  rw [deriv_mul differentiableAt_id' (differentiableAt_log hx)]
+  simp only [deriv_id'', one_mul, deriv_log', ne_eq, add_right_inj]
+  exact mul_inv_cancel hx
+
+lemma deriv2_id_mul_log {x : ℝ} (hx : x ≠ 0) : deriv^[2] (fun x ↦ x * log x) x = x⁻¹ := by
+  simp only [Function.iterate_succ, Function.iterate_zero, Function.comp.left_id,
+    Function.comp_apply]
+  suffices ∀ᶠ y in (𝓝 x), deriv (fun x ↦ x * log x) y = log y + 1 by
+    refine (Filter.EventuallyEq.deriv_eq this).trans ?_
+    rw [deriv_add_const, deriv_log x]
+  suffices ∀ᶠ y in (𝓝 x), y ≠ 0 by
+    filter_upwards [this] with y hy
+    exact deriv_id_mul_log hy
+  exact eventually_ne_nhds hx
+
+lemma strictConvexOn_id_mul_log : StrictConvexOn ℝ (Set.Ici (0 : ℝ)) (fun x ↦ x * log x) := by
+  refine strictConvexOn_of_deriv2_pos (convex_Ici 0) (continuous_id_mul_log.continuousOn) ?_
+  intro x hx
+  simp only [Set.nonempty_Iio, interior_Ici', Set.mem_Ioi] at hx
+  rw [deriv2_id_mul_log hx.ne']
+  positivity
+
+lemma convexOn_id_mul_log : ConvexOn ℝ (Set.Ici (0 : ℝ)) (fun x ↦ x * log x) :=
+  strictConvexOn_id_mul_log.convexOn
+
+lemma id_mul_log_nonneg {x : ℝ} (hx : 1 ≤ x) : 0 ≤ x * log x :=
+  mul_nonneg (zero_le_one.trans hx) (log_nonneg hx)
+
+
+section negIdMulLog
+
+/-- The function `x ↦ - x * log x` from `ℝ` to `ℝ`. -/
+noncomputable
+def negIdMulLog (x : ℝ) : ℝ := - x * log x
+
+@[simp]
+lemma negIdMulLog_zero : negIdMulLog (0 : ℝ) = 0 := by simp [negIdMulLog]
+
+@[simp]
+lemma negIdMulLog_one : negIdMulLog (1 : ℝ) = 0 := by simp [negIdMulLog]
+
+lemma negIdMulLog_eq_neg : negIdMulLog = fun x ↦ - (x * log x) := by simp [negIdMulLog]
+
+lemma negIdMulLog_nonneg {x : ℝ} (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ negIdMulLog x := by
+  rw [negIdMulLog, neg_mul_comm]
   apply mul_nonneg h1
-  simp
+  simp only [Left.nonneg_neg_iff]
   exact log_nonpos h1 h2
 
-@[simp] lemma h_zero : h 0 = 0 := by simp [h]
-@[simp] lemma h_one : h 1 = 0 := by simp [h]
+lemma concaveOn_negIdMulLog : ConcaveOn ℝ (Set.Ici (0 : ℝ)) negIdMulLog := by
+  rw [negIdMulLog_eq_neg]
+  exact convexOn_id_mul_log.neg
 
-/-- a sublemma needed to get an upper bound for h. -/
-lemma log_le {x:ℝ} (hx: 0 ≤ x) : log x ≤ x / rexp 1 := by
-  rw [le_iff_lt_or_eq] at hx
-  rcases hx with hx | hx
-  . rw [<-sub_le_sub_iff_right 1]
-    convert (log_le_sub_one_of_pos (show 0 < (x * (Real.exp 1)⁻¹) by positivity)) using 1
-    rw [log_mul]
-    . simp; ring
-    all_goals positivity
-  simp [<-hx]
+lemma sum_negIdMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
+    (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
+    ∑ s, (w s) * negIdMulLog (p s) ≤ negIdMulLog (∑ s, (w s) * (p s)) := by
+  refine ConcaveOn.le_map_sum concaveOn_negIdMulLog ?_ h1 ?_
+  · simp [h0]
+  · simp [hmem]
 
-/-- an upper bound for h that can help prove continuity at 0. -/
-lemma h_le {x : ℝ} (hx : 0 ≤ x) : h x ≤ 2 * (sqrt x) / rexp 1 := by
-  unfold h
-  rw [le_iff_lt_or_eq] at hx
-  rcases hx with hx | hx
-  . rw [neg_mul_comm, ←log_inv, ←sq_sqrt (show 0 ≤ x⁻¹ by positivity), log_pow, ←mul_assoc,
-      ←le_div_iff']
-    convert log_le (show 0 ≤ sqrt x⁻¹ by positivity) using 1
-    field_simp
-    nth_rewrite 3 [<- sq_sqrt (show 0 ≤ x by positivity)]
-    ring
-    positivity
-  simp [<-hx]
+end negIdMulLog
 
-/-- To prove continuity of h we will need a version of the squeeze test. -/
-lemma squeeze [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [OrderTopology β]
-    {f g h : α → β} {x : α} (hfg : f x = g x) (hgh : g x = h x) (lower : ∀ y : α, f y ≤ g y)
-    (upper : ∀ y : α, g y ≤ h y) (f_cont : ContinuousAt f x) (h_cont : ContinuousAt h x) :
-    ContinuousAt g x := by
-  rw [continuousAt_iff_lower_upperSemicontinuousAt] at f_cont h_cont ⊢
-  dsimp [LowerSemicontinuousAt, UpperSemicontinuousAt] at f_cont h_cont ⊢
-  rw [hfg] at f_cont
-  rw [<-hgh] at h_cont
-  constructor
-  . intro a ha
-    apply Filter.Eventually.mono (f_cont.1 a ha)
-    intro x hx
-    exact lt_of_lt_of_le hx (lower x)
-  intro a ha
-  apply Filter.Eventually.mono (h_cont.2 a ha)
-  intro x hx
-  exact LE.le.trans_lt (upper x) hx
 
-/-- actually we need the squeeze test restricted to a subdomain. -/
-lemma squeezeWithin [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [OrderTopology β]
-  {f g h : α → β} {s : Set α} {x : α} (hx : x ∈ s) (hfg : f x = g x) (hgh : g x = h x)
-  (lower : ∀ y ∈ s, f y ≤ g y) (upper : ∀ y ∈ s, g y ≤ h y) (f_cont : ContinuousWithinAt f s x)
-  (h_cont : ContinuousWithinAt h s x) : ContinuousWithinAt g s x := by
-  rw [continuousWithinAt_iff_continuousAt_restrict _ hx] at f_cont h_cont ⊢
-  set f' := Set.restrict s f
-  set g' := Set.restrict s g
-  set h' := Set.restrict s h
-  set x' : s := ⟨ x, hx ⟩
-  apply squeeze (show f' x' = g' x' by simpa) (show g' x' = h' x' by simpa) _ _ f_cont h_cont
-  . intro y; simp [lower y]
-  intro y; simp [upper y]
-
-/-- Finally, the continuity of h. -/
-lemma h_cont : ContinuousOn h (Set.Icc 0 1) := by
-  dsimp [ContinuousOn]
-  intro x hx
-  simp at hx; rcases hx with ⟨ hx1, hx2 ⟩
-  rw [le_iff_lt_or_eq] at hx1
-  rcases hx1 with hx1 | hx1
-  . refine (continuous_id.neg.continuousAt.mul (continuousAt_log ?_)).continuousWithinAt
-    linarith
--- the tricky case : continuity at zero!
-  rw [<- hx1]
-  let f := fun _ : ℝ ↦ (0:ℝ)
-  let g := fun x : ℝ ↦ (2 * sqrt x) / rexp 1
-  have f_cont : ContinuousWithinAt f (Set.Icc 0 1) 0 := by
-    apply continuousWithinAt_const
-  have g_cont : ContinuousWithinAt g (Set.Icc 0 1) 0 := by
-    apply Continuous.continuousWithinAt
-    continuity
-  apply squeezeWithin _ _ _ _ _ f_cont g_cont
-  . simp
-  . simp [h]
-  . simp [h]
-  . intro y hy
-    exact h_nonneg hy.1 hy.2
-  intro y hy
-  exact h_le hy.1
-
-/-- The derivative of h. -/
-lemma h_deriv {x : ℝ} (hx: 0 < x) : HasDerivAt h (- log x + (- 1)) x := by
-  convert hasDerivAt_id x |>.neg.mul (hasDerivAt_log ?_) using 1
-  · field_simp
-  · positivity
-
--- how to get differentiability from `HasDerivAt`
-example : DifferentiableOn ℝ h (Set.Ioo 0 1) :=
-  fun _ hx ↦ (h_deriv hx.1).differentiableAt.differentiableWithinAt
-
--- how to get the `deriv` from `HasDerivAt`
-example {x : ℝ} (hx: 0 < x) : deriv h x = - log x + (- 1) := (h_deriv hx).deriv
-
-/-- The concavity of h. -/
-lemma h_concave : ConcaveOn ℝ (Set.Icc 0 1) h := by
-  apply AntitoneOn.concaveOn_of_deriv
-  . apply convex_Icc
-  . exact h_cont
-  . rw [interior_Icc]
-    intro x hx
-    exact (h_deriv hx.1).differentiableAt.differentiableWithinAt
-  rw [interior_Icc]
-  refine ((strictMonoOn_log.monotoneOn.mono ?_).neg.add_const (-1)).congr ?_
-  · intro x hx
-    exact hx.1
-  · intro x hx
-    rw [(h_deriv hx.1).deriv]
-
-open BigOperators
-
-lemma h_jensen [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s ∈ Finset.univ, 0 ≤ w s)
-    (h1 : ∑ s in Finset.univ, w s = 1) (hmem : ∀ s ∈ Finset.univ, p s ∈ (Set.Icc 0 1)) :
-    ∑ s in Finset.univ, (w s) * h (p s) ≤ h ( ∑ s in Finset.univ, (w s) * (p s)) := by
-  convert ConcaveOn.le_map_sum h_concave h0 h1 hmem
+end Real
