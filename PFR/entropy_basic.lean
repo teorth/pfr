@@ -2,6 +2,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
 import PFR.neg_xlogx
+import PFR.MeasureReal
 
 /-!
 # Entropy and conditional entropy
