@@ -70,13 +70,21 @@ lemma cond_eq_zero_of_measure_zero {α : Type*} {_ : MeasurableSpace α} {μ : M
   have : μ.restrict s = 0 := by simp [hμs]
   simp [ProbabilityTheory.cond, this]
 
+@[simp]
 lemma sum_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S]  (μ : Measure S) [IsProbabilityMeasure μ] :
-    ∑ x, μ {x} = 1 := by
-  change ∑ x, μ (id ⁻¹' {x}) = 1
+    [MeasurableSingletonClass S] (μ : Measure S) :
+    ∑ x, μ {x} = μ Set.univ := by
+  change ∑ x, μ (id ⁻¹' {x}) = μ Set.univ
   rw [sum_measure_preimage_singleton]
   · simp
   · simp
+
+@[simp]
+lemma sum_toReal_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
+    ∑ x : S, (μ {x}).toReal = (μ Set.univ).toReal := by
+  rw [← ENNReal.toReal_sum (fun _ _ ↦ measure_ne_top _ _)]
+  simp
 
 end aux_lemmas
 
@@ -157,7 +165,7 @@ lemma measureEntropy_le_card_aux [MeasurableSingletonClass S]
     simp [Fintype.card_eq_zero, this]
   | inr h =>
     set N := Fintype.card S
-    have : 0 < N := Fintype.card_pos
+    have hN : 0 < N := Fintype.card_pos
     rw [measureEntropy_def]
     simp only [measure_univ, inv_one, one_smul]
     calc ∑ x, negIdMulLog (μ {x}).toReal
@@ -166,16 +174,14 @@ lemma measureEntropy_le_card_aux [MeasurableSingletonClass S]
         rw [Finset.mul_sum]
         congr with x
         rw [← mul_assoc, mul_inv_cancel, one_mul]
-        simp [this.ne']
+        simp [hN.ne']
     _ ≤ N * negIdMulLog (∑ x : S, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
         refine mul_le_mul le_rfl ?_ ?_ ?_
-        · refine sum_negIdMulLog_le ?_ ?_ ?_
-          · simp
-          · simp [Finset.card_univ]
-          · exact fun _ ↦ ENNReal.toReal_nonneg
+        · refine sum_negIdMulLog_le (by simp) ?_ (fun _ ↦ ENNReal.toReal_nonneg)
+          simp [Finset.card_univ]
         · refine Finset.sum_nonneg (fun x _ ↦ ?_)
           refine mul_nonneg ?_ ?_
-          · simp [this]
+          · simp [hN]
           · refine negIdMulLog_nonneg (by simp) ?_
             refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
             rw [ENNReal.ofReal_one]
@@ -184,10 +190,7 @@ lemma measureEntropy_le_card_aux [MeasurableSingletonClass S]
     _ = N * negIdMulLog ((N : ℝ)⁻¹) := by
         congr
         rw [← Finset.mul_sum]
-        simp only [ne_eq, inv_eq_zero, Nat.cast_eq_zero, Fintype.card_ne_zero, not_false_eq_true,
-          mul_eq_left₀]
-        rw [← ENNReal.toReal_sum (fun _ _ ↦ measure_ne_top _ _), ENNReal.toReal_eq_one_iff]
-        exact sum_measure_singleton _
+        simp
     _ = - log ((N : ℝ)⁻¹) := by
         simp [negIdMulLog]
     _ = log (Fintype.card S) := by simp [Finset.card_univ]
@@ -214,6 +217,35 @@ lemma measureEntropy_le_log_card [MeasurableSingletonClass S] (μ : Measure S) :
       exact h_log_card_nonneg
     rw [← measureEntropy_univ_smul]
     exact measureEntropy_le_card_aux _
+
+lemma measureEntropy_map_of_injective [MeasurableSingletonClass T]
+    (μ : Measure S) (f : S → T) (hf : Function.Injective f) (hf_m : Measurable f) :
+    Hm[μ.map f] = Hm[μ] := by
+  have : μ.map f Set.univ = μ Set.univ := by
+      rw [Measure.map_apply hf_m MeasurableSet.univ]
+      simp
+  simp_rw [measureEntropy_def, Measure.smul_apply,
+    Measure.map_apply hf_m (measurableSet_singleton _)]
+  rw [this]
+  classical
+  have : ∑ x : T, negIdMulLog (ENNReal.toReal ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})))
+      = ∑ x in Finset.univ.image f,
+        negIdMulLog (ENNReal.toReal ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x}))) := by
+    rw [← Finset.sum_subset]
+    · exact Finset.subset_univ _
+    · intro y _ hy
+      simp only [Finset.mem_image, Finset.mem_univ, true_and, not_exists] at hy
+      suffices f ⁻¹' {y} = ∅ by simp [this]
+      rw [Set.preimage_eq_empty_iff]
+      simp [hy]
+  rw [this, Finset.sum_image]
+  · simp only [smul_eq_mul, ENNReal.toReal_mul]
+    congr with x
+    congr with x'
+    simp only [Set.mem_preimage, Set.mem_singleton_iff]
+    exact ⟨fun h ↦ hf h, fun h ↦ by rw [h]⟩
+  · simp only [Finset.mem_univ, forall_true_left]
+    exact hf
 
 end measureEntropy
 
@@ -253,7 +285,12 @@ lemma entropy_cond_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMe
 
 /-- If $X$, $Y$ are $S$-valued and $T$-valued random variables, and $Y = f(X)$ almost surely for
 some injection $f: S \to T$, then $H[X] = H[Y]$. -/
-lemma entropy_of_inj_map : 0 = 1 := sorry
+lemma entropy_comp_of_injective [MeasurableSingletonClass T]
+    (μ : Measure Ω) (hX : Measurable X)
+    (f : S → T) (hf : Function.Injective f) (hf_m : Measurable f) :
+    H[f ∘ X ; μ] = H[X ; μ] := by
+  rw [entropy_def, ← Measure.map_map hf_m hX, measureEntropy_map_of_injective _ _ hf hf_m,
+    entropy_def]
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
 distributed. -/
@@ -298,7 +335,7 @@ lemma condEntropy_le_log_card [MeasurableSingletonClass S]
     simp
 
 lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
-    [IsProbabilityMeasure μ] :
+    [IsFiniteMeasure μ] :
     H[X | Y ; μ] = ∑ y, (μ.map Y {y}).toReal * H[X | Y ← y ; μ] := by
   rw [condEntropy_def, integral_eq_sum]
   simp_rw [smul_eq_mul]
@@ -387,14 +424,26 @@ lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure _ hy
     suffices ∑ x : S, ((μ[|Y ⁻¹' {y}]).map X {x}).toReal = 1 by
       rw [this, one_mul, ← neg_mul, negIdMulLog]
-    rw [← ENNReal.toReal_sum (fun _ _ ↦ measure_ne_top _ _), ENNReal.toReal_eq_one_iff]
-    simp_rw [Measure.map_apply hX (measurableSet_singleton _)]
-    rw [sum_measure_preimage_singleton _ (fun y _ ↦ hX (measurableSet_singleton y))]
-    simp
+    simp [Measure.map_apply hX MeasurableSet.univ]
   · rw [condEntropy_eq_sum_prod hX]
     congr with p
     rw [negIdMulLog]
     ring
+
+/-- Data-processing inequality for the entropy. -/
+lemma entropy_comp_le {U : Type*} [Fintype U] [MeasurableSpace U]
+    [MeasurableSingletonClass S] [MeasurableSingletonClass U]
+    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) {f : S → U} (hf : Measurable f) :
+    H[f ∘ X ; μ] ≤ H[X ; μ] := by
+  have : H[X ; μ] = H[fun ω ↦ (X ω, (f ∘ X) ω) ; μ] := by
+    refine (entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) ?_ ?_).symm
+    · intro x y hxy
+      simp only [Prod.mk.injEq] at hxy
+      exact hxy.1
+    · exact measurable_id.prod_mk hf
+  rw [this, chain_rule _ hX (hf.comp hX)]
+  simp only [le_add_iff_nonneg_right]
+  exact condEntropy_nonneg X (f ∘ X) μ
 
 /--   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
 $$ H[  X,Y | Z ] = H[Y | Z] + H[X|Y, Z].$$ -/
