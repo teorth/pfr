@@ -85,4 +85,4 @@ Then $$ \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 H[Z] - H[A
 lemma ent_bsg : 0 = 1 := by sorry
 
 
-end
+end Balog_Szemeredi_Gowers

@@ -223,7 +223,7 @@ $$ H[X_1,X_2,Y] = 2 H[X] + H[Y] + 2 I[X:Y] = 2 H[X,Y] - H[Y].$$
 \begin{lemma}[Balog-Szemer\'edi-Gowers]\label{lem-bsg}
   \uses{ruz-dist-def, information-def, entropy-def}
   \lean{ent-bsg}
-  Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z \coloneq A+B$.
+  Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z := A+B$.
 Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 H[Z] - H[A] - H[B]. \end{equation}
 \end{lemma}
