@@ -50,19 +50,14 @@ lemma integral_eq_sum {S E : Type*} [Fintype S] [MeasurableSpace S] [MeasurableS
   simp_rw [integral_smul_measure, integral_dirac]
   rw [tsum_fintype]
 
-/-- `μ[|s]` is a finite measure whenever `μ` is finite. -/
+/-- `μ[|s]` is always a finite measure. -/
 instance cond_isFiniteMeasure {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}
-    [IsFiniteMeasure μ] (s : Set α) :
-    IsFiniteMeasure (μ[|s]) := by
+    (s : Set α) : IsFiniteMeasure (μ[|s]) := by
   constructor
-  rw [ProbabilityTheory.cond]
   simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, MeasurableSet.univ,
-    Measure.restrict_apply, Set.univ_inter, smul_eq_mul]
-  by_cases hμs : μ s = 0
-  · simp [hμs]
-  · refine ENNReal.mul_lt_top ?_ (measure_ne_top _ _)
-    simp only [ne_eq, ENNReal.inv_eq_top]
-    exact hμs
+    Measure.restrict_apply, Set.univ_inter, smul_eq_mul, ProbabilityTheory.cond,
+    ← ENNReal.div_eq_inv_mul]
+  exact ENNReal.div_self_le_one.trans_lt ENNReal.one_lt_top
 
 lemma cond_eq_zero_of_measure_zero {α : Type*} {_ : MeasurableSpace α} {μ : Measure α} {s : Set α}
     (hμs : μ s = 0) :
