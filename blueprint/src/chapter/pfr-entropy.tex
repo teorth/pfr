@@ -23,8 +23,61 @@ $$  \tau[X_1; X_2] \coloneqq \dist{X_1}{X_2} + \eta  \dist{X^0_1}{X_1} + \eta \d
 \begin{proof}\uses{copy-ent} Immediate from Lemma \ref{copy-ent}.
 \end{proof}
 
+\begin{definition}[$\tau$-minimizer]\label{tau-min-def}
+\uses{tau-def}
+\lean{tau-minimizes}
+A pair of $G$-valued random variables $X_1, X_2$ are said to be a $\tau$-minimizer if one has
+  $$\tau[X_1;X_2] \leq \tau[X'_1;X'_2]
+  $$
+for all $G$-valued random variables $X'_1, X'_2$.
+\end{definition}
 
 
+\begin{proposition}[$\tau$ has minimum]\label{tau-min}\uses{tau-minimizes}
+  \lean{tao-min-exists}
+A pair $X_1, X_2$ of $\tau$-minimizers exist.
+\end{proposition}
+
+\begin{proof} By Lemma \ref{tau-copy}, $\tau$ only depends on the probability distributions of $X_1, X_2$. This ranges over a compact space, and $\tau$ is continuous.  So $\tau$ has a minimum.
+\end{proof}
+
+\subsection{Basic facts about minimizers}
+
+In this section we assume that $X_1,X_2$ are $\tau$-minimizers. We also write $k := d[X_1;X_2]$.
+
+\begin{lemma}[Distance lower bound]\label{distance-lower}
+  \uses{tau-minimizes, ruz-dist-def}
+  \lean{distance_ge_of_min}
+  For any $G$-valued random variables $X'_1,X'_2$, one has
+$$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] ).$$
+\end{lemma}
+
+\begin{proof}
+  \uses{tau-def, tau-minimizes}
+  Immediate from Definition \ref{tau-def} and Definition \ref{tau-minimizes}.
+\end{proof}
+
+\begin{lemma}[Conditional distance lower bound]\label{cond-distance-lower}
+  \uses{tau-minimizes, cond-dist-def, ruz-dist-def}
+  \lean{condDistance_ge_of_min}
+  For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
+$$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
+\end{lemma}
+
+\begin{proof}\uses{distance-lower}  Apply Lemma \ref{distance-lower} to conditioned random variables and then average.
+\end{proof}
+
+\subsection{First estimate}
+
+...
+
+\subsection{Second estimate}
+
+...
+
+\subsection{Endgame}
+
+...
 
 \begin{theorem}[$\tau$-decrement]\label{de-prop}
   \uses{tau-def, ruz-dist-def}
@@ -38,18 +91,7 @@ $$
 \end{proof}
 
 
-\begin{proposition}[$\tau$ has minimum]\label{tau-min}\uses{tau-def}
-  \lean{tao-min-exists}
-  There exist $G$-valued random variables $X_1, X_2$ such that
-  $$\tau[X_1;X_2] \leq \tau[X'_1;X'_2]
-  $$
-for all $G$-valued random variables $X'_1, X'_2$.
-\end{proposition}
-
-\begin{proof} By Lemma \ref{tau-copy}, $\tau$ only depends on the probability distributions of $X_1, X_2$. This ranges over a compact space, and $\tau$ is continuous.  So $\tau$ has a minimum.
-\end{proof}
-
-
+\subsection{Conclusion}
 
 \begin{theorem}[Entropy version of PFR]\label{entropy-pfr}\uses{ruz-dist-def}
   \lean{entropic_PFR_conjecture}
@@ -64,7 +106,7 @@ for all $G$-valued random variables $X'_1, X'_2$.
 
 Probably need a definition for a uniform distribution on a non-empty subset $H$ of a set $S$.
 
-\begin{proof} \uses{de-prop, tau-min, lem:100pc, ruzsa-triangle}  Let $X_1, X_2$ be the minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop}, $d[X_1;X_2]=0$.  From Lemma \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
+\begin{proof} \uses{de-prop, tau-min, lem:100pc, ruzsa-triangle}  Let $X_1, X_2$ be the $\tau$-minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop}, $d[X_1;X_2]=0$.  From Lemma \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}
 
 Note: a ``stretch goal'' for this project would be to obtain a `decidable` analogue of this result (see the remark at the end of Section 2 for some related discussion).

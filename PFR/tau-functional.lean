@@ -2,13 +2,9 @@ import PFR.f2_vec
 import PFR.ruzsa_distance
 
 /-!
-# Entropic version of polynomial Freiman-Ruzsa conjecture
+# The tau functional
 
-Here we prove the entropic version of the polynomial Freiman-Ruzsa conjecture.
-
-## Main results
-
-* `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$.
+Definition of the tau functional and basic facts
 
 -/
 
@@ -40,12 +36,13 @@ def tau_minimizes (X_1: Ω → G) (X_2 : Ω' → G) : Prop := sorry
 -/
 lemma tau_min_exists : 0 = 1 := sorry
 
+/-- If $X_1,X_2$ are tau-minimizers with $d[X_1,X_2]=k$, then
+$$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] )$$
+for any $G$-valued random variables $X'_1,X'_2$.
+-/
+lemma distance_ge_of_min : 0 = 1 := sorry
 
-
-
-/-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that
-$$ \tau[X'_1;X'_2] < \tau[X_1;X_2].$$ -/
-theorem tau_strictly_decreases : 0 = 1 := sorry
-
-/-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$. -/
-theorem entropic_PFR_conjecture : 0 = 1 := by sorry
+/--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
+$$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
+-/
+lemma condDistance_ge_of_min : 0 = 1 := sorry
