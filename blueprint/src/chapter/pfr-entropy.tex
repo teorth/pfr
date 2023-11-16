@@ -116,7 +116,9 @@ and
 Adding all these inequalities, we obtain~\eqref{suff-for-first-est}.
 \end{proof}
 
-\begin{lemma}\label{foursum-bound}
+One can also extract the following useful inequality from the proof of the above lemma.
+
+\begin{lemma}[Entropy bound on quadruple sum]\label{foursum-bound}
   \uses{entropy-def}
   \lean{ent_ofsum_le}
   With the same notation, we have
@@ -206,10 +208,10 @@ By combining~\eqref{1122},~\eqref{1122a} and~\eqref{1122b}, we obtain
 \subsection{Endgame}
 
 Let $X_1,X_2,\tilde X_1,\tilde X_2$ be as before, and introduce the random variables
-\[ U \coloneqq X_1 + X_2, \qquad V \coloneqq \tilde X_1 + X_2, \qquad W \coloneqq X_1 + \tilde X_1\] and
-\[   S \coloneqq X_1 + X_2 + \tilde X_1 + \tilde X_2.\]
+\[ U := X_1 + X_2, \qquad V := \tilde X_1 + X_2, \qquad W := X_1 + \tilde X_1\] and
+\[   S := X_1 + X_2 + \tilde X_1 + \tilde X_2.\]
 
-\begin{lemma}\label{uvw-s}
+\begin{lemma}[Bound on conditional mutual informations]\label{uvw-s}
 \uses{conditional-information-def}
 \lean{sum_condMutual_le}
 We have
@@ -233,6 +235,49 @@ $$
 $$
 and the claim follows from some calculation.
 \end{proof}
+
+\begin{lemma}[Bound on distance increments]\label{total-dist}
+  \lean{sum_dist_diff_le}
+   We have
+\begin{align*}
+  \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] & - d[X^0_i;X_i]\big) \\
+    &\leq (6 - 3\eta) k + 3(2 \eta k - I_1).
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+  \uses{second-useful, foursum-bound}
+  By Lemma \ref{second-useful} (taking $X = X_1^0$, $Y = X_1$, $Z = X_2$ and $Z' = \tilde X_1 + \tilde X_2$, so that $Y + Z = U$ and $Y + Z + Z' = S$) we have, noting that $H[Y+Z] = H[Z']$,
+  \[
+    d[X^0_1;U|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (H[S] -  H[X_1]).
+  \]
+  Further applications of Lemma \ref{second-useful} give
+  \begin{align*}
+  d[X^0_2;U|S] - d[X^0_2; X_2] &\leq \tfrac{1}{2} (H[S] -  H[X_2]) \\
+  d[X^0_1;V|S] - d[X^0_1;X_1] &\leq \tfrac{1}{2} (H[S] -  H[X_1])\\
+  d[X^0_2;V|S] - d[X^0_2;X_2] &\leq \tfrac{1}{2} (H[S] -  H[X_2])
+  \end{align*}
+  and
+  \[ d[X^0_1;W|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (H[S] + H[W] - H[X_1] - H[W']),\] where $W' := X_2 + \tilde X_2$.
+  To treat $d[X^0_2;W|S]$, first note that this equals $d[X^0_2;W'|S]$, since for a fixed choice $s$ of $S$ we have $W' = W + s$ (here we need some helper lemma about Ruzsa distance). Now we may apply Lemma \ref{second-useful} to obtain
+  \[ \dist{X^0_2}{W'|S} - \dist{X^0_2}{X_2} \leq \tfrac{1}{2} (\H{S} + \H{W'} - \H{X_2} - \H{W}).\]
+  Summing these six estimates and using Lemma \ref{foursum-bound}, we conclude that
+  \begin{align*}
+    \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] & - d[X^0_i;X_i]\big) \\
+      &\leq 3H[S] - \tfrac{3}{2} H[X_1] - \tfrac{3}{2}H[X_2]\\
+      &\leq (6 - 3\eta) k + 3(2 \eta k - I_1)
+  \end{align*}
+  as required.
+\end{proof}
+
+\begin{lemma}[Key identity]\label{key-ident}
+\lean{sum_uvw_eq_zero}
+We have $U+V+W=0$.
+\end{lemma}
+
+\begin{proof} Obvious because we are in characteristic two.
+\end{proof}
+
 
 ...
 

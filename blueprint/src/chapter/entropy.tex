@@ -1,6 +1,6 @@
 \chapter{Shannon entropy inequalities}
 
-Random variables in this paper are measurable maps $X : \Omega \to S$ from a probability space $\Omega$ to a finite set $S$ (equipped with the discrete random variable), and called $S$-valued random variables.
+Random variables in this paper are measurable maps $X : \Omega \to S$ from a probability space $\Omega$ to a finite set $S$ (equipped with the discrete $\sigma$-algebra), and called $S$-valued random variables.
 (NOTE: may wish to generalize to infinite $S$, but then require that $X$ almost surely ranges in a finite subset.)
 
 \begin{definition}[Entropy]
@@ -12,11 +12,11 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   with the convention that $0 \log \frac{1}{0} = 0$.
 \end{definition}
 
-\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_of_inj_map} \uses{entropy-def}
+\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_comp_of_injective} \uses{entropy-def}
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $H[X] = H[Y]$.
 \end{lemma}
 
-\begin{proof} Expand out both entropies and rearrange.
+\begin{proof} \leanok Expand out both entropies and rearrange.
 \end{proof}
 
 \begin{lemma}[Jensen bound]\label{jensen-bound}
@@ -89,7 +89,9 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
   If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $H[X|Z] = H[Y|Z]$.
 \end{lemma}
 
-\begin{proof}  \uses{relabeled-entropy} Use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.
+\begin{proof}
+  \uses{relabeled-entropy}\leanok
+  Use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.
 \end{proof}
 -- also need a version where an injection is applied to $Z$
 
@@ -193,7 +195,7 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
 
 \begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.entropy_triple_add_entropy_le}
+  \lean{ProbabilityTheory.entropy_triple_add_entropy_le}\leanok
   With three random variables $X,Y,Z$, one has
   $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$
 \end{corollary}
@@ -229,7 +231,7 @@ May want to add a lemma that jointly independent random variables are pairwise i
 If $X,Y$ are random variables, then $I[X:Y] = 0$ if and only if $X,Y$ are independent.
 \end{corollary}
 
-\begin{proof} \uses{add-entropy} Immediate from Lemma \ref{add-entropy} and Definition \ref{information-def}.
+\begin{proof} \uses{add-entropy}\leanok Immediate from Lemma \ref{add-entropy} and Definition \ref{information-def}.
 \end{proof}
 
 \begin{definition}[Conditional mutual information]

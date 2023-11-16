@@ -7,7 +7,7 @@ In this chapter, $h$ denotes the function $h(x) := x \log \frac{1}{x}$ for $x \i
   $h$ is strictly concave on $[0,1]$.
 \end{lemma}
 
-\begin{proof} Check that $h'$ is strictly monotone decreasing.
+\begin{proof} \leanok Check that $h'$ is strictly monotone decreasing.
 \end{proof}
 
 \begin{lemma}[Jensen]\label{jensen}
@@ -16,7 +16,7 @@ In this chapter, $h$ denotes the function $h(x) := x \log \frac{1}{x}$ for $x \i
   $$ \sum_{s \in S} w_s h(p_s) \leq h(\sum_{s \in S} w_s p_s).$$
 \end{lemma}
 
-\begin{proof} \uses{h-concave}\leanok Apply Jensen and Lemma \ref{concave}.
+\begin{proof} \uses{concave}\leanok Apply Jensen and Lemma \ref{concave}.
 \end{proof}
 
 \begin{lemma}[Converse Jensen]\label{converse-jensen}
