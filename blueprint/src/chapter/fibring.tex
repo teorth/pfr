@@ -17,7 +17,7 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
   \begin{align*}
     & d[Z_1  |\pi(Z_1); Z_2 |\pi(Z_2)] \\
     & = H[ Z_1 + Z_2 | \pi(Z_1),\pi(Z_2)] - \tfrac{1}{2} H[Z_1 | \pi(Z_1)] - \tfrac{1}{2} H[Z_2 | \pi(Z_2)] \\
-    & \leq  H[ Z_1 + Z_2 | \pi(Z_1+Z_2)]  - \tfrac{1}{2} \H[Z_1 | \pi(Z_1)] - \tfrac{1}{2}H[Z_2 | \pi(Z_2)] \\
+    & \leq  H[ Z_1 + Z_2 | \pi(Z_1+Z_2)]  - \tfrac{1}{2} H[Z_1 | \pi(Z_1)] - \tfrac{1}{2}H[Z_2 | \pi(Z_2)] \\
     & = d[Z_1;Z_2] - d[\pi(Z_1);\pi(Z_2)].
   \end{align*}
   In the middle step, we used Lemma \ref{submodularity}, and in the last step we used the fact that
@@ -57,7 +57,7 @@ while by definition
 \]
 Furthermore,
 \[
-  \d[Z_1|\pi(Z_1); Z_2|\pi(Z_2)] = d[Y_1|Y_1+Y_3;Y_2|Y_2+Y_4],
+  d[Z_1|\pi(Z_1); Z_2|\pi(Z_2)] = d[Y_1|Y_1+Y_3;Y_2|Y_2+Y_4],
 \]
 since $Z_1=(Y_1,Y_3)$ and $Y_1$ are linked by an invertible affine transformation once $\pi(Z_1)=Y_1+Y_3$ is fixed, and similarly for $Z_2$ and $Y_2$.  (This has to do with Lemma \ref{relabeled-entropy-cond})
 Finally, we have

@@ -293,7 +293,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 
   \begin{proof}
     \uses{ruz-copy, ruz-lean, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}
-  We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using Lemma \ref{independent-exist} and Lemma \ref{ruz-copy}, \ref{ruz-ent}) that $X$ is independent of $Y, Z$. Then we have
+  We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using Lemma \ref{independent-exist} and Lemma \ref{ruz-copy}, \ref{ruz-indep}) that $X$ is independent of $Y, Z$. Then we have
   \begin{align*}  d[X;Y+Z] & - d[X;Y] \\ & = H[X + Y + Z] - H[X+Y] - \tfrac{1}{2}H[Y + Z] + \tfrac{1}{2} H[Y].\end{align*}
   Combining this with Lemma \ref{kv} gives the required bound. The second form of the result is immediate Lemma \ref{ruz-indep}.
 

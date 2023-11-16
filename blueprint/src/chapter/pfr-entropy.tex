@@ -53,8 +53,8 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;
 \end{lemma}
 
 \begin{proof}
-  \uses{tau-def, tau-minimizes}
-  Immediate from Definition \ref{tau-def} and Definition \ref{tau-minimizes}.
+  \uses{tau-def, tau-min}
+  Immediate from Definition \ref{tau-def} and Definition \ref{tau-min}.
 \end{proof}
 
 \begin{lemma}[Conditional distance lower bound]\label{cond-distance-lower}
@@ -81,21 +81,21 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
   \lean{first-estimate} We have $I_1 \leq 2 \eta k$.
 \end{lemma}
 
-\begin{proof}\uses{cor-fibre, distance-lower, cor-distance-lower, first-useful}  From Corollary \ref{cor-fibre} we have
-  \begin{align*}
+\begin{proof}\uses{cor-fibre, distance-lower, cond-distance-lower, first-useful}  From Corollary \ref{cor-fibre} we have
+  \begin{align}
     &   d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] \\
-    &\quad + I[ X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2 ] = 2k.
-    \end{align*}
-From Lemma \ref{distance-lower}, Lemma \ref{cor-distance-lower} we haave
+    &\quad + I[ X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2 ] = 2k.\label{second-main}
+    \end{align}
+From Lemma \ref{distance-lower}, Lemma \ref{cond-distance-lower} we have
 \begin{align*}
   d[X_1+\tilde X_2; X_2+\tilde X_1] \geq k &- \eta (d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1]) \\& \qquad- \eta (d[X^0_2; X_2+\tilde X_1] - d[X^0_2; X_2])
 \end{align*}
 and
-\begin{align*}
+\begin{align}
   \nonumber
   & d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]  \\ \nonumber & \qquad\quad \geq k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) \\
-  & \qquad\qquad\qquad\qquad  - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).
-\end{align*}
+  & \qquad\qquad\qquad\qquad  - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).\label{second-tc2}
+\end{align}
 It therefore suffices to prove that
 \begin{align}
 \nonumber
@@ -260,7 +260,7 @@ and the claim follows from some calculation.
   and
   \[ d[X^0_1;W|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (H[S] + H[W] - H[X_1] - H[W']),\] where $W' := X_2 + \tilde X_2$.
   To treat $d[X^0_2;W|S]$, first note that this equals $d[X^0_2;W'|S]$, since for a fixed choice $s$ of $S$ we have $W' = W + s$ (here we need some helper lemma about Ruzsa distance). Now we may apply Lemma \ref{second-useful} to obtain
-  \[ \dist{X^0_2}{W'|S} - \dist{X^0_2}{X_2} \leq \tfrac{1}{2} (\H{S} + \H{W'} - \H{X_2} - \H{W}).\]
+  \[ d[X^0_2;W'|S] - d[X^0_2;X_2] \leq \tfrac{1}{2} (H[S] + H[W'] - H[X_2] - H[W]).\]
   Summing these six estimates and using Lemma \ref{foursum-bound}, we conclude that
   \begin{align*}
     \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] & - d[X^0_i;X_i]\big) \\
@@ -292,7 +292,8 @@ We have $U+V+W=0$.
 \begin{proof}\uses{lem-bsg, cond-dist-fact}
   We apply Lemma \ref{lem-bsg} with $(A,B) = (T_1, T_2)$ there.
   Since $T_1 + T_2 = T_3$, the conclusion is that
-  \begin{align} \nonumber \sum_{t_3} P[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 I[{T_1 : T_2] + 2 H[T_3] - H[T_1] - H[T_2].\label{bsg-t1t2}\end{align}
+  \begin{align} \nonumber \sum_{t_3} P[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 I[T_1 : T_2] + 2 H[T_3] - H[T_1] - H[T_2].\label{bsg-t1t2}
+  \end{align}
   The right-hand side in~\eqref{bsg-t1t2} can be rearranged as
   \begin{align*} & 2( H[T_1] + H[T_2] + H[T_3]) - 3 H[T_1,T_2] \\ & = 2(H[T_1] + H[T_2] + H[T_3]) - H[T_1,T_2] - H[T_2,T_3] - H[T_1, T_3] = \delta,\end{align*}
   using the fact (from Lemma \ref{relabeled-entropy}) that all three terms $H[T_i,T_j]$ are equal to $H[T_1,T_2,T_3]$ and hence to each other.
@@ -339,7 +340,7 @@ $$
 \end{theorem}
 
 \begin{proof}
-  \uses{construct-good, cond-distance-lower, uvw-sum, uvw-s, total-dist, first-est}
+  \uses{construct-good, cond-distance-lower, key-ident, uvw-s, total-dist, first-est}
   We take contrapostives and assume that $X_1,X_2$ are tau-minimizers, and wish to show that $k := d[X_1;X_2]$ vanishes.  Applying Lemma \ref{construct-good} with any random variables $(T_1,T_2,T_3)$ such that $T_1+T_2+T_3=0$ holds identically, and applying Lemma \ref{cond-distance-lower} with $X'_1 = T'_1$, $X'_2 = T'_2$, we deduce that
 \[
   k \leq \delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_1;T_j] - d[X^0_i;X_i]) \biggr).
@@ -349,7 +350,7 @@ In particular we may apply this for
 \[
   T_1 = (U | S = s),\qquad T_2 = (V | S = s), \qquad T_3 = (W | S = s)
 \]
-for $s$ in the range of $S$ (which is a valid choice by Lemma \ref{uvw-sum}) and then average over $s$ with weights $p_S(s)$, to obtain
+for $s$ in the range of $S$ (which is a valid choice by Lemma \ref{key-ident}) and then average over $s$ with weights $p_S(s)$, to obtain
 \[ k \leq \tilde \delta + \frac{\eta}{3} \biggl( \tilde \delta + \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \bigl(  d[X^0_i;A|S] - d[X^0_i;X_i]\bigr) \biggr),\]
 where
 \[
@@ -361,7 +362,7 @@ Putting this together with Lemma \ref{uvw-s} and Lemma \ref{total-dist}, we conc
   &= (8\eta + \eta^2) k - \biggl( \frac{1 - 5 \eta}{1-\eta}\Bigl(1 + \frac{\eta}{3}\Bigr) -  \eta \biggr)(2 \eta k - I_1)\\
   &\leq (8 \eta + \eta^2) k
  \end{align*}
-since the quantity $2 \eta k - I_1$ is non-negative (by Lmma \ref{first-est}), and its coefficient in the above expression is non-positive provided that $\eta(2\eta + 17) \le 3$, which is certainly the case for our choice $\eta = \frac{1}{9}$ (and in fact for any $\eta \leq \frac{1}{6}$).
+since the quantity $2 \eta k - I_1$ is non-negative (by Lemma \ref{first-estimate}), and its coefficient in the above expression is non-positive provided that $\eta(2\eta + 17) \le 3$, which is certainly the case for our choice $\eta = \frac{1}{9}$ (and in fact for any $\eta \leq \frac{1}{6}$).
 Moreover, for\footnote{In fact we can take any $\eta<\frac{1}{4 + \sqrt{17}} = \frac{1}{8.1231\dots}$, and the other constants in the paper can be improved accordingly.} $\eta=\tfrac{1}{9}$ we have $8 \eta + \eta^2 < 1$. It follows that $k=0$, as desired.
 \end{proof}
 
