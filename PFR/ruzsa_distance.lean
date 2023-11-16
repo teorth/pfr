@@ -16,14 +16,21 @@ Here we define Ruzsa distance and establish its basic properties.
 * `Ruzsa_triangle`: The Ruzsa triangle inequality for three random variables.
 
 -/
-open MeasureTheory
+open MeasureTheory ProbabilityTheory
 
-variable {Ω Ω' Ω'' G : Type*} [mΩ : MeasurableSpace Ω] {μ : Measure Ω} [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'} [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''} [AddCommGroup G] [Fintype G]
+variable {Ω Ω' Ω'' G : Type*}
+  [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
+  [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
+  [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
+  [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [MeasurableSub₂ G] [Fintype G]
+
+variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 
 -- may also want [DecidableEq G]
 
 /-- If $X$ is $G$-valued, then $\bbH[-X]=\bbH[X]$. -/
-lemma ent_of_neg : 0 = 1 := by sorry
+lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
+  entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
 
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X \pm Y].$$ -/
 lemma ent_of_sumdiff_lower : 0 = 1 := by sorry
@@ -35,33 +42,56 @@ lemma condEnt_of_sumdiff_lower : 0 = 1 := by sorry
 lemma ent_of_indep_sumdiff_lower : 0 = 1 := by sorry
 
 
+/-- The Ruzsa distance `dist X Y` between two random variables is defined as
+$H[X'-Y'] - H[X']/2 - H[Y']/2$, where $X',Y'$ are independent copies of $X, Y$. -/
+noncomputable
+def rdist (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
+    (μ' : Measure Ω' := by volume_tac) : ℝ :=
+  H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2
 
-/-- The Ruzsa distance `dist X Y` between two random variables is defined as $H[X'-Y'] - H[X']/2 - H[Y']/2$, where $X',Y'$ are independent copies of $X, Y$. -/
-def dist (X : Ω → G) (Y : Ω' → G) : ℝ := sorry
+lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') :
+    rdist X Y μ μ'
+      = H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2 := rfl
 
 -- may also want to make further notations for Ruzsa distance
 
 /-- If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$. -/
-lemma dist_of_copy : 0 = 1 := by sorry
+lemma rdist_of_copy : 0 = 1 := by sorry
 
 /--   If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$-/
-lemma dist_of_indep : 0 = 1 := by sorry
+lemma rdist_of_indep [IsFiniteMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
+    (h : IndepFun X Y μ) :
+    rdist X Y μ μ = H[fun ω ↦ X ω - Y ω ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
+  rw [rdist_def]
+  congr 2
+  have h_prod : (μ.map X).prod (μ.map Y) = μ.map (fun ω ↦ (X ω, Y ω)) :=
+    ((indepFun_iff_map_prod_eq_prod_map_map hX hY).mp h).symm
+  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
+  congr
 
 /-- $$ d[X;Y] = d[Y;X].$$ -/
-lemma dist_symm : 0 = 1 := by sorry
+lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] : rdist X Y μ μ' = rdist Y X μ' μ := by
+  rw [rdist_def, rdist_def, sub_sub, sub_sub, add_comm]
+  congr 1
+  rw [← entropy_neg (measurable_fst.sub measurable_snd)]
+  have : (-fun x : G × G ↦ x.1 - x.2) = (fun x ↦ x.1 - x.2) ∘ Prod.swap := by ext; simp
+  rw [this, entropy_def, ← Measure.map_map (measurable_fst.sub measurable_snd) measurable_swap,
+    Measure.prod_swap]
+  rfl
 
 /-- $$|H[X]-H[Y]| \leq 2 d[X;Y].$$ -/
-lemma diff_ent_le_dist : 0 = 1 := by sorry
+lemma diff_ent_le_rdist : |H[X ; μ] - H[Y ; μ']| ≤ 2 * rdist X Y μ μ' := by sorry
 
 /-- $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$ -/
-lemma diff_ent_le_dist' : 0 = 1 := by sorry
+lemma diff_ent_le_rdist' {Y : Ω → G} : 0 = 1 := by sorry
 
 /--   $$ d[X;Y] \geq 0.$$  -/
-lemma ruzsa_dist_nonneg : 0 = 1 := by sorry
+lemma rdist_nonneg : 0 ≤ rdist X Y μ μ' := by sorry
 
 /-- The Ruzsa triangle inequality -/
-lemma Ruzsa_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) : dist X Z ≤ dist X Y + dist Y Z := sorry
+lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) :
+    rdist X Z μ μ'' ≤ rdist X Y μ μ' + rdist Y Z μ' μ'' := sorry
 
 /-- definition of d[ X|Z ; Y| W ]-/
 def condDist [Fintype S] [Fintype T] (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) : ℝ := sorry
