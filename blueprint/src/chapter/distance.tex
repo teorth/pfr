@@ -300,3 +300,19 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \begin{align*} I[Y : Y+Z] & = H[Y] + H[Y + Z] - H[Y, Y + Z] \\ & = H[Y] + H[Y + Z] - H[Y, Z]  = H[Y + Z] - H[Z],\end{align*}
   and so~\eqref{ruzsa-3} is a consequence of Lemma \ref{cond-dist-fact}. Once again the second form of the result is immediate from Lemma \ref{ruz-indep}.
 \end{proof}
+
+\begin{lemma}\label{second-useful}
+  \uses{independent-def, cond-ruz-def, entropy-def, ruz-dist-def}
+  \lean{condDist_le''}
+  Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
+  \begin{align}\nonumber
+  & d[X;Y + Z | Y + Z + Z'] - d[X;Y] \\ & \qquad \leq \tfrac{1}{2} ( H[Y + Z + Z'] + H[Y + Z] - H[Y] - H[Z']).\label{7111}
+  \end{align}
+  \end{lemma}
+
+  \begin{proof}
+    \uses{first-useful}
+  By Lemma \ref{first-useful} (with a change of variables) we have
+  \[ d[X; Y + Z | Y + Z + Z'] - d[X; Y + Z] \leq \tfrac{1}{2}( H[Y + Z + Z'] - H[Z']).\]
+  Adding this to~\eqref{lem51-a} gives the result.
+  \end{proof}

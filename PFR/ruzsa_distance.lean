@@ -103,3 +103,10 @@ $$
    = \tfrac{1}{2} d[Y;Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z].
 -/
 lemma condDist_le' : 0 = 1 := by sorry
+
+
+/--   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
+$$ d[X;Y + Z | Y + Z + Z'] - d[X;Y] $$
+$$ \leq \tfrac{1}{2} ( H[Y + Z + Z'] + H[Y + Z] - H[Y] - H[Z']).$$
+-/
+lemma condDist_le'' : 0 = 1 := by sorry
