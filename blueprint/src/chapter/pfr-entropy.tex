@@ -69,7 +69,42 @@ $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - - \eta (d[
 
 \subsection{First estimate}
 
+We continue the assumptions from the preceding section.
+
+Let $X_1, X_2, \tilde X_1, \tilde X_2$ be independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.  (This is possible thanks to Lemma \ref{independent-exist}.)
+
+We also define the quantity
+$$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
+
+
+\begin{lemma}[First estimate]\label{first-estimate}
+  \lean{first-estimate} We have $I_1 \leq 2 \eta k$.
+\end{lemma}
+
+\begin{proof}\uses{cor-fibre, distance-lower, cor-distance-lower}  From Corollary \ref{cor-fibre} we have
+  \begin{align*}
+    &   d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] \\
+    &\quad + I[ X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2 ] = 2k.
+    \end{align*}
+From Lemma \ref{distance-lower}, Lemma \ref{cor-distance-lower} we haave
+\begin{align*}
+  d[X_1+\tilde X_2; X_2+\tilde X_1] \geq k &- \eta (d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1]) \\& \qquad- \eta (d[X^0_2; X_2+\tilde X_1] - d[X^0_2; X_2])
+\end{align*}
+and
+\begin{align*}
+  \nonumber
+  & d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]  \\ \nonumber & \qquad\quad \geq k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) \\
+  & \qquad\qquad\qquad\qquad  - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).
+\end{align*}
+It therefore suffices to prove that
+\begin{align}
+\nonumber
+&(d[X_1^0;X_1+\tilde X_2]-\dist[X_1^0;X_1] + (d[X_2^0;X_2+\tilde X_1]-d[X_2^0;X_2])\\
+&\qquad \qquad +(d[X_1^0;X_1|X_1+\tilde X_2]-d[X_1^0;X_1]) \nonumber \\ & \qquad \qquad \qquad \qquad  +(d\dist[X_2^0; X_2|X_2+\tilde X_1]-d[X_2^0;X_2]) \leq 2k.
+\label{suff-for-first-est}
+\end{align}
 ...
+\end{proof}
 
 \subsection{Second estimate}
 

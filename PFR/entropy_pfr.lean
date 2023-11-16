@@ -1,5 +1,7 @@
+import PFR.entropy_basic
 import PFR.f2_vec
 import PFR.ruzsa_distance
+import PFR.tau-functional
 
 /-!
 # Entropic version of polynomial Freiman-Ruzsa conjecture
@@ -20,28 +22,6 @@ variable [AddCommGroup G] [ElementaryAddGroup G 2] [Fintype G]
 
 variable (X_0_1: Ω_0 → G) (X_0_2: Ω'_0 → G)
 (X_1: Ω → G) (X_2: Ω' → G)
-
-def eta := (9:ℝ)⁻¹
-
-/-- If $X_1,X_2$ are two $G$-valued random variables, then
-$$  \tau[X_1; X_2] \coloneqq d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$ --/
-def tau (X_1: Ω → G) (X_2 : Ω' → G) : ℝ := sorry
-
-/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. --/
-lemma tau_of_copy : 0 = 1 := sorry
-
-/-- The property that
-  $$\tau[X_1;X_2] \leq \tau[X'_1;X'_2]
-  $$
-for all $G$-valued random variables $X'_1, X'_2$.  --/
-def tau_minimizes (X_1: Ω → G) (X_2 : Ω' → G) : Prop := sorry
-
-/--  There exist $G$-valued random variables $X_1, X_2$ such that tau_minimizes holds.
--/
-lemma tau_min_exists : 0 = 1 := sorry
-
-
-
 
 /-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that
 $$ \tau[X'_1;X'_2] < \tau[X_1;X_2].$$ -/
