@@ -15,3 +15,8 @@ Assumptions (need to be placed explicitly in the file):
 
 /--  We have $I_1 \leq 2 \eta k$ -/
 lemma first_estimate : 0 = 1 := by sorry
+
+
+/--     H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.
+-/
+lemma ent_ofsum_le : 0 = 1 := by sorry

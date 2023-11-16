@@ -81,7 +81,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
   \lean{first-estimate} We have $I_1 \leq 2 \eta k$.
 \end{lemma}
 
-\begin{proof}\uses{cor-fibre, distance-lower, cor-distance-lower}  From Corollary \ref{cor-fibre} we have
+\begin{proof}\uses{cor-fibre, distance-lower, cor-distance-lower, first-useful}  From Corollary \ref{cor-fibre} we have
   \begin{align*}
     &   d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] \\
     &\quad + I[ X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2 ] = 2k.
@@ -103,8 +103,37 @@ It therefore suffices to prove that
 &\qquad \qquad +(d[X_1^0;X_1|X_1+\tilde X_2]-d[X_1^0;X_1]) \nonumber \\ & \qquad \qquad \qquad \qquad  +(d\dist[X_2^0; X_2|X_2+\tilde X_1]-d[X_2^0;X_2]) \leq 2k.
 \label{suff-for-first-est}
 \end{align}
-...
+
+By Lemma \ref{first-useful} (and recalling that $k$ is defined to be $d[X_1;X_2]$) we have
+\[ d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} H[X_2] - \tfrac{1}{4} H[X_1],\] \[  d[X^0_2;X_2+\tilde X_1] - d[X^0_2; X_2] \leq \tfrac{1}{2} k + \tfrac{1}{4} H[X_1] - \tfrac{1}{4} H[X_2],\]
+\begin{equation}  d[X_1^0;X_1|X_1+\tilde X_2] - \dist[X_1^0;X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} H[X_1] - \tfrac{1}{4} H[X_2]                                 \label{second-dist1}
+\end{equation}
+and
+\begin{equation}
+  \label{second-dist2}
+  d[X_2^0; X_2|X_2+\tilde X_1] - d[X_2^0; X_2] \leq \tfrac{1}{2}k + \tfrac{1}{4} H[X_2] - \tfrac{1}{4} H[X_1].
+\end{equation}
+Adding all these inequalities, we obtain~\eqref{suff-for-first-est}.
 \end{proof}
+
+\begin{lemma}\label{foursum-bound}
+  \uses{entropy-def}
+  \lean{ent_ofsum_le}
+  With the same notation, we have
+  \begin{equation}
+    \label{HS-bound}
+    H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.
+  \end{equation}
+\end{lemma}
+
+\begin{proof}\uses{first-estimate, ruz-indep}
+  Subtracting~\eqref{second-tc2} from~\eqref{second-main}, and combining the resulting inequality with~\eqref{second-dist1} and~\eqref{second-dist2} (Note: these should all be extracted as separate lemmas) gives the bound
+\[
+  \dist{X_1+\tilde X_2}{X_2+\tilde X_1} \le (1 + \eta) k - I_1,
+\]
+and the claim follows from Lemma \ref{ruz-indep}.
+\end{proof}
+
 
 \subsection{Second estimate}
 

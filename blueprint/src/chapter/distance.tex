@@ -258,3 +258,45 @@ Since
 and similarly for $\bbH[B_2 | Z]$, we see that~\eqref{lhs-to-bound} is bounded by
 $3I[A:B] + 2H[Z]-H[A]-H[B]$ as claimed.
 \end{proof}
+
+
+\begin{lemma}\label{cond-dist-fact}
+  \uses{cond-ruz-dist, information-def}
+  \lean{condDist_le}
+  Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
+  \[    d[X  | Z;Y | W] \leq d[X; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W].\]
+\end{lemma}
+
+\begin{proof}
+\uses{cond-dist-alt, independent-exist, cond-reduce}
+Using Lemma \ref{cond-dist-alt} and Lemma \ref{independent-exist}, if $(X',Z'), (Y',W')$ are independent copies of the variables $(X,Z)$, $(Y,W)$, we have
+\begin{align*}
+  d[X  | Z; Y | W]&= H[X'-Y'|Z',W'] - \tfrac{1}{2} H[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
+                       &\le H[X'-Y']- \tfrac{1}{2} H[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
+                       &= d[X';Y'] + \tfrac{1}{2} I[X' : Z'] + \tfrac{1}{2} I[Y' : W'].
+\end{align*}
+Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step we used Definition \ref{ruz-dist-def} and Definition \ref{information-def}.
+\end{proof}
+
+\begin{lemma}\label{first-useful}
+  \uses{independent-def, ruz-dist-def, cond-dist-def, entropy-def, conditional-entropy-def}
+  \lean{condDist_le'}
+  Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
+  \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (H[Y+Z] - H[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} H[Z] - \tfrac{1}{4} H[Y]. \label{lem51-a} \end{align}
+  and
+  \begin{align}\nonumber
+  d[X;Y|Y+Z] - d[X;Y] & \leq \tfrac{1}{2} \bigl(H[Y+Z] - H[Z]\bigr) \\ & = \tfrac{1}{2} d[Y;Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z].
+    \label{ruzsa-3}
+  \end{align}
+  \end{lemma}
+
+  \begin{proof}
+    \uses{ruz-copy, ruz-lean, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}
+  We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using Lemma \ref{independent-exist} and Lemma \ref{ruz-copy}, \ref{ruz-ent}) that $X$ is independent of $Y, Z$. Then we have
+  \begin{align*}  d[X;Y+Z] & - d[X;Y] \\ & = H[X + Y + Z] - H[X+Y] - \tfrac{1}{2}H[Y + Z] + \tfrac{1}{2} H[Y].\end{align*}
+  Combining this with Lemma \ref{kv} gives the required bound. The second form of the result is immediate Lemma \ref{ruz-indep}.
+
+  Turning to~\eqref{ruzsa-3}, we have from Definition \ref{information-def} and Lemma \ref{relabeled-entropy}
+  \begin{align*} I[Y : Y+Z] & = H[Y] + H[Y + Z] - H[Y, Y + Z] \\ & = H[Y] + H[Y + Z] - H[Y, Z]  = H[Y + Z] - H[Z],\end{align*}
+  and so~\eqref{ruzsa-3} is a consequence of Lemma \ref{cond-dist-fact}. Once again the second form of the result is immediate from Lemma \ref{ruz-indep}.
+\end{proof}
