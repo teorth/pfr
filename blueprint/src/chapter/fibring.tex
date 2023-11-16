@@ -2,6 +2,7 @@
 
 \begin{proposition}\label{projections-1}
   \uses{ruz-dist-def, cond-dist-def,conditional-mutual-def}
+  \lean{fibring-ident}
   Let $\pi : H \to H'$ be a homomorphism between vector spaces over $\F_2$ and let $Z_1,Z_2$ be $H$-valued random variables. Then we have
   \[
     d[Z_1; Z_2] \geq d[\pi(Z_1);\pi(Z_2)] + d[Z_1|\pi(Z_1); Z_2 |\pi(Z_2)].
@@ -29,6 +30,42 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
   \[ H[A|B] - H[A | B,C] = I[A : C | B],\]
   (which follows from various entropy facts including Lemma \ref{conditional-mutual-alt})
   taking
-  $A \coloneqq Z_1 + Z_2$, $B \coloneqq \pi(Z_1 + Z_2)$ and $C \coloneqq (\pi(Z_1),\pi(Z_{2}))$, and noting that in this case $\H{A | B,C} = \H{A | C}$ since $C$ uniquely determines $B$.
+  $A := Z_1 + Z_2$, $B := \pi(Z_1 + Z_2)$ and $C := (\pi(Z_1),\pi(Z_{2}))$, and noting that in this case $H[A | B,C] = H[A | C]$ since $C$ uniquely determines $B$ (this may require another helper lemma about entropy).
   This completes the proof.
+\end{proof}
+
+\begin{corollary}\label{cor-fibre}
+  \uses{ruz-dist-def, cond-dist-def, conditional-mutual-def}
+  \lean{fibring_ident'}
+  Let $Y_1,Y_2,Y_3$ and $Y_4$ be independent $G$-valued random variables.
+  Then
+\begin{align*}
+  & d[Y_1+Y_3; Y_2+Y_4] + d[Y_1|Y_1+Y_3; Y_2|Y_2+Y_4] \\
+  &\qquad + I[ Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4 ] = d[Y_1; Y_2] + d[ Y_3; Y_4].
+\end{align*}
+\end{corollary}
+
+\begin{proof}
+  \uses{projections-1, add_entropy, relabeled-entropy-cond}
+  We apply Proposition \ref{projections-1} with $H := G \times G$, $H' := G$, $\pi$ the addition homomorphism $\pi(x,y) := x+y$, and with the random variables $Z_1 := (Y_1,Y_3)$ and $Z_2 := (Y_2,Y_4)$.  Then by independence (Lemma \ref{add-entropy})
+\[
+  d[Z_1; Z_2] = d[Y_1; Y_2] + d[Y_3; Y_4]
+\]
+while by definition
+\[
+  d[\pi(Z_1); \pi(Z_2)] = d[Y_1+Y_3; Y_2+Y_4].
+\]
+Furthermore,
+\[
+  \d[Z_1|\pi(Z_1); Z_2|\pi(Z_2)] = d[Y_1|Y_1+Y_3;Y_2|Y_2+Y_4],
+\]
+since $Z_1=(Y_1,Y_3)$ and $Y_1$ are linked by an invertible affine transformation once $\pi(Z_1)=Y_1+Y_3$ is fixed, and similarly for $Z_2$ and $Y_2$.  (This has to do with Lemma \ref{relabeled-entropy-cond})
+Finally, we have
+\begin{align*}
+  &I[Z_1 + Z_2 : (\pi(Z_1),\pi(Z_2)) \,|\, \pi(Z_1) + \pi(Z_2)] \\
+  &\ = I[(Y_1+Y_2, Y_3+Y_4) : (Y_1+Y_3, Y_2+Y_4) \,|\, Y_1+Y_2+Y_3+Y_4] \\
+  &\ = I[Y_1+Y_2 : Y_2+Y_4 \,|\, Y_1+Y_2+Y_3+Y_4]
+\end{align*}
+where in the last line we used the fact that $(Y_1+Y_2, Y_1+Y_2+Y_3+Y_4)$ uniquely determine $Y_3+Y_4$ and similarly
+$(Y_2+Y_4, Y_1+Y_2+Y_3+Y_4)$ uniquely determine $Y_1+Y_3$.  (This requires another helper lemma about entropy.)
 \end{proof}
