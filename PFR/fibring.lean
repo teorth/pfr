@@ -1,3 +1,5 @@
+import PFR.entropy_basic
+
 /-!
 # The fibring identity
 
