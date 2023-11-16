@@ -11,7 +11,7 @@ Throughout this chapter,  $G = \F_2^n$, and $X^0_1, X^0_2$ are $G$-valued random
   \uses{eta-def}
   \lean{tau}
 If $X_1,X_2$ are two $G$-valued random variables, then
-$$  \tau[X_1; X_2] \coloneqq \dist{X_1}{X_2} + \eta  \dist{X^0_1}{X_1} + \eta \dist{X^0_2}{X_2}.$$
+$$  \tau[X_1; X_2] := d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
 \end{definition}
 
 \begin{lemma}[$\tau$ depends only on distribution]\label{tau-copy}
@@ -160,7 +160,7 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
   recalling once again that $k := d[X_1;X_2]$.  From Lemma \ref{distance-lower}, Lemma \ref{cond-distance-lower} as before, one has
   \begin{align}
     \nonumber
-    d[X_1+\tilde X_; X_2+\tilde X_2] \geq k &- \eta(d[X^0_1;X_1] - d[X^0_1;X_1+\tilde X_1]) \\
+    d[X_1+\tilde X_1; X_2+\tilde X_2] \geq k &- \eta(d[X^0_1;X_1] - d[X^0_1;X_1+\tilde X_1]) \\
     &- \eta(d[X^0_2;X_2] - d[X^0_2;X_2+\tilde X_2])
   \label{1122}
   \end{align}
