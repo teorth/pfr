@@ -1,3 +1,4 @@
+import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.Data.Finset.Pointwise
 import Mathlib.Data.Real.Basic
 import Mathlib.GroupTheory.OrderOfElement

@@ -2,6 +2,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
 import PFR.neg_xlogx
+import PFR.MeasureReal
 
 /-!
 # Entropy and conditional entropy
@@ -50,19 +51,14 @@ lemma integral_eq_sum {S E : Type*} [Fintype S] [MeasurableSpace S] [MeasurableS
   simp_rw [integral_smul_measure, integral_dirac]
   rw [tsum_fintype]
 
-/-- `μ[|s]` is a finite measure whenever `μ` is finite. -/
+/-- `μ[|s]` is always a finite measure. -/
 instance cond_isFiniteMeasure {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}
-    [IsFiniteMeasure μ] (s : Set α) :
-    IsFiniteMeasure (μ[|s]) := by
+    (s : Set α) : IsFiniteMeasure (μ[|s]) := by
   constructor
-  rw [ProbabilityTheory.cond]
   simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, MeasurableSet.univ,
-    Measure.restrict_apply, Set.univ_inter, smul_eq_mul]
-  by_cases hμs : μ s = 0
-  · simp [hμs]
-  · refine ENNReal.mul_lt_top ?_ (measure_ne_top _ _)
-    simp only [ne_eq, ENNReal.inv_eq_top]
-    exact hμs
+    Measure.restrict_apply, Set.univ_inter, smul_eq_mul, ProbabilityTheory.cond,
+    ← ENNReal.div_eq_inv_mul]
+  exact ENNReal.div_self_le_one.trans_lt ENNReal.one_lt_top
 
 lemma cond_eq_zero_of_measure_zero {α : Type*} {_ : MeasurableSpace α} {μ : Measure α} {s : Set α}
     (hμs : μ s = 0) :
@@ -218,9 +214,10 @@ lemma measureEntropy_le_log_card [MeasurableSingletonClass S] (μ : Measure S) :
     rw [← measureEntropy_univ_smul]
     exact measureEntropy_le_card_aux _
 
-lemma measureEntropy_map_of_injective [MeasurableSingletonClass T]
-    (μ : Measure S) (f : S → T) (hf : Function.Injective f) (hf_m : Measurable f) :
+lemma measureEntropy_map_of_injective [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (μ : Measure S) (f : S → T) (hf : Function.Injective f)  :
     Hm[μ.map f] = Hm[μ] := by
+  have hf_m : Measurable f := measurable_of_finite f
   have : μ.map f Set.univ = μ Set.univ := by
       rw [Measure.map_apply hf_m MeasurableSet.univ]
       simp
@@ -264,6 +261,9 @@ notation3:100 "H[" X "|" Y "←" y "]" => entropy X (ℙ[|Y ⁻¹' {y}])
 
 lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X] := rfl
 
+@[simp]
+lemma entropy_zero_measure (X : Ω → S) : H[X ; (0 : Measure Ω)] = 0 := by simp [entropy]
+
 lemma entropy_nonneg (X : Ω → S) (μ : Measure Ω) : 0 ≤ entropy X μ := measureEntropy_nonneg _
 
 lemma entropy_le_log_card [MeasurableSingletonClass S]
@@ -285,11 +285,11 @@ lemma entropy_cond_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMe
 
 /-- If $X$, $Y$ are $S$-valued and $T$-valued random variables, and $Y = f(X)$ almost surely for
 some injection $f: S \to T$, then $H[X] = H[Y]$. -/
-lemma entropy_comp_of_injective [MeasurableSingletonClass T]
-    (μ : Measure Ω) (hX : Measurable X)
-    (f : S → T) (hf : Function.Injective f) (hf_m : Measurable f) :
+lemma entropy_comp_of_injective [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (μ : Measure Ω) (hX : Measurable X) (f : S → T) (hf : Function.Injective f) :
     H[f ∘ X ; μ] = H[X ; μ] := by
-  rw [entropy_def, ← Measure.map_map hf_m hX, measureEntropy_map_of_injective _ _ hf hf_m,
+  have hf_m : Measurable f := measurable_of_finite f
+  rw [entropy_def, ← Measure.map_map hf_m hX, measureEntropy_map_of_injective _ _ hf,
     entropy_def]
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
@@ -300,8 +300,11 @@ lemma entropy_eq_log_card : 0 = 1 := sorry
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy : 0 = 1 := sorry
 
-lemma entropy_comm (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
-    entropy (fun ω ↦ (X ω, Y ω)) μ = entropy (fun ω ↦ (Y ω, X ω)) μ := sorry
+lemma entropy_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
+    H[fun ω ↦ (X ω, Y ω) ; μ] = H[fun ω ↦ (Y ω, X ω) ; μ] := by
+  change H[fun ω ↦ (X ω, Y ω) ; μ] = H[Prod.swap ∘ (fun ω ↦ (X ω, Y ω)) ; μ]
+  exact (entropy_comp_of_injective μ (hX.prod_mk hY) Prod.swap Prod.swap_injective).symm
 
 end entropy
 
@@ -321,6 +324,10 @@ lemma condEntropy_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
 
 notation3:100 "H[" X "|" Y "; " μ "]" => condEntropy X Y μ
 notation3:100 "H[" X "|" Y "]" => condEntropy X Y volume
+
+@[simp]
+lemma condEntropy_zero_measure (X : Ω → S) (Y : Ω → T) : H[X | Y ; (0 : Measure Ω)] = 0 :=
+  by simp [condEntropy]
 
 lemma condEntropy_nonneg (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) : 0 ≤ H[X | Y ; μ] :=
   integral_nonneg (fun _ ↦ measureEntropy_nonneg _)
@@ -355,14 +362,22 @@ lemma condEntropy_eq_sum_prod [MeasurableSingletonClass T] (hX : Measurable X) (
   have h_prod : (Finset.univ : Finset (S × T)) = (Finset.univ : Finset S) ×ˢ Finset.univ := rfl
   rw [condEntropy_eq_sum_sum hX Y, h_prod, Finset.sum_product_right]
 
-/-- If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $H[X|Z] = H[Y|Z]$.-/
-lemma condEntropy_of_inj_map : 0 = 1 := sorry
+/-- If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables,
+and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each
+fixed $U$, then $H[X|Z] = H[Y|Z]$.
 
+Todo: replaced the a.e. equality of this docstring with an equality.-/
+lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (μ : Measure Ω) (hX : Measurable X) (f : S → T) (hf : Function.Injective f) :
+    H[f ∘ X | Y ; μ] = H[X | Y ; μ] :=
+  integral_congr_ae (ae_of_all _ (fun _ ↦ entropy_comp_of_injective _ hX f hf))
 
 end condEntropy
 
 section pair
-variable {X : Ω → S} {Y : Ω → T} [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+variable {U : Type*} {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
+  [Fintype U] [MeasurableSpace U]
+  [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
   {μ : Measure Ω}
 
 lemma measure_prod_singleton_eq_mul [IsFiniteMeasure μ]
@@ -430,24 +445,51 @@ lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     rw [negIdMulLog]
     ring
 
+lemma cond_chain_rule_aux (μ : Measure Ω) [IsProbabilityMeasure μ]
+    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (z : U) :
+    H[fun ω ↦ (X ω, Y ω) | Z ← z ; μ] = H[Y | Z ← z ; μ] + H[X | Y ; μ[|Z ⁻¹' {z}]] := by
+  by_cases hz : μ (Z ⁻¹' {z}) = 0
+  · have : μ[|Z ⁻¹' {z}] = 0 := by exact cond_eq_zero_of_measure_zero hz
+    simp [this]
+  · have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure _ hz
+    exact chain_rule (μ[|Z ⁻¹' {z}]) hX hY
+
+/--   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
+$$ H[  X,Y | Z ] = H[Y | Z] + H[X|Y, Z].$$ -/
+lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
+    H[fun ω ↦ (X ω, Y ω) | Z ; μ] = H[Y | Z ; μ] + H[X | fun ω ↦ (Y ω, Z ω) ; μ] := by
+  rw [condEntropy_def]
+  simp_rw [cond_chain_rule_aux μ hX hY Z]
+  rw [integral_add]
+  rotate_left
+  · sorry
+  · sorry
+  congr
+  -- goal is `∫ z, H[X|Y; μ[|Z ⁻¹' {z}]] ∂(μ.map Z) = H[X|fun ω ↦ (Y ω, Z ω); μ]`
+  rw [condEntropy_def, integral_map hZ.aemeasurable, integral_map (hY.prod_mk hZ).aemeasurable]
+  rotate_left
+  · exact (measurable_of_countable _).stronglyMeasurable.aestronglyMeasurable
+  · exact (measurable_of_countable _).stronglyMeasurable.aestronglyMeasurable
+  simp_rw [condEntropy_def, integral_map hY.aemeasurable
+    (measurable_of_countable _).stronglyMeasurable.aestronglyMeasurable]
+  refine integral_congr_ae (ae_of_all _ (fun ω ↦ ?_))
+  simp only
+  sorry
+
 /-- Data-processing inequality for the entropy. -/
 lemma entropy_comp_le {U : Type*} [Fintype U] [MeasurableSpace U]
     [MeasurableSingletonClass S] [MeasurableSingletonClass U]
     (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) {f : S → U} (hf : Measurable f) :
     H[f ∘ X ; μ] ≤ H[X ; μ] := by
   have : H[X ; μ] = H[fun ω ↦ (X ω, (f ∘ X) ω) ; μ] := by
-    refine (entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) ?_ ?_).symm
-    · intro x y hxy
-      simp only [Prod.mk.injEq] at hxy
-      exact hxy.1
-    · exact measurable_id.prod_mk hf
+    refine (entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) ?_).symm
+    intro x y hxy
+    simp only [Prod.mk.injEq] at hxy
+    exact hxy.1
   rw [this, chain_rule _ hX (hf.comp hX)]
   simp only [le_add_iff_nonneg_right]
   exact condEntropy_nonneg X (f ∘ X) μ
-
-/--   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
-$$ H[  X,Y | Z ] = H[Y | Z] + H[X|Y, Z].$$ -/
-lemma cond_chain_rule : 0 = 1 := sorry
 
 end pair
 
@@ -474,8 +516,9 @@ lemma mutualInformation_eq_entropy_sub_condEntropy [MeasurableSingletonClass S]
   rw [mutualInformation_def, chain_rule μ hX hY]
   abel
 
-lemma mutualInformation_comm (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
-    I[X : Y ; μ] = I[Y : X ; μ] := by simp_rw [mutualInformation, add_comm, entropy_comm X Y]
+lemma mutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
+    I[X : Y ; μ] = I[Y : X ; μ] := by simp_rw [mutualInformation, add_comm, entropy_comm hX hY]
 
 lemma mutualInformation_nonneg (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
     0 ≤ I[X : Y ; μ] := sorry
@@ -493,19 +536,24 @@ lemma condMutualInformation_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ
     condMutualInformation X Y Z μ = (μ.map Z)[fun z ↦
       H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[fun ω ↦ (X ω, Y ω) | Z ← z ; μ]] := rfl
 
-lemma condMutualInformation_eq_integral_mutualInformation :
-    condMutualInformation X Y Z μ = (μ.map Z)[fun z ↦ I[X : Y ; μ[|Z ⁻¹' {z}]]] := rfl
+notation3:100 "I[" X ":" Y "|" Z ";" μ "]" => condMutualInformation X Y Z μ
+notation3:100 "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z volume
 
-lemma condMutualInformation_comm (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) :
-    condMutualInformation X Y Z μ = condMutualInformation Y X Z μ := by
-  simp_rw [condMutualInformation_def, add_comm, entropy_comm X]
+lemma condMutualInformation_eq_integral_mutualInformation :
+    I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[|Z ⁻¹' {z}]]] := rfl
+
+lemma condMutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) :
+    I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
+  simp_rw [condMutualInformation_def, add_comm, entropy_comm hX hY]
 
 lemma condMutualInformation_nonneg (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) :
-    0 ≤ condMutualInformation X Y Z μ :=
+    0 ≤ I[X : Y | Z ; μ] :=
   integral_nonneg fun _x ↦ mutualInformation_nonneg _ _ _
 
 /-- $$ I[X:Y|Z] := H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
-lemma condMutualInformation_eq : 0 = 1 := by sorry
+lemma condMutualInformation_eq :
+    I[X : Y | Z ; μ] = H[X | Z ; μ] - H[fun ω ↦ (X ω, Y ω) | Z ; μ] := by sorry
 
 section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]
@@ -543,8 +591,11 @@ end mutualInformation
 
 section copy
 
+variable {mΩ' : MeasurableSpace Ω'}
+
 /-- X' is a copy of X if they have the same distribution -/
-def isCopy [Fintype S] (X : Ω → S) (X' : Ω' → S) : Prop := sorry
+def isCopy (X : Ω → S) (X' : Ω' → S) (μ : Measure Ω) (μ' : Measure Ω') : Prop :=
+  μ.map X = μ'.map X'
 
 /-- If $X'$ is a copy of $X$ then $H[X'] = H[X]$. --/
 lemma entropy_of_copy : 0 = 1 := by sorry
