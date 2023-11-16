@@ -1,0 +1,13 @@
+\chapter{The 100\% version of PFR}
+
+\begin{lemma}\label{lem:100pc}
+  \uses{ruz-dist-def}
+  \lean{dist_eq_zero_iff}
+  Suppose that $X_1,X_2$ are $G$-valued random variables such that
+  $d[X_1;X_2]=0$. Then there exists a subgroup $H \leq G$ such that $d[X_1;U_H] = d[X_2;U_H] = 0$.
+\end{lemma}
+
+\begin{proof} {\bf This proof will need to be deconstructed further, for instance by reading the proof in the cited paper.}
+  By the triangle inequality, $\dist{X_1}{X_1} = 0$, and so (since $G=\F_2^n$) we have $\dist{X_1}{-X_1} = 0$. By Theorem 1.11(i) of {\tt https://arxiv.org/abs/0906.4387} it follows that there exists a subgroup $H$ with $\dist{X_1}{U_H} = 0$.
+  Then $\dist{X_2}{U_H}=0$ follows by the triangle inequality.
+\end{proof}

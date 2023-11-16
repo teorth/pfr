@@ -1,7 +1,58 @@
 \chapter{Entropy version of PFR}
 
+\begin{definition}\label{eta-def}
+ \lean{eta}\leanok
+  $\eta := 1/9$.
+\end{definition}
+
+Throughout this chapter,  $G = \F_2^n$, and $X^0_1, X^0_2$ are $G$-valued random variables.
+
+\begin{definition}[$\tau$ functional]\label{tau-def}
+  \uses{eta-def}
+  \lean{tau}
+If $X_1,X_2$ are two $G$-valued random variables, then
+$$  \tau[X_1; X_2] \coloneqq \dist{X_1}{X_2} + \eta  \dist{X^0_1}{X_1} + \eta \dist{X^0_2}{X_2}.$$
+\end{definition}
+
+\begin{lemma}[$\tau$ depends only on distribution]\label{tau-copy}
+  \uses{tau-def}
+  \lean{tau-copy}  If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$.
+\end{lemma}
+
+
+\begin{proof}\uses{copy-ent} Immediate from Lemma \ref{copy-ent}.
+\end{proof}
+
+
+
+
+\begin{theorem}[$\tau$-decrement]\label{de-prop}
+  \uses{tau-def, ruz-dist-def}
+  \lean{tau-strictly-decreases}
+  Let $X_1, X_2$ be two $G$-valued random variables with $d[X_1;X_2] > 0$. Then there are $G$-valued random variables $X'_1, X'_2$ such that
+$$\tau[X'_1;X'_2] < \tau[X_1;X_2].
+$$
+\end{theorem}
+
+\begin{proof}  Sorry!  This is hard!
+\end{proof}
+
+
+\begin{proposition}[$\tau$ has minimum]\label{tau-min}\uses{tau-def}
+  \lean{tao-min-exists}
+  There exist $G$-valued random variables $X_1, X_2$ such that
+  $$\tau[X_1;X_2] \leq \tau[X'_1;X'_2]
+  $$
+for all $G$-valued random variables $X'_1, X'_2$.
+\end{proposition}
+
+\begin{proof} By Lemma \ref{tau-copy}, $\tau$ only depends on the probability distributions of $X_1, X_2$. This ranges over a compact space, and $\tau$ is continuous.  So $\tau$ has a minimum.
+\end{proof}
+
+
 
 \begin{theorem}[Entropy version of PFR]\label{entropy-pfr}\uses{ruz-dist-def}
+  \lean{entropic_PFR_conjecture}
   Let $G = \F_2^n$, and suppose that $X^0_1, X^0_2$ are $G$-valued random variables.
   Then there is some subgroup $H \leq G$ such that
   \[
@@ -13,5 +64,5 @@
 
 Probably need a definition for a uniform distribution on a non-empty subset $H$ of a set $S$.
 
-\begin{proof} Sorry!
+\begin{proof} \uses{de-prop, tau-min, lem:100pc, ruzsa-triangle}  Let $X_1, X_2$ be the minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop}, $d[X_1;X_2]=0$.  From Lemma \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}
