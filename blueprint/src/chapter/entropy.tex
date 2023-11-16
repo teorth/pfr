@@ -240,6 +240,17 @@ If $X,Y,Z$ are random variables, with $Z$ $U$-valued, then
 $$ I[X:Y|Z] := \sum_{z \in U} P[Z=z] I[(X|Z=z): (Y|Z=z)].$$
 \end{definition}
 
+\begin{lemma}[Alternate formula for conditional mutual information]
+  \label{conditional-mutual-alt}
+  \uses{conditional-mutual-def}
+  \lean{ProbabilityTheory.condMutualInformation_eq}
+We have
+  $$ I[X:Y|Z] := H[X|Z] + H[Y|Z] - H[X,Y|Z].$$
+\end{lemma}
+
+\begin{proof} Routine computation.
+\end{proof}
+
 \begin{lemma}[Nonnegativity of conditional mutual information]
 \label{conditional-nonneg}
 \uses{conditional-mutual-def}

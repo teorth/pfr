@@ -455,6 +455,9 @@ lemma condMutualInformation_nonneg (X : Ω → S) (Y : Ω → T) (Z : Ω → U) 
     0 ≤ condMutualInformation X Y Z μ :=
   integral_nonneg fun _x ↦ mutualInformation_nonneg _ _ _
 
+/-- $$ I[X:Y|Z] := H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
+lemma condMutualInformation_eq : 0 = 1 := by sorry
+
 section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]
   [MeasurableSingletonClass T]

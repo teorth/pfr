@@ -58,7 +58,7 @@ lemma diff_ent_le_dist : 0 = 1 := by sorry
 lemma diff_ent_le_dist' : 0 = 1 := by sorry
 
 /--   $$ d[X;Y] \geq 0.$$  -/
-lemma dist_nonneg : 0 = 1 := by sorry
+lemma ruzsa_dist_nonneg : 0 = 1 := by sorry
 
 /-- The Ruzsa triangle inequality -/
 lemma Ruzsa_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) : dist X Z ≤ dist X Y + dist Y Z := sorry
