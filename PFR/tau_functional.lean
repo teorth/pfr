@@ -1,3 +1,4 @@
+
 import PFR.f2_vec
 import PFR.ruzsa_distance
 
@@ -7,6 +8,7 @@ import PFR.ruzsa_distance
 Definition of the tau functional and basic facts
 
 -/
+open MeasureTheory
 
 variable {Ω_0 Ω'_0 : Type*} [mΩ_0 : MeasurableSpace Ω_0] (μ_0 : Measure Ω_0) [mΩ'_0 : MeasurableSpace Ω'_0] (μ'_0 : Measure Ω'_0)
 
@@ -17,7 +19,7 @@ variable [AddCommGroup G] [ElementaryAddGroup G 2] [Fintype G]
 variable (X_0_1: Ω_0 → G) (X_0_2: Ω'_0 → G)
 (X_1: Ω → G) (X_2: Ω' → G)
 
-def eta := (9:ℝ)⁻¹
+noncomputable def eta := (9:ℝ)⁻¹
 
 /-- If $X_1,X_2$ are two $G$-valued random variables, then
 $$  \tau[X_1; X_2] \coloneqq d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$ --/

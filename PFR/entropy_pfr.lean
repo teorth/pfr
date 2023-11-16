@@ -1,7 +1,7 @@
 import PFR.entropy_basic
 import PFR.f2_vec
 import PFR.ruzsa_distance
-import PFR.tau-functional
+import PFR.tau_functional
 
 /-!
 # Entropic version of polynomial Freiman-Ruzsa conjecture
@@ -13,6 +13,8 @@ Here we prove the entropic version of the polynomial Freiman-Ruzsa conjecture.
 * `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$.
 
 -/
+
+open MeasureTheory
 
 variable {Ω_0 Ω'_0 : Type*} [mΩ_0 : MeasurableSpace Ω_0] (μ_0 : Measure Ω_0) [mΩ'_0 : MeasurableSpace Ω'_0] (μ'_0 : Measure Ω'_0)
 
