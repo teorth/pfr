@@ -4,11 +4,12 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 
 \begin{lemma}[Negation preserves entropy]\label{neg-ent}
   \uses{entropy-def}
-  \lean{ent-of-neg}
+  \lean{entropy-neg}\leanok
   If $X$ is $G$-valued, then $\bbH[-X]=\bbH[X]$.
 \end{lemma}
 
-\begin{proof}\uses{relabeled-entropy} Immediate from Lemma \ref{relabeled-entropy}.
+\begin{proof}
+  \uses{relabeled-entropy}\leanok Immediate from Lemma \ref{relabeled-entropy}.
 \end{proof}
 
 \begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}
@@ -78,7 +79,7 @@ NOTE: may need to phrase this as a definition to create canonical independent co
 
 \begin{definition}[Ruzsa distance]\label{ruz-dist-def}
   \uses{entropy-def, independent-exist}
-  \lean{dist}
+  \lean{rdist_def}\leanok
   Let $X,Y$ be $G$-valued random variables (not necessarily on the same sample space).  The \emph{Ruzsa distance} $d[X;Y]$ between $X$ and $Y$ is defined to be
 $$ d[X;Y] := H[X' - Y'] - H[X']/2 - H[Y']/2$$
 where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{independent-exist}.
@@ -86,7 +87,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 
 \begin{lemma}[Copy preserves Ruzsa distance]\label{ruz-copy}
   \uses{ruz-dist-def,copy-def}
-  \lean{dist_of_copy}
+  \lean{rdist_of_copy}
   If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$.
 \end{lemma}
 
@@ -95,27 +96,27 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 
 \begin{lemma}[Ruzsa distance in independent case]\label{ruz-indep}
   \uses{ruz-dist-def, entropy-def, independent-def}
-  \lean{dist_of_indep}
+  \lean{rdist_of_indep}\leanok
   If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$
 \end{lemma}
 
-\begin{proof} \uses{relabeled-entropy, copy-ent} Immediate from Definition \ref{ruz-dist-def} and Lemmas \ref{relabeled-entropy}, \ref{copy-ent}.
+\begin{proof} \uses{relabeled-entropy, copy-ent}\leanok Immediate from Definition \ref{ruz-dist-def} and Lemmas \ref{relabeled-entropy}, \ref{copy-ent}.
 \end{proof}
 
 \begin{lemma}[Distance symmetric]\label{ruzsa-symm}
   \uses{ruz-dist-def}
-  \lean{dist_symm}
+  \lean{rdist_symm}\leanok
   If $X,Y$ are $G$-valued random variables, then
   $$ d[X;Y] = d[Y;X].$$
 \end{lemma}
 
-\begin{proof} \uses{neg-ent} Immediate from Lemma \ref{neg-ent} and Definition \ref{ruz-dist-def}.
+\begin{proof} \uses{neg-ent}\leanok Immediate from Lemma \ref{neg-ent} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
 \begin{lemma}[Distance controls entropy difference]\label{ruzsa-diff}
   \uses{entropy-def, ruz-dist-def}
-  \lean{diff_ent_le_dist}
+  \lean{diff_ent_le_rdist}\leanok
   If $X,Y$ are $G$-valued random variables, then
 $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
 \end{lemma}
@@ -125,7 +126,7 @@ $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
 
 \begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}
   \uses{ruz-dist-def, entropy-def}
-  \lean{diff_ent_le_dist'}
+  \lean{diff_ent_le_rdist'}
   If $X,Y$ are $G$-valued random variables, then
 $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \end{lemma}
@@ -135,7 +136,7 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 
 \begin{lemma}[Distance nonnegative]\label{ruzsa-nonneg}
   \uses{ruz-dist-def}
-  \lean{ruzsa_dist_nonneg}
+  \lean{rdist_nonneg}\leanok
   If $X,Y$ are $G$-valued random variables, then
   $$ d[X;Y] \geq 0.$$
 \end{lemma}
@@ -144,7 +145,7 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \end{proof}
 
 \begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}\uses{ruz-dist-def}
-\lean{Ruzsa-triangle}
+\lean{rdist-triangle}\leanok
   If $X,Y,Z$ are $G$-valued random variables, then
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
