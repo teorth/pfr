@@ -302,7 +302,7 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) : ∃ s : S, μ.m
 
 def prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
 
-notation3:100 "⟨ " X " , " Y " ⟩" => prod X Y
+notation3:100 "⟨" X ", " Y "⟩" => prod X Y
 
 lemma mes_prod_mk {X : Ω → S} {Y : Ω → T} (hX: Measurable X) (hY: Measurable Y) : Measurable (⟨ X , Y ⟩) := by
   unfold prod

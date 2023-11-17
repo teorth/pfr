@@ -4,7 +4,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 
 \begin{lemma}[Negation preserves entropy]\label{neg-ent}
   \uses{entropy-def}
-  \lean{entropy-neg}\leanok
+  \lean{entropy_neg}\leanok
   If $X$ is $G$-valued, then $\bbH[-X]=\bbH[X]$.
 \end{lemma}
 
@@ -145,7 +145,7 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \end{proof}
 
 \begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}\uses{ruz-dist-def}
-\lean{rdist-triangle}\leanok
+\lean{rdist_triangle}\leanok
   If $X,Y,Z$ are $G$-valued random variables, then
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
@@ -165,12 +165,17 @@ Using
   \lean{cond_rdist}
 If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Z$ are $G$-valued) we define
 $$ d[X  | Z; Y | W] := \sum_{z,w} P[Z=z] P[W=w] d[(X|Z=z); (Y|(W=w))].$$
+similarly
+$$ d[X; Y | W] := \sum_{w} P[W=w] d[X; (Y|(W=w))].$$
+
 \end{definition}
 
 \begin{lemma}[Alternate form of distance]\label{cond-dist-alt}\uses{cond-dist-def, conditional-entropy-def, independent-def}
-\lean{cond_rdist_eq}
-  If $(X',Z')$, $(Y',W')$ are independent copies of $(X,Z), (Y,W)$, then
-$$  d[X  | Z;Y | W] = \bbH[X'-Y'|Z',W'] - \bbH[X'|Z']/2 - \bbH[Y'|W']/2$$
+\lean{cond_rdist_of_copy, cond_rdist'_of_copy, cond_rdist_of_indep, cond_rdist'_of_indep}
+  The expression $d[X  | Z;Y | W]$ is unchanged if $(X,Z)$ or $(Y,W)$ is replaced by a copy.  Furthermore, if $(X,Z)$ and $(Y,W)$ are independent, then
+$$  d[X  | Z;Y | W] = \bbH[X-Y|Z,W] - \bbH[X|Z]/2 - \bbH[Y|W]/2$$
+and similarly
+$$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \end{lemma}
 
 \begin{proof} Straightforward.
@@ -178,7 +183,7 @@ $$  d[X  | Z;Y | W] = \bbH[X'-Y'|Z',W'] - \bbH[X'|Z']/2 - \bbH[Y'|W']/2$$
 
 \begin{lemma}[Kaimonovich-Vershik inequality]\label{kv}
   \uses{independent-def, entropy-def}
-  \lean{Kaimonovich-Vershik}
+  \lean{Kaimonovich_Vershik}
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
   \bbH[X + Y + Z] - \bbH[X + Y] \leq \bbH[Y+Z] - \bbH[Y].
@@ -223,7 +228,7 @@ $$ \bbH[X_1,X_2,Y] = 2 \bbH[X] + \bbH[Y] + 2 I[X:Y] = 2 \bbH[X,Y] - \bbH[Y].$$
 
 \begin{lemma}[Balog-Szemer\'edi-Gowers]\label{lem-bsg}
   \uses{ruz-dist-def, information-def, entropy-def}
-  \lean{ent-bsg}
+  \lean{ent_bsg}
   Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z := A+B$.
 Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 \bbH[Z] - \bbH[A] - \bbH[B]. \end{equation}
