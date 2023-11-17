@@ -16,7 +16,7 @@ $$  \tau[X_1; X_2] := d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
 
 \begin{lemma}[$\tau$ depends only on distribution]\label{tau-copy}
   \uses{tau-def}
-  \lean{tau-copy}  If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$.
+  \lean{tau_copy}  If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$.
 \end{lemma}
 
 
@@ -25,7 +25,7 @@ $$  \tau[X_1; X_2] := d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
 
 \begin{definition}[$\tau$-minimizer]\label{tau-min-def}
 \uses{tau-def}
-\lean{tau-minimizes}
+\lean{tau_minimizes}
 A pair of $G$-valued random variables $X_1, X_2$ are said to be a $\tau$-minimizer if one has
   $$\tau[X_1;X_2] \leq \tau[X'_1;X'_2]
   $$
@@ -34,7 +34,7 @@ for all $G$-valued random variables $X'_1, X'_2$.
 
 
 \begin{proposition}[$\tau$ has minimum]\label{tau-min}\uses{tau-minimizes}
-  \lean{tao-min-exists}
+  \lean{tau_min_exists}
 A pair $X_1, X_2$ of $\tau$-minimizers exist.
 \end{proposition}
 
@@ -78,7 +78,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 
 
 \begin{lemma}[First estimate]\label{first-estimate}
-  \lean{first-estimate} We have $I_1 \leq 2 \eta k$.
+  \lean{first_estimate} We have $I_1 \leq 2 \eta k$.
 \end{lemma}
 
 \begin{proof}\uses{cor-fibre, distance-lower, cond-distance-lower, first-useful}  From Corollary \ref{cor-fibre} we have
@@ -144,6 +144,7 @@ We introduce the quantity
 $$ I_2 := I[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 
 \begin{lemma}[Second estimate]\label{second-estimate}
+  \lean{second_estimate}
 We have
 $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
 \end{lemma}
@@ -333,7 +334,7 @@ We have $U+V+W=0$.
 
 \begin{theorem}[$\tau$-decrement]\label{de-prop}
   \uses{tau-def, ruz-dist-def}
-  \lean{tau-strictly-decreases}
+  \lean{tau_strictly_decreases}
   Let $X_1, X_2$ be two $G$-valued random variables with $d[X_1;X_2] > 0$. Then there are $G$-valued random variables $X'_1, X'_2$ such that
 $$\tau[X'_1;X'_2] < \tau[X_1;X_2].
 $$
