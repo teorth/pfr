@@ -89,8 +89,8 @@ end aux_lemmas
 
 namespace ProbabilityTheory
 
-variable {Ω S T : Type*} [mΩ : MeasurableSpace Ω]
-  [Fintype S] [Fintype T] [MeasurableSpace S] [MeasurableSpace T]
+variable {Ω S T U: Type*} [mΩ : MeasurableSpace Ω]
+  [Fintype S] [Fintype T] [Fintype U] [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U]
 
 section measureEntropy
 
@@ -294,11 +294,11 @@ lemma entropy_comp_of_injective [MeasurableSingletonClass S] [MeasurableSingleto
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
 distributed. -/
-lemma entropy_eq_log_card : 0 = 1 := sorry
+lemma entropy_eq_log_card (X : Ω → S) (μ : Measure Ω) : (entropy X μ = log (Fintype.card S)) ↔ (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by sorry
 
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
-lemma prob_ge_exp_neg_entropy : 0 = 1 := sorry
+lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) : ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- entropy X μ )).toNNReal := by sorry
 
 lemma entropy_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
@@ -362,15 +362,27 @@ lemma condEntropy_eq_sum_prod [MeasurableSingletonClass T] (hX : Measurable X) (
   have h_prod : (Finset.univ : Finset (S × T)) = (Finset.univ : Finset S) ×ˢ Finset.univ := rfl
   rw [condEntropy_eq_sum_sum hX Y, h_prod, Finset.sum_product_right]
 
-/-- If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables,
-and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each
-fixed $U$, then $H[X|Z] = H[Y|Z]$.
+/-- If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, and $f: T \times S → U$ is injective for each fixed $t \in T$, then $H[f(X,T)|Y] = H[X|Y]$.  Thus for instance $H[X-Y|Y]=H[X|Y]$.-/
+lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass U]
+    (μ : Measure Ω) (hX : Measurable X) (f : T → S → U) (hf : ∀ t : T, Function.Injective (f t)) :
+    H[(fun ω ↦ f (Y ω) (X ω)) | Y ; μ] = H[X | Y ; μ] := sorry
 
-Todo: replaced the a.e. equality of this docstring with an equality.-/
-lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass T]
-    (μ : Measure Ω) (hX : Measurable X) (f : S → T) (hf : Function.Injective f) :
+
+/- The following is a weaker version of the above lemma in which f is independent of Y.
+
+lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass U]
+    (μ : Measure Ω) (hX : Measurable X) (f : S → U) (hf : Function.Injective f) :
     H[f ∘ X | Y ; μ] = H[X | Y ; μ] :=
   integral_congr_ae (ae_of_all _ (fun _ ↦ entropy_comp_of_injective _ hX f hf))
+-/
+
+
+/-- If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $f: T \to U$ is an injection then $H[X|f(Y)] = H[X|Y]$.
+ -/
+lemma condEntropy_of_inj_map' [MeasurableSingletonClass S] (μ : Measure Ω) (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Function.Injective f) :
+    H[X | f ∘ Y ; μ] = H[X | Y ; μ] := sorry
+
+
 
 end condEntropy
 

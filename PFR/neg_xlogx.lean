@@ -126,7 +126,8 @@ lemma concaveOn_negIdMulLog : ConcaveOn ℝ (Set.Ici (0 : ℝ)) negIdMulLog := b
   exact convexOn_id_mul_log.neg
 
 lemma strictConcaveOn_negIdMulLog : StrictConcaveOn ℝ (Set.Ici (0 : ℝ)) negIdMulLog := by
-  sorry
+  rw [negIdMulLog_eq_neg]
+  exact strictConvexOn_id_mul_log.neg
 
 lemma sum_negIdMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
     (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
@@ -136,7 +137,8 @@ lemma sum_negIdMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ}
   · simp [hmem]
 
 /-- the equality case of Jensen's inequality -/
-lemma sum_negIdMulLog_eq : 0 = 1 := by sorry
+lemma sum_negIdMulLog_eq {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
+    (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) (heq : ∑ s, (w s) * negIdMulLog (p s) = negIdMulLog (∑ s, (w s) * (p s))) (s : S) (hs : 0 < w s) : p s = ∑ s', (w s') * (p s') := by sorry
 
 
 

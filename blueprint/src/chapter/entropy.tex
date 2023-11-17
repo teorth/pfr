@@ -31,7 +31,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 \end{proof}
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
-  \uses{entropy-def}
+  \uses{entropy-def}\leanok
   If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly distributed.
 \end{lemma}
 
@@ -40,7 +40,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{lemma}[Bounded entropy implies concentration]\label{bound-conc}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.prob_ge_exp_neg_entropy}
+  \lean{ProbabilityTheory.prob_ge_exp_neg_entropy}\leanok
   If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that $P[X=s] \geq \exp(-H[X])$.
 \end{lemma}
 
@@ -85,15 +85,16 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{lemma}[Conditional entropy and relabeling]\label{relabeled-entropy-cond}
   \uses{conditional-entropy-def}
-  \lean{ProbabilityTheory.condEntropy_of_inj_map}
+  \lean{ProbabilityTheory.condEntropy_of_inj_map, ProbabilityTheory.condEntropy_of_inj_map'}
   If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $H[X|Z] = H[Y|Z]$.
+
+  Similarly, if $g: T \to U$ is injective, then $H[X|g(Y)] = H[X|Y]$.
 \end{lemma}
 
 \begin{proof}
-  \uses{relabeled-entropy}\leanok
-  Use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.
+  \uses{relabeled-entropy}
+  For the first part, use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.  The second part is a direct computation.
 \end{proof}
--- also need a version where an injection is applied to $Z$
 
 
 \begin{lemma}[Chain rule]\label{chain-rule}
