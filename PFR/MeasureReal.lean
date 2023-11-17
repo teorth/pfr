@@ -29,10 +29,47 @@ open scoped ENNReal NNReal BigOperators
 
 macro "finiteness" : tactic => `(tactic|intros <;> apply measure_ne_top)
 
+section aux_lemmas
+
+@[simp]
+lemma Finset.sum_measure_singleton {S : Type*} {s : Finset S} {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] (μ : Measure S) :
+    ∑ x in s, μ {x} = μ s := by
+  change ∑ x in s, μ (id ⁻¹' {x}) = _
+  rw [sum_measure_preimage_singleton]
+  · simp
+  · simp
+
+@[simp]
+lemma Finset.sum_toReal_measure_singleton {S : Type*} {s : Finset S} {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
+    ∑ x in s, (μ {x}).toReal = (μ s).toReal := by
+  rw [← ENNReal.toReal_sum (fun _ _ ↦ measure_ne_top _ _)]
+  simp
+
+-- probably don't need this version but it was stated previously and will need to search for and
+-- eliminate any explicit uses
+@[simp]
+lemma sum_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] (μ : Measure S) :
+    ∑ x, μ {x} = μ Set.univ := by
+  simp
+
+-- probably don't need this version but it was stated previously and will need to search for and
+-- eliminate any explicit uses
+@[simp]
+lemma sum_toReal_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
+    ∑ x : S, (μ {x}).toReal = (μ Set.univ).toReal := by
+  simp
+
+end aux_lemmas
+
 namespace MeasureTheory
 
 variable {α : Type*} {_ : MeasurableSpace α} (μ : Measure α)
 
+@[pp_dot]
 protected def Measure.real (s : Set α) : ℝ :=
   (μ s).toReal
 
@@ -63,13 +100,33 @@ theorem measureReal_eq_zero_iff (h : μ s ≠ ∞ := by finiteness) :
   rw [Measure.real, ENNReal.toReal_eq_zero_iff]
   simp [h]
 
+@[simp] theorem measureReal_zero (s : Set α) : (0 : Measure α).real s = 0 := by
+  simp [measureReal_def]
+
 @[simp] theorem measureReal_nonneg : 0 ≤ μ.real s := ENNReal.toReal_nonneg
 
 @[simp] theorem measureReal_empty : μ.real ∅ = 0 :=
   by simp [Measure.real]
 
+@[simp] theorem IsProbabilityMeasure.measureReal_univ [IsProbabilityMeasure μ] :
+    μ.real Set.univ = 1 := by
+  simp [Measure.real]
+
+theorem measureReal_univ_pos [IsFiniteMeasure μ] [NeZero μ] : 0 < μ.real Set.univ := by
+  rw [measureReal_def]
+  apply ENNReal.toReal_pos
+  exact NeZero.ne (μ Set.univ)
+  exact measure_ne_top μ Set.univ
+
+theorem measureReal_univ_ne_zero [IsFiniteMeasure μ] [NeZero μ] : μ.real Set.univ ≠ 0 :=
+  measureReal_univ_pos.ne'
+
 theorem nonempty_of_measureReal_ne_zero (h : μ.real s ≠ 0) : s.Nonempty :=
   nonempty_iff_ne_empty.2 fun h' => h <| h'.symm ▸ measureReal_empty
+
+@[simp] theorem measureReal_smul_apply (c : ℝ≥0∞) : (c • μ).real s = c.toReal • μ.real s := by
+  rw [measureReal_def, smul_apply, smul_eq_mul, ENNReal.toReal_mul]
+  rfl
 
 @[gcongr] theorem measureReal_mono (h : s₁ ⊆ s₂) (h₂ : μ s₂ ≠ ∞ := by finiteness) :
     μ.real s₁ ≤ μ.real s₂ :=
@@ -244,6 +301,13 @@ theorem sum_measureReal_preimage_singleton (s : Finset β) {f : α → β}
     (∑ b in s, μ.real (f ⁻¹' {b})) = μ.real (f ⁻¹' ↑s) := by
   simp only [measureReal_def, ←sum_measure_preimage_singleton s hf, ENNReal.toReal_sum h]
 
+/-- If `s` is a `Finset`, then the sums of the real measures of the singletons in the set is the
+real measure of the set. -/
+@[simp] theorem Finset.sum_realMeasure_singleton [MeasurableSingletonClass α] [IsFiniteMeasure μ]
+    (s : Finset α) :
+    (∑ b in s, μ.real {b}) = μ.real s :=
+  Finset.sum_toReal_measure_singleton ..
+
 theorem measureReal_diff_null' (h : μ.real (s₁ ∩ s₂) = 0) (h' : μ s₁ ≠ ∞ := by finiteness) :
     μ.real (s₁ \ s₂) = μ.real s₁ := by
   simp only [measureReal_def]
@@ -376,3 +440,18 @@ theorem nonempty_inter_of_measureReal_lt_add' {m : MeasurableSpace α} (μ : Mea
   rw [add_comm] at h
   rw [inter_comm]
   exact nonempty_inter_of_measureReal_lt_add μ hs h't h's h hu
+
+end MeasureTheory
+
+namespace Mathlib.Meta.Positivity
+
+open Lean Meta Qq Function
+
+/-- Extension for the `positivity` tactic: applications of `μ.real` are nonnegative. -/
+@[positivity MeasureTheory.Measure.real _ _]
+def evalMeasureReal : PositivityExt where eval {_ _} _zα _pα e := do
+  let .app (.app _ a) b ← whnfR e | throwError "not measureReal"
+  let p ← mkAppOptM ``MeasureTheory.measureReal_nonneg #[none, none, a, b]
+  pure (.nonnegative p)
+
+end Mathlib.Meta.Positivity
