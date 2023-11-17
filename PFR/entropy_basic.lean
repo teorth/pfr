@@ -39,6 +39,9 @@ open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 
 section aux_lemmas
 
+-- seems reasonable for Mathlib?
+attribute [pp_dot] Measure.map
+
 -- todo: is this somewhere?
 lemma integral_eq_sum {S E : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
@@ -67,22 +70,6 @@ lemma cond_eq_zero_of_measure_zero {α : Type*} {_ : MeasurableSpace α} {μ : M
   have : μ.restrict s = 0 := by simp [hμs]
   simp [ProbabilityTheory.cond, this]
 
-@[simp]
-lemma sum_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S] (μ : Measure S) :
-    ∑ x, μ {x} = μ Set.univ := by
-  change ∑ x, μ (id ⁻¹' {x}) = μ Set.univ
-  rw [sum_measure_preimage_singleton]
-  · simp
-  · simp
-
-@[simp]
-lemma sum_toReal_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
-    ∑ x : S, (μ {x}).toReal = (μ Set.univ).toReal := by
-  rw [← ENNReal.toReal_sum (fun _ _ ↦ measure_ne_top _ _)]
-  simp
-
 end aux_lemmas
 
 
@@ -110,6 +97,13 @@ def measureEntropy (μ : Measure S := by volume_tac) : ℝ :=
 
 lemma measureEntropy_def (μ : Measure S) :
     measureEntropy μ = ∑ s, negIdMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := rfl
+
+lemma measureEntropy_def' (μ : Measure S) :
+    measureEntropy μ = ∑ s, negIdMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
+  rw [measureEntropy_def]
+  congr! with s
+  simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul,
+    ENNReal.toReal_mul, measureReal_def, ENNReal.toReal_inv]
 
 notation:max "Hm[" μ "]" => measureEntropy μ
 
@@ -163,27 +157,19 @@ lemma measureEntropy_le_card_aux [MeasurableSingletonClass S]
   | inr h =>
     set N := Fintype.card S
     have hN : 0 < N := Fintype.card_pos
-    rw [measureEntropy_def]
-    simp only [measure_univ, inv_one, one_smul]
-    calc ∑ x, negIdMulLog (μ {x}).toReal
-      = ∑ x, negIdMulLog (μ {x}).toReal := rfl
-    _ = N * ∑ x, (N : ℝ)⁻¹ * negIdMulLog (μ {x}).toReal := by
+    rw [measureEntropy_def']
+    simp only [IsProbabilityMeasure.measureReal_univ, inv_one, one_smul]
+    calc ∑ x, negIdMulLog (μ.real {x})
+      = ∑ x, negIdMulLog (μ.real {x}) := rfl
+    _ = N * ∑ x, (N : ℝ)⁻¹ * negIdMulLog (μ.real {x}) := by
         rw [Finset.mul_sum]
         congr with x
         rw [← mul_assoc, mul_inv_cancel, one_mul]
         simp [hN.ne']
-    _ ≤ N * negIdMulLog (∑ x : S, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
-        refine mul_le_mul le_rfl ?_ ?_ ?_
-        · refine sum_negIdMulLog_le (by simp) ?_ (fun _ ↦ ENNReal.toReal_nonneg)
-          simp [Finset.card_univ]
-        · refine Finset.sum_nonneg (fun x _ ↦ ?_)
-          refine mul_nonneg ?_ ?_
-          · simp [hN]
-          · refine negIdMulLog_nonneg (by simp) ?_
-            refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
-            rw [ENNReal.ofReal_one]
-            exact prob_le_one
-        · positivity
+    _ ≤ N * negIdMulLog (∑ x : S, (N : ℝ)⁻¹ * μ.real {x}) := by
+        gcongr
+        refine sum_negIdMulLog_le (by simp) ?_ (fun _ ↦ ENNReal.toReal_nonneg)
+        simp [Finset.card_univ]
     _ = N * negIdMulLog ((N : ℝ)⁻¹) := by
         congr
         rw [← Finset.mul_sum]
@@ -191,6 +177,41 @@ lemma measureEntropy_le_card_aux [MeasurableSingletonClass S]
     _ = - log ((N : ℝ)⁻¹) := by
         simp [negIdMulLog]
     _ = log (Fintype.card S) := by simp [Finset.card_univ]
+
+lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
+    (μ : Measure S) [IsProbabilityMeasure μ] :
+    Hm[μ] = log (Fintype.card S) ↔ (∀ s : S, μ.real {s} = (Fintype.card S : ℝ)⁻¹) := by
+  cases isEmpty_or_nonempty S with
+  | inl h =>
+    have : μ = 0 := Subsingleton.elim _ _
+    simp [Fintype.card_eq_zero, this]
+  | inr h =>
+    -- multiply LHS equation through by `N⁻¹`
+    set N := Fintype.card S
+    have hN : 0 < N := Fintype.card_pos
+    have hN''' : (N:ℝ)⁻¹ ≠ 0 := by positivity
+    rw [← mul_right_inj' hN''']
+    -- setup to use equality case of Jensen
+    let w (_ : S) := (N:ℝ)⁻¹
+    have hw1 : ∀ s ∈ Finset.univ, 0 < w s := by intros; positivity
+    have hw2 : ∑ s : S, w s = 1 := by simp [Finset.card_univ]
+    let p (s : S) := μ.real {s}
+    have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
+    -- use equality case of Jensen
+    convert sum_negIdMulLog_eq_aux2 hw1 hw2 hp using 2
+    · simp [measureEntropy_def', Finset.mul_sum]
+    · simp [negIdMulLog, ←Finset.mul_sum]
+    · rw [← Finset.smul_sum]
+      simp
+
+lemma measureEntropy_eq_card_iff_measure_eq_aux [MeasurableSingletonClass S]
+    (μ : Measure S) [IsProbabilityMeasure μ] :
+    Hm[μ] = log (Fintype.card S) ↔ (∀ s : S, μ {s} = (Fintype.card S : ℝ≥0)⁻¹) := by
+  rw [measureEntropy_eq_card_iff_measureReal_eq_aux]
+  congr! with s
+  rw [measureReal_def, ← ENNReal.toReal_eq_toReal_iff' (measure_ne_top μ {s})]
+  congr!
+  simp
 
 lemma measureEntropy_le_log_card [MeasurableSingletonClass S] (μ : Measure S) :
     Hm[μ] ≤ log (Fintype.card S) := by
@@ -214,6 +235,32 @@ lemma measureEntropy_le_log_card [MeasurableSingletonClass S] (μ : Measure S) :
       exact h_log_card_nonneg
     rw [← measureEntropy_univ_smul]
     exact measureEntropy_le_card_aux _
+
+lemma measureEntropy_eq_card_iff_measureReal_eq [MeasurableSingletonClass S] [IsFiniteMeasure μ]
+    [NeZero μ] :
+    Hm[μ] = log (Fintype.card S) ↔
+    (∀ s : S, μ.real {s} = μ.real Set.univ / Fintype.card S) := by
+  rw [← measureEntropy_univ_smul]
+  convert measureEntropy_eq_card_iff_measureReal_eq_aux ((μ Set.univ)⁻¹ • μ) using 2 with s
+  simp only [measureReal_smul_apply, smul_eq_mul]
+  rw [ENNReal.toReal_inv, inv_mul_eq_iff_eq_mul₀ (by exact measureReal_univ_ne_zero),
+    div_eq_mul_inv]
+  rfl
+
+lemma measureEntropy_eq_card_iff_measure_eq [MeasurableSingletonClass S] [IsFiniteMeasure μ]
+    [NeZero μ] :
+    Hm[μ] = log (Fintype.card S) ↔
+    (∀ s : S, μ {s} = μ Set.univ / Fintype.card S) := by
+  obtain h | h := isEmpty_or_nonempty S
+  · have : μ = 0 := Subsingleton.elim _ _
+    simp [Fintype.card_eq_zero, this]
+  rw [div_eq_mul_inv, measureEntropy_eq_card_iff_measureReal_eq]
+  congr! with s
+  rw [measureReal_def, ← ENNReal.toReal_eq_toReal_iff' (measure_ne_top μ {s})]
+  · rw [ENNReal.toReal_mul, ENNReal.toReal_inv]
+    rfl
+  · apply ENNReal.mul_ne_top (measure_ne_top μ Set.univ)
+    simp
 
 lemma measureEntropy_map_of_injective [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (μ : Measure S) (f : S → T) (hf : Function.Injective f)  :
@@ -299,7 +346,14 @@ lemma entropy_comp_of_injective [MeasurableSingletonClass S] [MeasurableSingleto
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
 distributed. -/
-lemma entropy_eq_log_card (X : Ω → S) (μ : Measure Ω) : (entropy X μ = log (Fintype.card S)) ↔ (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by sorry
+lemma entropy_eq_log_card (X : Ω → S) (μ : Measure Ω) : (entropy X μ = log (Fintype.card S)) ↔ (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by
+  -- TODO: which of these side conditions are actually needed?
+  have : MeasurableSingletonClass S := sorry
+  have : IsFiniteMeasure (μ.map X) := sorry
+  have : NeZero (μ.map X) := sorry
+  have hX : Measurable X := sorry
+  rw [entropy_def, measureEntropy_eq_card_iff_measure_eq, Measure.map_apply hX MeasurableSet.univ]
+  simp
 
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
