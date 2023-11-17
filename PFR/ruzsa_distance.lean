@@ -85,7 +85,7 @@ lemma rdist_of_indep [IsFiniteMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY
   congr 2
   have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨ X, Y ⟩) :=
     ((indepFun_iff_map_prod_eq_prod_map_map hX hY).mp h).symm
-  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (mes_pair_mk hX hY)]
+  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (mes_prod_mk hX hY)]
   congr
 
 /-- $$ d[X;Y] = d[Y;X].$$ -/

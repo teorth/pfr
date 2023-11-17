@@ -300,12 +300,12 @@ lemma entropy_eq_log_card (X : Ω → S) (μ : Measure Ω) : (entropy X μ = log
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) : ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- entropy X μ )).toNNReal := by sorry
 
-def pair {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
+def prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
 
-notation3:100 "⟨ " X " , " Y " ⟩" => pair X Y
+notation3:100 "⟨ " X " , " Y " ⟩" => prod X Y
 
-lemma mes_pair_mk {X : Ω → S} {Y : Ω → T} (hX: Measurable X) (hY: Measurable Y) : Measurable (⟨ X , Y ⟩) := by
-  unfold pair
+lemma mes_prod_mk {X : Ω → S} {Y : Ω → T} (hX: Measurable X) (hY: Measurable Y) : Measurable (⟨ X , Y ⟩) := by
+  unfold prod
   exact Measurable.prod_mk hX hY
 
 lemma entropy_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
@@ -405,8 +405,7 @@ lemma measure_prod_singleton_eq_mul [IsFiniteMeasure μ]
     (μ.map (⟨ X, Y ⟩) {p}).toReal
       = (μ.map Y {p.2}).toReal * ((μ[|Y ⁻¹' {p.2}]).map X {p.1}).toReal := by
   have hp_prod : {p} = {p.1} ×ˢ {p.2} := by simp
-  unfold pair
-  rw [Measure.map_apply (hX.prod_mk hY) (measurableSet_singleton p)]
+  rw [Measure.map_apply (mes_prod_mk hX hY) (measurableSet_singleton p)]
   by_cases hpY : μ (Y ⁻¹' {p.2}) = 0
   · rw [cond_eq_zero_of_measure_zero hpY]
     simp only [aemeasurable_zero_measure, not_true, Measure.map_zero, Measure.zero_toOuterMeasure,
@@ -419,6 +418,7 @@ lemma measure_prod_singleton_eq_mul [IsFiniteMeasure μ]
   simp_rw [cond_apply _ (hY (measurableSet_singleton _))]
   rw [ENNReal.toReal_mul, ← mul_assoc, ENNReal.toReal_inv, mul_inv_cancel, one_mul, hp_prod,
     Set.mk_preimage_prod, Set.inter_comm]
+  unfold prod; simp
   rw [ENNReal.toReal_ne_zero]; exact ⟨hpY, measure_ne_top _ _⟩
 
 lemma negIdMulLog_measure_prod_singleton [IsFiniteMeasure μ] (hX : Measurable X) (hY : Measurable Y)
@@ -488,7 +488,7 @@ lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
   · sorry
   congr
   -- goal is `∫ z, H[X|Y; μ[|Z ⁻¹' {z}]] ∂(μ.map Z) = H[X|⟨ Y, Z ⟩; μ]`
-  rw [condEntropy_def, integral_map hZ.aemeasurable, integral_map (mes_pair_mk hY hZ).aemeasurable] -- changed `hY.pair_mk hZ` to `mes_pair_mk hY hZ` to accommodate pair notation
+  rw [condEntropy_def, integral_map hZ.aemeasurable, integral_map (mes_prod_mk hY hZ).aemeasurable] -- changed `hY.prod_mk hZ` to `mes_prod_mk hY hZ` to accommodate pair notation
   rotate_left
   · exact (measurable_of_countable _).stronglyMeasurable.aestronglyMeasurable
   · exact (measurable_of_countable _).stronglyMeasurable.aestronglyMeasurable
