@@ -9,11 +9,11 @@ Here we define Ruzsa distance and establish its basic properties.
 
 ## Main definitions
 
-* `dist`: The Ruzsa distance between two random variables
+* `rdist`: The Ruzsa distance between two random variables
 
 ## Main results
 
-* `Ruzsa_triangle`: The Ruzsa triangle inequality for three random variables.
+* `rdist_triangle`: The Ruzsa triangle inequality for three random variables.
 
 -/
 open MeasureTheory ProbabilityTheory
@@ -85,7 +85,7 @@ lemma rdist_of_indep [IsFiniteMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY
   congr 2
   have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨ X, Y ⟩) :=
     ((indepFun_iff_map_prod_eq_prod_map_map hX hY).mp h).symm
-  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (mes_prod_mk hX hY)]
+  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
   congr
 
 /-- $$ d[X;Y] = d[Y;X].$$ -/
