@@ -1,20 +1,28 @@
 \chapter{The 100\% version of PFR}
 
-\begin{lemma}\label{lem:100pc}
-  \uses{ruz-dist-def}
-  \lean{dist_eq_zero_iff}
-  Suppose that $X_1,X_2$ are $G$-valued random variables such that
-  $d[X_1;X_2]=0$. Then there exists a subgroup $H \leq G$ such that $d[X_1;U_H] = d[X_2;U_H] = 0$.
+\begin{lemma}[Symmetric 100\% inverse theorem]\label{lem:100pc-self}
+  \lean{dist_self_eq_zero_iff}
+  Suppose that $X$ is a $G$-valued random variable such that
+  $d[X;X]=0$. Then there exists a subgroup $H \leq G$ such that $d[X;U_H] = d[X;U_H] $.
 \end{lemma}
 
 \begin{proof}
-  \uses{ruz-indep, relabeled-entropy-cond,ruzsa-triangle,vanish-entropy}
-Using Lemma \ref{ruzsa-triangle} we may assume wlog that $X_1,X_2$ have the same distribution.
-   Without loss of generality we may take $X_1,X_2$ to be independent.  Let $A$ denote the range of $X_1$ (or of $X_2$).  From Lemma \ref{ruz-indep} we have
+  \uses{ruz-indep, ruz-copy, relabeled-entropy-cond,vanish-entropy, independent-exist}
+   Let $X_1,X_2$ be independent copies of $X$ (from Lemma \ref{independent-exist}). Let $A$ denote the range of $X$.  From Lemma \ref{ruz-indep} and Lemma \ref{ruz-copy} we have
   $$ H[X_1-X_2] = H[X_1].$$
 Observe from Lemma \ref{relabeled-entropy-cond} that
 $$ H[X_1-X_2|X_2] = H[X_1|X_2] = H[X_1]$$
 and hence by Lemma \ref{alternative-mutual}
 $$ I[ X_1-X_2 : X_1 ] = 0.$$
-By Corollary \ref{vanish-entropy}, $X_1-X_2$ and $X_1$ are therefore independent, thus the law of $(X_1-X_2|X_1=x)$ does not depend on $x \in A$.  This implies that $x-X_2$ and $y-X_2$ have the same law if $x,y \in A$, so in particular $A$ is invariant under $A-A$.  This implies that $A$ is a translate of $A-A$, and that $H := A-A$ is a subgroup.  The law of $X_1$ is now $H$-invariant on a coset of $H$, and so $X_1 = x + U_H$ for some $x$.  The claim then follows.
+By Corollary \ref{vanish-entropy}, $X_1-X_2$ and $X_1$ are therefore independent, thus the law of $(X_1-X_2|X_1=x)$ does not depend on $x \in A$.  This implies that $x-X$ and $y-X$ have the same law if $x,y \in A$, so in particular $A$ is invariant under $A-A$.  This implies that $A$ is a translate of $A-A$, and that $H := A-A$ is a subgroup.  The law of $X$ is now $H$-invariant on a coset of $H$, and so $X = x + U_H$ for some $x$.  The claim then follows.
+\end{proof}
+
+\begin{corollary}[General 100\% inverse theorem]\label{lem:100pc}
+  \lean{dist_eq_zero_iff}
+  Suppose that $X_1,X_2$ are $G$-valued random variables such that
+  $d[X_1;X_2]=0$. Then there exists a subgroup $H \leq G$ such that $d[X_1;U_H] = d[X_2;U_H] = 0$.
+\end{corollary}
+
+\begin{proof}\uses{lem:100pc-self,ruzsa-triangle, ruzsa-nonneg}
+Using Lemma \ref{ruzsa-triangle} and Lemma \ref{ruzsa-nonneg} we have $d[X_1;X_1]=0$, hence by Lemma \ref{lem:100pc-self} $d[X_1;U_H]=0$ for some subgroup $H$.  By Lemma \ref{ruzsa-triangle} and Lemma \ref{ruzsa-nonneg} again we also have $d[X_2;U_H]$ as required.
 \end{proof}
