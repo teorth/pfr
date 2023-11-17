@@ -133,7 +133,7 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
 \begin{lemma}[Alternative formulae for mutual information]
   \label{alternative-mutual}
   \uses{information-def, conditional-entropy-def, entropy-def}
-  \lean{ProbabilityTheory.mutualInformation_comm} % and below
+  \lean{ProbabilityTheory.mutualInformation_comm,mutualInformation_eq_entropy_sub_condEntropy}
   \leanok
   With notation as above, we have
   $$  I[X : Y] = I[Y:X]$$
@@ -187,7 +187,7 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
 
 \begin{corollary}[Submodularity]\label{submodularity}
   \uses{conditional-entropy-def}
-  \lean{ProbabilityTheory.entropy_submodular}
+  \lean{ProbabilityTheory.entropy_submodular}\leanok
   With three random variables $X,Y,Z$, one has $H[X|Y,Z] \leq H[X|Z]$.
 \end{corollary}
 

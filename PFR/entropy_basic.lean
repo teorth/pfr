@@ -362,7 +362,7 @@ lemma condEntropy_eq_sum_prod [MeasurableSingletonClass T] (hX : Measurable X) (
   have h_prod : (Finset.univ : Finset (S × T)) = (Finset.univ : Finset S) ×ˢ Finset.univ := rfl
   rw [condEntropy_eq_sum_sum hX Y, h_prod, Finset.sum_product_right]
 
-/-- If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, and $f: T \times S → U$ is injective for each fixed $t \in T$, then $H[f(X,T)|Y] = H[X|Y]$.  Thus for instance $H[X-Y|Y]=H[X|Y]$.-/
+/-- If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, and $f: T \times S → U$ is injective for each fixed $t \in T$, then $H[f(Y,X)|Y] = H[X|Y]$.  Thus for instance $H[X-Y|Y]=H[X|Y]$.-/
 lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass U]
     (μ : Measure Ω) (hX : Measurable X) (f : T → S → U) (hf : ∀ t : T, Function.Injective (f t)) :
     H[(fun ω ↦ f (Y ω) (X ω)) | Y ; μ] = H[X | Y ; μ] := sorry
@@ -579,7 +579,7 @@ lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) : H[X | Y ;
   sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInformation_nonneg _ _ _
 
 /-- $H[X|Y,Z] \leq H[X|Z]$ -/
-lemma entropy_submodular : 0 = 1 := sorry
+lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z): H[X | (fun ω ↦ (Y ω, Z ω)) ; μ] ≤ H[X | Z ; μ] := sorry
 
 /-- $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
 lemma entropy_triple_add_entropy_le :
@@ -610,7 +610,7 @@ def isCopy (X : Ω → S) (X' : Ω' → S) (μ : Measure Ω) (μ' : Measure Ω')
   μ.map X = μ'.map X'
 
 /-- If $X'$ is a copy of $X$ then $H[X'] = H[X]$. --/
-lemma entropy_of_copy : 0 = 1 := by sorry
+lemma entropy_of_copy (X : Ω → S) (X' : Ω' → S) (μ : Measure Ω) (μ' : Measure Ω') (h : isCopy X X' μ μ'): H[X ; μ] = H[X'; μ'] := by sorry
 
 /-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.  May need to be a constructive method rather than a function -/
 def independent_copies : 0 = 1 := by sorry
