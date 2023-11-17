@@ -41,7 +41,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 
 \begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}
   \uses{entropy-def, independent-def}
-  \lean{ent_of_indep_sumdiff_lower}
+  \lean{ent_of_indep_sum_lower,ent_of_indep_diff_lower}\leanok
   If $X,Y$ are independent $G$-valued random variables, then
 $$\max(H[X], \bbH[Y]) \leq \bbH[X\pm Y].
 $$
@@ -51,7 +51,7 @@ $$
 \end{proof}
 
 \begin{definition}[Copy]\label{copy-def}
-  \lean{ProbabilityTheory.isCopy}
+  \lean{ProbabilityTheory.isCopy}\leanok
   Let $X : \Omega \to S$.  A \emph{copy} of $X$ is a random variable $X' : \Omega' \to S$ such that $P[X=s] = P[X'=s]$ for all $s \in S$.
 \end{definition}
 

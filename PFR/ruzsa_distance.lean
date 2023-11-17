@@ -18,10 +18,11 @@ Here we define Ruzsa distance and establish its basic properties.
 -/
 open MeasureTheory ProbabilityTheory
 
-variable {Ω Ω' Ω'' G T : Type*}
+variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
+  [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
   [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [MeasurableSub₂ G] [Fintype G] [MeasurableSpace T]
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
@@ -44,8 +45,15 @@ lemma condEnt_of_sum_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Me
 /-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq \bbH[X - Y|Z] $$ -/
 lemma condEnt_of_diff_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) : (max H[ X | Z; μ] H[Y | Z; μ]) - I[ X : Y | Z ; μ] ≤ H[X - Y | Z; μ] := by sorry
 
-/-- $$ \max(H[X], H[Y]) \leq H[X\pm Y].$$ -/
-lemma ent_of_indep_sumdiff_lower : 0 = 1 := by sorry
+/-- If $X,Y$ are independent, then
+$$ \max(H[X], H[Y]) \leq H[X + Y].$$ -/
+lemma ent_of_indep_sum_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
+    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ])  ≤ H[X + Y; μ]  := by sorry
+
+/--  If $X,Y$ are independent, then
+$$ \max(H[X], H[Y]) \leq H[X - Y].$$ -/
+lemma ent_of_indep_diff_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
+    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ])  ≤ H[X - Y; μ]  := by sorry
 
 
 /-- The Ruzsa distance `dist X Y` between two random variables is defined as
