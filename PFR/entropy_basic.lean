@@ -239,23 +239,28 @@ lemma measureEntropy_le_log_card [MeasurableSingletonClass S] (μ : Measure S) :
 lemma measureEntropy_eq_card_iff_measureReal_eq [MeasurableSingletonClass S] [IsFiniteMeasure μ]
     [NeZero μ] :
     Hm[μ] = log (Fintype.card S) ↔
-    (∀ s : S, μ.real {s} = μ.real Set.univ * (Fintype.card S : ℝ)⁻¹) := by
+    (∀ s : S, μ.real {s} = μ.real Set.univ / Fintype.card S) := by
   rw [← measureEntropy_univ_smul]
   convert measureEntropy_eq_card_iff_measureReal_eq_aux ((μ Set.univ)⁻¹ • μ) using 2 with s
-  simp [ENNReal.toReal_inv, ← inv_mul_eq_iff_eq_mul₀ measureReal_univ_ne_zero]
+  simp only [measureReal_smul_apply, smul_eq_mul]
+  rw [ENNReal.toReal_inv, inv_mul_eq_iff_eq_mul₀ (by exact measureReal_univ_ne_zero),
+    div_eq_mul_inv]
   rfl
 
 lemma measureEntropy_eq_card_iff_measure_eq [MeasurableSingletonClass S] [IsFiniteMeasure μ]
     [NeZero μ] :
     Hm[μ] = log (Fintype.card S) ↔
-    (∀ s : S, μ {s} = μ Set.univ * (Fintype.card S : ℝ≥0)⁻¹) := by
-  rw [measureEntropy_eq_card_iff_measureReal_eq]
+    (∀ s : S, μ {s} = μ Set.univ / Fintype.card S) := by
+  obtain h | h := isEmpty_or_nonempty S
+  · have : μ = 0 := Subsingleton.elim _ _
+    simp [Fintype.card_eq_zero, this]
+  rw [div_eq_mul_inv, measureEntropy_eq_card_iff_measureReal_eq]
   congr! with s
   rw [measureReal_def, ← ENNReal.toReal_eq_toReal_iff' (measure_ne_top μ {s})]
-  rw [ENNReal.toReal_mul]
-  congr!
-  apply ENNReal.mul_ne_top (measure_ne_top μ Set.univ)
-  simp
+  · rw [ENNReal.toReal_mul, ENNReal.toReal_inv]
+    rfl
+  · apply ENNReal.mul_ne_top (measure_ne_top μ Set.univ)
+    simp
 
 lemma measureEntropy_map_of_injective [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (μ : Measure S) (f : S → T) (hf : Function.Injective f)  :
@@ -346,10 +351,8 @@ lemma entropy_eq_log_card (X : Ω → S) (μ : Measure Ω) : (entropy X μ = log
   have : MeasurableSingletonClass S := sorry
   have : IsFiniteMeasure (μ.map X) := sorry
   have : NeZero (μ.map X) := sorry
-  have : Nonempty S := sorry
   have hX : Measurable X := sorry
-  rw [entropy_def, measureEntropy_eq_card_iff_measure_eq, Measure.map_apply hX MeasurableSet.univ,
-    div_eq_mul_inv]
+  rw [entropy_def, measureEntropy_eq_card_iff_measure_eq, Measure.map_apply hX MeasurableSet.univ]
   simp
 
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
