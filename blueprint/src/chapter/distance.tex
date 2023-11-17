@@ -50,12 +50,7 @@ $$
 \begin{proof} \uses{sumset-lower-gen, vanish-entropy} Combine Lemma \ref{sumset-lower-gen} with Lemma \ref{vanish-entropy}.
 \end{proof}
 
-\begin{definition}[Copy]\label{copy-def}
-  \lean{ProbabilityTheory.isCopy}\leanok
-  Let $X : \Omega \to S$.  A \emph{copy} of $X$ is a random variable $X' : \Omega' \to S$ such that $P[X=s] = P[X'=s]$ for all $s \in S$.
-\end{definition}
-
-We may want to establish that copy is an equivalence relation. Another useful helper lemma: if $X'$ is a copy of $X$, then $f(X')$ is a copy of $f(X)$ for any function $f$.
+One random variable is said to be a copy of another if they have the same distribution.
 
 \begin{lemma}[Copy preserves entropy]\label{copy-ent}
   \uses{copy-def,entropy-def}
@@ -171,7 +166,7 @@ $$ d[X; Y | W] := \sum_{w} P[W=w] d[X; (Y|(W=w))].$$
 \end{definition}
 
 \begin{lemma}[Alternate form of distance]\label{cond-dist-alt}\uses{cond-dist-def, conditional-entropy-def, independent-def}
-\lean{cond_rdist_of_copy, cond_rdist'_of_copy, cond_rdist_of_indep, cond_rdist'_of_indep}
+\lean{cond_rdist_of_copy, cond_rdist'_of_copy, cond_rdist_of_indep, cond_rdist'_of_indep}\leanok
   The expression $d[X  | Z;Y | W]$ is unchanged if $(X,Z)$ or $(Y,W)$ is replaced by a copy.  Furthermore, if $(X,Z)$ and $(Y,W)$ are independent, then
 $$  d[X  | Z;Y | W] = \bbH[X-Y|Z,W] - \bbH[X|Z]/2 - \bbH[Y|W]/2$$
 and similarly

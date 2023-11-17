@@ -74,13 +74,13 @@ lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure 
 -- may also want to make further notations for Ruzsa distance
 
 /-- If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$. -/
-lemma rdist_of_copy {X' : Ω'' → G} {Y' : Ω''' →G} (hX : isCopy X X' μ μ'') (hY : isCopy Y Y' μ' μ''') : d[ X ; μ # Y ; μ' ] = d[ X' ; μ'' # Y' ; μ'''] := by sorry
+lemma rdist_of_copy {X' : Ω'' → G} {Y' : Ω''' →G} (hX : μ.map X = μ''.map X') (hY : μ'.map Y = μ'''.map Y') : d[ X ; μ # Y ; μ' ] = d[ X' ; μ'' # Y' ; μ'''] := by sorry
 
 /--   If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$-/
 lemma rdist_of_indep [IsFiniteMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
     (h : IndepFun X Y μ) :
-    d[ X ; μ # Y ; μ] = H[fun ω ↦ X ω - Y ω ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
+    d[ X ; μ # Y ; μ] = H[X-Y ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
   rw [rdist_def]
   congr 2
   have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨ X, Y ⟩) :=
@@ -129,9 +129,9 @@ lemma cond_rdist_of_indep [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G}
 
 lemma cond_rdist'_of_indep  [MeasurableSpace T] {X : Ω → G} {Y : Ω → G} {W : Ω → T} (h : IndepFun X (⟨ Y, W ⟩) μ) : d[ X ; μ # Y | W ; μ] = H[X-Y | W; μ ] - H[X; μ ]/2 - H[Y | W; μ ]/2 := by sorry
 
-lemma cond_rdist_of_copy : 0 = 1 := by sorry
+lemma cond_rdist_of_copy [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Z' : Ω'' → S} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : μ.map (⟨ X, Z⟩) = μ''.map (⟨X', Z'⟩)) (h2: μ'.map (⟨Y, W⟩) = μ'''.map (⟨Y', W'⟩)): d[ X | Z ; μ # Y | W ; μ'] = d[ X' | Z' ; μ'' # Y' | W' ; μ'''] := by sorry
 
-lemma cond_rdist'_of_copy : 0 = 1 := by sorry
+lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : μ.map X = μ''.map X') (h2: μ'.map (⟨Y, W⟩) = μ'''.map (⟨Y', W'⟩)): d[ X ; μ # Y | W ; μ'] = d[ X' ; μ'' # Y' | W' ; μ'''] := by sorry
 
 
 /-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/
