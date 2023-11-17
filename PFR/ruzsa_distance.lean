@@ -170,8 +170,6 @@ lemma ent_bsg : 0 = 1 := by sorry
 
 end Balog_Szemeredi_Gowers
 
-/-- Give all finite types the discrete sigma-algebra by default. -/
-instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
 
 /--   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
 $$   d[X  | Z;Y | W] \leq d[X; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W].$$

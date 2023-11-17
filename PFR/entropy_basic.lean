@@ -73,7 +73,8 @@ lemma cond_eq_zero_of_measure_zero {α : Type*} {_ : MeasurableSpace α} {μ : M
 end aux_lemmas
 
 
-
+/-- Give all finite types the discrete sigma-algebra by default. -/
+instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
 
 namespace ProbabilityTheory
 
