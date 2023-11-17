@@ -63,29 +63,33 @@ def rdist (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
     (μ' : Measure Ω' := by volume_tac) : ℝ :=
   H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2
 
+/-- Needed a new separator here, chose `#` arbitrarily, but am open to other suggestions -/
+notation3:max "d[" X " ; " μ " # " Y " ; " μ' "]" => rdist X Y μ μ'
+
+
 lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') :
-    rdist X Y μ μ'
+    d[ X ; μ # Y ; μ' ]
       = H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2 := rfl
 
 -- may also want to make further notations for Ruzsa distance
 
 /-- If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$. -/
-lemma rdist_of_copy {X' : Ω'' → G} {Y' : Ω''' →G} (hX : isCopy X X' μ μ'') (hY : isCopy Y Y' μ' μ''') : rdist X Y μ μ' = rdist X' Y' μ'' μ''' := by sorry
+lemma rdist_of_copy {X' : Ω'' → G} {Y' : Ω''' →G} (hX : isCopy X X' μ μ'') (hY : isCopy Y Y' μ' μ''') : d[ X ; μ # Y ; μ' ] = d[ X' ; μ'' # Y' ; μ'''] := by sorry
 
 /--   If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$-/
 lemma rdist_of_indep [IsFiniteMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
     (h : IndepFun X Y μ) :
-    rdist X Y μ μ = H[fun ω ↦ X ω - Y ω ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
+    d[ X ; μ # Y ; μ] = H[fun ω ↦ X ω - Y ω ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
   rw [rdist_def]
   congr 2
-  have h_prod : (μ.map X).prod (μ.map Y) = μ.map (fun ω ↦ (X ω, Y ω)) :=
+  have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨ X, Y ⟩) :=
     ((indepFun_iff_map_prod_eq_prod_map_map hX hY).mp h).symm
-  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
+  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (mes_pair_mk hX hY)]
   congr
 
 /-- $$ d[X;Y] = d[Y;X].$$ -/
-lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] : rdist X Y μ μ' = rdist Y X μ' μ := by
+lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] : d[ X ; μ # Y ; μ'] = d[ Y ; μ' # X ; μ] := by
   rw [rdist_def, rdist_def, sub_sub, sub_sub, add_comm]
   congr 1
   rw [← entropy_neg (measurable_fst.sub measurable_snd)]
@@ -95,23 +99,38 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] : rdist X Y μ μ' =
   rfl
 
 /-- $$|H[X]-H[Y]| \leq 2 d[X;Y].$$ -/
-lemma diff_ent_le_rdist : |H[X ; μ] - H[Y ; μ']| ≤ 2 * rdist X Y μ μ' := by sorry
+lemma diff_ent_le_rdist : |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ' ] := by sorry
 
-/-- $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$ -/
-lemma diff_ent_le_rdist' {Y : Ω → G} : 0 = 1 := by sorry
+/-- $$  \bbH[X-Y] - \bbH[X] \leq 2d[X;Y].$$ -/
+lemma diff_ent_le_rdist' {Y : Ω → G} : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
+
+/-- $$  \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$ -/
+lemma diff_ent_le_rdist'' {Y : Ω → G} : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
 
 /--   $$ d[X;Y] \geq 0.$$  -/
-lemma rdist_nonneg : 0 ≤ rdist X Y μ μ' := by sorry
+lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by sorry
 
 /-- The Ruzsa triangle inequality -/
 lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) :
-    rdist X Z μ μ'' ≤ rdist X Y μ μ' + rdist Y Z μ' μ'' := sorry
+    d[ X ; μ # Z ; μ'' ] ≤ d[ X ; μ # Y ; μ' ] + d[ Y ; μ' # Z ; μ'' ] := sorry
 
 /-- definition of d[ X|Z ; Y| W ]-/
-def condDist [Fintype S] [Fintype T] (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) : ℝ := sorry
+def cond_rdist [MeasurableSpace S] [MeasurableSpace T] (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac): ℝ := sorry
+
+notation3:max "d[" X " | " Z " ; " μ " # " Y " | " W " ; " μ' "]" => cond_rdist X Z Y W μ μ'
+
+/-- definition of d[ X ; Y| W ]-/
+def cond_rdist' [MeasurableSpace T] (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac): ℝ := sorry
+
+notation3:max "d[" X " ; " μ " # " Y " | " W " ; " μ' "]" => cond_rdist' X Y W μ μ'
 
 /-- $$  d[X  | Z;Y | W] = H[X'-Y'|Z',W'] - H[X'|Z']/2 - H[Y'|W']/2$$ -/
-lemma condDist_eq : 0 = 1 := by sorry
+lemma cond_rdist_of_indep [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G} {Z : Ω → S} {Y : Ω → G} {W : Ω → T} (h : IndepFun (⟨X, Z⟩) (⟨ Y, W ⟩) μ) : d[ X | Z ; μ # Y | W ; μ] = H[X-Y | (⟨ Z, W ⟩); μ ] - H[X | Z; μ ]/2 - H[Y | W; μ ]/2 := by sorry
+
+lemma cond_rdist_of_copy : 0 = 1 := by sorry
+
+-- need analogues for cond_rdist'
+
 
 /-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/
 lemma Kaimonovich_Vershik : 0 = 1 := by sorry

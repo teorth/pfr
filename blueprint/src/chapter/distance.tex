@@ -126,7 +126,7 @@ $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
 
 \begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}
   \uses{ruz-dist-def, entropy-def}
-  \lean{diff_ent_le_rdist'}
+  \lean{diff_ent_le_rdist', diff_ent_le_rdist''}\leanok
   If $X,Y$ are $G$-valued random variables, then
 $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \end{lemma}
@@ -162,13 +162,13 @@ Using
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
   \uses{ruz-dist-def}
-  \lean{condDist}
+  \lean{cond_rdist}
 If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Z$ are $G$-valued) we define
 $$ d[X  | Z; Y | W] := \sum_{z,w} P[Z=z] P[W=w] d[(X|Z=z); (Y|(W=w))].$$
 \end{definition}
 
 \begin{lemma}[Alternate form of distance]\label{cond-dist-alt}\uses{cond-dist-def, conditional-entropy-def, independent-def}
-\lean{condDist_eq}
+\lean{cond_rdist_eq}
   If $(X',Z')$, $(Y',W')$ are independent copies of $(X,Z), (Y,W)$, then
 $$  d[X  | Z;Y | W] = \bbH[X'-Y'|Z',W'] - \bbH[X'|Z']/2 - \bbH[Y'|W']/2$$
 \end{lemma}
