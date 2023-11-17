@@ -9,23 +9,23 @@ Throughout this chapter,  $G = \F_2^n$, and $X^0_1, X^0_2$ are $G$-valued random
 
 \begin{definition}[$\tau$ functional]\label{tau-def}
   \uses{eta-def}
-  \lean{tau}
+  \lean{tau}\leanok
 If $X_1,X_2$ are two $G$-valued random variables, then
 $$  \tau[X_1; X_2] := d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
 \end{definition}
 
-\begin{lemma}[$\tau$ depends only on distribution]\label{tau-copy}
+\begin{lemma}[$\tau$ depends only on distribution]\label{ProbabilityTheory.IdentDistrib.tau_eq}\leanok
   \uses{tau-def}
   \lean{tau_copy}  If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$.
 \end{lemma}
 
 
-\begin{proof}\uses{copy-ent} Immediate from Lemma \ref{copy-ent}.
+\begin{proof}\uses{copy-ent}\leanok Immediate from Lemma \ref{copy-ent}.
 \end{proof}
 
 \begin{definition}[$\tau$-minimizer]\label{tau-min-def}
 \uses{tau-def}
-\lean{tau_minimizes}
+\lean{tau_minimizes}\leanok
 A pair of $G$-valued random variables $X_1, X_2$ are said to be a $\tau$-minimizer if one has
   $$\tau[X_1;X_2] \leq \tau[X'_1;X'_2]
   $$
@@ -46,14 +46,14 @@ A pair $X_1, X_2$ of $\tau$-minimizers exist.
 In this section we assume that $X_1,X_2$ are $\tau$-minimizers. We also write $k := d[X_1;X_2]$.
 
 \begin{lemma}[Distance lower bound]\label{distance-lower}
-  \uses{tau-minimizes, ruz-dist-def}
+  \uses{tau-minimizes, ruz-dist-def}\leanok
   \lean{distance_ge_of_min}
   For any $G$-valued random variables $X'_1,X'_2$, one has
 $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] ).$$
 \end{lemma}
 
 \begin{proof}
-  \uses{tau-def, tau-min}
+  \uses{tau-def, tau-min}\leanok
   Immediate from Definition \ref{tau-def} and Definition \ref{tau-min}.
 \end{proof}
 

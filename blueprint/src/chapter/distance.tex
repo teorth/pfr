@@ -54,11 +54,11 @@ One random variable is said to be a copy of another if they have the same distri
 
 \begin{lemma}[Copy preserves entropy]\label{copy-ent}
   \uses{copy-def,entropy-def}
-  \lean{ProbabilityTheory.entropy_of_copy}\leanok
+  \lean{IdentDistrib.entropy_eq}\leanok
   If $X'$ is a copy of $X$ then $\bbH[X'] = \bbH[X]$.
 \end{lemma}
 
-\begin{proof} Immediate from Definitions \ref{copy-def}, \ref{entropy-def}.
+\begin{proof}\leanok Immediate from Definitions \ref{copy-def}, \ref{entropy-def}.
 \end{proof}
 
 \begin{lemma}[Existence of independent copies]\label{independent-exist}
@@ -82,7 +82,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 
 \begin{lemma}[Copy preserves Ruzsa distance]\label{ruz-copy}
   \uses{ruz-dist-def,copy-def}
-  \lean{rdist_of_copy}\leanok
+  \lean{ProbabilityTheory.IdentDistrib.rdist_eq}\leanok
   If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$.
 \end{lemma}
 
@@ -91,7 +91,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 
 \begin{lemma}[Ruzsa distance in independent case]\label{ruz-indep}
   \uses{ruz-dist-def, entropy-def, independent-def}
-  \lean{rdist_of_indep}\leanok
+  \lean{ProbabilityTheory.IndepFun.rdist_eq}\leanok
   If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := \bbH[X - Y] - \bbH[X]/2 - \bbH[Y]/2.$$
 \end{lemma}
@@ -178,7 +178,7 @@ $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 
 \begin{lemma}[Kaimonovich-Vershik inequality]\label{kv}
   \uses{independent-def, entropy-def}
-  \lean{Kaimonovich_Vershik}
+  \lean{Kaimonovich_Vershik}\leanok
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
   \bbH[X + Y + Z] - \bbH[X + Y] \leq \bbH[Y+Z] - \bbH[Y].
@@ -263,7 +263,7 @@ $3I[A:B] + 2H[Z]-H[A]-H[B]$ as claimed.
 
 \begin{lemma}\label{cond-dist-fact}
   \uses{cond-ruz-dist, information-def}
-  \lean{condDist_le}
+  \lean{condDist_le, condDist_le'}\leanok
   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
   \[    d[X  | Z;Y | W] \leq d[X; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W].\]
 \end{lemma}
@@ -281,7 +281,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 
 \begin{lemma}\label{first-useful}
   \uses{independent-def, ruz-dist-def, cond-dist-def, entropy-def, conditional-entropy-def}
-  \lean{condDist_le'}
+  \lean{condDist_diff_le, condDist_diff_le', condDist_diff_le'', condDist_diff_le'''}\leanok
   Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
   \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (H[Y+Z] - \bbH[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} \bbH[Z] - \tfrac{1}{4} \bbH[Y]. \label{lem51-a} \end{align}
   and
@@ -304,7 +304,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 
 \begin{lemma}\label{second-useful}
   \uses{independent-def, cond-ruz-def, entropy-def, ruz-dist-def}
-  \lean{condDist_le''}
+  \lean{condDist_fiff_ofsum_le}
   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
   \begin{align}\nonumber
   & d[X;Y + Z | Y + Z + Z'] - d[X;Y] \\ & \qquad \leq \tfrac{1}{2} ( \bbH[Y + Z + Z'] + \bbH[Y + Z] - \bbH[Y] - \bbH[Z']).\label{7111}

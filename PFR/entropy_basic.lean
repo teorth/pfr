@@ -618,9 +618,6 @@ section copy
 
 variable {mΩ' : MeasurableSpace Ω'}
 
-/-- If $X'$ is a copy of $X$ then $H[X'] = H[X]$. --/
-lemma entropy_of_copy (X : Ω → S) (X' : Ω' → S) (μ : Measure Ω) (μ' : Measure Ω') (h : μ.map X = μ'.map X'): H[X ; μ] = H[X'; μ'] := by sorry
-
 /-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.  May need to be a constructive method rather than a function -/
 def independent_copies : 0 = 1 := by sorry
 

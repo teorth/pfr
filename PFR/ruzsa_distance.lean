@@ -1,5 +1,6 @@
 import Mathlib.Probability.Notation
 import Mathlib.Probability.ConditionalProbability
+import Mathlib.Probability.IdentDistrib
 import PFR.entropy_basic
 
 /-!
@@ -23,7 +24,7 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
   [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
-  [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
+  [hG: MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [Fintype G] [MeasurableSpace T]
 
 /-- For mathlib -/
@@ -139,18 +140,20 @@ def cond_rdist' [MeasurableSpace T] (X : Ω → G) (Y : Ω' → G) (W : Ω' → 
 
 notation3:max "d[" X "; " μ " # " Y " | " W "; " μ' "]" => cond_rdist' X Y W μ μ'
 
+
+
 /-- $$  d[X  | Z;Y | W] = H[X'-Y'|Z',W'] - H[X'|Z']/2 - H[Y'|W']/2$$ -/
 lemma cond_rdist_of_indep [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G} {Z : Ω → S} {Y : Ω → G} {W : Ω → T} (h : IndepFun (⟨X, Z⟩) (⟨ Y, W ⟩) μ) : d[ X | Z ; μ # Y | W ; μ] = H[X-Y | ⟨ Z, W ⟩; μ ] - H[X | Z; μ ]/2 - H[Y | W; μ ]/2 := by sorry
 
 lemma cond_rdist'_of_indep  [MeasurableSpace T] {X : Ω → G} {Y : Ω → G} {W : Ω → T} (h : IndepFun X (⟨ Y, W ⟩) μ) : d[ X ; μ # Y | W ; μ] = H[X-Y | W; μ ] - H[X; μ ]/2 - H[Y | W; μ ]/2 := by sorry
 
-lemma cond_rdist_of_copy [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Z' : Ω'' → S} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : μ.map (⟨ X, Z⟩) = μ''.map (⟨X', Z'⟩)) (h2: μ'.map (⟨Y, W⟩) = μ'''.map (⟨Y', W'⟩)): d[ X | Z ; μ # Y | W ; μ'] = d[ X' | Z' ; μ'' # Y' | W' ; μ'''] := by sorry
+lemma cond_rdist_of_copy [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Z' : Ω'' → S} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : IdentDistrib (⟨X, Z⟩) (⟨X', Z'⟩) μ μ'') (h2: IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ'''): d[ X | Z ; μ # Y | W ; μ'] = d[ X' | Z' ; μ'' # Y' | W' ; μ'''] := by sorry
 
-lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : μ.map X = μ''.map X') (h2: μ'.map (⟨Y, W⟩) = μ'''.map (⟨Y', W'⟩)): d[ X ; μ # Y | W ; μ'] = d[ X' ; μ'' # Y' | W' ; μ'''] := by sorry
+lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : IdentDistrib X X' μ μ'') (h2: IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ'''): d[ X ; μ # Y | W ; μ'] = d[ X' ; μ'' # Y' | W' ; μ'''] := by sorry
 
 
 /-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/
-lemma Kaimonovich_Vershik : 0 = 1 := by sorry
+lemma Kaimonovich_Vershik {X : Fin 3 → Ω → G} (h: iIndepFun (fun (i : Fin 3) ↦ hG) X μ) : H[ (X 0) + (X 1) + (X 2) ; μ] - H[ (X 0) + (X 1) ; μ] ≤ H[ (X 1) + (X 2) ; μ] - H[ X 1; μ ] := by sorry
 
 section Balog_Szemeredi_Gowers
 
@@ -167,11 +170,15 @@ lemma ent_bsg : 0 = 1 := by sorry
 
 end Balog_Szemeredi_Gowers
 
+/-- Give all finite types the discrete sigma-algebra by default. -/
+instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
 
 /--   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
 $$   d[X  | Z;Y | W] \leq d[X; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W].$$
 -/
-lemma condDist_le : 0 = 1 := by sorry
+lemma condDist_le [Fintype S] [Fintype T] (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) : d[ X | Z; μ # Y|W; μ'] ≤ d[X; μ # Y; μ'] + I[ X : Z; μ]/2 + I[Y : W; μ']/2 := by sorry
+
+lemma condDist_le' [Fintype T] (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) : d[ X; μ # Y|W; μ'] ≤ d[X; μ # Y; μ'] + I[Y : W; μ']/2 := by sorry
 
 
 /-- Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
@@ -182,11 +189,17 @@ $$
   d[X;Y|Y+Z] - d[X;Y] \leq \tfrac{1}{2} \bigl(H[Y+Z] - H[Z]\bigr) $$
    = \tfrac{1}{2} d[Y;Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z].
 -/
-lemma condDist_le' : 0 = 1 := by sorry
+lemma condDist_diff_le (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h: IndepFun Y Z μ') : d[ X; μ # Y+Z; μ'] - d[X; μ # Y; μ'] ≤ (H[Y+Z; μ'] - H[Y; μ'])/2 := by sorry
+
+lemma condDist_diff_le' (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h: IndepFun Y Z μ') : d[ X; μ # Y+Z; μ'] - d[X; μ # Y; μ'] ≤ d[Y;μ' # Z; μ']/2 + H[Z; μ']/4 - H[Y; μ']/4 := by sorry
+
+lemma condDist_diff_le'' (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h: IndepFun Y Z μ') : d[ X; μ # Y|Y+Z; μ'] - d[X; μ # Y; μ'] ≤ (H[Y+Z; μ'] - H[Z; μ'])/2 := by sorry
+
+lemma condDist_diff_le''' (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h: IndepFun Y Z μ') : d[ X; μ # Y|Y+Z; μ'] - d[X; μ # Y; μ'] ≤ d[Y;μ' # Z; μ']/2 + H[Y; μ']/4 - H[Z; μ']/4 := by sorry
 
 
 /--   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
 $$ d[X;Y + Z | Y + Z + Z'] - d[X;Y] $$
 $$ \leq \tfrac{1}{2} ( H[Y + Z + Z'] + H[Y + Z] - H[Y] - H[Z']).$$
 -/
-lemma condDist_le'' : 0 = 1 := by sorry
+lemma condDist_diff_ofsum_le : 0 = 1 := by sorry
