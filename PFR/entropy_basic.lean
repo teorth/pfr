@@ -1,6 +1,7 @@
 import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
+import Mathlib.Probability.IdentDistrib
 import PFR.neg_xlogx
 import PFR.MeasureReal
 
@@ -265,6 +266,10 @@ lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X]
 lemma entropy_zero_measure (X : Ω → S) : H[X ; (0 : Measure Ω)] = 0 := by simp [entropy]
 
 lemma entropy_nonneg (X : Ω → S) (μ : Measure Ω) : 0 ≤ entropy X μ := measureEntropy_nonneg _
+
+lemma IdentDistrib.entropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'} {X' : Ω' → S}
+    (h : IdentDistrib X X' μ μ') : entropy X μ = entropy X' μ' := by
+  simp [entropy_def, h.map_eq]
 
 lemma entropy_le_log_card [MeasurableSingletonClass S]
     (X : Ω → S) (μ : Measure Ω) : entropy X μ ≤ log (Fintype.card S) :=
