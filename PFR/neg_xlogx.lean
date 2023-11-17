@@ -138,14 +138,14 @@ lemma sum_negIdMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ}
   · simp [hmem]
 
 -- a form of equality case of Jensen
-lemma sum_negIdMulLog_eq_aux [DecidableEq S] {w : S → ℝ} {p : S → ℝ} {U : Finset S}
+lemma sum_negIdMulLog_eq_aux {w : S → ℝ} {p : S → ℝ} {U : Finset S}
     (h0 : ∀ s ∈ U, 0 < w s) (h₁ : ∑ s in U, w s = 1) (hmem : ∀ s ∈ U, 0 ≤ p s) :
     negIdMulLog (∑ s in U, w s • p s) = ∑ s in U, w s • negIdMulLog (p s)
     ↔ ∀ j ∈ U, p j = ∑ s in U, w s • p s :=
   strictConcaveOn_negIdMulLog.map_sum_eq_iff h0 h₁ hmem
 
 -- a form of equality case of Jensen
-lemma sum_negIdMulLog_eq_aux2 [DecidableEq S] {w : S → ℝ} {p : S → ℝ} {U : Finset S}
+lemma sum_negIdMulLog_eq_aux2 {w : S → ℝ} {p : S → ℝ} {U : Finset S}
     (h0 : ∀ s ∈ U, 0 < w s) (h1 : ∑ s in U, w s = 1) (hmem : ∀ s ∈ U, 0 ≤ p s) :
     ∑ s in U, w s * negIdMulLog (p s) = negIdMulLog (∑ s in U, w s * p s)
     ↔ ∀ j ∈ U, p j = ∑ s in U, w s • p s := by
@@ -153,8 +153,10 @@ lemma sum_negIdMulLog_eq_aux2 [DecidableEq S] {w : S → ℝ} {p : S → ℝ} {U
   exact strictConcaveOn_negIdMulLog.map_sum_eq_iff h0 h1 hmem
 
 /-- the equality case of Jensen's inequality -/
-lemma sum_negIdMulLog_eq {S : Type*} [DecidableEq S] [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
-    (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) (heq : ∑ s, (w s) * negIdMulLog (p s) = negIdMulLog (∑ s, (w s) * (p s))) (s : S) (hs : 0 < w s) : p s = ∑ s', (w s') * (p s') := by
+lemma sum_negIdMulLog_eq {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
+    (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s)
+    (heq : ∑ s, (w s) * negIdMulLog (p s) = negIdMulLog (∑ s, (w s) * (p s)))
+    (s : S) (hs : 0 < w s) : p s = ∑ s', (w s') * (p s') := by
   let U := Finset.filter (fun s ↦ 0 < w s) Finset.univ
   have H : ∀ x, x ∉ U → w x = 0 := by
     intro s hs
