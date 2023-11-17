@@ -9,7 +9,7 @@ import Mathlib.Tactic.FieldSimp
 
 open BigOperators Option Finset
 
-variable {𝕜 : Type*} {E : Type*} {β : Type*} {ι : Type*} [DecidableEq ι]
+variable {𝕜 : Type*} {E : Type*} {β : Type*} {ι : Type*}
   [LinearOrderedField 𝕜] [AddCommGroup E] [OrderedAddCommGroup β] [Module 𝕜 E]
   [Module 𝕜 β] [OrderedSMul 𝕜 β] {s : Set E} {f : E → β} {t : Finset ι}
 
@@ -42,6 +42,7 @@ theorem StrictConvexOn.map_sum_lt {w : ι → 𝕜} {p : ι → E} (hf : StrictC
     (h₀ : ∀ i ∈ t, 0 < w i) (h₁ : ∑ i in t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) {j1 j2 : ι}
     (hj1 : j1 ∈ t) (hj2 : j2 ∈ t) (hjp : p j1 ≠ p j2) :
     f (∑ i in t, w i • p i) < ∑ i in t, w i • f (p i) := by
+  classical
   let t' : Finset ι := (t.erase j1).erase j2
   have ht'' : t' ⊆ t := by intro; simp
   have hj2' : j2 ∉ t' := by simp
