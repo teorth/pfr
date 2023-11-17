@@ -7,13 +7,13 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   \label{entropy-def}
   \lean{ProbabilityTheory.entropy}
   \leanok
-  If $X$ is an $S$-valued random variable, the entropy $H[X]$ of $X$ is defined
-  $$ H[X] := \sum_{s \in S} P[X=x] \log \frac{1}{P[X=x]}$$
+  If $X$ is an $S$-valued random variable, the entropy $\bbH[X]$ of $X$ is defined
+  $$ \bbH[X] := \sum_{s \in S} P[X=x] \log \frac{1}{P[X=x]}$$
   with the convention that $0 \log \frac{1}{0} = 0$.
 \end{definition}
 
 \begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_comp_of_injective} \uses{entropy-def}
-  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $H[X] = H[Y]$.
+  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $\bbH[X] = \bbH[Y]$.
 \end{lemma}
 
 \begin{proof} \leanok Expand out both entropies and rearrange.
@@ -23,7 +23,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_le_log_card}
   \leanok
-  If $X$ is an $S$-valued random variable, then $H[X] \leq \log |S|$.
+  If $X$ is an $S$-valued random variable, then $\bbH[X] \leq \log |S|$.
 \end{lemma}
 
 \begin{proof}\uses{jensen}\leanok
@@ -32,7 +32,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
   \uses{entropy-def}\leanok
-  If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly distributed.
+  If $X$ is $S$-valued random variable, then $\bbH[X] = \log |S|$ if and only if $X$ is uniformly distributed.
 \end{lemma}
 
 \begin{proof} \uses{converse-jensen} Direct computation in one direction.  Converse direction needs Lemma \ref{converse-jensen}.
@@ -46,7 +46,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{proof}
   We have
-  $$ H[X] = \sum_{s \in S} P[X=s] \log \frac{1}{P[X=s]} \geq \min_{s \in S} \log \frac{1}{P[X=s]}$$
+  $$ \bbH[X] = \sum_{s \in S} P[X=s] \log \frac{1}{P[X=s]} \geq \min_{s \in S} \log \frac{1}{P[X=s]}$$
   and the claim follows.
 \end{proof}
 
@@ -57,7 +57,7 @@ We use $X,Y$ to denote the pair $\omega \mapsto (X(\omega),Y(\omega)$).
   \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_comm}
   \leanok
-  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $H[X, Y] = H[Y, X]$.
+  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $\bbH[X, Y] = \bbH[Y, X]$.
 \end{lemma}
 \begin{proof}
   \uses{relabeled-entropy}
@@ -79,16 +79,16 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
   \uses{entropy-def,condition-event-def}
   \lean{ProbabilityTheory.condEntropy}
   \leanok
-  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, the conditional entropy $H[X|Y]$ is defined as
-  $$ H[X|Y] := \sum_{y \in Y} P[Y = y] H[(X | Y=y)].$$
+  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, the conditional entropy $\bbH[X|Y]$ is defined as
+  $$ \bbH[X|Y] := \sum_{y \in Y} P[Y = y] \bbH[(X | Y=y)].$$
 \end{definition}
 
 \begin{lemma}[Conditional entropy and relabeling]\label{relabeled-entropy-cond}
   \uses{conditional-entropy-def}
   \lean{ProbabilityTheory.condEntropy_of_inj_map, ProbabilityTheory.condEntropy_of_inj_map'}
-  If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $H[X|Z] = H[Y|Z]$.
+  If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $\bbH[X|Z] = \bbH[Y|Z]$.
 
-  Similarly, if $g: T \to U$ is injective, then $H[X|g(Y)] = H[X|Y]$.
+  Similarly, if $g: T \to U$ is injective, then $\bbH[X|g(Y)] = \bbH[X|Y]$.
 \end{lemma}
 
 \begin{proof}
@@ -102,7 +102,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
   \lean{ProbabilityTheory.chain_rule}
   \leanok
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then
-  $$ H[X, Y] = H[Y] + H[X|Y].$$
+  $$ \bbH[X, Y] = \bbH[Y] + \bbH[X|Y].$$
   \end{lemma}
   \begin{proof}
   \leanok
@@ -113,11 +113,11 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
   \uses{conditional-entropy-def}
   \lean{ProbabilityTheory.cond_chain_rule}
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
-$$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
+$$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{lemma}
 
 \begin{proof}  \uses{chain-rule} For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
-  $$ H[ (X|Z=z),(Y|Z=z) ] = H[Y|Z=z] + H[(X|Z=z)|(Y|Z=z)].$$
+  $$ \bbH[ (X|Z=z),(Y|Z=z) ] = \bbH[Y|Z=z] + \bbH[(X|Z=z)|(Y|Z=z)].$$
   Now multiply by $P[Z=z]$ and sum.  Some helper lemmas may be needed to get to the form above.  This sort of ``average over conditioning'' argument to get conditional entropy inequalities from unconditional ones is commonly used in this paper.
 \end{proof}
 
@@ -127,7 +127,7 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
   \lean{ProbabilityTheory.mutualInformation}
   \leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, then
-  $$I[X : Y] := H[X] + H[Y] - H[X,Y].$$
+  $$I[X : Y] := \bbH[X] + \bbH[Y] - \bbH[X,Y].$$
 \end{definition}
 
 \begin{lemma}[Alternative formulae for mutual information]
@@ -137,8 +137,8 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
   \leanok
   With notation as above, we have
   $$  I[X : Y] = I[Y:X]$$
-  $$  I[X : Y] = H[X] - H[X|Y]$$
-  $$  I[X : Y] = H[Y] - H[Y|X]$$
+  $$  I[X : Y] = \bbH[X] - \bbH[X|Y]$$
+  $$  I[X : Y] = \bbH[Y] - \bbH[Y|X]$$
 \end{lemma}
 
 \begin{proof}
@@ -163,7 +163,7 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
   \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_pair_le_add}
   \leanok
-  With notation as above, we have $H[X,Y] \leq H[X] + H[Y]$.
+  With notation as above, we have $\bbH[X,Y] \leq \bbH[X] + \bbH[Y]$.
 \end{corollary}
 
 \begin{proof}
@@ -177,7 +177,7 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
   \uses{entropy-def, conditional-entropy-def}
   \lean{ProbabilityTheory.condEntropy_le_entropy}
   \leanok
-  With notation as above, we have $H[X|Y] \leq H[X]$.
+  With notation as above, we have $\bbH[X|Y] \leq \bbH[X]$.
 \end{corollary}
 \begin{proof}
   \uses{mutual-nonneg, alternative-mutual}
@@ -188,7 +188,7 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
 \begin{corollary}[Submodularity]\label{submodularity}
   \uses{conditional-entropy-def}
   \lean{ProbabilityTheory.entropy_submodular}\leanok
-  With three random variables $X,Y,Z$, one has $H[X|Y,Z] \leq H[X|Z]$.
+  With three random variables $X,Y,Z$, one has $\bbH[X|Y,Z] \leq \bbH[X|Z]$.
 \end{corollary}
 
 \begin{proof} \uses{cond-reduce} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
@@ -198,7 +198,7 @@ $$ H[X, Y | Z ] = H[Y | Z] + H[X|Y, Z].$$
   \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_triple_add_entropy_le}\leanok
   With three random variables $X,Y,Z$, one has
-  $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$
+  $$ \bbH[X,Y,Z] + \bbH[Z] \leq \bbH[X,Z] + \bbH[Y,Z].$$
 \end{corollary}
 
 \begin{proof}  \uses{submodularity,chain-rule} Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
@@ -217,10 +217,10 @@ May want to add a lemma that jointly independent random variables are pairwise i
   \uses{independent-def, entropy-def}
   \lean{ProbabilityTheory.entropy_pair_eq_add}
   \leanok
-  If $X,Y$ are random variables, then $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent.
+  If $X,Y$ are random variables, then $\bbH[X,Y] = \bbH[X] + \bbH[Y]$ if and only if $X,Y$ are independent.
 \end{lemma}
 
-\begin{proof} \uses{chain-rule,conditional-entropy} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $H[X|Y] = H[X]$ by first showing that $H[X|Y=y] = H[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.
+\begin{proof} \uses{chain-rule,conditional-entropy} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $\bbH[X|Y] = \bbH[X]$ by first showing that $\bbH[X|Y=y] = \bbH[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.
 \end{proof}
 
 
@@ -249,7 +249,7 @@ $$ I[X:Y|Z] := \sum_{z \in U} P[Z=z] I[(X|Z=z): (Y|Z=z)].$$
   \uses{conditional-mutual-def}
   \lean{ProbabilityTheory.condMutualInformation_eq}
 We have
-  $$ I[X:Y|Z] := H[X|Z] + H[Y|Z] - H[X,Y|Z].$$
+  $$ I[X:Y|Z] := \bbH[X|Z] + \bbH[Y|Z] - \bbH[X,Y|Z].$$
 \end{lemma}
 
 \begin{proof} Routine computation.

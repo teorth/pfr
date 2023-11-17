@@ -105,13 +105,13 @@ It therefore suffices to prove that
 \end{align}
 
 By Lemma \ref{first-useful} (and recalling that $k$ is defined to be $d[X_1;X_2]$) we have
-\[ d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} H[X_2] - \tfrac{1}{4} H[X_1],\] \[  d[X^0_2;X_2+\tilde X_1] - d[X^0_2; X_2] \leq \tfrac{1}{2} k + \tfrac{1}{4} H[X_1] - \tfrac{1}{4} H[X_2],\]
-\begin{equation}  d[X_1^0;X_1|X_1+\tilde X_2] - \dist[X_1^0;X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} H[X_1] - \tfrac{1}{4} H[X_2]                                 \label{second-dist1}
+\[ d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} \bbH[X_2] - \tfrac{1}{4} \bbH[X_1],\] \[  d[X^0_2;X_2+\tilde X_1] - d[X^0_2; X_2] \leq \tfrac{1}{2} k + \tfrac{1}{4} \bbH[X_1] - \tfrac{1}{4} \bbH[X_2],\]
+\begin{equation}  d[X_1^0;X_1|X_1+\tilde X_2] - \dist[X_1^0;X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} \bbH[X_1] - \tfrac{1}{4} \bbH[X_2]                                 \label{second-dist1}
 \end{equation}
 and
 \begin{equation}
   \label{second-dist2}
-  d[X_2^0; X_2|X_2+\tilde X_1] - d[X_2^0; X_2] \leq \tfrac{1}{2}k + \tfrac{1}{4} H[X_2] - \tfrac{1}{4} H[X_1].
+  d[X_2^0; X_2|X_2+\tilde X_1] - d[X_2^0; X_2] \leq \tfrac{1}{2}k + \tfrac{1}{4} \bbH[X_2] - \tfrac{1}{4} \bbH[X_1].
 \end{equation}
 Adding all these inequalities, we obtain~\eqref{suff-for-first-est}.
 \end{proof}
@@ -124,7 +124,7 @@ One can also extract the following useful inequality from the proof of the above
   With the same notation, we have
   \begin{equation}
     \label{HS-bound}
-    H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.
+    \bbH[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} \bbH[X_1]+\tfrac{1}{2} \bbH[X_2] + (2 + \eta) k - I_1.
   \end{equation}
 \end{lemma}
 
@@ -192,8 +192,8 @@ By combining~\eqref{1122},~\eqref{1122a} and~\eqref{1122b}, we obtain
   \end{equation}
   We may also use Lemma \ref{ruz-indep} to expand
   \begin{align*}
-   & d[X_1+\tilde X_1;X_2+\tilde X_2] \\ &= H[ X_1+\tilde X_1 + X_2 + \tilde X_2 ]  - \tfrac{1}{2} H[X_1+\tilde X_1] - \tfrac{1}{2} H[X_2+\tilde X_2] \\
-    &= H[ X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} H[X_1] - \tfrac{1}{2} H[X_2]  \\ & \qquad\qquad\qquad   - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2; X_2] \right),
+   & d[X_1+\tilde X_1;X_2+\tilde X_2] \\ &= \bbH[ X_1+\tilde X_1 + X_2 + \tilde X_2 ]  - \tfrac{1}{2} \bbH[X_1+\tilde X_1] - \tfrac{1}{2} \bbH[X_2+\tilde X_2] \\
+    &= \bbH[ X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} \bbH[X_1] - \tfrac{1}{2} \bbH[X_2]  \\ & \qquad\qquad\qquad   - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2; X_2] \right),
   \end{align*}
   and hence by Lemma \ref{foursum-bound}
   \[
@@ -247,24 +247,24 @@ and the claim follows from some calculation.
 
 \begin{proof}
   \uses{second-useful, foursum-bound}
-  By Lemma \ref{second-useful} (taking $X = X_1^0$, $Y = X_1$, $Z = X_2$ and $Z' = \tilde X_1 + \tilde X_2$, so that $Y + Z = U$ and $Y + Z + Z' = S$) we have, noting that $H[Y+Z] = H[Z']$,
+  By Lemma \ref{second-useful} (taking $X = X_1^0$, $Y = X_1$, $Z = X_2$ and $Z' = \tilde X_1 + \tilde X_2$, so that $Y + Z = U$ and $Y + Z + Z' = S$) we have, noting that $\bbH[Y+Z] = \bbH[Z']$,
   \[
-    d[X^0_1;U|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (H[S] -  H[X_1]).
+    d[X^0_1;U|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (H[S] -  \bbH[X_1]).
   \]
   Further applications of Lemma \ref{second-useful} give
   \begin{align*}
-  d[X^0_2;U|S] - d[X^0_2; X_2] &\leq \tfrac{1}{2} (H[S] -  H[X_2]) \\
-  d[X^0_1;V|S] - d[X^0_1;X_1] &\leq \tfrac{1}{2} (H[S] -  H[X_1])\\
-  d[X^0_2;V|S] - d[X^0_2;X_2] &\leq \tfrac{1}{2} (H[S] -  H[X_2])
+  d[X^0_2;U|S] - d[X^0_2; X_2] &\leq \tfrac{1}{2} (H[S] -  \bbH[X_2]) \\
+  d[X^0_1;V|S] - d[X^0_1;X_1] &\leq \tfrac{1}{2} (H[S] -  \bbH[X_1])\\
+  d[X^0_2;V|S] - d[X^0_2;X_2] &\leq \tfrac{1}{2} (H[S] -  \bbH[X_2])
   \end{align*}
   and
-  \[ d[X^0_1;W|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (H[S] + H[W] - H[X_1] - H[W']),\] where $W' := X_2 + \tilde X_2$.
+  \[ d[X^0_1;W|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (H[S] + \bbH[W] - \bbH[X_1] - \bbH[W']),\] where $W' := X_2 + \tilde X_2$.
   To treat $d[X^0_2;W|S]$, first note that this equals $d[X^0_2;W'|S]$, since for a fixed choice $s$ of $S$ we have $W' = W + s$ (here we need some helper lemma about Ruzsa distance). Now we may apply Lemma \ref{second-useful} to obtain
-  \[ d[X^0_2;W'|S] - d[X^0_2;X_2] \leq \tfrac{1}{2} (H[S] + H[W'] - H[X_2] - H[W]).\]
+  \[ d[X^0_2;W'|S] - d[X^0_2;X_2] \leq \tfrac{1}{2} (H[S] + \bbH[W'] - \bbH[X_2] - \bbH[W]).\]
   Summing these six estimates and using Lemma \ref{foursum-bound}, we conclude that
   \begin{align*}
     \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] & - d[X^0_i;X_i]\big) \\
-      &\leq 3H[S] - \tfrac{3}{2} H[X_1] - \tfrac{3}{2}H[X_2]\\
+      &\leq 3H[S] - \tfrac{3}{2} \bbH[X_1] - \tfrac{3}{2}H[X_2]\\
       &\leq (6 - 3\eta) k + 3(2 \eta k - I_1)
   \end{align*}
   as required.
@@ -292,11 +292,11 @@ We have $U+V+W=0$.
 \begin{proof}\uses{lem-bsg, cond-dist-fact}
   We apply Lemma \ref{lem-bsg} with $(A,B) = (T_1, T_2)$ there.
   Since $T_1 + T_2 = T_3$, the conclusion is that
-  \begin{align} \nonumber \sum_{t_3} P[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 I[T_1 : T_2] + 2 H[T_3] - H[T_1] - H[T_2].\label{bsg-t1t2}
+  \begin{align} \nonumber \sum_{t_3} P[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 I[T_1 : T_2] + 2 \bbH[T_3] - \bbH[T_1] - \bbH[T_2].\label{bsg-t1t2}
   \end{align}
   The right-hand side in~\eqref{bsg-t1t2} can be rearranged as
-  \begin{align*} & 2( H[T_1] + H[T_2] + H[T_3]) - 3 H[T_1,T_2] \\ & = 2(H[T_1] + H[T_2] + H[T_3]) - H[T_1,T_2] - H[T_2,T_3] - H[T_1, T_3] = \delta,\end{align*}
-  using the fact (from Lemma \ref{relabeled-entropy}) that all three terms $H[T_i,T_j]$ are equal to $H[T_1,T_2,T_3]$ and hence to each other.
+  \begin{align*} & 2( \bbH[T_1] + \bbH[T_2] + \bbH[T_3]) - 3 \bbH[T_1,T_2] \\ & = 2(H[T_1] + \bbH[T_2] + \bbH[T_3]) - \bbH[T_1,T_2] - \bbH[T_2,T_3] - \bbH[T_1, T_3] = \delta,\end{align*}
+  using the fact (from Lemma \ref{relabeled-entropy}) that all three terms $\bbH[T_i,T_j]$ are equal to $\bbH[T_1,T_2,T_3]$ and hence to each other.
   We also have
   \begin{align*}
   &  \sum_{t_3} P[T_3 = t_3] \bigl(d[X^0_1; (T_1 | T_3=t_3)] - d[X^0_1;X_1]\bigr) \\

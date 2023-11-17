@@ -110,7 +110,7 @@ def measureEntropy (μ : Measure S := by volume_tac) : ℝ :=
 lemma measureEntropy_def (μ : Measure S) :
     measureEntropy μ = ∑ s, negIdMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := rfl
 
-notation:100 "Hm[" μ "]" => measureEntropy μ
+notation:max "Hm[" μ "]" => measureEntropy μ
 
 @[simp]
 lemma measureEntropy_zero : Hm[(0 : Measure S)] = 0 := by
@@ -254,10 +254,10 @@ variable {μ : Measure Ω} {X : Ω → S} {Y : Ω → T}
 noncomputable
 def entropy (X : Ω → S) (μ : Measure Ω := by volume_tac) := Hm[μ.map X]
 
-notation3:100 "H[" X "; " μ "]" => entropy X μ
-notation3:100 "H[" X "]" => entropy X volume
-notation3:100 "H[" X "|" Y "←" y "; " μ "]" => entropy X (μ[|Y ⁻¹' {y}])
-notation3:100 "H[" X "|" Y "←" y "]" => entropy X (ℙ[|Y ⁻¹' {y}])
+notation3:max "H[" X "; " μ "]" => entropy X μ
+notation3:max "H[" X "]" => entropy X volume
+notation3:max "H[" X "|" Y "←" y "; " μ "]" => entropy X (μ[|Y ⁻¹' {y}])
+notation3:max "H[" X "|" Y "←" y "]" => entropy X (ℙ[|Y ⁻¹' {y}])
 
 lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X] := rfl
 
@@ -322,8 +322,8 @@ def condEntropy (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac)
 lemma condEntropy_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
     condEntropy X Y μ = (μ.map Y)[fun y ↦ H[X | Y ← y ; μ]] := rfl
 
-notation3:100 "H[" X "|" Y "; " μ "]" => condEntropy X Y μ
-notation3:100 "H[" X "|" Y "]" => condEntropy X Y volume
+notation3:max "H[" X "|" Y "; " μ "]" => condEntropy X Y μ
+notation3:max "H[" X "|" Y "]" => condEntropy X Y volume
 
 @[simp]
 lemma condEntropy_zero_measure (X : Ω → S) (Y : Ω → T) : H[X | Y ; (0 : Measure Ω)] = 0 :=
@@ -518,8 +518,8 @@ def mutualInformation (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volum
 lemma mutualInformation_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
   mutualInformation X Y μ = H[X ; μ] + H[Y ; μ] - H[fun ω ↦ (X ω, Y ω) ; μ] := rfl
 
-notation3:100 "I[" X ":" Y ";" μ "]" => mutualInformation X Y μ
-notation3:100 "I[" X ":" Y "]" => mutualInformation X Y volume
+notation3:max "I[" X ":" Y ";" μ "]" => mutualInformation X Y μ
+notation3:max "I[" X ":" Y "]" => mutualInformation X Y volume
 
 lemma mutualInformation_eq_entropy_sub_condEntropy [MeasurableSingletonClass S]
     [MeasurableSingletonClass T] (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
@@ -548,8 +548,8 @@ lemma condMutualInformation_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ
     condMutualInformation X Y Z μ = (μ.map Z)[fun z ↦
       H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[fun ω ↦ (X ω, Y ω) | Z ← z ; μ]] := rfl
 
-notation3:100 "I[" X ":" Y "|" Z ";" μ "]" => condMutualInformation X Y Z μ
-notation3:100 "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z volume
+notation3:max "I[" X ":" Y "|" Z ";" μ "]" => condMutualInformation X Y Z μ
+notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z volume
 
 lemma condMutualInformation_eq_integral_mutualInformation :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[|Z ⁻¹' {z}]]] := rfl

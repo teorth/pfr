@@ -14,25 +14,25 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 
 \begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}
   \uses{entropy-def, information-def}
-  \lean{ent_of_sumdiff_lower}
+  \lean{ent_of_sum_lower,ent_of_diff_lower}\leanok
   If
 Whenever $X,Y$ are $G$-valued random variables on $\Omega$, we have
-$$ \max(H[X], H[Y]) - I[X:Y] \leq H[X \pm Y].$$
+$$ \max(H[X], \bbH[Y]) - I[X:Y] \leq \bbH[X \pm Y].$$
 \end{lemma}
 
 \begin{proof}\uses{cond-reduce, alternative-mutual, relabeled-entropy-cond, neg-ent}   By Lemma \ref{cond-reduce}, \ref{relabeled-entropy-cond}, \ref{alternative-mutual}, \ref{neg-ent} we have
 $$
- H[X\pm Y] \geq H[X\pm Y|Y] = H[X|Y]= H[X] - I[X:Y]
+ \bbH[X\pm Y] \geq \bbH[X\pm Y|Y] = \bbH[X|Y]= \bbH[X] - I[X:Y]
 $$
 and similarly with the roles of $X,Y$ reversed, giving the claim.
 \end{proof}
 
 \begin{corollary}[Conditional lower bound on sumset]\label{sumset-lower-gen-cond}
   \uses{conditional-mutual-def, conditional-entropy-def}
-  \lean{condEnt_of_sumdiff_lower}
+  \lean{condEnt_of_sum_lower, condEnt_of_diff_lower}\leanok
   If $X,Y$ are $G$-valued random variables on $\Omega$ and $Z$ is another random variable on $\Omega$ then
 \[
-  \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq \bbH[X\pm Y|Z],
+  \max(H[X|Z], \bbH[Y|Z]) - I[X:Y|Z] \leq \bbH[X\pm Y|Z],
 \]
 \end{corollary}
 
@@ -43,7 +43,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
   \uses{entropy-def, independent-def}
   \lean{ent_of_indep_sumdiff_lower}
   If $X,Y$ are independent $G$-valued random variables, then
-$$\max(H[X], H[Y]) \leq H[X\pm Y].
+$$\max(H[X], \bbH[Y]) \leq \bbH[X\pm Y].
 $$
 \end{corollary}
 
@@ -60,7 +60,7 @@ We may want to establish that copy is an equivalence relation. Another useful he
 \begin{lemma}[Copy preserves entropy]\label{copy-ent}
   \uses{copy-def,entropy-def}
   \lean{ProbabilityTheory.entropy_of_copy}\leanok
-  If $X'$ is a copy of $X$ then $H[X'] = H[X]$.
+  If $X'$ is a copy of $X$ then $\bbH[X'] = \bbH[X]$.
 \end{lemma}
 
 \begin{proof} Immediate from Definitions \ref{copy-def}, \ref{entropy-def}.
@@ -81,7 +81,7 @@ NOTE: may need to phrase this as a definition to create canonical independent co
   \uses{entropy-def, independent-exist}
   \lean{rdist_def}\leanok
   Let $X,Y$ be $G$-valued random variables (not necessarily on the same sample space).  The \emph{Ruzsa distance} $d[X;Y]$ between $X$ and $Y$ is defined to be
-$$ d[X;Y] := H[X' - Y'] - H[X']/2 - H[Y']/2$$
+$$ d[X;Y] := \bbH[X' - Y'] - \bbH[X']/2 - \bbH[Y']/2$$
 where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{independent-exist}.
 \end{definition}
 
@@ -98,7 +98,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
   \uses{ruz-dist-def, entropy-def, independent-def}
   \lean{rdist_of_indep}\leanok
   If $X,Y$ are independent $G$-random variables then
-  $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$
+  $$ d[X;Y] := \bbH[X - Y] - \bbH[X]/2 - \bbH[Y]/2.$$
 \end{lemma}
 
 \begin{proof} \uses{relabeled-entropy, copy-ent}\leanok Immediate from Definition \ref{ruz-dist-def} and Lemmas \ref{relabeled-entropy}, \ref{copy-ent}.
@@ -151,13 +151,13 @@ $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
 \begin{proof}\uses{conditional-nonneg,subadditive, relabeled-entropy, additive, ruz-indep} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to show that
-\begin{equation}\label{submod-explicit} H[X - Y] \leq H[X-Z] + H[Z-Y] - H[Z]\end{equation}
+\begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
 whenever $X, Y, Z$ are independent. To prove this, apply Corollary \ref{alt-submodularity} to obtain
-\[ H[X - Z, X - Y] + H[Y, X - Y] \geq H[X - Z, Y, X - Y] + H[X - Y].\]
+\[ \bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
 Using
-\[ H[X - Z, X - Y] \leq H[X - Z] + H[Y - Z],\]
-\[ H[Y, X - Y] = H[X, Y], \] and
-\[ H[X - Z, Y, X - Y] = H[X, Y, Z] = H[X, Y] + H[Z],\] and rearranging, we indeed obtain~\eqref{submod-explicit}.
+\[ \bbH[X - Z, X - Y] \leq \bbH[X - Z] + \bbH[Y - Z],\]
+\[ \bbH[Y, X - Y] = \bbH[X, Y], \] and
+\[ \bbH[X - Z, Y, X - Y] = \bbH[X, Y, Z] = \bbH[X, Y] + \bbH[Z],\] and rearranging, we indeed obtain~\eqref{submod-explicit}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
@@ -170,7 +170,7 @@ $$ d[X  | Z; Y | W] := \sum_{z,w} P[Z=z] P[W=w] d[(X|Z=z); (Y|(W=w))].$$
 \begin{lemma}[Alternate form of distance]\label{cond-dist-alt}\uses{cond-dist-def, conditional-entropy-def, independent-def}
 \lean{condDist_eq}
   If $(X',Z')$, $(Y',W')$ are independent copies of $(X,Z), (Y,W)$, then
-$$  d[X  | Z;Y | W] = H[X'-Y'|Z',W'] - H[X'|Z']/2 - H[Y'|W']/2$$
+$$  d[X  | Z;Y | W] = \bbH[X'-Y'|Z',W'] - \bbH[X'|Z']/2 - \bbH[Y'|W']/2$$
 \end{lemma}
 
 \begin{proof} Straightforward.
@@ -181,14 +181,14 @@ $$  d[X  | Z;Y | W] = H[X'-Y'|Z',W'] - H[X'|Z']/2 - H[Y'|W']/2$$
   \lean{Kaimonovich-Vershik}
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
-  H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y].
+  \bbH[X + Y + Z] - \bbH[X + Y] \leq \bbH[Y+Z] - \bbH[Y].
 \]
 \end{lemma}
 
 \begin{proof}\uses{submodularity, additive, relabeled-entropy}
 From Lemma \ref{submodularity} we have
-$$ H[X, X+Y+Z] + H[Z, X+Y+Z] \geq H[X, Z, X+Y+Z] + H[X+Y+Z].$$
-However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we have $H[X, X+Y+Z] = H[X, Y+Z] = H[X] + H[Y+Z]$, $H[Z, X+Y + Z] = H[Z, X+Y] = H[Z] + H[X+Y]$ and $H[X, Z, X+Y+Z] = H[X, Y, Z] = H[X] + H[Y] + H[Z]$.  The claim then follows from a calculation.
+$$ \bbH[X, X+Y+Z] + \bbH[Z, X+Y+Z] \geq \bbH[X, Z, X+Y+Z] + \bbH[X+Y+Z].$$
+However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we have $\bbH[X, X+Y+Z] = \bbH[X, Y+Z] = \bbH[X] + \bbH[Y+Z]$, $\bbH[Z, X+Y + Z] = \bbH[Z, X+Y] = \bbH[Z] + \bbH[X+Y]$ and $\bbH[X, Z, X+Y+Z] = \bbH[X, Y, Z] = \bbH[X] + \bbH[Y] + \bbH[Z]$.  The claim then follows from a calculation.
 \end{proof}
 
 \begin{definition}[Conditionally independent trials]\label{cond-trial}  Let $X,Y$ be random variables on a space $\Omega$.
@@ -209,14 +209,14 @@ However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we h
   \lean{ent_of_cond_indep}
   If $(X_1,Y'), (X_2,Y')$ are conditionally
 independent trials of $X$ relative to $Y$, then
-$$ H[X_1,X_2,Y] = 2 H[X] + H[Y] + 2 I[X:Y] = 2 H[X,Y] - H[Y].$$
+$$ \bbH[X_1,X_2,Y] = 2 \bbH[X] + \bbH[Y] + 2 I[X:Y] = 2 \bbH[X,Y] - \bbH[Y].$$
 \end{lemma}
 
 \begin{proof} \uses{chain-rule, additive, information-def} We calculate
   \begin{equation}
-  \begin{split} H[X_1, X_2, Y'] &= H[X_1,X_2|Y] + H[Y] \\
-    &= 2 H[X|Y] + H[Y] \\
-    &= 2 H[X] + H[Y] + 2 I[X:Y].
+  \begin{split} \bbH[X_1, X_2, Y'] &= \bbH[X_1,X_2|Y] + \bbH[Y] \\
+    &= 2 \bbH[X|Y] + \bbH[Y] \\
+    &= 2 \bbH[X] + \bbH[Y] + 2 I[X:Y].
   \end{split}  \end{equation}
 \end{proof}
 
@@ -226,7 +226,7 @@ $$ H[X_1,X_2,Y] = 2 H[X] + H[Y] + 2 I[X:Y] = 2 H[X,Y] - H[Y].$$
   \lean{ent-bsg}
   Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z := A+B$.
 Then
-\begin{equation}\label{2-bsg-takeaway} \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 H[Z] - H[A] - H[B]. \end{equation}
+\begin{equation}\label{2-bsg-takeaway} \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 \bbH[Z] - \bbH[A] - \bbH[B]. \end{equation}
 \end{lemma}
 
 \begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, additive}
@@ -234,28 +234,28 @@ Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call 
 
 Observe that the left-hand side of~\eqref{2-bsg-takeaway} is
 \begin{equation}\label{lhs-to-bound}
-H[A_1 - B_2| Z] - H[A_1 | Z]/2 - H[B_2 | Z]/2.
+H[A_1 - B_2| Z] - \bbH[A_1 | Z]/2 - \bbH[B_2 | Z]/2.
 \end{equation}
 since, crucially, $(A_1 | Z=z)$ and $(B_2 | Z=z)$ are independent for all $z$.
 
 Applying submodularity (Lemma \ref{submodularity}) gives
 \begin{equation}\label{bsg-31} \begin{split}
-&H[A_1 - B_2] + H[A_1 - B_2, A_1, B_1] \\
-&\qquad \leq H[A_1 - B_2, A_1] + H[A_1 - B_2,B_1].
+&H[A_1 - B_2] + \bbH[A_1 - B_2, A_1, B_1] \\
+&\qquad \leq \bbH[A_1 - B_2, A_1] + \bbH[A_1 - B_2,B_1].
 \end{split}\end{equation}
 We estimate the second, third and fourth terms appearing here.
 First note that, by Lemma \ref{cond-trial-ent} and Lemma \ref{relabeled-entropy} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
-\begin{equation}\label{bsg-24} H[A_1 - B_2, A_1, B_1] = H[A_1, B_1, A_2, B_2] = 2H[A,B] - H[Z].\end{equation}
+\begin{equation}\label{bsg-24} \bbH[A_1 - B_2, A_1, B_1] = \bbH[A_1, B_1, A_2, B_2] = 2H[A,B] - \bbH[Z].\end{equation}
 Next observe that
-\begin{equation}\label{bsg-23} H[A_1 - B_2, A_1] = H[A_1, B_2] \leq H[A] + H[B].
+\begin{equation}\label{bsg-23} \bbH[A_1 - B_2, A_1] = \bbH[A_1, B_2] \leq \bbH[A] + \bbH[B].
 \end{equation}
 Finally, we have
-\begin{equation}\label{bsg-25} H[A_1 - B_2, B_1] = H[A_2 - B_1, B_1] = H[A_2, B_1] \leq H[A] + H[B].\end{equation}
+\begin{equation}\label{bsg-25} \bbH[A_1 - B_2, B_1] = \bbH[A_2 - B_1, B_1] = \bbH[A_2, B_1] \leq \bbH[A] + \bbH[B].\end{equation}
 Substituting~\eqref{bsg-24},~\eqref{bsg-23} and~\eqref{bsg-25} into~\eqref{bsg-31} yields
-\[ H[A_1 - B_2] \leq 2I[A:B] + H[Z]\] and so by Corollary \ref{cond-reduce}
-\[H[A_1 - B_2 | Z]  \leq 2I[A:B] + H[Z].\]
+\[ \bbH[A_1 - B_2] \leq 2I[A:B] + \bbH[Z]\] and so by Corollary \ref{cond-reduce}
+\[H[A_1 - B_2 | Z]  \leq 2I[A:B] + \bbH[Z].\]
 Since
-\begin{align*} H[A_1 | Z] & = H[A_1, A_1 + B_1] - H[Z] \\ & = H[A,B] - H[Z] \\ & = H[Z] - I[A:B] - 2 H[Z]-H[A]-\bbH[B]\end{align*}
+\begin{align*} \bbH[A_1 | Z] & = \bbH[A_1, A_1 + B_1] - \bbH[Z] \\ & = \bbH[A,B] - \bbH[Z] \\ & = \bbH[Z] - I[A:B] - 2 \bbH[Z]-H[A]-\bbH[B]\end{align*}
 and similarly for $\bbH[B_2 | Z]$, we see that~\eqref{lhs-to-bound} is bounded by
 $3I[A:B] + 2H[Z]-H[A]-H[B]$ as claimed.
 \end{proof}
@@ -272,8 +272,8 @@ $3I[A:B] + 2H[Z]-H[A]-H[B]$ as claimed.
 \uses{cond-dist-alt, independent-exist, cond-reduce}
 Using Lemma \ref{cond-dist-alt} and Lemma \ref{independent-exist}, if $(X',Z'), (Y',W')$ are independent copies of the variables $(X,Z)$, $(Y,W)$, we have
 \begin{align*}
-  d[X  | Z; Y | W]&= H[X'-Y'|Z',W'] - \tfrac{1}{2} H[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
-                       &\le H[X'-Y']- \tfrac{1}{2} H[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
+  d[X  | Z; Y | W]&= \bbH[X'-Y'|Z',W'] - \tfrac{1}{2} \bbH[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
+                       &\le \bbH[X'-Y']- \tfrac{1}{2} \bbH[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
                        &= d[X';Y'] + \tfrac{1}{2} I[X' : Z'] + \tfrac{1}{2} I[Y' : W'].
 \end{align*}
 Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step we used Definition \ref{ruz-dist-def} and Definition \ref{information-def}.
@@ -283,10 +283,10 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \uses{independent-def, ruz-dist-def, cond-dist-def, entropy-def, conditional-entropy-def}
   \lean{condDist_le'}
   Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
-  \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (H[Y+Z] - H[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} H[Z] - \tfrac{1}{4} H[Y]. \label{lem51-a} \end{align}
+  \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (H[Y+Z] - \bbH[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} \bbH[Z] - \tfrac{1}{4} \bbH[Y]. \label{lem51-a} \end{align}
   and
   \begin{align}\nonumber
-  d[X;Y|Y+Z] - d[X;Y] & \leq \tfrac{1}{2} \bigl(H[Y+Z] - H[Z]\bigr) \\ & = \tfrac{1}{2} d[Y;Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z].
+  d[X;Y|Y+Z] - d[X;Y] & \leq \tfrac{1}{2} \bigl(H[Y+Z] - \bbH[Z]\bigr) \\ & = \tfrac{1}{2} d[Y;Z] + \tfrac{1}{4} \bbH[Y] - \tfrac{1}{4} \bbH[Z].
     \label{ruzsa-3}
   \end{align}
   \end{lemma}
@@ -294,11 +294,11 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \begin{proof}
     \uses{ruz-copy, ruz-lean, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}
   We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using Lemma \ref{independent-exist} and Lemma \ref{ruz-copy}, \ref{ruz-indep}) that $X$ is independent of $Y, Z$. Then we have
-  \begin{align*}  d[X;Y+Z] & - d[X;Y] \\ & = H[X + Y + Z] - H[X+Y] - \tfrac{1}{2}H[Y + Z] + \tfrac{1}{2} H[Y].\end{align*}
+  \begin{align*}  d[X;Y+Z] & - d[X;Y] \\ & = \bbH[X + Y + Z] - \bbH[X+Y] - \tfrac{1}{2}H[Y + Z] + \tfrac{1}{2} \bbH[Y].\end{align*}
   Combining this with Lemma \ref{kv} gives the required bound. The second form of the result is immediate Lemma \ref{ruz-indep}.
 
   Turning to~\eqref{ruzsa-3}, we have from Definition \ref{information-def} and Lemma \ref{relabeled-entropy}
-  \begin{align*} I[Y : Y+Z] & = H[Y] + H[Y + Z] - H[Y, Y + Z] \\ & = H[Y] + H[Y + Z] - H[Y, Z]  = H[Y + Z] - H[Z],\end{align*}
+  \begin{align*} I[Y : Y+Z] & = \bbH[Y] + \bbH[Y + Z] - \bbH[Y, Y + Z] \\ & = \bbH[Y] + \bbH[Y + Z] - \bbH[Y, Z]  = \bbH[Y + Z] - \bbH[Z],\end{align*}
   and so~\eqref{ruzsa-3} is a consequence of Lemma \ref{cond-dist-fact}. Once again the second form of the result is immediate from Lemma \ref{ruz-indep}.
 \end{proof}
 
@@ -307,13 +307,13 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \lean{condDist_le''}
   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
   \begin{align}\nonumber
-  & d[X;Y + Z | Y + Z + Z'] - d[X;Y] \\ & \qquad \leq \tfrac{1}{2} ( H[Y + Z + Z'] + H[Y + Z] - H[Y] - H[Z']).\label{7111}
+  & d[X;Y + Z | Y + Z + Z'] - d[X;Y] \\ & \qquad \leq \tfrac{1}{2} ( \bbH[Y + Z + Z'] + \bbH[Y + Z] - \bbH[Y] - \bbH[Z']).\label{7111}
   \end{align}
   \end{lemma}
 
   \begin{proof}
     \uses{first-useful}
   By Lemma \ref{first-useful} (with a change of variables) we have
-  \[ d[X; Y + Z | Y + Z + Z'] - d[X; Y + Z] \leq \tfrac{1}{2}( H[Y + Z + Z'] - H[Z']).\]
+  \[ d[X; Y + Z | Y + Z + Z'] - d[X; Y + Z] \leq \tfrac{1}{2}( \bbH[Y + Z + Z'] - \bbH[Z']).\]
   Adding this to~\eqref{lem51-a} gives the result.
   \end{proof}
