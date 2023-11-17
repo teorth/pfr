@@ -26,6 +26,7 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [Fintype G] [MeasurableSpace T]
 
+/-- For mathlib -/
 instance : MeasurableNeg G := by
   constructor
   convert measurable_const (a := (0 : G)).sub measurable_id
