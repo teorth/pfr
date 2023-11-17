@@ -3,7 +3,6 @@
 In this section $G$ will be a finite additive group.  (May eventually want to generalize to infinite $G$.)
 
 \begin{lemma}[Negation preserves entropy]\label{neg-ent}
-  \uses{entropy-def}
   \lean{entropy_neg}\leanok
   If $X$ is $G$-valued, then $\bbH[-X]=\bbH[X]$.
 \end{lemma}
@@ -13,7 +12,6 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 \end{proof}
 
 \begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}
-  \uses{entropy-def, information-def}
   \lean{ent_of_sum_lower,ent_of_diff_lower}\leanok
   If
 Whenever $X,Y$ are $G$-valued random variables on $\Omega$, we have
@@ -40,7 +38,6 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 \end{proof}
 
 \begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}
-  \uses{entropy-def, independent-def}
   \lean{ent_of_indep_sum_lower,ent_of_indep_diff_lower}\leanok
   If $X,Y$ are independent $G$-valued random variables, then
 $$\max(H[X], \bbH[Y]) \leq \bbH[X\pm Y].
@@ -62,7 +59,7 @@ One random variable is said to be a copy of another if they have the same distri
 \end{proof}
 
 \begin{lemma}[Existence of independent copies]\label{independent-exist}
-  \uses{copy-def, independent-def}
+  \uses{independent-def}
   \lean{ProbabilityTheory.independent_copies}
   Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.
 \end{lemma}
@@ -81,16 +78,16 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 \end{definition}
 
 \begin{lemma}[Copy preserves Ruzsa distance]\label{ruz-copy}
-  \uses{ruz-dist-def,copy-def}
+  \uses{ruz-dist-def}
   \lean{ProbabilityTheory.IdentDistrib.rdist_eq}\leanok
   If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$.
 \end{lemma}
 
-\begin{proof} \uses{copy-ent} Immediate from Definitions \ref{ruz-dist-def} and Lemma \ref{copy-ent}.
+\begin{proof} \uses{copy-ent}\leanok Immediate from Definitions \ref{ruz-dist-def} and Lemma \ref{copy-ent}.
 \end{proof}
 
 \begin{lemma}[Ruzsa distance in independent case]\label{ruz-indep}
-  \uses{ruz-dist-def, entropy-def, independent-def}
+  \uses{ruz-dist-def}
   \lean{ProbabilityTheory.IndepFun.rdist_eq}\leanok
   If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := \bbH[X - Y] - \bbH[X]/2 - \bbH[Y]/2.$$
@@ -110,7 +107,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 \end{proof}
 
 \begin{lemma}[Distance controls entropy difference]\label{ruzsa-diff}
-  \uses{entropy-def, ruz-dist-def}
+  \uses{ruz-dist-def}
   \lean{diff_ent_le_rdist}\leanok
   If $X,Y$ are $G$-valued random variables, then
 $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
@@ -120,9 +117,9 @@ $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
 \end{proof}
 
 \begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}
-  \uses{ruz-dist-def, entropy-def}
+  \uses{ruz-dist-def}
   \lean{diff_ent_le_rdist', diff_ent_le_rdist''}\leanok
-  If $X,Y$ are $G$-valued random variables, then
+  If $X,Y$ are independent $G$-valued random variables, then
 $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \end{lemma}
 
@@ -130,7 +127,6 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \end{proof}
 
 \begin{lemma}[Distance nonnegative]\label{ruzsa-nonneg}
-  \uses{ruz-dist-def}
   \lean{rdist_nonneg}\leanok
   If $X,Y$ are $G$-valued random variables, then
   $$ d[X;Y] \geq 0.$$
@@ -139,7 +135,7 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \begin{proof} \uses{ruzsa-diff} Immediate from Lemma \ref{ruzsa-diff}.
 \end{proof}
 
-\begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}\uses{ruz-dist-def}
+\begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}
 \lean{rdist_triangle}\leanok
   If $X,Y,Z$ are $G$-valued random variables, then
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
@@ -165,7 +161,7 @@ $$ d[X; Y | W] := \sum_{w} P[W=w] d[X; (Y|(W=w))].$$
 
 \end{definition}
 
-\begin{lemma}[Alternate form of distance]\label{cond-dist-alt}\uses{cond-dist-def, conditional-entropy-def, independent-def}
+\begin{lemma}[Alternate form of distance]\label{cond-dist-alt}
 \lean{cond_rdist_of_copy, cond_rdist'_of_copy, cond_rdist_of_indep, cond_rdist'_of_indep}\leanok
   The expression $d[X  | Z;Y | W]$ is unchanged if $(X,Z)$ or $(Y,W)$ is replaced by a copy.  Furthermore, if $(X,Z)$ and $(Y,W)$ are independent, then
 $$  d[X  | Z;Y | W] = \bbH[X-Y|Z,W] - \bbH[X|Z]/2 - \bbH[Y|W]/2$$
@@ -173,7 +169,7 @@ and similarly
 $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \end{lemma}
 
-\begin{proof} Straightforward.
+\begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def} Straightforward thanks to Lemma \ref{copy-ent}, Lemma \ref{ruz-copy}, Lemma \ref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
 \end{proof}
 
 \begin{lemma}[Kaimonovich-Vershik inequality]\label{kv}

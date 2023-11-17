@@ -1,7 +1,6 @@
 \chapter{Shannon entropy inequalities}
 
-Random variables in this paper are measurable maps $X : \Omega \to S$ from a probability space $\Omega$ to a finite set $S$ (equipped with the discrete $\sigma$-algebra), and called $S$-valued random variables.
-(NOTE: may wish to generalize to infinite $S$, but then require that $X$ almost surely ranges in a finite subset.)
+Random variables in this paper are measurable maps $X : \Omega \to S$ from a probability space $\Omega$ to a measurable space $S$, and called $S$-valued random variables. In many cases we will assume that singletons in $S$ are measurable.  Often we will restrict further to the case when $S$ is finite with the discrete $\sigma$-algebra, which of course implies that $S$ has measurable singletons.
 
 \begin{definition}[Entropy]
   \label{entropy-def}
@@ -54,7 +53,6 @@ We use $X,Y$ to denote the pair $\omega \mapsto (X(\omega),Y(\omega)$).
 
 \begin{lemma}[Commutativity and associativity of joint entropy]
   \label{entropy-comm}
-  \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_comm, ProbabilityTheory.entropy_assoc}
   \leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, then $\bbH[X, Y] = \bbH[Y, X]$ and $\bbH[X, (Y,Z)] = \bbH[(X,Y), Z]$
@@ -110,7 +108,6 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 \end{proof}
 
 \begin{lemma}[Conditional chain rule]\label{conditional-chain-rule}
-  \uses{conditional-entropy-def}
   \lean{ProbabilityTheory.cond_chain_rule}
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
 $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
@@ -132,7 +129,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 
 \begin{lemma}[Alternative formulae for mutual information]
   \label{alternative-mutual}
-  \uses{information-def, conditional-entropy-def, entropy-def}
+  \uses{information-def}
   \lean{ProbabilityTheory.mutualInformation_comm,mutualInformation_eq_entropy_sub_condEntropy}
   \leanok
   With notation as above, we have
@@ -149,7 +146,6 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 
 \begin{lemma}[Nonnegativity of mutual information]
   \label{mutual-nonneg}
-  \uses{information-def}
   \lean{ProbabilityTheory.mutualInformation_nonneg}
   \leanok
   We have $I[X:Y] \geq 0$.
@@ -160,7 +156,6 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 
 \begin{corollary}[Subadditivity]
   \label{subadditive}
-  \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_pair_le_add}
   \leanok
   With notation as above, we have $\bbH[X,Y] \leq \bbH[X] + \bbH[Y]$.
@@ -174,7 +169,6 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 
 \begin{corollary}[Conditioning reduces entropy]
   \label{cond-reduce}
-  \uses{entropy-def, conditional-entropy-def}
   \lean{ProbabilityTheory.condEntropy_le_entropy}
   \leanok
   With notation as above, we have $\bbH[X|Y] \leq \bbH[X]$.
@@ -195,7 +189,6 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{proof}
 
 \begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}
-  \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_triple_add_entropy_le}\leanok
   With three random variables $X,Y,Z$, one has
   $$ \bbH[X,Y,Z] + \bbH[Z] \leq \bbH[X,Z] + \bbH[Y,Z].$$
@@ -211,10 +204,8 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if $P[ X = s \wedge Y = t] = P[X=s] P[Y=t]$ for all $s \in S, t \in T$.  NOTE: will also need a notion of joint independence of $k$ random variables for any finite $k$.
 \end{definition}
 
-May want to add a lemma that jointly independent random variables are pairwise independent.
-
 \begin{lemma}[Additivity of entropy]\label{add-entropy}
-  \uses{independent-def, entropy-def}
+  \uses{independent-def}
   \lean{ProbabilityTheory.entropy_pair_eq_add}
   \leanok
   If $X,Y$ are random variables, then $\bbH[X,Y] = \bbH[X] + \bbH[Y]$ if and only if $X,Y$ are independent.
@@ -226,7 +217,7 @@ May want to add a lemma that jointly independent random variables are pairwise i
 
 \begin{corollary}[Vanishing of mutual information]
 \label{vanish-entropy}
-\uses{independent-def, information-def}
+\uses{information-def}
 \lean{ProbabilityTheory.mutualInformation_eq_zero}
 \leanok
 If $X,Y$ are random variables, then $I[X:Y] = 0$ if and only if $X,Y$ are independent.

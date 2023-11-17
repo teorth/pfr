@@ -118,10 +118,10 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
 lemma diff_ent_le_rdist : |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ' ] := by sorry
 
 /-- $$  \bbH[X-Y] - \bbH[X] \leq 2d[X;Y].$$ -/
-lemma diff_ent_le_rdist' {Y : Ω → G} : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
+lemma diff_ent_le_rdist' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
 
 /-- $$  \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$ -/
-lemma diff_ent_le_rdist'' {Y : Ω → G} : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
+lemma diff_ent_le_rdist'' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
 
 /--   $$ d[X;Y] \geq 0.$$  -/
 lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by sorry
