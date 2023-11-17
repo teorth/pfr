@@ -23,7 +23,14 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
   [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
-  [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [MeasurableSub₂ G] [Fintype G] [MeasurableSpace T]
+  [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
+  [MeasurableSub₂ G] [Fintype G] [MeasurableSpace T]
+
+instance : MeasurableNeg G := by
+  constructor
+  convert measurable_const (a := (0 : G)).sub measurable_id
+  ext x
+  simp
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 
@@ -48,13 +55,16 @@ lemma condEnt_of_diff_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : M
 /-- If $X,Y$ are independent, then
 $$ \max(H[X], H[Y]) \leq H[X + Y].$$ -/
 lemma ent_of_indep_sum_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ])  ≤ H[X + Y; μ]  := by sorry
+    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ]) ≤ H[X + Y; μ] := by sorry
 
 /--  If $X,Y$ are independent, then
 $$ \max(H[X], H[Y]) \leq H[X - Y].$$ -/
 lemma ent_of_indep_diff_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ])  ≤ H[X - Y; μ]  := by sorry
-
+    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ]) ≤ H[X - Y; μ] := by
+  have : IndepFun X (-Y) μ := h.comp measurable_id measurable_neg
+  convert ent_of_indep_sum_lower hX hY.neg this using 2
+  · exact (entropy_neg hY).symm
+  · ext x; simp [sub_eq_add_neg]
 
 /-- The Ruzsa distance `dist X Y` between two random variables is defined as
 $H[X'-Y'] - H[X']/2 - H[Y']/2$, where $X',Y'$ are independent copies of $X, Y$. -/
@@ -74,22 +84,26 @@ lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure 
 -- may also want to make further notations for Ruzsa distance
 
 /-- If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$. -/
-lemma rdist_of_copy {X' : Ω'' → G} {Y' : Ω''' →G} (hX : μ.map X = μ''.map X') (hY : μ'.map Y = μ'''.map Y') : d[ X ; μ # Y ; μ' ] = d[ X' ; μ'' # Y' ; μ'''] := by sorry
+lemma ProbabilityTheory.IdentDistrib.rdist_eq {X' : Ω'' → G} {Y' : Ω''' →G}
+    (hX : IdentDistrib X X' μ μ'') (hY : IdentDistrib Y Y' μ' μ''') :
+    d[X ; μ # Y ; μ'] = d[X' ; μ'' # Y' ; μ'''] := by
+  simp [rdist, hX.map_eq, hY.map_eq, hX.entropy_eq, hY.entropy_eq]
 
 /--   If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$-/
-lemma rdist_of_indep [IsFiniteMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    (h : IndepFun X Y μ) :
-    d[ X ; μ # Y ; μ] = H[X-Y ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
+lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
+    {Y : Ω → G} (h : IndepFun X Y μ) (hX : Measurable X) (hY : Measurable Y) :
+    d[X ; μ # Y ; μ] = H[X-Y ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
   rw [rdist_def]
   congr 2
   have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨ X, Y ⟩) :=
     ((indepFun_iff_map_prod_eq_prod_map_map hX hY).mp h).symm
   rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
-  congr
+  rfl
 
 /-- $$ d[X;Y] = d[Y;X].$$ -/
-lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] : d[ X ; μ # Y ; μ'] = d[ Y ; μ' # X ; μ] := by
+lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
+    d[ X ; μ # Y ; μ'] = d[ Y ; μ' # X ; μ] := by
   rw [rdist_def, rdist_def, sub_sub, sub_sub, add_comm]
   congr 1
   rw [← entropy_neg (measurable_fst.sub measurable_snd)]
