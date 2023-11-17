@@ -52,16 +52,16 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 We use $X,Y$ to denote the pair $\omega \mapsto (X(\omega),Y(\omega)$).
 
-\begin{lemma}[Symmetry of joint entropy]
+\begin{lemma}[Commutativity and associativity of joint entropy]
   \label{entropy-comm}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.entropy_comm}
+  \lean{ProbabilityTheory.entropy_comm, ProbabilityTheory.entropy_assoc}
   \leanok
-  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then $\bbH[X, Y] = \bbH[Y, X]$.
+  If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, then $\bbH[X, Y] = \bbH[Y, X]$ and $\bbH[X, (Y,Z)] = \bbH[(X,Y), Z]$
 \end{lemma}
 \begin{proof}
-  \uses{relabeled-entropy}\leanok
-  Set up an injection from $(X,Y)$ to $(Y,X)$ and use Lemma \ref{relabeled-entropy}.
+  \uses{relabeled-entropy}
+  Set up an injection from $(X,Y)$ to $(Y,X)$ and use Lemma \ref{relabeled-entropy} for the first claim. Similarly for the second claim.
 \end{proof}
 
 

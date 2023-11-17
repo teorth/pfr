@@ -248,7 +248,7 @@ end measureEntropy
 
 section entropy
 
-variable {μ : Measure Ω} {X : Ω → S} {Y : Ω → T}
+variable {μ : Measure Ω} {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
 
 /-- Entropy of a random variable with values in a finite measurable space. -/
 noncomputable
@@ -309,6 +309,10 @@ lemma entropy_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     H[⟨ X, Y ⟩; μ] = H[⟨ Y, X ⟩ ; μ] := by
   change H[⟨ X, Y ⟩ ; μ] = H[Prod.swap ∘ ⟨ X, Y ⟩ ; μ]
   exact (entropy_comp_of_injective μ (hX.prod_mk hY) Prod.swap Prod.swap_injective).symm
+
+lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
+    H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by sorry
 
 end entropy
 
@@ -587,7 +591,7 @@ lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
 
 /-- $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
 lemma entropy_triple_add_entropy_le :
-    H[fun ω ↦ (X ω, Y ω, Z ω) ; μ] + H[Z ; μ] ≤
+    H[⟨X, ⟨ Y, Z ⟩ ⟩ ; μ] + H[Z ; μ] ≤
       H[⟨ X, Z ⟩ ; μ] + H[⟨ Y, Z ⟩ ; μ] := sorry
 
 variable {μ : Measure Ω}
