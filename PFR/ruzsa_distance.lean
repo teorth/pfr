@@ -70,7 +70,7 @@ lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure 
 -- may also want to make further notations for Ruzsa distance
 
 /-- If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$. -/
-lemma rdist_of_copy : 0 = 1 := by sorry
+lemma rdist_of_copy {X' : Ω'' → G} {Y' : Ω''' →G} (hX : isCopy X X' μ μ'') (hY : isCopy Y Y' μ' μ''') : rdist X Y μ μ' = rdist X' Y' μ'' μ''' := by sorry
 
 /--   If $X,Y$ are independent $G$-random variables then
   $$ d[X;Y] := H[X - Y] - H[X]/2 - H[Y]/2.$$-/
