@@ -121,18 +121,18 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{lemma}[Chain rule]\label{chain-rule}
   \uses{conditional-entropy-def}
-  \lean{ProbabilityTheory.chain_rule}
+  \lean{ProbabilityTheory.chain_rule, ProbabilityTheory.chain_rule'}
   \leanok
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then
   $$ \bbH[X, Y] = \bbH[Y] + \bbH[X|Y].$$
   \end{lemma}
   \begin{proof}
   \leanok
-  Direct computation, I guess?
+  Direct computation.
 \end{proof}
 
 \begin{lemma}[Conditional chain rule]\label{conditional-chain-rule}
-  \lean{ProbabilityTheory.cond_chain_rule}\leanok
+  \lean{ProbabilityTheory.cond_chain_rule, ProbabilityTheory.cond_chain_rule'}\leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
 $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{lemma}
@@ -145,7 +145,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{definition}[Mutual information]
   \label{information-def}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.mutualInformation}
+  \lean{ProbabilityTheory.mutualInformation, ProbabilityTheory.mutualInformation_def}
   \leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, then
   $$\bbI[X : Y] := \bbH[X] + \bbH[Y] - \bbH[X,Y].$$
@@ -262,9 +262,11 @@ $$ \bbI[X:Y|Z] := \sum_{z \in U} P[Z=z] \bbI[(X|Z=z): (Y|Z=z)].$$
 \begin{lemma}[Alternate formula for conditional mutual information]
   \label{conditional-mutual-alt}
   \uses{conditional-mutual-def}
-  \lean{ProbabilityTheory.condMutualInformation_eq}\leanok
+  \lean{ProbabilityTheory.condMutualInformation_eq, ProbabilityTheory.condMutualInformation_eq'}\leanok
 We have
-  $$ \bbI[X:Y|Z] := \bbH[X|Z] + \bbH[Y|Z] - \bbH[X,Y|Z].$$
+  $$ \bbI[X:Y|Z] := \bbH[X|Z] + \bbH[Y|Z] - \bbH[X,Y|Z]$$
+and
+  $$ \bbI[X:Y|Z] := \bbH[X|Z] - \bbH[X|Y,Z].$$
 \end{lemma}
 
 \begin{proof} Routine computation.

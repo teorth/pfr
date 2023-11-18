@@ -788,7 +788,7 @@ section mutualInformation
 variable {U : Type*} [Fintype U] [MeasurableSpace U]
   {X : Ω → S} {Y : Ω → T} {Z : Ω → U} {μ : Measure Ω}
 
-/-- Mutual information (TODO docstring). -/
+/-- The mutual information $I[X:Y]$ of two random variables is defined to be $H[X] + H[Y] - H[X;Y]$. -/
 noncomputable
 def mutualInformation (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac) : ℝ :=
   H[X ; μ] + H[Y ; μ] - H[⟨ X, Y ⟩ ; μ]
@@ -862,9 +862,13 @@ lemma condMutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingl
   have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ hz
   exact mutualInformation_nonneg hX hY _
 
-/-- $$ I[X:Y|Z] := H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
+/-- $$ I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
 lemma condMutualInformation_eq :
-    I[X : Y | Z ; μ] = H[X | Z ; μ] - H[⟨X, Y⟩ | Z ; μ] := by sorry
+    I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by sorry
+
+/-- $$ I[X:Y|Z] = H[X|Z] - H[X|Y,Z].$$ -/
+lemma condMutualInformation_eq' :
+    I[X : Y | Z ; μ] = H[X | Z ; μ] - H[X | ⟨Y, Z⟩  ; μ] := by sorry
 
 section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]
