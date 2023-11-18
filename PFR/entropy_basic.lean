@@ -635,21 +635,23 @@ lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonCl
   congr with y
   rw [entropy_comp_of_injective _ hX (f y) (hf y)]
 
-/- The following is a weaker version of the above lemma in which f is independent of Y.
+/- The following is a weaker version of the above lemma in which f is independent of Y. -/
 
-lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass U]
+lemma condEntropy_comp_of_injective [MeasurableSingletonClass S] [MeasurableSingletonClass U]
     (μ : Measure Ω) (hX : Measurable X) (f : S → U) (hf : Function.Injective f) :
     H[f ∘ X | Y ; μ] = H[X | Y ; μ] :=
   integral_congr_ae (ae_of_all _ (fun _ ↦ entropy_comp_of_injective _ hX f hf))
--/
-
 
 /-- If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $f: T \to U$ is an injection then $H[X|f(Y)] = H[X|Y]$.
  -/
 lemma condEntropy_of_inj_map' [MeasurableSingletonClass S] (μ : Measure Ω) (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Function.Injective f) :
     H[X | f ∘ Y ; μ] = H[X | Y ; μ] := sorry
 
-
+lemma condEntropy_comm {Z : Ω → U} [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
+    H[⟨ X, Y ⟩ | Z ; μ] = H[⟨ Y, X ⟩ | Z; μ] := by
+  change H[⟨ X, Y ⟩ | Z ; μ] = H[Prod.swap ∘ ⟨ X, Y ⟩ | Z; μ]
+  exact (condEntropy_comp_of_injective μ (hX.prod_mk hY) Prod.swap Prod.swap_injective).symm
 
 end condEntropy
 
@@ -724,6 +726,10 @@ lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     rw [negIdMulLog]
     ring
 
+lemma chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) :
+    H[⟨ X, Y ⟩; μ] = H[X ; μ] + H[Y  | X ; μ] := by
+  rw [entropy_comm hX hY, chain_rule μ hY hX]
+
 lemma cond_chain_rule_aux (μ : Measure Ω) [IsProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (z : U) :
     H[⟨ X, Y ⟩ | Z ← z ; μ] = H[Y | Z ← z ; μ] + H[X | Y ; μ[|Z ⁻¹' {z}]] := by
@@ -755,6 +761,11 @@ lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
   refine integral_congr_ae (ae_of_all _ (fun ω ↦ ?_))
   simp only
   sorry
+
+lemma cond_chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ]
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
+    H[⟨ X, Y ⟩ | Z ; μ] = H[X | Z ; μ] + H[Y | ⟨ X, Z ⟩ ; μ] := by
+    rw [condEntropy_comm hX hY, cond_chain_rule _ hY hX hZ]
 
 /-- Data-processing inequality for the entropy. -/
 lemma entropy_comp_le {U : Type*} [Fintype U] [MeasurableSpace U]
