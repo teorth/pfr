@@ -7,7 +7,7 @@
 \end{lemma}
 
 \begin{proof}
-  \uses{ruz-indep, ruz-copy, relabeled-entropy-cond,vanish-entropy, independent-exist}\leanok
+  \uses{ruz-indep, ruz-copy, relabeled-entropy-cond,vanish-entropy, independent-exist}
    Let $X_1,X_2$ be independent copies of $X$ (from Lemma \ref{independent-exist}). Let $A$ denote the range of $X$.  From Lemma \ref{ruz-indep} and Lemma \ref{ruz-copy} we have
   $$ H[X_1-X_2] = H[X_1].$$
 Observe from Lemma \ref{relabeled-entropy-cond} that
@@ -18,7 +18,7 @@ By Corollary \ref{vanish-entropy}, $X_1-X_2$ and $X_1$ are therefore independent
 \end{proof}
 
 \begin{corollary}[General 100\% inverse theorem]\label{lem:100pc}
-  \lean{dist_eq_zero_iff}
+  \lean{dist_eq_zero_iff}\leanok
   Suppose that $X_1,X_2$ are $G$-valued random variables such that
   $d[X_1;X_2]=0$. Then there exists a subgroup $H \leq G$ such that $d[X_1;U_H] = d[X_2;U_H] = 0$.
 \end{corollary}

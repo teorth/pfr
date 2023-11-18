@@ -175,7 +175,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   We have $\bbI[X:Y] \geq 0$.
 \end{lemma}
 
-\begin{proof}  \uses{jensen, alternative-mutual} An application of Lemma \ref{jensen} and Lemma \ref{alternative-mutual}.
+\begin{proof}  \uses{jensen, alternative-mutual}\leanok An application of Lemma \ref{jensen} and Lemma \ref{alternative-mutual}.
 \end{proof}
 
 \begin{corollary}[Subadditivity]
@@ -273,7 +273,7 @@ We have
 \begin{lemma}[Nonnegativity of conditional mutual information]
 \label{conditional-nonneg}
 \uses{conditional-mutual-def}
-\lean{ProbabilityTheory.condMutualInformation_nonneg}
+\lean{ProbabilityTheory.condMutualInformation_nonneg}\leanok
 If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] \ge 0$.
 \end{lemma}
 \begin{proof}
