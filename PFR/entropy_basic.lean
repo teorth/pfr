@@ -1,3 +1,4 @@
+import Mathlib.Data.Prod.TProd
 import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
@@ -683,11 +684,14 @@ section copy
 
 variable {mΩ' : MeasurableSpace Ω'}
 
-/-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.  May need to be a constructive method rather than a function -/
-def independent_copies : 0 = 1 := by sorry
+/-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.  May need some hypotheses of measurability and non-degeneracy -/
+lemma independent_copies : 0 = 1 := by sorry
+
+/-- The assertion that X and Y are conditionally independent relative to Z.  -/
+def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := sorry
 
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.-/
-def condIndependent_copies : 0=1 := by sorry
+lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T), ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T, IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧ (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩) (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by sorry
 
 
 end copy
