@@ -20,7 +20,7 @@ lemma identDistrib_id {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] 
 
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasurableSpace Ω₀₁] [MeasurableSpace Ω₀₂]
-variable (G : Type*) [AddCommGroup G] [ElementaryAddGroup G 2] [Fintype G] [MeasurableSpace G]
+variable (G : Type*) [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
 
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
