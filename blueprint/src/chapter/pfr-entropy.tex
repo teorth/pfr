@@ -78,7 +78,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 
 
 \begin{lemma}[First estimate]\label{first-estimate}
-  \lean{first_estimate} We have $I_1 \leq 2 \eta k$.
+  \lean{first_estimate}\leanok We have $I_1 \leq 2 \eta k$.
 \end{lemma}
 
 \begin{proof}\uses{cor-fibre, distance-lower, cond-distance-lower, first-useful}  From Corollary \ref{cor-fibre} we have
@@ -120,7 +120,7 @@ One can also extract the following useful inequality from the proof of the above
 
 \begin{lemma}[Entropy bound on quadruple sum]\label{foursum-bound}
   \uses{entropy-def}
-  \lean{ent_ofsum_le}
+  \lean{ent_ofsum_le}\leanok
   With the same notation, we have
   \begin{equation}
     \label{HS-bound}

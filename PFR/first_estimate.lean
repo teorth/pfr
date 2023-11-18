@@ -7,13 +7,17 @@ import PFR.f2_vec
 
 The first estimate on tau-minimizers.
 
-Assumptions (need to be placed explicitly in the file):
+Assumptions:
 
 * $X_1, X_2$ are tau-minimizers
-* $X_1, X_2, \tilde X_1, \tilde X_2$ be independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
-* $d[X_1;X_2] = k$
+* $X_1, X_2, \tilde X_1, \tilde X_2$ are independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
+* $k := d[X_1;X_2]$
 * $I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ]$
 
+## Main results
+
+* `first_estimate` : $I_1 ≤ 2 η k$
+* `ent_ofsum_le` : $H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$
 -/
 
 open MeasureTheory ProbabilityTheory
@@ -42,6 +46,7 @@ local notation3 "I₁" => I[ X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + 
 lemma first_estimate : I₁ ≤ 2 * η * k := by sorry
 
 
-/--     H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.
+/--
+$$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
 -/
 lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂' ; μ] ≤ H[X₁; μ]/2 + H[X₂; μ]/2 + (2+η)*k - I₁ := by sorry
