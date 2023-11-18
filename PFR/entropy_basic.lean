@@ -884,8 +884,15 @@ lemma entropy_pair_eq_add : H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ Ind
 lemma mutualInformation_eq_zero : I[X : Y ; μ] = 0 ↔ IndepFun X Y μ :=
   sub_eq_zero.trans $ eq_comm.trans entropy_pair_eq_add
 
+/-- The assertion that X and Y are conditionally independent relative to Z.  -/
+def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := sorry
+
 /-- $I[X:Y|Z]=0$ iff $X,Y$ are conditionally independent over $Z$. -/
-lemma condMutualInformation_eq_zero : 0 = 1 := sorry
+lemma condMutualInformation_eq_zero (X : Ω → S) (Y : Ω → T) (Z : Ω → U) : I[X : Y | Z ; μ] = 0 ↔ condIndepFun X Y Z μ := sorry
+
+/-- If $X, Y$ are conditionally independent over $Z$, then $H[X,Y,Z] = H[X,Z] + H[Y,Z] - H[Z]$. -/
+lemma ent_of_cond_indep (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (h : condIndepFun X Y Z μ): H[ ⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ ] = H[ ⟨ X, Z ⟩; μ ] + H[ ⟨ X, Z ⟩; μ ] - H[Z; μ] := by sorry
+
 
 end IsProbabilityMeasure
 end mutualInformation
@@ -909,8 +916,6 @@ lemma independent_copies' {I: Type*} [Fintype I] {S : I → Type u}
     (iIndepFun mS X' μA) ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
 
-/-- The assertion that X and Y are conditionally independent relative to Z.  -/
-def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := sorry
 
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.-/
 lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T), ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T, IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧ (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩) (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by sorry

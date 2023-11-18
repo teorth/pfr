@@ -195,35 +195,13 @@ $$ \bbH[X, X+Y+Z] + \bbH[Z, X+Y+Z] \geq \bbH[X, Z, X+Y+Z] + \bbH[X+Y+Z].$$
 However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we have $\bbH[X, X+Y+Z] = \bbH[X, Y+Z] = \bbH[X] + \bbH[Y+Z]$, $\bbH[Z, X+Y + Z] = \bbH[Z, X+Y] = \bbH[Z] + \bbH[X+Y]$ and $\bbH[X, Z, X+Y+Z] = \bbH[X, Y, Z] = \bbH[X] + \bbH[Y] + \bbH[Z]$.  The claim then follows from a calculation.
 \end{proof}
 
-\begin{definition}[Conditionally independent trials]\label{cond-trial}
-  \lean{ProbabilityTheory.condIndepFun, ProbabilityTheory.IdentDistrib}\leanok
-    Let $X,Y$ be random variables on a space $\Omega$.
-  We say that $X_1, X_2, Y'$ are conditionally independent trials of $X$ relative to $Y$ if $X_1,X_2,Y'$ are random variables on some $\Omega'$, $(X_1,Y'), (X_2,Y')$ are copies of $(X,Y)$, and $(X_1 | Y' = y)$ and $(X_2 | Y' = y)$ to be independent copies of $(X | Y = y)$ for all $y$ in the range of $Y$.
-\end{definition}
-
 \begin{lemma}[Existence of conditional independent trials]\label{cond-indep-exist}
-  \uses{cond-trial}
+  \uses{conditional-independent-def}
   \lean{ProbabilityTheory.condIndependent_copies}\leanok
-  For $X,Y$ as above, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.
+  For $X,Y$ random variables, there exist random variables $X_1,X_2,Y'$ on a common probability space with $(X_1, Y'), (X_2, Y')$ both having the distribution of $(X,Y)$, and $X_1, X_2$ conditionally independent over $Y'$ in the sense of Definition \ref{conditional-independent-def}.
 \end{lemma}
 
 \begin{proof} Explicit construction.
-\end{proof}
-
-\begin{lemma}[Entropy of conditionally independent trials]\label{cond-trial-ent}
-  \uses{entropy-def,cond-trial,information-def}
-  \lean{ent_of_cond_indep}
-  If $(X_1,Y'), (X_2,Y')$ are conditionally
-independent trials of $X$ relative to $Y$, then
-$$ \bbH[X_1,X_2,Y] = 2 \bbH[X] + \bbH[Y] + 2  \bbI[X:Y] = 2 \bbH[X,Y] - \bbH[Y].$$
-\end{lemma}
-
-\begin{proof} \uses{chain-rule, add-entropy, information-def} We calculate
-  \begin{equation}
-  \begin{split} \bbH[X_1, X_2, Y'] &= \bbH[X_1,X_2|Y] + \bbH[Y] \\
-    &= 2 \bbH[X|Y] + \bbH[Y] \\
-    &= 2 \bbH[X] + \bbH[Y] + 2  \bbI[X:Y].
-  \end{split}  \end{equation}
 \end{proof}
 
 
@@ -236,7 +214,7 @@ Then
 \end{lemma}
 
 \begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy}
-Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
+Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$ as produced by Lemma \ref{cond-indep-exist}, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
 Observe that the left-hand side of~\eqref{2-bsg-takeaway} is
 \begin{equation}\label{lhs-to-bound}
@@ -251,7 +229,7 @@ Applying submodularity (Lemma \ref{submodularity}) gives
 \end{split}\end{equation}
 We estimate the second, third and fourth terms appearing here.
 First note that, by Lemma \ref{cond-trial-ent} and Lemma \ref{relabeled-entropy} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
-\begin{equation}\label{bsg-24} \bbH[A_1 - B_2, A_1, B_1] = \bbH[A_1, B_1, A_2, B_2] = 2\bbH[A,B] - \bbH[Z].\end{equation}
+\begin{equation}\label{bsg-24} \bbH[A_1 - B_2, A_1, B_1] = \bbH[A_1, B_1, A_2, B_2,Z] = 2\bbH[A,B] - \bbH[Z].\end{equation}
 Next observe that
 \begin{equation}\label{bsg-23} \bbH[A_1 - B_2, A_1] = \bbH[A_1, B_2] \leq \bbH[A] + \bbH[B].
 \end{equation}

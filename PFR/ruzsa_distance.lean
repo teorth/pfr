@@ -160,12 +160,6 @@ lemma Kaimonovich_Vershik {X : Fin 3 → Ω → G} (h: iIndepFun (fun (i : Fin 3
 
 section Balog_Szemeredi_Gowers
 
-/-- If $(X_1,Y'), (X_2,Y')$ are conditionally
-independent trials of $X$ relative to $Y$, then
-$$ H[X_1,X_2,Y] = 2 H[X] + H[Y] + 2 I[X:Y] = 2 H[X,Y] - H[Y].$$ -/
-lemma ent_of_cond_indep : 0 = 1 := by sorry
-
-
 /--  Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z \coloneq A+B$.
 Then $$ \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 H[Z] - H[A] - H[B]. $$ -/
 lemma ent_bsg : 0 = 1 := by sorry
