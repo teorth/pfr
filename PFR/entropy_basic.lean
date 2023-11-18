@@ -19,7 +19,7 @@ import PFR.MeasureReal
 
 ## Main statements
 
-* `chain_rule`: `H[⟨ X, Y ⟩] = H[Y] + H[ X Y`
+* `chain_rule`: `H[⟨ X, Y ⟩] = H[Y] + H[X | Y]
 
 ## Notations
 

@@ -2,8 +2,8 @@
 
 \begin{proposition}\label{projections-1}
   \uses{ruz-dist-def, cond-dist-def,conditional-mutual-def}
-  \lean{fibring_ident}
-  Let $\pi : H \to H'$ be a homomorphism between vector spaces over $\F_2$ and let $Z_1,Z_2$ be $H$-valued random variables. Then we have
+  \lean{rdist_of_indep_eq_sum_fibre, rdist_le_sum_fibre}\leanok
+  Let $\pi : H \to H'$ be a homomorphism additive groups, and let $Z_1,Z_2$ be $H$-valued random variables. Then we have
   \[
     d[Z_1; Z_2] \geq d[\pi(Z_1);\pi(Z_2)] + d[Z_1|\pi(Z_1); Z_2 |\pi(Z_2)].
   \]
@@ -35,7 +35,7 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
 \end{proof}
 
 \begin{corollary}\label{cor-fibre}
-  \lean{fibring_ident'}
+  \lean{sum_of_rdist_eq}\leanok
   Let $Y_1,Y_2,Y_3$ and $Y_4$ be independent $G$-valued random variables.
   Then
 \begin{align*}
