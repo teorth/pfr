@@ -2,6 +2,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
 import Mathlib.Probability.IdentDistrib
+import PFR.ForMathlib.Positivity
 import PFR.neg_xlogx
 import PFR.MeasureReal
 
@@ -189,9 +190,8 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
   | inr h =>
     -- multiply LHS equation through by `N⁻¹`
     set N := Fintype.card S
-    have hN : 0 < N := Fintype.card_pos
-    have hN''' : (N:ℝ)⁻¹ ≠ 0 := by positivity
-    rw [← mul_right_inj' hN''']
+    have hN : (N:ℝ)⁻¹ ≠ 0 := by positivity
+    rw [← mul_right_inj' hN]
     -- setup to use equality case of Jensen
     let w (_ : S) := (N:ℝ)⁻¹
     have hw1 : ∀ s ∈ Finset.univ, 0 < w s := by intros; positivity
@@ -260,8 +260,7 @@ lemma measureEntropy_eq_card_iff_measure_eq [MeasurableSingletonClass S] [IsFini
   rw [measureReal_def, ← ENNReal.toReal_eq_toReal_iff' (measure_ne_top μ {s})]
   · rw [ENNReal.toReal_mul, ENNReal.toReal_inv]
     rfl
-  · apply ENNReal.mul_ne_top (measure_ne_top μ Set.univ)
-    simp
+  · finiteness
 
 lemma measureEntropy_map_of_injective [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (μ : Measure S) (f : S → T) (hf : Function.Injective f)  :
