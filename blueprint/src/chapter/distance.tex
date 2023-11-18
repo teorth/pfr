@@ -133,23 +133,31 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \begin{proof} \uses{ruzsa-diff} Immediate from Lemma \ref{ruzsa-diff}.
 \end{proof}
 
+\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Z)$ independent of $Y$, then
+  \begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
+\end{lemma}
+
+This is an improvement over the usual Ruzsa triangle inequality because $X,Z$ are not assumed to be independent.  However we will not utilize this improvement here.
+
+\begin{proof}\uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy}
+  Apply Corollary \ref{alt-submodularity} to obtain
+  \[ \bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
+  Using
+  \[ \bbH[X - Z, X - Y] \leq \bbH[X - Z] + \bbH[Y - Z]\]
+  (from Lemma \ref{relabeled-entropy}, Lemma \ref{subadditive}),
+  \[ \bbH[Y, X - Y] = \bbH[X, Y] \]
+  (from Lemma \ref{relabeled-entropy}), and
+  \[ \bbH[X - Z, Y, X - Y] = \bbH[X, Y, Z] = \bbH[X, Y] + \bbH[Z]\]
+  (from Lemma \ref{relabeled-entropy} and Lemma \ref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
+\end{proof}
+
 \begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}
 \lean{rdist_triangle}\leanok
   If $X,Y,Z$ are $G$-valued random variables, then
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy, ruz-indep} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to show that
-\begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
-whenever $X, Y, Z$ are independent. To prove this, apply Corollary \ref{alt-submodularity} to obtain
-\[ \bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
-Using
-\[ \bbH[X - Z, X - Y] \leq \bbH[X - Z] + \bbH[Y - Z]\]
-(from Lemma \ref{subadditive}),
-\[ \bbH[Y, X - Y] = \bbH[X, Y] \]
-(from Lemma \ref{relabeled-entropy}), and
-\[ \bbH[X - Z, Y, X - Y] = \bbH[X, Y, Z] = \bbH[X, Y] + \bbH[Z]\]
-(from Lemma \ref{relabeled-entropy} and Lemma \ref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
+\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
@@ -187,35 +195,13 @@ $$ \bbH[X, X+Y+Z] + \bbH[Z, X+Y+Z] \geq \bbH[X, Z, X+Y+Z] + \bbH[X+Y+Z].$$
 However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we have $\bbH[X, X+Y+Z] = \bbH[X, Y+Z] = \bbH[X] + \bbH[Y+Z]$, $\bbH[Z, X+Y + Z] = \bbH[Z, X+Y] = \bbH[Z] + \bbH[X+Y]$ and $\bbH[X, Z, X+Y+Z] = \bbH[X, Y, Z] = \bbH[X] + \bbH[Y] + \bbH[Z]$.  The claim then follows from a calculation.
 \end{proof}
 
-\begin{definition}[Conditionally independent trials]\label{cond-trial}
-  \lean{ProbabilityTheory.condIndepFun, ProbabilityTheory.IdentDistrib}\leanok
-    Let $X,Y$ be random variables on a space $\Omega$.
-  We say that $X_1, X_2, Y'$ are conditionally independent trials of $X$ relative to $Y$ if $X_1,X_2,Y'$ are random variables on some $\Omega'$, $(X_1,Y'), (X_2,Y')$ are copies of $(X,Y)$, and $(X_1 | Y' = y)$ and $(X_2 | Y' = y)$ to be independent copies of $(X | Y = y)$ for all $y$ in the range of $Y$.
-\end{definition}
-
 \begin{lemma}[Existence of conditional independent trials]\label{cond-indep-exist}
-  \uses{cond-trial}
+  \uses{conditional-independent-def}
   \lean{ProbabilityTheory.condIndependent_copies}\leanok
-  For $X,Y$ as above, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.
+  For $X,Y$ random variables, there exist random variables $X_1,X_2,Y'$ on a common probability space with $(X_1, Y'), (X_2, Y')$ both having the distribution of $(X,Y)$, and $X_1, X_2$ conditionally independent over $Y'$ in the sense of Definition \ref{conditional-independent-def}.
 \end{lemma}
 
 \begin{proof} Explicit construction.
-\end{proof}
-
-\begin{lemma}[Entropy of conditionally independent trials]\label{cond-trial-ent}
-  \uses{entropy-def,cond-trial,information-def}
-  \lean{ent_of_cond_indep}
-  If $(X_1,Y'), (X_2,Y')$ are conditionally
-independent trials of $X$ relative to $Y$, then
-$$ \bbH[X_1,X_2,Y] = 2 \bbH[X] + \bbH[Y] + 2  \bbI[X:Y] = 2 \bbH[X,Y] - \bbH[Y].$$
-\end{lemma}
-
-\begin{proof} \uses{chain-rule, add-entropy, information-def} We calculate
-  \begin{equation}
-  \begin{split} \bbH[X_1, X_2, Y'] &= \bbH[X_1,X_2|Y] + \bbH[Y] \\
-    &= 2 \bbH[X|Y] + \bbH[Y] \\
-    &= 2 \bbH[X] + \bbH[Y] + 2  \bbI[X:Y].
-  \end{split}  \end{equation}
 \end{proof}
 
 
@@ -228,7 +214,7 @@ Then
 \end{lemma}
 
 \begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy}
-Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
+Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$ as produced by Lemma \ref{cond-indep-exist}, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
 Observe that the left-hand side of~\eqref{2-bsg-takeaway} is
 \begin{equation}\label{lhs-to-bound}
@@ -243,7 +229,7 @@ Applying submodularity (Lemma \ref{submodularity}) gives
 \end{split}\end{equation}
 We estimate the second, third and fourth terms appearing here.
 First note that, by Lemma \ref{cond-trial-ent} and Lemma \ref{relabeled-entropy} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
-\begin{equation}\label{bsg-24} \bbH[A_1 - B_2, A_1, B_1] = \bbH[A_1, B_1, A_2, B_2] = 2\bbH[A,B] - \bbH[Z].\end{equation}
+\begin{equation}\label{bsg-24} \bbH[A_1 - B_2, A_1, B_1] = \bbH[A_1, B_1, A_2, B_2,Z] = 2\bbH[A,B] - \bbH[Z].\end{equation}
 Next observe that
 \begin{equation}\label{bsg-23} \bbH[A_1 - B_2, A_1] = \bbH[A_1, B_2] \leq \bbH[A] + \bbH[B].
 \end{equation}
@@ -278,7 +264,6 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 \end{proof}
 
 \begin{lemma}\label{first-useful}
-  \uses{independent-def, cond-dist-def}
   \lean{condDist_diff_le, condDist_diff_le', condDist_diff_le'', condDist_diff_le'''}\leanok
   Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
   \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (\bbH[Y+Z] - \bbH[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} \bbH[Z] - \tfrac{1}{4} \bbH[Y]. \label{lem51-a} \end{align}
@@ -301,7 +286,6 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 \end{proof}
 
 \begin{lemma}\label{second-useful}
-  \uses{independent-def, cond-ruz-def}
   \lean{condDist_diff_ofsum_le}
   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
   \begin{align}\nonumber

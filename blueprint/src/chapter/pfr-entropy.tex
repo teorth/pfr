@@ -8,7 +8,7 @@
 Throughout this chapter,  $G = \F_2^n$, and $X^0_1, X^0_2$ are $G$-valued random variables.
 
 \begin{definition}[$\tau$ functional]\label{tau-def}
-  \uses{eta-def}
+  \uses{eta-def, ruz-dist-def}
   \lean{tau}\leanok
 If $X_1,X_2$ are two $G$-valued random variables, then
 $$  \tau[X_1; X_2] := d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
@@ -58,7 +58,7 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;
 \end{proof}
 
 \begin{lemma}[Conditional distance lower bound]\label{cond-distance-lower}
-  \uses{tau-minimizes, cond-dist-def, ruz-dist-def}
+  \uses{tau-minimizes, cond-dist-def}
   \lean{condDistance_ge_of_min}
   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
 $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
@@ -333,7 +333,6 @@ We have $U+V+W=0$.
 
 
 \begin{theorem}[$\tau$-decrement]\label{de-prop}
-  \uses{tau-def, ruz-dist-def}
   \lean{tau_strictly_decreases}
   Let $X_1, X_2$ be two $G$-valued random variables with $d[X_1;X_2] > 0$. Then there are $G$-valued random variables $X'_1, X'_2$ such that
 $$\tau[X'_1;X'_2] < \tau[X_1;X_2].

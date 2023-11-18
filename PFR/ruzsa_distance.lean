@@ -126,6 +126,9 @@ lemma diff_ent_le_rdist'' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[
 /--   $$ d[X;Y] \geq 0.$$  -/
 lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by sorry
 
+/-- The improved Ruzsa triangle inequality -/
+lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G) (h : IndepFun (⟨ X, Z ⟩) Y μ): H[ X - Z; μ] ≤ H[ X - Y; μ] + H[ Y - Z; μ] - H[ Y; μ ]:= by sorry
+
 /-- The Ruzsa triangle inequality -/
 lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) :
     d[ X ; μ # Z ; μ'' ] ≤ d[ X ; μ # Y ; μ' ] + d[ Y ; μ' # Z ; μ'' ] := sorry
@@ -156,12 +159,6 @@ lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W 
 lemma Kaimonovich_Vershik {X : Fin 3 → Ω → G} (h: iIndepFun (fun (i : Fin 3) ↦ hG) X μ) : H[ (X 0) + (X 1) + (X 2) ; μ] - H[ (X 0) + (X 1) ; μ] ≤ H[ (X 1) + (X 2) ; μ] - H[ X 1; μ ] := by sorry
 
 section Balog_Szemeredi_Gowers
-
-/-- If $(X_1,Y'), (X_2,Y')$ are conditionally
-independent trials of $X$ relative to $Y$, then
-$$ H[X_1,X_2,Y] = 2 H[X] + H[Y] + 2 I[X:Y] = 2 H[X,Y] - H[Y].$$ -/
-lemma ent_of_cond_indep : 0 = 1 := by sorry
-
 
 /--  Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z \coloneq A+B$.
 Then $$ \sum_{z} P[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3 I[A:B] + 2 H[Z] - H[A] - H[B]. $$ -/
