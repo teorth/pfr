@@ -262,7 +262,7 @@ $$ \bbI[X:Y|Z] := \sum_{z \in U} P[Z=z] \bbI[(X|Z=z): (Y|Z=z)].$$
 \begin{lemma}[Alternate formula for conditional mutual information]
   \label{conditional-mutual-alt}
   \uses{conditional-mutual-def}
-  \lean{ProbabilityTheory.condMutualInformation_eq}
+  \lean{ProbabilityTheory.condMutualInformation_eq}\leanok
 We have
   $$ \bbI[X:Y|Z] := \bbH[X|Z] + \bbH[Y|Z] - \bbH[X,Y|Z].$$
 \end{lemma}
