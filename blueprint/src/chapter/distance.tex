@@ -1,4 +1,4 @@
-\chapter{Ruzsa calculus}
+\chapter{Entropic Ruzsa calculus}
 
 In this section $G$ will be a finite additive group.  (May eventually want to generalize to infinite $G$.)
 
@@ -60,8 +60,8 @@ One random variable is said to be a copy of another if they have the same distri
 
 \begin{lemma}[Existence of independent copies]\label{independent-exist}
   \uses{independent-def}
-  \lean{ProbabilityTheory.independent_copies}
-  Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then if one gives $\prod_{i=1}^k S_i$ the product measure of the laws of $X_i$, the coordinate functions $(x_j)_{j=1}^k\ mapsto x_i$ are jointly independent random variables which are copies of the $X_1,\dots,X_k$.
+  \lean{ProbabilityTheory.independent_copies, ProbabilityTheory.independent_copies'} \leanok
+  Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then if one gives $\prod_{i=1}^k S_i$ the product measure of the laws of $X_i$, the coordinate functions $(x_j)_{j=1}^k \mapsto x_i$ are jointly independent random variables which are copies of the $X_1,\dots,X_k$.
 \end{lemma}
 
 \begin{proof} Explicit computation.
@@ -139,14 +139,17 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{conditional-nonneg,subadditive, relabeled-entropy, additive, ruz-indep} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to show that
+\begin{proof}\uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy, ruz-indep} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to show that
 \begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
 whenever $X, Y, Z$ are independent. To prove this, apply Corollary \ref{alt-submodularity} to obtain
 \[ \bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
 Using
-\[ \bbH[X - Z, X - Y] \leq \bbH[X - Z] + \bbH[Y - Z],\]
-\[ \bbH[Y, X - Y] = \bbH[X, Y], \] and
-\[ \bbH[X - Z, Y, X - Y] = \bbH[X, Y, Z] = \bbH[X, Y] + \bbH[Z],\] and rearranging, we indeed obtain~\eqref{submod-explicit}.
+\[ \bbH[X - Z, X - Y] \leq \bbH[X - Z] + \bbH[Y - Z]\]
+(from Lemma \ref{subadditive}),
+\[ \bbH[Y, X - Y] = \bbH[X, Y] \]
+(from Lemma \ref{relabeled-entropy}), and
+\[ \bbH[X - Z, Y, X - Y] = \bbH[X, Y, Z] = \bbH[X, Y] + \bbH[Z]\]
+(from Lemma \ref{relabeled-entropy} and Lemma \ref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
@@ -156,7 +159,6 @@ If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Z$ are $G$-valued)
 $$ d[X  | Z; Y | W] := \sum_{z,w}  \bbP[Z=z]  \bbP[W=w] d[(X|Z=z); (Y|(W=w))].$$
 similarly
 $$ d[X; Y | W] := \sum_{w}  \bbP[W=w] d[X; (Y|(W=w))].$$
-
 \end{definition}
 
 \begin{lemma}[Alternate form of distance]\label{cond-dist-alt}
@@ -179,7 +181,7 @@ Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \]
 \end{lemma}
 
-\begin{proof}\uses{submodularity, additive, relabeled-entropy}
+\begin{proof}\uses{submodularity, add-entropy, relabeled-entropy}
 From Lemma \ref{submodularity} we have
 $$ \bbH[X, X+Y+Z] + \bbH[Z, X+Y+Z] \geq \bbH[X, Z, X+Y+Z] + \bbH[X+Y+Z].$$
 However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we have $\bbH[X, X+Y+Z] = \bbH[X, Y+Z] = \bbH[X] + \bbH[Y+Z]$, $\bbH[Z, X+Y + Z] = \bbH[Z, X+Y] = \bbH[Z] + \bbH[X+Y]$ and $\bbH[X, Z, X+Y+Z] = \bbH[X, Y, Z] = \bbH[X] + \bbH[Y] + \bbH[Z]$.  The claim then follows from a calculation.
@@ -208,7 +210,7 @@ independent trials of $X$ relative to $Y$, then
 $$ \bbH[X_1,X_2,Y] = 2 \bbH[X] + \bbH[Y] + 2  \bbI[X:Y] = 2 \bbH[X,Y] - \bbH[Y].$$
 \end{lemma}
 
-\begin{proof} \uses{chain-rule, additive, information-def} We calculate
+\begin{proof} \uses{chain-rule, add-entropy, information-def} We calculate
   \begin{equation}
   \begin{split} \bbH[X_1, X_2, Y'] &= \bbH[X_1,X_2|Y] + \bbH[Y] \\
     &= 2 \bbH[X|Y] + \bbH[Y] \\
@@ -225,7 +227,7 @@ Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z}  \bbP[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3  \bbI[A:B] + 2 \bbH[Z] - \bbH[A] - \bbH[B]. \end{equation}
 \end{lemma}
 
-\begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, additive}
+\begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy}
 Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
 Observe that the left-hand side of~\eqref{2-bsg-takeaway} is
@@ -241,7 +243,7 @@ Applying submodularity (Lemma \ref{submodularity}) gives
 \end{split}\end{equation}
 We estimate the second, third and fourth terms appearing here.
 First note that, by Lemma \ref{cond-trial-ent} and Lemma \ref{relabeled-entropy} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
-\begin{equation}\label{bsg-24} \bbH[A_1 - B_2, A_1, B_1] = \bbH[A_1, B_1, A_2, B_2] = 2H[A,B] - \bbH[Z].\end{equation}
+\begin{equation}\label{bsg-24} \bbH[A_1 - B_2, A_1, B_1] = \bbH[A_1, B_1, A_2, B_2] = 2\bbH[A,B] - \bbH[Z].\end{equation}
 Next observe that
 \begin{equation}\label{bsg-23} \bbH[A_1 - B_2, A_1] = \bbH[A_1, B_2] \leq \bbH[A] + \bbH[B].
 \end{equation}
@@ -251,9 +253,9 @@ Substituting~\eqref{bsg-24},~\eqref{bsg-23} and~\eqref{bsg-25} into~\eqref{bsg-3
 \[ \bbH[A_1 - B_2] \leq 2 \bbI[A:B] + \bbH[Z]\] and so by Corollary \ref{cond-reduce}
 \[H[A_1 - B_2 | Z]  \leq 2 \bbI[A:B] + \bbH[Z].\]
 Since
-\begin{align*} \bbH[A_1 | Z] & = \bbH[A_1, A_1 + B_1] - \bbH[Z] \\ & = \bbH[A,B] - \bbH[Z] \\ & = \bbH[Z] -  \bbI[A:B] - 2 \bbH[Z]-H[A]-\bbH[B]\end{align*}
+\begin{align*} \bbH[A_1 | Z] & = \bbH[A_1, A_1 + B_1] - \bbH[Z] \\ & = \bbH[A,B] - \bbH[Z] \\ & = \bbH[Z] -  \bbI[A:B] - 2 \bbH[Z]- \bbH[A]-\bbH[B]\end{align*}
 and similarly for $\bbH[B_2 | Z]$, we see that~\eqref{lhs-to-bound} is bounded by
-$3 \bbI[A:B] + 2H[Z]-H[A]-H[B]$ as claimed.
+$3 \bbI[A:B] + 2\bbH[Z]-\bbH[A]-\bbH[B]$ as claimed.
 \end{proof}
 
 
