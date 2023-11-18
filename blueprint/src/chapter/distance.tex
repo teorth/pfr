@@ -264,7 +264,6 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 \end{proof}
 
 \begin{lemma}\label{first-useful}
-  \uses{independent-def, cond-dist-def}
   \lean{condDist_diff_le, condDist_diff_le', condDist_diff_le'', condDist_diff_le'''}\leanok
   Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
   \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (\bbH[Y+Z] - \bbH[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} \bbH[Z] - \tfrac{1}{4} \bbH[Y]. \label{lem51-a} \end{align}
@@ -287,7 +286,6 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 \end{proof}
 
 \begin{lemma}\label{second-useful}
-  \uses{independent-def, cond-ruz-def}
   \lean{condDist_diff_ofsum_le}
   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
   \begin{align}\nonumber
