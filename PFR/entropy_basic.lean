@@ -484,6 +484,9 @@ lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X]
 @[simp]
 lemma entropy_zero_measure (X : Ω → S) : H[X ; (0 : Measure Ω)] = 0 := by simp [entropy]
 
+lemma entropy_congr {X X' : Ω → S} (h : X =ᵐ[μ] X') : H[X ; μ] = H[X' ; μ] := by
+  rw [entropy_def, Measure.map_congr h, entropy_def]
+
 lemma entropy_nonneg (X : Ω → S) (μ : Measure Ω) : 0 ≤ entropy X μ := measureEntropy_nonneg _
 
 lemma IdentDistrib.entropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'} {X' : Ω' → S}
@@ -612,10 +615,25 @@ lemma condEntropy_eq_sum_prod [MeasurableSingletonClass T] (hX : Measurable X) (
   rw [condEntropy_eq_sum_sum hX Y, h_prod, Finset.sum_product_right]
 
 /-- If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, and $f: T \times S → U$ is injective for each fixed $t \in T$, then $H[f(Y,X)|Y] = H[X|Y]$.  Thus for instance $H[X-Y|Y]=H[X|Y]$.-/
-lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass U]
-    (μ : Measure Ω) (hX : Measurable X) (f : T → S → U) (hf : ∀ t : T, Function.Injective (f t)) :
-    H[(fun ω ↦ f (Y ω) (X ω)) | Y ; μ] = H[X | Y ; μ] := sorry
-
+lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    [MeasurableSingletonClass U]
+    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
+    (f : T → S → U) (hf : ∀ t : T, Function.Injective (f t)) :
+    H[(fun ω ↦ f (Y ω) (X ω)) | Y ; μ] = H[X | Y ; μ] := by
+  rw [condEntropy_eq_sum, condEntropy_eq_sum]
+  have : ∀ y, H[fun ω ↦ f (Y ω) (X ω)|Y←y; μ] = H[(f y ∘ X) | Y ← y ; μ] := by
+    intro y
+    refine entropy_congr ?_
+    have : ∀ᵐ ω ∂μ[|Y ⁻¹' {y}], Y ω = y := by
+      rw [ae_iff, cond_apply _ (hY (measurableSet_singleton _))]
+      have : {a | ¬Y a = y} = (Y ⁻¹' {y})ᶜ := by ext; simp
+      rw [this, Set.inter_compl_self, measure_empty, mul_zero]
+    filter_upwards [this] with ω hω
+    rw [hω]
+    simp
+  simp_rw [this]
+  congr with y
+  rw [entropy_comp_of_injective _ hX (f y) (hf y)]
 
 /- The following is a weaker version of the above lemma in which f is independent of Y.
 
