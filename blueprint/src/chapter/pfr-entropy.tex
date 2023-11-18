@@ -61,7 +61,7 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'
   \uses{tau-minimizes, cond-dist-def}
   \lean{condDistance_ge_of_min}
   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
-$$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
+$$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 \end{lemma}
 
 \begin{proof}\uses{distance-lower}  Apply Lemma \ref{distance-lower} to conditioned random variables and then average.
@@ -119,7 +119,6 @@ Adding all these inequalities, we obtain~\eqref{suff-for-first-est}.
 One can also extract the following useful inequality from the proof of the above lemma.
 
 \begin{lemma}[Entropy bound on quadruple sum]\label{foursum-bound}
-  \uses{entropy-def}
   \lean{ent_ofsum_le}\leanok
   With the same notation, we have
   \begin{equation}
