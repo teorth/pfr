@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Measure.Typeclasses
+import PFR.ForMathlib.Finiteness
 
 /-!
 # Measures as real valued-functions
@@ -10,11 +10,8 @@ We essentially copy relevant lemmas from the files `MeasureSpaceDef.lean`, `Null
 `MeasureSpace.lean`, and adapt them by replacing in their name `measure` with `measureReal`.
 
 Many lemmas require an assumption that some set has finite measure. These assumptions are written
-in the form `(h : μ s ≠ ∞ := by finiteness)`, where `finiteness` is a tactic that will discharge
-automatically this goal if the ambiant space has finite measure.
-
-TODO: improve `finiteness` to also deal with other situations, such as balls in proper spaces with
-a locally finite measure.
+in the form `(h : μ s ≠ ∞ := by finiteness)`, where `finiteness` is a new tactic (still in prototype
+form) for goals of the form `≠ ∞`.
 
 There are certainly many missing lemmas. The idea is to add the missing ones as we notice that they
 would be useful while doing the project.
@@ -26,8 +23,6 @@ project, but we should probably add them back in the long run if they turn out t
 
 open MeasureTheory Measure Set
 open scoped ENNReal NNReal BigOperators
-
-macro "finiteness" : tactic => `(tactic|intros <;> apply measure_ne_top)
 
 section aux_lemmas
 
@@ -116,7 +111,7 @@ theorem measureReal_univ_pos [IsFiniteMeasure μ] [NeZero μ] : 0 < μ.real Set.
   rw [measureReal_def]
   apply ENNReal.toReal_pos
   exact NeZero.ne (μ Set.univ)
-  exact measure_ne_top μ Set.univ
+  finiteness
 
 theorem measureReal_univ_ne_zero [IsFiniteMeasure μ] [NeZero μ] : μ.real Set.univ ≠ 0 :=
   measureReal_univ_pos.ne'
