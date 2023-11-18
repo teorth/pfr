@@ -879,8 +879,17 @@ variable {mΩ' : MeasurableSpace Ω'}
 /-- For $X,Y$ random variables, one can find independent copies $X',Y'$ of $X,Y$. -/
 lemma independent_copies {X : Ω → S} {Y : Ω' → T} (hX: Measurable X) (hY: Measurable Y) (μ: Measure Ω) (μ': Measure Ω'): ∃ ν : Measure (S × T), ∃ X' : S × T → S, ∃ Y' : S × T → T, IsProbabilityMeasure ν ∧ Measurable X' ∧ Measurable Y' ∧ (IndepFun X' Y' ν) ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' := by sorry
 
+universe u v
+
 /-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.  May need some hypotheses of measurability and non-degeneracy -/
-lemma independent_copies' {I: Type*} [Fintype I] (l : List I) (S : I → Type*) (mS : ∀ i : I, MeasurableSpace (S i)) (Ω : I → Type*) (mΩ : ∀ i : I, MeasurableSpace (Ω i)) (X : ∀ i : I, Ω i → S i) (μ: ∀ i : I, Measure (Ω i)) : ∃ ν : Measure (List.TProd S l), IsProbabilityMeasure ν ∧ ∃ X' : (∀ i : I, (List.TProd S l) → S i), (iIndepFun mS X' ν) ∧ ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) ν (μ i) := by sorry
+lemma independent_copies' {I: Type*} [Fintype I] {S : I → Type u}
+    [mS : ∀ i : I, MeasurableSpace (S i)] {Ω : I → Type v}
+    [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → S i) (hX : ∀ i : I, Measurable (X i))
+    (μ : ∀ i : I, Measure (Ω i)) :
+    ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → S i),
+    IsProbabilityMeasure μA ∧
+    (iIndepFun mS X' μA) ∧
+    ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
 
 /-- The assertion that X and Y are conditionally independent relative to Z.  -/
 def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := sorry
