@@ -50,7 +50,7 @@ lemma integral_eq_sum {S E : Type*} [Fintype S] [MeasurableSpace S] [MeasurableS
      (μ : Measure S) [IsFiniteMeasure μ] (f : S → E) :
     ∫ x, f x ∂μ = ∑ x, (μ {x}).toReal • (f x) := by
   conv_lhs => rw [← Measure.sum_smul_dirac μ]
-  have hf : Integrable f μ := integrable_of_fintype _ _
+  have hf : Integrable f μ := integrable_of_fintype ..
   have hf' : Integrable f (Measure.sum fun a ↦ μ {a} • Measure.dirac a) := by
     rwa [Measure.sum_smul_dirac μ]
   rw [integral_sum_measure hf']
@@ -138,7 +138,7 @@ lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
     · simp only [inv_one, ENNReal.one_toReal, one_mul]
       simp [measureEntropy]
     · simp [hμ.out]
-    · exact measure_ne_top _ _
+    · apply measure_ne_top
 
 lemma measureEntropy_nonneg (μ : Measure S) : 0 ≤ Hm[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
@@ -155,7 +155,7 @@ lemma measureEntropy_le_card_aux [MeasurableSingletonClass S]
     Hm[μ] ≤ log (Fintype.card S) := by
   cases isEmpty_or_nonempty S with
   | inl h =>
-    have : μ = 0 := Subsingleton.elim _ _
+    have : μ = 0 := Subsingleton.elim ..
     simp [Fintype.card_eq_zero, this]
   | inr h =>
     set N := Fintype.card S
@@ -186,7 +186,7 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     Hm[μ] = log (Fintype.card S) ↔ (∀ s : S, μ.real {s} = (Fintype.card S : ℝ)⁻¹) := by
   cases isEmpty_or_nonempty S with
   | inl h =>
-    have : μ = 0 := Subsingleton.elim _ _
+    have : μ = 0 := Subsingleton.elim ..
     simp [Fintype.card_eq_zero, this]
   | inr h =>
     -- multiply LHS equation through by `N⁻¹`
@@ -223,7 +223,7 @@ lemma measureEntropy_le_log_card [MeasurableSingletonClass S] (μ : Measure S) :
       rw [Fintype.card_eq_zero]
       simp
     | inr h =>
-      refine log_nonneg ?_
+      apply log_nonneg
       simp only [Nat.one_le_cast]
       exact Fintype.card_pos
   cases eq_zero_or_neZero μ with
@@ -254,7 +254,7 @@ lemma measureEntropy_eq_card_iff_measure_eq [MeasurableSingletonClass S] [IsFini
     Hm[μ] = log (Fintype.card S) ↔
     (∀ s : S, μ {s} = μ Set.univ / Fintype.card S) := by
   obtain h | h := isEmpty_or_nonempty S
-  · have : μ = 0 := Subsingleton.elim _ _
+  · have : μ = 0 := Subsingleton.elim ..
     simp [Fintype.card_eq_zero, this]
   rw [div_eq_mul_inv, measureEntropy_eq_card_iff_measureReal_eq]
   congr! with s
@@ -278,7 +278,7 @@ lemma measureEntropy_map_of_injective [MeasurableSingletonClass S] [MeasurableSi
       = ∑ x in Finset.univ.image f,
         negIdMulLog (ENNReal.toReal ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x}))) := by
     rw [← Finset.sum_subset]
-    · exact Finset.subset_univ _
+    · apply Finset.subset_univ
     · intro y _ hy
       simp only [Finset.mem_image, Finset.mem_univ, true_and, not_exists] at hy
       suffices f ⁻¹' {y} = ∅ by simp [this]
@@ -414,8 +414,8 @@ lemma condEntropy_le_log_card [MeasurableSingletonClass S]
     (X : Ω → S) (Y : Ω → T) (hY : Measurable Y) (μ : Measure Ω) [IsProbabilityMeasure μ] :
     H[X | Y ; μ] ≤ log (Fintype.card S) := by
   refine (integral_mono_of_nonneg ?_ (integrable_const (log (Fintype.card S))) ?_).trans ?_
-  · exact ae_of_all _ (fun _ ↦ entropy_nonneg _ _)
-  · exact ae_of_all _ (fun _ ↦ entropy_le_log_card _ _)
+  · exact ae_of_all _ (fun _ ↦ entropy_nonneg ..)
+  · exact ae_of_all _ (fun _ ↦ entropy_le_log_card ..)
   · have : IsProbabilityMeasure (μ.map Y) := isProbabilityMeasure_map hY.aemeasurable
     simp
 
@@ -482,7 +482,7 @@ lemma measure_prod_singleton_eq_mul [IsFiniteMeasure μ]
       OuterMeasure.coe_zero, Pi.zero_apply, ENNReal.zero_toReal, mul_zero]
     suffices (μ (⟨ X, Y ⟩⁻¹' ({p.1} ×ˢ {p.2}))).toReal = 0 by convert this
     rw [Set.mk_preimage_prod, ENNReal.toReal_eq_zero_iff]
-    exact Or.inl (measure_mono_null (Set.inter_subset_right _ _) hpY)
+    exact Or.inl (measure_mono_null (Set.inter_subset_right ..) hpY)
   rw [Measure.map_apply hY (measurableSet_singleton p.2)]
   simp_rw [Measure.map_apply hX (measurableSet_singleton _)]
   simp_rw [cond_apply _ (hY (measurableSet_singleton _))]
@@ -509,7 +509,7 @@ lemma negIdMulLog_measure_prod_singleton [IsFiniteMeasure μ] (hX : Measurable X
     refine ⟨?_, measure_ne_top _ _⟩
     rwa [Measure.map_apply hY (measurableSet_singleton _)]
   · rw [ENNReal.toReal_ne_zero]
-    refine ⟨hpX, measure_ne_top _ _⟩
+    exact ⟨hpX, measure_ne_top _ _⟩
 
 lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) :
     H[⟨ X, Y ⟩; μ] = H[Y ; μ] + H[X | Y ; μ] := by
@@ -616,7 +616,7 @@ lemma mutualInformation_nonneg (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
 /-- Subadditivity of entropy. -/
 lemma entropy_pair_le_add (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
     H[⟨ X, Y ⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
-  sub_nonneg.1 $ mutualInformation_nonneg _ _ _
+  sub_nonneg.1 $ mutualInformation_nonneg ..
 
 noncomputable
 def condMutualInformation (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
@@ -639,7 +639,7 @@ lemma condMutualInformation_comm [MeasurableSingletonClass S] [MeasurableSinglet
 
 lemma condMutualInformation_nonneg (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) :
     0 ≤ I[X : Y | Z ; μ] :=
-  integral_nonneg fun _x ↦ mutualInformation_nonneg _ _ _
+  integral_nonneg fun _x ↦ mutualInformation_nonneg ..
 
 /-- $$ I[X:Y|Z] := H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
 lemma condMutualInformation_eq :
@@ -654,7 +654,7 @@ lemma entropy_sub_condEntropy (hX : Measurable X) (hY : Measurable Y) :
   rw [mutualInformation_def, chain_rule _ hX hY, add_comm, add_sub_add_left_eq_sub]
 
 lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) : H[X | Y ; μ] ≤ H[X ; μ] :=
-  sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInformation_nonneg _ _ _
+  sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; apply mutualInformation_nonneg
 
 /-- $H[X|Y,Z] \leq H[X|Z]$ -/
 lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z): H[X | ⟨ Y, Z ⟩ ; μ] ≤ H[X | Z ; μ] := sorry

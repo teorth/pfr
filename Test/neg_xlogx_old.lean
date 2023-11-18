@@ -139,11 +139,9 @@ lemma h_concave : ConcaveOn ℝ (Set.Icc 0 1) h := by
     intro x hx
     exact (h_deriv hx.1).differentiableAt.differentiableWithinAt
   rw [interior_Icc]
-  refine ((strictMonoOn_log.monotoneOn.mono ?_).neg.add_const (-1)).congr ?_
-  · intro x hx
-    exact hx.1
-  · intro x hx
-    rw [(h_deriv hx.1).deriv]
+  apply ((strictMonoOn_log.monotoneOn.mono (fun x hx => hx.1)).neg.add_const (-1)).congr
+  intro x hx
+  rw [(h_deriv hx.1).deriv]
 
 open BigOperators
 
