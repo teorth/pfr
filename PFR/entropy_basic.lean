@@ -72,6 +72,48 @@ lemma cond_eq_zero_of_measure_zero {α : Type*} {_ : MeasurableSpace α} {μ : M
   have : μ.restrict s = 0 := by simp [hμs]
   simp [ProbabilityTheory.cond, this]
 
+lemma measure_preimage_fst_singleton_eq_sum {S T : Type*} {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass T] (μ : Measure (S × T)) (x : S) :
+    μ (Prod.fst ⁻¹' {x}) = ∑ y : T, μ {(x, y)} := by
+  have : Prod.fst ⁻¹' {x} = ⋃ y : T, {(x, y)} := by
+    ext y
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.iUnion_singleton_eq_range,
+      Set.mem_range]
+    exact ⟨fun h ↦ ⟨y.2, by rw [← h]⟩, fun ⟨b, h⟩ ↦ by rw [← h]⟩
+  rw [this, measure_iUnion, tsum_eq_sum]
+  · simp
+  · intro a a' haa'
+    rw [Function.onFun, Set.disjoint_iff]
+    intro su
+    simp only [Set.mem_inter_iff, Set.mem_singleton_iff, Set.mem_empty_iff_false, and_imp]
+    intro h1 h2
+    rw [h2] at h1
+    simp only [Prod.mk.injEq, true_and] at h1
+    exact haa' h1.symm
+  · simp
+
+lemma measure_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass T] (μ : Measure (S × T)) (y : T) :
+    μ (Prod.snd ⁻¹' {y}) = ∑ x : S, μ {(x, y)} := by
+  have : Prod.snd ⁻¹' {y} = ⋃ x : S, {(x, y)} := by
+    ext y
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.iUnion_singleton_eq_range,
+      Set.mem_range]
+    exact ⟨fun h ↦ ⟨y.1, by rw [← h]⟩, fun ⟨b, h⟩ ↦ by rw [← h]⟩
+  rw [this, measure_iUnion, tsum_eq_sum]
+  · simp
+  · intro a a' haa'
+    rw [Function.onFun, Set.disjoint_iff]
+    intro su
+    simp only [Set.mem_inter_iff, Set.mem_singleton_iff, Set.mem_empty_iff_false, and_imp]
+    intro h1 h2
+    rw [h2] at h1
+    simp only [Prod.mk.injEq, and_true] at h1
+    exact haa' h1.symm
+  · simp
+
 end aux_lemmas
 
 
@@ -159,7 +201,6 @@ lemma measureEntropy_le_card_aux [MeasurableSingletonClass S]
     simp [Fintype.card_eq_zero, this]
   | inr h =>
     set N := Fintype.card S
-    have hN : 0 < N := Fintype.card_pos
     rw [measureEntropy_def']
     simp only [IsProbabilityMeasure.measureReal_univ, inv_one, one_smul]
     calc ∑ x, negIdMulLog (μ.real {x})
@@ -168,7 +209,7 @@ lemma measureEntropy_le_card_aux [MeasurableSingletonClass S]
         rw [Finset.mul_sum]
         congr with x
         rw [← mul_assoc, mul_inv_cancel, one_mul]
-        simp [hN.ne']
+        simp
     _ ≤ N * negIdMulLog (∑ x : S, (N : ℝ)⁻¹ * μ.real {x}) := by
         gcongr
         refine sum_negIdMulLog_le (by simp) ?_ (fun _ ↦ ENNReal.toReal_nonneg)
@@ -294,6 +335,136 @@ lemma measureEntropy_map_of_injective [MeasurableSingletonClass S] [MeasurableSi
     exact hf
 
 end measureEntropy
+
+section measureMutualInfo
+
+variable [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
+
+noncomputable
+def measureMutualInfo (μ : Measure (S × T) := by volume_tac) : ℝ :=
+  Hm[μ.map Prod.fst] + Hm[μ.map Prod.snd] - Hm[μ]
+
+notation:100 "Im[" μ "]" => measureMutualInfo μ
+
+lemma measureMutualInfo_def (μ : Measure (S × T)) :
+    Im[μ] = Hm[μ.map Prod.fst] + Hm[μ.map Prod.snd] - Hm[μ] := rfl
+
+--todo: do this in mathlib? Others: Measure.withDensity, Measure.map
+attribute [pp_dot] ENNReal.toReal
+
+@[simp]
+lemma measureMutualInfo_zero_measure : Im[(0 : Measure (S × T))] = 0 := by
+  simp [measureMutualInfo]
+
+lemma measureMutualInfo_swap (μ : Measure (S × T)) :
+    Im[μ.map Prod.swap] = Im[μ] := by
+  rw [measureMutualInfo_def, add_comm, Measure.map_map measurable_snd measurable_swap,
+    Measure.map_map measurable_fst measurable_swap]
+  congr 1
+  simp_rw [measureEntropy_def, Measure.map_apply measurable_swap MeasurableSet.univ]
+  simp only [Set.preimage_univ, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply,
+    smul_eq_mul, ENNReal.toReal_mul, Fintype.sum_prod_type]
+  rw [Finset.sum_comm]
+  congr with x
+  congr with y
+  congr 2
+  rw [Measure.map_apply measurable_swap (measurableSet_singleton _),
+    ← Set.singleton_prod_singleton, Set.preimage_swap_prod, Set.singleton_prod_singleton]
+
+lemma measureMutualInfo_nonneg (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
+    0 ≤ Im[μ] := by
+  have : IsProbabilityMeasure (μ.map Prod.fst) :=
+    isProbabilityMeasure_map measurable_fst.aemeasurable
+  have : IsProbabilityMeasure (μ.map Prod.snd) :=
+    isProbabilityMeasure_map measurable_snd.aemeasurable
+  simp_rw [measureMutualInfo_def, measureEntropy_of_isProbabilityMeasure, negIdMulLog]
+  have h1 : ∀ y, (μ.map Prod.fst {y}).toReal = ∑ z : U, (μ {(y, z)}).toReal := by
+    intro y
+    rw [Measure.map_apply measurable_fst (measurableSet_singleton _), ← ENNReal.toReal_sum]
+    swap; · simp [measure_ne_top]
+    rw [← measure_preimage_fst_singleton_eq_sum]
+  have h2 : ∀ z, (μ.map Prod.snd {z}).toReal = ∑ y : S, (μ {(y, z)}).toReal := by
+    intro z
+    rw [Measure.map_apply measurable_snd (measurableSet_singleton _), ← ENNReal.toReal_sum]
+    swap; · simp [measure_ne_top]
+    rw [← measure_preimage_snd_singleton_eq_sum]
+  simp_rw [h1, h2]
+  rw [Fintype.sum_prod_type]
+  simp_rw [← Finset.sum_neg_distrib, Finset.sum_mul]
+  rw [Finset.sum_comm (γ := U)]
+  simp_rw [← Finset.sum_add_distrib, ← Finset.sum_sub_distrib, ← mul_add, ← mul_sub, neg_mul,
+    Finset.sum_neg_distrib, ← h1, ← h2]
+  have h_fst_ne_zero : ∀ p, μ {p} ≠ 0 → (μ.map Prod.fst {p.1}).toReal ≠ 0 := by
+    intro p hp
+    rw [Measure.map_apply measurable_fst (measurableSet_singleton _)]
+    simp only [Set.mem_singleton_iff, ne_eq, ENNReal.toReal_eq_zero_iff, measure_ne_top μ,
+      or_false]
+    refine fun h_eq_zero ↦ hp ?_
+    refine measure_mono_null ?_ h_eq_zero
+    simp
+  have h_snd_ne_zero : ∀ p, μ {p} ≠ 0 → (μ.map Prod.snd {p.2}).toReal ≠ 0 := by
+    intro p hp
+    rw [Measure.map_apply measurable_snd (measurableSet_singleton _)]
+    simp only [Set.mem_singleton_iff, ne_eq, ENNReal.toReal_eq_zero_iff, measure_ne_top μ,
+      or_false]
+    refine fun h_eq_zero ↦ hp ?_
+    refine measure_mono_null ?_ h_eq_zero
+    simp
+  have : ∀ a b, (μ {(a, b)}).toReal
+        * (log (μ.map Prod.fst {a}).toReal
+          + log (μ.map Prod.snd {b}).toReal - log (μ {(a, b)}).toReal)
+      = -(μ {(a, b)}).toReal * (log (((μ.map Prod.fst {a}).toReal
+        * (μ.map Prod.snd {b}).toReal)⁻¹ * (μ {(a, b)}).toReal)) := by
+    intro a b
+    by_cases h_zero : μ {(a, b)} = 0
+    · simp only [h_zero, ENNReal.zero_toReal, log_zero, sub_zero, zero_mul, div_zero, mul_zero]
+    rw [log_mul]
+    rotate_left
+    · refine inv_ne_zero ?_
+      exact mul_ne_zero (h_fst_ne_zero _ h_zero) (h_snd_ne_zero _ h_zero)
+    · simp [ENNReal.toReal_eq_zero_iff, h_zero, measure_ne_top μ]
+    rw [log_inv]
+    rw [neg_mul_comm, neg_add, neg_neg, sub_eq_add_neg, log_mul]
+    · exact h_fst_ne_zero (a, b) h_zero
+    · exact h_snd_ne_zero (a, b) h_zero
+  simp_rw [this]
+  rw [neg_nonneg]
+  calc ∑ a : S, ∑ b : U, -(μ {(a, b)}).toReal *
+      log (((μ.map Prod.fst {a}).toReal * (μ.map Prod.snd {b}).toReal)⁻¹ * (μ {(a, b)}).toReal)
+    = ∑ p : S × U, -(μ {p}).toReal *
+      log (((μ.map Prod.fst {p.1}).toReal * (μ.map Prod.snd {p.2}).toReal)⁻¹ * (μ {p}).toReal) := by
+        rw [Fintype.sum_prod_type]
+  _ = ∑ p : S × U, ((μ.map Prod.fst {p.1}).toReal * (μ.map Prod.snd {p.2}).toReal)
+      * negIdMulLog (((μ.map Prod.fst {p.1}).toReal
+      * (μ.map Prod.snd {p.2}).toReal)⁻¹ * (μ {p}).toReal) := by
+        congr with p
+        by_cases hp : μ {p} = 0
+        · simp [hp]
+        rw [negIdMulLog, neg_mul, neg_mul, ← neg_mul_comm, ← mul_assoc, ← mul_assoc, neg_mul,
+          mul_inv_cancel, neg_mul, one_mul, neg_mul]
+        exact mul_ne_zero (h_fst_ne_zero p hp) (h_snd_ne_zero p hp)
+  _ ≤ negIdMulLog (∑ p : S × U, ((μ.map Prod.fst {p.1}).toReal * (μ.map Prod.snd {p.2}).toReal)
+      * (((μ.map Prod.fst {p.1}).toReal * (μ.map Prod.snd {p.2}).toReal)⁻¹ * (μ {p}).toReal)) := by
+        refine sum_negIdMulLog_le ?_ ?_ ?_
+        · exact fun _ ↦ mul_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
+        · rw [Fintype.sum_prod_type]
+          simp only
+          simp_rw [← Finset.mul_sum, ← Finset.sum_mul]
+          simp
+        · refine fun _ ↦ mul_nonneg (inv_nonneg.mpr ?_) ENNReal.toReal_nonneg
+          exact mul_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
+  _ = negIdMulLog (∑ p : S × U, (μ {p}).toReal) := by
+        congr with p
+        by_cases hp : (μ {p}).toReal = 0
+        · simp only [mul_inv_rev, hp, mul_zero]
+        rw [ENNReal.toReal_eq_zero_iff] at hp
+        push_neg at hp
+        rw [← mul_assoc, mul_inv_cancel, one_mul]
+        exact mul_ne_zero (h_fst_ne_zero p hp.1) (h_snd_ne_zero p hp.1)
+  _ = negIdMulLog 1 := by rw [sum_toReal_measure_singleton, measure_univ, ENNReal.one_toReal]
+  _ = 0 := negIdMulLog_one
+
+end measureMutualInfo
 
 section entropy
 
@@ -610,13 +781,28 @@ lemma mutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonCl
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     I[X : Y ; μ] = I[Y : X ; μ] := by simp_rw [mutualInformation, add_comm, entropy_comm hX hY]
 
-lemma mutualInformation_nonneg (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
-    0 ≤ I[X : Y ; μ] := sorry
+lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
+    [IsProbabilityMeasure μ] :
+    0 ≤ I[X : Y ; μ] := by
+  have : IsProbabilityMeasure (μ.map (⟨ X, Y ⟩)) :=
+    isProbabilityMeasure_map (hX.prod_mk hY).aemeasurable
+  simp_rw [mutualInformation_def, entropy_def]
+  have h_fst : μ.map X = (μ.map (⟨ X, Y ⟩)).map Prod.fst := by
+    rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
+    congr
+  have h_snd : μ.map Y = (μ.map (⟨ X, Y ⟩)).map Prod.snd := by
+    rw [Measure.map_map measurable_snd (hX.prod_mk hY)]
+    congr
+  rw [h_fst, h_snd]
+  exact measureMutualInfo_nonneg _
 
 /-- Subadditivity of entropy. -/
-lemma entropy_pair_le_add (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
+lemma entropy_pair_le_add [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
+    [IsProbabilityMeasure μ] :
     H[⟨ X, Y ⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
-  sub_nonneg.1 $ mutualInformation_nonneg _ _ _
+  sub_nonneg.1 $ mutualInformation_nonneg hX hY _
 
 noncomputable
 def condMutualInformation (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
@@ -637,9 +823,15 @@ lemma condMutualInformation_comm [MeasurableSingletonClass S] [MeasurableSinglet
     I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
   simp_rw [condMutualInformation_def, add_comm, entropy_comm hX hY]
 
-lemma condMutualInformation_nonneg (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) :
-    0 ≤ I[X : Y | Z ; μ] :=
-  integral_nonneg fun _x ↦ mutualInformation_nonneg _ _ _
+lemma condMutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    0 ≤ I[X : Y | Z ; μ] := by
+  refine integral_nonneg (fun z ↦ ?_)
+  by_cases hz : μ (Z ⁻¹' {z}) = 0
+  · have : μ[|Z ⁻¹' {z}] = 0 := cond_eq_zero_of_measure_zero hz
+    simp [this]
+  have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ hz
+  exact mutualInformation_nonneg hX hY _
 
 /-- $$ I[X:Y|Z] := H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
 lemma condMutualInformation_eq :
@@ -653,8 +845,9 @@ lemma entropy_sub_condEntropy (hX : Measurable X) (hY : Measurable Y) :
     H[X ; μ] - H[X | Y ; μ] = I[X : Y ; μ] := by
   rw [mutualInformation_def, chain_rule _ hX hY, add_comm, add_sub_add_left_eq_sub]
 
-lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) : H[X | Y ; μ] ≤ H[X ; μ] :=
-  sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInformation_nonneg _ _ _
+lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
+    H[X | Y ; μ] ≤ H[X ; μ] :=
+  sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInformation_nonneg hX hY _
 
 /-- $H[X|Y,Z] \leq H[X|Z]$ -/
 lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z): H[X | ⟨ Y, Z ⟩ ; μ] ≤ H[X | Z ; μ] := sorry
