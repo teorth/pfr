@@ -63,7 +63,7 @@ lemma continuous_id_mul_log : Continuous (fun x ↦ x * log x) := by
     exact em _
   rw [this, nhdsWithin_union, nhdsWithin_union]
   simp only [ge_iff_le, nhdsWithin_singleton, sup_le_iff, Filter.nonpos_iff, Filter.tendsto_sup]
-  use ⟨h', h⟩
+  refine ⟨⟨h', h⟩, ?_⟩
   rw [Filter.tendsto_pure_left, mul_zero]
   intro s hs
   obtain ⟨t, hts, _, h_zero_mem⟩ := mem_nhds_iff.mp hs
@@ -172,7 +172,7 @@ lemma sum_negIdMulLog_eq {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ}
     _ = ∑ s' : S, w s' * p s' := H1
   · intro s _
     apply hmem
-  · apply H2.trans
+  · refine H2.trans ?_
     rw [heq, ← H1]
     rfl
   · simpa using hs
