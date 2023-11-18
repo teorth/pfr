@@ -126,6 +126,9 @@ lemma diff_ent_le_rdist'' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[
 /--   $$ d[X;Y] \geq 0.$$  -/
 lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by sorry
 
+/-- The improved Ruzsa triangle inequality -/
+lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G) (h : IndepFun (⟨ X, Z ⟩) Y μ): H[ X - Z; μ] ≤ H[ X - Y; μ] + H[ Y - Z; μ] - H[ Y; μ ]:= by sorry
+
 /-- The Ruzsa triangle inequality -/
 lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) :
     d[ X ; μ # Z ; μ'' ] ≤ d[ X ; μ # Y ; μ' ] + d[ Y ; μ' # Z ; μ'' ] := sorry

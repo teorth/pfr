@@ -133,23 +133,31 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \begin{proof} \uses{ruzsa-diff} Immediate from Lemma \ref{ruzsa-diff}.
 \end{proof}
 
+\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Z)$ independent of $Y$, then
+  \begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
+\end{lemma}
+
+This is an improvement over the usual Ruzsa triangle inequality because $X,Z$ are not assumed to be independent.  However we will not utilize this improvement here.
+
+\begin{proof}\uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy}
+  Apply Corollary \ref{alt-submodularity} to obtain
+  \[ \bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
+  Using
+  \[ \bbH[X - Z, X - Y] \leq \bbH[X - Z] + \bbH[Y - Z]\]
+  (from Lemma \ref{relabeled-entropy}, Lemma \ref{subadditive}),
+  \[ \bbH[Y, X - Y] = \bbH[X, Y] \]
+  (from Lemma \ref{relabeled-entropy}), and
+  \[ \bbH[X - Z, Y, X - Y] = \bbH[X, Y, Z] = \bbH[X, Y] + \bbH[Z]\]
+  (from Lemma \ref{relabeled-entropy} and Lemma \ref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
+\end{proof}
+
 \begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}
 \lean{rdist_triangle}\leanok
   If $X,Y,Z$ are $G$-valued random variables, then
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy, ruz-indep} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to show that
-\begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
-whenever $X, Y, Z$ are independent. To prove this, apply Corollary \ref{alt-submodularity} to obtain
-\[ \bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
-Using
-\[ \bbH[X - Z, X - Y] \leq \bbH[X - Z] + \bbH[Y - Z]\]
-(from Lemma \ref{subadditive}),
-\[ \bbH[Y, X - Y] = \bbH[X, Y] \]
-(from Lemma \ref{relabeled-entropy}), and
-\[ \bbH[X - Z, Y, X - Y] = \bbH[X, Y, Z] = \bbH[X, Y] + \bbH[Z]\]
-(from Lemma \ref{relabeled-entropy} and Lemma \ref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
+\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
