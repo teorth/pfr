@@ -29,12 +29,36 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   This is a direct consequence of Lemma \ref{jensen}.
 \end{proof}
 
+\begin{definition}[Uniform distribution]\label{uniform-def}
+  \lean{ProbabilityTheory.isUniform} If $H$ is a subset of $S$, an $S$-random variable $X$ is said to be uniformly distributed on $H$ if $\bbP[X = s] = 1/|H|$ for $s \in X$ and $\bbP[X=s] = 0$ otherwise.
+\end{definition}
+
+\begin{lemma}[Uniform distributions exist]\label{unif-exist}
+  \uses{uniform-def}
+  \lean{ProbabilityTheory.exists_uniform}
+  Given a finite non-empty subset $H$ of a set $S$, there exists a random variable $X$ (on some probability space) that is uniformly distributed on $H$.
+\end{lemma}
+
+\begin{proof} Direct construction.
+\end{proof}
+
+
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
-  \uses{entropy-def}\leanok
-  If $X$ is $S$-valued random variable, then $\bbH[X] = \log |S|$ if and only if $X$ is uniformly distributed.
+  \uses{entropy-def}
+  \lean{ProbabilityTheory.entropy_eq_log_card}\leanok
+  If $X$ is $S$-valued random variable, then $\bbH[X] = \log |S|$ if and only if $X$ is uniformly distributed on $S$.
 \end{lemma}
 
 \begin{proof} \uses{converse-jensen} Direct computation in one direction.  Converse direction needs Lemma \ref{converse-jensen}.
+\end{proof}
+
+\begin{lemma}[Entropy of uniform random variable, II]\label{uniform-entropy'}
+  \uses{entropy-def, uniform-def}
+  \lean{ProbabilityTheory.entropy_of_uniform}\leanok
+  If $X$ is uniformly distributed on $H$, then, then $\bbH[X] = \log |H|$.
+\end{lemma}
+
+\begin{proof} Direct computation.
 \end{proof}
 
 \begin{lemma}[Bounded entropy implies concentration]\label{bound-conc}

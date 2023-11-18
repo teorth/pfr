@@ -1,13 +1,13 @@
 \chapter{The 100\% version of PFR}
 
 \begin{lemma}[Symmetric 100\% inverse theorem]\label{lem:100pc-self}
-  \lean{dist_self_eq_zero_iff}
+  \lean{dist_self_eq_zero_iff}\leanok
   Suppose that $X$ is a $G$-valued random variable such that
   $d[X;X]=0$. Then there exists a subgroup $H \leq G$ such that $d[X;U_H] = d[X;U_H] $.
 \end{lemma}
 
 \begin{proof}
-  \uses{ruz-indep, ruz-copy, relabeled-entropy-cond,vanish-entropy, independent-exist}
+  \uses{ruz-indep, ruz-copy, relabeled-entropy-cond,vanish-entropy, independent-exist}\leanok
    Let $X_1,X_2$ be independent copies of $X$ (from Lemma \ref{independent-exist}). Let $A$ denote the range of $X$.  From Lemma \ref{ruz-indep} and Lemma \ref{ruz-copy} we have
   $$ H[X_1-X_2] = H[X_1].$$
 Observe from Lemma \ref{relabeled-entropy-cond} that
