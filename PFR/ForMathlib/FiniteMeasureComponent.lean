@@ -90,7 +90,7 @@ lemma integral_indicatorBCF {α : Type*} [TopologicalSpace α] [MeasurableSpace 
     ∫ x, (indicatorBCF s_clopen x) ∂μ = (μ s).toReal := integral_indicator_one s_mble
 
 /-- The measure of any connected component depends continuously on the `FiniteMeasure`. -/
-lemma continuous_finiteMeasure_apply_of_isOpen_of_isClosed
+lemma continuous_finiteMeasure_apply_of_isClopen
     {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
     {s : Set α} (s_clopen : IsClopen s) :
     Continuous (fun (μ : FiniteMeasure α) ↦ (μ : Measure α).real s) := by
@@ -100,7 +100,7 @@ lemma continuous_finiteMeasure_apply_of_isOpen_of_isClosed
   rfl
 
 /-- The probability of any connected component depends continuously on the `ProbabilityMeasure`. -/
-lemma continuous_probabilityMeasure_apply_of_isOpen_of_isClosed
+lemma continuous_probabilityMeasure_apply_of_isClopen
     {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
     {s : Set α} (s_clopen : IsClopen s) :
     Continuous (fun (μ : ProbabilityMeasure α) ↦ (μ : Measure α).real s) := by

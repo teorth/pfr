@@ -79,9 +79,10 @@ noncomputable def equiv_probabilityMeasure_stdSimplex [MeasurableSingletonClass 
 variable [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X]
 
 variable {X}
+
 lemma continuous_pmf_apply' (i : X) :
     Continuous (fun (μ : ProbabilityMeasure X) ↦ (μ : Measure X).real {i}) :=
-  continuous_probabilityMeasure_apply_of_isOpen_of_isClosed (s := {i})
+  continuous_probabilityMeasure_apply_of_isClopen (s := {i})
     ⟨isOpen_discrete _, T1Space.t1 _⟩
 
 lemma continuous_pmf_apply (i : X) :

@@ -46,7 +46,7 @@ has type
 finite measure. -/
 lemma continuous_pmf_apply [DiscreteTopology Ω] (ω : Ω) :
     Continuous (fun (μ : FiniteMeasure Ω) ↦ FiniteMeasure.pmf μ ω) :=
-  continuous_finiteMeasure_apply_of_isOpen_of_isClosed ⟨isOpen_discrete _, T1Space.t1 _⟩
+  continuous_finiteMeasure_apply_of_isClopen ⟨isOpen_discrete _, T1Space.t1 _⟩
 
 end pmf --section
 
@@ -64,7 +64,6 @@ lemma continuous_measureEntropy_probabilityMeasure [Fintype Ω] [DiscreteTopolog
   intro ω _
   apply continuous_negIdMulLog.comp
   simp only [measure_univ, inv_one, one_smul]
-  exact continuous_probabilityMeasure_apply_of_isOpen_of_isClosed
-    (s := {ω}) ⟨isOpen_discrete _, T1Space.t1 _⟩
+  exact continuous_probabilityMeasure_apply_of_isClopen (s := {ω}) ⟨isOpen_discrete _, T1Space.t1 _⟩
 
 end entropy -- section
