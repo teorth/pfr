@@ -241,4 +241,6 @@ lemma condDist_diff_le''' (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h: Ind
 $$ d[X;Y + Z | Y + Z + Z'] - d[X;Y] $$
 $$ \leq \tfrac{1}{2} ( H[Y + Z + Z'] + H[Y + Z] - H[Y] - H[Z']).$$
 -/
-lemma condDist_diff_ofsum_le (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (Z' : Ω' → G) (h: iIndepFun ![mΩ',mΩ',mΩ'] ![Y,Z,Z'] μ') : d[X;μ # Y+Z | Y+Z+Z' ; μ'] - d[X;μ # Y;μ'] ≤ (H[Y+Z+Z';μ'] + H[Y+Z;μ'] - H[Y;μ'] - H[Z';μ'])/2 := by sorry
+lemma condDist_diff_ofsum_le (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (Z' : Ω' → G)
+  (h: iIndepFun ![hG, hG, hG] ![Y, Z, Z'] μ') :
+  d[X;μ # Y+Z | Y+Z+Z' ; μ'] - d[X;μ # Y;μ'] ≤ (H[Y+Z+Z';μ'] + H[Y+Z;μ'] - H[Y;μ'] - H[Z';μ'])/2 := by sorry
