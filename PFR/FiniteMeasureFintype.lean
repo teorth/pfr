@@ -8,6 +8,21 @@ open MeasureTheory Topology Metric Filter Set ENNReal NNReal Real
 
 open scoped Topology ENNReal NNReal BoundedContinuousFunction
 
+section count
+/-! ### Counting measure as a finite measure and discrete uniform measure as a probability measure
+
+-/
+
+variable (Ω : Type*) [MeasurableSpace Ω] [Fintype Ω]
+
+noncomputable def finCount : FiniteMeasure Ω :=
+  ⟨Measure.count, Measure.count.isFiniteMeasure⟩
+
+noncomputable def finUniformProba [Nonempty Ω] : ProbabilityMeasure Ω :=
+  (finCount Ω).normalize
+
+end count -- section
+
 variable {ι : Type _} {Ω : Type _}
 variable [MeasurableSpace Ω] [TopologicalSpace Ω] [OpensMeasurableSpace Ω]
 
