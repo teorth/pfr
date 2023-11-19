@@ -124,6 +124,15 @@ lemma negIdMulLog_nonneg {x : ℝ} (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ negIdMu
   simp only [Left.nonneg_neg_iff]
   exact log_nonpos h1 h2
 
+lemma negIdMulLog_mul (x y : ℝ) : negIdMulLog (x * y) = - (y * x * log x + x * y * log y) := by
+  simp only [negIdMulLog, neg_mul, neg_add_rev]
+  by_cases hx : x = 0
+  · simp [hx]
+  by_cases hy : y = 0
+  · simp [hy]
+  rw [log_mul hx hy]
+  ring
+
 lemma concaveOn_negIdMulLog : ConcaveOn ℝ (Set.Ici (0 : ℝ)) negIdMulLog := by
   rw [negIdMulLog_eq_neg]
   exact convexOn_id_mul_log.neg
