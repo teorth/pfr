@@ -62,7 +62,7 @@ end aux_lemmas
 
 namespace MeasureTheory
 
-variable {α : Type*} {_ : MeasurableSpace α} (μ : Measure α)
+variable {α : Type*} {β : Type*} {_ : MeasurableSpace α} [MeasurableSpace β] (μ : Measure α)
 
 @[pp_dot]
 protected def Measure.real (s : Set α) : ℝ :=
@@ -121,6 +121,11 @@ theorem nonempty_of_measureReal_ne_zero (h : μ.real s ≠ 0) : s.Nonempty :=
 
 @[simp] theorem measureReal_smul_apply (c : ℝ≥0∞) : (c • μ).real s = c.toReal • μ.real s := by
   rw [measureReal_def, smul_apply, smul_eq_mul, ENNReal.toReal_mul]
+  rfl
+
+theorem map_measureReal_apply {f : α → β} (hf : Measurable f) {s : Set β} (hs : MeasurableSet s) :
+    (μ.map f).real s = μ.real (f ⁻¹' s) := by
+  rw [measureReal_def, map_apply hf hs]
   rfl
 
 @[gcongr] theorem measureReal_mono (h : s₁ ⊆ s₂) (h₂ : μ s₂ ≠ ∞ := by finiteness) :
