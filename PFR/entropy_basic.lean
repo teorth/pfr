@@ -496,7 +496,7 @@ lemma entropy_triple_add_entropy_le
 variable {μ : Measure Ω}
 
 lemma entropy_pair_eq_add : H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ :=
-  sorry
+  sorry -- the lemma `measureMutualInfo_eq_zero_iff` should be most of the way there
 
 /-- $I[X:Y]=0$ iff $X,Y$ are independent. -/
 lemma mutualInformation_eq_zero : I[X : Y ; μ] = 0 ↔ IndepFun X Y μ :=

@@ -11,7 +11,7 @@ open BigOperators Option Finset
 
 variable {𝕜 : Type*} {E : Type*} {β : Type*} {ι : Type*}
   [LinearOrderedField 𝕜] [AddCommGroup E] [OrderedAddCommGroup β] [Module 𝕜 E]
-  [Module 𝕜 β] [OrderedSMul 𝕜 β] {s : Set E} {f : E → β} {t : Finset ι}
+  [Module 𝕜 β] [OrderedSMul 𝕜 β] [Fintype ι] {s : Set E} {f : E → β} {t : Finset ι}
 
 /-- A version of Jensen's inequality in which one element plays a distinguished role. -/
 theorem ConvexOn.map_add_sum_le {v : 𝕜} {w : ι → 𝕜}
@@ -133,3 +133,34 @@ theorem StrictConcaveOn.map_sum_eq_iff {w : ι → 𝕜} {p : ι → E} (hf : St
     (h₀ : ∀ i ∈ t, 0 < w i) (h₁ : ∑ i in t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
     f (∑ i in t, w i • p i) = ∑ i in t, w i • f (p i) ↔ ∀ j ∈ t, p j = ∑ i in t, w i • p i := by
   simpa using hf.neg.map_sum_eq_iff h₀ h₁ hmem
+
+/-- the equality case of Jensen's inequality -/
+theorem StrictConvexOn.map_sum_eq_iff' [Fintype ι] {w : ι → 𝕜} {p : ι → E}
+    (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i, 0 ≤ w i) (h₁ : ∑ i, w i = 1) (hmem : ∀ i, p i ∈ s) :
+    f (∑ i, w i • p i) = ∑ i, w i • f (p i) ↔ ∀ j, w j = 0 ∨ p j = ∑ i, w i • p i := by
+  let t := Finset.filter (fun i ↦ 0 < w i) Finset.univ
+  have H : ∀ i, i ∉ t → w i = 0 := by
+    intro i hi
+    exact le_antisymm (by simpa using hi) (h₀ i)
+  have ht₁ : ∀ i ∈ t, 0 < w i := by intro i hi; simpa using hi
+  have ht₂ : ∑ i in t, w i = 1 := (Finset.sum_subset (by simp) (fun x _ ↦ H x)).trans h₁
+  have H1 : ∑ i in t, w i • p i = ∑ i : ι, w i • p i := by
+    apply Finset.sum_subset (by simp)
+    intro i _ hi
+    simp [H _ hi]
+  have H2 : ∑ i in t, w i • f (p i) = ∑ i : ι, w i • f (p i) := by
+    apply Finset.sum_subset (by simp)
+    intro i _ hi
+    simp [H _ hi]
+  convert hf.map_sum_eq_iff ht₁ ht₂ (fun i _ ↦ hmem i) using 2 with i
+  · simp [H1]
+  · simp [H2]
+  · obtain hi | hi := eq_or_lt_of_le (h₀ i)
+    · simp [← hi]
+    · simp [hi.ne', hi, H1]
+
+/-- the equality case of Jensen's inequality -/
+theorem StrictConcaveOn.map_sum_eq_iff' [Fintype ι] {w : ι → 𝕜} {p : ι → E}
+    (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i, 0 ≤ w i) (h₁ : ∑ i, w i = 1) (hmem : ∀ i, p i ∈ s) :
+    f (∑ i, w i • p i) = ∑ i, w i • f (p i) ↔ ∀ j, w j = 0 ∨ p j = ∑ i, w i • p i := by
+  simpa using hf.neg.map_sum_eq_iff' h₀ h₁ hmem
