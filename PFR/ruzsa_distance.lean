@@ -25,7 +25,7 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
   [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
   [hG: MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
-  [MeasurableSub₂ G] [Fintype G] [MeasurableSpace T]
+  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G] [MeasurableSpace T]
 
 /-- For mathlib -/
 instance : MeasurableNeg G := by
@@ -42,11 +42,54 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
 
+lemma entropy_sub_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
+    H[X - Y; μ] = H[Y - X; μ] := by
+  rw [← neg_sub]
+  exact entropy_neg (hY.sub hX)
+
+lemma entropy_sub_mutualInformation_le_entropy_add
+    {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
+    H[X; μ] - I[X : Y; μ] ≤ H[X + Y; μ] := by
+  rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
+  ring_nf
+  calc H[X|Y; μ]
+    = H[X + Y | Y; μ] := by
+        refine (condEntropy_of_inj_map μ hX hY (fun y x ↦ x + y) ?_).symm
+        exact fun y ↦ add_left_injective y
+  _ ≤ H[X + Y; μ] := condEntropy_le_entropy _ (hX.add hY) hY
+
+lemma entropy_sub_mutualInformation_le_entropy_sub
+    {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
+    H[X; μ] - I[X : Y; μ] ≤ H[X - Y; μ] := by
+  rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
+  ring_nf
+  calc H[X|Y; μ]
+    = H[X - Y | Y; μ] := by
+        refine (condEntropy_of_inj_map μ hX hY (fun y x ↦ x - y) ?_).symm
+        exact fun _ ↦ sub_left_injective
+  _ ≤ H[X - Y; μ] := condEntropy_le_entropy _ (hX.sub hY) hY
+
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X + Y].$$ -/
-lemma ent_of_sum_lower {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) : (max H[X; μ] H[Y; μ]) - I[ X : Y; μ] ≤ H[X + Y; μ]  := by sorry
+lemma ent_of_sum_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
+    [IsProbabilityMeasure μ] :
+    (max H[X; μ] H[Y; μ]) - I[X : Y; μ] ≤ H[X + Y; μ] := by
+  rw [sub_le_iff_le_add']
+  refine max_le ?_ ?_
+  · rw [← sub_le_iff_le_add']
+    exact entropy_sub_mutualInformation_le_entropy_add hX hY
+  · rw [← sub_le_iff_le_add', mutualInformation_comm hX hY, add_comm X]
+    exact entropy_sub_mutualInformation_le_entropy_add hY hX
 
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X - Y].$$ -/
-lemma ent_of_diff_lower {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) : (max H[X; μ] H[Y; μ]) - I[ X : Y; μ] ≤ H[X - Y; μ]  := by sorry
+lemma ent_of_diff_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
+    [IsProbabilityMeasure μ] :
+  (max H[X; μ] H[Y; μ]) - I[X : Y; μ] ≤ H[X - Y; μ] := by
+  rw [sub_le_iff_le_add']
+  refine max_le ?_ ?_
+  · rw [← sub_le_iff_le_add']
+    exact entropy_sub_mutualInformation_le_entropy_sub hX hY
+  · rw [← sub_le_iff_le_add', mutualInformation_comm hX hY, entropy_sub_comm hX hY]
+    exact entropy_sub_mutualInformation_le_entropy_sub hY hX
 
 /-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq H[X+ Y|Z] $$ -/
 lemma condEnt_of_sum_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) : (max H[ X | Z; μ] H[Y | Z; μ]) - I[ X : Y | Z ; μ] ≤ H[X + Y | Z; μ] := by sorry
