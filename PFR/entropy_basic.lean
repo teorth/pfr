@@ -556,7 +556,10 @@ lemma entropy_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
 
 lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
-    H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by sorry
+    H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by
+  change H[⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ] = H[(Equiv.prodAssoc _ _ _).symm ∘ ⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ]
+  exact entropy_comp_of_injective μ (hX.prod_mk (hY.prod_mk hZ)) _
+    (Equiv.prodAssoc S T U).symm.injective |>.symm
 
 end entropy
 
