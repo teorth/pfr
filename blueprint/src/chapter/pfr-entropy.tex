@@ -143,7 +143,7 @@ We introduce the quantity
 $$ I_2 := I[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 
 \begin{lemma}[Second estimate]\label{second-estimate}
-  \lean{second_estimate}
+  \lean{second_estimate}\leanok
 We have
 $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
 \end{lemma}
@@ -236,7 +236,7 @@ $$
 and the claim follows from some calculation.
 \end{proof}
 
-\begin{lemma}[Bound on distance increments]\label{total-dist}
+\begin{lemma}[Bound on distance increments]\label{total-dist}\leanok
   \lean{sum_dist_diff_le}
    We have
 \begin{align*}
@@ -271,7 +271,7 @@ and the claim follows from some calculation.
 \end{proof}
 
 \begin{lemma}[Key identity]\label{key-ident}
-\lean{sum_uvw_eq_zero}
+\lean{sum_uvw_eq_zero}\leanok
 We have $U+V+W=0$.
 \end{lemma}
 
@@ -279,7 +279,7 @@ We have $U+V+W=0$.
 \end{proof}
 
 \begin{lemma}[Constructing good variables]\label{construct-good}
-  \lean{construct_good}
+  \lean{construct_good}\leanok
   Let $G=\F_2^n$ and let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically. Set
   \begin{equation}\label{delta-t1t2t3-def}
     \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j].
