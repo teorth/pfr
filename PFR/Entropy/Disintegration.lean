@@ -287,6 +287,13 @@ lemma condEntropyKernel_apply' (hX : Measurable X) (hY : Measurable Y) (μ : Mea
       Measure.map_apply (hY.prod_mk hX) (measurable_fst (measurableSet_singleton _))]
     exact hYx
 
+lemma condEntropyKernel_apply (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
+    (x : T) (hYx : μ (Y ⁻¹' {x}) ≠ 0) :
+    condEntropyKernel X Y μ x = (μ[|Y ⁻¹' {x}]).map X := by
+  ext s hs
+  rw [condEntropyKernel_apply' hX hY μ x hYx hs, Measure.map_apply hX hs,
+    cond_apply _ (hY (measurableSet_singleton _))]
+
 lemma condEntropyKernel_comp (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) (f : S → U) :
     condEntropyKernel (f ∘ X) Y μ
       =ᵐ[μ.map Y] kernel.map (condEntropyKernel X Y μ) f (measurable_of_finite _) := by

@@ -325,7 +325,6 @@ lemma cond_chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ]
     H[⟨ X, Y ⟩ | Z ; μ] = H[X | Z ; μ] + H[Y | ⟨ X, Z ⟩ ; μ] := by
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have := isMarkovKernel_condEntropyKernel (hX.prod_mk hY) hZ μ
-  have := isMarkovKernel_condEntropyKernel hX hZ μ
   rw [condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ, kernel.chain_rule]
   congr 1
   . rw [condEntropy_eq_kernel_entropy hX hZ]
@@ -410,6 +409,32 @@ lemma condMutualInformation_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ
 
 notation3:max "I[" X ":" Y "|" Z ";" μ "]" => condMutualInformation X Y Z μ
 notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z volume
+
+lemma condMutualInformation_eq_kernel_mutualInfo
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    I[X : Y | Z ; μ] = Ik[condEntropyKernel (⟨ X, Y ⟩) Z μ, μ.map Z] := by
+  simp_rw [condMutualInformation_def, entropy_def, kernel.mutualInfo, kernel.entropy,
+    integral_eq_sum, smul_eq_mul, mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib]
+  congr with x
+  · have h := condEntropyKernel_fst_ae_eq hX hY hZ μ
+    rw [Filter.EventuallyEq, ae_iff_of_fintype] at h
+    specialize h x
+    by_cases hx : (μ.map Z) {x} = 0
+    · simp [hx]
+    rw [h hx, condEntropyKernel_apply hX hZ]
+    rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
+  · have h := condEntropyKernel_snd_ae_eq hX hY hZ μ
+    rw [Filter.EventuallyEq, ae_iff_of_fintype] at h
+    specialize h x
+    by_cases hx : (μ.map Z) {x} = 0
+    · simp [hx]
+    rw [h hx, condEntropyKernel_apply hY hZ]
+    rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
+  · by_cases hx : (μ.map Z) {x} = 0
+    · simp [hx]
+    rw [condEntropyKernel_apply (hX.prod_mk hY) hZ]
+    rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
 
 lemma condMutualInformation_eq_integral_mutualInformation :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[|Z ⁻¹' {z}]]] := rfl
