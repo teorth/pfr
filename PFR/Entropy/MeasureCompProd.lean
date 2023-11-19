@@ -5,7 +5,7 @@ import PFR.Entropy.Measure
 /-!
 # Composition-Product of a measure and a kernel
 
-This operation, denoted by `⊗ₘ`, takes `μ : Measure α` and `κ : kernel α β` and forms,
+This operation, denoted by `⊗ₘ`, takes `μ : Measure α` and `κ : kernel α β` and creates
 `μ ⊗ₘ κ : Measure (α × β)`.
 
 It is defined as `((kernel.const Unit μ) ⊗ₖ (kernel.prodMkLeft Unit κ)) ()`.
