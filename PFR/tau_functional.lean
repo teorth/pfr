@@ -44,7 +44,7 @@ variable {Ω₁ Ω₁ Ω'₁ Ω'₂ : Type*} [MeasurableSpace Ω₁] (μ₁ : Me
   [MeasurableSpace Ω₂] (μ₂ : Measure Ω₂) [MeasurableSpace Ω'₁] (μ'₁ : Measure Ω'₁)
   [MeasurableSpace Ω'₂] (μ'₂ : Measure Ω'₂)
 
-noncomputable def eta := (9:ℝ)⁻¹
+noncomputable def η := (9:ℝ)⁻¹
 
 /-- If $X_1,X_2$ are two $G$-valued random variables, then
 $$  \tau[X_1; X_2] \coloneqq d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
@@ -55,7 +55,7 @@ We denote it as `τ[X₁ ; μ₁ # X₂ ; μ₂ | p]` where `p` is a fixed packa
 of the reference random variables.
 --/
 noncomputable def tau (X₁ : Ω₁ → G) (μ₁ : Measure Ω₁) (X₂ : Ω₂ → G) (μ₂ : Measure Ω₂) : ℝ :=
-  d[X₁ ; μ₁ # X₂ ; μ₂] + eta * d[p.X₀₁ ; p.μ₀₁ # X₁ ; μ₁] + eta * d[p.X₀₂ ; p.μ₀₂ # X₂ ; μ₂]
+  d[X₁ ; μ₁ # X₂ ; μ₂] + η * d[p.X₀₁ ; p.μ₀₁ # X₁ ; μ₁] + η * d[p.X₀₂ ; p.μ₀₂ # X₂ ; μ₂]
 
 notation3:max "τ[" X₁ " ; " μ₁ " # " X₂ " ; " μ₂ " | " p"]" => tau p X₁ μ₁ X₂ μ₂
 
@@ -95,8 +95,8 @@ for any $G$-valued random variables $X'_1,X'_2$.
 lemma distance_ge_of_min {μ₁ μ₂ : Measure G} (h : tau_minimizes p μ₁ μ₂)
     {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G} (h1 : Measurable X'₁) (h2 : Measurable X'₂)
     [IsProbabilityMeasure μ'₁] [IsProbabilityMeasure μ'₂] :
-    d[id ; μ₁ # id ; μ₂] - eta * (d[p.X₀₁ ; p.μ₀₁ # X'₁ ; μ'₁] - d[p.X₀₁ ; p.μ₀₁ # id ; μ₁])
-      - eta * (d[p.X₀₂ ; p.μ₀₂ # X'₂ ; μ'₂] - d[p.X₀₂ ; p.μ₀₂ # id ; μ₂])
+    d[id ; μ₁ # id ; μ₂] - η * (d[p.X₀₁ ; p.μ₀₁ # X'₁ ; μ'₁] - d[p.X₀₁ ; p.μ₀₁ # id ; μ₁])
+      - η * (d[p.X₀₂ ; p.μ₀₂ # X'₂ ; μ'₂] - d[p.X₀₂ ; p.μ₀₂ # id ; μ₂])
     ≤ d[X'₁ ; μ'₁ # X'₂ ; μ'₂] := by
   let ν₁ := μ'₁.map X'₁
   let ν₂ := μ'₂.map X'₂
@@ -120,6 +120,6 @@ $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^
 lemma condDistance_ge_of_min [MeasurableSpace S] [MeasurableSpace T] {μ₁ μ₂ : Measure G} (h : tau_minimizes p μ₁ μ₂)
     {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G} (h1 : Measurable X'₁) (h2 : Measurable X'₂)
     [IsProbabilityMeasure μ'₁] [IsProbabilityMeasure μ'₂] (Z : Ω'₁ → S) (W : Ω'₂ → T):
-    d[id ; μ₁ # id ; μ₂] - eta * (d[p.X₀₁ ; p.μ₀₁ # X'₁ | Z ; μ'₁] - d[p.X₀₁ ; p.μ₀₁ # id ; μ₁])
-      - eta * (d[p.X₀₂ ; p.μ₀₂ # X'₂ | W; μ'₂] - d[p.X₀₂ ; p.μ₀₂ # id ; μ₂])
+    d[id ; μ₁ # id ; μ₂] - η * (d[p.X₀₁ ; p.μ₀₁ # X'₁ | Z ; μ'₁] - d[p.X₀₁ ; p.μ₀₁ # id ; μ₁])
+      - η * (d[p.X₀₂ ; p.μ₀₂ # X'₂ | W; μ'₂] - d[p.X₀₂ ; p.μ₀₂ # id ; μ₂])
     ≤ d[X'₁ | Z ; μ'₁ # X'₂ | W ; μ'₂] := sorry
