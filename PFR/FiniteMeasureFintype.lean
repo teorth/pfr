@@ -57,6 +57,7 @@ end entropy -- section
 section count
 /-! ### Counting measure as a finite measure and discrete uniform measure as a probability measure
 
+These are mainly a test for what is a good spelling of uniformity of the distribution in `IsUniform`
 -/
 
 variable (Ω : Type*) [MeasurableSpace Ω] [Fintype Ω]
@@ -151,26 +152,77 @@ lemma pmf_finUniformProbaOn_eq_uniformOfFintype {X : Type*} [Countable X] -- why
   rw [Measure.toPMF]
   sorry
 
--- Unnecessary, just for Kalle to practice with existing PMF API.
-lemma pmf_probabilityMeasure_apply_eq [MeasurableSingletonClass Ω] (μ : ProbabilityMeasure Ω) (ω : Ω) :
-    (μ : Measure Ω).toPMF ω = (μ : Measure Ω) {ω} := rfl
-
--- Unnecessary, just for Kalle to practice with existing PMF API.
-lemma pmf_probabilityMeasure_apply_eq' [MeasurableSingletonClass Ω] (μ : ProbabilityMeasure Ω) (ω : Ω) :
-    (μ : Measure Ω).toPMF ω = ENNReal.ofReal ((μ : Measure Ω).real {ω}) := by
-  simp only [Measure.toPMF, Measure.real, ne_eq]
-  rw [ofReal_toReal]
-  · rfl
-  · exact measure_ne_top ↑μ {ω}
-
--- For Kalle to practice the existing `pdf.IsUniform` and `PMF.uniformOfFinset` APIs.
-lemma isUniform_uniformOfFinset (s : Finset Ω) (hs : Finset.Nonempty s) :
-    pdf.IsUniform (id : Ω → Ω) s (PMF.uniformOfFinset s hs).toMeasure Measure.count := by
-  -- Apparently no results exist yet to connect densities w.r.t. counting measure to PMFs?
-  sorry
-
 end count -- section
 
 section density_count
+/-! ### Radon-Nikodym density w.r.t. counting measure and its relation to PMF
+
+These are mainly a test for what is a good spelling of uniformity of the distribution in `IsUniform`
+-/
+
+variable {X : Type*} [MeasurableSpace X] [MeasurableSingletonClass X]
+
+-- to Mathlib? (after golf and minimization of hypotheses)
+lemma PMF.toMeasure_eq_withDensity_count (p : PMF X) :
+    p.toMeasure = Measure.count.withDensity p := by
+  ext s s_mble
+  simp only [s_mble, withDensity_apply, ← lintegral_indicator _ s_mble, lintegral_count,
+             p.toMeasure_apply s s_mble]
+
+-- to Mathlib? (after golf and minimization of hypotheses)
+lemma sigmaFinite_count_of_countable [Countable X] : SigmaFinite (Measure.count : Measure X) := by
+  apply @Measure.sigmaFinite_of_countable X _ Measure.count (Set.range fun x ↦ {x})
+      (countable_range _) ?_ ?_
+  · intro s hs
+    simp only [mem_range] at hs
+    obtain ⟨x, hx⟩ := hs
+    simp only [← hx, MeasurableSet.singleton, Measure.count_singleton', one_lt_top]
+  · apply subset_antisymm (subset_univ _)
+    intro x _
+    simp only [sUnion_range, mem_iUnion, mem_singleton_iff, exists_eq']
+
+-- to Mathlib? (after golf and minimization of hypotheses)
+lemma PMF.rnDeriv_toMeasure_count [Countable X] (p : PMF X) :
+    Measure.rnDeriv p.toMeasure Measure.count = p := by
+  have key := @Measure.rnDeriv_withDensity X _ Measure.count sigmaFinite_count_of_countable p
+              (measurable_of_countable p)
+  rw [← p.toMeasure_eq_withDensity_count] at key
+  ext x
+  have key' : Set.indicator {x} (Measure.rnDeriv (toMeasure p) Measure.count)
+              =ᵐ[Measure.count] Set.indicator {x} p := by
+    filter_upwards [key] with y hy
+    by_cases hyx : y ∈ ({x} : Set X)
+    · simpa only [mem_singleton_iff, indicator_of_mem hyx] using hy
+    · simp only [mem_singleton_iff, indicator_of_not_mem hyx]
+  have obs := lintegral_congr_ae key'
+  simp_rw [lintegral_count] at obs
+  have rw₁ := @sum_eq_tsum_indicator ℝ≥0∞ X _ _ (Measure.rnDeriv (toMeasure p) Measure.count) {x}
+  have rw₂ := @sum_eq_tsum_indicator ℝ≥0∞ X _ _ p {x}
+  simp only [Finset.sum_singleton, Finset.coe_singleton, mem_singleton_iff] at rw₁ rw₂
+  rwa [← rw₁, ← rw₂] at obs
+
+-- to Mathlib? (after golf and minimization of hypotheses)
+lemma hasPDF_id_uniformOfFinset [MeasurableSingletonClass Ω] [Countable Ω]
+    (s : Finset Ω) (hs : Finset.Nonempty s) :
+    HasPDF id (PMF.uniformOfFinset s hs).toMeasure Measure.count := by
+  refine ⟨measurable_id, ⟨PMF.uniformOfFinset s hs, ⟨measurable_of_countable _, ?_⟩⟩⟩
+  simpa only [Measure.map_id] using PMF.toMeasure_eq_withDensity_count _
+
+-- to Mathlib? (after golf and minimization of hypotheses)
+-- This seems to indicate that the `pdf.IsUniform id s ℙ Measure.count` might be a
+-- reasonable spelling of `IsUniform`.
+lemma isUniform_uniformOfFinset [MeasurableSingletonClass Ω] [Countable Ω]
+    (s : Finset Ω) (hs : Finset.Nonempty s) :
+    pdf.IsUniform (id : Ω → Ω) s (PMF.uniformOfFinset s hs).toMeasure Measure.count := by
+  simp [pdf.IsUniform]
+  have obs := (@pdf.unique' Ω Ω _ _ (PMF.uniformOfFinset s hs).toMeasure Measure.count
+          sigmaFinite_count_of_countable id (by apply hasPDF_id_uniformOfFinset)
+          (PMF.uniformOfFinset s hs) (measurable_of_countable _).aemeasurable).mp ?_
+  · simp only at obs
+    convert obs
+    ext ω
+    simp only [Finset.mem_coe, PMF.uniformOfFinset_apply]
+    by_cases hω : ω ∈ s <;> simp [hω]
+  · simpa only [Measure.map_id] using PMF.toMeasure_eq_withDensity_count _
 
 end density_count -- section
