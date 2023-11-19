@@ -190,6 +190,12 @@ lemma sum_negIdMulLog_eq {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ}
     rfl
   · simpa using hs
 
+lemma continuous_negIdMulLog : Continuous negIdMulLog :=  by
+  change Continuous (fun (x : ℝ) ↦ - x * Real.log x)
+  have aux : Continuous (fun (x : ℝ) ↦ (-1 : ℝ) * (x * Real.log x)) :=
+    continuous_const.mul continuous_id_mul_log
+  convert aux using 1
+  simp only [neg_mul, one_mul]
 
 end negIdMulLog
 
