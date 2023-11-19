@@ -138,7 +138,8 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{lemma}
 
-\begin{proof}  \uses{chain-rule} For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
+\begin{proof}  \uses{chain-rule}\leanok
+   For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
   $$ \bbH[ (X|Z=z),(Y|Z=z) ] = \bbH[Y|Z=z] + \bbH[(X|Z=z)|(Y|Z=z)].$$
   Now multiply by $\bbP[Z=z]$ and sum.  Some helper lemmas may be needed to get to the form above.  This sort of ``average over conditioning'' argument to get conditional entropy inequalities from unconditional ones is commonly used in this paper.
 \end{proof}
@@ -209,7 +210,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   With three random variables $X,Y,Z$, one has $\bbH[X|Y,Z] \leq \bbH[X|Z]$.
 \end{corollary}
 
-\begin{proof} \uses{cond-reduce} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
+\begin{proof} \uses{cond-reduce}\leanok Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
 \end{proof}
 
 \begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}
@@ -218,7 +219,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   $$ \bbH[X,Y,Z] + \bbH[Z] \leq \bbH[X,Z] + \bbH[Y,Z].$$
 \end{corollary}
 
-\begin{proof}  \uses{submodularity,chain-rule} Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
+\begin{proof}  \uses{submodularity,chain-rule} \leanok Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
 \end{proof}
 
 \begin{definition}[Independent random variables]

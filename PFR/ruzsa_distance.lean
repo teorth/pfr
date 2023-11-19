@@ -157,7 +157,7 @@ lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W 
 
 
 /-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/
-lemma Kaimonovich_Vershik {X : Fin 3 → Ω → G} (h: iIndepFun (fun (i : Fin 3) ↦ hG) X μ) : H[ (X 0) + (X 1) + (X 2) ; μ] - H[ (X 0) + (X 1) ; μ] ≤ H[ (X 1) + (X 2) ; μ] - H[ X 1; μ ] := by sorry
+lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun ![hG, hG, hG] ![X,Y,Z] μ) : H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by sorry
 
 section Balog_Szemeredi_Gowers
 
