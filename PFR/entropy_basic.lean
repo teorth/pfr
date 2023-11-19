@@ -167,7 +167,7 @@ lemma condEntropy_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
 notation3:max "H[" X "|" Y "; " μ "]" => condEntropy X Y μ
 notation3:max "H[" X "|" Y "]" => condEntropy X Y volume
 
-lemma condEntropy_eq_kernel_entropy [Nonempty S]
+lemma condEntropy_eq_kernel_entropy
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ] :
     H[X | Y ; μ] = Hk[condEntropyKernel X Y μ, μ.map Y] := by
   rw [condEntropy_def, kernel.entropy]
@@ -193,7 +193,7 @@ lemma map_prod_comap_swap (hX : Measurable X) (hZ : Measurable Z) (μ : Measure 
     · exact MeasurableEquiv.prodComm.measurableEmbedding.measurableSet_image' hs
   · exact fun t ht ↦ MeasurableEquiv.prodComm.measurableEmbedding.measurableSet_image' ht
 
-lemma condEntropy_two_eq_kernel_entropy [Nonempty S] [Nonempty T]
+lemma condEntropy_two_eq_kernel_entropy
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω)
     [IsProbabilityMeasure μ] :
     H[X | ⟨ Y, Z ⟩ ; μ] =
