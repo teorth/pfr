@@ -64,6 +64,22 @@ lemma entropy_eq_integral_sum (κ : kernel T S) [IsMarkovKernel κ] (μ : Measur
     Hk[κ, μ] = μ[fun y ↦ ∑ x, negIdMulLog (κ y {x}).toReal] := by
   simp_rw [entropy, measureEntropy_of_isProbabilityMeasure]
 
+-- entropy_map_of_injective is a special case of this (see def of map)
+lemma entropy_snd_compProd_deterministic_of_injective (κ : kernel T S) [IsMarkovKernel κ]
+    (μ : Measure T) [IsProbabilityMeasure μ] (f : T × S → U)
+    (hf : ∀ t, Function.Injective (fun x ↦ f (t, x))) :
+    Hk[snd (κ ⊗ₖ deterministic f (measurable_of_finite f)), μ] = Hk[κ, μ] := by
+  have : ∀ t, snd (κ ⊗ₖ deterministic f (measurable_of_finite f)) t
+      = map κ (fun x ↦ f (t, x)) (measurable_of_finite _) t := by
+    intro t
+    ext s hs
+    rw [snd_apply' _ _ hs, compProd_deterministic_apply, map_apply' _ _ _ hs]
+    · congr
+    · exact measurable_snd hs
+  simp_rw [entropy, integral_eq_sum, smul_eq_mul]
+  congr with y
+  rw [this, map_apply, measureEntropy_map_of_injective _ _ (hf y)]
+
 lemma entropy_map_of_injective
     (κ : kernel T S) (μ : Measure T) (f : S → U) (hf : Function.Injective f) :
     Hk[kernel.map κ f (measurable_of_finite f), μ] = Hk[κ, μ] := by
@@ -221,6 +237,18 @@ lemma entropy_compProd [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKernel κ
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[η, μ ⊗ₘ κ] := by
   rw [entropy_compProd', entropy_congr (condKernel_compProd_ae_eq κ η)]
 
+@[simp]
+lemma entropy_deterministic (f : T → S) (μ : Measure T) [IsFiniteMeasure μ] :
+    Hk[deterministic f (measurable_of_finite f), μ] = 0 := by
+  simp_rw [entropy, integral_eq_sum, smul_eq_mul, deterministic_apply, measureEntropy_dirac,
+    mul_zero, Finset.sum_const_zero]
+
+@[simp]
+lemma entropy_compProd_deterministic
+    (κ : kernel T S) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ] (f : T × S → U) :
+    Hk[κ ⊗ₖ (deterministic f (measurable_of_finite f)), μ] = Hk[κ, μ] := by
+  simp [entropy_compProd]
+
 lemma chain_rule (κ : kernel T (S × U)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :
     Hk[κ, μ] = Hk[kernel.fst κ, μ] + Hk[condKernel κ, μ ⊗ₘ (kernel.fst κ)] := by
@@ -244,5 +272,15 @@ lemma entropy_map_le
     exact hxy.1
   rw [this, chain_rule', snd_map_prod _ measurable_id', le_add_iff_nonneg_right]
   exact entropy_nonneg _ _
+
+lemma entropy_snd_le (κ : kernel T (S × U)) [IsMarkovKernel κ]
+    (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[snd κ, μ] ≤ Hk[κ, μ] :=
+  entropy_map_le _ _ _
+
+lemma entropy_fst_le (κ : kernel T (S × U)) [IsMarkovKernel κ]
+    (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[fst κ, μ] ≤ Hk[κ, μ] :=
+  entropy_map_le _ _ _
 
 end ProbabilityTheory.kernel

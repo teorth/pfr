@@ -161,6 +161,18 @@ notation:100 "Hm[" μ "]" => measureEntropy μ
 lemma measureEntropy_zero : Hm[(0 : Measure S)] = 0 := by
   simp [measureEntropy]
 
+@[simp]
+lemma measureEntropy_dirac (x : S) : Hm[Measure.dirac x] = 0 := by
+  rw [measureEntropy_def]
+  simp only [MeasurableSet.univ, Measure.dirac_apply', Set.mem_univ, Set.indicator_of_mem,
+    Pi.one_apply, inv_one, one_smul, MeasurableSet.singleton, Set.mem_singleton_iff]
+  rw [Finset.sum_eq_single x]
+  · simp
+  · simp only [Finset.mem_univ, ne_eq, Set.mem_singleton_iff, forall_true_left]
+    intro b hb
+    simp [Ne.symm hb]
+  · simp
+
 lemma measureEntropy_of_not_isFiniteMeasure (h : ¬ IsFiniteMeasure μ) :
     Hm[μ] = 0 := by
   simp [measureEntropy, not_isFiniteMeasure_iff.mp h]
