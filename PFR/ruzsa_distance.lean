@@ -55,8 +55,7 @@ lemma entropy_sub_mutualInformation_le_entropy_add
   calc H[X|Y; μ]
     = H[X + Y | Y; μ] := by
         refine (condEntropy_of_inj_map μ hX hY (fun y x ↦ x + y) ?_).symm
-        intro y
-        exact add_left_injective y
+        exact fun y ↦ add_left_injective y
   _ ≤ H[X + Y; μ] := condEntropy_le_entropy _ (hX.add hY) hY
 
 lemma entropy_sub_mutualInformation_le_entropy_sub
@@ -67,8 +66,7 @@ lemma entropy_sub_mutualInformation_le_entropy_sub
   calc H[X|Y; μ]
     = H[X - Y | Y; μ] := by
         refine (condEntropy_of_inj_map μ hX hY (fun y x ↦ x - y) ?_).symm
-        intro y
-        exact sub_left_injective
+        exact fun _ ↦ sub_left_injective
   _ ≤ H[X - Y; μ] := condEntropy_le_entropy _ (hX.sub hY) hY
 
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X + Y].$$ -/
