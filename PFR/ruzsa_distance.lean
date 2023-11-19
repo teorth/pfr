@@ -37,11 +37,13 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
 
+/-- $$H[X-Y]=H[Y-X].$$ -/
 lemma entropy_sub_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
     H[X - Y; μ] = H[Y - X; μ] := by
   rw [← neg_sub]
   exact entropy_neg (hY.sub hX)
 
+/-- $$H[X] - I[X:Y] \leq H[X+Y].$$ -/
 lemma entropy_sub_mutualInformation_le_entropy_add
     {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
     H[X; μ] - I[X : Y; μ] ≤ H[X + Y; μ] := by
@@ -53,6 +55,7 @@ lemma entropy_sub_mutualInformation_le_entropy_add
         exact fun y ↦ add_left_injective y
   _ ≤ H[X + Y; μ] := condEntropy_le_entropy _ (hX.add hY) hY
 
+/-- $$H[X] - I[X:Y] \leq H[X-Y].$$ -/
 lemma entropy_sub_mutualInformation_le_entropy_sub
     {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
     H[X; μ] - I[X : Y; μ] ≤ H[X - Y; μ] := by
@@ -157,7 +160,7 @@ lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure 
     d[ X ; μ # Y ; μ' ]
       = H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2 := rfl
 
--- may also want to make further notations for Ruzsa distance
+-- may also want to make further notations for Ruzsa distance to hide the measures μ, μ'
 
 /-- If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$. -/
 lemma ProbabilityTheory.IdentDistrib.rdist_eq {X' : Ω'' → G} {Y' : Ω''' →G}
@@ -188,6 +191,8 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
     Measure.prod_swap]
   rfl
 
+-- note: many of the statements below probably need measurability hypotheses on X, Y, and/or guarantees that a measure is a probability measure.
+
 /-- $$|H[X]-H[Y]| \leq 2 d[X;Y].$$ -/
 lemma diff_ent_le_rdist : |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ' ] := by sorry
 
@@ -195,7 +200,7 @@ lemma diff_ent_le_rdist : |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ' ] 
 lemma diff_ent_le_rdist' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
 
 /-- $$  H[X-Y] - H[Y] \leq 2d[X;Y].$$ -/
-lemma diff_ent_le_rdist'' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
+lemma diff_ent_le_rdist'' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[Y; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
 
 /--   $$ d[X;Y] \geq 0.$$  -/
 lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by
@@ -231,7 +236,14 @@ lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W 
 
 
 /-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/
-lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun ![hG, hG, hG] ![X,Y,Z] μ) : H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by sorry
+lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun ![hG, hG, hG] ![X,Y,Z] μ) (hX: Measurable X) (hY: Measurable Y) (hZ: Measurable Z) [IsProbabilityMeasure μ]: H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by
+  suffices : (H[X; μ] + H[Y;μ] + H[Z;μ]) + H[ X + Y + Z ; μ] ≤ (H[X;μ] + H[ Y + Z ; μ]) + (H[Z;μ] + H[ X + Y ; μ])
+  . linarith
+  convert entropy_triple_add_entropy_le _ hX hZ (Measurable.add' hX (Measurable.add' hY hZ)) using 2
+  . sorry
+  . rw [add_assoc]
+  . sorry
+  sorry
 
 section Balog_Szemeredi_Gowers
 
