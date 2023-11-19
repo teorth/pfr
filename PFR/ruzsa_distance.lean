@@ -1,6 +1,7 @@
 import Mathlib.Probability.Notation
 import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
+import PFR.Entropy.Group
 import PFR.entropy_basic
 
 /-!
@@ -25,14 +26,8 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
   [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
   [hG: MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
-  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G] [MeasurableSpace T]
-
-/-- For mathlib -/
-instance : MeasurableNeg G := by
-  constructor
-  convert measurable_const (a := (0 : G)).sub measurable_id
-  ext x
-  simp
+  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G]
+  [Fintype T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 
@@ -91,11 +86,47 @@ lemma ent_of_diff_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
   · rw [← sub_le_iff_le_add', mutualInformation_comm hX hY, entropy_sub_comm hX hY]
     exact entropy_sub_mutualInformation_le_entropy_sub hY hX
 
-/-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq H[X+ Y|Z] $$ -/
-lemma condEnt_of_sum_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) : (max H[ X | Z; μ] H[Y | Z; μ]) - I[ X : Y | Z ; μ] ≤ H[X + Y | Z; μ] := by sorry
+/-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq H[X + Y|Z] $$ -/
+lemma condEnt_of_sum_lower {Y : Ω → G} {Z : Ω → T}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    [IsProbabilityMeasure μ] :
+    (max H[X | Z; μ] H[Y | Z; μ]) - I[X : Y | Z ; μ] ≤ H[X + Y | Z; μ] := by
+  have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
+    isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
+  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
+  rw [condMutualInformation_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
+    condEntropy_eq_kernel_entropy hY hZ, condMutualInformation_eq_kernel_mutualInfo hY hX hZ,
+    condEntropy_eq_kernel_entropy ?_ hZ]
+  swap; · exact hX.add hY
+  rw [kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ μ).symm,
+    kernel.entropy_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ).symm,
+    max_comm]
+  refine (kernel.ent_of_sum_lower _ _ ).trans_eq ?_
+  have h := condEntropyKernel_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.1 + x.2)
+  rw [kernel.entropy_congr h.symm]
+  congr with ω
+  simp [add_comm (X ω)]
 
 /-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq H[X - Y|Z] $$ -/
-lemma condEnt_of_diff_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) : (max H[ X | Z; μ] H[Y | Z; μ]) - I[ X : Y | Z ; μ] ≤ H[X - Y | Z; μ] := by sorry
+lemma condEnt_of_diff_lower {Y : Ω → G} {Z : Ω → T}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    [IsProbabilityMeasure μ] :
+    (max H[X | Z; μ] H[Y | Z; μ]) - I[X : Y | Z ; μ] ≤ H[X - Y | Z; μ] := by
+  have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
+    isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
+  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
+  rw [condMutualInformation_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
+    condEntropy_eq_kernel_entropy hY hZ, condMutualInformation_eq_kernel_mutualInfo hY hX hZ,
+    condEntropy_eq_kernel_entropy ?_ hZ]
+  swap; · exact hX.sub hY
+  rw [kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ μ).symm,
+    kernel.entropy_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ).symm,
+    max_comm]
+  refine (kernel.ent_of_diff_lower _ _ ).trans_eq ?_
+  rw [kernel.entropy_sub_comm]
+  have h := condEntropyKernel_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 - x.1)
+  rw [kernel.entropy_congr h.symm]
+  rfl
 
 /-- If $X,Y$ are independent, then
 $$ \max(H[X], H[Y]) \leq H[X + Y].$$ -/
