@@ -48,6 +48,14 @@ lemma continuous_integral_finiteMeasure
   apply continuousAt_of_tendsto_nhds
   exact FiniteMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f
 
+lemma continuous_integral_probabilityMeasure
+    {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α] (f : α →ᵇ ℝ) :
+    Continuous (fun (μ : ProbabilityMeasure α) ↦ ∫ x, f x ∂μ) := by
+  apply continuous_iff_continuousAt.mpr
+  intro μ
+  apply continuousAt_of_tendsto_nhds
+  exact ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f
+
 noncomputable def indicatorBCF {α : Type*} [TopologicalSpace α]
     {s : Set α} (s_clopen : IsClopen s) :
     BoundedContinuousFunction α ℝ where
@@ -87,6 +95,16 @@ lemma continuous_finiteMeasure_apply_of_isOpen_of_isClosed
     {s : Set α} (s_clopen : IsClopen s) :
     Continuous (fun (μ : FiniteMeasure α) ↦ (μ : Measure α).real s) := by
   convert continuous_integral_finiteMeasure (indicatorBCF s_clopen)
+  have s_mble : MeasurableSet s := s_clopen.isOpen.measurableSet
+  rw [integral_indicatorBCF _ s_clopen s_mble]
+  rfl
+
+/-- The probability of any connected component depends continuously on the `ProbabilityMeasure`. -/
+lemma continuous_probabilityMeasure_apply_of_isOpen_of_isClosed
+    {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
+    {s : Set α} (s_clopen : IsClopen s) :
+    Continuous (fun (μ : ProbabilityMeasure α) ↦ (μ : Measure α).real s) := by
+  convert continuous_integral_probabilityMeasure (indicatorBCF s_clopen)
   have s_mble : MeasurableSet s := s_clopen.isOpen.measurableSet
   rw [integral_indicatorBCF _ s_clopen s_mble]
   rfl
