@@ -23,7 +23,7 @@ Assumptions:
 
 open MeasureTheory ProbabilityTheory
 
-variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G] [ElementaryAddCommGroup G 2]
+variable {G : Type*} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G] [elem: ElementaryAddCommGroup G 2]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasurableSpace Ω₀₁] [MeasurableSpace Ω₀₂]
 
@@ -75,7 +75,11 @@ $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 lemma sum_dist_diff_le : c[U|S ; μ] + c[V|S ; μ]  + c[W|S; μ] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by sorry
 
 /-- $U+V+W=0$. -/
-lemma sum_uvw_eq_zero : U+V+W = 0 := by sorry
+lemma sum_uvw_eq_zero : U+V+W = 0 := by
+  funext ω
+  dsimp
+  rw [add_comm (X₁' ω) (X₂ ω)]
+  exact @sum_add_sum_add_sum_eq_zero G addgroup elem _ _ _
 
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
 $$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
