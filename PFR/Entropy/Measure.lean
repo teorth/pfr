@@ -30,18 +30,11 @@ section aux_lemmas
 -- seems reasonable for Mathlib?
 attribute [pp_dot] Measure.map
 
--- todo: is this somewhere?
 lemma integral_eq_sum {S E : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
      (μ : Measure S) [IsFiniteMeasure μ] (f : S → E) :
-    ∫ x, f x ∂μ = ∑ x, (μ {x}).toReal • (f x) := by
-  conv_lhs => rw [← Measure.sum_smul_dirac μ]
-  have hf : Integrable f μ := integrable_of_fintype _ _
-  have hf' : Integrable f (Measure.sum fun a ↦ μ {a} • Measure.dirac a) := by
-    rwa [Measure.sum_smul_dirac μ]
-  rw [integral_sum_measure hf']
-  simp_rw [integral_smul_measure, integral_dirac]
-  rw [tsum_fintype]
+    ∫ x, f x ∂μ = ∑ x, (μ {x}).toReal • f x :=
+  integral_fintype _ $ integrable_of_fintype _ _
 
 lemma ae_iff_of_fintype {S : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     (μ : Measure S) (p : S → Prop) :
@@ -65,13 +58,10 @@ lemma ae_iff_of_fintype {S : Type*} [Fintype S] [MeasurableSpace S] [MeasurableS
     · exact Or.inl hμx
     · exact Or.inr (fun hpx ↦ hpx (h x hμx))
 
+-- TODO: Change RHS of `lintegral_fintype`
 lemma lintegral_eq_sum {S : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
      (μ : Measure S) (f : S → ℝ≥0∞) :
-    ∫⁻ x, f x ∂μ = ∑ x, (μ {x}) * (f x) := by
-  conv_lhs => rw [← Measure.sum_smul_dirac μ]
-  rw [lintegral_sum_measure f]
-  simp_rw [lintegral_smul_measure, lintegral_dirac]
-  rw [tsum_fintype]
+    ∫⁻ x, f x ∂μ = ∑ x, (μ {x}) * (f x) := by simp_rw [lintegral_fintype, mul_comm]
 
 /-- `μ[|s]` is always a finite measure. -/
 instance cond_isFiniteMeasure {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}

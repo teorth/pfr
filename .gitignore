@@ -1,1 +1,4 @@
 /.lake/*
+# lake-packages is not strictly needed anymore,
+# but people might still have the folder around in their local copy
+/lake-packages/*
