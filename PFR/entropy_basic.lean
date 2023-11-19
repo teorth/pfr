@@ -522,8 +522,8 @@ lemma entropy_comp_of_injective [MeasurableSingletonClass S] [MeasurableSingleto
 /-- The assertion that the law of $X$ is the uniform probability measure on a finite set $H$.  While in applications $H$ will be non-empty finite set, $X$ measurable, and and $μ$ a probability measure, it could be technically convenient to have a definition that works even without these hypotheses.  (For instance, isUniform would be well-defined, but false, for infinite H)   -/
 def isUniform (H: Set S) (X : Ω → S) (μ : Measure Ω) : Prop := sorry
 
-/-- Uniform distributions exist -/
-lemma exists_uniform (H : Finset S) [h: Nonempty H] : ∃ X : S → S, ∃ μ: Measure S, IsProbabilityMeasure μ ∧ Measurable X ∧ isUniform H X μ ∧ ∀ ω : S, X ω ∈ H := by sorry
+/-- Uniform distributions exist.   -/
+lemma exists_uniform (H : Finset S) [h: Nonempty H] : ∃ Ω : Type*, ∃ mΩ : MeasurableSpace Ω, ∃ X : Ω → S, ∃ μ: Measure Ω, IsProbabilityMeasure μ ∧ Measurable X ∧ isUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by sorry
 
 /-- If $X$ is uniformly distributed on $H$, then $H[X] = \log |H|$.  May need some non-degeneracy and measurability conditions. -/
 lemma entropy_of_uniform (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : isUniform H X μ) :

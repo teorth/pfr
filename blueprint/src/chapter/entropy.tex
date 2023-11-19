@@ -205,7 +205,6 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{proof}
 
 \begin{corollary}[Submodularity]\label{submodularity}
-  \uses{conditional-entropy-def}
   \lean{ProbabilityTheory.entropy_submodular}\leanok
   With three random variables $X,Y,Z$, one has $\bbH[X|Y,Z] \leq \bbH[X|Z]$.
 \end{corollary}

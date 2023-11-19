@@ -46,7 +46,7 @@ A pair $X_1, X_2$ of $\tau$-minimizers exist.
 In this section we assume that $X_1,X_2$ are $\tau$-minimizers. We also write $k := d[X_1;X_2]$.
 
 \begin{lemma}[Distance lower bound]\label{distance-lower}
-  \uses{tau-minimizes, ruz-dist-def}\leanok
+  \uses{tau-minimizes}\leanok
   \lean{distance_ge_of_min}
   For any $G$-valued random variables $X'_1,X'_2$, one has
 $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] ).$$
@@ -332,7 +332,7 @@ We have $U+V+W=0$.
 
 
 \begin{theorem}[$\tau$-decrement]\label{de-prop}
-  \lean{tau_strictly_decreases}
+  \lean{tau_strictly_decreases}\leanok
   Let $X_1, X_2$ be two $G$-valued random variables with $d[X_1;X_2] > 0$. Then there are $G$-valued random variables $X'_1, X'_2$ such that
 $$\tau[X'_1;X'_2] < \tau[X_1;X_2].
 $$
@@ -369,7 +369,7 @@ Moreover, for\footnote{In fact we can take any $\eta<\frac{1}{4 + \sqrt{17}} = \
 \subsection{Conclusion}
 
 \begin{theorem}[Entropy version of PFR]\label{entropy-pfr}
-  \lean{entropic_PFR_conjecture}
+  \lean{entropic_PFR_conjecture}\leanok
   Let $G = \F_2^n$, and suppose that $X^0_1, X^0_2$ are $G$-valued random variables.
   Then there is some subgroup $H \leq G$ such that
   \[

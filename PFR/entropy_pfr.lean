@@ -16,18 +16,20 @@ Here we prove the entropic version of the polynomial Freiman-Ruzsa conjecture.
 
 open MeasureTheory
 
-variable {Ω_0 Ω'_0 : Type*} [mΩ_0 : MeasurableSpace Ω_0] (μ_0 : Measure Ω_0) [mΩ'_0 : MeasurableSpace Ω'_0] (μ'_0 : Measure Ω'_0)
+variable (Ω₀₁ Ω₀₂ : Type*) [MeasurableSpace Ω₀₁] [MeasurableSpace Ω₀₂]
 
-variable {Ω Ω' Ω'' Ω''' : Type*} [mΩ : MeasurableSpace Ω] (μ : Measure Ω) [mΩ' : MeasurableSpace Ω'] (μ' : Measure Ω') [mΩ'' : MeasurableSpace Ω''] (μ'' : Measure Ω'') [mΩ''' : MeasurableSpace Ω'''] (μ''' : Measure Ω''')
+variable {Ω Ω' : Type*} [mΩ : MeasurableSpace Ω] (μ : Measure Ω) [mΩ' : MeasurableSpace Ω'] (μ' : Measure Ω')
 
 variable [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
 
-variable (X_0_1: Ω_0 → G) (X_0_2: Ω'_0 → G)
-(X_1: Ω → G) (X_2: Ω' → G)
+variable (p : ref_package Ω₀₁ Ω₀₂ G)
 
 /-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that
-$$ \tau[X'_1;X'_2] < \tau[X_1;X_2].$$ -/
-theorem tau_strictly_decreases : 0 = 1 := sorry
+$$ \tau[X'_1;X'_2] < \tau[X_1;X_2].$$
+Phrased in the contrapositive form for convenience of proof. -/
+theorem tau_strictly_decreases (μ₁ μ₂ : Measure G) (h: tau_minimizes p μ₁ μ₂) : d[id ; μ₁ # id ; μ₂]  = 0 := sorry
 
 /-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$. -/
-theorem entropic_PFR_conjecture : 0 = 1 := by sorry
+theorem entropic_PFR_conjecture :  ∃ H : AddSubgroup G, ∃ Ω : Type*, ∃ mΩ : MeasurableSpace Ω, ∃ U : Ω → H, ∃ μ: Measure Ω, isUniform H U μ ∧ d[p.X₀₁ ; p.μ₀₁ # U ; μ] + d[p.X₀₂ ; p.μ₀₂ # U ; μ] ≤ 11 * d[p.X₀₁ ; p.μ₀₁ # p.X₀₂ ; p.μ₀₂] := by sorry
+
+theorem entropic_PFR_conjecture' :  ∃ H : AddSubgroup G, ∃ Ω : Type*, ∃ mΩ : MeasurableSpace Ω, ∃ U : Ω → H, ∃ μ: Measure Ω, isUniform H U μ ∧ d[p.X₀₁ ; p.μ₀₁ # U ; μ] ≤ 6 * d[p.X₀₁ ; p.μ₀₁ # p.X₀₂ ; p.μ₀₂] ∧ d[p.X₀₂ ; p.μ₀₂ # U ; μ] ≤ 6 * d[p.X₀₁ ; p.μ₀₁ # p.X₀₂ ; p.μ₀₂]   := by sorry
