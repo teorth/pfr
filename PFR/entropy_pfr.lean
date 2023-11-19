@@ -20,7 +20,7 @@ variable {Ω_0 Ω'_0 : Type*} [mΩ_0 : MeasurableSpace Ω_0] (μ_0 : Measure Ω_
 
 variable {Ω Ω' Ω'' Ω''' : Type*} [mΩ : MeasurableSpace Ω] (μ : Measure Ω) [mΩ' : MeasurableSpace Ω'] (μ' : Measure Ω') [mΩ'' : MeasurableSpace Ω''] (μ'' : Measure Ω'') [mΩ''' : MeasurableSpace Ω'''] (μ''' : Measure Ω''')
 
-variable [AddCommGroup G] [ElementaryAddGroup G 2] [Fintype G]
+variable [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
 
 variable (X_0_1: Ω_0 → G) (X_0_2: Ω'_0 → G)
 (X_1: Ω → G) (X_2: Ω' → G)

@@ -1,9 +1,8 @@
 \chapter{The Fibring lemma}
 
-\begin{proposition}\label{projections-1}
-  \uses{ruz-dist-def, cond-dist-def,conditional-mutual-def}
-  \lean{fibring_ident}
-  Let $\pi : H \to H'$ be a homomorphism between vector spaces over $\F_2$ and let $Z_1,Z_2$ be $H$-valued random variables. Then we have
+\begin{proposition}[Fibring identity]\label{fibring-ident}
+  \lean{rdist_of_indep_eq_sum_fibre, rdist_le_sum_fibre}\leanok
+  Let $\pi : H \to H'$ be a homomorphism additive groups, and let $Z_1,Z_2$ be $H$-valued random variables. Then we have
   \[
     d[Z_1; Z_2] \geq d[\pi(Z_1);\pi(Z_2)] + d[Z_1|\pi(Z_1); Z_2 |\pi(Z_2)].
   \]
@@ -12,8 +11,8 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
 \end{proposition}
 
 
-\begin{proof}\uses{ruz-copy, independent-exist, submodularity}
-  Let $Z_1,Z_2$ be independent throughout (this is possible by Lemma \ref{ruz-copy} and Lemma \ref{independent-exist}).  We have
+\begin{proof}\uses{ruz-copy, independent-exist, submodularity,conditional-mutual-alt,chain-rule,relabeled-entropy, cond-dist-alt}
+  Let $Z_1,Z_2$ be independent throughout (this is possible by Lemma \ref{ruz-copy} and Lemma \ref{independent-exist}).  By Lemma \ref{cond-dist-alt}, We have
   \begin{align*}
     & d[Z_1  |\pi(Z_1); Z_2 |\pi(Z_2)] \\
     & = H[ Z_1 + Z_2 | \pi(Z_1),\pi(Z_2)] - \tfrac{1}{2} H[Z_1 | \pi(Z_1)] - \tfrac{1}{2} H[Z_2 | \pi(Z_2)] \\
@@ -22,20 +21,20 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
   \end{align*}
   In the middle step, we used Lemma \ref{submodularity}, and in the last step we used the fact that
   \[ H[Z_1 + Z_2 |  \pi(Z_1+Z_2)] = H[Z_1 + Z_2] - H[\pi(Z_1+Z_2)]\]
-  (since $Z_1 + Z_2$ determines $\pi(Z_1 + Z_2)$; this may need a specific entropy lemma) and that
+  (thanks to Lemma \ref{chain-rule} and Lemma \ref{relabeled-entropy}) and that
   \[ H[Z_i| \pi(Z_i)] = H[Z_i] - H[\pi(Z_i)]\] (since $Z_i$ determines $\pi(Z_i)$).
   This gives the claimed inequality. The difference between the two sides is precisely
   \[ H[Z_1 + Z_2  | \pi(Z_1 + Z_2)] - H[Z_1 + Z_2  | \pi(Z_1),\pi(Z_2)].\]
   To rewrite this in terms of (conditional) mutual information, we use the identity
   \[ H[A|B] - H[A | B,C] = I[A : C | B],\]
-  (which follows from various entropy facts including Lemma \ref{conditional-mutual-alt})
+  (which follows Lemma \ref{conditional-mutual-alt})
   taking
   $A := Z_1 + Z_2$, $B := \pi(Z_1 + Z_2)$ and $C := (\pi(Z_1),\pi(Z_{2}))$, and noting that in this case $H[A | B,C] = H[A | C]$ since $C$ uniquely determines $B$ (this may require another helper lemma about entropy).
   This completes the proof.
 \end{proof}
 
 \begin{corollary}\label{cor-fibre}
-  \lean{fibring_ident'}
+  \lean{sum_of_rdist_eq}\leanok
   Let $Y_1,Y_2,Y_3$ and $Y_4$ be independent $G$-valued random variables.
   Then
 \begin{align*}
@@ -45,8 +44,8 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
 \end{corollary}
 
 \begin{proof}
-  \uses{projections-1, add_entropy, relabeled-entropy-cond}
-  We apply Proposition \ref{projections-1} with $H := G \times G$, $H' := G$, $\pi$ the addition homomorphism $\pi(x,y) := x+y$, and with the random variables $Z_1 := (Y_1,Y_3)$ and $Z_2 := (Y_2,Y_4)$.  Then by independence (Lemma \ref{add-entropy})
+  \uses{fibring-ident, add_entropy, relabeled-entropy-cond}
+  We apply Proposition \ref{fibring-ident} with $H := G \times G$, $H' := G$, $\pi$ the addition homomorphism $\pi(x,y) := x+y$, and with the random variables $Z_1 := (Y_1,Y_3)$ and $Z_2 := (Y_2,Y_4)$.  Then by independence (Lemma \ref{add-entropy})
 \[
   d[Z_1; Z_2] = d[Y_1; Y_2] + d[Y_3; Y_4]
 \]

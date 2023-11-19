@@ -38,7 +38,7 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 
 -- may also want [DecidableEq G]
 
-/-- If $X$ is $G$-valued, then $\bbH[-X]=\bbH[X]$. -/
+/-- If $X$ is $G$-valued, then $H[-X]=H[X]$. -/
 lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
 
@@ -48,10 +48,10 @@ lemma ent_of_sum_lower {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : M
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X - Y].$$ -/
 lemma ent_of_diff_lower {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) : (max H[X; μ] H[Y; μ]) - I[ X : Y; μ] ≤ H[X - Y; μ]  := by sorry
 
-/-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq \bbH[X+ Y|Z] $$ -/
+/-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq H[X+ Y|Z] $$ -/
 lemma condEnt_of_sum_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) : (max H[ X | Z; μ] H[Y | Z; μ]) - I[ X : Y | Z ; μ] ≤ H[X + Y | Z; μ] := by sorry
 
-/-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq \bbH[X - Y|Z] $$ -/
+/-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq H[X - Y|Z] $$ -/
 lemma condEnt_of_diff_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) : (max H[ X | Z; μ] H[Y | Z; μ]) - I[ X : Y | Z ; μ] ≤ H[X - Y | Z; μ] := by sorry
 
 /-- If $X,Y$ are independent, then
@@ -117,14 +117,15 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
 /-- $$|H[X]-H[Y]| \leq 2 d[X;Y].$$ -/
 lemma diff_ent_le_rdist : |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ' ] := by sorry
 
-/-- $$  \bbH[X-Y] - \bbH[X] \leq 2d[X;Y].$$ -/
+/-- $$  H[X-Y] - H[X] \leq 2d[X;Y].$$ -/
 lemma diff_ent_le_rdist' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
 
-/-- $$  \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$ -/
+/-- $$  H[X-Y] - H[Y] \leq 2d[X;Y].$$ -/
 lemma diff_ent_le_rdist'' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
 
 /--   $$ d[X;Y] \geq 0.$$  -/
-lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by sorry
+lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by  
+  linarith [ge_trans diff_ent_le_rdist (abs_nonneg (H[X; μ] - H[Y; μ']))]
 
 /-- The improved Ruzsa triangle inequality -/
 lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G) (h : IndepFun (⟨ X, Z ⟩) Y μ): H[ X - Z; μ] ≤ H[ X - Y; μ] + H[ Y - Z; μ] - H[ Y; μ ]:= by sorry
@@ -150,9 +151,9 @@ lemma cond_rdist_of_indep [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G}
 
 lemma cond_rdist'_of_indep  [MeasurableSpace T] {X : Ω → G} {Y : Ω → G} {W : Ω → T} (h : IndepFun X (⟨ Y, W ⟩) μ) : d[ X ; μ # Y | W ; μ] = H[X-Y | W; μ ] - H[X; μ ]/2 - H[Y | W; μ ]/2 := by sorry
 
-lemma cond_rdist_of_copy [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Z' : Ω'' → S} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : IdentDistrib (⟨X, Z⟩) (⟨X', Z'⟩) μ μ'') (h2: IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ'''): d[ X | Z ; μ # Y | W ; μ'] = d[ X' | Z' ; μ'' # Y' | W' ; μ'''] := by sorry
+lemma cond_rdist_of_copy [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Z' : Ω'' → S} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : IdentDistrib (⟨X, Z⟩) (⟨X', Z'⟩) μ μ'') (h2: IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ'''): d[ X | Z ; μ # Y | W ; μ'] = d[ X' | Z' ; μ'' # Y' | W' ; μ'''] := by rfl
 
-lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : IdentDistrib X X' μ μ'') (h2: IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ'''): d[ X ; μ # Y | W ; μ'] = d[ X' ; μ'' # Y' | W' ; μ'''] := by sorry
+lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : IdentDistrib X X' μ μ'') (h2: IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ'''): d[ X ; μ # Y | W ; μ'] = d[ X' ; μ'' # Y' | W' ; μ'''] := by rfl
 
 
 /-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/

@@ -16,7 +16,7 @@ import PFR.Entropy.Measure
 
 ## Main statements
 
-* `chain_rule`: `H[⟨ X, Y ⟩] = H[Y] + H[ X Y`
+* `chain_rule`: `H[⟨ X, Y ⟩] = H[Y] + H[X | Y]
 
 ## Notations
 
@@ -133,7 +133,10 @@ lemma entropy_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
 
 lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
-    H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by sorry
+    H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by
+  change H[⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ] = H[(Equiv.prodAssoc _ _ _).symm ∘ ⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ]
+  exact entropy_comp_of_injective μ (hX.prod_mk (hY.prod_mk hZ)) _
+    (Equiv.prodAssoc S T U).symm.injective |>.symm
 
 end entropy
 
@@ -325,8 +328,8 @@ lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
   simp_rw [cond_chain_rule_aux μ hX hY Z]
   rw [integral_add]
   rotate_left
-  · sorry
-  · sorry
+  · simp_all only [integrable_of_fintype]
+  · simp_all only [integrable_of_fintype]
   congr
   -- goal is `∫ z, H[X|Y; μ[|Z ⁻¹' {z}]] ∂(μ.map Z) = H[X|⟨ Y, Z ⟩; μ]`
   rw [condEntropy_def, integral_map hZ.aemeasurable, integral_map (hY.prod_mk hZ).aemeasurable]
@@ -365,7 +368,7 @@ section mutualInformation
 variable {U : Type*} [Fintype U] [MeasurableSpace U]
   {X : Ω → S} {Y : Ω → T} {Z : Ω → U} {μ : Measure Ω}
 
-/-- Mutual information (TODO docstring). -/
+/-- The mutual information $I[X:Y]$ of two random variables is defined to be $H[X] + H[Y] - H[X;Y]$. -/
 noncomputable
 def mutualInformation (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac) : ℝ :=
   H[X ; μ] + H[Y ; μ] - H[⟨ X, Y ⟩ ; μ]
@@ -439,9 +442,13 @@ lemma condMutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingl
   have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ hz
   exact mutualInformation_nonneg hX hY _
 
-/-- $$ I[X:Y|Z] := H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
+/-- $$ I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
 lemma condMutualInformation_eq :
-    I[X : Y | Z ; μ] = H[X | Z ; μ] - H[⟨X, Y⟩ | Z ; μ] := by sorry
+    I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by sorry
+
+/-- $$ I[X:Y|Z] = H[X|Z] - H[X|Y,Z].$$ -/
+lemma condMutualInformation_eq' :
+    I[X : Y | Z ; μ] = H[X | Z ; μ] - H[X | ⟨Y, Z⟩  ; μ] := by sorry
 
 section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]

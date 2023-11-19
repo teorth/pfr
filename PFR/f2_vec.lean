@@ -8,18 +8,18 @@ Here we define the notion of a vector space over a finite field, and record basi
 
 ## Main classes
 
-* `ElementaryAddGroup`: An elementary p-group.
+* `ElementaryAddCommGroup`: An elementary p-group.
 
 -/
 
 
 open Pointwise Nat
 
-class ElementaryAddGroup (G : Type*) [AddGroup G] (p : outParam ℕ) where
+class ElementaryAddCommGroup (G : Type*) [AddCommGroup G] (p : outParam ℕ) where
   orderOf_of_ne {x : G} (hx : x ≠ 0) : addOrderOf x = p
 -- may want to change this to p . x = 0 for all x
 
-variable [AddGroup G] [ElementaryAddGroup G 2]
+variable [AddCommGroup G] [ElementaryAddCommGroup G 2]
 
 lemma sum_eq_diff ( x y : G ) : x + y = x - y := by sorry
 

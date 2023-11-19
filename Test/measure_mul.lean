@@ -14,8 +14,7 @@ noncomputable def Measure.mul (c : NNReal) {Ω : Type*} [MeasureSpace Ω] (μ : 
     dsimp
     rw [ENNReal.tsum_mul_left]
     gcongr
-    sorry
-    -- exact OuterMeasure.iUnion_nat ↑μ fun i => E i
+    apply measure_iUnion_le
   m_iUnion := by
     intro E hE hDisjoint
     dsimp

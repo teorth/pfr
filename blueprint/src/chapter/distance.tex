@@ -130,7 +130,7 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
   $$ d[X;Y] \geq 0.$$
 \end{lemma}
 
-\begin{proof} \uses{ruzsa-diff} Immediate from Lemma \ref{ruzsa-diff}.
+\begin{proof} \uses{ruzsa-diff}\leanok Immediate from Lemma \ref{ruzsa-diff}.
 \end{proof}
 
 \begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Z)$ independent of $Y$, then
@@ -181,7 +181,6 @@ $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \end{proof}
 
 \begin{lemma}[Kaimonovich-Vershik inequality]\label{kv}
-  \uses{independent-def, entropy-def}
   \lean{Kaimonovich_Vershik}\leanok
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[

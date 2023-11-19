@@ -82,6 +82,7 @@ We use $X,Y$ to denote the pair $\omega \mapsto (X(\omega),Y(\omega)$).
   If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, then $\bbH[X, Y] = \bbH[Y, X]$ and $\bbH[X, (Y,Z)] = \bbH[(X,Y), Z]$.
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{relabeled-entropy}
   Set up an injection from $(X,Y)$ to $(Y,X)$ and use Lemma \ref{relabeled-entropy} for the first claim. Similarly for the second claim.
 \end{proof}
@@ -107,7 +108,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{lemma}[Conditional entropy and relabeling]\label{relabeled-entropy-cond}
   \uses{conditional-entropy-def}
-  \lean{ProbabilityTheory.condEntropy_of_inj_map, ProbabilityTheory.condEntropy_of_inj_map'}\leanok
+  \lean{ProbabilityTheory.condEntropy_comp_of_injective, ProbabilityTheory.condEntropy_of_inj_map'}\leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $\bbH[X|Z] = \bbH[Y|Z]$.
 
   Similarly, if $g: T \to U$ is injective, then $\bbH[X|g(Y)] = \bbH[X|Y]$.
@@ -121,18 +122,18 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{lemma}[Chain rule]\label{chain-rule}
   \uses{conditional-entropy-def}
-  \lean{ProbabilityTheory.chain_rule}
+  \lean{ProbabilityTheory.chain_rule, ProbabilityTheory.chain_rule'}
   \leanok
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, then
   $$ \bbH[X, Y] = \bbH[Y] + \bbH[X|Y].$$
   \end{lemma}
   \begin{proof}
   \leanok
-  Direct computation, I guess?
+  Direct computation.
 \end{proof}
 
 \begin{lemma}[Conditional chain rule]\label{conditional-chain-rule}
-  \lean{ProbabilityTheory.cond_chain_rule}\leanok
+  \lean{ProbabilityTheory.cond_chain_rule, ProbabilityTheory.cond_chain_rule'}\leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
 $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{lemma}
@@ -145,7 +146,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{definition}[Mutual information]
   \label{information-def}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.mutualInformation}
+  \lean{ProbabilityTheory.mutualInformation, ProbabilityTheory.mutualInformation_def}
   \leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, then
   $$\bbI[X : Y] := \bbH[X] + \bbH[Y] - \bbH[X,Y].$$
@@ -262,9 +263,11 @@ $$ \bbI[X:Y|Z] := \sum_{z \in U} P[Z=z] \bbI[(X|Z=z): (Y|Z=z)].$$
 \begin{lemma}[Alternate formula for conditional mutual information]
   \label{conditional-mutual-alt}
   \uses{conditional-mutual-def}
-  \lean{ProbabilityTheory.condMutualInformation_eq}
+  \lean{ProbabilityTheory.condMutualInformation_eq, ProbabilityTheory.condMutualInformation_eq'}\leanok
 We have
-  $$ \bbI[X:Y|Z] := \bbH[X|Z] + \bbH[Y|Z] - \bbH[X,Y|Z].$$
+  $$ \bbI[X:Y|Z] := \bbH[X|Z] + \bbH[Y|Z] - \bbH[X,Y|Z]$$
+and
+  $$ \bbI[X:Y|Z] := \bbH[X|Z] - \bbH[X|Y,Z].$$
 \end{lemma}
 
 \begin{proof} Routine computation.
@@ -289,7 +292,6 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
 \end{definition}
 
 \begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}
-  \uses{conditional-mutual-def,conditional-independent-def}
   \lean{ProbabilityTheory.condMutualInformation_eq_zero}
   \leanok
   If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
