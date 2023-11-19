@@ -1,6 +1,7 @@
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import PFR.MeasureReal
 import PFR.ForMathlib.Finiteness
+import PFR.ForMathlib.FiniteMeasureComponent
 
 /-!
 # Compactness of the space of probability measures
@@ -78,8 +79,20 @@ noncomputable def equiv_probabilityMeasure_stdSimplex [MeasurableSingletonClass 
 variable [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X]
 
 variable {X}
+
+lemma continuous_pmf_apply' (i : X) :
+    Continuous (fun (μ : ProbabilityMeasure X) ↦ (μ : Measure X).real {i}) :=
+  continuous_probabilityMeasure_apply_of_isClopen (s := {i})
+    ⟨isOpen_discrete _, T1Space.t1 _⟩
+
 lemma continuous_pmf_apply (i : X) :
-    Continuous (fun (μ : ProbabilityMeasure X) ↦ μ {i}) := sorry
+    Continuous (fun (μ : ProbabilityMeasure X) ↦ μ {i}) :=  by
+  -- KK: The coercion fight here is one reason why I now prefer ℝ-valued and not ℝ≥0-valued probas.
+  convert continuous_real_toNNReal.comp (continuous_pmf_apply' i)
+  ext
+  simp only [Measure.real, Function.comp_apply, Real.coe_toNNReal', ge_iff_le,
+             ENNReal.toReal_nonneg, max_eq_left]
+  rfl
 
 variable (X)
 
