@@ -134,7 +134,10 @@ theorem StrictConcaveOn.map_sum_eq_iff {w : ι → 𝕜} {p : ι → E} (hf : St
     f (∑ i in t, w i • p i) = ∑ i in t, w i • f (p i) ↔ ∀ j ∈ t, p j = ∑ i in t, w i • p i := by
   simpa using hf.neg.map_sum_eq_iff h₀ h₁ hmem
 
-/-- the equality case of Jensen's inequality -/
+/-- A form of the equality case of Jensen's equality.  For a strictly convex function `f` and
+nonnegative weights `w`, we have `f (∑ i in t, w i • p i) = ∑ i in t, w i • f (p i)` if and only if
+the points `p` associated to strictly positive weights are all equal (and in fact all equal to their
+center of mass wrt `w`). -/
 theorem StrictConvexOn.map_sum_eq_iff' [Fintype ι] {w : ι → 𝕜} {p : ι → E}
     (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i, 0 ≤ w i) (h₁ : ∑ i, w i = 1) (hmem : ∀ i, p i ∈ s) :
     f (∑ i, w i • p i) = ∑ i, w i • f (p i) ↔ ∀ j, w j = 0 ∨ p j = ∑ i, w i • p i := by
@@ -159,7 +162,10 @@ theorem StrictConvexOn.map_sum_eq_iff' [Fintype ι] {w : ι → 𝕜} {p : ι �
     · simp [← hi]
     · simp [hi.ne', hi, H1]
 
-/-- the equality case of Jensen's inequality -/
+/-- A form of the equality case of Jensen's equality.  For a strictly concave function `f` and
+nonnegative weights `w`, we have `f (∑ i in t, w i • p i) = ∑ i in t, w i • f (p i)` if and only if
+the points `p` associated to strictly positive weights are all equal (and in fact all equal to their
+center of mass wrt `w`). -/
 theorem StrictConcaveOn.map_sum_eq_iff' [Fintype ι] {w : ι → 𝕜} {p : ι → E}
     (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i, 0 ≤ w i) (h₁ : ∑ i, w i = 1) (hmem : ∀ i, p i ∈ s) :
     f (∑ i, w i • p i) = ∑ i, w i • f (p i) ↔ ∀ j, w j = 0 ∨ p j = ∑ i, w i • p i := by
