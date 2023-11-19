@@ -14,7 +14,7 @@ Here we prove the entropic version of the polynomial Freiman-Ruzsa conjecture.
 
 -/
 
-open MeasureTheory
+open MeasureTheory ProbabilityTheory
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasurableSpace Ω₀₁] [MeasurableSpace Ω₀₂]
 
@@ -32,4 +32,4 @@ theorem tau_strictly_decreases (μ₁ μ₂ : Measure G) (h: tau_minimizes p μ�
 /-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$. -/
 theorem entropic_PFR_conjecture :  ∃ H : AddSubgroup G, ∃ Ω : Type*, ∃ mΩ : MeasurableSpace Ω, ∃ U : Ω → H, ∃ μ: Measure Ω, isUniform H U μ ∧ d[p.X₀₁ ; p.μ₀₁ # U ; μ] + d[p.X₀₂ ; p.μ₀₂ # U ; μ] ≤ 11 * d[p.X₀₁ ; p.μ₀₁ # p.X₀₂ ; p.μ₀₂] := by sorry
 
-theorem entropic_PFR_conjecture' :  ∃ H : AddSubgroup G, ∃ Ω : Type*, ∃ mΩ : MeasurableSpace Ω, ∃ U : Ω → H, ∃ μ: Measure Ω, isUniform H U μ ∧ d[p.X₀₁ ; p.μ₀₁ # U ; μ] ≤ 6 * d[p.X₀₁ ; p.μ₀₁ # p.X₀₂ ; p.μ₀₂] ∧ d[p.X₀₂ ; p.μ₀₂ # U ; μ] ≤ 6 * d[p.X₀₁ ; p.μ₀₁ # p.X₀₂ ; p.μ₀₂]   := by sorry
+theorem entropic_PFR_conjecture' :  ∃ H : AddSubgroup G, ∃ Ω : Type*, ∃ mΩ : MeasurableSpace Ω, ∃ U : Ω → G, ∃ μ: Measure Ω, isUniform H U μ ∧ d[p.X₀₁ ; p.μ₀₁ # U ; μ] ≤ 6 * d[p.X₀₁ ; p.μ₀₁ # p.X₀₂ ; p.μ₀₂] ∧ d[p.X₀₂ ; p.μ₀₂ # U ; μ] ≤ 6 * d[p.X₀₁ ; p.μ₀₁ # p.X₀₂ ; p.μ₀₂]   := by sorry
