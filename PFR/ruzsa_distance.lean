@@ -42,22 +42,66 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
 
+lemma entropy_sub_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
+    H[X - Y; μ] = H[Y - X; μ] := by
+  rw [← neg_sub]
+  exact entropy_neg (hY.sub hX)
+
+lemma entropy_sub_mutualInformation_le_entropy_add
+    {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
+    H[X; μ] - I[X : Y; μ] ≤ H[X + Y; μ] := by
+  rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
+  ring_nf
+  calc H[X|Y; μ]
+    ≤ H[X; μ] := condEntropy_le_entropy _ hX hY
+  _ ≤ H[X + Y; μ] := sorry
+
+lemma entropy_sub_mutualInformation_le_entropy_sub
+    {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
+    H[X; μ] - I[X : Y; μ] ≤ H[X - Y; μ] := by
+  rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
+  ring_nf
+  calc H[X|Y; μ]
+    ≤ H[X; μ] := condEntropy_le_entropy _ hX hY
+  _ ≤ H[X - Y; μ] := sorry
+
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X + Y].$$ -/
-lemma ent_of_sum_lower {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) : (max H[X; μ] H[Y; μ]) - I[ X : Y; μ] ≤ H[X + Y; μ]  := by sorry
+lemma ent_of_sum_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
+    [IsProbabilityMeasure μ] :
+    (max H[X; μ] H[Y; μ]) - I[X : Y; μ] ≤ H[X + Y; μ] := by
+  rw [sub_le_iff_le_add']
+  refine max_le ?_ ?_
+  · rw [← sub_le_iff_le_add']
+    exact entropy_sub_mutualInformation_le_entropy_add hX hY
+  · rw [← sub_le_iff_le_add', mutualInformation_comm hX hY, add_comm X]
+    exact entropy_sub_mutualInformation_le_entropy_add hY hX
 
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X - Y].$$ -/
-lemma ent_of_diff_lower {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) : (max H[X; μ] H[Y; μ]) - I[ X : Y; μ] ≤ H[X - Y; μ]  := by sorry
+lemma ent_of_diff_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
+    [IsProbabilityMeasure μ] :
+  (max H[X; μ] H[Y; μ]) - I[X : Y; μ] ≤ H[X - Y; μ] := by
+  rw [sub_le_iff_le_add']
+  refine max_le ?_ ?_
+  · rw [← sub_le_iff_le_add']
+    exact entropy_sub_mutualInformation_le_entropy_sub hX hY
+  · rw [← sub_le_iff_le_add', mutualInformation_comm hX hY, entropy_sub_comm hX hY]
+    exact entropy_sub_mutualInformation_le_entropy_sub hY hX
 
 /-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq H[X+ Y|Z] $$ -/
-lemma condEnt_of_sum_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) : (max H[ X | Z; μ] H[Y | Z; μ]) - I[ X : Y | Z ; μ] ≤ H[X + Y | Z; μ] := by sorry
+lemma condEnt_of_sum_lower {Y : Ω → G} {Z : Ω → T}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
+    (max H[X | Z; μ] H[Y | Z; μ]) - I[X : Y | Z ; μ] ≤ H[X + Y | Z; μ] := by sorry
 
 /-- $$ \max(H[X|Z], H[Y|Z]) - I[X:Y|Z] \leq H[X - Y|Z] $$ -/
-lemma condEnt_of_diff_lower {X : Ω → G} {Y : Ω → G} {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) : (max H[ X | Z; μ] H[Y | Z; μ]) - I[ X : Y | Z ; μ] ≤ H[X - Y | Z; μ] := by sorry
+lemma condEnt_of_diff_lower {Y : Ω → G} {Z : Ω → T}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
+    (max H[X | Z; μ] H[Y | Z; μ]) - I[X : Y | Z ; μ] ≤ H[X - Y | Z; μ] := by sorry
 
 /-- If $X,Y$ are independent, then
 $$ \max(H[X], H[Y]) \leq H[X + Y].$$ -/
-lemma ent_of_indep_sum_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ]) ≤ H[X + Y; μ] := by sorry
+lemma ent_of_indep_sum_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
+    (h : IndepFun X Y μ) :
+    (max H[X; μ] H[Y; μ]) ≤ H[X + Y; μ] := by sorry
 
 /--  If $X,Y$ are independent, then
 $$ \max(H[X], H[Y]) \leq H[X - Y].$$ -/
@@ -124,7 +168,7 @@ lemma diff_ent_le_rdist' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[X
 lemma diff_ent_le_rdist'' {Y : Ω → G} (h : IndepFun X Y μ) : H[X-Y; μ] - H[X; μ] ≤ 2 * d[X ; μ # Y ; μ ] := by sorry
 
 /--   $$ d[X;Y] \geq 0.$$  -/
-lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by  
+lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by
   linarith [ge_trans diff_ent_le_rdist (abs_nonneg (H[X; μ] - H[Y; μ']))]
 
 /-- The improved Ruzsa triangle inequality -/
