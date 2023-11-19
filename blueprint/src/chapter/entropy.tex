@@ -291,7 +291,6 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
 \end{definition}
 
 \begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}
-  \uses{conditional-mutual-def,conditional-independent-def}
   \lean{ProbabilityTheory.condMutualInformation_eq_zero}
   \leanok
   If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
