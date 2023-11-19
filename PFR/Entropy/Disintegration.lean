@@ -195,6 +195,57 @@ lemma disintegration (κ : kernel T (S × U)) [IsFiniteKernel κ] :
   · refine fun _ ↦ (measurable_fst (measurableSet_singleton _)).inter ?_
     exact measurable_prod_mk_left.comp measurable_snd hs
 
+lemma condKernel_map_prod_mk_left {V : Type*} [Fintype V] [Nonempty V] [MeasurableSpace V]
+    [MeasurableSingletonClass V]
+    (κ : kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ]
+    (f : (S × U) → V) :
+    condKernel (map κ (fun p ↦ (p.1, f p)) (measurable_of_finite _))
+      =ᵐ[μ ⊗ₘ fst κ] snd ((condKernel κ) ⊗ₖ (deterministic (fun x : (T × S) × U ↦ f (x.1.2, x.2))
+          (measurable_of_finite _))) := by
+  rw [Filter.EventuallyEq, ae_iff_of_fintype]
+  intro x hx
+  rw [Measure.compProd_apply _ _ (measurableSet_singleton _), lintegral_eq_sum] at hx
+  simp only [ne_eq, Finset.sum_eq_zero_iff, Finset.mem_univ, mul_eq_zero, forall_true_left,
+    not_forall] at hx
+  obtain ⟨y, hy⟩ := hx
+  push_neg at hy
+  rw [fst_apply' _ _ (measurable_prod_mk_left (measurableSet_singleton _))] at hy
+  simp only [ne_eq, Set.mem_preimage, Set.mem_singleton_iff] at hy
+  have hyx1 : y = x.1 := by
+    by_contra hy_ne
+    refine hy.2 ?_
+    rw [← Prod.eta x]
+    simp_rw [Prod.mk.inj_iff]
+    simp [hy_ne]
+  rw [hyx1] at hy
+  ext s hs
+  rw [snd_apply' _ _ hs, compProd_deterministic_apply]
+  swap; · exact measurable_snd hs
+  simp only [Set.mem_setOf_eq]
+  have h_ne_zero : κ x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0 := by
+    refine fun h_zero ↦ hy.2 ?_
+    refine measure_mono_null ?_ h_zero
+    intro p
+    simp only [Set.mem_setOf_eq, Set.mem_preimage, Set.mem_singleton_iff]
+    conv_lhs => rw [← Prod.eta x, Prod.mk.inj_iff]
+    exact fun h ↦ h.2
+  have h_preimage : (fun p ↦ (p.1, f p)) ⁻¹' (Prod.fst ⁻¹' {x.2}) = Prod.fst ⁻¹' {x.2} := by
+    ext p; simp
+  rw [condKernel_apply' _ _ _ hs, condKernel_apply' _ _ h_ne_zero]
+  rotate_left
+  · exact (measurable_of_finite f).comp measurable_prod_mk_left hs
+  · rw [map_apply' _ _ _ (measurable_fst (measurableSet_singleton _)), h_preimage]
+    exact h_ne_zero
+  rw [map_apply' _ _ _ (measurable_fst (measurableSet_singleton _)), h_preimage]
+  congr
+  rw [map_apply' _ _ _ (((measurable_fst (measurableSet_singleton _))).inter (measurable_snd hs))]
+  congr
+  ext p
+  simp only [Set.preimage_inter, Set.mem_inter_iff, Set.mem_preimage, Set.mem_singleton_iff,
+    Set.preimage_setOf_eq, Set.mem_setOf_eq, and_congr_right_iff]
+  intro h_eq
+  simp [h_eq.symm]
+
 end condKernel
 
 end kernel

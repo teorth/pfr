@@ -87,16 +87,14 @@ lemma rdist_eq (κ : kernel T G) (η : kernel T' G) (μ : Measure T) (ν : Measu
       - Hk[κ, μ]/2 - Hk[η, ν]/2 := by
   simp_rw [rdist, rdistm, integral_eq_sum, smul_sub, Finset.sum_sub_distrib, smul_eq_mul]
   congr
-  · simp_rw [Fintype.sum_prod_type, ← Finset.sum_mul]
-    simp_rw [← Set.singleton_prod_singleton, Measure.prod_prod, ENNReal.toReal_mul,
-      ← Finset.mul_sum, Finset.sum_toReal_measure_singleton]
-    simp only [Finset.coe_univ, measure_univ, ENNReal.one_toReal, mul_one]
-    simp_rw [mul_div, ← Finset.sum_div, entropy, integral_eq_sum, smul_eq_mul]
-  · simp_rw [Fintype.sum_prod_type_right, ← Finset.sum_mul]
-    simp_rw [← Set.singleton_prod_singleton, Measure.prod_prod, ENNReal.toReal_mul,
-      ← Finset.sum_mul, Finset.sum_toReal_measure_singleton]
-    simp only [Finset.coe_univ, measure_univ, ENNReal.one_toReal, one_mul]
-    simp_rw [mul_div, ← Finset.sum_div, entropy, integral_eq_sum, smul_eq_mul]
+  · simp_rw [Fintype.sum_prod_type, ← Finset.sum_mul,
+      ← Set.singleton_prod_singleton, Measure.prod_prod, ENNReal.toReal_mul,
+      ← Finset.mul_sum, Finset.sum_toReal_measure_singleton, Finset.coe_univ, measure_univ,
+      ENNReal.one_toReal, mul_one, mul_div, ← Finset.sum_div, entropy, integral_eq_sum, smul_eq_mul]
+  · simp_rw [Fintype.sum_prod_type_right, ← Finset.sum_mul, ← Set.singleton_prod_singleton,
+      Measure.prod_prod, ENNReal.toReal_mul, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
+      Finset.coe_univ, measure_univ, ENNReal.one_toReal, one_mul,
+      mul_div, ← Finset.sum_div, entropy, integral_eq_sum, smul_eq_mul]
 
 lemma rdist_eq' (κ : kernel T G) (η : kernel T' G) [IsFiniteKernel κ] [IsFiniteKernel η]
     (μ : Measure T) (ν : Measure T') [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :

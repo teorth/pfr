@@ -66,6 +66,7 @@ lemma mutualInfo_eq_fst_sub (κ : kernel T (S × U)) [IsMarkovKernel κ]
   rw [mutualInfo, chain_rule' κ μ]
   ring
 
+@[simp]
 lemma mutualInfo_swapRight (κ : kernel T (S × U)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :
     Ik[swapRight κ, μ] = Ik[κ, μ] := by
@@ -97,5 +98,28 @@ lemma entropy_condKernel_le_entropy_snd (κ : kernel T (S × U)) [IsMarkovKernel
     Hk[condKernel κ, μ ⊗ₘ (fst κ)] ≤ Hk[snd κ, μ] := by
   rw [← sub_nonneg, ← mutualInfo_eq_snd_sub κ]
   exact mutualInfo_nonneg _ _
+
+lemma entropy_snd_sub_mutualInfo_le_entropy_map_of_injective {V : Type*} [Fintype V] [Nonempty V]
+    [MeasurableSpace V] [MeasurableSingletonClass V]
+    (κ : kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
+    (f : S × U → V) (hfi : ∀ x, Function.Injective (fun y ↦ f (x, y))) :
+    Hk[snd κ, μ] - Ik[κ, μ] ≤ Hk[map κ f (measurable_of_finite f), μ] := by
+  rw [mutualInfo_eq_snd_sub]
+  have hf : Measurable f := measurable_of_finite f
+  ring_nf
+  calc Hk[condKernel κ, μ ⊗ₘ fst κ]
+    = Hk[snd ((condKernel κ) ⊗ₖ (deterministic (fun x : (T × S) × U ↦ f (x.1.2, x.2))
+          (measurable_of_finite _))), μ ⊗ₘ fst κ] :=
+        (entropy_snd_compProd_deterministic_of_injective _ _
+          (fun x : (T × S) × U ↦ f (x.1.2, x.2)) (fun p x y hxy ↦ hfi p.2 hxy)).symm
+  _ = Hk[condKernel (map κ (fun p ↦ (p.1, f p)) (measurable_fst.prod_mk hf)),
+      μ ⊗ₘ fst κ] := entropy_congr (condKernel_map_prod_mk_left κ μ f).symm
+  _ = Hk[condKernel (map κ (fun p ↦ (p.1, f p)) (measurable_fst.prod_mk hf)),
+      μ ⊗ₘ fst (map κ (fun p ↦ (p.1, f p)) (measurable_fst.prod_mk hf))] := by
+        congr 2 with x
+        rw [fst_map_prod _ measurable_fst hf, fst_apply, map_apply]
+  _ ≤ Hk[snd (map κ (fun p ↦ (p.1, f p)) (measurable_fst.prod_mk hf)), μ] :=
+        entropy_condKernel_le_entropy_snd _ _
+  _ = Hk[map κ f hf, μ] := by rw [snd_map_prod _ measurable_fst]
 
 end ProbabilityTheory.kernel
