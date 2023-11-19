@@ -114,7 +114,9 @@ lemma negIdMulLog_zero : negIdMulLog (0 : ℝ) = 0 := by simp [negIdMulLog]
 @[simp]
 lemma negIdMulLog_one : negIdMulLog (1 : ℝ) = 0 := by simp [negIdMulLog]
 
-lemma negIdMulLog_eq_neg : negIdMulLog = fun x ↦ - (x * log x) := by simp [negIdMulLog]
+lemma negIdMulLog_eq_neg : negIdMulLog = fun x ↦ - (x * log x) := by
+  funext
+  simp [negIdMulLog]
 
 lemma negIdMulLog_nonneg {x : ℝ} (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ negIdMulLog x := by
   rw [negIdMulLog, neg_mul_comm]
