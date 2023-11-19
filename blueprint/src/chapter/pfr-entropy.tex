@@ -59,7 +59,7 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'
 
 \begin{lemma}[Conditional distance lower bound]\label{cond-distance-lower}
   \uses{tau-minimizes, cond-dist-def}
-  \lean{condDistance_ge_of_min}
+  \lean{condDistance_ge_of_min}\leanok
   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
 $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 \end{lemma}
@@ -368,7 +368,7 @@ Moreover, for\footnote{In fact we can take any $\eta<\frac{1}{4 + \sqrt{17}} = \
 
 \subsection{Conclusion}
 
-\begin{theorem}[Entropy version of PFR]\label{entropy-pfr}\uses{ruz-dist-def}
+\begin{theorem}[Entropy version of PFR]\label{entropy-pfr}
   \lean{entropic_PFR_conjecture}
   Let $G = \F_2^n$, and suppose that $X^0_1, X^0_2$ are $G$-valued random variables.
   Then there is some subgroup $H \leq G$ such that
@@ -378,8 +378,6 @@ Moreover, for\footnote{In fact we can take any $\eta<\frac{1}{4 + \sqrt{17}} = \
   where $U_H$ is uniformly distributed on $H$.denotes the uniform distribution on $H$.
   Furthermore, both $\dist{X^0_1}{U_H}$ and $\dist{X^0_2}{U_H}$ are at most $6 \dist{X^0_1}{X^0_2}$.
 \end{theorem}
-
-Probably need a definition for a uniform distribution on a non-empty subset $H$ of a set $S$.
 
 \begin{proof} \uses{de-prop, tau-min, lem:100pc, ruzsa-triangle}  Let $X_1, X_2$ be the $\tau$-minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop}, $d[X_1;X_2]=0$.  From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}

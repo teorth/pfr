@@ -117,4 +117,9 @@ lemma distance_ge_of_min {μ₁ μ₂ : Measure G} (h : tau_minimizes p μ₁ μ
 /--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
 $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
-lemma condDistance_ge_of_min : 0 = 1 := sorry
+lemma condDistance_ge_of_min [MeasurableSpace S] [MeasurableSpace T] {μ₁ μ₂ : Measure G} (h : tau_minimizes p μ₁ μ₂)
+    {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G} (h1 : Measurable X'₁) (h2 : Measurable X'₂)
+    [IsProbabilityMeasure μ'₁] [IsProbabilityMeasure μ'₂] (Z : Ω'₁ → S) (W : Ω'₂ → T):
+    d[id ; μ₁ # id ; μ₂] - eta * (d[p.X₀₁ ; p.μ₀₁ # X'₁ | Z ; μ'₁] - d[p.X₀₁ ; p.μ₀₁ # id ; μ₁])
+      - eta * (d[p.X₀₂ ; p.μ₀₂ # X'₂ | W; μ'₂] - d[p.X₀₂ ; p.μ₀₂ # id ; μ₂])
+    ≤ d[X'₁ | Z ; μ'₁ # X'₂ | W ; μ'₂] := sorry
