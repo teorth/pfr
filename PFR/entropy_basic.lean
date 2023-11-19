@@ -751,8 +751,8 @@ lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
   simp_rw [cond_chain_rule_aux μ hX hY Z]
   rw [integral_add]
   rotate_left
-  · sorry
-  · sorry
+  · simp_all only [integrable_of_fintype]
+  · simp_all only [integrable_of_fintype]
   congr
   -- goal is `∫ z, H[X|Y; μ[|Z ⁻¹' {z}]] ∂(μ.map Z) = H[X|⟨ Y, Z ⟩; μ]`
   rw [condEntropy_def, integral_map hZ.aemeasurable, integral_map (hY.prod_mk hZ).aemeasurable]
