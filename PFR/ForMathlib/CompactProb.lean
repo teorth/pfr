@@ -9,7 +9,8 @@ We define the canonical bijection between the space of probability measures on a
 and the standard simplex, and show that it is a homeomorphism.
 
 We deduce that the space of probability measures is compact in this situation. This is an easy case
-0.
+of a result that holds in a general compact metrizable space, but requires Riesz representation
+theorem which we don't have currently in mathlib.
 
 -/
 
