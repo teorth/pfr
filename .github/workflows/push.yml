@@ -45,7 +45,7 @@ jobs:
       - name: Cache mathlib docs
         uses: actions/cache@v3
         with:
-          path: build/doc/Mathlib
+          path: .lake/build/doc/Mathlib
           key: DocGen4-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             DocGen4-
@@ -74,7 +74,7 @@ jobs:
 
       - name: Copy documentation to `docs/docs`
         run: |
-          mv build/doc docs/docs
+          mv .lake/build/doc docs/docs
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
