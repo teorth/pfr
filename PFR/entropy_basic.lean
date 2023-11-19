@@ -495,8 +495,16 @@ lemma entropy_triple_add_entropy_le
 
 variable {μ : Measure Ω}
 
-lemma entropy_pair_eq_add : H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ :=
-  sorry
+lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
+    H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by
+  have : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX.aemeasurable
+  have : IsProbabilityMeasure (μ.map Y) := isProbabilityMeasure_map hY.aemeasurable
+  rw [indepFun_iff_map_prod_eq_prod_map_map hX hY]
+  simp_rw [entropy_eq_kernel_entropy]
+  constructor
+  · sorry
+  · intro h
+    rw [h, ← kernel.prod_const (μ.map X) (μ.map Y), kernel.entropy_prod]
 
 /-- $I[X:Y]=0$ iff $X,Y$ are independent. -/
 lemma mutualInformation_eq_zero : I[X : Y ; μ] = 0 ↔ IndepFun X Y μ :=

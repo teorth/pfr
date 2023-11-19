@@ -96,6 +96,24 @@ lemma map_const (μ : Measure α) {f : α → β} (hf : Measurable f) :
   ext x s hs
   rw [map_apply' _ _ _ hs, const_apply, const_apply, Measure.map_apply hf hs]
 
+-- the following are not PRed to mathlib yet
+
+/- Todo: could `Measure.prod_apply` be generalized to s-finite measures?
+It would allow replacing `IsFiniteKernel η` by `IsSFiniteKernel η`
+Todo: this should be named `prod_apply` and the existing lemma with that name should be
+`prod_apply'` -/
+lemma prod_apply'' (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel α γ) [IsFiniteKernel η]
+    (a : α) :
+    (κ ×ₖ η) a = (κ a).prod (η a) := by
+  ext s hs
+  rw [prod_apply _ _ _ hs, Measure.prod_apply hs]
+  rfl
+
+lemma prod_const (μ : Measure β) [IsFiniteMeasure μ] (ν : Measure δ) [IsFiniteMeasure ν] :
+    (const α μ) ×ₖ (const α ν) = const α (μ.prod ν) := by
+  ext x s _
+  rw [const_apply, prod_apply'', const_apply, const_apply]
+
 lemma compProd_preimage_fst (κ : kernel α β) (η : kernel (α × β) γ) [IsSFiniteKernel κ]
     [IsMarkovKernel η] {x : α} {s : Set β} (hs : MeasurableSet s) :
     (κ ⊗ₖ η) x (Prod.fst ⁻¹' s) = κ x s := by
@@ -132,6 +150,64 @@ lemma compProd_deterministic_apply [MeasurableSingletonClass γ]
     simp only [Set.mem_compl_iff, Set.mem_setOf_eq] at hb
     simp [hb]
   rw [h1, h2, add_zero]
+
+@[simp]
+lemma fst_prod (κ : kernel α β) (η : kernel α γ) [IsSFiniteKernel κ] [IsMarkovKernel η] :
+    fst (κ ×ₖ η) = κ := by
+  ext x s hs
+  rw [fst_apply' _ _ hs, prod_apply]
+  swap; · exact measurable_fst hs
+  simp only [Set.mem_setOf_eq]
+  classical
+  have : ∀ b : β, η x {_c | b ∈ s} = Set.indicator s (fun _ ↦ 1) b := by
+    intro b
+    by_cases hb : b ∈ s <;> simp [hb]
+  simp_rw [this]
+  rw [lintegral_indicator_const hs, one_mul]
+
+@[simp]
+lemma snd_prod (κ : kernel α β) (η : kernel α γ) [IsMarkovKernel κ] [IsSFiniteKernel η] :
+    snd (κ ×ₖ η) = η := by
+  ext x s hs
+  rw [snd_apply' _ _ hs, prod_apply]
+  swap; · exact measurable_snd hs
+  simp
+section ProdMkRight
+
+variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+
+/-- Define a `kernel (α × γ) β` from a `kernel α β` by taking the comap of the projection. -/
+def prodMkRight (κ : kernel α β) (γ : Type*) [MeasurableSpace γ] : kernel (α × γ) β :=
+  comap κ Prod.fst measurable_fst
+
+variable {γ : Type*} {mγ : MeasurableSpace γ} {f : β → γ} {g : γ → α}
+
+theorem prodMkRight_apply (κ : kernel α β) (ca : α × γ) : prodMkRight κ γ ca = κ ca.fst := rfl
+
+theorem prodMkRight_apply' (κ : kernel α β) (ca : α × γ) (s : Set β) :
+    prodMkRight κ γ ca s = κ ca.fst s := rfl
+
+theorem lintegral_prodMkRight (κ : kernel α β) (ca : α × γ) (g : β → ℝ≥0∞) :
+    ∫⁻ b, g b ∂prodMkRight κ γ ca = ∫⁻ b, g b ∂κ ca.fst := rfl
+
+instance IsMarkovKernel.prodMkRight (κ : kernel α β) [IsMarkovKernel κ] :
+    IsMarkovKernel (prodMkRight κ γ) := by rw [kernel.prodMkRight]; infer_instance
+
+instance IsFiniteKernel.prodMkRight (κ : kernel α β) [IsFiniteKernel κ] :
+    IsFiniteKernel (prodMkRight κ γ) := by rw [kernel.prodMkRight]; infer_instance
+
+instance IsSFiniteKernel.prodMkRight (κ : kernel α β) [IsSFiniteKernel κ] :
+    IsSFiniteKernel (prodMkRight κ γ) := by rw [kernel.prodMkRight]; infer_instance
+
+@[simp]
+lemma swapLeft_prodMkLeft (κ : kernel α β) (γ : Type*) [MeasurableSpace γ] :
+    swapLeft (prodMkLeft γ κ) = prodMkRight κ γ := rfl
+
+@[simp]
+lemma swapLeft_prodMkRight (κ : kernel α β) (γ : Type*) [MeasurableSpace γ] :
+    swapLeft (prodMkRight κ γ) = prodMkLeft γ κ := rfl
+
+end ProdMkRight
 
 end ProbabilityTheory.kernel
 

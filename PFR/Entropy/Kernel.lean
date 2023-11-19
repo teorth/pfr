@@ -261,6 +261,42 @@ lemma chain_rule' (κ : kernel T (S × U)) [IsMarkovKernel κ]
   rw [← entropy_swapRight, chain_rule]
   simp
 
+lemma entropy_prodMkRight (κ : kernel T S) (η : kernel T U)
+    [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[prodMkRight η S, μ ⊗ₘ κ] = Hk[η, μ] := by
+  simp_rw [entropy, prodMkRight_apply, integral_eq_sum,
+    Measure.compProd_apply _ _ (measurableSet_singleton _), lintegral_eq_sum, smul_eq_mul]
+  rw [Fintype.sum_prod_type]
+  simp_rw [← Finset.sum_mul]
+  suffices ∀ x, (∑ a : S, (∑ b : T, μ {b} * κ b (Prod.mk b ⁻¹' {(x, a)})).toReal)
+      = (μ {x}).toReal by
+    simp_rw [this]
+  intro x
+  classical
+  simp_rw [← Set.singleton_prod_singleton, Set.mk_preimage_prod_right_eq_if]
+  simp only [Set.mem_singleton_iff]
+  have : ∀ a : S, (∑ b : T, μ {b} * κ b (if b = x then {a} else ∅)).toReal
+      = (μ {x}).toReal * (κ x {a}).toReal := by
+    intro a
+    rw [Finset.sum_eq_single x]
+    · simp only [ite_true, ENNReal.toReal_mul]
+    · simp only [Finset.mem_univ, ne_eq, mul_eq_zero, forall_true_left]
+      intro b hb
+      simp [hb]
+    · simp [measure_ne_top]
+  simp_rw [this, ← Finset.mul_sum, sum_toReal_measure_singleton]
+  simp
+
+lemma entropy_swapLeft_prodMkLeft (κ : kernel T S) (η : kernel T U)
+    [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[swapLeft (prodMkLeft S η), μ ⊗ₘ κ] = Hk[η, μ] :=
+  entropy_prodMkRight κ η μ
+
+lemma entropy_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [IsMarkovKernel η]
+    (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by
+  rw [chain_rule, fst_prod, entropy_congr (condKernel_prod_ae_eq _ _), entropy_swapLeft_prodMkLeft]
+
 /-- Data-processing inequality for the kernel entropy. -/
 lemma entropy_map_le
     (κ : kernel T S) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ] (f : S → U) :
