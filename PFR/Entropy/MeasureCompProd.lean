@@ -172,6 +172,7 @@ lemma snd_prod (κ : kernel α β) (η : kernel α γ) [IsMarkovKernel κ] [IsSF
   rw [snd_apply' _ _ hs, prod_apply]
   swap; · exact measurable_snd hs
   simp
+
 section ProdMkRight
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
