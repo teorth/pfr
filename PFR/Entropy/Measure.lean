@@ -99,6 +99,15 @@ lemma measure_preimage_fst_singleton_eq_sum {S T : Type*} [Fintype S] {_ : Measu
     exact haa' h1.symm
   · simp
 
+lemma measureReal_preimage_fst_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (x : S) :
+    μ.real (Prod.fst ⁻¹' {x}) = ∑ y : T, μ.real {(x, y)} := by
+  rw [measureReal_def, measure_preimage_fst_singleton_eq_sum, ENNReal.toReal_sum]
+  · rfl
+  intros
+  finiteness
+
 lemma measure_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
     [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
     [MeasurableSingletonClass T] (μ : Measure (S × T)) (y : T) :
@@ -119,6 +128,15 @@ lemma measure_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : Measu
     simp only [Prod.mk.injEq, and_true] at h1
     exact haa' h1.symm
   · simp
+
+lemma measureReal_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (y : T) :
+    μ.real (Prod.snd ⁻¹' {y}) = ∑ x : S, μ.real {(x, y)} := by
+  rw [measureReal_def, measure_preimage_snd_singleton_eq_sum, ENNReal.toReal_sum]
+  · rfl
+  intros
+  finiteness
 
 end aux_lemmas
 
@@ -180,6 +198,10 @@ lemma measureEntropy_of_not_isFiniteMeasure (h : ¬ IsFiniteMeasure μ) :
 lemma measureEntropy_of_isProbabilityMeasure (μ : Measure S) [IsProbabilityMeasure μ] :
     Hm[μ] = ∑ s, negIdMulLog (μ {s}).toReal := by
   simp [measureEntropy]
+
+lemma measureEntropy_of_isProbabilityMeasure' (μ : Measure S) [IsProbabilityMeasure μ] :
+    Hm[μ] = ∑ s, negIdMulLog (μ.real {s}) :=
+  measureEntropy_of_isProbabilityMeasure μ
 
 lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
@@ -269,7 +291,7 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     convert sum_negIdMulLog_eq_aux2 hw1 hw2 hp using 2
     · simp [measureEntropy_def', Finset.mul_sum]
     · simp [negIdMulLog, ←Finset.mul_sum]
-    · rw [← Finset.smul_sum]
+    · rw [← Finset.mul_sum]
       simp
 
 lemma measureEntropy_eq_card_iff_measure_eq_aux [MeasurableSingletonClass S]
@@ -436,98 +458,97 @@ lemma measureMutualInfo_prod (μ : Measure S) (ν : Measure T)
   rw [measureMutualInfo_def, measureEntropy_prod]
   simp
 
-lemma measureMutualInfo_nonneg (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
-    0 ≤ Im[μ] := by
+lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
+    0 ≤ Im[μ] ∧
+    (Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}) := by
   have : IsProbabilityMeasure (μ.map Prod.fst) :=
     isProbabilityMeasure_map measurable_fst.aemeasurable
   have : IsProbabilityMeasure (μ.map Prod.snd) :=
     isProbabilityMeasure_map measurable_snd.aemeasurable
-  simp_rw [measureMutualInfo_def, measureEntropy_of_isProbabilityMeasure, negIdMulLog]
-  have h1 : ∀ y, (μ.map Prod.fst {y}).toReal = ∑ z : U, (μ {(y, z)}).toReal := by
-    intro y
-    rw [Measure.map_apply measurable_fst (measurableSet_singleton _), ← ENNReal.toReal_sum]
-    swap; · simp [measure_ne_top]
-    rw [← measure_preimage_fst_singleton_eq_sum]
-  have h2 : ∀ z, (μ.map Prod.snd {z}).toReal = ∑ y : S, (μ {(y, z)}).toReal := by
-    intro z
-    rw [Measure.map_apply measurable_snd (measurableSet_singleton _), ← ENNReal.toReal_sum]
-    swap; · simp [measure_ne_top]
-    rw [← measure_preimage_snd_singleton_eq_sum]
-  simp_rw [h1, h2]
-  rw [Fintype.sum_prod_type]
-  simp_rw [← Finset.sum_neg_distrib, Finset.sum_mul]
-  rw [Finset.sum_comm (γ := U)]
-  simp_rw [← Finset.sum_add_distrib, ← Finset.sum_sub_distrib, ← mul_add, ← mul_sub, neg_mul,
-    Finset.sum_neg_distrib, ← h1, ← h2]
-  have h_fst_ne_zero : ∀ p, μ {p} ≠ 0 → (μ.map Prod.fst {p.1}).toReal ≠ 0 := by
+  have h_fst_ne_zero : ∀ p, μ.real {p} ≠ 0 → (μ.map Prod.fst).real {p.1} ≠ 0 := by
     intro p hp
-    rw [Measure.map_apply measurable_fst (measurableSet_singleton _)]
+    rw [map_measureReal_apply measurable_fst (measurableSet_singleton _)]
     simp only [Set.mem_singleton_iff, ne_eq, ENNReal.toReal_eq_zero_iff, measure_ne_top μ,
       or_false]
     refine fun h_eq_zero ↦ hp ?_
-    refine measure_mono_null ?_ h_eq_zero
+    refine measureReal_mono_null ?_ h_eq_zero
     simp
-  have h_snd_ne_zero : ∀ p, μ {p} ≠ 0 → (μ.map Prod.snd {p.2}).toReal ≠ 0 := by
+  have h_snd_ne_zero : ∀ p, μ.real {p} ≠ 0 → (μ.map Prod.snd).real {p.2} ≠ 0 := by
     intro p hp
-    rw [Measure.map_apply measurable_snd (measurableSet_singleton _)]
+    rw [map_measureReal_apply measurable_snd (measurableSet_singleton _)]
     simp only [Set.mem_singleton_iff, ne_eq, ENNReal.toReal_eq_zero_iff, measure_ne_top μ,
       or_false]
     refine fun h_eq_zero ↦ hp ?_
-    refine measure_mono_null ?_ h_eq_zero
+    refine measureReal_mono_null ?_ h_eq_zero
     simp
-  have : ∀ a b, (μ {(a, b)}).toReal
-        * (log (μ.map Prod.fst {a}).toReal
-          + log (μ.map Prod.snd {b}).toReal - log (μ {(a, b)}).toReal)
-      = -(μ {(a, b)}).toReal * (log (((μ.map Prod.fst {a}).toReal
-        * (μ.map Prod.snd {b}).toReal)⁻¹ * (μ {(a, b)}).toReal)) := by
-    intro a b
-    by_cases h_zero : μ {(a, b)} = 0
-    · simp only [h_zero, ENNReal.zero_toReal, log_zero, sub_zero, zero_mul, div_zero, mul_zero]
-    rw [log_mul]
-    rotate_left
-    · refine inv_ne_zero ?_
-      exact mul_ne_zero (h_fst_ne_zero _ h_zero) (h_snd_ne_zero _ h_zero)
-    · simp [ENNReal.toReal_eq_zero_iff, h_zero, measure_ne_top μ]
-    rw [log_inv]
-    rw [neg_mul_comm, neg_add, neg_neg, sub_eq_add_neg, log_mul]
-    · exact h_fst_ne_zero (a, b) h_zero
-    · exact h_snd_ne_zero (a, b) h_zero
-  simp_rw [this]
-  rw [neg_nonneg]
-  calc ∑ a : S, ∑ b : U, -(μ {(a, b)}).toReal *
-      log (((μ.map Prod.fst {a}).toReal * (μ.map Prod.snd {b}).toReal)⁻¹ * (μ {(a, b)}).toReal)
-    = ∑ p : S × U, -(μ {p}).toReal *
-      log (((μ.map Prod.fst {p.1}).toReal * (μ.map Prod.snd {p.2}).toReal)⁻¹ * (μ {p}).toReal) := by
-        rw [Fintype.sum_prod_type]
-  _ = ∑ p : S × U, ((μ.map Prod.fst {p.1}).toReal * (μ.map Prod.snd {p.2}).toReal)
-      * negIdMulLog (((μ.map Prod.fst {p.1}).toReal
-      * (μ.map Prod.snd {p.2}).toReal)⁻¹ * (μ {p}).toReal) := by
-        congr with p
-        by_cases hp : μ {p} = 0
+  have h1 y : (μ.map Prod.fst).real {y} = ∑ z : U, μ.real {(y, z)} := by
+    rw [map_measureReal_apply measurable_fst (measurableSet_singleton _),
+      measureReal_preimage_fst_singleton_eq_sum]
+  have h2 z : (μ.map Prod.snd).real {z} = ∑ y : S, μ.real {(y, z)} := by
+    rw [map_measureReal_apply measurable_snd (measurableSet_singleton _),
+      measureReal_preimage_snd_singleton_eq_sum]
+  let w (p : S × U) := (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}
+  let f (p : S × U) := ((μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2})⁻¹ * μ.real {p}
+  have hw1 : ∀ p, 0 ≤ w p := fun _ ↦ by positivity
+  have hw2 : ∑ p, w p = 1 := by
+    rw [Fintype.sum_prod_type]
+    simp [← Finset.mul_sum, ← Finset.sum_mul]
+  have hf : ∀ p, 0 ≤ f p := fun _ ↦ by positivity
+  have H :=
+  calc
+    ∑ p : S × U, w p * f p
+        = ∑ p : S × U, μ.real {p} := by
+          congr with p
+          by_cases hp : μ.real {p} = 0
+          · simp [hp]
+          field_simp [h_fst_ne_zero p hp, h_snd_ne_zero p hp]
+          ring
+      _ = 1 := by simp [-Fintype.sum_prod_type]
+  have H1 : -measureMutualInfo (μ := μ) = ∑ p : S × U, w p * negIdMulLog (f p) :=
+  calc
+    _ = ∑ p : S × U,
+          (-(μ.real {p} * log (μ.real {p}))
+          + (μ.real {p} * log ((μ.map Prod.snd).real {p.2})
+            + μ.real {p} * log ((μ.map Prod.fst).real {p.1}))) := by
+        simp_rw [measureMutualInfo_def, measureEntropy_of_isProbabilityMeasure', negIdMulLog]
+        simp [Finset.sum_add_distrib, Finset.sum_comm (γ := U), Finset.sum_mul, h1, h2]
+    _ = ∑ p : S × U, w p * negIdMulLog (f p) := by
+        congr! 1 with p
+        by_cases hp : μ.real {p} = 0
         · simp [hp]
-        rw [negIdMulLog, neg_mul, neg_mul, ← neg_mul_comm, ← mul_assoc, ← mul_assoc, neg_mul,
-          mul_inv_cancel, neg_mul, one_mul, neg_mul]
-        exact mul_ne_zero (h_fst_ne_zero p hp) (h_snd_ne_zero p hp)
-  _ ≤ negIdMulLog (∑ p : S × U, ((μ.map Prod.fst {p.1}).toReal * (μ.map Prod.snd {p.2}).toReal)
-      * (((μ.map Prod.fst {p.1}).toReal * (μ.map Prod.snd {p.2}).toReal)⁻¹ * (μ {p}).toReal)) := by
-        refine sum_negIdMulLog_le ?_ ?_ ?_
-        · exact fun _ ↦ mul_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
-        · rw [Fintype.sum_prod_type]
-          simp only
-          simp_rw [← Finset.mul_sum, ← Finset.sum_mul]
-          simp
-        · refine fun _ ↦ mul_nonneg (inv_nonneg.mpr ?_) ENNReal.toReal_nonneg
-          exact mul_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
-  _ = negIdMulLog (∑ p : S × U, (μ {p}).toReal) := by
-        congr with p
-        by_cases hp : (μ {p}).toReal = 0
-        · simp only [mul_inv_rev, hp, mul_zero]
-        rw [ENNReal.toReal_eq_zero_iff] at hp
-        push_neg at hp
-        rw [← mul_assoc, mul_inv_cancel, one_mul]
-        exact mul_ne_zero (h_fst_ne_zero p hp.1) (h_snd_ne_zero p hp.1)
-  _ = negIdMulLog 1 := by rw [sum_toReal_measure_singleton, measure_univ, ENNReal.one_toReal]
-  _ = 0 := negIdMulLog_one
+        have := h_fst_ne_zero p hp
+        have := h_snd_ne_zero p hp
+        rw [negIdMulLog, log_mul, log_inv, log_mul]
+        · field_simp
+          ring
+        all_goals positivity
+  have H2 : 0 = negIdMulLog (∑ s : S × U, w s * f s) := by simpa using congr_arg negIdMulLog H.symm
+  constructor
+  · rw [← neg_nonpos]
+    convert sum_negIdMulLog_le hw1 hw2 hf
+  rw [←neg_eq_zero]
+  convert sum_negIdMulLog_eq_aux3 hw1 hw2 hf with p
+  · have hp1 := h_fst_ne_zero p
+    have hp2 := h_snd_ne_zero p
+    rw [not_imp_not] at hp1 hp2
+    by_cases hp1' : (μ.map Prod.fst).real {p.1} = 0
+    · simp [hp1', hp1 hp1']
+    by_cases hp2' : (μ.map Prod.snd).real {p.2} = 0
+    · simp [hp2', hp2 hp2']
+    have : 0 < w p := by positivity
+    have hw : (w p)⁻¹ ≠ 0 := by positivity
+    rw [← mul_right_inj' hw]
+    simp (config := {zeta := false}) [H, -mul_eq_mul_left_iff, -Fintype.sum_prod_type]
+    congr!
+    field_simp
+
+lemma measureMutualInfo_nonneg (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
+    0 ≤ Im[μ] :=
+  (measureMutualInfo_nonneg_aux μ).1
+
+lemma measureMutualInfo_eq_zero_iff (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
+    Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2} :=
+  (measureMutualInfo_nonneg_aux μ).2
 
 end measureMutualInfo
 

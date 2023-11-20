@@ -11,7 +11,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   with the convention that $0 \log \frac{1}{0} = 0$.
 \end{definition}
 
-\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_comp_of_injective} \uses{entropy-def}\leanok
+\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_comp_of_injective, entropy_of_comp_eq_of_comp} \uses{entropy-def}\leanok
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $\bbH[X] = \bbH[Y]$.
 \end{lemma}
 
@@ -138,7 +138,8 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{lemma}
 
-\begin{proof}  \uses{chain-rule} For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
+\begin{proof}  \uses{chain-rule}\leanok
+   For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
   $$ \bbH[ (X|Z=z),(Y|Z=z) ] = \bbH[Y|Z=z] + \bbH[(X|Z=z)|(Y|Z=z)].$$
   Now multiply by $\bbP[Z=z]$ and sum.  Some helper lemmas may be needed to get to the form above.  This sort of ``average over conditioning'' argument to get conditional entropy inequalities from unconditional ones is commonly used in this paper.
 \end{proof}
@@ -155,7 +156,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{lemma}[Alternative formulae for mutual information]
   \label{alternative-mutual}
   \uses{information-def}
-  \lean{ProbabilityTheory.mutualInformation_comm,mutualInformation_eq_entropy_sub_condEntropy}
+  \lean{ProbabilityTheory.mutualInformation_comm, ProbabilityTheory.mutualInformation_eq_entropy_sub_condEntropy}
   \leanok
   With notation as above, we have
   $$  \bbI[X : Y] = \bbI[Y:X]$$
@@ -205,12 +206,11 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{proof}
 
 \begin{corollary}[Submodularity]\label{submodularity}
-  \uses{conditional-entropy-def}
   \lean{ProbabilityTheory.entropy_submodular}\leanok
   With three random variables $X,Y,Z$, one has $\bbH[X|Y,Z] \leq \bbH[X|Z]$.
 \end{corollary}
 
-\begin{proof} \uses{cond-reduce} Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
+\begin{proof} \uses{cond-reduce}\leanok Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
 \end{proof}
 
 \begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}
@@ -219,7 +219,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   $$ \bbH[X,Y,Z] + \bbH[Z] \leq \bbH[X,Z] + \bbH[Y,Z].$$
 \end{corollary}
 
-\begin{proof}  \uses{submodularity,chain-rule} Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
+\begin{proof}  \uses{submodularity,chain-rule} \leanok Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
 \end{proof}
 
 \begin{definition}[Independent random variables]
@@ -229,26 +229,27 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are independent if the law of $(X,Y)$ is the product of the law of $X$ and the law of $Y$.  Similarly for more than two variables.
 \end{definition}
 
-\begin{lemma}[Additivity of entropy]\label{add-entropy}
-  \uses{independent-def}
+\begin{lemma}[Vanishing of mutual information]
+  \label{vanish-entropy}
+  \uses{information-def, independent-def}
+  \lean{ProbabilityTheory.mutualInformation_eq_zero}
+  \leanok
+  If $X,Y$ are random variables, then $\bbI[X:Y] = 0$ if and only if $X,Y$ are independent.
+  \end{lemma}
+
+  \begin{proof} \uses{converse-jensen}\leanok
+    An application of the equality case of Jensen's inequality, Lemma \ref{converse-jensen}.
+  \end{proof}
+
+\begin{corollary}[Additivity of entropy]\label{add-entropy}
+  \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_pair_eq_add}
   \leanok
   If $X,Y$ are random variables, then $\bbH[X,Y] = \bbH[X] + \bbH[Y]$ if and only if $X,Y$ are independent.
-\end{lemma}
-
-\begin{proof} \uses{chain-rule,conditional-entropy} Simplest proof for the ``if'' is to use Lemma \ref{chain-rule} and show that $\bbH[X|Y] = \bbH[X]$ by first showing that $\bbH[X|Y=y] = \bbH[X]$ whenever $P[Y=y]$ is non-zero.  ``only if'' direction will require some converse Jensen.
-\end{proof}
-
-
-\begin{corollary}[Vanishing of mutual information]
-\label{vanish-entropy}
-\uses{information-def}
-\lean{ProbabilityTheory.mutualInformation_eq_zero}
-\leanok
-If $X,Y$ are random variables, then $\bbI[X:Y] = 0$ if and only if $X,Y$ are independent.
 \end{corollary}
 
-\begin{proof} \uses{add-entropy}\leanok Immediate from Lemma \ref{add-entropy} and Definition \ref{information-def}.
+\begin{proof} \uses{vanish-entropy}\leanok
+  Direct from Lemma \ref{vanish-entropy}.
 \end{proof}
 
 \begin{definition}[Conditional mutual information]

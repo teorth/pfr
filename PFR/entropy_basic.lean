@@ -107,10 +107,18 @@ lemma entropy_comp_of_injective
     entropy_def]
 
 /-- The assertion that the law of $X$ is the uniform probability measure on a finite set $H$.  While in applications $H$ will be non-empty finite set, $X$ measurable, and and $μ$ a probability measure, it could be technically convenient to have a definition that works even without these hypotheses.  (For instance, isUniform would be well-defined, but false, for infinite H)   -/
-def isUniform (H: Set S) (X : Ω → S) (μ : Measure Ω) : Prop := sorry
+def isUniform (H: Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop := sorry
 
-/-- Uniform distributions exist -/
-lemma exists_uniform (H : Finset S) [h: Nonempty H] : ∃ X : S → S, ∃ μ: Measure S, IsProbabilityMeasure μ ∧ Measurable X ∧ isUniform H X μ ∧ ∀ ω : S, X ω ∈ H := by sorry
+/-- Uniform distributions exist.   -/
+lemma exists_uniform (H : Finset S) [h: Nonempty H] : ∃ Ω : Type*, ∃ mΩ : MeasurableSpace Ω, ∃ X : Ω → S, ∃ μ: Measure Ω, IsProbabilityMeasure μ ∧ Measurable X ∧ isUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by sorry
+
+/-- the following two lemmas can be viewed as "unit tests" for the definition of uniform distribution. -/
+lemma prob_of_uniform_of_in (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : isUniform H X μ) (s : S) (hs: s ∈ H): μ.map X {s} = (μ Set.univ) / (Fintype.card H) := sorry
+
+lemma prob_of_uniform_of_not_in (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : isUniform H X μ) (s : S) (hs: ¬ s ∈ H): μ.map X {s} = 0 := sorry
+
+
+
 
 /-- If $X$ is uniformly distributed on $H$, then $H[X] = \log |H|$.  May need some non-degeneracy and measurability conditions. -/
 lemma entropy_of_uniform (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : isUniform H X μ) :
@@ -350,6 +358,20 @@ lemma entropy_comp_le
   simp only [le_add_iff_nonneg_right]
   exact condEntropy_nonneg X (f ∘ X) μ
 
+/-- A Schroder-Bernstein type theorem for entropy.  Can be used as a substitute for `entropy_comp_of_injective` if one doesn't want to establish the injectivity. -/
+lemma entropy_of_comp_eq_of_comp
+    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → T) (g : T → S) (hf : Measurable f) (hg : Measurable g) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) :
+    H[X ; μ] = H[Y ; μ] := by
+    have hY : Measurable Y := by
+      rw [h1]; exact Measurable.comp hf hX
+    have h3 : H[X ; μ] ≤ H[Y ; μ]  := by
+      rw [h2]; exact entropy_comp_le μ hY hg
+    have h4 : H[Y ; μ] ≤ H[X ; μ]  := by
+      rw [h1]; exact entropy_comp_le μ hX hf
+    linarith
+
+
+
 end pair
 
 section mutualInformation
@@ -399,6 +421,39 @@ lemma entropy_pair_le_add [MeasurableSingletonClass S] [MeasurableSingletonClass
     H[⟨ X, Y ⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
   sub_nonneg.1 $ mutualInformation_nonneg hX hY _
 
+/-- $I[X:Y]=0$ iff $X,Y$ are independent. -/
+lemma mutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+    [IsProbabilityMeasure μ] :
+    I[X : Y ; μ] = 0 ↔ IndepFun X Y μ := by
+  have : IsProbabilityMeasure (μ.map (⟨ X, Y ⟩)) :=
+    isProbabilityMeasure_map (hX.prod_mk hY).aemeasurable
+  simp_rw [mutualInformation_def, entropy_def]
+  have h_fst : μ.map X = (μ.map (⟨ X, Y ⟩)).map Prod.fst := by
+    rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
+    congr
+  have h_snd : μ.map Y = (μ.map (⟨ X, Y ⟩)).map Prod.snd := by
+    rw [Measure.map_map measurable_snd (hX.prod_mk hY)]
+    congr
+  rw [h_fst, h_snd]
+  convert measureMutualInfo_eq_zero_iff (μ.map (⟨ X, Y ⟩))
+  rw [indepFun_iff_map_prod_eq_prod_map_map hX hY, ext_iff_measureReal_singleton]
+  congr! with p
+  convert measureReal_prod_prod (μ:=  μ.map X) (ν := μ.map Y) {p.1} {p.2}
+  · simp
+  · exact Measure.map_map measurable_fst (hX.prod_mk hY)
+  · exact Measure.map_map measurable_snd (hX.prod_mk hY)
+
+lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+    [IsProbabilityMeasure μ] :
+    H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by
+  rw [eq_comm, ←sub_eq_zero]
+  exact mutualInformation_eq_zero hX hY
+
+lemma entropy_pair_eq_add' (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+    [IsProbabilityMeasure μ] (h: IndepFun X Y μ) :
+    H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] :=
+  (entropy_pair_eq_add hX hY).2 h
+
 noncomputable
 def condMutualInformation (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
     ℝ := (μ.map Z)[fun z ↦ H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨ X, Y ⟩ | Z ← z ; μ]]
@@ -408,7 +463,7 @@ lemma condMutualInformation_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ
       H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨ X, Y ⟩ | Z ← z ; μ]] := rfl
 
 notation3:max "I[" X ":" Y "|" Z ";" μ "]" => condMutualInformation X Y Z μ
-notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z volume
+notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z MeasureTheory.MeasureSpace.volume
 
 lemma condMutualInformation_eq_kernel_mutualInfo
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
@@ -487,28 +542,13 @@ lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
 /-- $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
 lemma entropy_triple_add_entropy_le
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
-    H[fun ω ↦ (X ω, Y ω, Z ω) ; μ] + H[Z ; μ] ≤
+    H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] + H[Z ; μ] ≤
       H[⟨ X, Z ⟩ ; μ] + H[⟨ Y, Z ⟩ ; μ] := by
   rw [chain_rule _ hX (hY.prod_mk hZ), chain_rule _ hX hZ, chain_rule _ hY hZ]
   ring_nf
   exact add_le_add le_rfl (entropy_submodular _ hX hY hZ)
 
 variable {μ : Measure Ω}
-
-lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
-    H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by
-  have : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX.aemeasurable
-  have : IsProbabilityMeasure (μ.map Y) := isProbabilityMeasure_map hY.aemeasurable
-  rw [indepFun_iff_map_prod_eq_prod_map_map hX hY]
-  simp_rw [entropy_eq_kernel_entropy]
-  constructor
-  · sorry
-  · intro h
-    rw [h, ← kernel.prod_const (μ.map X) (μ.map Y), kernel.entropy_prod]
-
-/-- $I[X:Y]=0$ iff $X,Y$ are independent. -/
-lemma mutualInformation_eq_zero : I[X : Y ; μ] = 0 ↔ IndepFun X Y μ :=
-  sub_eq_zero.trans $ eq_comm.trans entropy_pair_eq_add
 
 /-- The assertion that X and Y are conditionally independent relative to Z.  -/
 def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := sorry

@@ -18,7 +18,8 @@ Whenever $X,Y$ are $G$-valued random variables on $\Omega$, we have
 $$ \max(\bbH[X], \bbH[Y]) -  \bbI[X:Y] \leq \bbH[X \pm Y].$$
 \end{lemma}
 
-\begin{proof}\uses{cond-reduce, alternative-mutual, relabeled-entropy-cond, neg-ent}   By Lemma \ref{cond-reduce}, \ref{relabeled-entropy-cond}, \ref{alternative-mutual}, \ref{neg-ent} we have
+\begin{proof}\uses{cond-reduce, alternative-mutual, relabeled-entropy-cond, neg-ent} \leanok
+    By Lemma \ref{cond-reduce}, \ref{relabeled-entropy-cond}, \ref{alternative-mutual}, \ref{neg-ent} we have
 $$
  \bbH[X\pm Y] \geq \bbH[X\pm Y|Y] = \bbH[X|Y]= \bbH[X] -  \bbI[X:Y]
 $$
@@ -34,7 +35,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 \]
 \end{corollary}
 
-\begin{proof} \uses{sumset-lower-gen} This follows from Lemma \ref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $ \bbP[Z=z]$).
+\begin{proof} \uses{sumset-lower-gen}\leanok This follows from Lemma \ref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $ \bbP[Z=z]$).
 \end{proof}
 
 \begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}
@@ -285,7 +286,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 \end{proof}
 
 \begin{lemma}\label{second-useful}
-  \lean{condDist_diff_ofsum_le}
+  \lean{condDist_diff_ofsum_le}\leanok
   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
   \begin{align}\nonumber
   & d[X;Y + Z | Y + Z + Z'] - d[X;Y] \\ & \qquad \leq \tfrac{1}{2} ( \bbH[Y + Z + Z'] + \bbH[Y + Z] - \bbH[Y] - \bbH[Z']).\label{7111}
