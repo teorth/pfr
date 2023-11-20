@@ -244,10 +244,10 @@ lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun ![hG, hG, hG] ![X,Y,Z
   convert entropy_triple_add_entropy_le _ hX hZ (Measurable.add' hX (Measurable.add' hY hZ)) using 2
   . sorry
   . rw [add_assoc]
-  . rw [<-entropy_pair_eq_add']
+  . refine entropy_pair_eq_add' hX (hY.add hZ) ?_ |>.symm.trans ?_
     . sorry
     sorry
-  rw [<-entropy_pair_eq_add']
+  refine entropy_pair_eq_add' hZ (hX.add hY) ?_ |>.symm.trans ?_
   . sorry
   sorry
 
