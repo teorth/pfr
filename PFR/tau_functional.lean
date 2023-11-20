@@ -9,6 +9,8 @@ Definition of the tau functional and basic facts
 -/
 
 open MeasureTheory ProbabilityTheory
+universe u
+
 
 /-- For mathlib -/
 lemma identDistrib_id {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] {μ : Measure α}
@@ -19,30 +21,25 @@ lemma identDistrib_id {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] 
   map_eq := by simp
 
 
-variable (Ω₀₁ Ω₀₂ : Type*) [MeasurableSpace Ω₀₁] [MeasurableSpace Ω₀₂]
-variable (G : Type*) [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
+[IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+variable (G : Type u) [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
 
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
 instead of stating the reference spaces, the reference measures and the reference random
 variables. -/
-structure ref_package :=
-  μ₀₁ : Measure Ω₀₁
-  μ₀₂ : Measure Ω₀₂
-  h1 : IsProbabilityMeasure μ₀₁
-  h2 : IsProbabilityMeasure μ₀₂
+structure refPackage :=
   X₀₁ : Ω₀₁ → G
   X₀₂ : Ω₀₂ → G
   hmeas1 : Measurable X₀₁
   hmeas2 : Measurable X₀₂
 
 
-variable (p : ref_package Ω₀₁ Ω₀₂ G)
+variable (p : refPackage Ω₀₁ Ω₀₂ G)
 variable {Ω₀₁ Ω₀₂ G}
 
-variable {Ω₁ Ω₁ Ω'₁ Ω'₂ : Type*} [MeasurableSpace Ω₁] (μ₁ : Measure Ω₁)
-  [MeasurableSpace Ω₂] (μ₂ : Measure Ω₂) [MeasurableSpace Ω'₁] (μ'₁ : Measure Ω'₁)
-  [MeasurableSpace Ω'₂] (μ'₂ : Measure Ω'₂)
+variable {Ω₁ Ω₂ Ω'₁ Ω'₂ : Type*}
 
 noncomputable def η := (9:ℝ)⁻¹
 
@@ -52,15 +49,22 @@ Here, $X^0_1$ and $X^0_2$ are two random variables fixed once and for all in mos
 To lighten notation, We package `X^0_1` and `X^0_2` in a single object named `p`.
 
 We denote it as `τ[X₁ ; μ₁ # X₂ ; μ₂ | p]` where `p` is a fixed package containing the information
-of the reference random variables.
+of the reference random variables. When the measurable spaces have a canonical measure `ℙ`, we
+can use `τ[X₁ # X₂ | p]`
 --/
-noncomputable def tau (X₁ : Ω₁ → G) (μ₁ : Measure Ω₁) (X₂ : Ω₂ → G) (μ₂ : Measure Ω₂) : ℝ :=
-  d[X₁ ; μ₁ # X₂ ; μ₂] + η * d[p.X₀₁ ; p.μ₀₁ # X₁ ; μ₁] + η * d[p.X₀₂ ; p.μ₀₂ # X₂ ; μ₂]
+@[pp_dot] noncomputable def tau {Ω₁ Ω₂ : Type*} [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
+    (X₁ : Ω₁ → G) (X₂ : Ω₂ → G) (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) : ℝ :=
+  d[X₁ ; μ₁ # X₂ ; μ₂] + η * d[p.X₀₁ ; ℙ # X₁ ; μ₁] + η * d[p.X₀₂ ; ℙ # X₂ ; μ₂]
 
-notation3:max "τ[" X₁ " ; " μ₁ " # " X₂ " ; " μ₂ " | " p"]" => tau p X₁ μ₁ X₂ μ₂
+notation3:max "τ[" X₁ " ; " μ₁ " # " X₂ " ; " μ₂ " | " p"]" => tau p X₁ X₂ μ₁ μ₂
+notation3:max "τ[" X₁ " # " X₂ " | " p"]" => tau p X₁ X₂ MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
+
 
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. --/
-lemma ProbabilityTheory.IdentDistrib.tau_eq
+lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
+    [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂]
+    {μ₁ : Measure Ω₁} {μ₂ : Measure Ω₂} {μ'₁ : Measure Ω'₁} {μ'₂ : Measure Ω'₂}
+    {X₁ : Ω₁ → G} {X₂ : Ω₂ → G} {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G}
     (h₁ : IdentDistrib X₁ X'₁ μ₁ μ'₁) (h₂ : IdentDistrib X₂ X'₂ μ₂ μ'₂) :
     τ[X₁ ; μ₁ # X₂ ; μ₂ | p] = τ[X'₁ ; μ'₁ # X'₂ ; μ'₂ | p] := by
   simp only [tau]
@@ -68,58 +72,70 @@ lemma ProbabilityTheory.IdentDistrib.tau_eq
       (IdentDistrib.refl p.hmeas2.aemeasurable).rdist_eq h₂,
       h₁.rdist_eq h₂]
 
-/-- The property that
-  $$\tau[X_1;X_2] \leq \tau[X'_1;X'_2]
-  $$
-for all $G$-valued random variables $X'_1, X'_2$. To avoid conditioning over all spaces in the
-definition, we formulate the definition in terms of measures in the group itself (i.e., `X₁` will
-be the identity and `μ₁` a measure on `G`, and likewise for `μ₂`, and we compare these to other
-measures on the group), but then it will imply the same property generally, see
-`distance_ge_of_min`. --/
-structure tau_minimizes (μ₁ : Measure G) (μ₂ : Measure G) : Prop :=
-  h₁ : IsProbabilityMeasure μ₁
-  h₂ : IsProbabilityMeasure μ₂
-  hmin : ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
-      τ[id ; μ₁ # id ; μ₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
+/-- Property recording the fact that two random variables minimize the tau functional. Expressed
+in terms of measures on the group to avoid quantifying over all spaces, but this implies comparison
+with any pair of random variables, see Lemma `is_tau_min`. -/
+def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω → G) : Prop :=
+  ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
+      τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
-/--  There exist $G$-valued random variables $X_1, X_2$ such that tau_minimizes holds.
--/
-lemma tau_min_exists : ∃ (μ₁ μ₂ : Measure G), tau_minimizes p μ₁ μ₂ := sorry
+lemma tau_min_exists_measure : ∃ (μ : Measure G × Measure G),
+    IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
+    ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
+      τ[id ; μ.1 # id ; μ.2 | p] ≤ τ[id ; ν₁ # id ; ν₂ | p] := sorry
 
-variable {p}
+lemma tau_minimizer_exists : ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+    Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
+    tau_minimizes p X₁ X₂ := by
+  let μ := (tau_min_exists_measure p).choose
+  have : IsProbabilityMeasure μ.1 := (tau_min_exists_measure p).choose_spec.1
+  have : IsProbabilityMeasure μ.2 := (tau_min_exists_measure p).choose_spec.2.1
+  have P : IsProbabilityMeasure (μ.1.prod μ.2) := by infer_instance
+  let M : MeasureSpace (G × G) := ⟨μ.1.prod μ.2⟩
+  refine ⟨G × G, M, Prod.fst, Prod.snd, measurable_fst, measurable_snd, P, ?_⟩
+  intro ν₁ ν₂ h₁ h₂
+  have A : τ[@Prod.fst G G # @Prod.snd G G | p] = τ[id ; μ.1 # id ; μ.2 | p] := by
+    apply ProbabilityTheory.IdentDistrib.tau_eq
+    · have : μ.1 = (μ.1.prod μ.2).map Prod.fst := by simp
+      rw [this]
+      exact identDistrib_id measurable_fst.aemeasurable
+    · have : μ.2 = (μ.1.prod μ.2).map Prod.snd := by simp
+      rw [this]
+      exact identDistrib_id measurable_snd.aemeasurable
+  convert (tau_min_exists_measure p).choose_spec.2.2 ν₁ ν₂ h₁ h₂
 
-/-- If $X_1,X_2$ are tau-minimizers with $d[X_1,X_2]=k$, then
+
+variable [MeasureSpace Ω] [MeasureSpace Ω'₁] [MeasureSpace Ω'₂]
+  [IsProbabilityMeasure (ℙ : Measure Ω)]
+  [IsProbabilityMeasure (ℙ : Measure Ω'₁)] [IsProbabilityMeasure (ℙ : Measure Ω'₂)]
+  {X₁ : Ω → G} {X₂ : Ω → G} {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G}
+
+lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
+    τ[X₁ # X₂ | p] ≤ τ[X'₁ # X'₂ | p] := by
+  let ν₁ := (ℙ : Measure Ω'₁).map X'₁
+  let ν₂ := (ℙ : Measure Ω'₂).map X'₂
+  have B : τ[X'₁  # X'₂ | p] = τ[id ; ν₁ # id ; ν₂ | p] :=
+    (identDistrib_id h1.aemeasurable).tau_eq p (identDistrib_id h2.aemeasurable)
+  convert h ν₁ ν₂ (isProbabilityMeasure_map h1.aemeasurable)
+    (isProbabilityMeasure_map h2.aemeasurable)
+
+/-- Let `X₁` and `X₂` be tau-minimizers associated to `p`, with $d[X_1,X_2]=k$, then
 $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] )$$
 for any $G$-valued random variables $X'_1,X'_2$.
 -/
-lemma distance_ge_of_min {μ₁ μ₂ : Measure G} (h : tau_minimizes p μ₁ μ₂)
-    {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G} (h1 : Measurable X'₁) (h2 : Measurable X'₂)
-    [IsProbabilityMeasure μ'₁] [IsProbabilityMeasure μ'₂] :
-    d[id ; μ₁ # id ; μ₂] - η * (d[p.X₀₁ ; p.μ₀₁ # X'₁ ; μ'₁] - d[p.X₀₁ ; p.μ₀₁ # id ; μ₁])
-      - η * (d[p.X₀₂ ; p.μ₀₂ # X'₂ ; μ'₂] - d[p.X₀₂ ; p.μ₀₂ # id ; μ₂])
-    ≤ d[X'₁ ; μ'₁ # X'₂ ; μ'₂] := by
-  let ν₁ := μ'₁.map X'₁
-  let ν₂ := μ'₂.map X'₂
-  have Z := h.hmin ν₁ ν₂ (isProbabilityMeasure_map h1.aemeasurable)
-    (isProbabilityMeasure_map h2.aemeasurable)
+lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
+    d[X₁ # X₂] - η * (d[p.X₀₁ # X'₁] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂ # X'₂] - d[p.X₀₂ # X₂])
+      ≤ d[X'₁ # X'₂] := by
+  have Z := is_tau_min p h h1 h2
   simp [tau] at Z
-  have A : d[id ; Measure.map X'₁ μ'₁ # id ; Measure.map X'₂ μ'₂] = d[X'₁ ; μ'₁ # X'₂ ; μ'₂] :=
-    (identDistrib_id h1.aemeasurable).symm.rdist_eq  (identDistrib_id h2.aemeasurable).symm
-  have B : d[p.X₀₁ ; p.μ₀₁ # id ; Measure.map X'₁ μ'₁] = d[p.X₀₁ ; p.μ₀₁ # X'₁ ; μ'₁] :=
-    (IdentDistrib.refl p.hmeas1.aemeasurable).rdist_eq (identDistrib_id h1.aemeasurable).symm
-  have C : d[p.X₀₂ ; p.μ₀₂ # id ; Measure.map X'₂ μ'₂] = d[p.X₀₂ ; p.μ₀₂ # X'₂ ; μ'₂] :=
-    (IdentDistrib.refl p.hmeas2.aemeasurable).rdist_eq (identDistrib_id h2.aemeasurable).symm
-  rw [A, B, C, ← sub_nonneg] at Z
-  rw [← sub_nonneg]
-  convert Z using 1
-  ring
+  linarith
 
 /--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
-$$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
+$$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z]
+  - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
-lemma condDistance_ge_of_min [MeasurableSpace S] [MeasurableSpace T] {μ₁ μ₂ : Measure G} (h : tau_minimizes p μ₁ μ₂)
-    {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G} (h1 : Measurable X'₁) (h2 : Measurable X'₂)
-    [IsProbabilityMeasure μ'₁] [IsProbabilityMeasure μ'₂] (Z : Ω'₁ → S) (W : Ω'₂ → T):
-    d[id ; μ₁ # id ; μ₂] - η * (d[p.X₀₁ ; p.μ₀₁ # X'₁ | Z ; μ'₁] - d[p.X₀₁ ; p.μ₀₁ # id ; μ₁])
-      - η * (d[p.X₀₂ ; p.μ₀₂ # X'₂ | W; μ'₂] - d[p.X₀₂ ; p.μ₀₂ # id ; μ₂])
+lemma condDistance_ge_of_min (h : tau_minimizes p X₁ X₂) [MeasurableSpace S] [MeasurableSpace T]
+    (h1 : Measurable X'₁) (h2 : Measurable X'₂) (Z : Ω'₁ → S) (W : Ω'₂ → T):
+    d[X₁ # X₂] - η * (d[p.X₀₁ # X'₁ | Z] - d[p.X₀₁ # X₁])
+      - η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])
     ≤ d[X'₁ | Z ; μ'₁ # X'₂ | W ; μ'₂] := sorry
