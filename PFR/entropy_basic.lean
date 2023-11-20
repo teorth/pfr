@@ -365,7 +365,7 @@ lemma entropy_comp_le
 lemma entropy_of_comp_eq_of_comp
     (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
     (f : S → T) (g : T → S) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) :
-  H[X ; μ] = H[Y ; μ] := by
+    H[X ; μ] = H[Y ; μ] := by
   have h3 : H[X ; μ] ≤ H[Y ; μ]  := by
     rw [h2]; exact entropy_comp_le μ hY _
   have h4 : H[Y ; μ] ≤ H[X ; μ]  := by
