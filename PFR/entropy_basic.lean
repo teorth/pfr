@@ -503,6 +503,9 @@ lemma entropy_triple_add_entropy_le
 
 variable {μ : Measure Ω}
 
+lemma entropy_pair_eq_add' (h: IndepFun X Y μ) :
+H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] := by sorry
+
 lemma entropy_pair_eq_add : H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ :=
   sorry -- the lemma `measureMutualInfo_eq_zero_iff` should be most of the way there
 

@@ -34,6 +34,7 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 -- may also want [DecidableEq G]
 
 /-- If $X$ is $G$-valued, then $H[-X]=H[X]$. -/
+@[simp]
 lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
 
@@ -43,6 +44,11 @@ lemma entropy_sub_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
   rw [← neg_sub]
   exact entropy_neg (hY.sub hX)
 
+@[simp]
+lemma condEntropy_of_sum_eq {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] : H[ X+Y | Y; μ] = H[ X | Y ; μ] := by
+  refine condEntropy_of_inj_map μ hX hY (fun y x ↦ x + y) ?_
+  exact fun y ↦ add_left_injective y
+
 /-- $$H[X] - I[X:Y] \leq H[X+Y].$$ -/
 lemma entropy_sub_mutualInformation_le_entropy_add
     {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
@@ -50,9 +56,7 @@ lemma entropy_sub_mutualInformation_le_entropy_add
   rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
   ring_nf
   calc H[X|Y; μ]
-    = H[X + Y | Y; μ] := by
-        refine (condEntropy_of_inj_map μ hX hY (fun y x ↦ x + y) ?_).symm
-        exact fun y ↦ add_left_injective y
+    = H[X + Y | Y; μ] := (condEntropy_of_sum_eq hX hY).symm
   _ ≤ H[X + Y; μ] := condEntropy_le_entropy _ (hX.add hY) hY
 
 /-- $$H[X] - I[X:Y] \leq H[X-Y].$$ -/
@@ -242,6 +246,10 @@ lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun ![hG, hG, hG] ![X,Y,Z
   convert entropy_triple_add_entropy_le _ hX hZ (Measurable.add' hX (Measurable.add' hY hZ)) using 2
   . sorry
   . rw [add_assoc]
+  . rw [<-entropy_pair_eq_add']
+    . sorry
+    sorry
+  rw [<-entropy_pair_eq_add']
   . sorry
   sorry
 
