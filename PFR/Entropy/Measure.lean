@@ -387,6 +387,13 @@ lemma measureEntropy_comap_equiv (μ : Measure S) (f : T ≃ᵐ S) :
   have : Set.range f = Set.univ := Equiv.range_eq_univ _
   simp [this]
 
+lemma measureEntropy_prod (μ : Measure S) (ν : Measure T)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    Hm[μ.prod ν] = Hm[μ] + Hm[ν] := by
+  simp_rw [measureEntropy_of_isProbabilityMeasure, Fintype.sum_prod_type,
+    ← Set.singleton_prod_singleton, Measure.prod_prod, ENNReal.toReal_mul, negIdMulLog_mul',
+    Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.sum_mul, sum_toReal_measure_singleton]
+  simp only [measure_univ, ENNReal.one_toReal, one_mul]
 
 end measureEntropy
 
