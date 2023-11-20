@@ -512,12 +512,21 @@ lemma condMutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingl
   exact mutualInformation_nonneg hX hY _
 
 /-- $$ I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
-lemma condMutualInformation_eq :
-    I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by sorry
+lemma condMutualInformation_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by
+  rw [condMutualInformation_eq_kernel_mutualInfo hX hY hZ, kernel.mutualInfo,
+    kernel.entropy_congr (condEntropyKernel_fst_ae_eq hX hY hZ _),
+    kernel.entropy_congr (condEntropyKernel_snd_ae_eq hX hY hZ _),
+    condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hZ,
+    condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ]
 
 /-- $$ I[X:Y|Z] = H[X|Z] - H[X|Y,Z].$$ -/
-lemma condMutualInformation_eq' :
-    I[X : Y | Z ; μ] = H[X | Z ; μ] - H[X | ⟨Y, Z⟩  ; μ] := by sorry
+lemma condMutualInformation_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    I[X : Y | Z ; μ] = H[X | Z ; μ] - H[X | ⟨Y, Z⟩  ; μ] := by
+  rw [condMutualInformation_eq hX hY hZ, cond_chain_rule _ hX hY hZ]
+  ring
 
 section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]

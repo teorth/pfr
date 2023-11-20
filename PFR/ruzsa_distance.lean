@@ -151,12 +151,17 @@ lemma condEnt_of_diff_lower {Y : Ω → G} {Z : Ω → T}
 /-- If $X,Y$ are independent, then
 $$ \max(H[X], H[Y]) \leq H[X + Y].$$ -/
 lemma ent_of_indep_sum_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ]) ≤ H[X + Y; μ] := by sorry
+    (h : IndepFun X Y μ) [IsProbabilityMeasure μ] :
+    max H[X; μ] H[Y; μ] ≤ H[X + Y; μ] := by
+  calc max H[X; μ] H[Y; μ] = (max H[X; μ] H[Y; μ]) - I[X : Y; μ] := by
+        rw [(mutualInformation_eq_zero hX hY).mpr h, sub_zero]
+  _ ≤ H[X + Y; μ] := ent_of_sum_lower hX hY
 
 /--  If $X,Y$ are independent, then
 $$ \max(H[X], H[Y]) \leq H[X - Y].$$ -/
 lemma ent_of_indep_diff_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    (h : IndepFun X Y μ) : (max H[X; μ] H[Y; μ]) ≤ H[X - Y; μ] := by
+    (h : IndepFun X Y μ) [IsProbabilityMeasure μ] :
+    (max H[X; μ] H[Y; μ]) ≤ H[X - Y; μ] := by
   have : IndepFun X (-Y) μ := h.comp measurable_id measurable_neg
   convert ent_of_indep_sum_lower hX hY.neg this using 2
   · exact (entropy_neg hY).symm
