@@ -143,11 +143,11 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \begin{proof} \uses{ruzsa-diff}\leanok Immediate from Lemma \ref{ruzsa-diff}.
 \end{proof}
 
-\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Z)$ independent of $Y$, then
+\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Y)$ independent of $Z$, then
   \begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
 \end{lemma}
 
-This is an improvement over the usual Ruzsa triangle inequality because $X,Z$ are not assumed to be independent.  However we will not utilize this improvement here.
+This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ are not assumed to be independent.  However we will not utilize this improvement here.
 
 \begin{proof}\uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy}
   Apply Corollary \ref{alt-submodularity} to obtain
