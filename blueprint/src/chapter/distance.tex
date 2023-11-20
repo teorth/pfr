@@ -11,6 +11,15 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
   \uses{relabeled-entropy}\leanok Immediate from Lemma \ref{relabeled-entropy}.
 \end{proof}
 
+\begin{lemma}[Shearing preserves entropy]\label{shear-ent}
+  \lean{condEntropy_of_sum_eq, condEntropy_of_diff_eq,entropy_of_shear_eq,entropy_of_shear_eq'}
+  If $X,Y$ are $G$-valued, then $\bbH[X \pm Y | Y]=\bbH[X|Y]$ and $\bbH[X \pm Y, Y] = \bbH[X, Y]$.
+\end{lemma}
+
+\begin{proof}
+  \uses{relabeled-entropy-cond,chain-rule}\leanok Immediate from Lemma \ref{relabeled-entropy-cond} and Lemma \ref{chain-rule}.
+\end{proof}
+
 \begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}
   \lean{ent_of_sum_lower,ent_of_diff_lower}\leanok
   If
@@ -18,8 +27,8 @@ Whenever $X,Y$ are $G$-valued random variables on $\Omega$, we have
 $$ \max(\bbH[X], \bbH[Y]) -  \bbI[X:Y] \leq \bbH[X \pm Y].$$
 \end{lemma}
 
-\begin{proof}\uses{cond-reduce, alternative-mutual, relabeled-entropy-cond, neg-ent} \leanok
-    By Lemma \ref{cond-reduce}, \ref{relabeled-entropy-cond}, \ref{alternative-mutual}, \ref{neg-ent} we have
+\begin{proof}\uses{cond-reduce, alternative-mutual, shear-ent, neg-ent} \leanok
+    By Lemma \ref{cond-reduce}, \ref{shear-ent}, \ref{alternative-mutual}, \ref{neg-ent} we have
 $$
  \bbH[X\pm Y] \geq \bbH[X\pm Y|Y] = \bbH[X|Y]= \bbH[X] -  \bbI[X:Y]
 $$
