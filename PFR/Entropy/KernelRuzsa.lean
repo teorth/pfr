@@ -1,4 +1,4 @@
-import PFR.Entropy.KernelMutualInformation
+import PFR.Entropy.Group
 
 /-!
 # Ruzsa distance between kernels
@@ -32,13 +32,10 @@ noncomputable
 def rdistm (μ : Measure G) (ν : Measure G) : ℝ :=
     Hm[(μ.prod ν).map (fun x ↦ x.1 - x.2)] - Hm[μ]/2 - Hm[ν]/2
 
-/-- The Ruzsa distance `dist X Y` between two random variables is defined as
-$H[X'-Y'] - H[X']/2 - H[Y']/2$, where $X',Y'$ are independent copies of $X, Y$. -/
 noncomputable
 def rdist (κ : kernel T G) (η : kernel T' G) (μ : Measure T) (ν : Measure T') : ℝ :=
   (μ.prod ν)[fun p ↦ rdistm (κ p.1) (η p.2)]
 
-/-- Needed a new separator here, chose `#` arbitrarily, but am open to other suggestions -/
 notation3:max "dk[" κ " ; " μ " # " η " ; " μ' "]" => rdist κ η μ μ'
 
 lemma rdist_eq (κ : kernel T G) (η : kernel T' G) (μ : Measure T) (ν : Measure T')
@@ -65,5 +62,14 @@ lemma rdist_eq' (κ : kernel T G) (η : kernel T' G) [IsFiniteKernel κ] [IsFini
   congr with p
   simp only
   rw [map_apply, prod_apply'', prodMkLeft_apply, prodMkRight_apply]
+
+lemma rdist_symm (κ : kernel T G) (η : kernel T' G) [IsFiniteKernel κ] [IsFiniteKernel η]
+    (μ : Measure T) (ν : Measure T') [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    dk[κ ; μ # η ; ν] = dk[η ; ν # κ ; μ] := by
+  rw [rdist_eq', rdist_eq', sub_sub, sub_sub, add_comm]
+  congr 1
+  rw [← entropy_comap_swap, comap_map_comm, entropy_sub_comm, Measure.comap_swap, Measure.prod_swap,
+    comap_prod_swap, map_map]
+  congr
 
 end ProbabilityTheory.kernel

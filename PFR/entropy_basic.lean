@@ -360,14 +360,15 @@ lemma entropy_comp_le
 
 /-- A Schroder-Bernstein type theorem for entropy.  Can be used as a substitute for `entropy_comp_of_injective` if one doesn't want to establish the injectivity. -/
 lemma entropy_of_comp_eq_of_comp
-    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → T) (g : T → S) (hf : Measurable f) (hg : Measurable g) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) :
+    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
+    (f : S → T) (g : T → S) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) :
     H[X ; μ] = H[Y ; μ] := by
     have hY : Measurable Y := by
-      rw [h1]; exact Measurable.comp hf hX
+      rw [h1]; exact Measurable.comp (measurable_of_finite _) hX
     have h3 : H[X ; μ] ≤ H[Y ; μ]  := by
-      rw [h2]; exact entropy_comp_le μ hY hg
+      rw [h2]; exact entropy_comp_le μ hY (measurable_of_finite _)
     have h4 : H[Y ; μ] ≤ H[X ; μ]  := by
-      rw [h1]; exact entropy_comp_le μ hX hf
+      rw [h1]; exact entropy_comp_le μ hX (measurable_of_finite _)
     linarith
 
 
