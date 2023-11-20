@@ -3,7 +3,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
 import PFR.Entropy.Group
 import PFR.entropy_basic
-import PFR.ForMathlib.CompactProb
+import PFR.ForMathlib.FiniteMeasureComponent
 
 /-!
 # Ruzsa distance
@@ -180,39 +180,72 @@ notation3:max "d[" X " ; " μ " # " Y " ; " μ' "]" => rdist X Y μ μ'
 
 notation3:max "d[" X " # " Y "]" => rdist X Y MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
 
-lemma continuous_rdist_restrict_probabilityMeasure
-    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
-    Continuous
-      (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦
-        d[ id ; μ.1.toMeasure # id ; μ.2.toMeasure ]) :=
-  sorry
-
-lemma continuous_rdist_restrict_probabilityMeasure₁
-    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
-    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] :
-    Continuous
-      (fun (μ : ProbabilityMeasure G) ↦ d[ id ; P.map X # id ; μ.toMeasure ]) := by
-  have obs : IsProbabilityMeasure (P.map X) := by
-    sorry -- Requires measurability assumptions on X ?
-  let ι : ProbabilityMeasure G → ProbabilityMeasure G × ProbabilityMeasure G :=
-      fun ν ↦ ⟨⟨P.map X, obs⟩, ν⟩
-  have ι_cont : Continuous ι := by exact Continuous.Prod.mk _
-  convert continuous_rdist_restrict_probabilityMeasure.comp ι_cont
-
-lemma continuous_rdist_restrict_probabilityMeasure₁'
-    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
-    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] :
-    Continuous
-      (fun (μ : ProbabilityMeasure G) ↦ d[ X ; P # id ; μ.toMeasure ]) := by
-  convert @continuous_rdist_restrict_probabilityMeasure₁ Ω G _ _ _ _ _ _ _ X P _
-  -- Kalle: I hope this is true (by definition)...
-  sorry
-
 lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') :
     d[ X ; μ # Y ; μ' ]
       = H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2 := rfl
 
 -- may also want to make further notations for Ruzsa distance to hide the measures μ, μ'
+
+-- TODO: Use notation `Hm[μ]` here? (figure out how)
+lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Fintype Ω]
+    [TopologicalSpace Ω] [DiscreteTopology Ω] [MeasurableSpace Ω] [OpensMeasurableSpace Ω] :
+    Continuous (fun (μ : ProbabilityMeasure Ω) ↦ measureEntropy (S := Ω) μ) := by
+  apply continuous_finset_sum
+  intro ω _
+  apply Real.continuous_negIdMulLog.comp
+  simp only [measure_univ, inv_one, one_smul]
+  exact continuous_probabilityMeasure_apply_of_isClopen (s := {ω}) ⟨isOpen_discrete _, T1Space.t1 _⟩
+
+lemma continuous_entropy_restrict_probabilityMeasure
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
+    Continuous (fun (μ : ProbabilityMeasure G) ↦ H[ id ; μ.toMeasure ]) := by
+  simp only [entropy_def, Measure.map_id]
+  exact continuous_measureEntropy_probabilityMeasure
+
+lemma continuous_rdist_restrict_probabilityMeasure
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
+    Continuous
+      (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦
+        d[ id ; μ.1.toMeasure # id ; μ.2.toMeasure ]) := by
+  simp [rdist_def]
+  have obs₀ : Continuous (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦
+      H[fun x ↦ x.1 - x.2 ; μ.1.toMeasure.prod μ.2.toMeasure]) := by
+    -- Requires:
+    -- (1) Some API about (continuity of) products of probability measures.
+    -- (2) Continuity of mapping probability measures: `ProbabilityMeasure.continuous_map`.
+    sorry
+  have obs₁ : Continuous
+      (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ H[ id ; μ.1.toMeasure ]) := by
+    convert (continuous_measureEntropy_probabilityMeasure (Ω := G)).comp continuous_fst
+    simp [entropy_def]
+  have obs₂ : Continuous
+      (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ H[ id ; μ.2.toMeasure ]) := by
+    convert (continuous_measureEntropy_probabilityMeasure (Ω := G)).comp continuous_snd
+    simp [entropy_def]
+  continuity
+
+lemma continuous_rdist_restrict_probabilityMeasure₁
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
+    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
+    Continuous
+      (fun (μ : ProbabilityMeasure G) ↦ d[ id ; P.map X # id ; μ.toMeasure ]) := by
+  have obs : IsProbabilityMeasure (P.map X) := by
+    refine ⟨by simp [Measure.map_apply X_mble MeasurableSet.univ]⟩
+  let ι : ProbabilityMeasure G → ProbabilityMeasure G × ProbabilityMeasure G :=
+      fun ν ↦ ⟨⟨P.map X, obs⟩, ν⟩
+  have ι_cont : Continuous ι := Continuous.Prod.mk _
+  convert continuous_rdist_restrict_probabilityMeasure.comp ι_cont
+
+lemma rdist_eq_rdist_id_map : d[ X ; μ # Y ; μ' ] = d[ id ; μ.map X # id ; μ'.map Y ] := by
+  simp only [rdist_def, entropy_def, Measure.map_id]
+
+lemma continuous_rdist_restrict_probabilityMeasure₁'
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
+    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
+    Continuous
+      (fun (μ : ProbabilityMeasure G) ↦ d[ X ; P # id ; μ.toMeasure ]) := by
+  simp only [@rdist_eq_rdist_id_map Ω G G mΩ P hG, Measure.map_id]
+  exact continuous_rdist_restrict_probabilityMeasure₁ _ _ X_mble
 
 /-- If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X;Y]$. -/
 lemma ProbabilityTheory.IdentDistrib.rdist_eq {X' : Ω'' → G} {Y' : Ω''' →G}
