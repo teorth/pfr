@@ -3,6 +3,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
 import PFR.Entropy.Group
 import PFR.entropy_basic
+import PFR.ForMathlib.CompactProb
 
 /-!
 # Ruzsa distance
@@ -178,6 +179,34 @@ def rdist (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
 notation3:max "d[" X " ; " μ " # " Y " ; " μ' "]" => rdist X Y μ μ'
 
 notation3:max "d[" X " # " Y "]" => rdist X Y MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
+
+lemma continuous_rdist_restrict_probabilityMeasure
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
+    Continuous
+      (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦
+        d[ id ; μ.1.toMeasure # id ; μ.2.toMeasure ]) :=
+  sorry
+
+lemma continuous_rdist_restrict_probabilityMeasure₁
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
+    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] :
+    Continuous
+      (fun (μ : ProbabilityMeasure G) ↦ d[ id ; P.map X # id ; μ.toMeasure ]) := by
+  have obs : IsProbabilityMeasure (P.map X) := by
+    sorry -- Requires measurability assumptions on X ?
+  let ι : ProbabilityMeasure G → ProbabilityMeasure G × ProbabilityMeasure G :=
+      fun ν ↦ ⟨⟨P.map X, obs⟩, ν⟩
+  have ι_cont : Continuous ι := by exact Continuous.Prod.mk _
+  convert continuous_rdist_restrict_probabilityMeasure.comp ι_cont
+
+lemma continuous_rdist_restrict_probabilityMeasure₁'
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
+    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] :
+    Continuous
+      (fun (μ : ProbabilityMeasure G) ↦ d[ X ; P # id ; μ.toMeasure ]) := by
+  convert @continuous_rdist_restrict_probabilityMeasure₁ Ω G _ _ _ _ _ _ _ X P _
+  -- Kalle: I hope this is true (by definition)...
+  sorry
 
 lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') :
     d[ X ; μ # Y ; μ' ]
