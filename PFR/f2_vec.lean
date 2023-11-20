@@ -28,6 +28,13 @@ lemma sum_eq_diff ( x y : G ) : x + y = x - y := by
   · simp only [h, add_zero]
   · simpa only [elem.orderOf_of_ne h, two_nsmul] using (addOrderOf_nsmul_eq_zero y)
 
+lemma sum_eq_neg ( x : G ) : x + x = 0 := by
+  rw [sum_eq_diff x x]
+  simp only [sub_self]
+
 lemma sum_add_sum_eq_sum ( x y z : G ) : (x + y) + (y + z) = x + z := by
   rw [sum_eq_diff x y]
   abel
+
+lemma sum_add_sum_add_sum_eq_zero ( x y z : G ) : (x + y) + (y + z) + (z + x) = 0 := by
+  rw [sum_add_sum_eq_sum, add_comm x z, sum_eq_neg]

@@ -1,3 +1,4 @@
+import Mathlib.MeasureTheory.Constructions.Prod.Basic
 import PFR.ForMathlib.Finiteness
 
 /-!
@@ -62,7 +63,7 @@ end aux_lemmas
 
 namespace MeasureTheory
 
-variable {α : Type*} {_ : MeasurableSpace α} (μ : Measure α)
+variable {α : Type*} {β : Type*} {_ : MeasurableSpace α} [MeasurableSpace β] (μ : Measure α)
 
 @[pp_dot]
 protected def Measure.real (s : Set α) : ℝ :=
@@ -121,6 +122,11 @@ theorem nonempty_of_measureReal_ne_zero (h : μ.real s ≠ 0) : s.Nonempty :=
 
 @[simp] theorem measureReal_smul_apply (c : ℝ≥0∞) : (c • μ).real s = c.toReal • μ.real s := by
   rw [measureReal_def, smul_apply, smul_eq_mul, ENNReal.toReal_mul]
+  rfl
+
+theorem map_measureReal_apply {f : α → β} (hf : Measurable f) {s : Set β} (hs : MeasurableSet s) :
+    (μ.map f).real s = μ.real (f ⁻¹' s) := by
+  rw [measureReal_def, map_apply hf hs]
   rfl
 
 @[gcongr] theorem measureReal_mono (h : s₁ ⊆ s₂) (h₂ : μ s₂ ≠ ∞ := by finiteness) :
@@ -435,6 +441,35 @@ theorem nonempty_inter_of_measureReal_lt_add' {m : MeasurableSpace α} (μ : Mea
   rw [add_comm] at h
   rw [inter_comm]
   exact nonempty_inter_of_measureReal_lt_add μ hs h't h's h hu
+
+theorem measureReal_prod_prod {μ : Measure α} {ν : Measure β} [SigmaFinite ν] (s : Set α)
+    (t : Set β) :
+    (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
+  simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
+
+-- find this in library?  generalize?
+theorem Measure.ext_iff_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    {μ1 μ2 : Measure S} :
+    μ1 = μ2 ↔ ∀ x, μ1 {x} = μ2 {x} := by
+  classical
+  constructor
+  · rintro rfl
+    simp
+  · intro h
+    ext s
+    have hs : Set.Finite s := Set.toFinite s
+    rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
+    simp_rw [h]
+
+theorem ext_iff_measureReal_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    {μ1 μ2 : Measure S} [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :
+    μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
+  rw [Measure.ext_iff_singleton]
+  congr! with x
+  have h1 : μ1 {x} ≠ ⊤ := by finiteness
+  have h2 : μ2 {x} ≠ ⊤ := by finiteness
+  rw [measureReal_def, measureReal_def, ENNReal.toReal_eq_toReal_iff]
+  simp [h1, h2]
 
 end MeasureTheory
 

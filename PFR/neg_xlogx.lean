@@ -152,44 +152,38 @@ lemma sum_negIdMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ}
 lemma sum_negIdMulLog_eq_aux {w : S → ℝ} {p : S → ℝ} {U : Finset S}
     (h0 : ∀ s ∈ U, 0 < w s) (h₁ : ∑ s in U, w s = 1) (hmem : ∀ s ∈ U, 0 ≤ p s) :
     negIdMulLog (∑ s in U, w s • p s) = ∑ s in U, w s • negIdMulLog (p s)
-    ↔ ∀ j ∈ U, p j = ∑ s in U, w s • p s :=
+    ↔ ∀ j ∈ U, p j = ∑ s in U, w s * p s :=
   strictConcaveOn_negIdMulLog.map_sum_eq_iff h0 h₁ hmem
 
 -- a form of equality case of Jensen
 lemma sum_negIdMulLog_eq_aux2 {w : S → ℝ} {p : S → ℝ} {U : Finset S}
     (h0 : ∀ s ∈ U, 0 < w s) (h1 : ∑ s in U, w s = 1) (hmem : ∀ s ∈ U, 0 ≤ p s) :
     ∑ s in U, w s * negIdMulLog (p s) = negIdMulLog (∑ s in U, w s * p s)
-    ↔ ∀ j ∈ U, p j = ∑ s in U, w s • p s := by
+    ↔ ∀ j ∈ U, p j = ∑ s in U, w s * p s := by
   rw [eq_comm]
   exact strictConcaveOn_negIdMulLog.map_sum_eq_iff h0 h1 hmem
+
+-- a form of equality case of Jensen
+lemma sum_negIdMulLog_eq_aux3 {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
+    (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
+    ∑ s, w s * negIdMulLog (p s) = negIdMulLog (∑ s, w s * p s)
+    ↔ ∀ s, w s = 0 ∨ p s = ∑ s', w s' * p s' := by
+  rw [eq_comm]
+  exact strictConcaveOn_negIdMulLog.map_sum_eq_iff' h0 h1 hmem
 
 /-- the equality case of Jensen's inequality -/
 lemma sum_negIdMulLog_eq {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
     (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s)
     (heq : ∑ s, (w s) * negIdMulLog (p s) = negIdMulLog (∑ s, (w s) * (p s)))
-    (s : S) (hs : 0 < w s) : p s = ∑ s', (w s') * (p s') := by
-  let U := Finset.filter (fun s ↦ 0 < w s) Finset.univ
-  have H : ∀ x, x ∉ U → w x = 0 := by
-    intro s hs
-    exact le_antisymm (by simpa using hs) (h0 s)
-  have hU : ∑ s in U, w s = 1 := (Finset.sum_subset (by simp) (fun x _ ↦ H x)).trans h1
-  have H1 : ∑ s in U, w s • p s = ∑ s' : S, w s' * p s' := by
-    apply Finset.sum_subset (by simp)
-    intro s _ hs
-    simp [H _ hs]
-  have H2 : ∑ s in U, w s • negIdMulLog (p s) = ∑ s' : S, w s' * negIdMulLog (p s') := by
-    apply Finset.sum_subset (by simp)
-    intro s _ hs
-    simp [H _ hs]
-  calc p s = ∑ s in U, w s • p s := (sum_negIdMulLog_eq_aux2 (by simp) hU ?_).1 ?_ s ?_
-    _ = ∑ s' : S, w s' * p s' := H1
-  · intro s _
-    apply hmem
-  · refine H2.trans ?_
-    rw [heq, ← H1]
-    rfl
-  · simpa using hs
+    (s : S) (hs : 0 < w s) : p s = ∑ s', (w s') * (p s') :=
+  ((sum_negIdMulLog_eq_aux3 h0 h1 hmem).1 heq s).resolve_left hs.ne'
 
+lemma continuous_negIdMulLog : Continuous negIdMulLog :=  by
+  change Continuous (fun (x : ℝ) ↦ - x * Real.log x)
+  have aux : Continuous (fun (x : ℝ) ↦ (-1 : ℝ) * (x * Real.log x)) :=
+    continuous_const.mul continuous_id_mul_log
+  convert aux using 1
+  simp only [neg_mul, one_mul]
 
 end negIdMulLog
 
