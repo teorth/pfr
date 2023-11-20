@@ -198,7 +198,7 @@ Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \]
 \end{lemma}
 
-\begin{proof}\uses{submodularity, add-entropy, relabeled-entropy}
+\begin{proof}\uses{submodularity, add-entropy, relabeled-entropy}\leanok
 From Lemma \ref{submodularity} we have
 $$ \bbH[X, X+Y+Z] + \bbH[Z, X+Y+Z] \geq \bbH[X, Z, X+Y+Z] + \bbH[X+Y+Z].$$
 However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we have $\bbH[X, X+Y+Z] = \bbH[X, Y+Z] = \bbH[X] + \bbH[Y+Z]$, $\bbH[Z, X+Y + Z] = \bbH[Z, X+Y] = \bbH[Z] + \bbH[X+Y]$ and $\bbH[X, Z, X+Y+Z] = \bbH[X, Y, Z] = \bbH[X] + \bbH[Y] + \bbH[Z]$.  The claim then follows from a calculation.

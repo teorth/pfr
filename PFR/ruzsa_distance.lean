@@ -261,7 +261,7 @@ lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W 
 lemma Fin.forall_fin_three {p : Fin 3 → Prop} : (∀ (i : Fin 3), p i) ↔ p 0 ∧ p 1 ∧ p 2 :=
   Fin.forall_fin_succ.trans <| and_congr_right fun _ => Fin.forall_fin_two
 
-/-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/
+/-- $$H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y].$$ -/
 lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,Z] μ) (hX: Measurable X) (hY: Measurable Y) (hZ: Measurable Z) [IsProbabilityMeasure μ]: H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by
   suffices : (H[X; μ] + H[Y;μ] + H[Z;μ]) + H[ X + Y + Z ; μ] ≤ (H[X;μ] + H[ Y + Z ; μ]) + (H[Z;μ] + H[ X + Y ; μ])
   . linarith
