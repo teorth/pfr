@@ -358,6 +358,20 @@ lemma entropy_comp_le
   simp only [le_add_iff_nonneg_right]
   exact condEntropy_nonneg X (f ∘ X) μ
 
+/-- A Schroder-Bernstein type theorem for entropy.  Can be used as a substitute for `entropy_comp_of_injective` if one doesn't want to establish the injectivity. -/
+lemma entropy_of_comp_eq_of_comp
+    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → T) (g : T → S) (hf : Measurable f) (hg : Measurable g) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) :
+    H[X ; μ] = H[Y ; μ] := by
+    have hY : Measurable Y := by
+      rw [h1]; exact Measurable.comp hf hX
+    have h3 : H[X ; μ] ≤ H[Y ; μ]  := by
+      rw [h2]; exact entropy_comp_le μ hY hg
+    have h4 : H[Y ; μ] ≤ H[X ; μ]  := by
+      rw [h1]; exact entropy_comp_le μ hX hf
+    linarith
+
+
+
 end pair
 
 section mutualInformation

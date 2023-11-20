@@ -34,7 +34,6 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 -- may also want [DecidableEq G]
 
 /-- If $X$ is $G$-valued, then $H[-X]=H[X]$. -/
-@[simp]
 lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
 
@@ -44,7 +43,6 @@ lemma entropy_sub_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
   rw [← neg_sub]
   exact entropy_neg (hY.sub hX)
 
-@[simp]
 lemma condEntropy_of_sum_eq {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] : H[ X+Y | Y; μ] = H[ X | Y ; μ] := by
   refine condEntropy_of_inj_map μ hX hY (fun y x ↦ x + y) ?_
   exact fun y ↦ add_left_injective y
@@ -55,9 +53,12 @@ lemma entropy_sub_mutualInformation_le_entropy_add
     H[X; μ] - I[X : Y; μ] ≤ H[X + Y; μ] := by
   rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
   ring_nf
-  calc H[X|Y; μ]
-    = H[X + Y | Y; μ] := (condEntropy_of_sum_eq hX hY).symm
-  _ ≤ H[X + Y; μ] := condEntropy_le_entropy _ (hX.add hY) hY
+  rw [<- condEntropy_of_sum_eq hX hY]
+  exact condEntropy_le_entropy _ (hX.add hY) hY
+
+lemma condEntropy_of_sub_eq {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] : H[ X-Y | Y; μ] = H[ X | Y ; μ] := by
+  refine condEntropy_of_inj_map μ hX hY (fun y x ↦ x - y) ?_
+  exact fun y ↦ sub_left_injective
 
 /-- $$H[X] - I[X:Y] \leq H[X-Y].$$ -/
 lemma entropy_sub_mutualInformation_le_entropy_sub
@@ -65,11 +66,8 @@ lemma entropy_sub_mutualInformation_le_entropy_sub
     H[X; μ] - I[X : Y; μ] ≤ H[X - Y; μ] := by
   rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
   ring_nf
-  calc H[X|Y; μ]
-    = H[X - Y | Y; μ] := by
-        refine (condEntropy_of_inj_map μ hX hY (fun y x ↦ x - y) ?_).symm
-        exact fun _ ↦ sub_left_injective
-  _ ≤ H[X - Y; μ] := condEntropy_le_entropy _ (hX.sub hY) hY
+  rw [<- condEntropy_of_sub_eq hX hY]
+  exact condEntropy_le_entropy _ (hX.sub hY) hY
 
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X + Y].$$ -/
 lemma ent_of_sum_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)

@@ -11,7 +11,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   with the convention that $0 \log \frac{1}{0} = 0$.
 \end{definition}
 
-\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_comp_of_injective} \uses{entropy-def}\leanok
+\begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_comp_of_injective, entropy_of_comp_eq_of_comp} \uses{entropy-def}\leanok
   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $\bbH[X] = \bbH[Y]$.
 \end{lemma}
 
