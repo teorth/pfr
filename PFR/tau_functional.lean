@@ -1,6 +1,7 @@
 
 import PFR.f2_vec
 import PFR.ruzsa_distance
+import PFR.ForMathlib.CompactProb
 
 /-!
 # The tau functional
@@ -59,6 +60,13 @@ can use `τ[X₁ # X₂ | p]`
 notation3:max "τ[" X₁ " ; " μ₁ " # " X₂ " ; " μ₂ " | " p"]" => tau p X₁ X₂ μ₁ μ₂
 notation3:max "τ[" X₁ " # " X₂ " | " p"]" => tau p X₁ X₂ MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
 
+lemma continuous_tau_restrict_probabilityMeasure
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
+    Continuous
+      (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ τ[id ; μ.1 # id ; μ.2 | p]) := by
+  -- Need phrasing of Ruzsa distance in terms of measures, so the defining terms make sense,
+  -- and continuity (in the topology of `ProbabilityMeasure`) of each makes sense.
+  sorry
 
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. --/
 lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
@@ -82,7 +90,23 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
 lemma tau_min_exists_measure : ∃ (μ : Measure G × Measure G),
     IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
     ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
-      τ[id ; μ.1 # id ; μ.2 | p] ≤ τ[id ; ν₁ # id ; ν₂ | p] := sorry
+      τ[id ; μ.1 # id ; μ.2 | p] ≤ τ[id ; ν₁ # id ; ν₂ | p] := by
+  haveI : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
+  haveI : DiscreteTopology G := by sorry -- Why not `rfl`?
+  haveI : BorelSpace G := by sorry -- I think `[MeasurableSingletonClass G]` hypothesis is needed.
+  have GG_cpt : CompactSpace (ProbabilityMeasure G × ProbabilityMeasure G) := inferInstance
+  let T : ProbabilityMeasure G × ProbabilityMeasure G → ℝ := -- restrict τ to the compact subspace
+    fun ⟨μ₁, μ₂⟩ ↦ τ[id ; μ₁ # id ; μ₂ | p]
+  have T_cont : Continuous T := by apply continuous_tau_restrict_probabilityMeasure
+  haveI : Inhabited G := ⟨0⟩ -- Need to record this for Lean to know that proba measures exist.
+  obtain ⟨μ, ⟨_, hμ⟩⟩ := @IsCompact.exists_isMinOn ℝ (ProbabilityMeasure G × ProbabilityMeasure G)
+                          _ _ _ _ Set.univ isCompact_univ ⟨default, trivial⟩ T T_cont.continuousOn
+  use ⟨μ.1.toMeasure, μ.2.toMeasure⟩
+  refine ⟨μ.1.prop, μ.2.prop, ?_⟩
+  intro ν₁ ν₂ Pν₁ Pν₂
+  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ⟨ν₂, Pν₂⟩⟩
+  rw [isMinOn_univ_iff] at hμ
+  exact hμ ν
 
 lemma tau_minimizer_exists : ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
     Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
