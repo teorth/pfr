@@ -97,8 +97,8 @@ lemma entropy_cond_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMe
   · have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure _ hy
     rw [entropy_eq_sum hX]
 
-/-- If $X$, $Y$ are $S$-valued and $T$-valued random variables, and $Y = f(X)$ almost surely for
-some injection $f: S \to T$, then $H[X] = H[Y]$. -/
+/-- If $X$, $Y$ are $S$-valued and $T$-valued random variables, and $Y = f(X)$ for
+some injection $f: S \to T$, then $H[Y] = H[X]$. One can also use `entropy_of_comp_eq_of_comp` as an alternative if verifying injectivity is fiddly.  For the upper bound only, see `entropy_comp_le`. -/
 lemma entropy_comp_of_injective
     (μ : Measure Ω) (hX : Measurable X) (f : S → T) (hf : Function.Injective f) :
     H[f ∘ X ; μ] = H[X ; μ] := by
@@ -345,7 +345,9 @@ lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
     H[⟨ X, Y ⟩ | Z ; μ] = H[Y | Z ; μ] + H[X | ⟨ Y, Z ⟩ ; μ] := by
     rw [condEntropy_comm hX hY, cond_chain_rule' _ hY hX hZ]
 
-/-- Data-processing inequality for the entropy. -/
+/-- Data-processing inequality for the entropy:
+$$ H[f(X)] \leq H[X].$$
+To upgrade this to equality, see `entropy_of_comp_eq_of_comp` or `entropy_comp_of_injective`. -/
 lemma entropy_comp_le
     (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) {f : S → U} (hf : Measurable f) :
     H[f ∘ X ; μ] ≤ H[X ; μ] := by
@@ -521,10 +523,12 @@ section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]
   [MeasurableSingletonClass T]
 
+/-- $$ H[X] - H[X|Y] = I[X:Y] $$ -/
 lemma entropy_sub_condEntropy (hX : Measurable X) (hY : Measurable Y) :
     H[X ; μ] - H[X | Y ; μ] = I[X : Y ; μ] := by
   rw [mutualInformation_def, chain_rule _ hX hY, add_comm, add_sub_add_left_eq_sub]
 
+/-- $$ H[X|Y] ≤ H[X] $$ -/
 lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
     H[X | Y ; μ] ≤ H[X ; μ] :=
   sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInformation_nonneg hX hY _

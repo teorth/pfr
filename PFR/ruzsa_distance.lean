@@ -270,7 +270,13 @@ lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,
       _ = H[⟨ ⟨ X, Y ⟩, Z ⟩; μ] := by
         symm; apply entropy_pair_eq_add' (Measurable.prod_mk hX hY) hZ
         exact iIndepFun.indepFun_prod h this 0 1 2 (by decide) (by decide)
-      _ = H[⟨ X, ⟨ Z , X + (Y+Z) ⟩ ⟩; μ] := by sorry
+      _ = H[⟨ X, ⟨ Z , X + (Y+Z) ⟩ ⟩; μ] := by
+        apply entropy_of_comp_eq_of_comp μ _ (fun x ↦ (x.1.1, (x.2, x.1.1+x.1.2+x.2))) (fun y ↦ ((y.1, y.2.2-y.1-y.2.1), y.2.1))
+        . sorry
+        . sorry
+        . sorry
+        . sorry
+        sorry
   . rw [add_assoc]
   . refine entropy_pair_eq_add' hX (hY.add hZ) ?_ |>.symm.trans ?_
     . apply IndepFun.symm
@@ -284,6 +290,8 @@ lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,
   symm
   exact entropy_of_shear_eq hZ (hX.add hY)
 
+-- lemma entropy_of_comp_eq_of_comp
+--    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → T) (g : T → S) (hf : Measurable f) (hg : Measurable g) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y)
 
 section Balog_Szemeredi_Gowers
 
