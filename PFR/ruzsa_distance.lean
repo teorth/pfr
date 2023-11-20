@@ -69,6 +69,13 @@ lemma entropy_sub_mutualInformation_le_entropy_sub
   rw [<- condEntropy_of_sub_eq hX hY]
   exact condEntropy_le_entropy _ (hX.sub hY) hY
 
+lemma entropy_of_shear_eq {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] : H[ ⟨ X, X+Y⟩; μ] = H[ ⟨ X, Y⟩ ; μ] := by
+  rw [chain_rule' μ hX hY, chain_rule' μ hX _]
+  . congr 1
+    rw [add_comm]
+    exact condEntropy_of_sum_eq hY hX
+  exact Measurable.add' hX hY
+
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X + Y].$$ -/
 lemma ent_of_sum_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
     [IsProbabilityMeasure μ] :
@@ -238,18 +245,36 @@ lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W 
 
 
 /-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/
-lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun ![hG, hG, hG] ![X,Y,Z] μ) (hX: Measurable X) (hY: Measurable Y) (hZ: Measurable Z) [IsProbabilityMeasure μ]: H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by
+lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,Z] μ) (hX: Measurable X) (hY: Measurable Y) (hZ: Measurable Z) [IsProbabilityMeasure μ]: H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by
   suffices : (H[X; μ] + H[Y;μ] + H[Z;μ]) + H[ X + Y + Z ; μ] ≤ (H[X;μ] + H[ Y + Z ; μ]) + (H[Z;μ] + H[ X + Y ; μ])
   . linarith
+  have (i : Fin 3) : Measurable (![X,Y,Z] i) := by
+    sorry
   convert entropy_triple_add_entropy_le _ hX hZ (Measurable.add' hX (Measurable.add' hY hZ)) using 2
-  . sorry
+  . calc
+      H[X; μ] + H[Y;μ] + H[Z;μ] = H[⟨ X, Y ⟩; μ] + H[Z;μ] := by
+        congr 1
+        symm; apply entropy_pair_eq_add' hX hY
+        have := iIndepFun.indepFun h (show 0 ≠ 1 by decide)
+        simp at this
+        assumption
+      _ = H[⟨ ⟨ X, Y ⟩, Z ⟩; μ] := by
+        symm; apply entropy_pair_eq_add' (Measurable.prod_mk hX hY) hZ
+        exact iIndepFun.indepFun_prod h this 0 1 2 (by decide) (by decide)
+      _ = H[⟨ X, ⟨ Z , X + (Y+Z) ⟩ ⟩; μ] := by sorry
   . rw [add_assoc]
   . refine entropy_pair_eq_add' hX (hY.add hZ) ?_ |>.symm.trans ?_
-    . sorry
-    sorry
+    . apply IndepFun.symm
+      exact iIndepFun.add h this 1 2 0 (by decide) (by decide)
+    symm
+    exact entropy_of_shear_eq hX (hY.add hZ)
   refine entropy_pair_eq_add' hZ (hX.add hY) ?_ |>.symm.trans ?_
-  . sorry
-  sorry
+  . apply IndepFun.symm
+    exact iIndepFun.add h this 0 1 2 (by decide) (by decide)
+  rw [show X + (Y + Z) = Z + (X + Y) by abel]
+  symm
+  exact entropy_of_shear_eq hZ (hX.add hY)
+
 
 section Balog_Szemeredi_Gowers
 
