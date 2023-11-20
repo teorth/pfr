@@ -20,25 +20,25 @@ open MeasureTheory ProbabilityTheory
 
 variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G] [ElementaryAddCommGroup G 2]
 
-variable {Ω₀₁ Ω₀₂ : Type*} [MeasurableSpace Ω₀₁] [MeasurableSpace Ω₀₂]
+variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 
-variable (p : ref_package Ω₀₁ Ω₀₂ G)
+variable (p : refPackage Ω₀₁ Ω₀₂ G)
 
-variable {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
+variable {Ω : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 variable (X₁ X₂ X₁' X₂' : Ω → G)
 
-variable (h₁ : IdentDistrib X₁ X₁' μ μ) (h2 : IdentDistrib X₂ X₂' μ μ)
+variable (h₁ : IdentDistrib X₁ X₁') (h2 : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun ![hG, hG, hG, hG] ![X₁, X₂, X₁', X₂'] μ)
+variable (h_indep : iIndepFun ![hG, hG, hG, hG] ![X₁, X₂, X₁', X₂'])
 
-variable (h_min: tau_minimizes p (μ.map X₁) (μ.map X₂))
+variable (h_min: tau_minimizes p X₁ X₂)
 
-local notation3 "k" => d[ X₁; μ # X₂; μ ]
+local notation3 "k" => d[X₁ # X₂]
 
-local notation3 "I₁" => I[ X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂' ; μ ]
+local notation3 "I₁" => I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂']
 
-local notation3 "I₂" => I[ X₁ + X₂ : X₁' + X₁ | X₁ + X₂ + X₁' + X₂' ; μ ]
+local notation3 "I₂" => I[X₁ + X₂ : X₁' + X₁ | X₁ + X₂ + X₁' + X₂']
 
 /--  $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$ -/
 lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (1 - η) := by sorry

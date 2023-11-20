@@ -463,7 +463,7 @@ lemma condMutualInformation_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ
       H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨ X, Y ⟩ | Z ← z ; μ]] := rfl
 
 notation3:max "I[" X ":" Y "|" Z ";" μ "]" => condMutualInformation X Y Z μ
-notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z volume
+notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z MeasureTheory.MeasureSpace.volume
 
 lemma condMutualInformation_eq_kernel_mutualInfo
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
