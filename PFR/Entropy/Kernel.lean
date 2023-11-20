@@ -36,7 +36,7 @@ variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
 noncomputable
 def entropy (κ : kernel T S) (μ : Measure T) := μ[fun y ↦ Hm[κ y]]
 
-notation3:100 "Hk[" κ " , " μ "]" => kernel.entropy κ μ
+notation3:100 "Hk[" κ " , " μ "]" => ProbabilityTheory.kernel.entropy κ μ
 
 @[simp]
 lemma entropy_zero_measure (κ : kernel T S) : Hk[κ, (0 : Measure T)] = 0 := by simp [entropy]
@@ -82,11 +82,11 @@ lemma entropy_snd_compProd_deterministic_of_injective (κ : kernel T S) [IsMarko
 
 lemma entropy_map_of_injective
     (κ : kernel T S) (μ : Measure T) (f : S → U) (hf : Function.Injective f) :
-    Hk[kernel.map κ f (measurable_of_finite f), μ] = Hk[κ, μ] := by
-  simp_rw [entropy, kernel.map_apply, measureEntropy_map_of_injective _ _ hf]
+    Hk[map κ f (measurable_of_finite f), μ] = Hk[κ, μ] := by
+  simp_rw [entropy, map_apply, measureEntropy_map_of_injective _ _ hf]
 
 lemma entropy_map_swap (κ : kernel T (S × U)) (μ : Measure T) :
-    Hk[kernel.map κ Prod.swap measurable_swap, μ] = Hk[κ, μ] :=
+    Hk[map κ Prod.swap measurable_swap, μ] = Hk[κ, μ] :=
   entropy_map_of_injective κ μ Prod.swap Prod.swap_injective
 
 lemma entropy_swapRight (κ : kernel T (S × U)) (μ : Measure T) :
@@ -97,11 +97,11 @@ lemma entropy_comap {T' : Type*} [Fintype T'] [MeasurableSpace T'] [MeasurableSi
     (κ : kernel T S) (μ : Measure T) (f : T' → T) (hf : MeasurableEmbedding f)
     (hf_range : Set.range f =ᵐ[μ] Set.univ)
     [IsFiniteMeasure μ] [IsFiniteMeasure (μ.comap f)] :
-    Hk[kernel.comap κ f hf.measurable, μ.comap f] = Hk[κ, μ] := by
+    Hk[comap κ f hf.measurable, μ.comap f] = Hk[κ, μ] := by
   simp_rw [entropy, integral_eq_sum, Measure.comap_apply f hf.injective hf.measurableSet_image' _
     (measurableSet_singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
-  simp_rw [kernel.comap_apply]
+  simp_rw [comap_apply]
   classical
   rw [← Finset.sum_image (f := fun x ↦ (μ {x}).toReal * measureEntropy (κ x)) (g := f)]
   · rw [Finset.sum_subset]
@@ -119,12 +119,12 @@ lemma entropy_comap {T' : Type*} [Fintype T'] [MeasurableSpace T'] [MeasurableSi
 lemma entropy_comap_equiv {T' : Type*} [Fintype T'] [MeasurableSpace T'] [MeasurableSingletonClass T']
     (κ : kernel T S) (μ : Measure T) (f : T' ≃ᵐ T)
     [IsFiniteMeasure μ] [IsFiniteMeasure (μ.comap f)] :
-    Hk[kernel.comap κ f f.measurable, μ.comap f] = Hk[κ, μ] := by
+    Hk[comap κ f f.measurable, μ.comap f] = Hk[κ, μ] := by
   simp_rw [entropy, integral_eq_sum]
   simp_rw [Measure.comap_apply f f.injective f.measurableEmbedding.measurableSet_image' _
     (measurableSet_singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
-  simp_rw [kernel.comap_apply]
+  simp_rw [comap_apply]
   rw [Finset.sum_bij (fun x _ ↦ f x)]
   · simp
   · simp only [Finset.mem_univ, forall_true_left, implies_true]
@@ -137,7 +137,7 @@ lemma entropy_comap_equiv {T' : Type*} [Fintype T'] [MeasurableSpace T'] [Measur
 lemma entropy_comap_swap
     {T' : Type*} [Fintype T'] [MeasurableSpace T'] [MeasurableSingletonClass T']
     (κ : kernel (T' × T) S) (μ : Measure (T' × T)) [IsFiniteMeasure μ] :
-    Hk[kernel.comap κ Prod.swap measurable_swap, μ.comap Prod.swap] = Hk[κ, μ] := by
+    Hk[comap κ Prod.swap measurable_swap, μ.comap Prod.swap] = Hk[κ, μ] := by
   have : IsFiniteMeasure (Measure.comap (↑MeasurableEquiv.prodComm) μ) := by
     constructor
     rw [Measure.comap_apply]
@@ -149,17 +149,17 @@ lemma entropy_comap_swap
   exact entropy_comap_equiv κ μ MeasurableEquiv.prodComm
 
 lemma entropy_prodMkLeft_unit (κ : kernel T S) (μ : Measure T) [IsProbabilityMeasure μ] :
-    Hk[kernel.prodMkLeft Unit κ, μ.map (Prod.mk ())] = Hk[κ, μ] := by
+    Hk[prodMkLeft Unit κ, μ.map (Prod.mk ())] = Hk[κ, μ] := by
   rw [entropy, integral_eq_sum, Fintype.sum_prod_type]
   simp only [Finset.univ_unique, PUnit.default_eq_unit, smul_eq_mul, Finset.sum_singleton]
   simp_rw [Measure.map_apply measurable_prod_mk_left (measurableSet_singleton _)]
   have : ∀ x : T, Prod.mk () ⁻¹' {(PUnit.unit, x)} = {x} := fun x ↦ by ext; simp
-  simp_rw [this, kernel.prodMkLeft_apply, entropy, integral_eq_sum, smul_eq_mul]
+  simp_rw [this, prodMkLeft_apply, entropy, integral_eq_sum, smul_eq_mul]
 
 lemma entropy_compProd_aux [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η] :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ]
-      + μ[fun t ↦ Hk[kernel.comap η (Prod.mk t) measurable_prod_mk_left, (κ t)]] := by
+      + μ[fun t ↦ Hk[comap η (Prod.mk t) measurable_prod_mk_left, (κ t)]] := by
   simp_rw [entropy, measureEntropy_of_isProbabilityMeasure,
     compProd_apply κ η _ (measurableSet_singleton _), lintegral_eq_sum]
   have : ∀ (x : T) (su : S × U),
@@ -251,21 +251,54 @@ lemma entropy_compProd_deterministic
 
 lemma chain_rule (κ : kernel T (S × U)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :
-    Hk[κ, μ] = Hk[kernel.fst κ, μ] + Hk[condKernel κ, μ ⊗ₘ (kernel.fst κ)] := by
+    Hk[κ, μ] = Hk[fst κ, μ] + Hk[condKernel κ, μ ⊗ₘ (fst κ)] := by
   conv_lhs => rw [disintegration κ]
   rw [entropy_compProd', ← disintegration κ]
 
 lemma chain_rule' (κ : kernel T (S × U)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :
-    Hk[κ, μ] = Hk[kernel.snd κ, μ] + Hk[condKernel (swapRight κ), μ ⊗ₘ (kernel.snd κ)] := by
+    Hk[κ, μ] = Hk[snd κ, μ] + Hk[condKernel (swapRight κ), μ ⊗ₘ (snd κ)] := by
   rw [← entropy_swapRight, chain_rule]
   simp
+
+@[simp]
+lemma entropy_prodMkRight (κ : kernel T S) (η : kernel T U)
+    [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[prodMkRight η S, μ ⊗ₘ κ] = Hk[η, μ] := by
+  simp_rw [entropy, prodMkRight_apply, integral_eq_sum,
+    Measure.compProd_apply _ _ (measurableSet_singleton _), lintegral_eq_sum, smul_eq_mul]
+  rw [Fintype.sum_prod_type]
+  simp_rw [← Finset.sum_mul]
+  suffices ∀ x, (∑ a : S, (∑ b : T, μ {b} * κ b (Prod.mk b ⁻¹' {(x, a)})).toReal)
+      = (μ {x}).toReal by
+    simp_rw [this]
+  intro x
+  classical
+  simp_rw [← Set.singleton_prod_singleton, Set.mk_preimage_prod_right_eq_if]
+  simp only [Set.mem_singleton_iff]
+  have : ∀ a : S, (∑ b : T, μ {b} * κ b (if b = x then {a} else ∅)).toReal
+      = (μ {x}).toReal * (κ x {a}).toReal := by
+    intro a
+    rw [Finset.sum_eq_single x]
+    · simp only [ite_true, ENNReal.toReal_mul]
+    · simp only [Finset.mem_univ, ne_eq, mul_eq_zero, forall_true_left]
+      intro b hb
+      simp [hb]
+    · simp [measure_ne_top]
+  simp_rw [this, ← Finset.mul_sum, sum_toReal_measure_singleton]
+  simp
+
+@[simp]
+lemma entropy_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [IsMarkovKernel η]
+    (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by
+  rw [chain_rule, fst_prod, entropy_congr (condKernel_prod_ae_eq _ _), entropy_prodMkRight]
 
 /-- Data-processing inequality for the kernel entropy. -/
 lemma entropy_map_le
     (κ : kernel T S) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ] (f : S → U) :
-    Hk[kernel.map κ f (measurable_of_finite f), μ] ≤ Hk[κ, μ] := by
-  have : Hk[κ, μ] = Hk[kernel.map κ (fun x ↦ (x, f x)) (measurable_of_finite _), μ] := by
+    Hk[map κ f (measurable_of_finite f), μ] ≤ Hk[κ, μ] := by
+  have : Hk[κ, μ] = Hk[map κ (fun x ↦ (x, f x)) (measurable_of_finite _), μ] := by
     refine (entropy_map_of_injective κ μ (fun x ↦ (x, f x)) ?_).symm
     intro x y hxy
     simp only [Prod.mk.injEq] at hxy

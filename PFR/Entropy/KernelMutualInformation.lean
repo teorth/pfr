@@ -41,6 +41,9 @@ def mutualInfo (κ : kernel T (S × U)) (μ : Measure T) : ℝ :=
 
 notation3:100 "Ik[" κ " , " μ "]" => kernel.mutualInfo κ μ
 
+lemma mutualInfo_def (κ : kernel T (S × U)) (μ : Measure T) :
+    Ik[κ, μ] = Hk[fst κ, μ] + Hk[snd κ, μ] - Hk[κ, μ] := rfl
+
 @[simp]
 lemma mutualInfo_zero_measure (κ : kernel T (S × U)) : Ik[κ, (0 : Measure T)] = 0 := by
   simp [mutualInfo]
@@ -65,6 +68,12 @@ lemma mutualInfo_eq_fst_sub (κ : kernel T (S × U)) [IsMarkovKernel κ]
     Ik[κ, μ] = Hk[fst κ, μ] - Hk[condKernel (swapRight κ), μ ⊗ₘ (snd κ)] := by
   rw [mutualInfo, chain_rule' κ μ]
   ring
+
+@[simp]
+lemma mutualInfo_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [IsMarkovKernel η]
+    (μ : Measure T) [IsProbabilityMeasure μ] :
+    Ik[κ ×ₖ η, μ] = 0 := by
+  rw [mutualInfo, snd_prod, fst_prod, entropy_prod, sub_self]
 
 @[simp]
 lemma mutualInfo_swapRight (κ : kernel T (S × U)) [IsMarkovKernel κ]
