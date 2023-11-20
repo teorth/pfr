@@ -257,13 +257,24 @@ lemma cond_rdist_of_copy [MeasurableSpace S] [MeasurableSpace T] {X : Ω → G} 
 
 lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Y' : Ω''' → G} {W' : Ω''' → T} (h1 : IdentDistrib X X' μ μ'') (h2: IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ'''): d[ X ; μ # Y | W ; μ'] = d[ X' ; μ'' # Y' | W' ; μ'''] := by sorry
 
+/-- Obvious extension of Fin.forall_fin_two -/
+lemma Fin.forall_fin_three {p : Fin 3 → Prop} : (∀ (i : Fin 3), p i) ↔ p 0 ∧ p 1 ∧ p 2 :=
+  Fin.forall_fin_succ.trans <| and_congr_right fun _ => Fin.forall_fin_two
 
 /-- H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y]. -/
 lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,Z] μ) (hX: Measurable X) (hY: Measurable Y) (hZ: Measurable Z) [IsProbabilityMeasure μ]: H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by
   suffices : (H[X; μ] + H[Y;μ] + H[Z;μ]) + H[ X + Y + Z ; μ] ≤ (H[X;μ] + H[ Y + Z ; μ]) + (H[Z;μ] + H[ X + Y ; μ])
   . linarith
-  have (i : Fin 3) : Measurable (![X,Y,Z] i) := by
-    sorry
+  have : ∀ (i : Fin 3), Measurable (![X,Y,Z] i) := by
+    rw [Fin.forall_fin_three]
+    constructor
+    . dsimp
+      exact hX
+    constructor
+    . dsimp
+      exact hY
+    dsimp
+    exact hZ
   convert entropy_triple_add_entropy_le _ hX hZ (Measurable.add' hX (Measurable.add' hY hZ)) using 2
   . calc
       H[X; μ] + H[Y;μ] + H[Z;μ] = H[⟨ X, Y ⟩; μ] + H[Z;μ] := by
@@ -276,12 +287,20 @@ lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,
         symm; apply entropy_pair_eq_add' (Measurable.prod_mk hX hY) hZ
         exact iIndepFun.indepFun_prod h this 0 1 2 (by decide) (by decide)
       _ = H[⟨ X, ⟨ Z , X + (Y+Z) ⟩ ⟩; μ] := by
-        apply entropy_of_comp_eq_of_comp μ _ (fun x ↦ (x.1.1, (x.2, x.1.1+x.1.2+x.2))) (fun y ↦ ((y.1, y.2.2-y.1-y.2.1), y.2.1))
-        . sorry
-        . sorry
-        . sorry
-        . sorry
-        sorry
+        apply entropy_of_comp_eq_of_comp μ _ _ (fun x ↦ (x.1.1, (x.2, x.1.1+x.1.2+x.2))) (fun y ↦ ((y.1, y.2.2-y.1-y.2.1), y.2.1))
+        . unfold prod
+          funext ω
+          dsimp
+          congr 2
+          abel
+        . unfold prod
+          funext ω
+          dsimp
+          congr 2
+          abel
+        . exact Measurable.prod_mk (Measurable.prod_mk hX hY) hZ
+        apply Measurable.prod_mk hX (Measurable.prod_mk hZ _)
+        exact Measurable.add' hX (Measurable.add' hY hZ)
   . rw [add_assoc]
   . refine entropy_pair_eq_add' hX (hY.add hZ) ?_ |>.symm.trans ?_
     . apply IndepFun.symm
@@ -295,8 +314,6 @@ lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,
   symm
   exact entropy_of_shear_eq hZ (hX.add hY)
 
--- lemma entropy_of_comp_eq_of_comp
---    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → T) (g : T → S) (hf : Measurable f) (hg : Measurable g) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y)
 
 section Balog_Szemeredi_Gowers
 

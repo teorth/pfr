@@ -349,27 +349,25 @@ lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
 $$ H[f(X)] \leq H[X].$$
 To upgrade this to equality, see `entropy_of_comp_eq_of_comp` or `entropy_comp_of_injective`. -/
 lemma entropy_comp_le
-    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) {f : S → U} (hf : Measurable f) :
+    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) {f : S → U} (hfX : Measurable ( f ∘ X)) :
     H[f ∘ X ; μ] ≤ H[X ; μ] := by
   have : H[X ; μ] = H[⟨ X, f ∘ X ⟩ ; μ] := by
     refine (entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) ?_).symm
     intro x y hxy
     simp only [Prod.mk.injEq] at hxy
     exact hxy.1
-  rw [this, chain_rule _ hX (hf.comp hX)]
+  rw [this, chain_rule _ hX hfX]
   simp only [le_add_iff_nonneg_right]
   exact condEntropy_nonneg X (f ∘ X) μ
 
 /-- A Schroder-Bernstein type theorem for entropy.  Can be used as a substitute for `entropy_comp_of_injective` if one doesn't want to establish the injectivity. -/
 lemma entropy_of_comp_eq_of_comp
-    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → T) (g : T → S) (hf : Measurable f) (hg : Measurable g) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) :
+    (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (f : S → T) (g : T → S) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) :
     H[X ; μ] = H[Y ; μ] := by
-    have hY : Measurable Y := by
-      rw [h1]; exact Measurable.comp hf hX
     have h3 : H[X ; μ] ≤ H[Y ; μ]  := by
-      rw [h2]; exact entropy_comp_le μ hY hg
+      rw [h2]; exact entropy_comp_le μ hY (by rw [<-h2]; exact hX)
     have h4 : H[Y ; μ] ≤ H[X ; μ]  := by
-      rw [h1]; exact entropy_comp_le μ hX hf
+      rw [h1]; exact entropy_comp_le μ hX (by rw [<-h1]; exact hY)
     linarith
 
 
