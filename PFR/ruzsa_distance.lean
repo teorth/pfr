@@ -259,7 +259,7 @@ lemma cond_rdist'_of_copy [MeasurableSpace T] {X : Ω → G} {Y : Ω' → G} {W 
 
 
 /-- $$H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y].$$ -/
-lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,Z] μ) (hX: Measurable X) (hY: Measurable Y) (hZ: Measurable Z) [IsProbabilityMeasure μ]: H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by
+lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun _ ↦ hG) ![X,Y,Z] μ) (hX: Measurable X) (hY: Measurable Y) (hZ: Measurable Z) [IsProbabilityMeasure μ]: H[ X + Y + Z ; μ] - H[ X + Y ; μ] ≤ H[ Y + Z ; μ] - H[ Y; μ ] := by
   suffices : (H[X; μ] + H[Y;μ] + H[Z;μ]) + H[ X + Y + Z ; μ] ≤ (H[X;μ] + H[ Y + Z ; μ]) + (H[Z;μ] + H[ X + Y ; μ])
   . linarith
   have : ∀ (i : Fin 3), Measurable (![X,Y,Z] i) := by
@@ -269,21 +269,13 @@ lemma Kaimonovich_Vershik {X Y Z : Ω → G} (h: iIndepFun (fun i ↦ hG) ![X,Y,
       H[X; μ] + H[Y;μ] + H[Z;μ] = H[⟨ X, Y ⟩; μ] + H[Z;μ] := by
         congr 1
         symm; apply entropy_pair_eq_add' hX hY
-        have := iIndepFun.indepFun h (show 0 ≠ 1 by decide)
-        simp at this
-        assumption
+        convert iIndepFun.indepFun h (show 0 ≠ 1 by decide)
       _ = H[⟨ ⟨ X, Y ⟩, Z ⟩; μ] := by
         symm; apply entropy_pair_eq_add' (Measurable.prod_mk hX hY) hZ
         exact iIndepFun.indepFun_prod h this 0 1 2 (by decide) (by decide)
       _ = H[⟨ X, ⟨ Z , X + (Y+Z) ⟩ ⟩; μ] := by
-        apply entropy_of_comp_eq_of_comp μ (by measurability) (by measurability) (fun x ↦ (x.1.1, (x.2, x.1.1+x.1.2+x.2))) (fun y ↦ ((y.1, y.2.2-y.1-y.2.1), y.2.1))
-        all_goals {
-          unfold prod
-          funext ω
-          dsimp
-          congr 2
-          abel
-        }
+        apply entropy_of_comp_eq_of_comp μ (by measurability) (by measurability) (fun ((x,y),z) ↦ (x, (z, x+y+z))) (fun (a,(b,c)) ↦ ((a, c-a-b), b))
+        all_goals { funext ω; dsimp [prod]; ext <;> dsimp; abel }
   . rw [add_assoc]
   . refine entropy_pair_eq_add' hX (hY.add hZ) ?_ |>.symm.trans ?_
     . apply IndepFun.symm
