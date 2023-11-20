@@ -259,7 +259,40 @@ lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by
   linarith [ge_trans diff_ent_le_rdist (abs_nonneg (H[X; μ] - H[Y; μ']))]
 
 /-- The improved Ruzsa triangle inequality -/
-lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G) (h : IndepFun (⟨ X, Z ⟩) Y μ): H[ X - Z; μ] ≤ H[ X - Y; μ] + H[ Y - Z; μ] - H[ Y; μ ]:= by sorry
+lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (h : IndepFun (⟨ X, Y ⟩) Z μ) [IsProbabilityMeasure μ] :
+    H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ] := by
+  have h1 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] + H[X - Y; μ] ≤ H[⟨X - Z, X - Y⟩; μ] + H[⟨Y, X - Y⟩; μ] :=
+    entropy_triple_add_entropy_le μ (hX.sub hZ) hY (hX.sub hY)
+  have h2 : H[⟨X - Z, X - Y⟩ ; μ] ≤ H[X - Z ; μ] + H[Y - Z ; μ] := by
+    calc H[⟨X - Z, X - Y⟩ ; μ] ≤ H[⟨X - Z, Y - Z⟩ ; μ] := by
+          have : ⟨X - Z, X - Y⟩ = (fun p ↦ (p.1, p.1 - p.2)) ∘ ⟨X - Z, Y - Z⟩ := by ext1; simp
+          rw [this]
+          exact entropy_comp_le μ ((hX.sub hZ).prod_mk (hY.sub hZ)) _
+    _ ≤ H[X - Z ; μ] + H[Y - Z ; μ] := by
+          have h : 0 ≤ H[X - Z ; μ] + H[Y - Z ; μ] - H[⟨X - Z, Y - Z⟩ ; μ] :=
+            mutualInformation_nonneg (hX.sub hZ) (hY.sub hZ) μ
+          linarith
+  have h3 : H[⟨ Y, X - Y ⟩ ; μ] ≤ H[⟨ X, Y ⟩ ; μ] := by
+    have : ⟨Y, X - Y⟩ = (fun p ↦ (p.2, p.1 - p.2)) ∘ ⟨X, Y⟩ := by ext1; simp
+    rw [this]
+    exact entropy_comp_le μ (hX.prod_mk hY) _
+  have h4 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] = H[⟨X, ⟨Y, Z⟩⟩ ; μ] := by
+    refine entropy_of_comp_eq_of_comp μ ((hX.sub hZ).prod_mk (hY.prod_mk (hX.sub hY)))
+      (hX.prod_mk (hY.prod_mk hZ))
+      (fun p : G × (G × G) ↦ (p.2.2 + p.2.1, p.2.1, -p.1 + p.2.2 + p.2.1))
+      (fun p : G × G × G ↦ (p.1 - p.2.2, p.2.1, p.1 - p.2.1)) ?_ ?_
+    · ext1; simp
+    · ext1; simp
+  have h5 : H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨X, Y⟩ ; μ] + H[Z ; μ] := by
+    rw [entropy_assoc hX hY hZ, entropy_pair_eq_add (hX.prod_mk hY) hZ]
+    exact h
+  rw [h4, h5] at h1
+  calc H[X - Y; μ] ≤ H[X - Z; μ] + H[Y - Z; μ] - H[Z; μ] := by linarith
+  _ = H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ] := by
+    congr 2
+    rw [entropy_sub_comm hY hZ]
 
 /-- The Ruzsa triangle inequality -/
 lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) :
