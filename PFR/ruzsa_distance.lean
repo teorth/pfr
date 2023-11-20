@@ -69,12 +69,20 @@ lemma entropy_sub_mutualInformation_le_entropy_sub
   rw [<- condEntropy_of_sub_eq hX hY]
   exact condEntropy_le_entropy _ (hX.sub hY) hY
 
+/--$$H[X, X+Y] = H[X, Y]$$ --/
 lemma entropy_of_shear_eq {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] : H[ ⟨ X, X+Y⟩; μ] = H[ ⟨ X, Y⟩ ; μ] := by
   rw [chain_rule' μ hX hY, chain_rule' μ hX _]
   . congr 1
     rw [add_comm]
     exact condEntropy_of_sum_eq hY hX
   exact Measurable.add' hX hY
+
+/--$$H[X, Y-X] = H[X, Y]$$ --/
+lemma entropy_of_shear_eq' {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] : H[ ⟨ X, Y-X⟩; μ] = H[ ⟨ X, Y⟩ ; μ] := by
+  rw [chain_rule' μ hX hY, chain_rule' μ hX _]
+  . congr 1
+    exact condEntropy_of_sub_eq hY hX
+  exact Measurable.sub' hY hX
 
 /-- $$ \max(H[X], H[Y]) - I[X:Y] \leq H[X + Y].$$ -/
 lemma ent_of_sum_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)

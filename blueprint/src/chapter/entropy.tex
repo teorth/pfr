@@ -12,7 +12,10 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 \end{definition}
 
 \begin{lemma}[Entropy and relabeling]\label{relabeled-entropy}\lean{ProbabilityTheory.entropy_comp_of_injective, entropy_of_comp_eq_of_comp} \uses{entropy-def}\leanok
-  If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ almost surely for some injection $f: S \to T$, then $\bbH[X] = \bbH[Y]$.
+  \begin{itemize}
+\item[(i)]   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ for some injection $f: S \to T$, then $\bbH[X] = \bbH[Y]$.
+\item[(ii)]   If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $Y = f(X)$ and $X = g(Y)$ for some functions $f: S \to T$, $g: T \to S$, then $\bbH[X] = \bbH[Y]$.
+\end{itemize}
 \end{lemma}
 
 \begin{proof} \leanok Expand out both entropies and rearrange.
