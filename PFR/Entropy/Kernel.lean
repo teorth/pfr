@@ -261,8 +261,9 @@ lemma chain_rule' (κ : kernel T (S × U)) [IsMarkovKernel κ]
   rw [← entropy_swapRight, chain_rule]
   simp
 
+@[simp]
 lemma entropy_prodMkRight (κ : kernel T S) (η : kernel T U)
-    [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure T) [IsProbabilityMeasure μ] :
+    [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ] :
     Hk[prodMkRight η S, μ ⊗ₘ κ] = Hk[η, μ] := by
   simp_rw [entropy, prodMkRight_apply, integral_eq_sum,
     Measure.compProd_apply _ _ (measurableSet_singleton _), lintegral_eq_sum, smul_eq_mul]
@@ -287,6 +288,7 @@ lemma entropy_prodMkRight (κ : kernel T S) (η : kernel T U)
   simp_rw [this, ← Finset.mul_sum, sum_toReal_measure_singleton]
   simp
 
+@[simp]
 lemma entropy_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) [IsProbabilityMeasure μ] :
     Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by

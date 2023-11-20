@@ -78,7 +78,7 @@ lemma cond_eq_zero_of_measure_zero {α : Type*} {_ : MeasurableSpace α} {μ : M
   have : μ.restrict s = 0 := by simp [hμs]
   simp [ProbabilityTheory.cond, this]
 
-lemma measure_preimage_fst_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
+lemma measure_preimage_fst_singleton_eq_sum {S T : Type*} {_ : MeasurableSpace S}
     [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
     [MeasurableSingletonClass T] (μ : Measure (S × T)) (x : S) :
     μ (Prod.fst ⁻¹' {x}) = ∑ y : T, μ {(x, y)} := by
@@ -99,7 +99,7 @@ lemma measure_preimage_fst_singleton_eq_sum {S T : Type*} [Fintype S] {_ : Measu
     exact haa' h1.symm
   · simp
 
-lemma measureReal_preimage_fst_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
+lemma measureReal_preimage_fst_singleton_eq_sum {S T : Type*} {_ : MeasurableSpace S}
     [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
     [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (x : S) :
     μ.real (Prod.fst ⁻¹' {x}) = ∑ y : T, μ.real {(x, y)} := by
@@ -109,7 +109,7 @@ lemma measureReal_preimage_fst_singleton_eq_sum {S T : Type*} [Fintype S] {_ : M
   finiteness
 
 lemma measure_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass S] {_ : MeasurableSpace T}
     [MeasurableSingletonClass T] (μ : Measure (S × T)) (y : T) :
     μ (Prod.snd ⁻¹' {y}) = ∑ x : S, μ {(x, y)} := by
   have : Prod.snd ⁻¹' {y} = ⋃ x : S, {(x, y)} := by
@@ -130,7 +130,7 @@ lemma measure_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : Measu
   · simp
 
 lemma measureReal_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass S] {_ : MeasurableSpace T}
     [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (y : T) :
     μ.real (Prod.snd ⁻¹' {y}) = ∑ x : S, μ.real {(x, y)} := by
   rw [measureReal_def, measure_preimage_snd_singleton_eq_sum, ENNReal.toReal_sum]
@@ -409,6 +409,7 @@ lemma measureEntropy_comap_equiv (μ : Measure S) (f : T ≃ᵐ S) :
   have : Set.range f = Set.univ := Equiv.range_eq_univ _
   simp [this]
 
+@[simp]
 lemma measureEntropy_prod (μ : Measure S) (ν : Measure T)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     Hm[μ.prod ν] = Hm[μ] + Hm[ν] := by
@@ -452,6 +453,7 @@ lemma measureMutualInfo_swap (μ : Measure (S × T)) :
   congr
   rw [← Set.singleton_prod_singleton, Set.preimage_swap_prod, Set.singleton_prod_singleton]
 
+@[simp]
 lemma measureMutualInfo_prod (μ : Measure S) (ν : Measure T)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     Im[μ.prod ν] = 0 := by

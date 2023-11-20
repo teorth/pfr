@@ -69,6 +69,7 @@ lemma mutualInfo_eq_fst_sub (κ : kernel T (S × U)) [IsMarkovKernel κ]
   rw [mutualInfo, chain_rule' κ μ]
   ring
 
+@[simp]
 lemma mutualInfo_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) [IsProbabilityMeasure μ] :
     Ik[κ ×ₖ η, μ] = 0 := by

@@ -182,6 +182,7 @@ def prodMkRight (κ : kernel α β) (γ : Type*) [MeasurableSpace γ] : kernel (
 
 variable {γ : Type*} {mγ : MeasurableSpace γ} {f : β → γ} {g : γ → α}
 
+@[simp]
 theorem prodMkRight_apply (κ : kernel α β) (ca : α × γ) : prodMkRight κ γ ca = κ ca.fst := rfl
 
 theorem prodMkRight_apply' (κ : kernel α β) (ca : α × γ) (s : Set β) :
