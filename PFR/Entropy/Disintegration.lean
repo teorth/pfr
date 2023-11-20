@@ -149,7 +149,7 @@ lemma condKernel_compProd_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
 
 lemma condKernel_prod_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel T U) [IsMarkovKernel η] [IsFiniteMeasure μ] :
-    condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] swapLeft (prodMkLeft S η) := condKernel_compProd_ae_eq _ _
+    condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight η S := condKernel_compProd_ae_eq _ _
 
 instance (κ : kernel T (S × U)) [IsFiniteKernel κ] : IsFiniteKernel (condKernel κ) := by
   rw [condKernel]; infer_instance

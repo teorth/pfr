@@ -1,7 +1,7 @@
 import Mathlib.Probability.Notation
 import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
-import PFR.RuzsaDistance.EntropyGroup
+import PFR.Entropy.Group
 import PFR.entropy_basic
 
 /-!

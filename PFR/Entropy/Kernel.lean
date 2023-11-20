@@ -287,15 +287,10 @@ lemma entropy_prodMkRight (κ : kernel T S) (η : kernel T U)
   simp_rw [this, ← Finset.mul_sum, sum_toReal_measure_singleton]
   simp
 
-lemma entropy_swapLeft_prodMkLeft (κ : kernel T S) (η : kernel T U)
-    [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure T) [IsProbabilityMeasure μ] :
-    Hk[swapLeft (prodMkLeft S η), μ ⊗ₘ κ] = Hk[η, μ] :=
-  entropy_prodMkRight κ η μ
-
 lemma entropy_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) [IsProbabilityMeasure μ] :
     Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by
-  rw [chain_rule, fst_prod, entropy_congr (condKernel_prod_ae_eq _ _), entropy_swapLeft_prodMkLeft]
+  rw [chain_rule, fst_prod, entropy_congr (condKernel_prod_ae_eq _ _), entropy_prodMkRight]
 
 /-- Data-processing inequality for the kernel entropy. -/
 lemma entropy_map_le
