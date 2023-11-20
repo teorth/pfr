@@ -430,6 +430,12 @@ lemma measureMutualInfo_swap (μ : Measure (S × T)) :
   congr
   rw [← Set.singleton_prod_singleton, Set.preimage_swap_prod, Set.singleton_prod_singleton]
 
+lemma measureMutualInfo_prod (μ : Measure S) (ν : Measure T)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    Im[μ.prod ν] = 0 := by
+  rw [measureMutualInfo_def, measureEntropy_prod]
+  simp
+
 lemma measureMutualInfo_nonneg (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
     0 ≤ Im[μ] := by
   have : IsProbabilityMeasure (μ.map Prod.fst) :=
