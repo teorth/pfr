@@ -407,6 +407,39 @@ lemma entropy_pair_le_add [MeasurableSingletonClass S] [MeasurableSingletonClass
     H[⟨ X, Y ⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
   sub_nonneg.1 $ mutualInformation_nonneg hX hY _
 
+/-- $I[X:Y]=0$ iff $X,Y$ are independent. -/
+lemma mutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+    [IsProbabilityMeasure μ] :
+    I[X : Y ; μ] = 0 ↔ IndepFun X Y μ := by
+  have : IsProbabilityMeasure (μ.map (⟨ X, Y ⟩)) :=
+    isProbabilityMeasure_map (hX.prod_mk hY).aemeasurable
+  simp_rw [mutualInformation_def, entropy_def]
+  have h_fst : μ.map X = (μ.map (⟨ X, Y ⟩)).map Prod.fst := by
+    rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
+    congr
+  have h_snd : μ.map Y = (μ.map (⟨ X, Y ⟩)).map Prod.snd := by
+    rw [Measure.map_map measurable_snd (hX.prod_mk hY)]
+    congr
+  rw [h_fst, h_snd]
+  convert measureMutualInfo_eq_zero_iff (μ.map (⟨ X, Y ⟩))
+  rw [indepFun_iff_map_prod_eq_prod_map_map hX hY, ext_iff_measureReal_singleton]
+  congr! with p
+  convert measureReal_prod_prod (μ:=  μ.map X) (ν := μ.map Y) {p.1} {p.2}
+  · simp
+  · exact Measure.map_map measurable_fst (hX.prod_mk hY)
+  · exact Measure.map_map measurable_snd (hX.prod_mk hY)
+
+lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+    [IsProbabilityMeasure μ] :
+    H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by
+  rw [eq_comm, ←sub_eq_zero]
+  exact mutualInformation_eq_zero hX hY
+
+lemma entropy_pair_eq_add' (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+    [IsProbabilityMeasure μ] (h: IndepFun X Y μ) :
+    H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] :=
+  (entropy_pair_eq_add hX hY).2 h
+
 noncomputable
 def condMutualInformation (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
     ℝ := (μ.map Z)[fun z ↦ H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨ X, Y ⟩ | Z ← z ; μ]]
@@ -502,16 +535,6 @@ lemma entropy_triple_add_entropy_le
   exact add_le_add le_rfl (entropy_submodular _ hX hY hZ)
 
 variable {μ : Measure Ω}
-
-lemma entropy_pair_eq_add' (h: IndepFun X Y μ) :
-H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] := by sorry
-
-lemma entropy_pair_eq_add : H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ :=
-  sorry -- the lemma `measureMutualInfo_eq_zero_iff` should be most of the way there
-
-/-- $I[X:Y]=0$ iff $X,Y$ are independent. -/
-lemma mutualInformation_eq_zero : I[X : Y ; μ] = 0 ↔ IndepFun X Y μ :=
-  sub_eq_zero.trans $ eq_comm.trans entropy_pair_eq_add
 
 /-- The assertion that X and Y are conditionally independent relative to Z.  -/
 def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := sorry
