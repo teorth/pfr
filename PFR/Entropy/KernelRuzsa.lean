@@ -72,4 +72,101 @@ lemma rdist_symm (κ : kernel T G) (η : kernel T' G) [IsFiniteKernel κ] [IsFin
     comap_prod_swap, map_map]
   congr
 
+section
+variable {α β γ δ : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
+    {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
+
+noncomputable
+def deleteMiddle (κ : kernel α (β × γ × δ)) :
+    kernel α (β × δ) :=
+  map κ (fun p ↦ (p.1, p.2.2)) (measurable_fst.prod_mk (measurable_snd.comp measurable_snd))
+
+instance (κ : kernel α (β × γ × δ)) [IsMarkovKernel κ] :
+    IsMarkovKernel (deleteMiddle κ) := by
+  rw [deleteMiddle]
+  infer_instance
+
+@[simp]
+lemma fst_deleteMiddle (κ : kernel α (β × γ × δ)) : fst (deleteMiddle κ) = fst κ := by
+  rw [deleteMiddle, fst_map_prod]
+  rotate_left
+  · exact measurable_fst
+  · exact measurable_snd.comp measurable_snd
+  · rfl
+
+@[simp]
+lemma snd_deleteMiddle (κ : kernel α (β × γ × δ)) : snd (deleteMiddle κ) = snd (snd κ) := by
+  rw [deleteMiddle, snd_map_prod]
+  rotate_left
+  · exact measurable_fst
+  · exact measurable_snd.comp measurable_snd
+  · rw [snd, snd, map_map]
+    rfl
+
+end
+
+lemma entropy_submodular {S U V : Type*}
+    [Fintype S] [Nonempty S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    [Fintype U] [Nonempty U] [MeasurableSpace U] [MeasurableSingletonClass U]
+    [Fintype V] [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V]
+    (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
+    (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[condKernel (swapRight κ), μ ⊗ₘ snd κ]
+      ≤ Hk[condKernel (swapRight (deleteMiddle κ)), μ ⊗ₘ snd (snd κ)] := by
+  --have h := entropy_condKernel_le_entropy_snd (swapRight κ) μ -- unconditions too much!
+  sorry
+
+/-- The submodularity inequality:
+$$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
+lemma entropy_triple_add_entropy_le (κ : kernel T (G × G × G)) [IsMarkovKernel κ]
+    (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[κ, μ] + Hk[snd (snd κ), μ] ≤ Hk[deleteMiddle κ, μ] + Hk[snd κ, μ] := by
+  rw [chain_rule' κ, chain_rule' (deleteMiddle κ), chain_rule' (snd κ)]
+  simp only [snd_deleteMiddle, fst_deleteMiddle, add_assoc]
+  refine add_le_add le_rfl ?_
+  rw [add_comm (Hk[snd (snd κ) , μ])]
+  simp_rw [← add_assoc]
+  refine add_le_add ?_ le_rfl
+  rw [add_comm]
+  refine add_le_add ?_ le_rfl
+  exact entropy_submodular _ _
+
+-- `κ` is `⟨X,Y⟩`, `η` is `Z`. Independence is expressed through the product `×ₖ`.
+--lemma ent_of_diff_le (κ : T → G × G) (η : T → G) [IsMarkovKernel κ] [IsMarkovKernel η]
+--    [IsProbabilityMeasure μ] :
+--    Hk[map κ (fun p ↦ p.1 - p.2) measurable_sub, μ]
+--      ≤ Hk[map ((fst κ) ×ₖ η) (fun p ↦ p.1 - p.2) measurable_sub, μ]
+--        + Hk[map (η ×ₖ (snd κ)) (fun p ↦ p.1 - p.2) measurable_sub, μ] - Hk[η, μ] := by
+--  sorry
+  --have h1 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] + H[X - Y; μ] ≤ H[⟨X - Z, X - Y⟩; μ] + H[⟨Y, X - Y⟩; μ] :=
+  --  entropy_triple_add_entropy_le μ (hX.sub hZ) hY (hX.sub hY)
+  --have h2 : H[⟨X - Z, X - Y⟩ ; μ] ≤ H[X - Z ; μ] + H[Y - Z ; μ] := by
+  --  calc H[⟨X - Z, X - Y⟩ ; μ] ≤ H[⟨X - Z, Y - Z⟩ ; μ] := by
+  --        have : ⟨X - Z, X - Y⟩ = (fun p ↦ (p.1, p.1 - p.2)) ∘ ⟨X - Z, Y - Z⟩ := by ext1; simp
+  --        rw [this]
+  --        exact entropy_comp_le μ ((hX.sub hZ).prod_mk (hY.sub hZ)) _
+  --  _ ≤ H[X - Z ; μ] + H[Y - Z ; μ] := by
+  --        have h : 0 ≤ H[X - Z ; μ] + H[Y - Z ; μ] - H[⟨X - Z, Y - Z⟩ ; μ] :=
+  --          mutualInformation_nonneg (hX.sub hZ) (hY.sub hZ) μ
+  --        linarith
+  --have h3 : H[⟨ Y, X - Y ⟩ ; μ] ≤ H[⟨ X, Y ⟩ ; μ] := by
+  --  have : ⟨Y, X - Y⟩ = (fun p ↦ (p.2, p.1 - p.2)) ∘ ⟨X, Y⟩ := by ext1; simp
+  --  rw [this]
+  --  exact entropy_comp_le μ (hX.prod_mk hY) _
+  --have h4 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] = H[⟨X, ⟨Y, Z⟩⟩ ; μ] := by
+  --  refine entropy_of_comp_eq_of_comp μ ((hX.sub hZ).prod_mk (hY.prod_mk (hX.sub hY)))
+  --    (hX.prod_mk (hY.prod_mk hZ))
+  --    (fun p : G × (G × G) ↦ (p.2.2 + p.2.1, p.2.1, -p.1 + p.2.2 + p.2.1))
+  --    (fun p : G × G × G ↦ (p.1 - p.2.2, p.2.1, p.1 - p.2.1)) ?_ ?_
+  --  · ext1; simp
+  --  · ext1; simp
+  --have h5 : H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨X, Y⟩ ; μ] + H[Z ; μ] := by
+  --  rw [entropy_assoc hX hY hZ, entropy_pair_eq_add (hX.prod_mk hY) hZ]
+  --  exact h
+  --rw [h4, h5] at h1
+  --calc H[X - Y; μ] ≤ H[X - Z; μ] + H[Y - Z; μ] - H[Z; μ] := by linarith
+  --_ = H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ] := by
+  --  congr 2
+  --  rw [entropy_sub_comm hY hZ]
+
 end ProbabilityTheory.kernel
