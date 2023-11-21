@@ -4,6 +4,7 @@ import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
 import Mathlib.Probability.IdentDistrib
 import PFR.Entropy.KernelMutualInformation
+import PFR.ForMathlib.Independence
 
 /-!
 # Entropy and conditional entropy
@@ -676,32 +677,11 @@ instance Triple.fintype : Fintype Triple where
   elems := {first, second, third}
   complete := by intro i; induction i <;> decide
 
-/-- A version with exactly 3 random variables. -/
-/- Note (Floris): Currently we assume that the `Ωᵢ` live in the same universe.
-If that is annoying, we can prove the general case with `ULift`.
-However, then even the statement will require ULifts, so it will not be nicer. -/
-lemma independent_copies3 {S₁ S₂ S₃ : Type u}
-    [mS₁ : MeasurableSpace S₁] [mS₂ : MeasurableSpace S₂] [mS₃ : MeasurableSpace S₃]
-    {Ω₁ Ω₂ Ω₃ : Type v}
-    [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂] [mΩ₃ : MeasurableSpace Ω₃]
-    {X₁ : Ω₁ → S₁} {X₂ : Ω₂ → S₂} {X₃ : Ω₃ → S₃}
-    (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
-    (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) :
-    ∃ (A : Type _) (mA : MeasurableSpace A) (μA : Measure A)
-      (X₁' : A → S₁) (X₂' : A → S₂) (X₃' : A → S₃),
-    IsProbabilityMeasure μA ∧
-    (iIndepFun (β := ![S₁, S₂, S₃])
-      (Fin.cons mS₁ (Fin.cons mS₂ (Fin.cons mS₃ Fin.rec0)))
-      (Fin.cons X₁' (Fin.cons X₂' (Fin.cons X₃' Fin.rec0))) μA) ∧
-      Measurable X₁ ∧ Measurable X₂ ∧ Measurable X₃ ∧
-      IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by sorry
-  -- this is very painful!
-  -- let Ω : Fin 3 → Type v := ![Ω₁, Ω₂, Ω₃]
-  -- let mΩ : (i : Fin 3) → MeasurableSpace (Ω i) := by intro i; fin_cases i <;> dsimp
-  -- let S : Fin 3 → Type u := ![S₁, S₂, S₃]
-  -- let X : (i : Fin 3) → Ω i → S i := Fin.cons X₁ (Fin.cons X₂ (Fin.cons X₃ Fin.rec0))
-  -- have : ∀ (i : Fin 3), Measurable (X i) := by intro i; fin_cases i <;> simp [hX₁, hX₂, hX₃]
-  -- obtain ⟨A, mA, μA, X'⟩ := independent_copies'
+def Triple_equiv_fin3 : Triple ≃ Fin 3 where
+  toFun x := match x with | .first => 0 | .second => 1 | .third => 2
+  invFun := ![.first, .second, .third]
+  left_inv x := by cases x <;> rfl
+  right_inv i := by fin_cases i <;> rfl
 
 /-- A version with only 1 `S`. -/
 lemma independent_copies3_nondep {S : Type u}
@@ -727,8 +707,8 @@ lemma independent_copies3_nondep {S : Type u}
   refine ⟨A, mA, μA, X' .first, X' .second, X' .third, hμ, ?_,
     (hX' .first).1, (hX' .second).1, (hX' .third).1,
     (hX' .first).2, (hX' .second).2, (hX' .third).2⟩
-  sorry -- we need `iIndepFun.reindex`.
-
+  apply iIndepFun.reindex Triple_equiv_fin3 _
+  convert hi using 1; ext i; cases i <;> rfl
 
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.-/
 lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T), ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T, IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧ (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩) (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by sorry
