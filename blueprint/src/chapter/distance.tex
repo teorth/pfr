@@ -12,7 +12,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 \end{proof}
 
 \begin{lemma}[Shearing preserves entropy]\label{shear-ent}
-  \lean{condEntropy_of_sum_eq, condEntropy_of_diff_eq,entropy_of_shear_eq,entropy_of_shear_eq'}
+  \lean{condEntropy_of_sum_eq, condEntropy_of_diff_eq,entropy_of_shear_eq,entropy_of_shear_eq'}\leanok
   If $X,Y$ are $G$-valued, then $\bbH[X \pm Y | Y]=\bbH[X|Y]$ and $\bbH[X \pm Y, Y] = \bbH[X, Y]$.
 \end{lemma}
 
@@ -36,7 +36,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 \end{proof}
 
 \begin{corollary}[Conditional lower bound on sumset]\label{sumset-lower-gen-cond}
-  \uses{conditional-mutual-def, conditional-entropy-def}
+  \uses{conditional-mutual-def}
   \lean{condEnt_of_sum_lower, condEnt_of_diff_lower}\leanok
   If $X,Y$ are $G$-valued random variables on $\Omega$ and $Z$ is another random variable on $\Omega$ then
 \[
@@ -74,7 +74,7 @@ One random variable is said to be a copy of another if they have the same distri
   Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then if one gives $\prod_{i=1}^k S_i$ the product measure of the laws of $X_i$, the coordinate functions $(x_j)_{j=1}^k \mapsto x_i$ are jointly independent random variables which are copies of the $X_1,\dots,X_k$.
 \end{lemma}
 
-\begin{proof} Explicit computation.
+\begin{proof}\leanok Explicit computation.
 \end{proof}
 
 \begin{definition}[Ruzsa distance]\label{ruz-dist-def}
@@ -140,16 +140,21 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
   $$ d[X;Y] \geq 0.$$
 \end{lemma}
 
-\begin{proof} \uses{ruzsa-diff}\leanok Immediate from Lemma \ref{ruzsa-diff}.
+\begin{proof}
+  \uses{ruzsa-diff}
+  \leanok
+  Immediate from Lemma \ref{ruzsa-diff}.
 \end{proof}
 
-\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Z)$ independent of $Y$, then
+\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Y)$ independent of $Z$, then
   \begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
 \end{lemma}
 
-This is an improvement over the usual Ruzsa triangle inequality because $X,Z$ are not assumed to be independent.  However we will not utilize this improvement here.
+This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ are not assumed to be independent.  However we will not utilize this improvement here.
 
-\begin{proof}\uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy}
+\begin{proof}
+  \uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy}
+  \leanok
   Apply Corollary \ref{alt-submodularity} to obtain
   \[ \bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
   Using
@@ -161,8 +166,10 @@ This is an improvement over the usual Ruzsa triangle inequality because $X,Z$ ar
   (from Lemma \ref{relabeled-entropy} and Lemma \ref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
 \end{proof}
 
-\begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}
-\lean{rdist_triangle}\leanok
+\begin{lemma}[Ruzsa triangle inequality]
+  \label{ruzsa-triangle}
+  \lean{rdist_triangle}
+  \leanok
   If $X,Y,Z$ are $G$-valued random variables, then
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
@@ -191,7 +198,7 @@ $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \end{proof}
 
 \begin{lemma}[Kaimonovich-Vershik inequality]\label{kv}
-  \lean{Kaimonovich_Vershik}\leanok
+  \lean{kaimonovich_vershik}\leanok
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
   \bbH[X + Y + Z] - \bbH[X + Y] \leq \bbH[Y+Z] - \bbH[Y].
@@ -215,17 +222,16 @@ However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we h
 
 
 \begin{lemma}[Balog-Szemer\'edi-Gowers]\label{lem-bsg}
-  \uses{ruz-dist-def, information-def, entropy-def}
   \lean{ent_bsg}
   Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z := A+B$.
 Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z}  \bbP[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3  \bbI[A:B] + 2 \bbH[Z] - \bbH[A] - \bbH[B]. \end{equation}
 \end{lemma}
 
-\begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy}
+\begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy, ruz-indep}
 Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$ as produced by Lemma \ref{cond-indep-exist}, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
-Observe that the left-hand side of~\eqref{2-bsg-takeaway} is
+Observe from Lemma \ref{ruz-indep} that the left-hand side of~\eqref{2-bsg-takeaway} is
 \begin{equation}\label{lhs-to-bound}
 H[A_1 - B_2| Z] - \bbH[A_1 | Z]/2 - \bbH[B_2 | Z]/2.
 \end{equation}
@@ -272,7 +278,7 @@ Using Lemma \ref{cond-dist-alt} and Lemma \ref{independent-exist}, if $(X',Z'), 
 Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step we used Definition \ref{ruz-dist-def} and Definition \ref{information-def}.
 \end{proof}
 
-\begin{lemma}\label{first-useful}
+\begin{lemma}[Comparison of Ruzsa distances, I]\label{first-useful}
   \lean{condDist_diff_le, condDist_diff_le', condDist_diff_le'', condDist_diff_le'''}\leanok
   Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
   \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (\bbH[Y+Z] - \bbH[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} \bbH[Z] - \tfrac{1}{4} \bbH[Y]. \label{lem51-a} \end{align}
@@ -294,7 +300,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   and so~\eqref{ruzsa-3} is a consequence of Lemma \ref{cond-dist-fact}. Once again the second form of the result is immediate from Lemma \ref{ruz-indep}.
 \end{proof}
 
-\begin{lemma}\label{second-useful}
+\begin{lemma}[Comparison of Ruzsa distances, II]\label{second-useful}
   \lean{condDist_diff_ofsum_le}\leanok
   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
   \begin{align}\nonumber

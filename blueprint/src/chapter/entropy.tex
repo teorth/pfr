@@ -118,7 +118,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 \end{lemma}
 
 \begin{proof}
-  \uses{relabeled-entropy}
+  \uses{relabeled-entropy}\leanok
   For the first part, use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.  The second part is a direct computation.
 \end{proof}
 
@@ -245,7 +245,6 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   \end{proof}
 
 \begin{corollary}[Additivity of entropy]\label{add-entropy}
-  \uses{entropy-def}
   \lean{ProbabilityTheory.entropy_pair_eq_add}
   \leanok
   If $X,Y$ are random variables, then $\bbH[X,Y] = \bbH[X] + \bbH[Y]$ if and only if $X,Y$ are independent.
