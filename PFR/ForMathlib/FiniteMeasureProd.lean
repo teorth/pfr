@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.MeasureTheory.Constructions.Prod.Basic
+import Mathlib.MeasureTheory.Measure.Portmanteau
 --import Mathlib
 
 /-!
@@ -122,9 +123,43 @@ lemma sum_prod {ι : Type*} [Fintype ι] (μs : ι → FiniteMeasure β) :
 
 variable [TopologicalSpace α] [OpensMeasurableSpace α] [TopologicalSpace β] [OpensMeasurableSpace β]
 
+lemma tendsto_prod [SecondCountableTopology α] {ι : Type*} {L : Filter ι}
+    {μνs : ι → FiniteMeasure α × FiniteMeasure β} {μν : FiniteMeasure α × FiniteMeasure β}
+    (h_lim : L.Tendsto μνs (𝓝 μν)) :
+    L.Tendsto (fun i ↦ (μνs i).1.prod (μνs i).2) (𝓝 (μν.1.prod μν.2)) := by
+  rw [nhds_prod_eq] at h_lim
+  --simp [tendsto_prod_iff] at h_lim
+  --rw [Tendsto.prod_mk_nhds] at h_lim
+  --rw [tendsto_nhds_prod] at h_lim
+  rw [tendsto_iff_forall_integral_tendsto]
+  sorry
+
 lemma continuous_prod [SecondCountableTopology α] :
     Continuous (fun (μν : FiniteMeasure α × FiniteMeasure β) ↦ μν.1.prod μν.2) := by
-  sorry
+  haveI : T1Space (FiniteMeasure (α × β)) := sorry -- Under some reasonable hypotheses?
+  --haveI : T1Space (FiniteMeasure α × FiniteMeasure β) := sorry
+  apply continuous_iff_continuousAt.mpr
+  intro ⟨μ, ν⟩
+  let μν : FiniteMeasure α × FiniteMeasure β := ⟨μ, ν⟩
+  apply continuousAt_of_tendsto_nhds (y := μ.prod ν)
+  -- Assume also second countability!
+  haveI : Nonempty (α × β) := sorry -- ...otherwise trivial
+  apply (@tendsto_normalize_iff_tendsto (α × β) _ _ (μ.prod ν) _ _ _
+          (𝓝 μν) (fun κ ↦ κ.1.prod κ.2) ?_).mp
+  · refine ⟨?_, ?_⟩
+    · -- **This is the main sorry!**
+      -- Oh $#!, there is a universe misprint in the statement of `tendsto_of_forall_isOpen_le_liminf`
+      have := @tendsto_of_forall_isOpen_le_liminf
+      sorry
+    · sorry  -- The easy case.
+  · sorry -- ...otherwise trivial
+  --apply tendsto_of_forall_isOpen_le_liminf
+  --have := tendsto_of_liminf
+  --have := @tendsto_iff_forall_integral_tendsto (α × β) _ _ _ ?_ ?_  -- (μ.prod ν)
+  --sorry
+
+#check continuousAt_of_tendsto_nhds
+#check T1Space
 
 lemma continuous_prod' [SecondCountableTopology β] :
     Continuous (fun (μν : FiniteMeasure α × FiniteMeasure β) ↦ μν.1.prod μν.2) := by

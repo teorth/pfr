@@ -45,16 +45,16 @@ lemma continuous_integral_finiteMeasure
     Continuous (fun (μ : FiniteMeasure α) ↦ ∫ x, f x ∂μ) := by
   apply continuous_iff_continuousAt.mpr
   intro μ
-  apply continuousAt_of_tendsto_nhds
-  exact FiniteMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f
+  exact continuousAt_of_tendsto_nhds
+    (FiniteMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f)
 
 lemma continuous_integral_probabilityMeasure
     {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α] (f : α →ᵇ ℝ) :
     Continuous (fun (μ : ProbabilityMeasure α) ↦ ∫ x, f x ∂μ) := by
   apply continuous_iff_continuousAt.mpr
   intro μ
-  apply continuousAt_of_tendsto_nhds
-  exact ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f
+  exact  continuousAt_of_tendsto_nhds
+    (ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f)
 
 noncomputable def indicatorBCF {α : Type*} [TopologicalSpace α]
     {s : Set α} (s_clopen : IsClopen s) :
