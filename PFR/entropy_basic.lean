@@ -668,6 +668,67 @@ lemma independent_copies' {I: Type*} [Fintype I] {S : I → Type u}
     (iIndepFun mS X' μA) ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
 
+/- This is neither `Fin.elim0` nor `Fin.elim0'` -/
+def Fin.rec0 {α : Fin 0 → Sort*} (i : Fin 0) : α i := absurd i.2 (Nat.not_lt_zero _)
+
+inductive Triple := | first | second | third deriving DecidableEq
+instance Triple.fintype : Fintype Triple where
+  elems := {first, second, third}
+  complete := by intro i; induction i <;> decide
+
+/-- A version with exactly 3 random variables. -/
+/- Note (Floris): Currently we assume that the `Ωᵢ` live in the same universe.
+If that is annoying, we can prove the general case with `ULift`.
+However, then even the statement will require ULifts, so it will not be nicer. -/
+lemma independent_copies3 {S₁ S₂ S₃ : Type u}
+    [mS₁ : MeasurableSpace S₁] [mS₂ : MeasurableSpace S₂] [mS₃ : MeasurableSpace S₃]
+    {Ω₁ Ω₂ Ω₃ : Type v}
+    [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂] [mΩ₃ : MeasurableSpace Ω₃]
+    {X₁ : Ω₁ → S₁} {X₂ : Ω₂ → S₂} {X₃ : Ω₃ → S₃}
+    (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
+    (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) :
+    ∃ (A : Type _) (mA : MeasurableSpace A) (μA : Measure A)
+      (X₁' : A → S₁) (X₂' : A → S₂) (X₃' : A → S₃),
+    IsProbabilityMeasure μA ∧
+    (iIndepFun (β := ![S₁, S₂, S₃])
+      (Fin.cons mS₁ (Fin.cons mS₂ (Fin.cons mS₃ Fin.rec0)))
+      (Fin.cons X₁' (Fin.cons X₂' (Fin.cons X₃' Fin.rec0))) μA) ∧
+      Measurable X₁ ∧ Measurable X₂ ∧ Measurable X₃ ∧
+      IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by sorry
+  -- this is very painful!
+  -- let Ω : Fin 3 → Type v := ![Ω₁, Ω₂, Ω₃]
+  -- let mΩ : (i : Fin 3) → MeasurableSpace (Ω i) := by intro i; fin_cases i <;> dsimp
+  -- let S : Fin 3 → Type u := ![S₁, S₂, S₃]
+  -- let X : (i : Fin 3) → Ω i → S i := Fin.cons X₁ (Fin.cons X₂ (Fin.cons X₃ Fin.rec0))
+  -- have : ∀ (i : Fin 3), Measurable (X i) := by intro i; fin_cases i <;> simp [hX₁, hX₂, hX₃]
+  -- obtain ⟨A, mA, μA, X'⟩ := independent_copies'
+
+/-- A version with only 1 `S`. -/
+lemma independent_copies3_nondep {S : Type u}
+    [mS : MeasurableSpace S]
+    {Ω₁ Ω₂ Ω₃ : Type v}
+    [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂] [mΩ₃ : MeasurableSpace Ω₃]
+    {X₁ : Ω₁ → S} {X₂ : Ω₂ → S} {X₃ : Ω₃ → S}
+    (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
+    (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) :
+    ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A)
+      (X₁' X₂' X₃' : A → S),
+    IsProbabilityMeasure μA ∧
+    (iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA) ∧
+      Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
+      IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by
+  let Ω : Triple → Type v := Triple.rec Ω₁ Ω₂ Ω₃
+  let mΩ : (i : Triple) → MeasurableSpace (Ω i) := by intro i; induction i <;> (dsimp; assumption)
+  let X : (i : Triple) → Ω i → S := Triple.rec X₁ X₂ X₃
+  let hX : ∀ (i : Triple), @Measurable _ _ (mΩ i) mS (X i) := by
+    intro i; induction i <;> (dsimp; assumption)
+  let μ : (i : Triple) → @Measure (Ω i) (mΩ i) := by intro i; induction i <;> (dsimp; assumption)
+  obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' (mS := fun _ ↦ mS) (mΩ := mΩ) X hX μ
+  refine ⟨A, mA, μA, X' .first, X' .second, X' .third, hμ, ?_,
+    (hX' .first).1, (hX' .second).1, (hX' .third).1,
+    (hX' .first).2, (hX' .second).2, (hX' .third).2⟩
+  sorry -- we need `iIndepFun.reindex`.
+
 
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.-/
 lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T), ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T, IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧ (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩) (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by sorry

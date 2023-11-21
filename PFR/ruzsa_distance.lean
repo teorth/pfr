@@ -4,6 +4,7 @@ import Mathlib.Probability.IdentDistrib
 import PFR.Entropy.Group
 import PFR.entropy_basic
 import PFR.ForMathlib.FiniteMeasureComponent
+import PFR.ForMathlib.Independence
 
 /-!
 # Ruzsa distance
@@ -388,6 +389,21 @@ lemma kaimonovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
   symm
   exact entropy_of_shear_eq hZ (hX.add hY)
 
+/-- A version of  **Kaimonovich-Vershik inequality** with some variables negated -/
+lemma kaimonovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ] :
+    H[X - (Y + Z) ; μ] - H[X - Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
+  rw [← entropy_neg (hY.add' hZ), ← entropy_neg hY]
+  simp_rw [sub_eq_add_neg, neg_add, ← add_assoc]
+  apply kaimonovich_vershik _ hX hY.neg hZ.neg
+  convert (h.neg 1).neg 2
+  ext i; fin_cases i
+  · simp (discharger := decide)
+  · simp (discharger := decide)
+  · rw [← show ∀ h : 2 < 3, (2 : Fin 3) = ⟨2, h⟩ by intro; rfl]
+    simp (discharger := decide)
+
+
 
 section BalogSzemerediGowers
 
@@ -416,13 +432,49 @@ $$
   d[X ; Y|Y+Z] - d[X ; Y] \leq \tfrac{1}{2} \bigl(H[Y+Z] - H[Z]\bigr) $$
    = \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z].
 -/
-lemma condDist_diff_le (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') : d[X ; μ # Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+Z ; μ'] - H[Y ; μ'])/2 := by sorry
+/- Note: we currently assume `Ω` and `Ω'` live in the same universe. -/
+lemma condDist_diff_le  {Ω Ω' : Type u} [MeasurableSpace Ω] [MeasurableSpace Ω']
+    {μ : Measure Ω} {μ' : Measure Ω'}
+    [IsProbabilityMeasure μ']
+    (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G)
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    d[X ; μ # Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+Z ; μ'] - H[Y ; μ'])/2 := by
+  obtain ⟨Ω'', mΩ'', μ'', X', Y', Z', hμ, hi, hX', hY', hZ', h2X', h2Y', h2Z'⟩ :=
+    independent_copies3_nondep hX hY hZ μ μ' μ'
+  have hY'Z' : IndepFun Y' Z' μ'' := hi.indepFun (show (1 : Fin 3) ≠ 2 by decide)
+  have h2 : IdentDistrib (Y' + Z') (Y + Z) μ'' μ' := h2Y'.add h2Z' hY'Z' h
+  rw [← h2X'.rdist_eq h2Y', ← h2X'.rdist_eq h2, ← h2.entropy_eq, ← h2Y'.entropy_eq]
+  have hm : ∀ (i : Fin 3), Measurable (![X', Y', Z'] i) :=
+    fun i ↦ by fin_cases i <;> (dsimp; assumption)
+  have hXY' : IndepFun X' Y' μ'' := hi.indepFun (show (0 : Fin 3) ≠ 1 by decide)
+  have hXYZ' : IndepFun X' (Y' + Z') μ'' := by
+    symm
+    exact hi.add hm 1 2 0 (by decide) (by decide)
+  rw [hXY'.rdist_eq hX' hY', hXYZ'.rdist_eq hX' (hY'.add hZ')]
+  linarith [kaimonovich_vershik' hi hX' hY' hZ']
 
-lemma condDist_diff_le' (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') : d[X ; μ # Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤ d[Y ; μ' # Z ; μ']/2 + H[Z ; μ']/4 - H[Y ; μ']/4 := by sorry
 
-lemma condDist_diff_le'' (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') : d[X ; μ # Y|Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+Z ; μ'] - H[Z ; μ'])/2 := by sorry
+lemma condDist_diff_le' [IsFiniteMeasure μ'] (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') :
+    d[X ; μ # Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤
+    d[Y ; μ' # Z ; μ']/2 + H[Z ; μ']/4 - H[Y ; μ']/4 := by
+  -- have : ∀ X : Ω' → G, IndepFun X Y μ' → IndepFun Y Z μ' →
+  --   d[X ; μ' # Y+Z ; μ'] - d[X ; μ' # Y ; μ'] ≤
+  --   d[Y ; μ' # Z ; μ']/2 + H[Z ; μ']/4 - H[Y ; μ']/4
+  -- refine condDist_diff_le X Y Z h |>.trans ?_
+  sorry
+  -- rw [ProbabilityTheory.IndepFun.rdist_eq]
+  -- rw [div_le_iff (by norm_num)]
+  -- ring_nf
 
-lemma condDist_diff_le''' (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') : d[X ; μ # Y|Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤ d[Y ; μ' # Z ; μ']/2 + H[Y ; μ']/4 - H[Z ; μ']/4 := by sorry
+
+lemma condDist_diff_le'' [IsFiniteMeasure μ'] (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') :
+    d[X ; μ # Y|Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+Z ; μ'] - H[Z ; μ'])/2 := by
+  sorry
+
+lemma condDist_diff_le''' [IsFiniteMeasure μ'] (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') :
+    d[X ; μ # Y|Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤
+    d[Y ; μ' # Z ; μ']/2 + H[Y ; μ']/4 - H[Z ; μ']/4 := by
+  sorry
 
 
 /--   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
