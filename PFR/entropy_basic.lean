@@ -669,9 +669,6 @@ lemma independent_copies' {I: Type*} [Fintype I] {S : I → Type u}
     (iIndepFun mS X' μA) ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
 
-/- This is neither `Fin.elim0` nor `Fin.elim0'` -/
-def Fin.rec0 {α : Fin 0 → Sort*} (i : Fin 0) : α i := absurd i.2 (Nat.not_lt_zero _)
-
 inductive Triple := | first | second | third deriving DecidableEq
 instance Triple.fintype : Fintype Triple where
   elems := {first, second, third}

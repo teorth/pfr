@@ -4,7 +4,6 @@ import Mathlib.Probability.IdentDistrib
 import PFR.Entropy.Group
 import PFR.entropy_basic
 import PFR.ForMathlib.FiniteMeasureComponent
-import PFR.ForMathlib.Independence
 import PFR.f2_vec
 
 
