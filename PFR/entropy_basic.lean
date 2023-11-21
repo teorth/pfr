@@ -623,8 +623,38 @@ section copy
 
 variable {mΩ' : MeasurableSpace Ω'}
 
+/-- The following three lemmas should probably be in Mathlib. -/
+lemma _root_.MeasurableSet_comap_fst {s : Set (S × T)}
+  (h : MeasurableSet[MeasurableSpace.comap Prod.fst inferInstance] s) : ∃ s' : Set S, s' ×ˢ Set.univ = s := by
+  simp_rw [Set.prod_univ]
+  obtain ⟨s', _, hs'⟩ := h
+  exact ⟨s', hs'⟩
+
+lemma _root_.MeasurableSet_comap_snd {t : Set (S × T)}
+    (h : MeasurableSet[MeasurableSpace.comap Prod.snd inferInstance] t) : ∃ t' : Set T, Set.univ ×ˢ t' = t := by
+  simp_rw [Set.univ_prod]
+  obtain ⟨t', _, ht'⟩ := h
+  exact ⟨t', ht'⟩
+
+lemma _root_.IndepFun.fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] : IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
+  rw [@IndepFun_iff]
+  intro t1 t2 ht1 ht2
+  obtain ⟨t1', ht1'⟩ := MeasurableSet_comap_fst ht1
+  obtain ⟨t2', ht2'⟩ := MeasurableSet_comap_snd ht2
+  simp [← ht1',← ht2', Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ, Set.univ_inter, Measure.prod_prod, measure_univ, mul_one, one_mul]
+
 /-- For $X,Y$ random variables, one can find independent copies $X',Y'$ of $X,Y$. -/
-lemma independent_copies {X : Ω → S} {Y : Ω' → T} (hX: Measurable X) (hY: Measurable Y) (μ: Measure Ω) (μ': Measure Ω'): ∃ ν : Measure (S × T), ∃ X' : S × T → S, ∃ Y' : S × T → T, IsProbabilityMeasure ν ∧ Measurable X' ∧ Measurable Y' ∧ (IndepFun X' Y' ν) ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' := by sorry
+lemma independent_copies {X : Ω → S} {Y : Ω' → T} (hX: Measurable X) (hY: Measurable Y) (μ: Measure Ω) (μ': Measure Ω') [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] : ∃ ν : Measure (S × T), ∃ X' : S × T → S, ∃ Y' : S × T → T, IsProbabilityMeasure ν ∧ Measurable X' ∧ Measurable Y' ∧ (IndepFun X' Y' ν) ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' := by
+  use (μ.map X).prod (μ'.map Y)
+  have := MeasureTheory.isProbabilityMeasure_map hX.aemeasurable (μ:=μ)
+  have := MeasureTheory.isProbabilityMeasure_map hY.aemeasurable (μ:=μ')
+  use Prod.fst
+  use Prod.snd
+  refine ⟨inferInstance, measurable_fst, measurable_snd, IndepFun.fst_snd, ?_, ?_⟩
+  · refine ⟨measurable_fst.aemeasurable, hX.aemeasurable, ?_⟩
+    simp? says simp only [Measure.map_fst_prod, measure_univ, one_smul]
+  · refine ⟨measurable_snd.aemeasurable, hY.aemeasurable, ?_⟩
+    simp? says simp only [Measure.map_snd_prod, measure_univ, one_smul]
 
 universe u v
 
