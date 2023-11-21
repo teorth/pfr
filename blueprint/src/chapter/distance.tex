@@ -140,16 +140,21 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
   $$ d[X;Y] \geq 0.$$
 \end{lemma}
 
-\begin{proof} \uses{ruzsa-diff}\leanok Immediate from Lemma \ref{ruzsa-diff}.
+\begin{proof}
+  \uses{ruzsa-diff}
+  \leanok
+  Immediate from Lemma \ref{ruzsa-diff}.
 \end{proof}
 
-\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Z)$ independent of $Y$, then
+\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Y)$ independent of $Z$, then
   \begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
 \end{lemma}
 
-This is an improvement over the usual Ruzsa triangle inequality because $X,Z$ are not assumed to be independent.  However we will not utilize this improvement here.
+This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ are not assumed to be independent.  However we will not utilize this improvement here.
 
-\begin{proof}\uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy}
+\begin{proof}
+  \uses{alt-submodularity,subadditive, relabeled-entropy, add-entropy}
+  \leanok
   Apply Corollary \ref{alt-submodularity} to obtain
   \[ \bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
   Using
@@ -161,8 +166,10 @@ This is an improvement over the usual Ruzsa triangle inequality because $X,Z$ ar
   (from Lemma \ref{relabeled-entropy} and Lemma \ref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
 \end{proof}
 
-\begin{lemma}[Ruzsa triangle inequality]\label{ruzsa-triangle}
-\lean{rdist_triangle}\leanok
+\begin{lemma}[Ruzsa triangle inequality]
+  \label{ruzsa-triangle}
+  \lean{rdist_triangle}
+  \leanok
   If $X,Y,Z$ are $G$-valued random variables, then
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
@@ -191,7 +198,7 @@ $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \end{proof}
 
 \begin{lemma}[Kaimonovich-Vershik inequality]\label{kv}
-  \lean{Kaimonovich_Vershik}\leanok
+  \lean{kaimonovich_vershik}\leanok
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
   \bbH[X + Y + Z] - \bbH[X + Y] \leq \bbH[Y+Z] - \bbH[Y].
