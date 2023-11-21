@@ -66,13 +66,13 @@ lemma continuous_tau_restrict_probabilityMeasure
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ τ[id ; μ.1 # id ; μ.2 | p]) := by
   have obs₁ : Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ d[p.X₀₂ ; ℙ # id ; μ.2]) :=
-    Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _) continuous_snd
+    Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _ p.hmeas2) continuous_snd
   have obs₂ : Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ d[id ; μ.1.toMeasure # id ; μ.2]) :=
     continuous_rdist_restrict_probabilityMeasure
   have obs₃ : Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ d[p.X₀₁ ; ℙ # id ; μ.1]) :=
-    Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _) continuous_fst
+    Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _ p.hmeas1) continuous_fst
   continuity
 
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. --/
