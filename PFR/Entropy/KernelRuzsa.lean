@@ -212,8 +212,10 @@ lemma entropy_triple_add_entropy_le' {S U V : Type*}
   have : IsMarkovKernel (reverse κ) := sorry
   refine (entropy_triple_add_entropy_le (reverse κ) μ).trans ?_
   refine add_le_add ?_ ?_
-  · sorry -- use ← entropy_swapRight
-  · sorry -- use ← entropy_swapRight
+  · rw [← entropy_swapRight]
+    sorry --- should be simp, with enough simp lemmas
+  · rw [← entropy_swapRight]
+    sorry -- should be simp, with enough simp lemmas
 
 -- `κ` is `⟨X,Y⟩`, `η` is `Z`. Independence is expressed through the product `×ₖ`.
 --lemma ent_of_diff_le (κ : T → G × G) (η : T → G) [IsMarkovKernel κ] [IsMarkovKernel η]
