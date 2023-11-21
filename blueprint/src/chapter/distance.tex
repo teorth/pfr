@@ -12,7 +12,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 \end{proof}
 
 \begin{lemma}[Shearing preserves entropy]\label{shear-ent}
-  \lean{condEntropy_of_sum_eq, condEntropy_of_diff_eq,entropy_of_shear_eq,entropy_of_shear_eq'}
+  \lean{condEntropy_of_sum_eq, condEntropy_of_diff_eq,entropy_of_shear_eq,entropy_of_shear_eq'}\leanok
   If $X,Y$ are $G$-valued, then $\bbH[X \pm Y | Y]=\bbH[X|Y]$ and $\bbH[X \pm Y, Y] = \bbH[X, Y]$.
 \end{lemma}
 
@@ -36,7 +36,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 \end{proof}
 
 \begin{corollary}[Conditional lower bound on sumset]\label{sumset-lower-gen-cond}
-  \uses{conditional-mutual-def, conditional-entropy-def}
+  \uses{conditional-mutual-def}
   \lean{condEnt_of_sum_lower, condEnt_of_diff_lower}\leanok
   If $X,Y$ are $G$-valued random variables on $\Omega$ and $Z$ is another random variable on $\Omega$ then
 \[
@@ -222,17 +222,16 @@ However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we h
 
 
 \begin{lemma}[Balog-Szemer\'edi-Gowers]\label{lem-bsg}
-  \uses{ruz-dist-def, information-def, entropy-def}
   \lean{ent_bsg}
   Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z := A+B$.
 Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z}  \bbP[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3  \bbI[A:B] + 2 \bbH[Z] - \bbH[A] - \bbH[B]. \end{equation}
 \end{lemma}
 
-\begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy}
+\begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy, ruz-indep}
 Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$ as produced by Lemma \ref{cond-indep-exist}, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
-Observe that the left-hand side of~\eqref{2-bsg-takeaway} is
+Observe from Lemma \ref{ruz-indep} that the left-hand side of~\eqref{2-bsg-takeaway} is
 \begin{equation}\label{lhs-to-bound}
 H[A_1 - B_2| Z] - \bbH[A_1 | Z]/2 - \bbH[B_2 | Z]/2.
 \end{equation}
@@ -279,7 +278,7 @@ Using Lemma \ref{cond-dist-alt} and Lemma \ref{independent-exist}, if $(X',Z'), 
 Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step we used Definition \ref{ruz-dist-def} and Definition \ref{information-def}.
 \end{proof}
 
-\begin{lemma}\label{first-useful}
+\begin{lemma}[Comparison of Ruzsa distances, I]\label{first-useful}
   \lean{condDist_diff_le, condDist_diff_le', condDist_diff_le'', condDist_diff_le'''}\leanok
   Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
   \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (\bbH[Y+Z] - \bbH[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} \bbH[Z] - \tfrac{1}{4} \bbH[Y]. \label{lem51-a} \end{align}
@@ -301,7 +300,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   and so~\eqref{ruzsa-3} is a consequence of Lemma \ref{cond-dist-fact}. Once again the second form of the result is immediate from Lemma \ref{ruz-indep}.
 \end{proof}
 
-\begin{lemma}\label{second-useful}
+\begin{lemma}[Comparison of Ruzsa distances, II]\label{second-useful}
   \lean{condDist_diff_ofsum_le}\leanok
   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
   \begin{align}\nonumber
