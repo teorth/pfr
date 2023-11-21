@@ -5,6 +5,8 @@ import PFR.Entropy.Group
 import PFR.entropy_basic
 import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.ForMathlib.Independence
+import PFR.f2_vec
+
 
 /-!
 # Ruzsa distance
@@ -22,7 +24,7 @@ Here we define Ruzsa distance and establish its basic properties.
 -/
 open MeasureTheory ProbabilityTheory
 
-variable {Ω Ω' Ω'' Ω''' G T : Type*}
+variable {Ω : Type u} {Ω' Ω'' Ω''' G T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
@@ -424,6 +426,35 @@ lemma condDist_le [Fintype S] [Fintype T] (X : Ω → G) (Z : Ω → S) (Y : Ω'
 lemma condDist_le' [Fintype T] (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) : d[X ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[Y : W ; μ']/2 := by sorry
 
 
+variable (μ) in
+lemma comparison_of_ruzsa_distances
+    {Ω' : Type u} [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsFiniteMeasure μ']
+    {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    d[X; μ # Y+Z ; μ'] - d[X; μ # Y ; μ'] ≤ (H[Y + Z; μ'] - H[Y; μ']) / 2 ∧
+     (ElementaryAddCommGroup G 2 →
+        (H[Y + Z; μ'] - H[Y; μ']) / 2 = d[Y; μ' # Z; μ'] / 2 + H[Z; μ'] / 4 - H[Y; μ'] / 4) := by
+  obtain ⟨Ω'', mΩ'', μ'', X', Y', Z', hμ, hi, hX', hY', hZ', h2X', h2Y', h2Z'⟩ :=
+    independent_copies3_nondep hX hY hZ μ μ' μ'
+  have hY'Z' : IndepFun Y' Z' μ'' := hi.indepFun (show (1 : Fin 3) ≠ 2 by decide)
+  have h2 : IdentDistrib (Y' + Z') (Y + Z) μ'' μ' := h2Y'.add h2Z' hY'Z' h
+  have hm : ∀ (i : Fin 3), Measurable (![X', Y', Z'] i) :=
+    fun i ↦ by fin_cases i <;> (dsimp; assumption)
+  have hXY' : IndepFun X' Y' μ'' := hi.indepFun (show (0 : Fin 3) ≠ 1 by decide)
+  have hYZ' : IndepFun Y' Z' μ'' := hi.indepFun (show (1 : Fin 3) ≠ 2 by decide)
+  have hXYZ' : IndepFun X' (Y' + Z') μ'' := by
+    symm
+    exact hi.add hm 1 2 0 (by decide) (by decide)
+  rw [← h2X'.rdist_eq h2Y', ← h2X'.rdist_eq h2, ← h2Y'.rdist_eq h2Z',
+    ← h2.entropy_eq, ← h2Y'.entropy_eq, ← h2Z'.entropy_eq]
+  rw [hXY'.rdist_eq hX' hY', hYZ'.rdist_eq hY' hZ', hXYZ'.rdist_eq hX' (hY'.add hZ')]
+  constructor
+  · linarith [kaimonovich_vershik' hi hX' hY' hZ']
+  · intro hG
+    rw [pi.sub_eq_add Y' Z']
+    ring
+
+variable (μ) in
 /-- Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
   $$ d[X ; Y + Z] -d[X ; Y]  \leq \tfrac{1}{2} (H[Y+Z] - H[Y]) $$
   $$ = \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Z] - \tfrac{1}{4} H[Y]$$
@@ -433,45 +464,32 @@ $$
    = \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z].
 -/
 /- Note: we currently assume `Ω` and `Ω'` live in the same universe. -/
-lemma condDist_diff_le  {Ω Ω' : Type u} [MeasurableSpace Ω] [MeasurableSpace Ω']
-    {μ : Measure Ω} {μ' : Measure Ω'}
-    [IsProbabilityMeasure μ']
-    (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G)
+lemma condDist_diff_le {Ω' : Type u} [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsFiniteMeasure μ']
+    {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
-    d[X ; μ # Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+Z ; μ'] - H[Y ; μ'])/2 := by
-  obtain ⟨Ω'', mΩ'', μ'', X', Y', Z', hμ, hi, hX', hY', hZ', h2X', h2Y', h2Z'⟩ :=
-    independent_copies3_nondep hX hY hZ μ μ' μ'
-  have hY'Z' : IndepFun Y' Z' μ'' := hi.indepFun (show (1 : Fin 3) ≠ 2 by decide)
-  have h2 : IdentDistrib (Y' + Z') (Y + Z) μ'' μ' := h2Y'.add h2Z' hY'Z' h
-  rw [← h2X'.rdist_eq h2Y', ← h2X'.rdist_eq h2, ← h2.entropy_eq, ← h2Y'.entropy_eq]
-  have hm : ∀ (i : Fin 3), Measurable (![X', Y', Z'] i) :=
-    fun i ↦ by fin_cases i <;> (dsimp; assumption)
-  have hXY' : IndepFun X' Y' μ'' := hi.indepFun (show (0 : Fin 3) ≠ 1 by decide)
-  have hXYZ' : IndepFun X' (Y' + Z') μ'' := by
-    symm
-    exact hi.add hm 1 2 0 (by decide) (by decide)
-  rw [hXY'.rdist_eq hX' hY', hXYZ'.rdist_eq hX' (hY'.add hZ')]
-  linarith [kaimonovich_vershik' hi hX' hY' hZ']
+    d[X; μ # Y+Z ; μ'] - d[X; μ # Y ; μ'] ≤ (H[Y + Z; μ'] - H[Y; μ']) / 2 :=
+  (comparison_of_ruzsa_distances μ hX hY hZ h).1
 
+variable (μ) [ElementaryAddCommGroup G 2] in
+lemma condDist_diff_le' {Ω' : Type u} [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsFiniteMeasure μ']
+    {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    d[X; μ # Y + Z; μ'] - d[X; μ # Y; μ'] ≤
+    d[Y; μ' # Z; μ'] / 2 + H[Z; μ'] / 4 - H[Y; μ'] / 4 := by
+  obtain ⟨h1, h2⟩ := comparison_of_ruzsa_distances μ hX hY hZ h
+  rwa [h2 ‹_›] at h1
 
-lemma condDist_diff_le' [IsFiniteMeasure μ'] (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') :
-    d[X ; μ # Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤
-    d[Y ; μ' # Z ; μ']/2 + H[Z ; μ']/4 - H[Y ; μ']/4 := by
-  -- have : ∀ X : Ω' → G, IndepFun X Y μ' → IndepFun Y Z μ' →
-  --   d[X ; μ' # Y+Z ; μ'] - d[X ; μ' # Y ; μ'] ≤
-  --   d[Y ; μ' # Z ; μ']/2 + H[Z ; μ']/4 - H[Y ; μ']/4
-  -- refine condDist_diff_le X Y Z h |>.trans ?_
-  sorry
-  -- rw [ProbabilityTheory.IndepFun.rdist_eq]
-  -- rw [div_le_iff (by norm_num)]
-  -- ring_nf
-
-
-lemma condDist_diff_le'' [IsFiniteMeasure μ'] (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') :
+variable (μ) in
+lemma condDist_diff_le'' {Ω' : Type u} [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsFiniteMeasure μ']
+    {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
     d[X ; μ # Y|Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+Z ; μ'] - H[Z ; μ'])/2 := by
   sorry
 
-lemma condDist_diff_le''' [IsFiniteMeasure μ'] (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (h : IndepFun Y Z μ') :
+variable (μ) in
+lemma condDist_diff_le''' {Ω' : Type u} [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsFiniteMeasure μ']
+    {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
     d[X ; μ # Y|Y+Z ; μ'] - d[X ; μ # Y ; μ'] ≤
     d[Y ; μ' # Z ; μ']/2 + H[Y ; μ']/4 - H[Z ; μ']/4 := by
   sorry

@@ -683,7 +683,8 @@ def Triple_equiv_fin3 : Triple ≃ Fin 3 where
   left_inv x := by cases x <;> rfl
   right_inv i := by fin_cases i <;> rfl
 
-/-- A version with only 1 `S`. -/
+/-- A version with exactly 3 random variables that have the same codomain.
+It's unfortunately incredibly painful to prove this from the general case. -/
 lemma independent_copies3_nondep {S : Type u}
     [mS : MeasurableSpace S]
     {Ω₁ Ω₂ Ω₃ : Type v}

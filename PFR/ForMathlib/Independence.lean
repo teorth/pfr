@@ -14,7 +14,7 @@ variable {Ω Ω' α ι β β' : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : Measur
   {μ : Measure Ω} {ν : Measure Ω'}
   {f g : Ω → β} {f' g' : Ω' → β}
 
--- todo: weaken mathlib version of this lemma
+-- todo: replace mathlib version with this lemma (this lemma uses `AEMeasurable`)
 theorem indepFun_iff_map_prod_eq_prod_map_map' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'}
     {f : Ω → β} {g : Ω → β'}
     [IsFiniteMeasure μ] (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
@@ -74,7 +74,12 @@ lemma iIndepFun.reindex (h : iIndepFun (n ∘' g) (f ∘' g) μ) :
   convert hs <;> simp
 
 lemma iIndepFun.comp (h : iIndepFun n f μ) (g : (i : ι) → α i → β i) (hg : ∀ i, Measurable (g i)) :
-    iIndepFun m (fun i ↦ g i ∘ f i) μ := by sorry
+    iIndepFun m (fun i ↦ g i ∘ f i) μ := by
+  rw [iIndepFun_iff] at h ⊢
+  refine fun t s hs ↦ h t (fun i hi ↦ ?_)
+  simp_rw [measurable_iff_comap_le] at hg
+  simp_rw [← MeasurableSpace.comap_comp] at hs
+  exact MeasurableSpace.comap_mono (hg i) (s i) (hs i hi)
 
 variable (i : ι) [Neg (α i)] [MeasurableNeg (α i)] [DecidableEq ι] in
 lemma iIndepFun.neg (h : iIndepFun n f μ) : iIndepFun n (update f i (-f i)) μ := by
