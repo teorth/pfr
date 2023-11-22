@@ -239,6 +239,15 @@ lemma comap_prod_swap (κ : kernel α β) (η : kernel γ δ) [IsFiniteKernel κ
   refine (lintegral_lintegral_swap ?_).symm
   exact (hf.comp measurable_swap).aemeasurable
 
+lemma map_prod_swap (κ : kernel α β) (η : kernel α γ) [IsMarkovKernel κ] [IsMarkovKernel η] :
+    map (κ ×ₖ η) Prod.swap measurable_swap = η ×ₖ κ := by
+  rw [ext_fun_iff]
+  intro x f hf
+  rw [lintegral_map _ _ _ hf, lintegral_prod, lintegral_prod _ _ _ hf]
+  swap; · exact hf.comp measurable_swap
+  refine (lintegral_lintegral_swap ?_).symm
+  exact hf.aemeasurable
+
 end ProbabilityTheory.kernel
 
 end aux_kernel
