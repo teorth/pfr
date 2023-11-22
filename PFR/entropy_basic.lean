@@ -672,7 +672,7 @@ lemma independent_copies' {I: Type*} [Fintype I] {S : I → Type u}
     (μ : ∀ i : I, Measure (Ω i)) :
     ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → S i),
     IsProbabilityMeasure μA ∧
-    (iIndepFun mS X' μA) ∧
+    iIndepFun mS X' μA ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
 
 /- This is neither `Fin.elim0` nor `Fin.elim0'` -/
@@ -690,7 +690,7 @@ lemma independent_copies3_nondep {S : Type u}
     ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' : A → S),
     IsProbabilityMeasure μA ∧
-    (iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA) ∧
+    iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
       IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by
   let Ω : Fin 3 → Type v := ![Ω₁, Ω₂, Ω₃]
@@ -708,8 +708,14 @@ lemma independent_copies3_nondep {S : Type u}
   convert hi; ext i; fin_cases i <;> rfl
 
 
-/-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.-/
-lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T), ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T, IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧ (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩) (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by sorry
+/-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials
+$X_1, X_2, Y'$.-/
+lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T),
+    ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T,
+    IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧
+    (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩)
+    (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by
+  sorry
 
 
 end copy
