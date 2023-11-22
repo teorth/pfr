@@ -277,19 +277,30 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
 -- note : many of the statements below probably need measurability hypotheses on X, Y, and/or guarantees that a measure is a probability measure.
 
 /-- $$|H[X]-H[Y]| \leq 2 d[X ; Y].$$ -/
-lemma diff_ent_le_rdist : |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ'] := by sorry
+lemma diff_ent_le_rdist [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y) :
+    |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ'] := by
+  obtain ⟨ν, X', Y', _, hX', hY', hind, hIdX, hIdY⟩ := independent_copies hX hY μ μ'
+  rw [← hIdX.rdist_eq hIdY, hind.rdist_eq hX' hY', ← hIdX.entropy_eq, ← hIdY.entropy_eq, abs_le]
+  have := ent_of_indep_diff_lower hX' hY' hind
+  constructor
+  · linarith[le_max_right H[X'; ν] H[Y'; ν]]
+  · linarith[le_max_left H[X'; ν] H[Y'; ν]]
 
 /-- $$  H[X-Y] - H[X] \leq 2d[X ; Y].$$ -/
-lemma diff_ent_le_rdist' {Y : Ω → G} (h : IndepFun X Y μ) :
-    H[X - Y ; μ] - H[X ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by sorry
+lemma diff_ent_le_rdist' [IsProbabilityMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ):
+    H[X - Y ; μ] - H[X ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by
+  rw [h.rdist_eq hX hY]
+  linarith[ent_of_indep_diff_lower hX hY h, le_max_right H[X; μ] H[Y; μ]]
 
 /-- $$  H[X-Y] - H[Y] \leq 2d[X ; Y].$$ -/
-lemma diff_ent_le_rdist'' {Y : Ω → G} (h : IndepFun X Y μ) :
-    H[X-Y ; μ] - H[Y ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by sorry
+lemma diff_ent_le_rdist'' [IsProbabilityMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ) :
+    H[X-Y ; μ] - H[Y ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by
+  rw [h.rdist_eq hX hY]
+  linarith[ent_of_indep_diff_lower hX hY h, le_max_left H[X; μ] H[Y; μ]]
 
 /--   $$ d[X ; Y] \geq 0.$$  -/
-lemma rdist_nonneg : 0 ≤ d[X ; μ # Y ; μ'] := by
-  linarith [ge_trans diff_ent_le_rdist (abs_nonneg (H[X ; μ] - H[Y ; μ']))]
+lemma rdist_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y) : 0 ≤ d[X ; μ # Y ; μ'] := by
+  linarith [ge_trans (diff_ent_le_rdist hX hY) (abs_nonneg (H[X ; μ] - H[Y ; μ']))]
 
 /-- The **improved entropic Ruzsa triangle inequality**. -/
 lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
