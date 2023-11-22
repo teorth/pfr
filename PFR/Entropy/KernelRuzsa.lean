@@ -210,4 +210,10 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
           · exact measurable_of_finite _ hs
         · exact ruzsa_triangle_aux3 κ η
 
+lemma rdist_triangle (κ η ξ : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η] [IsMarkovKernel ξ]
+    (μ ν ν' : Measure T)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] :
+    dk[κ ; μ # ξ ; ν'] ≤ dk[κ ; μ # η ; ν] + dk[η ; ν # ξ ; ν'] := by
+  sorry
+
 end ProbabilityTheory.kernel
