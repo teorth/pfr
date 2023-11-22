@@ -556,7 +556,7 @@ lemma condDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω'
   have hind' : IndepFun X' Y' ν := IndepFun.comp hind measurable_fst measurable_fst
   rw [show XZ' = ⟨X', Z'⟩ by rfl] at hIdXZ hind
   rw [show YW' = ⟨Y', W'⟩ by rfl] at hIdYW hind
-  rw [←cond_rdist_of_copy hIdXZ hIdYW,cond_rdist_of_indep hind]
+  rw [←cond_rdist_of_copy hIdXZ hIdYW, cond_rdist_of_indep hX' hZ' hY' hW' _ hind]
   have hIdX : IdentDistrib X X' μ ν := (hIdXZ.symm.fst) hX hZ hX' hZ'
   have hIdZ : IdentDistrib Z Z' μ ν := (hIdXZ.symm.snd) hX hZ hX' hZ'
   have hIdY : IdentDistrib Y Y' μ' ν := (hIdYW.symm.fst) hY hW hY' hW'
