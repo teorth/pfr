@@ -373,6 +373,11 @@ def cond_rdist (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
 @[inherit_doc cond_rdist]
 notation3:max "d[" X " | " Z " ; " μ " # " Y " | " W " ; " μ'"]" => cond_rdist X Z Y W μ μ'
 
+lemma cond_rdist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
+    (μ : Measure Ω) (μ' : Measure Ω') :
+    d[X | Z ; μ # Y | W ; μ']
+      = dk[condEntropyKernel X Z μ ; μ.map Z # condEntropyKernel Y W μ' ; μ'.map W] := rfl
+
 /-- The conditional Ruzsa distance `d[X ; Y|W]`. -/
 noncomputable
 def cond_rdist' (X : Ω → G) (Y : Ω' → G) (W : Ω' → T)
@@ -384,13 +389,59 @@ notation3:max "d[" X " ; " μ " # " Y " | " W " ; " μ' "]" => cond_rdist' X Y W
 @[inherit_doc cond_rdist']
 notation3:max "d[" X " # " Y " | " W "]" => cond_rdist' X Y W volume volume
 
+lemma condKernel_eq_prod_of_indepFun {X : Ω → G} {Z : Ω → S} {Y : Ω → G} {W : Ω → T}
+    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
+    (μ : Measure Ω) [IsProbabilityMeasure μ]
+    (h : IndepFun (⟨X, Z⟩) (⟨ Y, W ⟩) μ) :
+    condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ
+      =ᵐ[μ.map (⟨Z, W⟩)] kernel.prodMkRight (condEntropyKernel X Z μ) T
+        ×ₖ kernel.prodMkLeft S (condEntropyKernel Y W μ) := by
+  have : IsMarkovKernel (condEntropyKernel X Z μ) := isMarkovKernel_condEntropyKernel hX hZ μ
+  have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
+  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
+  have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
+  sorry
+
 /-- If $(X,Z)$ and $(Y,W)$ are independent, then
 $$  d[X  | Z ; Y | W] = H[X'-Y'|Z', W'] - H[X'|Z']/2 - H[Y'|W']/2$$
 -/
 lemma cond_rdist_of_indep
     {X : Ω → G} {Z : Ω → S} {Y : Ω → G} {W : Ω → T}
+    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
+    (μ : Measure Ω) [IsProbabilityMeasure μ]
     (h : IndepFun (⟨X, Z⟩) (⟨ Y, W ⟩) μ) :
-    d[X | Z ; μ # Y | W ; μ] = H[X-Y | ⟨ Z, W ⟩ ; μ] - H[X | Z ; μ]/2 - H[Y | W ; μ]/2 := by sorry
+    d[X | Z ; μ # Y | W ; μ] = H[X-Y | ⟨ Z, W ⟩ ; μ] - H[X | Z ; μ]/2 - H[Y | W ; μ]/2 := by
+  have : IsMarkovKernel (condEntropyKernel X Z μ) := isMarkovKernel_condEntropyKernel hX hZ μ
+  have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
+  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
+  have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
+  rw[cond_rdist_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy, condEntropy_eq_kernel_entropy,
+    condEntropy_eq_kernel_entropy]
+  rotate_left
+  · exact hY
+  · exact hW
+  · exact hX
+  · exact hZ
+  · exact hX.sub hY
+  · exact hZ.prod_mk hW
+  congr 2
+  have hZW : IndepFun Z W μ := by
+    have h' := IndepFun.comp h measurable_snd measurable_snd
+    exact h'
+  have hZW_map : μ.map (⟨Z, W⟩) = (μ.map Z).prod (μ.map W) :=
+    (indepFun_iff_map_prod_eq_prod_map_map hZ hW).mp hZW
+  rw [← hZW_map]
+  refine kernel.entropy_congr ?_
+  have : kernel.map (condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2) measurable_sub
+      =ᵐ[μ.map (⟨Z, W⟩)] condEntropyKernel (X - Y) (⟨Z, W⟩) μ :=
+    (condEntropyKernel_comp (hX.prod_mk hY) (hZ.prod_mk hW) _ _).symm
+  refine (this.symm.trans ?_).symm
+  suffices kernel.prodMkRight (condEntropyKernel X Z μ) T
+        ×ₖ kernel.prodMkLeft S (condEntropyKernel Y W μ)
+      =ᵐ[μ.map (⟨Z, W⟩)] condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ by
+    filter_upwards [this] with x hx
+    rw [kernel.map_apply, kernel.map_apply, hx]
+  exact (condKernel_eq_prod_of_indepFun hX hZ hY hW μ h).symm
 
 lemma cond_rdist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     (h : IndepFun X (⟨ Y, W ⟩) μ) :
