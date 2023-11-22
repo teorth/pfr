@@ -261,9 +261,70 @@ lemma rdist_nonneg : 0 ≤ d[ X ; μ # Y ; μ' ] := by
 /-- The improved Ruzsa triangle inequality -/
 lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G) (h : IndepFun (⟨ X, Z ⟩) Y μ): H[ X - Z; μ] ≤ H[ X - Y; μ] + H[ Y - Z; μ] - H[ Y; μ ]:= by sorry
 
+#where
+
+-- Paul: why is v already here??
+lemma independent_copiesₐ {X : Ω → T} {Y : Ω' → T} {Z : Ω'' → T} (hX: Measurable X) (hY: Measurable Y)
+  (hZ : Measurable Z) (μ: Measure Ω) (μ': Measure Ω') (μ'' : Measure Ω'') : ∃ ν : Measure (T × T × T),
+  ∃ X' Y' Z' : T × T × T → T, IsProbabilityMeasure ν ∧ Measurable X' ∧ Measurable Y' ∧
+    Measurable Z' ∧ (IndepFun X' Y' ν) ∧ (IndepFun Y' Z' v) ∧ (IndepFun X' Z' v) ∧
+    IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' ∧ IdentDistrib Z' Z v μ'' := by sorry
+
+/-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.  May need some hypotheses of measurability and non-degeneracy -/
+lemma independent_copies''' {I: Type*} [Fintype I] {S : I → Type u}
+    [mS : ∀ i : I, MeasurableSpace (S i)] {Ω : I → Type v}
+    [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → S i) (hX : ∀ i : I, Measurable (X i))
+    (μ : ∀ i : I, Measure (Ω i)) :
+    ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → S i),
+    IsProbabilityMeasure μA ∧
+    (iIndepFun mS X' μA) ∧
+    ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
+
+def MeasurableSpaceULift (hΩ : MeasurableSpace Ω) :
+  MeasurableSpace (ULift.{max u_2 u_3} Ω) := by
+  sorry
+
+#check MeasurableSpaceULift
+
 /-- The Ruzsa triangle inequality -/
-lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) :
-    d[ X ; μ # Z ; μ'' ] ≤ d[ X ; μ # Y ; μ' ] + d[ Y ; μ' # Z ; μ'' ] := sorry
+lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G)
+   (hX: Measurable X) (hY: Measurable Y)
+  (hZ : Measurable Z)
+  [IsFiniteMeasure μ] :
+    d[ X ; μ # Z ; μ'' ] ≤ d[ X ; μ # Y ; μ' ] + d[ Y ; μ' # Z ; μ'' ] := by
+
+  let S : Fin 3 → Type u_5 := ![G,G,G]
+  let ω := ![ULift.{max u_2 u_3} Ω, ULift.{max u_1 u_3} Ω', ULift.{max u_1 u_2} Ω'']
+  haveI mS : ∀ i : Fin 3, MeasurableSpace (S i) := fun i => by
+    have : S i = G
+    · fin_cases i ; all_goals { simp }
+    rwa [this]
+ -- haveI mΩ : ∀ i : Fin 3, (MeasurableSpace (ω i)) := ![MeasurableSpaceULift mΩ, MeasurableSpaceULift mΩ', MeasurableSpaceULift mΩ'']
+  haveI : MeasurableSpace (ULift.{max u_1 u_3} Ω') := MeasurableSpaceULift mΩ'
+  letI : ∀ i : Fin 3, ω i → S i := ![X, Y, Z]
+  --obtain ⟨ ⟩
+
+
+  suffices : ∀ (X Y Z : G × G × G → G) (v : Measure (G × G × G)) (hv : IsFiniteMeasure v) (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (h₁ : IndepFun X Y v) (h₂ : IndepFun Y Z v) (h₃ : IndepFun X Z v),
+    d[ X ; v # Z ; v ] ≤ d[ X ; v # Y ; v ] + d[ Y ; v # Z ; v ]
+  sorry /- { obtain ⟨v, X', Y', Z', hv, HX', HY', HZ', HXY, HYZ, HXZ, HX, HY, HZ⟩ :=
+      independent_copiesₐ hX hY hZ μ μ' μ''
+
+    have lem := this X' Y' Z' v sorry HX HY HZ HXY HYZ HXZ
+    rw [←ProbabilityTheory.IdentDistrib.rdist_eq HX HY,
+      ←ProbabilityTheory.IdentDistrib.rdist_eq HY HZ, ←ProbabilityTheory.IdentDistrib.rdist_eq HX HZ]
+
+
+  } -/
+  intros X Y Z v hv hX hY hZ h₁ h₂ h₃
+  calc d[ X ; v # Z ; v ] = H[X - Z; v] - (H[X; v] / 2 + H[Z; v] / 2) := by
+        rw [ProbabilityTheory.IndepFun.rdist_eq h₃ hX hZ] ; ring
+    _  ≤ (H[X - Y ; v] + H[Y - Z ; v] - H[Y ; v]) - (H[X; v] / 2 + H[Z; v] / 2) :=
+          sub_le_sub_right (ent_of_diff_le X Y Z (show IndepFun (⟨ X, Z ⟩) Y v from sorry)) _
+    _ = (H[X - Y ; v] - H[X; v] / 2 - H[Y ; v] / 2) + (H[Y - Z ; v] - H[Y ; v] / 2 -  H[Z; v] / 2) := by ring
+    _ = d[ X ; v # Y ; v ] + d[ Y ; v # Z ; v ] := by
+        rw [ProbabilityTheory.IndepFun.rdist_eq h₁ hX hY, ProbabilityTheory.IndepFun.rdist_eq h₂ hY hZ]   -/
 
 /-- definition of d[ X|Z ; Y| W ]-/
 def cond_rdist [MeasurableSpace S] [MeasurableSpace T] (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac): ℝ := sorry
