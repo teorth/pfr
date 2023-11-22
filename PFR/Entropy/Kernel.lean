@@ -235,7 +235,7 @@ lemma entropy_compProd' [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKernel �
 lemma entropy_compProd [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η] :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[η, μ ⊗ₘ κ] := by
-  rw [entropy_compProd', entropy_congr (condKernel_compProd_ae_eq κ η)]
+  rw [entropy_compProd', entropy_congr (condKernel_compProd_ae_eq κ η _)]
 
 @[simp]
 lemma entropy_deterministic (f : T → S) (μ : Measure T) [IsFiniteMeasure μ] :
