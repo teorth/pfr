@@ -118,8 +118,21 @@ lemma entropy_comp_of_injective
   rw [entropy_def, ← Measure.map_map hf_m hX, measureEntropy_map_of_injective _ _ hf,
     entropy_def]
 
-/-- The assertion that the law of $X$ is the uniform probability measure on a finite set $H$.  While in applications $H$ will be non-empty finite set, $X$ measurable, and and $μ$ a probability measure, it could be technically convenient to have a definition that works even without these hypotheses.  (For instance, isUniform would be well-defined, but false, for infinite H)   -/
-def isUniform (H: Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop := sorry
+attribute [-instance] Fintype.instMeasurableSpace in
+@[simp] lemma entropy_add_const {G : Type*} [AddGroup G] [Fintype G] [MeasurableSpace G]
+    [MeasurableSingletonClass G]
+    (μ : Measure Ω) (X : Ω → G)
+    (hX : Measurable X) (c : G) :
+    H[(fun ω ↦ X ω + c) ; μ] = H[X ; μ] := by
+  apply entropy_comp_of_injective μ hX _ (add_left_injective c)
+
+/-- The assertion that the law of $X$ is the uniform probability measure on a finite set $H$.
+While in applications $H$ will be non-empty finite set, $X$ measurable, and and $μ$ a probability
+measure, it could be technically convenient to have a definition that works even without these
+hypotheses.  (For instance, `isUniform` would be well-defined, but false, for infinite `H`)   -/
+structure isUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop :=
+  eq_of_mem : ∀ x y, x ∈ H → y ∈ H → μ (X ⁻¹' {x}) = μ (X ⁻¹' {y})
+  zero_of_not_mem : ∀ x, x ∉ H → μ (X ⁻¹' {x}) = 0
 
 /-- Uniform distributions exist.   -/
 lemma exists_uniform (H : Finset S) [h: Nonempty H] : ∃ Ω : Type*, ∃ mΩ : MeasurableSpace Ω, ∃ X : Ω → S, ∃ μ: Measure Ω, IsProbabilityMeasure μ ∧ Measurable X ∧ isUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by sorry
@@ -487,6 +500,13 @@ lemma mutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Me
   · exact Measure.map_map measurable_fst (hX.prod_mk hY)
   · exact Measure.map_map measurable_snd (hX.prod_mk hY)
 
+lemma IndepFun.condEntropy_eq_entropy {μ : Measure Ω} (h : IndepFun X Y μ)
+    (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ]  :
+    H[X | Y ; μ] = H[X ; μ] := by
+  have := (mutualInformation_eq_zero hX hY).2 h
+  rw [mutualInformation_eq_entropy_sub_condEntropy hX hY] at this
+  linarith
+
 /-- $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent. -/
 lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
     [IsProbabilityMeasure μ] :
@@ -651,7 +671,11 @@ lemma _root_.IndepFun.fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ
   simp [← ht1',← ht2', Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ, Set.univ_inter, Measure.prod_prod, measure_univ, mul_one, one_mul]
 
 /-- For $X,Y$ random variables, one can find independent copies $X',Y'$ of $X,Y$. -/
-lemma independent_copies {X : Ω → S} {Y : Ω' → T} (hX: Measurable X) (hY: Measurable Y) (μ: Measure Ω) (μ': Measure Ω') [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] : ∃ ν : Measure (S × T), ∃ X' : S × T → S, ∃ Y' : S × T → T, IsProbabilityMeasure ν ∧ Measurable X' ∧ Measurable Y' ∧ (IndepFun X' Y' ν) ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' := by
+lemma independent_copies {X : Ω → S} {Y : Ω' → T} (hX: Measurable X) (hY: Measurable Y)
+    (μ : Measure Ω) (μ' : Measure Ω') [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    ∃ ν : Measure (S × T), ∃ X' : S × T → S, ∃ Y' : S × T → T, IsProbabilityMeasure ν
+      ∧ Measurable X' ∧ Measurable Y' ∧ (IndepFun X' Y' ν)
+      ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' := by
   use (μ.map X).prod (μ'.map Y)
   have := MeasureTheory.isProbabilityMeasure_map hX.aemeasurable (μ:=μ)
   have := MeasureTheory.isProbabilityMeasure_map hY.aemeasurable (μ:=μ')
@@ -662,6 +686,24 @@ lemma independent_copies {X : Ω → S} {Y : Ω' → T} (hX: Measurable X) (hY: 
     simp? says simp only [Measure.map_fst_prod, measure_univ, one_smul]
   · refine ⟨measurable_snd.aemeasurable, hY.aemeasurable, ?_⟩
     simp? says simp only [Measure.map_snd_prod, measure_univ, one_smul]
+
+/-- For $X,Y$ random variables, one can find independent copies $X',Y'$ of $X,Y$. Version
+formulated in spaces with a canonical measures. -/
+lemma independent_copies_two {Ω : Type u} {Ω' : Type v} [MeasureSpace Ω] [MeasureSpace Ω']
+    [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
+    {X : Ω → S} {Y : Ω' → T} (hX : Measurable X) (hY : Measurable Y) :
+    ∃ (Ω'' : Type (max u v)) (m'' : MeasureSpace Ω'') (X' : Ω'' → S) (Y' : Ω'' → T),
+    IsProbabilityMeasure (ℙ : Measure Ω'') ∧ Measurable X' ∧ Measurable Y' ∧
+      (IndepFun X' Y') ∧ IdentDistrib X' X ∧ IdentDistrib Y' Y := by
+  refine ⟨Ω × Ω', by infer_instance, X ∘ Prod.fst, Y ∘ Prod.snd, by infer_instance,
+    hX.comp measurable_fst, hY.comp measurable_snd, ?_, ?_, ?_⟩
+  · exact IndepFun.fst_snd.comp hX hY
+  · refine ⟨(hX.comp measurable_fst).aemeasurable, hX.aemeasurable, ?_⟩
+    have : (ℙ : Measure (Ω × Ω')) = (ℙ : Measure Ω).prod (ℙ : Measure Ω') := rfl
+    simp [← Measure.map_map hX measurable_fst, this]
+  · refine ⟨(hY.comp measurable_snd).aemeasurable, hY.aemeasurable, ?_⟩
+    have : (ℙ : Measure (Ω × Ω')) = (ℙ : Measure Ω).prod (ℙ : Measure Ω') := rfl
+    simp [← Measure.map_map hY measurable_snd, this]
 
 universe u v
 
