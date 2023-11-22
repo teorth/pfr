@@ -3,9 +3,6 @@ import Mathlib.Probability.IdentDistrib
 
 open MeasureTheory ProbabilityTheory Function Set
 
-lemma Function.update_of_eq {β : Sort*} {a a' : α} (h : a = a') (v : β) (f : α → β) :
-  update f a v a' = v := by simp [h]
-
 namespace ProbabilityTheory
 
 section IdentDistrib
