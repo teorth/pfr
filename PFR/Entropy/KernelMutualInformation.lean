@@ -148,26 +148,6 @@ def assocEquiv : α × β × γ ≃ᵐ (α × β) × γ where
   measurable_invFun := (measurable_fst.comp measurable_fst).prod_mk
     ((measurable_snd.comp measurable_fst).prod_mk measurable_snd)
 
-def reverseEquiv : α × β × γ ≃ᵐ γ × β × α where
-  toFun := fun p ↦ (p.2.2, p.2.1, p.1)
-  invFun := fun p ↦ (p.2.2, p.2.1, p.1)
-  left_inv := fun p ↦ by simp
-  right_inv := fun p ↦ by simp
-  measurable_toFun := (measurable_snd.comp measurable_snd).prod_mk
-    ((measurable_fst.comp measurable_snd).prod_mk measurable_fst)
-  measurable_invFun := (measurable_snd.comp measurable_snd).prod_mk
-    ((measurable_fst.comp measurable_snd).prod_mk measurable_fst)
-
-def swapRightEquiv : α × β × γ ≃ᵐ α × γ × β where
-  toFun := fun p ↦ (p.1, p.2.2, p.2.1)
-  invFun := fun p ↦ (p.1, p.2.2, p.2.1)
-  left_inv := fun p ↦ by simp
-  right_inv := fun p ↦ by simp
-  measurable_toFun := measurable_fst.prod_mk
-    ((measurable_snd.comp measurable_snd).prod_mk (measurable_fst.comp measurable_snd))
-  measurable_invFun := measurable_fst.prod_mk
-    ((measurable_snd.comp measurable_snd).prod_mk (measurable_fst.comp measurable_snd))
-
 end measurableEquiv
 
 section
@@ -262,20 +242,6 @@ lemma deleteRight_map_prod (κ : kernel α β) {f : β → γ} {g : β → δ} {
       = map κ (fun b ↦ (f b, g b)) (hf.prod_mk hg) := by
   simp only [deleteRight, map_map]
   congr
-
-noncomputable
-def assocRight (κ : kernel α ((β × γ) × δ)) :
-    kernel α (β × γ × δ) :=
-  map κ (fun p ↦ (p.1.1, (p.1.2, p.2)))
-    ((measurable_fst.comp measurable_fst).prod_mk
-      ((measurable_snd.comp measurable_fst).prod_mk measurable_snd))
-
-noncomputable
-def assocLeft (κ : kernel ((β × γ) × δ) α) :
-    kernel (β × γ × δ) α :=
-  comap κ (fun p  : β × γ × δ ↦ ((p.1, p.2.1), p.2.2))
-    ((measurable_fst.prod_mk (measurable_fst.comp measurable_snd)).prod_mk
-      (measurable_snd.comp measurable_snd))
 
 noncomputable
 def reverse (κ : kernel α (β × γ × δ)) :
