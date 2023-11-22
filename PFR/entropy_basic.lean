@@ -4,6 +4,7 @@ import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
 import Mathlib.Probability.IdentDistrib
 import PFR.Entropy.KernelMutualInformation
+import PFR.ForMathlib.Independence
 
 /-!
 # Entropy and conditional entropy
@@ -138,12 +139,12 @@ lemma entropy_of_uniform (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : is
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
 distributed. -/
-lemma entropy_eq_log_card (X : Ω → S) (μ : Measure Ω) : (entropy X μ = log (Fintype.card S)) ↔ (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by
-  -- TODO: which of these side conditions are actually needed?
-  have : MeasurableSingletonClass S := sorry
-  have : IsFiniteMeasure (μ.map X) := sorry
-  have : NeZero (μ.map X) := sorry
-  have hX : Measurable X := sorry
+lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (hμ: NeZero μ) (hμ' : IsFiniteMeasure μ): (entropy X μ = log (Fintype.card S)) ↔ (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by
+  rcases eq_zero_or_neZero (μ.map X) with h | h
+  . have := Measure.le_map_apply  (@Measurable.aemeasurable Ω S _ _ X μ hX) Set.univ
+    simp [h] at this; simp [this] at hμ
+  have : IsFiniteMeasure (μ.map X) := by
+    apply Measure.isFiniteMeasure_map
   rw [entropy_def, measureEntropy_eq_card_iff_measure_eq, Measure.map_apply hX MeasurableSet.univ]
   simp
 
@@ -451,6 +452,12 @@ lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingleton
   rw [h_fst, h_snd]
   exact measureMutualInfo_nonneg _
 
+/-- Substituting variables for ones with the same distributions doesn't change the entropy. -/
+lemma IdentDistrib.mutualInformation_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
+    {X' : Ω' → S} {Y' : Ω' → T} (hX : IdentDistrib X X' μ μ') (hY : IdentDistrib Y Y' μ μ')
+      (hXY : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') : I[X : Y ; μ] = I[X' : Y' ; μ'] := by
+  simp_rw [mutualInformation_def,hX.entropy_eq,hY.entropy_eq,hXY.entropy_eq]
+
 /-- Subadditivity of entropy. -/
 lemma entropy_pair_le_add [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
@@ -536,7 +543,7 @@ lemma condMutualInformation_eq_kernel_mutualInfo
 lemma condMutualInformation_eq_integral_mutualInformation :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[|Z ⁻¹' {z}]]] := rfl
 
-/-- $I]X:Y|Z] = I[Y:X|Z]$. -/
+/-- $I[X:Y|Z] = I[Y:X|Z]$. -/
 lemma condMutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) :
     I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
@@ -668,6 +675,44 @@ lemma independent_copies' {I: Type*} [Fintype I] {S : I → Type u}
     (iIndepFun mS X' μA) ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
 
+inductive Triple := | first | second | third deriving DecidableEq
+instance Triple.fintype : Fintype Triple where
+  elems := {first, second, third}
+  complete := by intro i; induction i <;> decide
+
+def Triple_equiv_fin3 : Triple ≃ Fin 3 where
+  toFun x := match x with | .first => 0 | .second => 1 | .third => 2
+  invFun := ![.first, .second, .third]
+  left_inv x := by cases x <;> rfl
+  right_inv i := by fin_cases i <;> rfl
+
+/-- A version with exactly 3 random variables that have the same codomain.
+It's unfortunately incredibly painful to prove this from the general case. -/
+lemma independent_copies3_nondep {S : Type u}
+    [mS : MeasurableSpace S]
+    {Ω₁ Ω₂ Ω₃ : Type v}
+    [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂] [mΩ₃ : MeasurableSpace Ω₃]
+    {X₁ : Ω₁ → S} {X₂ : Ω₂ → S} {X₃ : Ω₃ → S}
+    (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
+    (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) :
+    ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A)
+      (X₁' X₂' X₃' : A → S),
+    IsProbabilityMeasure μA ∧
+    (iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA) ∧
+      Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
+      IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by
+  let Ω : Triple → Type v := Triple.rec Ω₁ Ω₂ Ω₃
+  let mΩ : (i : Triple) → MeasurableSpace (Ω i) := by intro i; induction i <;> (dsimp; assumption)
+  let X : (i : Triple) → Ω i → S := Triple.rec X₁ X₂ X₃
+  let hX : ∀ (i : Triple), @Measurable _ _ (mΩ i) mS (X i) := by
+    intro i; induction i <;> (dsimp; assumption)
+  let μ : (i : Triple) → @Measure (Ω i) (mΩ i) := by intro i; induction i <;> (dsimp; assumption)
+  obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' (mS := fun _ ↦ mS) (mΩ := mΩ) X hX μ
+  refine ⟨A, mA, μA, X' .first, X' .second, X' .third, hμ, ?_,
+    (hX' .first).1, (hX' .second).1, (hX' .third).1,
+    (hX' .first).2, (hX' .second).2, (hX' .third).2⟩
+  apply iIndepFun.reindex Triple_equiv_fin3 _
+  convert hi using 1; ext i; cases i <;> rfl
 
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.-/
 lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T), ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T, IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧ (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩) (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by sorry

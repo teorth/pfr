@@ -22,8 +22,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 
 \begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}
   \lean{ent_of_sum_lower,ent_of_diff_lower}\leanok
-  If
-Whenever $X,Y$ are $G$-valued random variables on $\Omega$, we have
+  If $X,Y$ are $G$-valued random variables on $\Omega$, we have
 $$ \max(\bbH[X], \bbH[Y]) -  \bbI[X:Y] \leq \bbH[X \pm Y].$$
 \end{lemma}
 
@@ -121,7 +120,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
 $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
 \end{lemma}
 
-\begin{proof} \uses{sumset-lower, neg-ent} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
+\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
 \end{proof}
 
 \begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}
@@ -131,7 +130,7 @@ $$|H[X]-H[Y]| \leq 2 d[X;Y].$$
 $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X;Y].$$
 \end{lemma}
 
-\begin{proof} \uses{sumset-lower, neg-ent} Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
+\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
 \end{proof}
 
 \begin{lemma}[Distance nonnegative]\label{ruzsa-nonneg}
@@ -280,7 +279,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 
 \begin{lemma}[Comparison of Ruzsa distances, I]\label{first-useful}
   \lean{condDist_diff_le, condDist_diff_le', condDist_diff_le'', condDist_diff_le'''}\leanok
-  Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
+  Let $X, Y, Z$ be random variables taking values in some abelian group of characteristic $2$, and with $Y, Z$ independent. Then we have
   \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (\bbH[Y+Z] - \bbH[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} \bbH[Z] - \tfrac{1}{4} \bbH[Y]. \label{lem51-a} \end{align}
   and
   \begin{align}\nonumber
@@ -292,7 +291,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \begin{proof}
     \uses{ruz-copy, ruz-lean, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}
   We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using Lemma \ref{independent-exist} and Lemma \ref{ruz-copy}, \ref{ruz-indep}) that $X$ is independent of $Y, Z$. Then we have
-  \begin{align*}  d[X;Y+Z] & - d[X;Y] \\ & = \bbH[X + Y + Z] - \bbH[X+Y] - \tfrac{1}{2}H[Y + Z] + \tfrac{1}{2} \bbH[Y].\end{align*}
+  \begin{align*}  d[X;Y+Z] & - d[X;Y] \\ & = \bbH[X + Y + Z] - \bbH[X+Y] - \tfrac{1}{2}\bbH[Y + Z] + \tfrac{1}{2} \bbH[Y].\end{align*}
   Combining this with Lemma \ref{kv} gives the required bound. The second form of the result is immediate Lemma \ref{ruz-indep}.
 
   Turning to~\eqref{ruzsa-3}, we have from Definition \ref{information-def} and Lemma \ref{relabeled-entropy}
