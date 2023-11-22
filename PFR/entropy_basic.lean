@@ -139,12 +139,12 @@ lemma entropy_of_uniform (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : is
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
 distributed. -/
-lemma entropy_eq_log_card (X : Ω → S) (μ : Measure Ω) : (entropy X μ = log (Fintype.card S)) ↔ (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by
-  -- TODO: which of these side conditions are actually needed?
-  have : MeasurableSingletonClass S := sorry
-  have : IsFiniteMeasure (μ.map X) := sorry
-  have : NeZero (μ.map X) := sorry
-  have hX : Measurable X := sorry
+lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (hμ: NeZero μ) (hμ' : IsFiniteMeasure μ): (entropy X μ = log (Fintype.card S)) ↔ (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by
+  rcases eq_zero_or_neZero (μ.map X) with h | h
+  . have := Measure.le_map_apply  (@Measurable.aemeasurable Ω S _ _ X μ hX) Set.univ
+    simp [h] at this; simp [this] at hμ
+  have : IsFiniteMeasure (μ.map X) := by
+    apply Measure.isFiniteMeasure_map
   rw [entropy_def, measureEntropy_eq_card_iff_measure_eq, Measure.map_apply hX MeasurableSet.univ]
   simp
 
