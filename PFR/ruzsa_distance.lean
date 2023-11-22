@@ -365,10 +365,8 @@ lemma rdist_triangle {Ω Ω' Ω'' : Type u} {G : Type*}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
   [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G]
-  (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G)
-   (hX: Measurable X) (hY: Measurable Y)
-  (hZ : Measurable Z)
-  [IsFiniteMeasure μ] :
+  {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
+  (hX: Measurable X) (hY: Measurable Y) (hZ : Measurable Z) :
     d[X ; μ # Z ; μ''] ≤ d[X ; μ # Y ; μ'] + d[Y ; μ' # Z ; μ''] := by
   obtain ⟨A, mA, μA, X', Y', Z', hμA, hInd, hX', hY', hZ', H⟩ :=
     independent_copies3_nondep hX hY hZ μ μ' μ''
