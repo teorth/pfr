@@ -165,8 +165,11 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁)
 $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z]
   - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
-lemma condDistance_ge_of_min (h : tau_minimizes p X₁ X₂) [MeasurableSpace S] [MeasurableSpace T]
-    (h1 : Measurable X'₁) (h2 : Measurable X'₂) (Z : Ω'₁ → S) (W : Ω'₂ → T):
+lemma condDistance_ge_of_min
+    [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
+    (h : tau_minimizes p X₁ X₂)
+    (h1 : Measurable X'₁) (h2 : Measurable X'₂) (Z : Ω'₁ → S) (W : Ω'₂ → T) :
     d[X₁ # X₂] - η * (d[p.X₀₁ # X'₁ | Z] - d[p.X₀₁ # X₁])
       - η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])
     ≤ d[X'₁ | Z ; μ'₁ # X'₂ | W ; μ'₂] := sorry
