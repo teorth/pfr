@@ -44,6 +44,7 @@ To actually build the blueprint, run
 lake exe cache get
 lake build
 inv all
+```
 
 ## Source reference
 
