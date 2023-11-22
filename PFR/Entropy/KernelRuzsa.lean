@@ -21,9 +21,10 @@ open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 
 namespace ProbabilityTheory.kernel
 
-variable {T T' G : Type*}
+variable {T T' T'' G : Type*}
   [Fintype T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
   [Fintype T'] [Nonempty T'] [MeasurableSpace T'] [MeasurableSingletonClass T']
+  [Fintype T''] [Nonempty T''] [MeasurableSpace T''] [MeasurableSingletonClass T'']
   [Fintype G] [Nonempty G] [MeasurableSpace G] [MeasurableSingletonClass G]
   [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G]
   {κ : kernel T G} {η : kernel T' G} {μ : Measure T}  {ν : Measure T'}
@@ -127,7 +128,7 @@ lemma ruzsa_triangle_aux3 (κ : kernel T (G × G)) (η : kernel T G)
   · congr
   · exact measurable_of_finite _
 
--- `H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ]`
+-- Kernel equivalent of `H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ]`
 -- `κ` is `⟨X,Y⟩`, `η` is `Z`. Independence is expressed through the product `×ₖ`.
 /-- The **improved entropic Ruzsa triangle inequality**. -/
 lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η]
@@ -210,10 +211,12 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
           · exact measurable_of_finite _ hs
         · exact ruzsa_triangle_aux3 κ η
 
-lemma rdist_triangle (κ η ξ : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η] [IsMarkovKernel ξ]
-    (μ ν ν' : Measure T)
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] :
-    dk[κ ; μ # ξ ; ν'] ≤ dk[κ ; μ # η ; ν] + dk[η ; ν # ξ ; ν'] := by
+lemma rdist_triangle (κ η ξ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
+    [IsMarkovKernel κ] [IsMarkovKernel η] [IsMarkovKernel ξ]
+    (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ''] :
+    dk[κ ; μ # ξ ; μ''] ≤ dk[κ ; μ # η ; μ'] + dk[η ; μ' # ξ ; μ''] := by
+  rw [rdist_eq', rdist_eq', rdist_eq']
   sorry
 
 end ProbabilityTheory.kernel
