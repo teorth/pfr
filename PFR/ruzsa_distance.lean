@@ -278,7 +278,8 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
 -- note : many of the statements below probably need measurability hypotheses on X, Y, and/or guarantees that a measure is a probability measure.
 
 /-- $$|H[X]-H[Y]| \leq 2 d[X ; Y].$$ -/
-lemma diff_ent_le_rdist [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y) :
+lemma diff_ent_le_rdist [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+    (hX : Measurable X) (hY : Measurable Y) :
     |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ'] := by
   obtain ⟨ν, X', Y', _, hX', hY', hind, hIdX, hIdY⟩ := independent_copies hX hY μ μ'
   rw [← hIdX.rdist_eq hIdY, hind.rdist_eq hX' hY', ← hIdX.entropy_eq, ← hIdY.entropy_eq, abs_le]
@@ -288,20 +289,38 @@ lemma diff_ent_le_rdist [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX
   · linarith[le_max_left H[X'; ν] H[Y'; ν]]
 
 /-- $$  H[X-Y] - H[X] \leq 2d[X ; Y].$$ -/
-lemma diff_ent_le_rdist' [IsProbabilityMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ):
+lemma diff_ent_le_rdist' [IsProbabilityMeasure μ] {Y : Ω → G}
+    (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ):
     H[X - Y ; μ] - H[X ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by
   rw [h.rdist_eq hX hY]
   linarith[ent_of_indep_diff_lower hX hY h, le_max_right H[X; μ] H[Y; μ]]
 
 /-- $$  H[X-Y] - H[Y] \leq 2d[X ; Y].$$ -/
-lemma diff_ent_le_rdist'' [IsProbabilityMeasure μ] {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ) :
+lemma diff_ent_le_rdist'' [IsProbabilityMeasure μ] {Y : Ω → G}
+    (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ) :
     H[X-Y ; μ] - H[Y ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by
   rw [h.rdist_eq hX hY]
   linarith[ent_of_indep_diff_lower hX hY h, le_max_left H[X; μ] H[Y; μ]]
 
 /--   $$ d[X ; Y] \geq 0.$$  -/
-lemma rdist_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y) : 0 ≤ d[X ; μ # Y ; μ'] := by
+lemma rdist_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+    (hX : Measurable X) (hY : Measurable Y) : 0 ≤ d[X ; μ # Y ; μ'] := by
   linarith [ge_trans (diff_ent_le_rdist hX hY) (abs_nonneg (H[X ; μ] - H[Y ; μ']))]
+
+/-- Adding a constant to a random variable does not change the Rusza distance. -/
+lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+    (hX : Measurable X) (hY : Measurable Y) :
+    d[X ; μ # (fun ω ↦ Y ω + c) ; μ'] = d[X ; μ # Y ; μ'] := by
+  obtain ⟨ν, X', Y', _, hX', hY', hind, hIdX, hIdY⟩ := independent_copies hX hY μ μ'
+  have A : IdentDistrib (fun ω ↦ Y' ω + c) (fun ω ↦ Y ω + c) ν μ' :=
+    hIdY.comp (measurable_add_const c)
+  have B : IndepFun X' (fun ω ↦ Y' ω + c) ν :=
+    hind.comp measurable_id (measurable_add_const c)
+  have C : X' - (fun ω ↦ Y' ω + c) = fun ω ↦ (X' - Y') ω + (-c) := by
+    ext ω; simp;  abel
+  rw [← hIdX.rdist_eq hIdY, ← hIdX.rdist_eq A, hind.rdist_eq hX' hY',
+    B.rdist_eq hX' (hY'.add_const _), entropy_add_const _ _ hY', C, entropy_add_const]
+  exact hX'.sub hY'
 
 /-- The **improved entropic Ruzsa triangle inequality**. -/
 lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
