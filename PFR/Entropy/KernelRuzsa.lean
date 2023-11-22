@@ -102,16 +102,21 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
         + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_finite _), μ] := by
     calc Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.1 - p.1.2)) (measurable_of_finite _), μ]
       ≤ Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2)) (measurable_of_finite _), μ] := by
-          sorry
-  --        have : ⟨X - Z, X - Y⟩ = (fun p ↦ (p.1, p.1 - p.2)) ∘ ⟨X - Z, Y - Z⟩ := by ext1; simp
-  --        rw [this]
-  --        exact entropy_comp_le μ ((hX.sub hZ).prod_mk (hY.sub hZ)) _
+          have : (fun p : (G × G) × G ↦ (p.1.1 - p.2, p.1.1 - p.1.2))
+            = (fun p ↦ (p.1, p.1 - p.2)) ∘ (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2)) := by ext1; simp
+          rw [this, ← map_map]
+          exact entropy_map_le _ _ _
     _ ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
         + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_finite _), μ] := by
-          sorry
-  --        have h : 0 ≤ H[X - Z ; μ] + H[Y - Z ; μ] - H[⟨X - Z, Y - Z⟩ ; μ] :=
-  --          mutualInformation_nonneg (hX.sub hZ) (hY.sub hZ) μ
-  --        linarith
+          have h : 0 ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
+              + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_finite _), μ]
+              - Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2))
+                (measurable_of_finite _), μ] := by
+            have h' := mutualInfo_nonneg (map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2))
+                (measurable_of_finite _)) μ
+            rwa [mutualInfo, fst_map_prod _ (measurable_of_finite _) (measurable_of_finite _),
+              snd_map_prod _ (measurable_of_finite _) (measurable_of_finite _)] at h'
+          linarith
   have h3 : Hk[map κ (fun p : G × G ↦ (p.2, p.1 - p.2)) (measurable_of_finite _), μ]
       ≤ Hk[κ, μ] := by
     exact entropy_map_le κ _ _
@@ -135,13 +140,21 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
   _ = Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
       + Hk[map (κ ×ₖ η) (fun p ↦ p.2 - p.1.2) (measurable_of_finite _), μ] - Hk[η, μ] := by
         congr 2
-        -- rw [entropy_sub_comm] -- does not work, but essentially this
-        sorry
+        rw [← entropy_neg, map_map]
+        congr with p
+        simp
   _ = Hk[map ((fst κ) ×ₖ η) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
       + Hk[map (η ×ₖ (snd κ)) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
       - Hk[η, μ] := by
         congr 2
-        · sorry
-        · sorry
+        · congr 1
+          ext x s hs
+          rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply, prod_apply, lintegral_fst]
+          · congr with x
+          · sorry
+          · exact measurable_sub hs
+          · exact measurable_of_finite _ hs
+        · -- need to swap the prod
+          sorry
 
 end ProbabilityTheory.kernel
