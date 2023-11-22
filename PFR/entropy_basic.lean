@@ -1,5 +1,4 @@
 import Mathlib.Data.Prod.TProd
-import Mathlib.MeasureTheory.Group.Prod
 import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation

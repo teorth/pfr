@@ -455,6 +455,7 @@ protected lemma ProbabilityTheory.IdentDistrib.snd {X : Ω → Ω''} {Y : Ω →
   rw [←Measure.snd_map_prod_mk hX,show (fun a => (X a, Y a)) = ⟨X, Y⟩ by rfl,h.3,
     Measure.snd_map_prod_mk hX']
 
+variable (μ μ') in
 /--   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
 $$   d[X  | Z ; Y | W] \leq d[X ; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W].$$
 -/
@@ -518,10 +519,9 @@ lemma comparison_of_ruzsa_distances
     exact hi.add hm 1 2 0 (by decide) (by decide)
   rw [← h2X'.rdist_eq h2Y', ← h2X'.rdist_eq h2, ← h2Y'.rdist_eq h2Z',
     ← h2.entropy_eq, ← h2Y'.entropy_eq, ← h2Z'.entropy_eq]
-  rw [hYZ'.rdist_eq hY' hZ', hXYZ'.rdist_eq hX' (hY'.add hZ')]
+  rw [hXY'.rdist_eq hX' hY', hYZ'.rdist_eq hY' hZ', hXYZ'.rdist_eq hX' (hY'.add hZ')]
   constructor
-  · rw [hXY'.rdist_eq hX' hY']
-    linarith [kaimonovich_vershik' hi hX' hY' hZ']
+  · linarith [kaimonovich_vershik' hi hX' hY' hZ']
   · intro hG
     rw [pi.sub_eq_add Y' Z']
     ring
