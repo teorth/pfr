@@ -161,11 +161,11 @@ theorem exists_isUniform_of_rdist_eq_zero
   have h' : d[X # X] = 0 := by
     apply le_antisymm _ (rdist_nonneg hX hX)
     calc
-      d[X # X] ≤ d[X # X'] + d[X' # X] := rdist_triangle _ _ _ hX hX' hX
+      d[X # X] ≤ d[X # X'] + d[X' # X] := rdist_triangle hX hX' hX
       _ = 0 := by rw [hdist, rdist_symm, hdist, zero_add]
   rcases exists_isUniform_of_rdist_self_eq_zero hX h' with ⟨H, U, hmeas, hunif, hd⟩
   refine ⟨H, U, hmeas, hunif, hd, ?_⟩
   apply le_antisymm _ (rdist_nonneg hX' hmeas)
   calc
-    d[X' # U] ≤ d[X' # X] + d[X # U] := rdist_triangle _ _ _ hX' hX hmeas
+    d[X' # U] ≤ d[X' # X] + d[X # U] := rdist_triangle hX' hX hmeas
     _ = 0 := by rw [hd, rdist_symm, hdist, zero_add]
