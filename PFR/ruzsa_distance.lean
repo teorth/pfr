@@ -368,6 +368,9 @@ def cond_rdist [MeasurableSpace S] [MeasurableSpace T] (X : Ω → G) (Z : Ω �
 @[inherit_doc cond_rdist]
 notation3:max "d[" X " | " Z " ; " μ " # " Y " | " W " ; " μ'"]" => cond_rdist X Z Y W μ μ'
 
+@[inherit_doc cond_rdist]
+notation3:max "d[" X " | " Z " # " Y " | " W " ]" => cond_rdist X Z Y W volume volume
+
 /-- The conditional Ruzsa distance `d[X ; Y|W]`. -/
 def cond_rdist' [MeasurableSpace T] (X : Ω → G) (Y : Ω' → G) (W : Ω' → T)
     (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ := sorry
