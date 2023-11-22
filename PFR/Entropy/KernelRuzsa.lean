@@ -72,8 +72,8 @@ lemma rdist_symm (κ : kernel T G) (η : kernel T' G) [IsFiniteKernel κ] [IsFin
     comap_prod_swap, map_map]
   congr
 
-lemma aux1 (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η]
-    (μ : Measure T) [IsProbabilityMeasure μ] :
+lemma ruzsa_triangle_aux1 (κ : kernel T (G × G)) (η : kernel T G)
+    [IsMarkovKernel κ] [IsMarkovKernel η] :
     map (κ ×ₖ η) (fun x ↦ x.1.1 - x.1.2) (measurable_of_finite _)
       = map κ (fun p ↦ p.1 - p.2) measurable_sub := by
   ext x s hs
@@ -90,8 +90,8 @@ lemma aux1 (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMar
   rw [lintegral_indicator_const, one_mul]
   exact measurable_of_finite _ hs
 
-lemma aux2 (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η]
-    (μ : Measure T) [IsProbabilityMeasure μ] :
+lemma ruzsa_triangle_aux2 (κ : kernel T (G × G)) (η : kernel T G)
+    [IsMarkovKernel κ] [IsMarkovKernel η] :
     map (κ ×ₖ η) (fun x ↦ (x.1.2, x.1.1 - x.1.2)) (measurable_of_finite _)
       = map κ (fun p ↦ (p.2, p.1 - p.2)) (measurable_of_finite _) := by
   ext x s hs
@@ -108,8 +108,8 @@ lemma aux2 (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMar
   rw [lintegral_indicator_const, one_mul]
   exact measurable_of_finite _ hs
 
-lemma aux3 (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η]
-    (μ : Measure T) [IsProbabilityMeasure μ] :
+lemma ruzsa_triangle_aux3 (κ : kernel T (G × G)) (η : kernel T G)
+    [IsMarkovKernel κ] [IsMarkovKernel η] :
     map (κ ×ₖ η) (fun p ↦ p.2 - p.1.2) (measurable_of_finite _)
       = map (η ×ₖ snd κ) (fun p ↦ p.1 - p.2) (measurable_of_finite _) := by
   have : (fun p : G × G ↦ p.1 - p.2) = (fun p ↦ p.2 - p.1) ∘ Prod.swap := by ext1 p; simp
@@ -146,11 +146,11 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
     rw [deleteMiddle_map_prod _ (measurable_of_finite _) (measurable_of_finite _)
         (measurable_of_finite _)] at h
     have : map (κ ×ₖ η) (fun x ↦ x.1.1 - x.1.2) (measurable_of_finite _)
-        = map κ (fun p ↦ p.1 - p.2) measurable_sub := aux1 κ η μ
+        = map κ (fun p ↦ p.1 - p.2) measurable_sub := ruzsa_triangle_aux1 κ η
     rw [this] at h
     refine h.trans_eq ?_
     congr 2
-    exact aux2 κ η μ
+    exact ruzsa_triangle_aux2 κ η
   have h2 : Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.1 - p.1.2)) (measurable_of_finite _), μ]
       ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
         + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_finite _), μ] := by
@@ -208,6 +208,6 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
           · exact measurable_of_finite _
           · exact measurable_sub hs
           · exact measurable_of_finite _ hs
-        · exact aux3 κ η μ
+        · exact ruzsa_triangle_aux3 κ η
 
 end ProbabilityTheory.kernel
