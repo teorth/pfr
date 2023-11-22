@@ -279,7 +279,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 
 \begin{lemma}[Comparison of Ruzsa distances, I]\label{first-useful}
   \lean{condDist_diff_le, condDist_diff_le', condDist_diff_le'', condDist_diff_le'''}\leanok
-  Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
+  Let $X, Y, Z$ be random variables taking values in some abelian group of characteristic $2$, and with $Y, Z$ independent. Then we have
   \begin{align}\nonumber d[X; Y + Z] -d[X; Y] &  \leq \tfrac{1}{2} (\bbH[Y+Z] - \bbH[Y]) \\ & = \tfrac{1}{2} d[Y; Z] + \tfrac{1}{4} \bbH[Z] - \tfrac{1}{4} \bbH[Y]. \label{lem51-a} \end{align}
   and
   \begin{align}\nonumber
