@@ -264,10 +264,12 @@ $3 \bbI[A:B] + 2\bbH[Z]-\bbH[A]-\bbH[B]$ as claimed.
   \lean{condDist_le, condDist_le'}\leanok
   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
   \[    d[X  | Z;Y | W] \leq d[X; Y] + \tfrac{1}{2}  \bbI[X : Z] + \tfrac{1}{2}  \bbI[Y : W].\]
+  In particular,
+  \[    d[X ;Y | W] \leq d[X; Y] + \tfrac{1}{2}   \tfrac{1}{2}  \bbI[Y : W].\]
 \end{lemma}
 
 \begin{proof}
-\uses{cond-dist-alt, independent-exist, cond-reduce}
+\uses{cond-dist-alt, independent-exist, cond-reduce}\leanok
 Using Lemma \ref{cond-dist-alt} and Lemma \ref{independent-exist}, if $(X',Z'), (Y',W')$ are independent copies of the variables $(X,Z)$, $(Y,W)$, we have
 \begin{align*}
   d[X  | Z; Y | W]&= \bbH[X'-Y'|Z',W'] - \tfrac{1}{2} \bbH[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
