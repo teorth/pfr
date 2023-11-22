@@ -72,54 +72,76 @@ lemma rdist_symm (κ : kernel T G) (η : kernel T' G) [IsFiniteKernel κ] [IsFin
     comap_prod_swap, map_map]
   congr
 
--- $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
---lemma entropy_triple_add_entropy_le (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
---    (μ : Measure T) [IsProbabilityMeasure μ] :
---    Hk[κ, μ] + Hk[snd (snd κ), μ] ≤ Hk[deleteMiddle κ, μ] + Hk[snd κ, μ] := by
-
---$$ H[X,Y,Z] + H[X] \leq H[X,Z] + H[X,Y].$$ -/
---lemma entropy_triple_add_entropy_le' (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
---    (μ : Measure T) [IsProbabilityMeasure μ] :
---    Hk[κ, μ] + Hk[fst κ, μ] ≤ Hk[deleteMiddle κ, μ] + Hk[deleteRight κ, μ] := by
-
 -- `H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ]`
 -- `κ` is `⟨X,Y⟩`, `η` is `Z`. Independence is expressed through the product `×ₖ`.
+/-- The **improved entropic Ruzsa triangle inequality**. -/
 lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) [IsProbabilityMeasure μ] :
     Hk[map κ (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
       ≤ Hk[map ((fst κ) ×ₖ η) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
-        + Hk[map ((snd κ) ×ₖ η) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
+        + Hk[map (η ×ₖ (snd κ)) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
         - Hk[η, μ] := by
-  sorry
-  --have h1 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] + H[X - Y; μ] ≤ H[⟨X - Z, X - Y⟩; μ] + H[⟨Y, X - Y⟩; μ] :=
-  --  entropy_triple_add_entropy_le μ (hX.sub hZ) hY (hX.sub hY)
-  --have h2 : H[⟨X - Z, X - Y⟩ ; μ] ≤ H[X - Z ; μ] + H[Y - Z ; μ] := by
-  --  calc H[⟨X - Z, X - Y⟩ ; μ] ≤ H[⟨X - Z, Y - Z⟩ ; μ] := by
+  have h1 : Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2)))
+        (measurable_of_finite _), μ] + Hk[map κ (fun p ↦ p.1 - p.2) measurable_sub, μ]
+      ≤ Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.1 - p.1.2)) (measurable_of_finite _), μ]
+        + Hk[map κ (fun p ↦ (p.2, p.1 - p.2)) (measurable_of_finite _), μ] := by
+    have h := entropy_triple_add_entropy_le
+      (map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2))) (measurable_of_finite _)) μ
+    simp only [snd_map_prod _ (measurable_of_finite _) (measurable_of_finite _)] at h
+    rw [deleteMiddle_map_prod _ (measurable_of_finite _) (measurable_of_finite _)
+        (measurable_of_finite _)] at h
+    have : map (κ ×ₖ η) (fun x ↦ x.1.1 - x.1.2) (measurable_of_finite _)
+        = map κ (fun p ↦ p.1 - p.2) measurable_sub := by
+      sorry
+    rw [this] at h
+    refine h.trans_eq ?_
+    congr 1
+    sorry
+  have h2 : Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.1 - p.1.2)) (measurable_of_finite _), μ]
+      ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
+        + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_finite _), μ] := by
+    calc Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.1 - p.1.2)) (measurable_of_finite _), μ]
+      ≤ Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2)) (measurable_of_finite _), μ] := by
+          sorry
   --        have : ⟨X - Z, X - Y⟩ = (fun p ↦ (p.1, p.1 - p.2)) ∘ ⟨X - Z, Y - Z⟩ := by ext1; simp
   --        rw [this]
   --        exact entropy_comp_le μ ((hX.sub hZ).prod_mk (hY.sub hZ)) _
-  --  _ ≤ H[X - Z ; μ] + H[Y - Z ; μ] := by
+    _ ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
+        + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_finite _), μ] := by
+          sorry
   --        have h : 0 ≤ H[X - Z ; μ] + H[Y - Z ; μ] - H[⟨X - Z, Y - Z⟩ ; μ] :=
   --          mutualInformation_nonneg (hX.sub hZ) (hY.sub hZ) μ
   --        linarith
-  --have h3 : H[⟨ Y, X - Y ⟩ ; μ] ≤ H[⟨ X, Y ⟩ ; μ] := by
-  --  have : ⟨Y, X - Y⟩ = (fun p ↦ (p.2, p.1 - p.2)) ∘ ⟨X, Y⟩ := by ext1; simp
-  --  rw [this]
-  --  exact entropy_comp_le μ (hX.prod_mk hY) _
-  --have h4 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] = H[⟨X, ⟨Y, Z⟩⟩ ; μ] := by
-  --  refine entropy_of_comp_eq_of_comp μ ((hX.sub hZ).prod_mk (hY.prod_mk (hX.sub hY)))
-  --    (hX.prod_mk (hY.prod_mk hZ))
-  --    (fun p : G × (G × G) ↦ (p.2.2 + p.2.1, p.2.1, -p.1 + p.2.2 + p.2.1))
-  --    (fun p : G × G × G ↦ (p.1 - p.2.2, p.2.1, p.1 - p.2.1)) ?_ ?_
-  --  · ext1; simp
-  --  · ext1; simp
-  --have h5 : H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨X, Y⟩ ; μ] + H[Z ; μ] := by
-  --  rw [entropy_assoc hX hY hZ, entropy_pair_eq_add (hX.prod_mk hY) hZ]
-  --  exact h
-  --rw [h4, h5] at h1
-  --calc H[X - Y; μ] ≤ H[X - Z; μ] + H[Y - Z; μ] - H[Z; μ] := by linarith
-  --_ = H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ] := by
-  --  congr 2
-  --  rw [entropy_sub_comm hY hZ]
+  have h3 : Hk[map κ (fun p : G × G ↦ (p.2, p.1 - p.2)) (measurable_of_finite _), μ]
+      ≤ Hk[κ, μ] := by
+    exact entropy_map_le κ _ _
+  have h4 : Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2)))
+      (measurable_of_finite _), μ] = Hk[κ ×ₖ η, μ] := by
+    refine entropy_of_map_eq_of_map _ _ μ
+      (fun p : G × G × G ↦ ((p.2.2 + p.2.1, p.2.1), -p.1 + p.2.2 + p.2.1))
+      (fun p : (G × G) × G ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2))) ?_ ?_
+    · rw [map_map]
+      suffices ((fun p : G × G × G ↦ ((p.2.2 + p.2.1, p.2.1), -p.1 + p.2.2 + p.2.1))
+          ∘ fun p ↦ (p.1.1 - p.2, p.1.2, p.1.1 - p.1.2)) = id by
+        simp_rw [this, map_id]
+      ext1 p
+      simp
+    · rfl
+  have h5 : Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by rw [entropy_prod]
+  rw [h4, h5] at h1
+  calc Hk[map κ (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
+    ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
+      + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_finite _), μ] - Hk[η, μ] := by sorry
+  _ = Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
+      + Hk[map (κ ×ₖ η) (fun p ↦ p.2 - p.1.2) (measurable_of_finite _), μ] - Hk[η, μ] := by
+        congr 2
+        -- rw [entropy_sub_comm] -- does not work, but essentially this
+        sorry
+  _ = Hk[map ((fst κ) ×ₖ η) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
+      + Hk[map (η ×ₖ (snd κ)) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
+      - Hk[η, μ] := by
+        congr 2
+        · sorry
+        · sorry
 
 end ProbabilityTheory.kernel

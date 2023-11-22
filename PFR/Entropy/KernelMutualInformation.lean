@@ -171,8 +171,8 @@ def swapRightEquiv : α × β × γ ≃ᵐ α × γ × β where
 end measurableEquiv
 
 section
-variable {α β γ δ : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
-    {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
+variable {α β γ δ ε : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
+    {_ : MeasurableSpace γ} {_ : MeasurableSpace δ} {_ : MeasurableSpace ε}
 
 lemma map_map (κ : kernel α β) {f : β → γ} (hf : Measurable f) {g : γ → δ} (hg : Measurable g) :
     map (map κ f hf) g hg = map κ (g ∘ f) (hg.comp hf) := by
@@ -213,6 +213,14 @@ lemma snd_deleteMiddle (κ : kernel α (β × γ × δ)) : snd (deleteMiddle κ)
   · exact measurable_fst
 
 @[simp]
+lemma deleteMiddle_map_prod (κ : kernel α β) {f : β → γ} {g : β → δ} {g' : β → ε}
+    (hf : Measurable f) (hg : Measurable g) (hg' : Measurable g') :
+    deleteMiddle (map κ (fun b ↦ (f b, g b, g' b)) (hf.prod_mk (hg.prod_mk hg')))
+      = map κ (fun b ↦ (f b, g' b)) (hf.prod_mk hg') := by
+  simp only [deleteMiddle, map_map]
+  congr
+
+@[simp]
 lemma deleteMiddle_compProd (ξ : kernel α β) [IsSFiniteKernel ξ]
     (κ : kernel (α × β) (γ × δ)) [IsSFiniteKernel κ] :
     deleteMiddle (ξ ⊗ₖ κ) = ξ ⊗ₖ snd κ := by
@@ -246,6 +254,14 @@ lemma snd_deleteRight (κ : kernel α (β × γ × δ)) : snd (deleteRight κ) =
   · rw [fst, snd, map_map]
     rfl
   · exact measurable_fst
+
+@[simp]
+lemma deleteRight_map_prod (κ : kernel α β) {f : β → γ} {g : β → δ} {g' : β → ε}
+    (hf : Measurable f) (hg : Measurable g) (hg' : Measurable g') :
+    deleteRight (map κ (fun b ↦ (f b, g b, g' b)) (hf.prod_mk (hg.prod_mk hg')))
+      = map κ (fun b ↦ (f b, g b)) (hf.prod_mk hg) := by
+  simp only [deleteRight, map_map]
+  congr
 
 noncomputable
 def assocRight (κ : kernel α ((β × γ) × δ)) :
