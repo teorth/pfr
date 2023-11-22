@@ -69,7 +69,7 @@ One random variable is said to be a copy of another if they have the same distri
 
 \begin{lemma}[Existence of independent copies]\label{independent-exist}
   \uses{independent-def}
-  \lean{ProbabilityTheory.independent_copies, ProbabilityTheory.independent_copies'} \leanok
+  \lean{ProbabilityTheory.independent_copies, ProbabilityTheory.independent_copies', ProbabilityTheory.independent_copies_two, ProbabilityTheory.independent_copies3_nondep} \leanok
   Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then if one gives $\prod_{i=1}^k S_i$ the product measure of the laws of $X_i$, the coordinate functions $(x_j)_{j=1}^k \mapsto x_i$ are jointly independent random variables which are copies of the $X_1,\dots,X_k$.
 \end{lemma}
 
@@ -173,7 +173,7 @@ This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ ar
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
+\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved}\leanok By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
@@ -264,10 +264,12 @@ $3 \bbI[A:B] + 2\bbH[Z]-\bbH[A]-\bbH[B]$ as claimed.
   \lean{condDist_le, condDist_le'}\leanok
   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
   \[    d[X  | Z;Y | W] \leq d[X; Y] + \tfrac{1}{2}  \bbI[X : Z] + \tfrac{1}{2}  \bbI[Y : W].\]
+  In particular,
+  \[    d[X ;Y | W] \leq d[X; Y] + \tfrac{1}{2}   \tfrac{1}{2}  \bbI[Y : W].\]
 \end{lemma}
 
 \begin{proof}
-\uses{cond-dist-alt, independent-exist, cond-reduce}
+\uses{cond-dist-alt, independent-exist, cond-reduce}\leanok
 Using Lemma \ref{cond-dist-alt} and Lemma \ref{independent-exist}, if $(X',Z'), (Y',W')$ are independent copies of the variables $(X,Z)$, $(Y,W)$, we have
 \begin{align*}
   d[X  | Z; Y | W]&= \bbH[X'-Y'|Z',W'] - \tfrac{1}{2} \bbH[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
@@ -289,7 +291,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \end{lemma}
 
   \begin{proof}
-    \uses{ruz-copy, ruz-lean, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}
+    \uses{ruz-copy, ruz-lean, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}\leanok
   We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using Lemma \ref{independent-exist} and Lemma \ref{ruz-copy}, \ref{ruz-indep}) that $X$ is independent of $Y, Z$. Then we have
   \begin{align*}  d[X;Y+Z] & - d[X;Y] \\ & = \bbH[X + Y + Z] - \bbH[X+Y] - \tfrac{1}{2}\bbH[Y + Z] + \tfrac{1}{2} \bbH[Y].\end{align*}
   Combining this with Lemma \ref{kv} gives the required bound. The second form of the result is immediate Lemma \ref{ruz-indep}.
@@ -308,7 +310,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \end{lemma}
 
   \begin{proof}
-    \uses{first-useful}
+    \uses{first-useful}\leanok
   By Lemma \ref{first-useful} (with a change of variables) we have
   \[ d[X; Y + Z | Y + Z + Z'] - d[X; Y + Z] \leq \tfrac{1}{2}( \bbH[Y + Z + Z'] - \bbH[Z']).\]
   Adding this to~\eqref{lem51-a} gives the result.

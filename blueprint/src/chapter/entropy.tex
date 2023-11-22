@@ -32,7 +32,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   This is a direct consequence of Lemma \ref{jensen}.
 \end{proof}
 
-\begin{definition}[Uniform distribution]\label{uniform-def}
+\begin{definition}[Uniform distribution]\label{uniform-def}\leanok
   \lean{ProbabilityTheory.isUniform} If $H$ is a subset of $S$, an $S$-random variable $X$ is said to be uniformly distributed on $H$ if $\bbP[X = s] = 1/|H|$ for $s \in X$ and $\bbP[X=s] = 0$ otherwise.
 \end{definition}
 
@@ -300,7 +300,7 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
   If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
 \end{lemma}
 
-\begin{proof} \uses{conditional-nonneg} Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.
+\begin{proof} \uses{conditional-nonneg}\leanok Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.
 \end{proof}
 
 \begin{corollary}[Entropy of conditionally independent variables]\label{cond-trial-ent}
@@ -309,5 +309,5 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
   $$ \bbH[X,Y,Z] =\bbH[X,Z] + \bbH[Y,Z] - \bbH[Z].$$
 \end{corollary}
 
-\begin{proof} \uses{vanish-entropy, conditional-mutual-alt} Immediate from Lemma \ref{vanish-entropy} and Lemma \ref{conditional-mutual-alt}.
+\begin{proof} \uses{vanish-entropy, conditional-mutual-alt}\leanok Immediate from Lemma \ref{vanish-entropy} and Lemma \ref{conditional-mutual-alt}.
 \end{proof}
