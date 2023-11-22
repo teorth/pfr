@@ -11,6 +11,7 @@ import PFR.fibring
 import PFR.first_estimate
 import PFR.ForMathlib.Finiteness
 import PFR.ForMathlib.Finiteness.Attr
+import PFR.ForMathlib.Independence
 import PFR.ForMathlib.Jensen
 import PFR.ForMathlib.Positivity
 import PFR.HundredPercent
