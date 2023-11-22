@@ -176,10 +176,10 @@ def rdist (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
     (μ' : Measure Ω' := by volume_tac) : ℝ :=
   H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2
 
-/-- Needed a new separator here, chose `#` arbitrarily, but am open to other suggestions -/
-notation3:max "d[" X " ; " μ " # " Y " ; " μ' "]" => rdist X Y μ μ'
+/- Needed a new separator here, chose `#` arbitrarily, but am open to other suggestions -/
+@[inherit_doc rdist] notation3:max "d[" X " ; " μ " # " Y " ; " μ' "]" => rdist X Y μ μ'
 
-notation3:max "d[" X " # " Y "]" => rdist X Y MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
+@[inherit_doc rdist] notation3:max "d[" X " # " Y "]" => rdist X Y volume volume
 
 lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') :
     d[ X ; μ # Y ; μ' ]
@@ -365,14 +365,17 @@ lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) :
 /-- The conditional Ruzsa distance `d[X|Z ; Y|W]`. -/
 def cond_rdist [MeasurableSpace S] [MeasurableSpace T] (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ := sorry
 
+@[inherit_doc cond_rdist]
 notation3:max "d[" X " | " Z " ; " μ " # " Y " | " W " ; " μ'"]" => cond_rdist X Z Y W μ μ'
 
 /-- The conditional Ruzsa distance `d[X ; Y|W]`. -/
 def cond_rdist' [MeasurableSpace T] (X : Ω → G) (Y : Ω' → G) (W : Ω' → T)
     (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ := sorry
 
+@[inherit_doc cond_rdist']
 notation3:max "d[" X " ; " μ " # " Y " | " W " ; " μ' "]" => cond_rdist' X Y W μ μ'
-notation3:max "d[" X " # " Y " | " W "]" => cond_rdist' X Y W MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
+@[inherit_doc cond_rdist']
+notation3:max "d[" X " # " Y " | " W "]" => cond_rdist' X Y W volume volume
 
 /-- If $(X,Z)$ and $(Y,W)$ are independent, then
 $$  d[X  | Z ; Y | W] = H[X'-Y'|Z', W'] - H[X'|Z']/2 - H[Y'|W']/2$$

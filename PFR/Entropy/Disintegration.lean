@@ -151,7 +151,7 @@ lemma condKernel_prod_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel T U) [IsMarkovKernel η] [IsFiniteMeasure μ] :
     condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight η S := condKernel_compProd_ae_eq _ _
 
-instance (κ : kernel T (S × U)) [IsFiniteKernel κ] : IsFiniteKernel (condKernel κ) := by
+instance (κ : kernel T (S × U)) : IsFiniteKernel (condKernel κ) := by
   rw [condKernel]; infer_instance
 
 instance (κ : kernel T (S × U)) [IsMarkovKernel κ] : IsMarkovKernel (condKernel κ) := by
@@ -199,7 +199,7 @@ lemma disintegration (κ : kernel T (S × U)) [IsFiniteKernel κ] :
   · refine fun _ ↦ (measurable_fst (measurableSet_singleton _)).inter ?_
     exact measurable_prod_mk_left.comp measurable_snd hs
 
-lemma condKernel_map_prod_mk_left {V : Type*} [Fintype V] [Nonempty V] [MeasurableSpace V]
+lemma condKernel_map_prod_mk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
     [MeasurableSingletonClass V]
     (κ : kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ]
     (f : (S × U) → V) :
