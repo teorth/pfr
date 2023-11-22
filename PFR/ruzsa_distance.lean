@@ -14,7 +14,8 @@ Here we define Ruzsa distance and establish its basic properties.
 
 ## Main definitions
 
-* `rdist` : The Ruzsa distance between two random variables
+* `rdist` : The Ruzsa distance $d[X; Y]$ between two random variables
+* `cond_rdist` : The conditional Ruzsa distance $d[X|Z; Y|W]$ (or $d[X; Y|W]$) between two random variables, conditioned on additional random variables
 
 ## Main results
 
@@ -183,8 +184,6 @@ notation3:max "d[" X " # " Y "]" => rdist X Y MeasureTheory.MeasureSpace.volume 
 lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') :
     d[ X ; μ # Y ; μ' ]
       = H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2 := rfl
-
--- may also want to make further notations for Ruzsa distance to hide the measures μ, μ'
 
 -- TODO: Use notation `Hm[μ]` here? (figure out how)
 lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Fintype Ω]
