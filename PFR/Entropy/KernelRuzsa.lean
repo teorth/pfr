@@ -72,13 +72,25 @@ lemma rdist_symm (κ : kernel T G) (η : kernel T' G) [IsFiniteKernel κ] [IsFin
     comap_prod_swap, map_map]
   congr
 
+-- $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
+--lemma entropy_triple_add_entropy_le (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
+--    (μ : Measure T) [IsProbabilityMeasure μ] :
+--    Hk[κ, μ] + Hk[snd (snd κ), μ] ≤ Hk[deleteMiddle κ, μ] + Hk[snd κ, μ] := by
+
+--$$ H[X,Y,Z] + H[X] \leq H[X,Z] + H[X,Y].$$ -/
+--lemma entropy_triple_add_entropy_le' (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
+--    (μ : Measure T) [IsProbabilityMeasure μ] :
+--    Hk[κ, μ] + Hk[fst κ, μ] ≤ Hk[deleteMiddle κ, μ] + Hk[deleteRight κ, μ] := by
+
+-- `H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ]`
 -- `κ` is `⟨X,Y⟩`, `η` is `Z`. Independence is expressed through the product `×ₖ`.
---lemma ent_of_diff_le (κ : T → G × G) (η : T → G) [IsMarkovKernel κ] [IsMarkovKernel η]
---    [IsProbabilityMeasure μ] :
---    Hk[map κ (fun p ↦ p.1 - p.2) measurable_sub, μ]
---      ≤ Hk[map ((fst κ) ×ₖ η) (fun p ↦ p.1 - p.2) measurable_sub, μ]
---        + Hk[map (η ×ₖ (snd κ)) (fun p ↦ p.1 - p.2) measurable_sub, μ] - Hk[η, μ] := by
---  sorry
+lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η]
+    (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[map κ (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
+      ≤ Hk[map ((fst κ) ×ₖ η) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
+        + Hk[map ((snd κ) ×ₖ η) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
+        - Hk[η, μ] := by
+  sorry
   --have h1 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] + H[X - Y; μ] ≤ H[⟨X - Z, X - Y⟩; μ] + H[⟨Y, X - Y⟩; μ] :=
   --  entropy_triple_add_entropy_le μ (hX.sub hZ) hY (hX.sub hY)
   --have h2 : H[⟨X - Z, X - Y⟩ ; μ] ≤ H[X - Z ; μ] + H[Y - Z ; μ] := by
