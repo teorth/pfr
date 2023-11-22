@@ -173,7 +173,7 @@ This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ ar
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
+\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved}\leanok By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
@@ -310,7 +310,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \end{lemma}
 
   \begin{proof}
-    \uses{first-useful}
+    \uses{first-useful}\leanok
   By Lemma \ref{first-useful} (with a change of variables) we have
   \[ d[X; Y + Z | Y + Z + Z'] - d[X; Y + Z] \leq \tfrac{1}{2}( \bbH[Y + Z + Z'] - \bbH[Z']).\]
   Adding this to~\eqref{lem51-a} gives the result.
