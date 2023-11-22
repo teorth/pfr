@@ -292,6 +292,12 @@ lemma swapRight_snd_reverse (κ : kernel α (β × γ × δ)) :
   simp only [swapRight, reverse, deleteMiddle, snd, map_map]
   congr
 
+@[simp]
+lemma swapRight_deleteRight_reverse (κ : kernel α (β × γ × δ)) :
+    swapRight (deleteRight (reverse κ)) = snd κ := by
+  simp only [swapRight, reverse, deleteRight, snd, map_map]
+  congr
+
 end
 
 lemma compProd_assoc (ξ : kernel T S) [IsMarkovKernel ξ]
@@ -382,20 +388,38 @@ lemma entropy_compProd_triple_add_entropy_le (ξ : kernel T S) [IsMarkovKernel �
     + Hk[ξ ⊗ₖ κ , μ] := by abel
 
 /-- The submodularity inequality:
-$$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
-lemma entropy_triple_add_entropy_le (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
+$$ H[X,Y,Z] + H[X] \leq H[X,Z] + H[X,Y].$$ -/
+lemma entropy_triple_add_entropy_le' (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :
-    Hk[κ, μ] + Hk[snd (snd κ), μ] ≤ Hk[deleteMiddle κ, μ] + Hk[snd κ, μ] := by
-  rw [chain_rule' κ, chain_rule' (deleteMiddle κ), chain_rule' (snd κ)]
-  simp only [snd_deleteMiddle, fst_deleteMiddle, add_assoc]
-  refine add_le_add le_rfl ?_
-  rw [add_comm (Hk[snd (snd κ) , μ])]
-  simp_rw [← add_assoc]
-  refine add_le_add ?_ le_rfl
-  rw [add_comm]
-  refine add_le_add ?_ le_rfl
-  sorry
-  --exact entropy_submodular _ _
+    Hk[κ, μ] + Hk[fst κ, μ] ≤ Hk[deleteMiddle κ, μ] + Hk[deleteRight κ, μ] := by
+  set κ' := map κ assocEquiv assocEquiv.measurable with hκ'_def
+  let ξ := fst (fst κ')
+  let κ'' := condKernel (fst κ')
+  let η := condKernel κ'
+  have hξ_eq : ξ = fst κ := by
+    simp only [fst._eq_1, assocEquiv, MeasurableEquiv.coe_mk, Equiv.coe_fn_mk, map_map]
+    congr
+  have h_compProd_eq : ξ ⊗ₖ κ'' = fst κ' := (disintegration (fst κ')).symm
+  have h_compProd_triple_eq : (ξ ⊗ₖ κ'') ⊗ₖ η = κ' := by
+    rw [h_compProd_eq]
+    exact (disintegration κ').symm
+  have h_compProd_triple_eq' : ξ ⊗ₖ (κ'' ⊗ₖ comap η assocEquiv.symm assocEquiv.symm.measurable)
+      = κ := by
+    rw [← compProd_assoc, h_compProd_triple_eq,hκ'_def, map_map]
+    simp
+  have h := entropy_compProd_triple_add_entropy_le ξ κ'' η μ
+  rw [← hξ_eq]
+  have h_right : deleteRight κ = fst κ' := by
+    simp only [κ', deleteRight, fst, map_map]
+    congr
+  have h_middle : deleteMiddle κ
+      = ξ ⊗ₖ snd (κ'' ⊗ₖ comap η assocEquiv.symm assocEquiv.symm.measurable) := by
+    rw [← deleteMiddle_compProd, h_compProd_triple_eq']
+  have hκ : Hk[κ, μ] = Hk[κ', μ] := by
+    rw [hκ'_def, entropy_map_of_injective]
+    exact assocEquiv.injective
+  rw [h_right, h_middle, hκ, ← h_compProd_triple_eq, fst_compProd]
+  exact h
 
 lemma entropy_reverse (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :
@@ -406,20 +430,19 @@ lemma entropy_reverse (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
     exact entropy_map_le (reverse κ) μ (fun p ↦ (p.2.2, p.2.1, p.1))
 
 /-- The submodularity inequality:
-$$ H[X,Y,Z] + H[X] \leq H[X,Z] + H[X,Y].$$ -/
-lemma entropy_triple_add_entropy_le' (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
+$$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
+lemma entropy_triple_add_entropy_le (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :
-    Hk[κ, μ] + Hk[fst κ, μ] ≤ Hk[deleteMiddle κ, μ] + Hk[deleteRight κ, μ] := by
-  have h2 : fst κ = snd (snd (reverse κ)) := by
+    Hk[κ, μ] + Hk[snd (snd κ), μ] ≤ Hk[deleteMiddle κ, μ] + Hk[snd κ, μ] := by
+  have h2 : fst (reverse κ) = snd (snd κ) := by
     simp only [fst, reverse, snd, map_map]
     congr
-  rw [← entropy_reverse κ μ, h2]
-  refine (entropy_triple_add_entropy_le (reverse κ) μ).trans ?_
+  rw [← entropy_reverse κ μ, ← h2]
+  refine (entropy_triple_add_entropy_le' (reverse κ) μ).trans ?_
   refine add_le_add ?_ ?_
   · rw [← entropy_swapRight]
     simp
   · rw [← entropy_swapRight]
     simp
-
 
 end ProbabilityTheory.kernel
