@@ -184,6 +184,14 @@ lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T] [M
   exact entropy_comp_of_injective μ (hX.prod_mk (hY.prod_mk hZ)) _
     (Equiv.prodAssoc S T U).symm.injective |>.symm
 
+variable [AddGroup S] in
+/-- $H[X,X+Y] = H[X,Y]$. -/
+lemma entropy_add_right {Y : Ω → S}
+    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
+    H[⟨ X, X + Y ⟩; μ] = H[⟨ X, Y ⟩ ; μ] := by
+  change H[(Equiv.refl _).prodShear Equiv.addLeft ∘ ⟨ X, Y ⟩ ; μ] = H[⟨ X, Y ⟩ ; μ]
+  exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
+
 end entropy
 
 section condEntropy
@@ -519,6 +527,15 @@ lemma entropy_pair_eq_add' (hX : Measurable X) (hY : Measurable Y) {μ : Measure
     [IsProbabilityMeasure μ] (h: IndepFun X Y μ) :
     H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] :=
   (entropy_pair_eq_add hX hY).2 h
+
+variable [AddGroup S] in
+/-- $I[X : X + Y] = H[X + Y] - H[Y]$ iff $X, Y$ are independent. -/
+lemma mutualInformation_add_right {Y : Ω → S} (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+    [IsProbabilityMeasure μ] (h: IndepFun X Y μ) :
+    I[X : X + Y ; μ] = H[X + Y; μ] - H[Y; μ] := by
+  rw [mutualInformation_def, entropy_add_right hX hY, entropy_pair_eq_add' hX hY h]
+  abel
+
 
 /-- The conditional mutual information $I[X:Y|Z]$ is the mutual information of $X|Z=z$ and $Y|Z=z$, integrated over $z$. -/
 noncomputable
