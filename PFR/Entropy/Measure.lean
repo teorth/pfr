@@ -173,7 +173,7 @@ lemma measureEntropy_def' (μ : Measure S) :
   simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul,
     ENNReal.toReal_mul, measureReal_def, ENNReal.toReal_inv]
 
-notation:100 "Hm[" μ "]" => measureEntropy μ
+@[inherit_doc measureEntropy] notation:100 "Hm[" μ "]" => measureEntropy μ
 
 @[simp]
 lemma measureEntropy_zero : Hm[(0 : Measure S)] = 0 := by
