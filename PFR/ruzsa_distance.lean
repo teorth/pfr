@@ -399,11 +399,56 @@ lemma ent_bsg : 0 = 1 := by sorry
 
 end BalogSzemerediGowers
 
+-- TODO: move this somewhere where it belongs & figure out right assumptions
+protected lemma ProbabilityTheory.IdentDistrib.fst {X : Ω → Ω''} {Y : Ω → Ω'''} {X' : Ω' → Ω''} {Y' : Ω' → Ω'''}
+    (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y')
+    (h : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') : IdentDistrib X X' μ μ' := by
+  refine' ⟨hX.aemeasurable,hX'.aemeasurable,_⟩
+  rw [←Measure.fst_map_prod_mk hY,show (fun a => (X a, Y a)) = ⟨X, Y⟩ by rfl,h.3,
+    Measure.fst_map_prod_mk hY']
+
+-- TODO: move this somewhere where it belongs & figure out right assumptions
+protected lemma ProbabilityTheory.IdentDistrib.snd {X : Ω → Ω''} {Y : Ω → Ω'''} {X' : Ω' → Ω''} {Y' : Ω' → Ω'''}
+    (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y')
+    (h : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') : IdentDistrib Y Y' μ μ' := by
+  refine' ⟨hY.aemeasurable, hY'.aemeasurable, _⟩
+  rw [←Measure.snd_map_prod_mk hX,show (fun a => (X a, Y a)) = ⟨X, Y⟩ by rfl,h.3,
+    Measure.snd_map_prod_mk hX']
 
 /--   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
 $$   d[X  | Z ; Y | W] \leq d[X ; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W].$$
 -/
-lemma condDist_le [Fintype S] [Fintype T] (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) : d[X | Z ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[X : Z ; μ]/2 + I[Y : W ; μ']/2 := by sorry
+lemma condDist_le [Fintype S] [Fintype T] (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Nonempty S] [Nonempty T]
+    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W) :
+      d[X | Z ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[X : Z ; μ]/2 + I[Y : W ; μ']/2 := by
+  have hXZ : Measurable (⟨X, Z⟩ : Ω → G × S):= Measurable.prod_mk hX hZ
+  have hYW : Measurable (⟨Y, W⟩ : Ω' → G × T):= Measurable.prod_mk hY hW
+  obtain ⟨ν, XZ', YW', _, hXZ', hYW', hind, hIdXZ, hIdYW⟩ := independent_copies hXZ hYW μ μ'
+  let X' := Prod.fst ∘ XZ'
+  let Z' := Prod.snd ∘ XZ'
+  let Y' := Prod.fst ∘ YW'
+  let W' := Prod.snd ∘ YW'
+  have hX' : Measurable X' := hXZ'.fst
+  have hZ' : Measurable Z' := hXZ'.snd
+  have hY' : Measurable Y' := hYW'.fst
+  have hW' : Measurable W' := hYW'.snd
+  have hind' : IndepFun X' Y' ν := IndepFun.comp hind measurable_fst measurable_fst
+  rw [show XZ' = ⟨X', Z'⟩ by rfl] at hIdXZ hind
+  rw [show YW' = ⟨Y', W'⟩ by rfl] at hIdYW hind
+  rw [←cond_rdist_of_copy hIdXZ hIdYW,cond_rdist_of_indep hind]
+  have hIdX : IdentDistrib X X' μ ν := (hIdXZ.symm.fst) hX hZ hX' hZ'
+  have hIdZ : IdentDistrib Z Z' μ ν := (hIdXZ.symm.snd) hX hZ hX' hZ'
+  have hIdY : IdentDistrib Y Y' μ' ν := (hIdYW.symm.fst) hY hW hY' hW'
+  have hIdW : IdentDistrib W W' μ' ν := (hIdYW.symm.snd) hY hW hY' hW'
+  rw [IdentDistrib.rdist_eq (X := X) (Y := Y) (X' := X') (Y' := Y') (μ'' := ν) (μ''' := ν) hIdX hIdY]
+  rw [hIdX.mutualInformation_eq hIdZ hIdXZ.symm]
+  rw [hIdY.mutualInformation_eq hIdW hIdYW.symm]
+  rw [IndepFun.rdist_eq hind' hX' hY',
+  mutualInformation_eq_entropy_sub_condEntropy hX' hZ',
+  mutualInformation_eq_entropy_sub_condEntropy hY' hW']
+  have h := condEntropy_le_entropy ν (X := X' - Y') (Y := (⟨Z',W'⟩)) (hX'.sub hY') (Measurable.prod hZ' hW')
+  linarith [h,entropy_nonneg Z' ν,entropy_nonneg W' ν]
 
 lemma condDist_le' [Fintype T] (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) : d[X ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[Y : W ; μ']/2 := by sorry
 

@@ -451,6 +451,12 @@ lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingleton
   rw [h_fst, h_snd]
   exact measureMutualInfo_nonneg _
 
+/-- Substituting variables for ones with the same distributions doesn't change the entropy. -/
+lemma IdentDistrib.mutualInformation_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
+    {X' : Ω' → S} {Y' : Ω' → T} (hX : IdentDistrib X X' μ μ') (hY : IdentDistrib Y Y' μ μ')
+      (hXY : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') : I[X : Y ; μ] = I[X' : Y' ; μ'] := by
+  simp_rw [mutualInformation_def,hX.entropy_eq,hY.entropy_eq,hXY.entropy_eq]
+
 /-- Subadditivity of entropy. -/
 lemma entropy_pair_le_add [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
@@ -536,7 +542,7 @@ lemma condMutualInformation_eq_kernel_mutualInfo
 lemma condMutualInformation_eq_integral_mutualInformation :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[|Z ⁻¹' {z}]]] := rfl
 
-/-- $I]X:Y|Z] = I[Y:X|Z]$. -/
+/-- $I[X:Y|Z] = I[Y:X|Z]$. -/
 lemma condMutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) :
     I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
