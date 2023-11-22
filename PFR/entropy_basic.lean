@@ -39,6 +39,7 @@ open Real MeasureTheory
 open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 
 /-- Give all finite types the discrete sigma-algebra by default. -/
+@[nolint unusedArguments]
 instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
 
 namespace ProbabilityTheory
@@ -57,10 +58,10 @@ section entropy
 noncomputable
 def entropy (X : Ω → S) (μ : Measure Ω := by volume_tac) := Hm[μ.map X]
 
-notation3:max "H[" X "; " μ "]" => entropy X μ
-notation3:max "H[" X "]" => entropy X volume
-notation3:max "H[" X "|" Y "←" y "; " μ "]" => entropy X (μ[|Y ⁻¹' {y}])
-notation3:max "H[" X "|" Y "←" y "]" => entropy X (ℙ[|Y ⁻¹' {y}])
+@[inherit_doc entropy] notation3:max "H[" X "; " μ "]" => entropy X μ
+@[inherit_doc entropy] notation3:max "H[" X "]" => entropy X volume
+@[inherit_doc entropy] notation3:max "H[" X "|" Y "←" y "; " μ "]" => entropy X (μ[|Y ⁻¹' {y}])
+@[inherit_doc entropy] notation3:max "H[" X "|" Y "←" y "]" => entropy X (ℙ[|Y ⁻¹' {y}])
 
 /-- Entropy of a random variable agrees with entropy of its distribution. -/
 lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X] := rfl
@@ -165,9 +166,10 @@ lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) : ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- entropy X μ )).toNNReal := by sorry
 
+/-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
 
-notation3:100 "⟨" X ", " Y "⟩" => prod X Y
+@[inherit_doc prod] notation3:100 "⟨" X ", " Y "⟩" => prod X Y
 
 /-- $H[X,Y] = H[Y,X]$. -/
 lemma entropy_comm
@@ -183,6 +185,14 @@ lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T] [M
   change H[⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ] = H[(Equiv.prodAssoc _ _ _).symm ∘ ⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk (hY.prod_mk hZ)) _
     (Equiv.prodAssoc S T U).symm.injective |>.symm
+
+variable [AddGroup S] in
+/-- $H[X,X+Y] = H[X,Y]$. -/
+lemma entropy_add_right {Y : Ω → S}
+    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
+    H[⟨ X, X + Y ⟩; μ] = H[⟨ X, Y ⟩ ; μ] := by
+  change H[(Equiv.refl _).prodShear Equiv.addLeft ∘ ⟨ X, Y ⟩ ; μ] = H[⟨ X, Y ⟩ ; μ]
+  exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
 
 end entropy
 
@@ -200,8 +210,8 @@ def condEntropy (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac)
 lemma condEntropy_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
     condEntropy X Y μ = (μ.map Y)[fun y ↦ H[X | Y ← y ; μ]] := rfl
 
-notation3:max "H[" X "|" Y "; " μ "]" => condEntropy X Y μ
-notation3:max "H[" X "|" Y "]" => condEntropy X Y volume
+@[inherit_doc condEntropy] notation3:max "H[" X "|" Y "; " μ "]" => condEntropy X Y μ
+@[inherit_doc condEntropy] notation3:max "H[" X "|" Y "]" => condEntropy X Y volume
 
 /-- Conditional entropy of a random variable is equal to the entropy of its conditional kernel. -/
 lemma condEntropy_eq_kernel_entropy
@@ -236,7 +246,6 @@ lemma condEntropy_two_eq_kernel_entropy
     H[X | ⟨ Y, Z ⟩ ; μ] =
       Hk[kernel.condKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) ,
         Measure.map Z μ ⊗ₘ kernel.fst (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ)] := by
-  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have := isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
   have := isMarkovKernel_condEntropyKernel hY hZ μ
   rw [Measure.compProd_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ),
@@ -432,8 +441,8 @@ def mutualInformation (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volum
 lemma mutualInformation_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
   mutualInformation X Y μ = H[X ; μ] + H[Y ; μ] - H[⟨ X, Y ⟩ ; μ] := rfl
 
-notation3:max "I[" X ":" Y ";" μ "]" => mutualInformation X Y μ
-notation3:max "I[" X ":" Y "]" => mutualInformation X Y volume
+@[inherit_doc mutualInformation] notation3:max "I[" X ":" Y ";" μ "]" => mutualInformation X Y μ
+@[inherit_doc mutualInformation] notation3:max "I[" X ":" Y "]" => mutualInformation X Y volume
 
 /-- $I[X:Y] = H[X] - H[X|Y]$. -/
 lemma mutualInformation_eq_entropy_sub_condEntropy [MeasurableSingletonClass S]
@@ -520,6 +529,15 @@ lemma entropy_pair_eq_add' (hX : Measurable X) (hY : Measurable Y) {μ : Measure
     H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] :=
   (entropy_pair_eq_add hX hY).2 h
 
+variable [AddGroup S] in
+/-- $I[X : X + Y] = H[X + Y] - H[Y]$ iff $X, Y$ are independent. -/
+lemma mutualInformation_add_right {Y : Ω → S} (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+    [IsProbabilityMeasure μ] (h: IndepFun X Y μ) :
+    I[X : X + Y ; μ] = H[X + Y; μ] - H[Y; μ] := by
+  rw [mutualInformation_def, entropy_add_right hX hY, entropy_pair_eq_add' hX hY h]
+  abel
+
+
 /-- The conditional mutual information $I[X:Y|Z]$ is the mutual information of $X|Z=z$ and $Y|Z=z$, integrated over $z$. -/
 noncomputable
 def condMutualInformation (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
@@ -529,8 +547,10 @@ lemma condMutualInformation_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ
     condMutualInformation X Y Z μ = (μ.map Z)[fun z ↦
       H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨ X, Y ⟩ | Z ← z ; μ]] := rfl
 
+@[inherit_doc condMutualInformation]
 notation3:max "I[" X ":" Y "|" Z ";" μ "]" => condMutualInformation X Y Z μ
-notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z MeasureTheory.MeasureSpace.volume
+@[inherit_doc condMutualInformation]
+notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z volume
 
 /-- The conditional mutual information agrees with the information of the conditional kernel.
 -/
