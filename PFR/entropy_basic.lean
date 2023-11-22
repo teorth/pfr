@@ -675,16 +675,8 @@ lemma independent_copies' {I: Type*} [Fintype I] {S : I → Type u}
     (iIndepFun mS X' μA) ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
 
-inductive Triple := | first | second | third deriving DecidableEq
-instance Triple.fintype : Fintype Triple where
-  elems := {first, second, third}
-  complete := by intro i; induction i <;> decide
-
-def Triple_equiv_fin3 : Triple ≃ Fin 3 where
-  toFun x := match x with | .first => 0 | .second => 1 | .third => 2
-  invFun := ![.first, .second, .third]
-  left_inv x := by cases x <;> rfl
-  right_inv i := by fin_cases i <;> rfl
+/- This is neither `Fin.elim0` nor `Fin.elim0'` -/
+def Fin.rec0 {α : Fin 0 → Sort*} (i : Fin 0) : α i := absurd i.2 (Nat.not_lt_zero _)
 
 /-- A version with exactly 3 random variables that have the same codomain.
 It's unfortunately incredibly painful to prove this from the general case. -/
@@ -701,18 +693,20 @@ lemma independent_copies3_nondep {S : Type u}
     (iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA) ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
       IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by
-  let Ω : Triple → Type v := Triple.rec Ω₁ Ω₂ Ω₃
-  let mΩ : (i : Triple) → MeasurableSpace (Ω i) := by intro i; induction i <;> (dsimp; assumption)
-  let X : (i : Triple) → Ω i → S := Triple.rec X₁ X₂ X₃
-  let hX : ∀ (i : Triple), @Measurable _ _ (mΩ i) mS (X i) := by
-    intro i; induction i <;> (dsimp; assumption)
-  let μ : (i : Triple) → @Measure (Ω i) (mΩ i) := by intro i; induction i <;> (dsimp; assumption)
-  obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' (mS := fun _ ↦ mS) (mΩ := mΩ) X hX μ
-  refine ⟨A, mA, μA, X' .first, X' .second, X' .third, hμ, ?_,
-    (hX' .first).1, (hX' .second).1, (hX' .third).1,
-    (hX' .first).2, (hX' .second).2, (hX' .third).2⟩
-  apply iIndepFun.reindex Triple_equiv_fin3 _
-  convert hi using 1; ext i; cases i <;> rfl
+  let Ω : Fin 3 → Type v := ![Ω₁, Ω₂, Ω₃]
+  let mΩ : (i : Fin 3) → MeasurableSpace (Ω i) :=
+    Fin.cases mΩ₁ <| Fin.cases mΩ₂ <| Fin.cases mΩ₃ Fin.rec0
+  let X : (i : Fin 3) → Ω i → S := Fin.cases X₁ <| Fin.cases X₂ <| Fin.cases X₃ Fin.rec0
+  have hX : ∀ (i : Fin 3), @Measurable _ _ (mΩ i) mS (X i) :=
+    Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₃ Fin.rec0
+  let μ : (i : Fin 3) → @Measure (Ω i) (mΩ i) :=
+    Fin.cases μ₁ <| Fin.cases μ₂ <| Fin.cases μ₃ Fin.rec0
+  obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' X hX μ
+  refine ⟨A, mA, μA, X' 0, X' 1, X' 2, hμ, ?_,
+    (hX' 0).1, (hX' 1).1, (hX' 2).1,
+    (hX' 0).2, (hX' 1).2, (hX' 2).2⟩
+  convert hi; ext i; fin_cases i <;> rfl
+
 
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials $X_1,X_2,Y'$.-/
 lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T), ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T, IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧ (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩) (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by sorry
