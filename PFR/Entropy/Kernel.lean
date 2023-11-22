@@ -306,6 +306,15 @@ lemma entropy_map_le
   rw [this, chain_rule', snd_map_prod _ measurable_id', le_add_iff_nonneg_right]
   exact entropy_nonneg _ _
 
+lemma entropy_of_map_eq_of_map (κ : kernel T S) (η : kernel T U)
+    [IsMarkovKernel κ] [IsMarkovKernel η]
+    (μ : Measure T) [IsProbabilityMeasure μ] (f : S → U) (g : U → S)
+    (h1 : η = map κ f (measurable_of_finite _)) (h2 : κ = map η g (measurable_of_finite _)) :
+    Hk[κ, μ] = Hk[η, μ] := by
+  refine le_antisymm ?_ ?_
+  · rw [h2]; exact entropy_map_le η μ g
+  · rw [h1]; exact entropy_map_le κ μ f
+
 lemma entropy_snd_le (κ : kernel T (S × U)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :
     Hk[snd κ, μ] ≤ Hk[κ, μ] :=
