@@ -11,6 +11,14 @@ lemma measurableSet_of_countable {α : Type*} [MeasurableSpace α] [MeasurableSi
     [Countable α] (s : Set α) : MeasurableSet s :=
   s.to_countable.measurableSet
 
+/- To move close to Set.Finite.measurableSet
+  Should this sort of thing be implied by some kind of class for
+  `MeasurableSpace`s with measure algebra `⊤`?
+  -/
+instance {α : Type*} [MeasurableSpace α] [MeasurableSingletonClass α] [Sub α]
+    [Countable α] : MeasurableSub₂ α :=
+  ⟨measurable_of_countable _⟩
+
 section
 
 open Set
