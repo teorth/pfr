@@ -113,8 +113,8 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
   use ⟨μ.1.toMeasure, μ.2.toMeasure⟩
   refine ⟨μ.1.prop, μ.2.prop, ?_⟩
   intro ν₁ ν₂ Pν₁ Pν₂
-  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ⟨ν₂, Pν₂⟩⟩
   rw [isMinOn_univ_iff] at hμ
+  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ⟨ν₂, Pν₂⟩⟩
   exact hμ ν
 
 lemma tau_minimizer_exists [MeasurableSingletonClass G] :
