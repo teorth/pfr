@@ -24,6 +24,7 @@ Here we define Ruzsa distance and establish its basic properties.
 -/
 open MeasureTheory ProbabilityTheory
 
+universe u
 
 variable {Ω : Type u} {Ω' Ω'' Ω''' G T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
@@ -361,8 +362,34 @@ lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
     rw [entropy_sub_comm hY hZ]
 
 /-- The **entropic Ruzsa triangle inequality** -/
-lemma rdist_triangle (X : Ω → G) (Y : Ω' → G) (Z : Ω'' → G) :
-    d[X ; μ # Z ; μ''] ≤ d[X ; μ # Y ; μ'] + d[Y ; μ' # Z ; μ''] := sorry
+lemma rdist_triangle {Ω Ω' Ω'' : Type u}
+  [mΩ : MeasurableSpace Ω] (μ : Measure Ω)
+  [mΩ' : MeasurableSpace Ω'] (μ' : Measure Ω')
+  [mΩ'' : MeasurableSpace Ω''] (μ'' : Measure Ω'')
+  {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
+  (hX: Measurable X) (hY: Measurable Y) (hZ : Measurable Z)
+  [hμ : IsProbabilityMeasure μ] [hμ' : IsProbabilityMeasure μ'] [hμ'' : IsProbabilityMeasure μ''] :
+    d[X ; μ # Z ; μ''] ≤ d[X ; μ # Y ; μ'] + d[Y ; μ' # Z ; μ''] := by
+  obtain ⟨A, mA, μA, X', Y', Z', hμA, hInd, hX', hY', hZ', H⟩ :=
+    independent_copies3_nondep hX hY hZ μ μ' μ''
+  suffices : d[ X' ; μA # Z' ; μA ] ≤ d[ X' ; μA # Y' ; μA ] + d[ Y' ; μA # Z' ; μA ]
+  { rwa [ProbabilityTheory.IdentDistrib.rdist_eq H.left H.right.left,
+      ProbabilityTheory.IdentDistrib.rdist_eq H.right.left H.right.right,
+      ProbabilityTheory.IdentDistrib.rdist_eq H.left H.right.right] at this }
+  have IndepLem: IndepFun (⟨ X', Z' ⟩) Y' μA
+  · exact iIndepFun.indepFun_prod hInd (fun i => by fin_cases i ; all_goals { simpa }) 0 2 1
+      (by norm_cast) (by norm_cast)
+  calc d[ X' ; μA # Z' ; μA ] = H[X' - Z'; μA] - (H[X'; μA] / 2 + H[Z'; μA] / 2) := by
+        rw [ProbabilityTheory.IndepFun.rdist_eq
+          (by simpa using (iIndepFun.indepFun hInd (show 0 ≠ 2 by norm_cast))) hX' hZ'] ; ring
+    _  ≤ (H[X' - Y' ; μA] + H[Y' - Z' ; μA] - H[Y' ; μA]) - (H[X'; μA] / 2 + H[Z'; μA] / 2) :=
+          sub_le_sub_right (ent_of_diff_le _ _ _ hX' hZ' hY' IndepLem) _
+    _ = (H[X' - Y' ; μA] - H[X'; μA] / 2 - H[Y' ; μA] / 2) +
+          (H[Y' - Z' ; μA] - H[Y' ; μA] / 2 -  H[Z'; μA] / 2) := by ring
+    _ = d[ X' ; μA # Y' ; μA ] + d[ Y' ; μA # Z' ; μA ] := by
+        rw [ProbabilityTheory.IndepFun.rdist_eq (by simpa using (iIndepFun.indepFun hInd
+          (show 0 ≠ 1 by norm_cast))) hX' hY', ProbabilityTheory.IndepFun.rdist_eq
+          (by simpa using (iIndepFun.indepFun hInd (show 1 ≠ 2 by norm_cast))) hY' hZ']
 
 /-- The conditional Ruzsa distance `d[X|Z ; Y|W]`. -/
 noncomputable
