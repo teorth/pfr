@@ -22,7 +22,8 @@ Assumptions:
 
 open MeasureTheory ProbabilityTheory
 
-variable (G : Type*) [AddCommGroup G] [Fintype G] [ElementaryAddCommGroup G 2] (hG: MeasurableSpace G) [MeasurableSingletonClass G]
+variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+  [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 
@@ -52,7 +53,11 @@ lemma rdist_add_rdist_add_condMutual_eq : d[X₁ + X₂' # X₂ + X₁'] + d[X�
 
 /-- The distance $d[X_1+\tilde X_2; X_2+\tilde X_1]$ is at least
 $$ k - \eta (d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1]) \\& \qquad- \eta (d[X^0_2; X_2+\tilde X_1] - d[X^0_2; X_2]).$$ -/
-lemma rdist_of_sums_ge : d[X₁ + X₂' # X₂ + X₁'] ≥ k - η * (d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂]) := by sorry
+lemma rdist_of_sums_ge :
+    d[X₁ + X₂' # X₂ + X₁'] ≥
+      k - η * (d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁])
+        - η * (d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
+  distance_ge_of_min _ h_min (hX₁.add hX₂') (hX₂.add hX₁')
 
 /-- The distance $d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]$ is at least
 $$ k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).$$
