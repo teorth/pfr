@@ -65,6 +65,22 @@ local notation3 "I₂" => I[ U : W | S ]
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
 lemma I₃_eq : I[ V : W | S ] = I₂ := by
+  -- Note(kmill): I'm not sure this is going anywhere, but in case some of this reindexing
+  -- is useful, and this setting-up of the `I'` function, here it is.
+  -- Swap X₁ and X₁'
+  let perm : Fin 4 → Fin 4 | 0 => 1 | 1 => 0 | 2 => 2 | 3 => 3
+  have hp : ![X₁, X₁', X₂, X₂'] = ![X₁', X₁, X₂, X₂'] ∘ perm := by
+    ext i
+    fin_cases i <;> rfl
+  let I' (Xs : Fin 4 → Ω → G) := I[Xs 0 + Xs 2 : Xs 1 + Xs 0 | Xs 0 + Xs 2 + Xs 1 + Xs 3]
+  have hI₂ : I₂ = I' ![X₁, X₁', X₂, X₂'] := rfl
+  have hI₃ : I[V : W | S] = I' ![X₁', X₁, X₂, X₂'] := by
+    rw [add_comm X₁' X₁]
+    congr 1
+    change _ = X₁' + X₂ + X₁ + X₂'
+    simp [add_assoc, add_left_comm]
+  rw [hI₂, hI₃, hp]
+  -- ⊢ I' ![X₁', X₁, X₂, X₂'] = I' (![X₁', X₁, X₂, X₂'] ∘ perm)
   sorry
 
 /--
