@@ -56,7 +56,7 @@ theorem entropic_PFR_conjecture :
 
 theorem entropic_PFR_conjecture' :
     ∃ H : AddSubgroup G, ∃ Ω : Type u, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
-    isUniform H U ∧ d[p.X₀₁ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] ∧
+    IsUniform H U ∧ d[p.X₀₁ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] ∧
       d[p.X₀₂ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] := by
   have : MeasurableSub₂ G := ⟨measurable_of_finite _⟩
   have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm ..

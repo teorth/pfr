@@ -5,6 +5,7 @@ import Mathlib.Probability.Notation
 import Mathlib.Probability.IdentDistrib
 import PFR.Entropy.KernelMutualInformation
 import PFR.ForMathlib.Independence
+import PFR.ForMathlib.Miscellaneous
 
 /-!
 # Entropy and conditional entropy
@@ -51,7 +52,9 @@ instance Fintype.instMeasurableSingletonClass [Fintype S] : MeasurableSingletonC
 
 namespace ProbabilityTheory
 
-variable {Ω S T U: Type*} [mΩ : MeasurableSpace Ω]
+universe uΩ uS uT uU
+
+variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} [mΩ : MeasurableSpace Ω]
   [Fintype S] [Fintype T] [Fintype U]
   [Nonempty S] [Nonempty T] [Nonempty U]
   [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U]
@@ -94,13 +97,19 @@ lemma entropy_nonneg (X : Ω → S) (μ : Measure Ω) : 0 ≤ entropy X μ := me
 
 /-- Two variables that have the same distribution, have the same entropy. -/
 lemma IdentDistrib.entropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'} {X' : Ω' → S}
-    (h : IdentDistrib X X' μ μ') : entropy X μ = entropy X' μ' := by
+    (h : IdentDistrib X X' μ μ') : H[X ; μ] = H[X' ; μ'] := by
   simp [entropy_def, h.map_eq]
 
 /-- Entropy is at most the logarithm of the cardinality of the range. -/
 lemma entropy_le_log_card
-    (X : Ω → S) (μ : Measure Ω) : entropy X μ ≤ log (Fintype.card S) :=
+    (X : Ω → S) (μ : Measure Ω) : H[X ; μ] ≤ log (Fintype.card S) :=
   measureEntropy_le_log_card _
+
+lemma entropy_le_log_card_of_mem {A : Set S} {μ : Measure Ω} {X : Ω → S}
+    (hX : Measurable X) (h : ∀ᵐ ω ∂μ, X ω ∈ A) :
+    H[X ; μ] ≤ log (Nat.card A) := by
+  apply measureEntropy_le_log_card_of_mem
+  rwa [Measure.map_apply hX (measurableSet_of_countable _)]
 
 /-- $H[X] = \sum_s P[X=s] \log \frac{1}{P[X=s]}$. -/
 lemma entropy_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] :
@@ -138,32 +147,89 @@ attribute [-instance] Fintype.instMeasurableSpace in
 While in applications $H$ will be non-empty finite set, $X$ measurable, and and $μ$ a probability
 measure, it could be technically convenient to have a definition that works even without these
 hypotheses.  (For instance, `isUniform` would be well-defined, but false, for infinite `H`)   -/
-structure isUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop :=
+structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop :=
   eq_of_mem : ∀ x y, x ∈ H → y ∈ H → μ (X ⁻¹' {x}) = μ (X ⁻¹' {y})
-  zero_of_not_mem : ∀ x, x ∉ H → μ (X ⁻¹' {x}) = 0
+  measure_preimage_compl : μ (X ⁻¹' Hᶜ) = 0
+
+open Set
 
 /-- Uniform distributions exist.   -/
-lemma exists_uniform (H : Finset S) [h: Nonempty H] : ∃ Ω : Type*,
-  ∃ mΩ : MeasurableSpace Ω, ∃ X : Ω → S, ∃ μ: Measure Ω, IsProbabilityMeasure μ ∧
-  Measurable X ∧ isUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by sorry
+lemma exists_isUniform (H : Finset S) (h: H.Nonempty) :
+  ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
+  IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by sorry
+
+/-- Uniform distributions exist, version within a fintype and giving a measure space  -/
+lemma exists_isUniform_measureSpace
+    {S : Type u} [Fintype S] (H : Set S) (h: H.Nonempty) :
+    ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
+    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ ∀ ω : Ω, U ω ∈ H := by
+  sorry
+
+lemma IsUniform.ae_mem {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) :
+    ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
 
 /-- A "unit test" for the definition of uniform distribution. -/
-lemma prob_of_uniform_of_in (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : isUniform H X μ)
-  (s : S) (hs: s ∈ H): μ.map X {s} = (μ Set.univ) / (Fintype.card H) := sorry
+lemma IsUniform.measure_preimage_of_mem
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) (hX : Measurable X)
+    {s : S} (hs : s ∈ H) :
+    μ (X ⁻¹' {s}) = (μ Set.univ) / (Nat.card H) := by
+  let H' := H.toFinite.toFinset
+  have B : μ univ = (Nat.card H) * μ (X ⁻¹' {s}) := calc
+    μ univ = μ (X ⁻¹' Hᶜ) + μ (X ⁻¹' H) := by
+      rw [← measure_union (disjoint_compl_left.preimage _) (hX (measurableSet_of_countable _))]
+      simp
+    _ = μ (X ⁻¹' H) := by rw [h.measure_preimage_compl, zero_add]
+    _ = ∑ x in H', μ (X ⁻¹' {x}) := by
+      have : X ⁻¹' H = ⋃ x ∈ H', X ⁻¹' ({x} : Set S) := by simp
+      rw [this, measure_biUnion_finset]
+      · intro y _hy z _hz hyz
+        apply Disjoint.preimage
+        simp [hyz]
+      · intro y _hy
+        exact hX (measurableSet_of_countable _)
+    _ = ∑ _x in H', μ (X ⁻¹' {s}) :=
+      Finset.sum_congr rfl (fun x hx ↦ h.eq_of_mem x s (by simpa using hx) hs)
+    _ = H'.card * μ (X ⁻¹' {s}) := by simp
+    _ = (Nat.card H) * μ (X ⁻¹' {s}) := by
+      congr; exact (Nat.card_eq_toFinset_card (toFinite H)).symm
+  rcases Nat.eq_zero_or_pos (Nat.card H) with hH|hH
+  · simp only [hH, CharP.cast_eq_zero, zero_mul, Measure.measure_univ_eq_zero] at B
+    simp [B]
+  · rwa [eq_comm, ← ENNReal.eq_div_iff] at B
+    · simpa using Nat.pos_iff_ne_zero.mp hH
+    · simp
 
 /-- Another "unit test" for the definition of uniform distribution. -/
-lemma prob_of_uniform_of_not_in (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : isUniform H X μ)
-  (s : S) (hs: ¬ s ∈ H) : μ.map X {s} = 0 := sorry
+lemma IsUniform.measure_preimage_of_nmem
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
+    μ (X ⁻¹' {s}) = 0 := by
+  apply le_antisymm ((measure_mono _).trans h.measure_preimage_compl.le) (zero_le _)
+  apply preimage_mono
+  simpa using hs
 
-/-- If $X$ is uniformly distributed on $H$, then $H[X] = \log |H|$.  May need some non-degeneracy and measurability conditions. -/
-lemma entropy_of_uniform (H: Finset S) (X : Ω → S) (μ : Measure Ω) (hX : isUniform H X μ) :
-    H[X ; μ] = log (Fintype.card H) := sorry
+lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω']
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ)
+    {X' : Ω' → S} {μ' : Measure Ω'} (h' : IdentDistrib X X' μ μ') (hH : MeasurableSet H) :
+    IsUniform H X' μ' := by
+  constructor
+  · intro x y hx hy
+    rw [← h'.measure_mem_eq (MeasurableSet.singleton x),
+      ← h'.measure_mem_eq (MeasurableSet.singleton y)]
+    apply h.eq_of_mem x y hx hy
+  · rw [← h'.measure_mem_eq hH.compl]
+    exact h.measure_preimage_compl
+
+/-- If $X$ is uniformly distributed on $H$, then $H[X] = \log |H|$.
+May need some non-degeneracy and measurability conditions. -/
+lemma IsUniform.entropy_eq (H : Set S) (X : Ω → S) {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (hX : IsUniform H X μ) : H[X ; μ] = log (Nat.card H) := sorry
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
 distributed. -/
-lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (hμ: NeZero μ)
-  (hμ' : IsFiniteMeasure μ): (entropy X μ = log (Fintype.card S)) ↔
-  (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by
+lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (hμ : NeZero μ)
+    (hμ' : IsFiniteMeasure μ) :
+    (entropy X μ = log (Fintype.card S)) ↔
+      (∀ s : S, μ.map X {s} = (μ Set.univ) / (Fintype.card S)) := by
   rcases eq_zero_or_neZero (μ.map X) with h | h
   . have := Measure.le_map_apply  (@Measurable.aemeasurable Ω S _ _ X μ hX) Set.univ
     simp [h] at this; simp [this] at hμ
@@ -174,7 +240,8 @@ lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (
 
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
-lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) : ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- entropy X μ )).toNNReal := by sorry
+lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) :
+  ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- entropy X μ)).toNNReal := by sorry
 
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
@@ -189,9 +256,9 @@ lemma entropy_comm
   exact (entropy_comp_of_injective μ (hX.prod_mk hY) Prod.swap Prod.swap_injective).symm
 
 /-- $H[(X,Y),Z] = H[X,(Y,Z)]$. -/
-lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
-    H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by
+lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+  [MeasurableSingletonClass U] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+  (μ : Measure Ω) : H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by
   change H[⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ] = H[(Equiv.prodAssoc _ _ _).symm ∘ ⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk (hY.prod_mk hZ)) _
     (Equiv.prodAssoc S T U).symm.injective |>.symm
@@ -385,7 +452,8 @@ lemma chain_rule'' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable 
 /-- If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $f: T \to U$ is an injection then $H[X|f(Y)] = H[X|Y]$.
  -/
 lemma condEntropy_of_inj_map' [MeasurableSingletonClass S] (μ : Measure Ω) [IsProbabilityMeasure μ]
-  (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Function.Injective f) (hfY : Measurable (f ∘ Y)):
+  (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Function.Injective f)
+  (hfY : Measurable (f ∘ Y)):
     H[X | f ∘ Y ; μ] = H[X | Y ; μ] := by
     rw [chain_rule'' μ hX hY, chain_rule'' μ hX hfY, chain_rule' μ hX hY, chain_rule' μ hX hfY]
     congr 1

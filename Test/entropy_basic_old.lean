@@ -72,7 +72,7 @@ lemma entropy_le_log (hX : Measurable X): H[X] ≤ log (Fintype.card S) := by
 
 /-- Equality in Jensen is attained when X is uniform.  TODO: also establish converse.  One could
 also remove hΩ but this seems of little use.  -/
-lemma entropy_of_uniform (hΩ : ProbabilitySpace.isNondeg Ω) (hX : ProbabilitySpace.isUniform X) :
+lemma entropy_of_uniform (hΩ : ProbabilitySpace.isNondeg Ω) (hX : IsUniform X) :
     H[X] = log (Fintype.card S) := by
   rcases hX with ⟨ hX1, hX2 ⟩
   unfold entropy
