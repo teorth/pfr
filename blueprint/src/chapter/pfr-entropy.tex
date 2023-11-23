@@ -77,7 +77,7 @@ We also define the quantity
 $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 
 \begin{lemma}[Fibring identity for first estimate]\label{first-fibre}
-  \lean{rdist_add_rdist_add_condMutual_eq}
+  \lean{rdist_add_rdist_add_condMutual_eq}\leanok
   We have
   \begin{align*}
     &   d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] \\
@@ -89,7 +89,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 \end{proof}
 
 \begin{lemma}[Lower bound on distances]\label{first-dist-sum}
-  \lean{rdist_of_sums_ge}
+  \lean{rdist_of_sums_ge}\leanok
   We have
   \begin{align*}
     d[X_1+\tilde X_2; X_2+\tilde X_1] \geq k &- \eta (d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1]) \\& \qquad- \eta (d[X^0_2; X_2+\tilde X_1] - d[X^0_2; X_2])
@@ -101,7 +101,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 \end{proof}
 
 \begin{lemma}[Lower bound on conditional distances]\label{first-cond}
-  \lean{cond_rdist_of_sums_ge}
+  \lean{cond_rdist_of_sums_ge}\leanok
   We have
   \begin{align*}
     & d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]  \\  & \qquad\quad \geq k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) \\
@@ -112,7 +112,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 \begin{proof}\uses{cond-distance-lower} Immediate from Lemma \ref{cond-distance-lower}.
 \end{proof}
 
-\begin{lemma}[Upper bound on distance differences]\label{first-upper}
+\begin{lemma}[Upper bound on distance differences]\label{first-upper}\leanok
   \lean{diff_rdist_le_1, diff_rdist_le_2, diff_rdist_le_3, diff_rdist_le_4}
   We have
   \begin{align*}
