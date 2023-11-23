@@ -98,8 +98,8 @@ lemma tau_min_exists_measure : ∃ (μ : Measure G × Measure G),
     IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
     ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[id ; μ.1 # id ; μ.2 | p] ≤ τ[id ; ν₁ # id ; ν₂ | p] := by
-  haveI : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
-  haveI : DiscreteTopology G := by sorry -- Why not `rfl`?
+  let _i : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
+  have : DiscreteTopology G := ⟨rfl⟩
   haveI : BorelSpace G := by sorry -- I think `[MeasurableSingletonClass G]` hypothesis is needed.
   have GG_cpt : CompactSpace (ProbabilityMeasure G × ProbabilityMeasure G) := inferInstance
   let T : ProbabilityMeasure G × ProbabilityMeasure G → ℝ := -- restrict τ to the compact subspace
