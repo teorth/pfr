@@ -38,8 +38,9 @@ instance {α : Type*} [Fintype α] [TopologicalSpace α] : SecondCountableTopolo
     use {U | IsOpen U}
     exact ⟨to_countable {U | IsOpen U}, TopologicalSpace.isTopologicalBasis_opens.eq_generateFrom⟩
 
-/-- Probability measures on a finite space tend to a limit if and only if the probability masses
-of all points tend to the corresponding limits. -/
+/-- If probability measures on two finite spaces tend to limits, then the products of them
+on the product space tend to the product of the limits.
+TODO: In Mathlib, this should be done on all separable metrizable spaces. -/
 lemma ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto
     {ι : Type*} {L : Filter ι} [NeBot L] {α β : Type*}
     [Fintype α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α] [BorelSpace α]

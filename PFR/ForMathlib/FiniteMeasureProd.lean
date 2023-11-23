@@ -1,6 +1,5 @@
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.MeasureTheory.Constructions.Prod.Basic
-import Mathlib.MeasureTheory.Measure.Portmanteau
 
 /-!
 # Products of finite measures and probability measures
