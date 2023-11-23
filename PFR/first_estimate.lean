@@ -22,7 +22,8 @@ Assumptions:
 
 open MeasureTheory ProbabilityTheory
 
-variable (G : Type*) [AddCommGroup G] [Fintype G] [ElementaryAddCommGroup G 2] (hG: MeasurableSpace G) [MeasurableSingletonClass G]
+variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+  [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 
@@ -31,6 +32,7 @@ variable (p : refPackage Ω₀₁ Ω₀₂ G)
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 variable (X₁ X₂ X₁' X₂' : Ω → G)
+  (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
 
 variable (h₁ : IdentDistrib X₁ X₁') (h2 : IdentDistrib X₂ X₂')
 
@@ -51,12 +53,20 @@ lemma rdist_add_rdist_add_condMutual_eq : d[X₁ + X₂' # X₂ + X₁'] + d[X�
 
 /-- The distance $d[X_1+\tilde X_2; X_2+\tilde X_1]$ is at least
 $$ k - \eta (d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1]) \\& \qquad- \eta (d[X^0_2; X_2+\tilde X_1] - d[X^0_2; X_2]).$$ -/
-lemma rdist_of_sums_ge : d[X₁ + X₂' # X₂ + X₁'] ≥ k - η * (d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂]) := by sorry
+lemma rdist_of_sums_ge :
+    d[X₁ + X₂' # X₂ + X₁'] ≥
+      k - η * (d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁])
+        - η * (d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
+  distance_ge_of_min _ h_min (hX₁.add hX₂') (hX₂.add hX₁')
 
 /-- The distance $d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]$ is at least
 $$ k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).$$
---/
-lemma cond_rdist_of_sums_ge : d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] ≥ k - η * (d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) := by sorry
+-/
+lemma cond_rdist_of_sums_ge :
+    d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] ≥
+      k - η * (d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁])
+        - η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
+  condDistance_ge_of_min _ h_min hX₁ hX₂ _ _
 
 /-- $$d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} \bbH[X_2] - \tfrac{1}{4} \bbH[X_1].$$ -/
 lemma diff_rdist_le_1 : d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by sorry
