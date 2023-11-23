@@ -231,43 +231,55 @@ lemma measureEntropy_nonneg (μ : Measure S) : 0 ≤ Hm[μ] := by
   | inl hμ => simp [hμ]
   | inr hμ => exact prob_le_one
 
-lemma measureEntropy_le_card_aux (μ : Measure S) [IsProbabilityMeasure μ] :
-    Hm[μ] ≤ log (Fintype.card S) := by
-  cases isEmpty_or_nonempty S with
-  | inl h =>
-    have : μ = 0 := Subsingleton.elim _ _
-    simp [Fintype.card_eq_zero, this]
-  | inr h =>
-    set N := Fintype.card S
-    have hN : 0 < N := Fintype.card_pos
-    rw [measureEntropy_def]
-    simp only [measure_univ, inv_one, one_smul]
-    calc ∑ x, negIdMulLog (μ {x}).toReal
-      = ∑ x, negIdMulLog (μ {x}).toReal := rfl
-    _ = N * ∑ x, (N : ℝ)⁻¹ * negIdMulLog (μ {x}).toReal := by
-        rw [Finset.mul_sum]
-        congr with x
-        rw [← mul_assoc, mul_inv_cancel, one_mul]
-        simp [hN.ne']
-    _ ≤ N * negIdMulLog (∑ x : S, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
-        refine mul_le_mul le_rfl ?_ ?_ ?_
-        · refine sum_negIdMulLog_le (by simp) ?_ (fun _ ↦ ENNReal.toReal_nonneg)
-          simp [Finset.card_univ]
-        · refine Finset.sum_nonneg (fun x _ ↦ ?_)
-          refine mul_nonneg ?_ ?_
-          · simp [hN]
-          · refine negIdMulLog_nonneg (by simp) ?_
-            refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
-            rw [ENNReal.ofReal_one]
-            exact prob_le_one
-        · positivity
-    _ = N * negIdMulLog ((N : ℝ)⁻¹) := by
-        congr
-        rw [← Finset.mul_sum]
-        simp
-    _ = - log ((N : ℝ)⁻¹) := by
-        simp [negIdMulLog]
-    _ = log (Fintype.card S) := by simp [Finset.card_univ]
+
+variable [CommMonoid β]
+
+@[to_additive]
+theorem Finset.prod_finset_eq_prod [Fintype α] {s : Finset α} {f : α → β}
+    (h : ∀ i ∉ s, f i = 1) :
+    ∏ i in s, f i = ∏ i, f i := by
+  classical
+  have : ∏ i in sᶜ, f i = 1 := Finset.prod_eq_one (fun i hi ↦ h i (Finset.mem_compl.mp hi))
+  rw [← Finset.prod_mul_prod_compl s f, this, mul_one]
+
+lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
+    (A : Finset S) (hμ : μ Aᶜ = 0) :
+    Hm[μ] ≤ log A.card := by
+  have μA : μ A = 1 := by
+    rw [← compl_compl (A : Set S), measure_compl A.measurableSet.compl (measure_ne_top _ _), hμ]
+    simp
+  let N := A.card
+  have N_pos : (0 : ℝ) < N := by
+    rcases Finset.eq_empty_or_nonempty A with rfl|hA
+    · simp at μA
+    · simpa using Finset.card_pos.mpr hA
+  simp only [measureEntropy_def, measure_univ, inv_one, one_smul]
+  calc
+  ∑ x, negIdMulLog (μ {x}).toReal
+    = ∑ x in A, negIdMulLog (μ {x}).toReal := by
+      apply (Finset.sum_finset_eq_sum _).symm
+      intro i hi
+      have : μ {i} = 0 :=
+        le_antisymm ((measure_mono (by simpa using hi)).trans (le_of_eq hμ)) bot_le
+      simp [this]
+  _ = N * ∑ x in A, (N : ℝ)⁻¹ * negIdMulLog (μ {x}).toReal := by
+      rw [Finset.mul_sum]
+      congr with x
+      rw [← mul_assoc, mul_inv_cancel, one_mul]
+      exact N_pos.ne'
+  _ ≤ N * negIdMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
+      refine mul_le_mul le_rfl ?_ ?_ ?_
+      · exact sum_negIdMulLog_finset_le (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)
+      · refine Finset.sum_nonneg (fun x _ ↦ ?_)
+        refine mul_nonneg ?_ ?_
+        · simp
+        · refine negIdMulLog_nonneg (by simp) ?_
+          refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
+          rw [ENNReal.ofReal_one]
+          exact prob_le_one
+      · positivity
+  _ = N * negIdMulLog ((N : ℝ)⁻¹) := by simp [← Finset.mul_sum, μA]
+  _ = log A.card := by simp [negIdMulLog, ← mul_assoc, mul_inv_cancel N_pos.ne']
 
 lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     (μ : Measure S) [IsProbabilityMeasure μ] :
@@ -294,7 +306,7 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     · rw [← Finset.mul_sum]
       simp
 
-lemma measureEntropy_eq_card_iff_measure_eq_aux [MeasurableSingletonClass S]
+lemma measureEntropy_eq_card_iff_measure_eq_aux
     (μ : Measure S) [IsProbabilityMeasure μ] :
     Hm[μ] = log (Fintype.card S) ↔ (∀ s : S, μ {s} = (Fintype.card S : ℝ≥0)⁻¹) := by
   rw [measureEntropy_eq_card_iff_measureReal_eq_aux]
@@ -303,24 +315,28 @@ lemma measureEntropy_eq_card_iff_measure_eq_aux [MeasurableSingletonClass S]
   congr!
   simp
 
-lemma measureEntropy_le_log_card (μ : Measure S) :
-    Hm[μ] ≤ log (Fintype.card S) := by
-  have h_log_card_nonneg : 0 ≤ log (Fintype.card S) := by
-    cases isEmpty_or_nonempty S with
-    | inl h => rw [Fintype.card_eq_zero]; simp
-    | inr h =>
-      refine log_nonneg ?_
-      simp only [Nat.one_le_cast]
-      exact Fintype.card_pos
-  cases eq_zero_or_neZero μ with
-  | inl hμ => simp only [hμ, measureEntropy_zero]; exact h_log_card_nonneg
-  | inr hμ =>
-    by_cases hμ_fin : IsFiniteMeasure μ
+lemma measureEntropy_le_log_card_of_mem {A : Set S} (μ : Measure S) (hμA : μ Aᶜ = 0) :
+    Hm[μ] ≤ log (Nat.card A) := by
+  have h_log_card_nonneg : 0 ≤ log (Nat.card A) := log_nat_cast_nonneg (Nat.card ↑A)
+  rcases eq_zero_or_neZero μ with rfl|hμ
+  · simp [h_log_card_nonneg]
+  · by_cases hμ_fin : IsFiniteMeasure μ
     swap;
     · rw [measureEntropy_of_not_isFiniteMeasure hμ_fin]
       exact h_log_card_nonneg
     rw [← measureEntropy_univ_smul]
-    exact measureEntropy_le_card_aux _
+    let A' := A.toFinite.toFinset
+    have AA' : A = (A' : Set S) := by simp
+    have : ((μ Set.univ) ⁻¹ • μ) (A'ᶜ) = 0 := by simp [hμA]
+    convert measureEntropy_le_card_aux A' this using 3
+    rw [AA', Nat.card_eq_fintype_card]
+    exact Fintype.card_coe A'
+
+lemma measureEntropy_le_log_card (μ : Measure S) :
+    Hm[μ] ≤ log (Fintype.card S) := by
+  convert measureEntropy_le_log_card_of_mem (A := (Set.univ : Set S)) μ (by simp)
+  simpa only [Nat.card_eq_fintype_card] using
+    ((set_fintype_card_eq_univ_iff (Set.univ : Set S)).2 rfl).symm
 
 lemma measureEntropy_eq_card_iff_measureReal_eq [MeasurableSingletonClass S] [IsFiniteMeasure μ]
     [NeZero μ] :
