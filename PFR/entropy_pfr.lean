@@ -59,8 +59,9 @@ theorem entropic_PFR_conjecture' :
   have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm ..
   peel entropic_PFR_conjecture Ω₀₁ Ω₀₂ p with hle H Ω mΩ U hU
   have hU' : Measurable U := sorry
-  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle _ _ _ p.hmeas1 p.hmeas2 hU'
-  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle _ _ _ p.hmeas2 p.hmeas1 hU'
+  haveI : IsProbabilityMeasure (ℙ : Measure Ω) := sorry
+  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle ℙ ℙ ℙ p.hmeas1 p.hmeas2 hU'
+  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle ℙ ℙ ℙ p.hmeas2 p.hmeas1 hU'
   constructor
   · linarith
   · linarith

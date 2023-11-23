@@ -367,7 +367,8 @@ lemma rdist_triangle {Ω Ω' Ω'' : Type u}
   [mΩ' : MeasurableSpace Ω'] (μ' : Measure Ω')
   [mΩ'' : MeasurableSpace Ω''] (μ'' : Measure Ω'')
   {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
-  (hX: Measurable X) (hY: Measurable Y) (hZ : Measurable Z) :
+  (hX: Measurable X) (hY: Measurable Y) (hZ : Measurable Z)
+  [hμ : IsProbabilityMeasure μ] [hμ' : IsProbabilityMeasure μ'] [hμ'' : IsProbabilityMeasure μ''] :
     d[X ; μ # Z ; μ''] ≤ d[X ; μ # Y ; μ'] + d[Y ; μ' # Z ; μ''] := by
   obtain ⟨A, mA, μA, X', Y', Z', hμA, hInd, hX', hY', hZ', H⟩ :=
     independent_copies3_nondep hX hY hZ μ μ' μ''
