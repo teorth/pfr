@@ -271,6 +271,10 @@ lemma entropy_add_right {Y : Ω → S}
   change H[(Equiv.refl _).prodShear Equiv.addLeft ∘ ⟨ X, Y ⟩ ; μ] = H[⟨ X, Y ⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
 
+@[simp] lemma entropy_prod_comp (hX : Measurable X) (μ : Measure Ω) (f : S → T) :
+    H[⟨ X, f ∘ X ⟩; μ] = H[X ; μ] :=
+  entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) (fun _ _ ab ↦ (Prod.ext_iff.1 ab).1)
+
 end entropy
 
 section condEntropy
@@ -456,6 +460,11 @@ lemma condEntropy_of_inj_map' [MeasurableSingletonClass S] (μ : Measure Ω) [Is
     . congr 1
       exact condEntropy_comp_of_injective μ hY f hf
     exact entropy_comp_of_injective μ hY f hf
+
+lemma condEntropy_comp_self [IsProbabilityMeasure μ]
+  (hX : Measurable X) {f : S → U} (hf : Measurable f) :
+    H[X| f ∘ X; μ] = H[X; μ] - H[f ∘ X; μ] := by
+  rw [chain_rule'' μ hX (hf.comp hX), entropy_prod_comp hX _ f]
 
 /--   If $X: \Omega \to S$, $Y: \Omega \to T$,$Z: \Omega \to U$ are random variables, then
 $$ H[  X,Y | Z ] = H[X | Z] + H[Y|X, Z].$$ -/
