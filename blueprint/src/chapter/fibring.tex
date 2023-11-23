@@ -15,21 +15,21 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
   Let $Z_1,Z_2$ be independent throughout (this is possible by Lemma \ref{ruz-copy} and Lemma \ref{independent-exist}).  By Lemma \ref{cond-dist-alt}, We have
   \begin{align*}
     & d[Z_1  |\pi(Z_1); Z_2 |\pi(Z_2)] \\
-    & = H[ Z_1 + Z_2 | \pi(Z_1),\pi(Z_2)] - \tfrac{1}{2} H[Z_1 | \pi(Z_1)] - \tfrac{1}{2} H[Z_2 | \pi(Z_2)] \\
-    & \leq  H[ Z_1 + Z_2 | \pi(Z_1+Z_2)]  - \tfrac{1}{2} H[Z_1 | \pi(Z_1)] - \tfrac{1}{2}H[Z_2 | \pi(Z_2)] \\
+    & = H[ Z_1 - Z_2 | \pi(Z_1),\pi(Z_2)] - \tfrac{1}{2} H[Z_1 | \pi(Z_1)] - \tfrac{1}{2} H[Z_2 | \pi(Z_2)] \\
+    & \leq  H[ Z_1 - Z_2 | \pi(Z_1+Z_2)]  - \tfrac{1}{2} H[Z_1 | \pi(Z_1)] - \tfrac{1}{2}H[Z_2 | \pi(Z_2)] \\
     & = d[Z_1;Z_2] - d[\pi(Z_1);\pi(Z_2)].
   \end{align*}
   In the middle step, we used Lemma \ref{submodularity}, and in the last step we used the fact that
-  \[ H[Z_1 + Z_2 |  \pi(Z_1+Z_2)] = H[Z_1 + Z_2] - H[\pi(Z_1+Z_2)]\]
+  \[ H[Z_1 - Z_2 |  \pi(Z_1-Z_2)] = H[Z_1 - Z_2] - H[\pi(Z_1-Z_2)]\]
   (thanks to Lemma \ref{chain-rule} and Lemma \ref{relabeled-entropy}) and that
   \[ H[Z_i| \pi(Z_i)] = H[Z_i] - H[\pi(Z_i)]\] (since $Z_i$ determines $\pi(Z_i)$).
   This gives the claimed inequality. The difference between the two sides is precisely
-  \[ H[Z_1 + Z_2  | \pi(Z_1 + Z_2)] - H[Z_1 + Z_2  | \pi(Z_1),\pi(Z_2)].\]
+  \[ H[Z_1 - Z_2  | \pi(Z_1 - Z_2)] - H[Z_1 - Z_2  | \pi(Z_1),\pi(Z_2)].\]
   To rewrite this in terms of (conditional) mutual information, we use the identity
   \[ H[A|B] - H[A | B,C] = I[A : C | B],\]
   (which follows Lemma \ref{conditional-mutual-alt})
   taking
-  $A := Z_1 + Z_2$, $B := \pi(Z_1 + Z_2)$ and $C := (\pi(Z_1),\pi(Z_{2}))$, and noting that in this case $H[A | B,C] = H[A | C]$ since $C$ uniquely determines $B$ (this may require another helper lemma about entropy).
+  $A := Z_1 - Z_2$, $B := \pi(Z_1 - Z_2)$ and $C := (\pi(Z_1),\pi(Z_{2}))$, and noting that in this case $H[A | B,C] = H[A | C]$ since $C$ uniquely determines $B$ (this may require another helper lemma about entropy).
   This completes the proof.
 \end{proof}
 
