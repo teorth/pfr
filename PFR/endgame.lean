@@ -32,7 +32,7 @@ universe u
 open MeasureTheory ProbabilityTheory
 
 variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
-  [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2]
+  [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 
@@ -41,8 +41,9 @@ variable (p : refPackage Ω₀₁ Ω₀₂ G)
 variable {Ω : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 variable (X₁ X₂ X₁' X₂' : Ω → G)
+  (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
 
-variable (h₁ : IdentDistrib X₁ X₁') (h2 : IdentDistrib X₂ X₂')
+variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
 variable (h_indep : iIndepFun ![hG, hG, hG, hG] ![X₁, X₂, X₁', X₂'])
 
@@ -63,14 +64,28 @@ local notation3 "I₁" => I[ U : V | S ]
 local notation3 "I₂" => I[ U : W | S ]
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
-lemma I₃_eq : I[ V : W | S ] = I₂ := by sorry
+lemma I₃_eq : I[ V : W | S ] = I₂ := by
+  sorry
 
 /--
 $$ I(U : V | S) + I(V : W | S) + I(W : U | S) $$
 is less than or equal to
 $$ 6 \eta k - \frac{1 - 5 \eta}{1-\eta} (2 \eta k - I_1).$$
 -/
-lemma sum_condMutual_le : I[ U : V | S ] + I[ V : W | S ] + I[ W : U | S ] ≤ 6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁) := by sorry
+lemma sum_condMutual_le :
+    I[ U : V | S ] + I[ V : W | S ] + I[ W : U | S ]
+      ≤ 6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁) := by
+  have : I[W:U|S] = I₂ := by
+    rw [condMutualInformation_comm]
+    · exact Measurable.add' hX₁' hX₁
+    · exact Measurable.add' hX₁ hX₂
+  rw [I₃_eq, this]
+  -- have h₁ := first_estimate X₁ X₂ X₁' X₂' -- Not used?
+  have h₂ := second_estimate X₁ X₂ X₁' X₂'
+  have h := add_le_add (add_le_add_left h₂ I₁) h₂
+  convert h using 1
+  field_simp [η]
+  ring
 
 local notation3:max "c[" A "]" => d[p.X₀₁ # A] - d[p.X₀₁ # X₁] + d[p.X₀₂ # A] - d[p.X₀₂ # X₂]
 

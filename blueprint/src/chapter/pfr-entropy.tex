@@ -230,7 +230,7 @@ Let $X_1,X_2,\tilde X_1,\tilde X_2$ be as before, and introduce the random varia
 
 \begin{lemma}[Bound on conditional mutual informations]\label{uvw-s}
 \uses{conditional-information-def}
-\lean{sum_condMutual_le}\leanok
+\lean{I₃_eq,sum_condMutual_le}\leanok
 We have
 $$
 I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) \leq 6 \eta k - \frac{1 - 5 \eta}{1-\eta} (2 \eta k - I_1).
@@ -241,9 +241,9 @@ $$
   \uses{first-estimate, second-estimate}
 From the definitions of $I_1,I_2$ (and some entropy lemma to deal with the third term), we see that
 \[
-  I_1 = I{U : V \, | \, S}, \qquad I_2 = I{W : U \, | \, S}, \qquad I_2 = I{V : W \, | \,S}.
+  I_1 = I(U : V \, | \, S), \qquad I_2 = I(W : U \, | \, S), \qquad I_2 = I(V : W \, | \,S).
 \]
-Applying Lemma \ref{first-estimate} and Lemma \ref{second-estimate} we have the inequalities
+Applying Lemma \ref{first-estimate} and Lemma \ref{second-estimate} we have the inequality
 \[   I_2 \leq 2 \eta k + \frac{2\eta(2 \eta k - I_1)}{1-\eta} .
 \]
 Summing these two inequalities gives
