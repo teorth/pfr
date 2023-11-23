@@ -22,7 +22,7 @@ Assumptions:
 
 open MeasureTheory ProbabilityTheory
 
-variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G] [ElementaryAddCommGroup G 2]
+variable (G : Type*) [AddCommGroup G] [Fintype G] [ElementaryAddCommGroup G 2] (hG: MeasurableSpace G) [MeasurableSingletonClass G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 

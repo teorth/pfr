@@ -42,6 +42,13 @@ open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 @[nolint unusedArguments]
 instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
 
+/-- Give all finite types the MeasurableSingletonClass instance. -/
+@[nolint unusedArguments]
+instance Fintype.instMeasurableSingletonClass [Fintype S] : MeasurableSingletonClass S := {
+  measurableSet_singleton := by intros; simp
+}
+
+
 namespace ProbabilityTheory
 
 variable {Ω S T U: Type*} [mΩ : MeasurableSpace Ω]
