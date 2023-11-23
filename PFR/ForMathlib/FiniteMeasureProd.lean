@@ -27,7 +27,6 @@ variable {α : Type*} [MeasurableSpace α]
 variable {β : Type*} [MeasurableSpace β]
 -- [TopologicalSpace β] [OpensMeasurableSpace β]
 
-
 /-- The binary product of finite measures. -/
 noncomputable def prod (μ : FiniteMeasure α) (ν : FiniteMeasure β) : FiniteMeasure (α × β) :=
   ⟨μ.toMeasure.prod ν.toMeasure, Measure.prod.instIsFiniteMeasure μ.toMeasure ν.toMeasure⟩
@@ -60,12 +59,19 @@ lemma prod_zero : μ.prod (0 : FiniteMeasure β) = 0 := by
 @[simp] lemma map_fst_prod : (μ.prod ν).map Prod.fst = (ν univ) • μ := by
   apply Subtype.ext
   simp only [val_eq_toMeasure, toMeasure_map, toMeasure_prod, Measure.map_fst_prod]
-  ext s s_mble
+  ext s _
   simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul]
-  sorry
+  have aux := @coeFn_smul_apply α _ ℝ≥0 _ _ _ _ _ (ν univ) μ s
+  simpa using congr_arg ENNReal.ofNNReal aux.symm
 
 @[simp] lemma map_snd_prod : (μ.prod ν).map Prod.snd = (μ univ) • ν := by
-  sorry
+  apply Subtype.ext
+  simp only [val_eq_toMeasure, toMeasure_map, toMeasure_prod, Measure.map_fst_prod]
+  ext s _
+  simp only [Measure.map_snd_prod, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
+    Pi.smul_apply, smul_eq_mul]
+  have aux := @coeFn_smul_apply β _ ℝ≥0 _ _ _ _ _ (μ univ) ν s
+  simpa using congr_arg ENNReal.ofNNReal aux.symm
 
 lemma map_prod_map {α' : Type*} [MeasurableSpace α'] {β' : Type*} [MeasurableSpace β']
     {f : α → α'} {g : β → β'}  (f_mble : Measurable f) (g_mble : Measurable g):
@@ -121,6 +127,7 @@ lemma sum_prod {ι : Type*} [Fintype ι] (μs : ι → FiniteMeasure β) :
   sorry
  -/
 
+/-
 variable [TopologicalSpace α] [OpensMeasurableSpace α] [TopologicalSpace β] [OpensMeasurableSpace β]
 
 lemma tendsto_prod [SecondCountableTopology α] {ι : Type*} {L : Filter ι}
@@ -164,7 +171,7 @@ lemma continuous_prod [SecondCountableTopology α] :
 lemma continuous_prod' [SecondCountableTopology β] :
     Continuous (fun (μν : FiniteMeasure α × FiniteMeasure β) ↦ μν.1.prod μν.2) := by
   sorry
-
+ -/
 end FiniteMeasure -- namespace
 
 end FiniteMeasure_product -- section
