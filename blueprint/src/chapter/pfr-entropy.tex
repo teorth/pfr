@@ -159,6 +159,27 @@ We continue the assumptions from the preceding section.
 We introduce the quantity
 $$ I_2 := I[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 
+\begin{lemma}[Distance between sums]\label{dist-sums}
+  \lean{rdist_of_sums_ge'}\leanok
+We have
+$$ d[X_1+\tilde X_1; X_2+\tilde X_2] \geq k - \frac{\eta}{2} ( d[X_1; X_1] + d[X_2;X_2] ).$$
+\end{lemma}
+
+\begin{proof}\uses{distance-lower, first-useful} From Lemma \ref{distance-lower} one has
+\begin{align*}
+    d[X_1+\tilde X_1; X_2+\tilde X_2] \geq k &- \eta(d[X^0_1;X_1] - d[X^0_1;X_1+\tilde X_1]) \\
+    &- \eta(d[X^0_2;X_2] - d[X^0_2;X_2+\tilde X_2]).
+\end{align*}
+Now Lemma \ref{first-useful} gives
+$$
+d[X^0_1;X_1+\tilde X_1] - d[X^0_1;X_1] \leq \tfrac{1}{2} d[X_1;X_1]$$
+and
+$$
+  d[X^0_2;X_2+\tilde X_2] - d[X^0_2;X_2] \leq \tfrac{1}{2} d[X_2;X_2],
+$$
+and the claim follows.
+\end{proof}
+
 \begin{lemma}[Second estimate]\label{second-estimate}
   \lean{second_estimate}\leanok
 We have
@@ -166,7 +187,7 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
 \end{lemma}
 
 \begin{proof}
-  \uses{cor-fibre,distance-lower,cond-distance-lower,first-useful,ruz-indep,foursum-bound}
+  \uses{cor-fibre,distance-lower,first-useful,ruz-indep,dist-sums,foursum-bound}
   We apply Corollary \ref{cor-fibre}, but now with the choice
   \[
     (Y_1,Y_2,Y_3,Y_4) := (X_2, X_1, \tilde X_2, \tilde X_1).
@@ -176,22 +197,11 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
     &d[X_1+\tilde X_1;X_2+\tilde X_2] + d[X_1|X_1+\tilde X_1; X_2|X_2+\tilde X_2] \\
     &\quad + I[ X_1+X_2 : X_1 + \tilde X_1 \,|\, X_1+X_2+\tilde X_1+\tilde X_2 ] = 2k,
   \end{align*}
-  recalling once again that $k := d[X_1;X_2]$.  From Lemma \ref{distance-lower}, Lemma \ref{cond-distance-lower} as before, one has
-  \begin{align}
-    \nonumber
-    d[X_1+\tilde X_1; X_2+\tilde X_2] \geq k &- \eta(d[X^0_1;X_1] - d[X^0_1;X_1+\tilde X_1]) \\
-    &- \eta(d[X^0_2;X_2] - d[X^0_2;X_2+\tilde X_2])
-  \label{1122}
-  \end{align}
-  and
+  recalling once again that $k := d[X_1;X_2]$.  From Lemma \ref{cond-distance-lower} one has
   \begin{align*}
     d[X_1|X_1+\tilde X_1; X_2|X_2+\tilde X_2]   \geq k &- \eta (d[X^0_1;X_1] - d[X^0_1;X_1|X_1+\tilde X_1]) \\& - \eta (d[X^0_2;X_2] - d[X^0_2;X_2|X_2+\tilde X_2]) .
   \end{align*}
-  Now Lemma \ref{first-useful} gives
-  \begin{equation}\label{1122a} d[X^0_1;X_1+\tilde X_1] - d[X^0_1;X_1] \leq \tfrac{1}{2} d[X_1;X_1],\end{equation}
-  \begin{equation}\label{1122b}
-    d[X^0_2;X_2+\tilde X_2] - d[X^0_2;X_2] \leq \tfrac{1}{2} d[X_2;X_2],
-  \end{equation}
+  while from Lemma \ref{first-useful} we have
   \[
     d[X^0_1;X_1|X_1+\tilde X_1] -  d[X^0_1;X_1] \leq  \tfrac{1}{2} d[X_1;X_1],
   \]
@@ -199,13 +209,9 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
   \[
     d[X^0_2;X_2|X_2+\tilde X_2] -  d[X^0_2;X_2] \leq \tfrac{1}{2} d[X_1;X_2].
     \]
-  Combining all these inequalities and cancelling terms, we obtain
+  Combining all these inequalities with Lemma \ref{dist-sums}, we have
   \begin{equation}\label{combined}
   I[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ] \leq \eta ( d[X_1; X_1] + d[X_2; X_2] ).
-  \end{equation}
-By combining~\eqref{1122},~\eqref{1122a} and~\eqref{1122b}, we obtain
-  \begin{equation}\label{d12}
-    d[X_1+\tilde X_1; X_2+\tilde X_2] \geq k - \frac{\eta}{2} ( d[X_1; X_1] + d[X_2;X_2] ).
   \end{equation}
   We may also use Lemma \ref{ruz-indep} to expand
   \begin{align*}
@@ -216,7 +222,7 @@ By combining~\eqref{1122},~\eqref{1122a} and~\eqref{1122b}, we obtain
   \[
     d[X_1+\tilde X_1; X_2+\tilde X_2] \leq (2+\eta) k - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2;X_2] \right) - I_1.
   \]
-  Combining this bound with~\eqref{d12} we obtain
+  Combining this bound with Lemma \ref{dist-sums} we obtain
   \[ d[X_1;X_1] + d[X_2;X_2] \leq 2 k + \frac{2(2 \eta k - I_1)}{1-\eta}. \]
   Therefore by~\eqref{combined} we have the desired bound.
 \end{proof}
