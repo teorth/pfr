@@ -214,6 +214,7 @@ lemma continuous_rdist_restrict_probabilityMeasure
       H[fun x ↦ x.1 - x.2 ; μ.1.toMeasure.prod μ.2.toMeasure]) := by
     -- Requires:
     -- (1) Some API about (continuity of) products of probability measures.
+    --     (`ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto` is enough here.)
     -- (2) Continuity of mapping probability measures: `ProbabilityMeasure.continuous_map`.
     sorry
   have obs₁ : Continuous
