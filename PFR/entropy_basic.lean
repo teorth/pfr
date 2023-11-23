@@ -42,6 +42,13 @@ open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 @[nolint unusedArguments]
 instance Fintype.instMeasurableSpace [Fintype S] : MeasurableSpace S := ⊤
 
+/-- Give all finite types the MeasurableSingletonClass instance. -/
+@[nolint unusedArguments]
+instance Fintype.instMeasurableSingletonClass [Fintype S] : MeasurableSingletonClass S := {
+  measurableSet_singleton := by intros; simp
+}
+
+
 namespace ProbabilityTheory
 
 variable {Ω S T U: Type*} [mΩ : MeasurableSpace Ω]
@@ -732,16 +739,70 @@ lemma independent_copies_two {Ω : Type u} {Ω' : Type v} [MeasureSpace Ω] [Mea
     simp [← Measure.map_map hY measurable_snd, this]
 
 universe u v
+open Function Set Measure
 
-/-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$ such that each $X'_i$ is a copy of $X_i$.  May need some hypotheses of measurability and non-degeneracy -/
-lemma independent_copies' {I: Type*} [Fintype I] {S : I → Type u}
+instance {I} [Fintype I] {Ω : I → Type*} [∀ i, MeasurableSpace (Ω i)]
+    (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] :
+    IsProbabilityMeasure (.pi μ) :=
+  ⟨by simp_rw [Measure.pi_univ, measure_univ, Finset.prod_const_one]⟩
+
+@[simp]
+lemma pi_pi_set
+    {I} [Fintype I] {Ω : I → Type*} [∀ i, MeasurableSpace (Ω i)]
+    (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)]
+    (t : Set I) [DecidablePred (· ∈ t)] (s : (i : I) → Set (Ω i)) :
+    Measure.pi μ (pi t s) = ∏ i in Finset.univ.filter (· ∈ t), μ i (s i) := by
+  classical
+  simp (config := {singlePass := true}) only [← pi_univ_ite]
+  simp_rw [pi_pi, apply_ite, measure_univ,
+    Finset.prod_ite, Finset.prod_const_one, mul_one]
+
+@[simp]
+lemma pi_pi_finset
+    {I} [Fintype I] {Ω : I → Type*} [∀ i, MeasurableSpace (Ω i)]
+    (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)]
+    (t : Finset I) (s : (i : I) → Set (Ω i)) :
+    Measure.pi μ (pi t s) = ∏ i in t, μ i (s i) := by
+  classical
+  rw [pi_pi_set]
+  congr; ext x; simp
+
+@[simp]
+lemma pi_eval_preimage
+    {I} [Fintype I] {Ω : I → Type*} [∀ i, MeasurableSpace (Ω i)]
+    (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] {i : I} (s : Set (Ω i)) :
+    Measure.pi μ (eval i ⁻¹' s) = μ i s := by
+  classical
+  simp_rw [eval_preimage, pi_pi, apply_update (fun i ↦ μ i), measure_univ,
+    Finset.prod_update_of_mem (Finset.mem_univ _), Finset.prod_const_one, mul_one]
+
+lemma map_eval_pi {I} [Fintype I] {Ω : I → Type*} [∀ i, MeasurableSpace (Ω i)]
+    (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] {i : I} :
+    Measure.map (eval i) (Measure.pi μ) = μ i := by
+  ext s hs
+  simp_rw [Measure.map_apply (measurable_pi_apply i) hs, pi_eval_preimage]
+
+/-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.
+Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$
+such that each $X'_i$ is a copy of $X_i$.
+May need some hypotheses of measurability and non-degeneracy -/
+lemma independent_copies' {I: Type u} [Fintype I] {S : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (S i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → S i) (hX : ∀ i : I, Measurable (X i))
-    (μ : ∀ i : I, Measure (Ω i)) :
+    (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] :
     ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → S i),
     IsProbabilityMeasure μA ∧
     iIndepFun mS X' μA ∧
-    ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by sorry
+    ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by
+  refine ⟨Π i, Ω i, inferInstance, .pi μ, fun i ↦ X i ∘ eval i, inferInstance, ?_, fun i ↦ ⟨?_, ?_⟩⟩
+  · rw [iIndepFun_iff]
+    intro t s hs
+    choose! u _ hus using hs
+    simp (config := {contextual := true}) [← hus, preimage_comp]
+    simp_rw [← Finset.mem_coe, ← Set.pi_def, pi_pi_finset]
+  · exact (hX i).comp (measurable_pi_apply i)
+  · refine ⟨(hX i).comp (measurable_pi_apply i) |>.aemeasurable, (hX i).aemeasurable, ?_⟩
+    rw [← Measure.map_map (hX i) (measurable_pi_apply i), map_eval_pi]
 
 /- This is neither `Fin.elim0` nor `Fin.elim0'` -/
 def Fin.rec0 {α : Fin 0 → Sort*} (i : Fin 0) : α i := absurd i.2 (Nat.not_lt_zero _)
@@ -754,8 +815,9 @@ lemma independent_copies3_nondep {S : Type u}
     [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂] [mΩ₃ : MeasurableSpace Ω₃]
     {X₁ : Ω₁ → S} {X₂ : Ω₂ → S} {X₃ : Ω₃ → S}
     (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
-    (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) :
-    ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A)
+    (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃)
+    [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂] [hμ₃ : IsProbabilityMeasure μ₃] :
+    ∃ (A : Type v) (mA : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' : A → S),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
@@ -769,12 +831,49 @@ lemma independent_copies3_nondep {S : Type u}
     Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₃ Fin.rec0
   let μ : (i : Fin 3) → @Measure (Ω i) (mΩ i) :=
     Fin.cases μ₁ <| Fin.cases μ₂ <| Fin.cases μ₃ Fin.rec0
+  let hμ : (i : Fin 3) → IsProbabilityMeasure (μ i) :=
+    Fin.cases hμ₁ <| Fin.cases hμ₂ <| Fin.cases hμ₃ Fin.rec0
   obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' X hX μ
   refine ⟨A, mA, μA, X' 0, X' 1, X' 2, hμ, ?_,
     (hX' 0).1, (hX' 1).1, (hX' 2).1,
     (hX' 0).2, (hX' 1).2, (hX' 2).2⟩
   convert hi; ext i; fin_cases i <;> rfl
 
+/-- A version with exactly 4 random variables that have the same codomain.
+It's unfortunately incredibly painful to prove this from the general case. -/
+lemma independent_copies4_nondep {S : Type u}
+    [mS : MeasurableSpace S]
+    {Ω₁ Ω₂ Ω₃ Ω₄ : Type v}
+    [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂]
+    [mΩ₃ : MeasurableSpace Ω₃] [mΩ₄ : MeasurableSpace Ω₄]
+    {X₁ : Ω₁ → S} {X₂ : Ω₂ → S} {X₃ : Ω₃ → S} {X₄ : Ω₄ → S}
+    (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃) (hX₄ : Measurable X₄)
+    (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) (μ₄ : Measure Ω₄)
+    [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂]
+    [hμ₃ : IsProbabilityMeasure μ₃] [hμ₄ : IsProbabilityMeasure μ₄] :
+    ∃ (A : Type v) (mA : MeasurableSpace A) (μA : Measure A)
+      (X₁' X₂' X₃' X₄' : A → S),
+    IsProbabilityMeasure μA ∧
+    iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃', X₄'] μA ∧
+    Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧ Measurable X₄' ∧
+    IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧
+    IdentDistrib X₃' X₃ μA μ₃ ∧ IdentDistrib X₄' X₄ μA μ₄ := by
+  let Ω : Fin 4 → Type v := ![Ω₁, Ω₂, Ω₃, Ω₄]
+  let mΩ : (i : Fin 4) → MeasurableSpace (Ω i) :=
+    Fin.cases mΩ₁ <| Fin.cases mΩ₂ <| Fin.cases mΩ₃ <| Fin.cases mΩ₄ Fin.rec0
+  let X : (i : Fin 4) → Ω i → S :=
+    Fin.cases X₁ <| Fin.cases X₂ <| Fin.cases X₃ <| Fin.cases X₄ Fin.rec0
+  have hX : ∀ (i : Fin 4), @Measurable _ _ (mΩ i) mS (X i) :=
+    Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₃ <| Fin.cases hX₄ Fin.rec0
+  let μ : (i : Fin 4) → @Measure (Ω i) (mΩ i) :=
+    Fin.cases μ₁ <| Fin.cases μ₂ <| Fin.cases μ₃ <| Fin.cases μ₄ Fin.rec0
+  let hμ : (i : Fin 4) → IsProbabilityMeasure (μ i) :=
+    Fin.cases hμ₁ <| Fin.cases hμ₂ <| Fin.cases hμ₃ <| Fin.cases hμ₄ Fin.rec0
+  obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' X hX μ
+  refine ⟨A, mA, μA, X' 0, X' 1, X' 2, X' 3, hμ, ?_,
+    (hX' 0).1, (hX' 1).1, (hX' 2).1, (hX' 3).1,
+    (hX' 0).2, (hX' 1).2, (hX' 2).2, (hX' 3).2⟩
+  convert hi; ext i; fin_cases i <;> rfl
 
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials
 $X_1, X_2, Y'$.-/

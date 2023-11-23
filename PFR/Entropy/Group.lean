@@ -9,26 +9,6 @@ import PFR.Entropy.KernelMutualInformation
 -/
 open MeasureTheory ProbabilityTheory
 
-section aux
-
-namespace ProbabilityTheory.kernel
-
-variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
-
-lemma map_map (κ : kernel α β) {f : β → γ} (hf : Measurable f) {g : γ → δ} (hg : Measurable g) :
-    map (map κ f hf) g hg = map κ (g ∘ f) (hg.comp hf) := by
-  ext x s _
-  rw [map_apply, map_apply, map_apply, Measure.map_map hg hf]
-
-lemma map_swapRight (κ : kernel α (β × γ)) {f : (γ × β) → δ} (hf : Measurable f) :
-    map (swapRight κ) f hf = map κ (f ∘ Prod.swap) (hf.comp measurable_swap) := by
-  rw [swapRight, map_map]
-
-end ProbabilityTheory.kernel
-
-end aux
-
 variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [Fintype T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
   [hG: MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
