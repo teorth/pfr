@@ -1,9 +1,7 @@
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.MeasureTheory.Constructions.Prod.Basic
-import Mathlib.MeasureTheory.Measure.Portmanteau
 import PFR.ForMathlib.FiniteMeasureProd
 import PFR.ForMathlib.CompactProb
---import Mathlib
 
 /-!
 # Continuity of products of probability measures on finite types
@@ -15,15 +13,6 @@ open MeasureTheory Topology Metric Filter Set ENNReal NNReal
 open scoped Topology ENNReal NNReal BoundedContinuousFunction BigOperators
 
 namespace MeasureTheory
-
-/-- Finite measures on a finite space tend to a limit if and only if the probability masses
-of all points tend to the corresponding limits. -/
-lemma FiniteMeasure.tendsto_iff_forall_apply_tendsto
-    {ι : Type*} {L : Filter ι} [NeBot L]
-    {α : Type*} [Fintype α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α]
-    [BorelSpace α] (μs : ι → FiniteMeasure α) (μ : FiniteMeasure α) :
-    Tendsto μs L (𝓝 μ) ↔ ∀ (a : α), Tendsto (fun i ↦ μs i {a}) L (𝓝 (μ {a})) := by
-  sorry -- Almost the same as below (some earlier lemmas need restating, too).
 
 /-- Probability measures on a finite space tend to a limit if and only if the probability masses
 of all points tend to the corresponding limits. -/
