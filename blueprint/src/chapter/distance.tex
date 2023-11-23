@@ -69,11 +69,12 @@ One random variable is said to be a copy of another if they have the same distri
 
 \begin{lemma}[Existence of independent copies]\label{independent-exist}
   \uses{independent-def}
-  \lean{ProbabilityTheory.independent_copies, ProbabilityTheory.independent_copies'} \leanok
+  \lean{ProbabilityTheory.independent_copies, ProbabilityTheory.independent_copies', ProbabilityTheory.independent_copies_two, ProbabilityTheory.independent_copies3_nondep} \leanok
   Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.  Then if one gives $\prod_{i=1}^k S_i$ the product measure of the laws of $X_i$, the coordinate functions $(x_j)_{j=1}^k \mapsto x_i$ are jointly independent random variables which are copies of the $X_1,\dots,X_k$.
 \end{lemma}
 
-\begin{proof} Explicit computation.
+\begin{proof} \leanok
+  Explicit computation.
 \end{proof}
 
 \begin{definition}[Ruzsa distance]\label{ruz-dist-def}
@@ -173,13 +174,13 @@ This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ ar
 $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved} By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
+\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved}\leanok By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
   \uses{ruz-dist-def}
-  \lean{cond_rdist}
-If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Z$ are $G$-valued) we define
+  \lean{cond_rdist}\leanok
+If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Y$ are $G$-valued) we define
 $$ d[X  | Z; Y | W] := \sum_{z,w}  \bbP[Z=z]  \bbP[W=w] d[(X|Z=z); (Y|(W=w))].$$
 similarly
 $$ d[X; Y | W] := \sum_{w}  \bbP[W=w] d[X; (Y|(W=w))].$$
@@ -310,7 +311,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \end{lemma}
 
   \begin{proof}
-    \uses{first-useful}
+    \uses{first-useful}\leanok
   By Lemma \ref{first-useful} (with a change of variables) we have
   \[ d[X; Y + Z | Y + Z + Z'] - d[X; Y + Z] \leq \tfrac{1}{2}( \bbH[Y + Z + Z'] - \bbH[Z']).\]
   Adding this to~\eqref{lem51-a} gives the result.
