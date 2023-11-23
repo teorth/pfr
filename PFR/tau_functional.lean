@@ -2,6 +2,8 @@
 import PFR.f2_vec
 import PFR.ruzsa_distance
 import PFR.ForMathlib.CompactProb
+import PFR.ForMathlib.BorelSpace
+
 
 /-!
 # The tau functional
@@ -94,13 +96,13 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
   ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
-lemma tau_min_exists_measure : ∃ (μ : Measure G × Measure G),
+lemma tau_min_exists_measure [MeasurableSingletonClass G] :
+    ∃ (μ : Measure G × Measure G),
     IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
     ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[id ; μ.1 # id ; μ.2 | p] ≤ τ[id ; ν₁ # id ; ν₂ | p] := by
   let _i : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
   have : DiscreteTopology G := ⟨rfl⟩
-  haveI : BorelSpace G := by sorry -- I think `[MeasurableSingletonClass G]` hypothesis is needed.
   have GG_cpt : CompactSpace (ProbabilityMeasure G × ProbabilityMeasure G) := inferInstance
   let T : ProbabilityMeasure G × ProbabilityMeasure G → ℝ := -- restrict τ to the compact subspace
     fun ⟨μ₁, μ₂⟩ ↦ τ[id ; μ₁ # id ; μ₂ | p]
@@ -115,7 +117,8 @@ lemma tau_min_exists_measure : ∃ (μ : Measure G × Measure G),
   rw [isMinOn_univ_iff] at hμ
   exact hμ ν
 
-lemma tau_minimizer_exists : ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+lemma tau_minimizer_exists [MeasurableSingletonClass G] :
+    ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
     Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
     tau_minimizes p X₁ X₂ := by
   let μ := (tau_min_exists_measure p).choose
