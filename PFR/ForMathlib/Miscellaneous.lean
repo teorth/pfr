@@ -44,3 +44,19 @@ lemma measure_preimage_eq_zero_iff_of_countable {Ω : Type*} {S : Type*} [Measur
     _ = 0 := by simp
 
 end
+
+section
+
+open scoped BigOperators
+
+variable [CommMonoid β]
+
+@[to_additive]
+theorem Finset.prod_finset_eq_prod [Fintype α] {s : Finset α} {f : α → β}
+    (h : ∀ i ∉ s, f i = 1) :
+    ∏ i in s, f i = ∏ i, f i := by
+  classical
+  have : ∏ i in sᶜ, f i = 1 := Finset.prod_eq_one (fun i hi ↦ h i (Finset.mem_compl.mp hi))
+  rw [← Finset.prod_mul_prod_compl s f, this, mul_one]
+
+end

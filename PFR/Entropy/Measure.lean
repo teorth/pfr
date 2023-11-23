@@ -2,6 +2,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
 import PFR.ForMathlib.Positivity
+import PFR.ForMathlib.Miscellaneous
 import PFR.neg_xlogx
 import PFR.MeasureReal
 
@@ -230,17 +231,6 @@ lemma measureEntropy_nonneg (μ : Measure S) : 0 ≤ Hm[μ] := by
   cases eq_zero_or_neZero μ with
   | inl hμ => simp [hμ]
   | inr hμ => exact prob_le_one
-
-
-variable [CommMonoid β]
-
-@[to_additive]
-theorem Finset.prod_finset_eq_prod [Fintype α] {s : Finset α} {f : α → β}
-    (h : ∀ i ∉ s, f i = 1) :
-    ∏ i in s, f i = ∏ i, f i := by
-  classical
-  have : ∏ i in sᶜ, f i = 1 := Finset.prod_eq_one (fun i hi ↦ h i (Finset.mem_compl.mp hi))
-  rw [← Finset.prod_mul_prod_compl s f, this, mul_one]
 
 lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
     (A : Finset S) (hμ : μ Aᶜ = 0) :
