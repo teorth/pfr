@@ -126,6 +126,10 @@ lemma entropy_comp_of_injective
   rw [entropy_def, ← Measure.map_map hf_m hX, measureEntropy_map_of_injective _ _ hf,
     entropy_def]
 
+/-- The entropy of any constant is zero. -/
+@[simp] lemma entropy_const [IsProbabilityMeasure μ] (c : S) : H[(fun _ => c) ; μ] = 0 := by
+  simp [entropy,MeasureTheory.Measure.map_const]
+
 attribute [-instance] Fintype.instMeasurableSpace in
 @[simp] lemma entropy_add_const {G : Type*} [AddGroup G] [Fintype G] [MeasurableSpace G]
     [MeasurableSingletonClass G]
@@ -481,10 +485,12 @@ lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingleton
   rw [h_fst, h_snd]
   exact measureMutualInfo_nonneg _
 
-/-- Substituting variables for ones with the same distributions doesn't change the entropy. -/
+/-- Substituting variables for ones with the same distributions doesn't change the mutual information. -/
 lemma IdentDistrib.mutualInformation_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
-    {X' : Ω' → S} {Y' : Ω' → T} (hX : IdentDistrib X X' μ μ') (hY : IdentDistrib Y Y' μ μ')
-      (hXY : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') : I[X : Y ; μ] = I[X' : Y' ; μ'] := by
+    {X' : Ω' → S} {Y' : Ω' → T} (hXY : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') :
+      I[X : Y ; μ] = I[X' : Y' ; μ'] := by
+  have hX : IdentDistrib X X' μ μ' := hXY.comp measurable_fst
+  have hY : IdentDistrib Y Y' μ μ' := hXY.comp measurable_snd
   simp_rw [mutualInformation_def,hX.entropy_eq,hY.entropy_eq,hXY.entropy_eq]
 
 /-- Subadditivity of entropy. -/
@@ -515,6 +521,19 @@ lemma mutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Me
   · simp
   · exact Measure.map_map measurable_fst (hX.prod_mk hY)
   · exact Measure.map_map measurable_snd (hX.prod_mk hY)
+
+/-- Random variables are always independent of constants. -/
+lemma indepFun_const [IsProbabilityMeasure μ] (c : T) :
+    IndepFun X (fun _ => c) μ := by
+  rw [IndepFun_iff,MeasurableSpace.comap_const]
+  intro t₁ t₂ _ ht₂
+  rcases MeasurableSpace.measurableSet_bot_iff.mp ht₂ with h | h
+  all_goals simp [h]
+
+/-- The mutual information with a constant is always zero. -/
+lemma mutualInformation_const (hX : Measurable X) (c : T) {μ : Measure Ω} [IsProbabilityMeasure μ] :
+    I[X : (fun _ => c) ; μ] = 0 := by
+  exact (mutualInformation_eq_zero hX measurable_const).mpr (indepFun_const c)
 
 lemma IndepFun.condEntropy_eq_entropy {μ : Measure Ω} (h : IndepFun X Y μ)
     (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ]  :
