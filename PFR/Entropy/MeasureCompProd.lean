@@ -173,6 +173,12 @@ lemma snd_prod (κ : kernel α β) (η : kernel α γ) [IsMarkovKernel κ] [IsSF
   swap; · exact measurable_snd hs
   simp
 
+lemma comap_map_comm (κ : kernel β γ) {f : α → β} {g : γ → δ}
+    (hf : Measurable f) (hg : Measurable g) :
+    comap (map κ g hg) f hf = map (comap κ f hf) g hg := by
+  ext x s _
+  rw [comap_apply, map_apply, map_apply, comap_apply]
+
 section ProdMkRight
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
@@ -210,6 +216,37 @@ lemma swapLeft_prodMkRight (κ : kernel α β) (γ : Type*) [MeasurableSpace γ]
     swapLeft (prodMkRight κ γ) = prodMkLeft γ κ := rfl
 
 end ProdMkRight
+
+lemma _root_.MeasureTheory.Measure.comap_swap (μ : Measure (α × β)) :
+    μ.comap Prod.swap = μ.map Prod.swap := by
+  ext s hs
+  rw [Measure.comap_apply _ Prod.swap_injective _ _ hs, Measure.map_apply measurable_swap hs,
+    ← Set.image_swap_eq_preimage_swap]
+  intro s hs
+  rw [Set.image_swap_eq_preimage_swap]
+  exact measurable_swap hs
+
+lemma comap_prod_swap (κ : kernel α β) (η : kernel γ δ) [IsFiniteKernel κ] [IsFiniteKernel η] :
+    comap (prodMkRight η α ×ₖ prodMkLeft γ κ) Prod.swap measurable_swap
+      = map (prodMkRight κ γ ×ₖ prodMkLeft α η) Prod.swap measurable_swap := by
+  rw [ext_fun_iff]
+  intro x f hf
+  rw [lintegral_comap, lintegral_map _ _ _ hf, lintegral_prod _ _ _ hf,
+    lintegral_prod]
+  swap; · exact hf.comp measurable_swap
+  simp only [prodMkRight_apply, Prod.fst_swap, Prod.swap_prod_mk, lintegral_prodMkLeft,
+    Prod.snd_swap]
+  refine (lintegral_lintegral_swap ?_).symm
+  exact (hf.comp measurable_swap).aemeasurable
+
+lemma map_prod_swap (κ : kernel α β) (η : kernel α γ) [IsMarkovKernel κ] [IsMarkovKernel η] :
+    map (κ ×ₖ η) Prod.swap measurable_swap = η ×ₖ κ := by
+  rw [ext_fun_iff]
+  intro x f hf
+  rw [lintegral_map _ _ _ hf, lintegral_prod, lintegral_prod _ _ _ hf]
+  swap; · exact hf.comp measurable_swap
+  refine (lintegral_lintegral_swap ?_).symm
+  exact hf.aemeasurable
 
 end ProbabilityTheory.kernel
 

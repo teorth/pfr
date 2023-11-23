@@ -235,7 +235,7 @@ lemma entropy_compProd' [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKernel �
 lemma entropy_compProd [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η] :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[η, μ ⊗ₘ κ] := by
-  rw [entropy_compProd', entropy_congr (condKernel_compProd_ae_eq κ η)]
+  rw [entropy_compProd', entropy_congr (condKernel_compProd_ae_eq κ η _)]
 
 @[simp]
 lemma entropy_deterministic (f : T → S) (μ : Measure T) [IsFiniteMeasure μ] :
@@ -305,6 +305,15 @@ lemma entropy_map_le
     exact hxy.1
   rw [this, chain_rule', snd_map_prod _ measurable_id', le_add_iff_nonneg_right]
   exact entropy_nonneg _ _
+
+lemma entropy_of_map_eq_of_map (κ : kernel T S) (η : kernel T U)
+    [IsMarkovKernel κ] [IsMarkovKernel η]
+    (μ : Measure T) [IsProbabilityMeasure μ] (f : S → U) (g : U → S)
+    (h1 : η = map κ f (measurable_of_finite _)) (h2 : κ = map η g (measurable_of_finite _)) :
+    Hk[κ, μ] = Hk[η, μ] := by
+  refine le_antisymm ?_ ?_
+  · rw [h2]; exact entropy_map_le η μ g
+  · rw [h1]; exact entropy_map_le κ μ f
 
 lemma entropy_snd_le (κ : kernel T (S × U)) [IsMarkovKernel κ]
     (μ : Measure T) [IsProbabilityMeasure μ] :

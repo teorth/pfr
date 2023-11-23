@@ -31,7 +31,8 @@ universe u
 
 open MeasureTheory ProbabilityTheory
 
-variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G] [elem: ElementaryAddCommGroup G 2]
+variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+  [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 
