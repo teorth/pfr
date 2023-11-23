@@ -9,7 +9,9 @@ Here we show entropic PFR in the case of doubling constant zero.
 
 open MeasureTheory ProbabilityTheory Real
 
-variable {Ω G : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+universe u
+
+variable {Ω : Type u} {G : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
   [AddCommGroup G] [Fintype G] [MeasurableAdd₂ G] [MeasurableSub₂ G] {X : Ω → G}
 
 /-- The symmetry group Sym of $X$: the set of all $h ∈ G$ such that $X + h$ has an identical
@@ -154,18 +156,18 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
 /-- If $d[X_1;X_2]=0$, then there exists a subgroup $H \leq G$ such that
 $d[X_1;U_H] = d[X_2;U_H] = 0$. Follows from the preceding claim by the triangle inequality. -/
 theorem exists_isUniform_of_rdist_eq_zero
-    {Ω' : Type*} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')] {X' : Ω' → G}
-    (hX : Measurable X)(hX' : Measurable X') (hdist : d[X # X'] = 0) :
+    {Ω' : Type u} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')] {X' : Ω' → G}
+    (hX : Measurable X) (hX' : Measurable X') (hdist : d[X # X'] = 0) :
     ∃ H : AddSubgroup G, ∃ U : Ω → G,
       Measurable U ∧ isUniform H U ∧ d[X # U] = 0 ∧ d[X' # U] = 0 := by
   have h' : d[X # X] = 0 := by
     apply le_antisymm _ (rdist_nonneg hX hX)
     calc
-      d[X # X] ≤ d[X # X'] + d[X' # X] := rdist_triangle _ _ _
+      d[X # X] ≤ d[X # X'] + d[X' # X] := rdist_triangle ℙ ℙ ℙ hX hX' hX
       _ = 0 := by rw [hdist, rdist_symm, hdist, zero_add]
   rcases exists_isUniform_of_rdist_self_eq_zero hX h' with ⟨H, U, hmeas, hunif, hd⟩
   refine ⟨H, U, hmeas, hunif, hd, ?_⟩
   apply le_antisymm _ (rdist_nonneg hX' hmeas)
   calc
-    d[X' # U] ≤ d[X' # X] + d[X # U] := rdist_triangle _ _ _
+    d[X' # U] ≤ d[X' # X] + d[X # U] := rdist_triangle ℙ ℙ ℙ hX' hX hmeas
     _ = 0 := by rw [hd, rdist_symm, hdist, zero_add]

@@ -18,9 +18,10 @@ Here we prove the entropic version of the polynomial Freiman-Ruzsa conjecture.
 open MeasureTheory ProbabilityTheory
 universe u
 
-variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
+variable (Ω₀₁ Ω₀₂ : Type u) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 
-variable {Ω Ω' : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+variable {Ω Ω' : Type u} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+  [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
 variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
 
@@ -38,7 +39,7 @@ theorem entropic_PFR_conjecture :
   have : MeasurableAdd₂ G := ⟨measurable_of_finite _⟩
   obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, _, htau_min⟩ := tau_minimizer_exists p
   have hdist : d[X₁ # X₂] = 0 := tau_strictly_decreases _ _ p htau_min
-  obtain ⟨H, U, _, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
+  obtain ⟨H, U, hU, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
   refine ⟨H, Ω', inferInstance, U, hH_unif, ?_⟩
   have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
   rw [tau, tau, η] at h
@@ -46,8 +47,8 @@ theorem entropic_PFR_conjecture :
   have : d[U # X₁] = d[X₁ # U] := rdist_symm ..
   have : d[U # X₂] = d[X₂ # U] := rdist_symm ..
   have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm ..
-  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle ..
-  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle ..
+  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle _ _ _ p.hmeas1 hX₁ hU
+  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle _ _ _ p.hmeas2 hX₂ hU
   linarith
 
 theorem entropic_PFR_conjecture' :
@@ -57,8 +58,10 @@ theorem entropic_PFR_conjecture' :
   have : MeasurableSub₂ G := ⟨measurable_of_finite _⟩
   have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm ..
   peel entropic_PFR_conjecture Ω₀₁ Ω₀₂ p with hle H Ω mΩ U hU
-  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle ..
-  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle ..
+  have hU' : Measurable U := sorry
+  haveI : IsProbabilityMeasure (ℙ : Measure Ω) := sorry
+  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle ℙ ℙ ℙ p.hmeas1 p.hmeas2 hU'
+  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle ℙ ℙ ℙ p.hmeas2 p.hmeas1 hU'
   constructor
   · linarith
   · linarith
