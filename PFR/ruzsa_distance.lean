@@ -1,6 +1,6 @@
 import Mathlib.Probability.Notation
 import Mathlib.Probability.ConditionalProbability
-import Mathlib.Probability.IdentDiymmtrib
+import Mathlib.Probability.IdentDistrib
 import PFR.Entropy.KernelRuzsa
 import PFR.entropy_basic
 import PFR.ForMathlib.FiniteMeasureComponent
