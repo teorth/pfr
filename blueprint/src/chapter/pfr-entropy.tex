@@ -97,7 +97,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 \end{lemma}
 
 
-\begin{proof}\uses{distance-lower} Immediate from Lemma \ref{distance-lower}.
+\begin{proof}\uses{distance-lower}\leanok Immediate from Lemma \ref{distance-lower}.
 \end{proof}
 
 \begin{lemma}[Lower bound on conditional distances]\label{first-cond}
@@ -109,7 +109,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
   \end{align*}
 \end{lemma}
 
-\begin{proof}\uses{cond-distance-lower} Immediate from Lemma \ref{cond-distance-lower}.
+\begin{proof}\uses{cond-distance-lower}\leanok Immediate from Lemma \ref{cond-distance-lower}.
 \end{proof}
 
 \begin{lemma}[Upper bound on distance differences]\label{first-upper}\leanok
@@ -238,15 +238,15 @@ $$
 \end{lemma}
 
 \begin{proof}
-  \uses{first-estimate, second-estimate}
+  \uses{second-estimate}
 From the definitions of $I_1,I_2$ (and some entropy lemma to deal with the third term), we see that
 \[
   I_1 = I{U : V \, | \, S}, \qquad I_2 = I{W : U \, | \, S}, \qquad I_2 = I{V : W \, | \,S}.
 \]
-Applying Lemma \ref{first-estimate} and Lemma \ref{second-estimate} we have the inequalities
-\[   I_2 \leq 2 \eta k + \frac{2\eta(2 \eta k - I_1)}{1-\eta} .
+Applying Lemma \ref{second-estimate} we have the inequality
+\[   I_2 \leq 2 \eta k + \frac{2\eta(2 \eta k - I_1)}{1-\eta}.
 \]
-Summing these two inequalities gives
+We conclude that
 $$
    I_1 + I_2 + I_2 \leq I_1+4\eta k+ \frac{4\eta(2 \eta k - I_1)}{1-\eta}
 $$
@@ -356,7 +356,7 @@ $$
 \end{theorem}
 
 \begin{proof}
-  \uses{construct-good, cond-distance-lower, key-ident, uvw-s, total-dist, first-est}
+  \uses{construct-good, cond-distance-lower, key-ident, uvw-s, total-dist, first-estimate}
   We take contrapostives and assume that $X_1,X_2$ are tau-minimizers, and wish to show that $k := d[X_1;X_2]$ vanishes.  Applying Lemma \ref{construct-good} with any random variables $(T_1,T_2,T_3)$ such that $T_1+T_2+T_3=0$ holds identically, and applying Lemma \ref{cond-distance-lower} with $X'_1 = T'_1$, $X'_2 = T'_2$, we deduce that
 \[
   k \leq \delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_1;T_j] - d[X^0_i;X_i]) \biggr).

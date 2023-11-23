@@ -180,7 +180,7 @@ $$ d[X;Y] \leq d[X;Z] + d[Z;Y].$$
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
   \uses{ruz-dist-def}
   \lean{cond_rdist}\leanok
-If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Z$ are $G$-valued) we define
+If $(X, Z)$ and $(Y, W)$ are random variables (where $X$ and $Y$ are $G$-valued) we define
 $$ d[X  | Z; Y | W] := \sum_{z,w}  \bbP[Z=z]  \bbP[W=w] d[(X|Z=z); (Y|(W=w))].$$
 similarly
 $$ d[X; Y | W] := \sum_{w}  \bbP[W=w] d[X; (Y|(W=w))].$$
