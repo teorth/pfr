@@ -145,12 +145,15 @@ lemma strictConcaveOn_negIdMulLog : StrictConcaveOn ℝ (Set.Ici (0 : ℝ)) negI
   rw [negIdMulLog_eq_neg]
   exact strictConvexOn_id_mul_log.neg
 
+lemma sum_negIdMulLog_finset_le {S : Type*} {A : Finset S} {w : S → ℝ} {p : S → ℝ}
+    (h0 : ∀ s ∈ A, 0 ≤ w s) (h1 : ∑ s in A, w s = 1) (hmem : ∀ s ∈ A, 0 ≤ p s) :
+    ∑ s in A, (w s) * negIdMulLog (p s) ≤ negIdMulLog (∑ s in A, (w s) * (p s)) :=
+  ConcaveOn.le_map_sum concaveOn_negIdMulLog h0 h1 hmem
+
 lemma sum_negIdMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
     (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
-    ∑ s, (w s) * negIdMulLog (p s) ≤ negIdMulLog (∑ s, (w s) * (p s)) := by
-  refine ConcaveOn.le_map_sum concaveOn_negIdMulLog ?_ h1 ?_
-  · simp [h0]
-  · simp [hmem]
+    ∑ s, (w s) * negIdMulLog (p s) ≤ negIdMulLog (∑ s, (w s) * (p s)) :=
+  sum_negIdMulLog_finset_le (fun s _hs ↦ h0 s) h1 (fun s _hs ↦ hmem s)
 
 -- a form of equality case of Jensen
 lemma sum_negIdMulLog_eq_aux {w : S → ℝ} {p : S → ℝ} {U : Finset S}

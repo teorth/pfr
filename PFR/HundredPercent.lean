@@ -109,7 +109,7 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0) {x y : G}
 /-- If `d[X # X] = 0`, then `X - x₀` is the uniform distribution on the subgroup of `G`
 stabilizing the distribution of `X`, for any `x₀` of positive probability. -/
 lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X] = 0) {x₀ : G}
-    (hx₀ : ℙ (X⁻¹' {x₀}) ≠ 0) : isUniform (symmGroup X hX) (fun ω ↦ X ω - x₀) where
+    (hx₀ : ℙ (X⁻¹' {x₀}) ≠ 0) : IsUniform (symmGroup X hX) (fun ω ↦ X ω - x₀) where
   eq_of_mem := by
     have B c z : (fun ω ↦ X ω - c) ⁻¹' {z} = X ⁻¹' {c + z} := by
       ext w; simp [sub_eq_iff_eq_add']
@@ -124,7 +124,8 @@ lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X]
     intro x y hx hy
     have : - x ∈ symmGroup X hX := AddSubgroup.neg_mem (symmGroup X hX) hx
     rw [A x hx, A y hy]
-  zero_of_not_mem := by
+  measure_preimage_compl := by
+    apply (measure_preimage_eq_zero_iff_of_countable (Set.to_countable _)).2
     intro x hx
     contrapose! hx
     have B : (fun ω ↦ X ω - x₀) ⁻¹' {x} = X ⁻¹' {x₀ + x} := by
@@ -134,7 +135,7 @@ lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X]
 
 /-- If $d[X;X]=0$, then there exists a subgroup $H \leq G$ such that $d[X;U_H] = 0$. -/
 theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X # X] = 0) :
-    ∃ H : AddSubgroup G, ∃ U : Ω → G, Measurable U ∧ isUniform H U ∧ d[X # U] = 0 := by
+    ∃ H : AddSubgroup G, ∃ U : Ω → G, Measurable U ∧ IsUniform H U ∧ d[X # U] = 0 := by
   -- use for `U` a translate of `X` to make sure that `0` is in its support.
   obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X⁻¹' {x₀}) ≠ 0 := by
     by_contra' h
@@ -159,7 +160,7 @@ theorem exists_isUniform_of_rdist_eq_zero
     {Ω' : Type u} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')] {X' : Ω' → G}
     (hX : Measurable X) (hX' : Measurable X') (hdist : d[X # X'] = 0) :
     ∃ H : AddSubgroup G, ∃ U : Ω → G,
-      Measurable U ∧ isUniform H U ∧ d[X # U] = 0 ∧ d[X' # U] = 0 := by
+      Measurable U ∧ IsUniform H U ∧ d[X # U] = 0 ∧ d[X' # U] = 0 := by
   have h' : d[X # X] = 0 := by
     apply le_antisymm _ (rdist_nonneg hX hX)
     calc

@@ -34,7 +34,7 @@ theorem tau_strictly_decreases (h : tau_minimizes p X₁ X₂) : d[X₁ # X₂] 
 /-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$. -/
 theorem entropic_PFR_conjecture :
     ∃ H : AddSubgroup G, ∃ Ω : Type u, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
-    isUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 11 * d[p.X₀₁ # p.X₀₂] := by
+    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 11 * d[p.X₀₁ # p.X₀₂] := by
   have : MeasurableSub₂ G := ⟨measurable_of_finite _⟩
   have : MeasurableAdd₂ G := ⟨measurable_of_finite _⟩
   obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, _, htau_min⟩ := tau_minimizer_exists p
@@ -53,7 +53,7 @@ theorem entropic_PFR_conjecture :
 
 theorem entropic_PFR_conjecture' :
     ∃ H : AddSubgroup G, ∃ Ω : Type u, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
-    isUniform H U ∧ d[p.X₀₁ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] ∧
+    IsUniform H U ∧ d[p.X₀₁ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] ∧
       d[p.X₀₂ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] := by
   have : MeasurableSub₂ G := ⟨measurable_of_finite _⟩
   have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm ..
