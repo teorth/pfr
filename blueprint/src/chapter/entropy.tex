@@ -33,12 +33,12 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 \end{proof}
 
 \begin{definition}[Uniform distribution]\label{uniform-def}\leanok
-  \lean{ProbabilityTheory.isUniform} If $H$ is a subset of $S$, an $S$-random variable $X$ is said to be uniformly distributed on $H$ if $\bbP[X = s] = 1/|H|$ for $s \in X$ and $\bbP[X=s] = 0$ otherwise.
+  \lean{ProbabilityTheory.IsUniform} If $H$ is a subset of $S$, an $S$-random variable $X$ is said to be uniformly distributed on $H$ if $\bbP[X = s] = 1/|H|$ for $s \in X$ and $\bbP[X=s] = 0$ otherwise.
 \end{definition}
 
 \begin{lemma}[Uniform distributions exist]\label{unif-exist}
   \uses{uniform-def}
-  \lean{ProbabilityTheory.exists_uniform}\leanok
+  \lean{ProbabilityTheory.exists_isUniform, ProbabilityTheory.exists_isUniform_measureSpace}\leanok
   Given a finite non-empty subset $H$ of a set $S$, there exists a random variable $X$ (on some probability space) that is uniformly distributed on $H$.
 \end{lemma}
 
@@ -48,7 +48,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.entropy_eq_log_card}\leanok
+  \lean{IsUniform}.entropy_eq}\leanok
   If $X$ is $S$-valued random variable, then $\bbH[X] = \log |S|$ if and only if $X$ is uniformly distributed on $S$.
 \end{lemma}
 

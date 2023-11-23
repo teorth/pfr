@@ -362,7 +362,7 @@ $$
 \end{theorem}
 
 \begin{proof}
-  \uses{construct-good, cond-distance-lower, key-ident, uvw-s, total-dist, first-estimate}
+  \uses{construct-good, cond-distance-lower, key-ident, uvw-s, total-dist, first-estimate, eta-def}
   We take contrapostives and assume that $X_1,X_2$ are tau-minimizers, and wish to show that $k := d[X_1;X_2]$ vanishes.  Applying Lemma \ref{construct-good} with any random variables $(T_1,T_2,T_3)$ such that $T_1+T_2+T_3=0$ holds identically, and applying Lemma \ref{cond-distance-lower} with $X'_1 = T'_1$, $X'_2 = T'_2$, we deduce that
 \[
   k \leq \delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_1;T_j] - d[X^0_i;X_i]) \biggr).
