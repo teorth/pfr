@@ -52,7 +52,6 @@ theorem entropic_PFR_conjecture :
   have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm ..
   have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle _ _ _ p.hmeas1 hX₁ hU
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle _ _ _ p.hmeas2 hX₂ hU
-
   linarith
 
 theorem entropic_PFR_conjecture' :
