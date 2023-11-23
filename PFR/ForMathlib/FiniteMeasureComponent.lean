@@ -15,8 +15,6 @@ open scoped Topology ENNReal NNReal BoundedContinuousFunction
 
 section measure_of_component
 
-#check IsClopen
-
 lemma continuous_indicator_const {α β : Type*} [TopologicalSpace α]
     [Zero β] [TopologicalSpace β] {b : β} {s : Set α} (s_clopen : IsClopen s) :
     Continuous (indicator s (fun _ ↦ b)) := by
@@ -32,8 +30,6 @@ lemma continuous_indicator_const {α β : Type*} [TopologicalSpace α]
   · by_cases ht : 0 ∈ t
     · simp only [ht, ite_true, isOpen_compl_iff, s_clopen.isClosed]
     · simp only [ht, ite_false, isOpen_empty]
-
---#check IsolatedPoint -- Does not exist. What is the Mathlib-spelling?
 
 lemma continuous_indicator_singleton {α : Type*} [TopologicalSpace α] [T1Space α]
     {a : α} (ha : IsOpen {a}) :
@@ -74,7 +70,7 @@ noncomputable def indicatorBCF {α : Type*} [TopologicalSpace α]
                        dist_zero_left, norm_one, le_refl]
           · simp only [hx, hy, not_false_eq_true, indicator_of_not_mem, dist_self, zero_le_one]
 
-@[simp] lemma indicatorBCF_apply  {α : Type*} [TopologicalSpace α]
+@[simp] lemma indicatorBCF_apply {α : Type*} [TopologicalSpace α]
     {s : Set α} (s_clopen : IsClopen s) (x : α) :
     indicatorBCF s_clopen x = s.indicator (fun _ ↦ (1 : ℝ)) x := rfl
 
