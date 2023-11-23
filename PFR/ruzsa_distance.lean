@@ -24,6 +24,8 @@ Here we define Ruzsa distance and establish its basic properties.
 -/
 open MeasureTheory ProbabilityTheory
 
+universe u
+
 variable {Ω : Type u} {Ω' Ω'' Ω''' G T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
@@ -359,12 +361,10 @@ lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
     rw [entropy_sub_comm hY hZ]
 
 /-- The **entropic Ruzsa triangle inequality** -/
-lemma rdist_triangle {Ω Ω' Ω'' : Type u} {G : Type*}
-  [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
-  [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
-  [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
-  [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
-  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G]
+lemma rdist_triangle {Ω Ω' Ω'' : Type u}
+  [mΩ : MeasurableSpace Ω] (μ : Measure Ω)
+  [mΩ' : MeasurableSpace Ω'] (μ' : Measure Ω')
+  [mΩ'' : MeasurableSpace Ω''] (μ'' : Measure Ω'')
   {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
   (hX: Measurable X) (hY: Measurable Y) (hZ : Measurable Z) :
     d[X ; μ # Z ; μ''] ≤ d[X ; μ # Y ; μ'] + d[Y ; μ' # Z ; μ''] := by
@@ -625,8 +625,17 @@ lemma condDist_diff_le''' {Ω' : Type u} [MeasurableSpace Ω'] {μ' : Measure Ω
   linarith [condDist_diff_le'' μ hX hY hZ h, entropy_sub_entropy_eq_condDist_add μ hX hY hZ h]
 
 
-/--   Let $X, Y, Z, Z'$ be random variables taking values in some abelian group, and with $Y, Z, Z'$ independent. Then we have
-$$ d[X ; Y + Z | Y + Z + Z'] - d[X ; Y] $$
-$$ \leq \tfrac{1}{2} ( H[Y + Z + Z'] + H[Y + Z] - H[Y] - H[Z']).$$
--/
-lemma condDist_diff_ofsum_le (X : Ω → G) (Y : Ω' → G) (Z : Ω' → G) (Z' : Ω' → G) (h : iIndepFun ![hG, hG, hG] ![Y, Z, Z'] μ') : d[X ; μ # Y+Z | Y+Z+Z' ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+Z+Z' ; μ'] + H[Y+Z ; μ'] - H[Y ; μ'] - H[Z' ; μ'])/2 := by sorry
+variable (μ) in
+lemma condDist_diff_ofsum_le {Ω' : Type u} [MeasurableSpace Ω'] {μ' : Measure Ω'}
+    [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+    {X : Ω → G} {Y Z Z' : Ω' → G}
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (hZ' : Measurable Z')
+    (h : iIndepFun (fun _ ↦ hG) ![Y, Z, Z'] μ') :
+    d[X ; μ # Y+Z | Y + Z + Z'; μ'] - d[X; μ # Y; μ'] ≤
+    (H[Y + Z + Z'; μ'] + H[Y + Z; μ'] - H[Y ; μ'] - H[Z' ; μ'])/2 := by
+  have hadd : IndepFun (Y + Z) Z' μ' :=
+  (h.add (Fin.cases hY <| Fin.cases hZ <| Fin.cases hZ' Fin.rec0) 0 1 2
+  (show 0 ≠ 2 by decide) (show 1 ≠ 2 by decide))
+  have h1 := condDist_diff_le'' μ hX (show Measurable (Y + Z) by measurability) hZ' hadd
+  have h2 := condDist_diff_le μ hX hY hZ (h.indepFun (show 0 ≠ 1 by decide))
+  linarith [h1, h2]
