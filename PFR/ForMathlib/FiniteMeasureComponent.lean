@@ -15,8 +15,6 @@ open scoped Topology ENNReal NNReal BoundedContinuousFunction
 
 section measure_of_component
 
-#check IsClopen
-
 lemma continuous_indicator_const {α β : Type*} [TopologicalSpace α]
     [Zero β] [TopologicalSpace β] {b : β} {s : Set α} (s_clopen : IsClopen s) :
     Continuous (indicator s (fun _ ↦ b)) := by
@@ -33,8 +31,6 @@ lemma continuous_indicator_const {α β : Type*} [TopologicalSpace α]
     · simp only [ht, ite_true, isOpen_compl_iff, s_clopen.isClosed]
     · simp only [ht, ite_false, isOpen_empty]
 
---#check IsolatedPoint -- Does not exist. What is the Mathlib-spelling?
-
 lemma continuous_indicator_singleton {α : Type*} [TopologicalSpace α] [T1Space α]
     {a : α} (ha : IsOpen {a}) :
     Continuous (indicator {a} (fun _ ↦ (1 : ℝ≥0))) :=
@@ -45,16 +41,16 @@ lemma continuous_integral_finiteMeasure
     Continuous (fun (μ : FiniteMeasure α) ↦ ∫ x, f x ∂μ) := by
   apply continuous_iff_continuousAt.mpr
   intro μ
-  apply continuousAt_of_tendsto_nhds
-  exact FiniteMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f
+  exact continuousAt_of_tendsto_nhds
+    (FiniteMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f)
 
 lemma continuous_integral_probabilityMeasure
     {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α] (f : α →ᵇ ℝ) :
     Continuous (fun (μ : ProbabilityMeasure α) ↦ ∫ x, f x ∂μ) := by
   apply continuous_iff_continuousAt.mpr
   intro μ
-  apply continuousAt_of_tendsto_nhds
-  exact ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f
+  exact  continuousAt_of_tendsto_nhds
+    (ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f)
 
 noncomputable def indicatorBCF {α : Type*} [TopologicalSpace α]
     {s : Set α} (s_clopen : IsClopen s) :
@@ -74,7 +70,7 @@ noncomputable def indicatorBCF {α : Type*} [TopologicalSpace α]
                        dist_zero_left, norm_one, le_refl]
           · simp only [hx, hy, not_false_eq_true, indicator_of_not_mem, dist_self, zero_le_one]
 
-@[simp] lemma indicatorBCF_apply  {α : Type*} [TopologicalSpace α]
+@[simp] lemma indicatorBCF_apply {α : Type*} [TopologicalSpace α]
     {s : Set α} (s_clopen : IsClopen s) (x : α) :
     indicatorBCF s_clopen x = s.indicator (fun _ ↦ (1 : ℝ)) x := rfl
 

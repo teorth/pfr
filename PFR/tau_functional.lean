@@ -47,7 +47,7 @@ variable {Ω₁ Ω₂ Ω'₁ Ω'₂ : Type*}
 noncomputable def η := (9:ℝ)⁻¹
 
 /-- If $X_1,X_2$ are two $G$-valued random variables, then
-$$  \tau[X_1; X_2] \coloneqq d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
+$$  \tau[X_1; X_2] := d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
 Here, $X^0_1$ and $X^0_2$ are two random variables fixed once and for all in most of the argument.
 To lighten notation, We package `X^0_1` and `X^0_2` in a single object named `p`.
 
@@ -164,9 +164,8 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁)
   simp [tau] at Z
   linarith
 
-/--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
-$$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z]
-  - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
+/--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower bound $d[X'_1|Z;X'_2|W]$ by
+$$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
 lemma condDistance_ge_of_min
     [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]

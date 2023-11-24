@@ -1,5 +1,5 @@
 import Mathlib.Probability.Independence.Basic
-import PFR.entropy_basic
+import PFR.Entropy.Basic
 import PFR.ruzsa_distance
 
 /-!

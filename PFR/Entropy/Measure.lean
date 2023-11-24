@@ -550,6 +550,7 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
     congr!
     field_simp
 
+/-- It should be possible to remove the requirement here that μ is a probability measure by a case analysis. -/
 lemma measureMutualInfo_nonneg (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
     0 ≤ Im[μ] :=
   (measureMutualInfo_nonneg_aux μ).1

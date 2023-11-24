@@ -1,10 +1,12 @@
 import Mathlib.Probability.Notation
 import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
+import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import PFR.Entropy.KernelRuzsa
-import PFR.entropy_basic
+import PFR.Entropy.Basic
 import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.f2_vec
+import PFR.ProbabilityMeasureProdCont
 
 
 /-!
@@ -212,10 +214,11 @@ lemma continuous_rdist_restrict_probabilityMeasure
   simp [rdist_def]
   have obs₀ : Continuous (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦
       H[fun x ↦ x.1 - x.2 ; μ.1.toMeasure.prod μ.2.toMeasure]) := by
-    -- Requires:
-    -- (1) Some API about (continuity of) products of probability measures.
-    -- (2) Continuity of mapping probability measures: `ProbabilityMeasure.continuous_map`.
-    sorry
+    simp_rw [entropy_def]
+    have diff_cts : Continuous (fun (x : G × G) ↦ x.1 - x.2) := by continuity
+    have key₁ := ProbabilityMeasure.continuous_prod_of_fintype (α := G) (β := G)
+    have key₂ := ProbabilityMeasure.continuous_map diff_cts
+    convert continuous_measureEntropy_probabilityMeasure.comp (key₂.comp key₁)
   have obs₁ : Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ H[ id ; μ.1.toMeasure ]) := by
     convert (continuous_measureEntropy_probabilityMeasure (Ω := G)).comp continuous_fst
@@ -419,6 +422,28 @@ notation3:max "d[" X " ; " μ " # " Y " | " W " ; " μ' "]" => cond_rdist' X Y W
 @[inherit_doc cond_rdist']
 notation3:max "d[" X " # " Y " | " W "]" => cond_rdist' X Y W volume volume
 
+lemma cond_rdist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) (μ' : Measure Ω') :
+    d[X ; μ # Y | W ; μ'] =
+      dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] := rfl
+
+lemma cond_rdist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    d[X|(fun _ => c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
+  have hcX : Measurable (fun ω => (c, X ω)) := by simp [measurable_prod, hX]
+  have hc : MeasurableSet (Prod.fst ⁻¹' {c} : Set (S × G)) := measurable_fst (by simp)
+  rw [cond_rdist_def, cond_rdist'_def, Measure.map_const,measure_univ,one_smul, kernel.rdist,
+    kernel.rdist, integral_prod,integral_dirac,integral_prod,integral_dirac]
+  dsimp; congr; ext x; congr
+  rw [condEntropyKernel, kernel.comap_apply, kernel.condKernel_apply_of_ne_zero _ _ _]
+  ext s hs
+  rw [Measure.map_apply measurable_snd hs, kernel.const_apply, kernel.const_apply, cond_apply _ hc,
+    Measure.map_apply hcX hc, Measure.map_apply hcX (hc.inter (measurable_snd hs)),
+    Set.preimage_preimage, Set.preimage_inter, Set.preimage_preimage, Set.preimage_preimage,
+    Set.preimage_const_of_mem (by rfl), measure_univ, inv_one, one_mul, Set.univ_inter,
+    Measure.map_apply hX hs]
+  rw [kernel.const_apply,Measure.map_apply hcX hc,Set.preimage_preimage]
+  all_goals simp
+
 lemma condKernel_eq_prod_of_indepFun {X : Ω → G} {Z : Ω → S} {Y : Ω → G} {W : Ω → T}
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
     (μ : Measure Ω) [IsProbabilityMeasure μ]
@@ -568,22 +593,6 @@ lemma ent_bsg : 0 = 1 := by sorry
 
 end BalogSzemerediGowers
 
--- TODO: move this somewhere where it belongs & figure out right assumptions
-protected lemma ProbabilityTheory.IdentDistrib.fst {X : Ω → Ω''} {Y : Ω → Ω'''} {X' : Ω' → Ω''} {Y' : Ω' → Ω'''}
-    (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y')
-    (h : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') : IdentDistrib X X' μ μ' := by
-  refine' ⟨hX.aemeasurable,hX'.aemeasurable,_⟩
-  rw [←Measure.fst_map_prod_mk hY,show (fun a => (X a, Y a)) = ⟨X, Y⟩ by rfl,h.3,
-    Measure.fst_map_prod_mk hY']
-
--- TODO: move this somewhere where it belongs & figure out right assumptions
-protected lemma ProbabilityTheory.IdentDistrib.snd {X : Ω → Ω''} {Y : Ω → Ω'''} {X' : Ω' → Ω''} {Y' : Ω' → Ω'''}
-    (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y')
-    (h : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') : IdentDistrib Y Y' μ μ' := by
-  refine' ⟨hY.aemeasurable, hY'.aemeasurable, _⟩
-  rw [←Measure.snd_map_prod_mk hX,show (fun a => (X a, Y a)) = ⟨X, Y⟩ by rfl,h.3,
-    Measure.snd_map_prod_mk hX']
-
 variable (μ μ') in
 /--   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
 $$   d[X  | Z ; Y | W] \leq d[X ; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W].$$
@@ -607,13 +616,10 @@ lemma condDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω'
   rw [show XZ' = ⟨X', Z'⟩ by rfl] at hIdXZ hind
   rw [show YW' = ⟨Y', W'⟩ by rfl] at hIdYW hind
   rw [←cond_rdist_of_copy hIdXZ hIdYW, cond_rdist_of_indep hX' hZ' hY' hW' _ hind]
-  have hIdX : IdentDistrib X X' μ ν := (hIdXZ.symm.fst) hX hZ hX' hZ'
-  have hIdZ : IdentDistrib Z Z' μ ν := (hIdXZ.symm.snd) hX hZ hX' hZ'
-  have hIdY : IdentDistrib Y Y' μ' ν := (hIdYW.symm.fst) hY hW hY' hW'
-  have hIdW : IdentDistrib W W' μ' ν := (hIdYW.symm.snd) hY hW hY' hW'
-  rw [IdentDistrib.rdist_eq (X := X) (Y := Y) (X' := X') (Y' := Y') (μ'' := ν) (μ''' := ν) hIdX hIdY]
-  rw [hIdX.mutualInformation_eq hIdZ hIdXZ.symm]
-  rw [hIdY.mutualInformation_eq hIdW hIdYW.symm]
+  have hIdX : IdentDistrib X X' μ ν := hIdXZ.symm.comp measurable_fst
+  have hIdY : IdentDistrib Y Y' μ' ν := hIdYW.symm.comp measurable_fst
+  rw [IdentDistrib.rdist_eq (μ'' := ν) (μ''' := ν) hIdX hIdY]
+  rw [hIdXZ.symm.mutualInformation_eq, hIdYW.symm.mutualInformation_eq]
   rw [IndepFun.rdist_eq hind' hX' hY',
   mutualInformation_eq_entropy_sub_condEntropy hX' hZ',
   mutualInformation_eq_entropy_sub_condEntropy hY' hW']
@@ -624,8 +630,10 @@ variable (μ μ') in
 lemma condDist_le' [Fintype T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) :
-    d[X ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[Y : W ; μ']/2 := by sorry
-
+    d[X ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[Y : W ; μ']/2 := by
+  rw [←cond_rdist_of_const hX _ _ (0 : Fin 1)]
+  refine' (condDist_le μ μ' hX measurable_const hY hW).trans _
+  simp [mutualInformation_const hX (0 : Fin 1)]
 
 variable (μ) in
 lemma comparison_of_ruzsa_distances
