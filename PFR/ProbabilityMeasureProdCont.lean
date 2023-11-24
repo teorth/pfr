@@ -56,4 +56,24 @@ lemma ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto
   have obs_νs := ((continuous_pmf_apply ab.2).continuousAt (x := ν)).tendsto.comp νs_lim
   exact tendsto_mul.comp (Tendsto.prod_mk_nhds obs_μs obs_νs)
 
+-- TODO: Prove more generally in Mathlib.
+instance t1Space_probabilityMeasure_of_fintype {α : Type*}
+    [Fintype α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α] [BorelSpace α] :
+    T1Space (ProbabilityMeasure α) :=
+  Homeomorph.t1Space (homeomorph_probabilityMeasure_stdSimplex α).symm
+
+/-- The product of two probability measures on finite spaces depend continuously on the two
+probability measures.
+TODO: In Mathlib, this should be done on all separable metrizable spaces. -/
+lemma ProbabilityMeasure.continuous_prod_of_fintype {α β : Type*}
+    [Fintype α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α] [BorelSpace α]
+    [Fintype β] [TopologicalSpace β] [DiscreteTopology β] [MeasurableSpace β] [BorelSpace β] :
+    Continuous (fun (⟨μ, ν⟩ : ProbabilityMeasure α × ProbabilityMeasure β) ↦ (μ.prod ν)) := by
+  rw [continuous_iff_continuousAt]
+  intro μν
+  apply continuousAt_of_tendsto_nhds (y := μν.1.prod μν.2)
+  apply ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto
+  · apply continuous_fst.tendsto
+  · apply continuous_snd.tendsto
+
 end MeasureTheory -- namespace
