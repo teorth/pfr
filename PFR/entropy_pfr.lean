@@ -37,7 +37,7 @@ theorem tau_strictly_decreases (h : tau_minimizes p X₁ X₂) : d[X₁ # X₂] 
 theorem entropic_PFR_conjecture :
     ∃ H : AddSubgroup G, ∃ Ω : Type u, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
-    isUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 11 * d[p.X₀₁ # p.X₀₂] := by
+    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 11 * d[p.X₀₁ # p.X₀₂] := by
   have : MeasurableSub₂ G := ⟨measurable_of_finite _⟩
   have : MeasurableAdd₂ G := ⟨measurable_of_finite _⟩
   obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, _, htau_min⟩ := tau_minimizer_exists p
