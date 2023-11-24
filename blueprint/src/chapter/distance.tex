@@ -197,7 +197,7 @@ $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def} Straightforward thanks to Lemma \ref{copy-ent}, Lemma \ref{ruz-copy}, Lemma \ref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
 \end{proof}
 
-\begin{lemma}[Kaimonovich-Vershik inequality]\label{kv}
+\begin{lemma}[Kaimonovich-Vershik-Madiman inequality]\label{kv}
   \lean{kaimonovich_vershik}\leanok
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
@@ -260,7 +260,7 @@ $3 \bbI[A:B] + 2\bbH[Z]-\bbH[A]-\bbH[B]$ as claimed.
 \end{proof}
 
 
-\begin{lemma}\label{cond-dist-fact}
+\begin{lemma}[Upper bound on conditioned Ruzsa distance]\label{cond-dist-fact}
   \uses{cond-dist-def, information-def}
   \lean{condDist_le, condDist_le'}\leanok
   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then

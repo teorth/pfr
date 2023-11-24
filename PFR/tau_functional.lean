@@ -2,6 +2,8 @@
 import PFR.f2_vec
 import PFR.ruzsa_distance
 import PFR.ForMathlib.CompactProb
+import PFR.ForMathlib.BorelSpace
+
 
 /-!
 # The tau functional
@@ -45,7 +47,7 @@ variable {Ω₁ Ω₂ Ω'₁ Ω'₂ : Type*}
 noncomputable def η := (9:ℝ)⁻¹
 
 /-- If $X_1,X_2$ are two $G$-valued random variables, then
-$$  \tau[X_1; X_2] \coloneqq d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
+$$  \tau[X_1; X_2] := d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
 Here, $X^0_1$ and $X^0_2$ are two random variables fixed once and for all in most of the argument.
 To lighten notation, We package `X^0_1` and `X^0_2` in a single object named `p`.
 
@@ -94,13 +96,13 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
   ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
-lemma tau_min_exists_measure : ∃ (μ : Measure G × Measure G),
+lemma tau_min_exists_measure [MeasurableSingletonClass G] :
+    ∃ (μ : Measure G × Measure G),
     IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
     ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[id ; μ.1 # id ; μ.2 | p] ≤ τ[id ; ν₁ # id ; ν₂ | p] := by
-  haveI : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
-  haveI : DiscreteTopology G := by sorry -- Why not `rfl`?
-  haveI : BorelSpace G := by sorry -- I think `[MeasurableSingletonClass G]` hypothesis is needed.
+  let _i : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
+  have : DiscreteTopology G := ⟨rfl⟩
   have GG_cpt : CompactSpace (ProbabilityMeasure G × ProbabilityMeasure G) := inferInstance
   let T : ProbabilityMeasure G × ProbabilityMeasure G → ℝ := -- restrict τ to the compact subspace
     fun ⟨μ₁, μ₂⟩ ↦ τ[id ; μ₁ # id ; μ₂ | p]
@@ -111,11 +113,12 @@ lemma tau_min_exists_measure : ∃ (μ : Measure G × Measure G),
   use ⟨μ.1.toMeasure, μ.2.toMeasure⟩
   refine ⟨μ.1.prop, μ.2.prop, ?_⟩
   intro ν₁ ν₂ Pν₁ Pν₂
-  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ⟨ν₂, Pν₂⟩⟩
   rw [isMinOn_univ_iff] at hμ
+  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ⟨ν₂, Pν₂⟩⟩
   exact hμ ν
 
-lemma tau_minimizer_exists : ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+lemma tau_minimizer_exists [MeasurableSingletonClass G] :
+    ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
     Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
     tau_minimizes p X₁ X₂ := by
   let μ := (tau_min_exists_measure p).choose
@@ -161,9 +164,8 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁)
   simp [tau] at Z
   linarith
 
-/--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
-$$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z]
-  - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
+/--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower bound $d[X'_1|Z;X'_2|W]$ by
+$$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
 lemma condDistance_ge_of_min
     [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]

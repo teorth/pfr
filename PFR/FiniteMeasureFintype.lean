@@ -1,9 +1,8 @@
 import Mathlib.MeasureTheory.Measure.Portmanteau
 import Mathlib.MeasureTheory.Measure.Count
 import Mathlib.Tactic
+import PFR.Entropy.Basic
 import PFR.ForMathlib.FiniteMeasureComponent
-import PFR.entropy_basic
-import Mathlib
 
 open MeasureTheory Topology Metric Filter Set ENNReal NNReal Real
 

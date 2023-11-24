@@ -1,5 +1,5 @@
 import PFR.endgame
-import PFR.entropy_basic
+import PFR.Entropy.Basic
 import PFR.Entropy.Disintegration
 import PFR.Entropy.Kernel
 import PFR.Entropy.KernelMutualInformation
