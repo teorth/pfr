@@ -33,22 +33,22 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 \end{proof}
 
 \begin{definition}[Uniform distribution]\label{uniform-def}\leanok
-  \lean{ProbabilityTheory.isUniform} If $H$ is a subset of $S$, an $S$-random variable $X$ is said to be uniformly distributed on $H$ if $\bbP[X = s] = 1/|H|$ for $s \in X$ and $\bbP[X=s] = 0$ otherwise.
+  \lean{ProbabilityTheory.IsUniform} If $H$ is a subset of $S$, an $S$-random variable $X$ is said to be uniformly distributed on $H$ if $\bbP[X = s] = 1/|H|$ for $s \in X$ and $\bbP[X=s] = 0$ otherwise.
 \end{definition}
 
 \begin{lemma}[Uniform distributions exist]\label{unif-exist}
   \uses{uniform-def}
-  \lean{ProbabilityTheory.exists_uniform}\leanok
+  \lean{ProbabilityTheory.exists_isUniform, ProbabilityTheory.exists_isUniform_measureSpace}\leanok
   Given a finite non-empty subset $H$ of a set $S$, there exists a random variable $X$ (on some probability space) that is uniformly distributed on $H$.
 \end{lemma}
 
-\begin{proof} Direct construction.
+\begin{proof}\leanok Direct construction.
 \end{proof}
 
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.entropy_eq_log_card}\leanok
+  \lean{IsUniform.entropy_eq}\leanok
   If $X$ is $S$-valued random variable, then $\bbH[X] = \log |S|$ if and only if $X$ is uniformly distributed on $S$.
 \end{lemma}
 
@@ -290,7 +290,7 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
 
 \begin{definition}[Conditionally independent random variables]
 \label{conditional-independent-def}
-\lean{ProbabilityTheory.condIndepFun} \leanok
+\lean{ProbabilityTheory.condIndepFun}\leanok
   Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are conditionally independent relative to another random variable $Z: \Omega \to U$ if $P[ X = s \wedge Y = t| Z=u] = P[X=s|Z=u] P[Y=t|Z=u]$ for all $s \in S, t \in T, u \in U$.  (We won't need conditional independence for more variables than this.)
 \end{definition}
 
@@ -300,7 +300,7 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
   If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
 \end{lemma}
 
-\begin{proof} \uses{conditional-nonneg}\leanok Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.
+\begin{proof} \uses{vanish-entropy, conditional-independent-def} Immediate from Lemma \ref{vanish-entropy} and Definition \ref{conditional-independent-def}.
 \end{proof}
 
 \begin{corollary}[Entropy of conditionally independent variables]\label{cond-trial-ent}
@@ -309,5 +309,5 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
   $$ \bbH[X,Y,Z] =\bbH[X,Z] + \bbH[Y,Z] - \bbH[Z].$$
 \end{corollary}
 
-\begin{proof} \uses{vanish-entropy, conditional-mutual-alt}\leanok Immediate from Lemma \ref{vanish-entropy} and Lemma \ref{conditional-mutual-alt}.
+\begin{proof} \uses{conditional-vanish, conditional-mutual-alt}\leanok Immediate from Lemma \ref{conditional-vanish} and Lemma \ref{conditional-mutual-alt}.
 \end{proof}

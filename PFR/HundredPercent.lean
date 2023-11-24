@@ -1,4 +1,4 @@
-import PFR.entropy_basic
+import PFR.Entropy.Basic
 import PFR.ruzsa_distance
 
 /-!

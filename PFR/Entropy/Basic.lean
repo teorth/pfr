@@ -135,6 +135,10 @@ lemma entropy_comp_of_injective
   rw [entropy_def, ← Measure.map_map hf_m hX, measureEntropy_map_of_injective _ _ hf,
     entropy_def]
 
+/-- The entropy of any constant is zero. -/
+@[simp] lemma entropy_const [IsProbabilityMeasure μ] (c : S) : H[(fun _ => c) ; μ] = 0 := by
+  simp [entropy,MeasureTheory.Measure.map_const]
+
 attribute [-instance] Fintype.instMeasurableSpace in
 @[simp] lemma entropy_add_const {G : Type*} [AddGroup G] [Fintype G] [MeasurableSpace G]
     [MeasurableSingletonClass G]
@@ -153,17 +157,48 @@ structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac
 
 open Set
 
+attribute [-instance] Fintype.instMeasurableSpace in
 /-- Uniform distributions exist.   -/
-lemma exists_isUniform (H : Finset S) (h: H.Nonempty) :
-  ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
-  IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by sorry
+lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
+    ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
+    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by
+  refine ⟨H, Subtype.instMeasurableSpace, (fun x ↦ x),
+      (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, Measure.dirac i, ?_, measurable_subtype_coe, ?_, fun x ↦ x.2⟩
+  · constructor
+    simp only [Finset.univ_eq_attach, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
+      Measure.coe_finset_sum, Pi.smul_apply, Finset.sum_apply, MeasurableSet.univ,
+      Measure.dirac_apply', mem_univ, indicator_of_mem, Pi.one_apply, Finset.sum_const,
+      Finset.card_attach, nsmul_eq_mul, mul_one, smul_eq_mul]
+    rw [ENNReal.inv_mul_cancel]
+    · simpa using h.ne_empty
+    · simp
+  · constructor
+    · intro x y hx hy
+      simp only [Finset.univ_eq_attach, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
+        Measure.coe_finset_sum, Pi.smul_apply, Finset.sum_apply, mem_preimage, mem_singleton_iff,
+        Measure.dirac_apply, smul_eq_mul]
+      rw [Finset.sum_eq_single ⟨x, hx⟩, Finset.sum_eq_single ⟨y, hy⟩]
+      · simp
+      · rintro ⟨b, bH⟩ _hb h'b
+        simp only [ne_eq, Subtype.mk.injEq] at h'b
+        simp [h'b]
+      · simp
+      · rintro ⟨b, bH⟩ _hb h'b
+        simp only [ne_eq, Subtype.mk.injEq] at h'b
+        simp [h'b]
+      · simp
+    · simp
 
 /-- Uniform distributions exist, version within a fintype and giving a measure space  -/
 lemma exists_isUniform_measureSpace
-    {S : Type u} [Fintype S] (H : Set S) (h: H.Nonempty) :
+    {S : Type u} [Fintype S] (H : Set S) (h : H.Nonempty) :
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ ∀ ω : Ω, U ω ∈ H := by
-  sorry
+  let H' : Finset S := H.toFinite.toFinset
+  have : H'.Nonempty := by simpa using h
+  rcases exists_isUniform H' (by simpa using h) with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem⟩
+  simp only [Finite.coe_toFinset, Finite.mem_toFinset] at Xunif Xmem
+  exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem⟩
 
 lemma IsUniform.ae_mem {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) :
     ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
@@ -241,7 +276,7 @@ lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) :
-  ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- entropy X μ)).toNNReal := by sorry
+  ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by sorry
 
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
@@ -270,6 +305,10 @@ lemma entropy_add_right {Y : Ω → S}
     H[⟨ X, X + Y ⟩; μ] = H[⟨ X, Y ⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.addLeft ∘ ⟨ X, Y ⟩ ; μ] = H[⟨ X, Y ⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
+
+@[simp] lemma entropy_prod_comp (hX : Measurable X) (μ : Measure Ω) (f : S → T) :
+    H[⟨ X, f ∘ X ⟩; μ] = H[X ; μ] :=
+  entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) (fun _ _ ab ↦ (Prod.ext_iff.1 ab).1)
 
 end entropy
 
@@ -461,6 +500,11 @@ lemma condEntropy_of_inj_map' [MeasurableSingletonClass S] (μ : Measure Ω) [Is
       exact condEntropy_comp_of_injective μ hY f hf
     exact entropy_comp_of_injective μ hY f hf
 
+lemma condEntropy_comp_self [IsProbabilityMeasure μ]
+  (hX : Measurable X) {f : S → U} (hf : Measurable f) :
+    H[X| f ∘ X; μ] = H[X; μ] - H[f ∘ X; μ] := by
+  rw [chain_rule'' μ hX (hf.comp hX), entropy_prod_comp hX _ f]
+
 /--   If $X: \Omega \to S$, $Y: \Omega \to T$,$Z: \Omega \to U$ are random variables, then
 $$ H[  X,Y | Z ] = H[X | Z] + H[Y|X, Z].$$ -/
 lemma cond_chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ]
@@ -557,10 +601,12 @@ lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingleton
   rw [h_fst, h_snd]
   exact measureMutualInfo_nonneg _
 
-/-- Substituting variables for ones with the same distributions doesn't change the entropy. -/
+/-- Substituting variables for ones with the same distributions doesn't change the mutual information. -/
 lemma IdentDistrib.mutualInformation_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
-    {X' : Ω' → S} {Y' : Ω' → T} (hX : IdentDistrib X X' μ μ') (hY : IdentDistrib Y Y' μ μ')
-      (hXY : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') : I[X : Y ; μ] = I[X' : Y' ; μ'] := by
+    {X' : Ω' → S} {Y' : Ω' → T} (hXY : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') :
+      I[X : Y ; μ] = I[X' : Y' ; μ'] := by
+  have hX : IdentDistrib X X' μ μ' := hXY.comp measurable_fst
+  have hY : IdentDistrib Y Y' μ μ' := hXY.comp measurable_snd
   simp_rw [mutualInformation_def,hX.entropy_eq,hY.entropy_eq,hXY.entropy_eq]
 
 /-- Subadditivity of entropy. -/
@@ -591,6 +637,19 @@ lemma mutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Me
   · simp
   · exact Measure.map_map measurable_fst (hX.prod_mk hY)
   · exact Measure.map_map measurable_snd (hX.prod_mk hY)
+
+/-- Random variables are always independent of constants. -/
+lemma indepFun_const [IsProbabilityMeasure μ] (c : T) :
+    IndepFun X (fun _ => c) μ := by
+  rw [IndepFun_iff,MeasurableSpace.comap_const]
+  intro t₁ t₂ _ ht₂
+  rcases MeasurableSpace.measurableSet_bot_iff.mp ht₂ with h | h
+  all_goals simp [h]
+
+/-- The mutual information with a constant is always zero. -/
+lemma mutualInformation_const (hX : Measurable X) (c : T) {μ : Measure Ω} [IsProbabilityMeasure μ] :
+    I[X : (fun _ => c) ; μ] = 0 := by
+  exact (mutualInformation_eq_zero hX measurable_const).mpr (indepFun_const c)
 
 lemma IndepFun.condEntropy_eq_entropy {μ : Measure Ω} (h : IndepFun X Y μ)
     (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ]  :
@@ -738,7 +797,9 @@ lemma entropy_triple_add_entropy_le
 variable {μ : Measure Ω}
 
 /-- The assertion that X and Y are conditionally independent relative to Z.  -/
-def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := sorry
+def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := ∀ᵐ z ∂ (μ.map Z),  IndepFun X Y (μ[|Z ⁻¹' {z}])
+
+lemma condIndepFun_iff (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : condIndepFun X Y Z μ ↔ ∀ᵐ z ∂ (μ.map Z),  IndepFun X Y (μ[|Z ⁻¹' {z}]) := by rfl
 
 /-- $I[X:Y|Z]=0$ iff $X,Y$ are conditionally independent over $Z$. -/
 lemma condMutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
