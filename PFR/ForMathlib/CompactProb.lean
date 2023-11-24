@@ -94,6 +94,16 @@ lemma continuous_pmf_apply (i : X) :
              ENNReal.toReal_nonneg, max_eq_left]
   rfl
 
+-- KK: I will reuse this, so could be used in `homeomorph_probabilityMeasure_stdSimplex`, too.
+open Filter in
+lemma tendsto_lintegral_of_forall_of_fintype {ι : Type*} {L : Filter ι}
+    (μs : ι → Measure X) [∀ i, IsFiniteMeasure (μs i)] (μ : Measure X) [IsFiniteMeasure μ]
+    (f : X →ᵇ ℝ≥0) (h : ∀ (x : X), Tendsto (fun i ↦ μs i {x}) L (𝓝 (μ {x}))) :
+    Tendsto (fun i ↦ ∫⁻ x, f x ∂(μs i)) L (𝓝 (∫⁻ x, f x ∂μ)) := by
+  simp only [lintegral_fintype]
+  refine tendsto_finset_sum Finset.univ ?_
+  exact fun x _ ↦ ENNReal.Tendsto.const_mul (h x) (Or.inr ENNReal.coe_ne_top)
+
 variable (X)
 
 noncomputable def homeomorph_probabilityMeasure_stdSimplex
