@@ -291,9 +291,9 @@ lemma entropy_comm
   exact (entropy_comp_of_injective μ (hX.prod_mk hY) Prod.swap Prod.swap_injective).symm
 
 /-- $H[(X,Y),Z] = H[X,(Y,Z)]$. -/
-lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
-    H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by
+lemma entropy_assoc [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+  [MeasurableSingletonClass U] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+  (μ : Measure Ω) : H[⟨ X, ⟨ Y, Z ⟩ ⟩; μ] = H[⟨ ⟨X, Y⟩ , Z ⟩ ; μ] := by
   change H[⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ] = H[(Equiv.prodAssoc _ _ _).symm ∘ ⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk (hY.prod_mk hZ)) _
     (Equiv.prodAssoc S T U).symm.injective |>.symm
@@ -415,7 +415,8 @@ lemma condEntropy_eq_sum_prod [MeasurableSingletonClass T] (hX : Measurable X) (
   have h_prod : (Finset.univ : Finset (S × T)) = (Finset.univ : Finset S) ×ˢ Finset.univ := rfl
   rw [condEntropy_eq_sum_sum hX Y, h_prod, Finset.sum_product_right]
 
-/-- If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, and $f: T \times S → U$ is injective for each fixed $t \in T$, then $H[f(Y,X)|Y] = H[X|Y]$.  Thus for instance $H[X-Y|Y]=H[X|Y]$.-/
+/-- If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, and $f: T \times S → U$ is injective
+  for each fixed $t \in T$, then $H[f(Y,X)|Y] = H[X|Y]$.  Thus for instance $H[X-Y|Y]=H[X|Y]$.-/
 lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     [MeasurableSingletonClass U]
     (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
@@ -483,12 +484,15 @@ lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
   rw [entropy_comm hX hY, chain_rule' μ hY hX]
 
 /-- Another form of the chain rule: $H[X|Y] = H[X,Y] - H[Y]. -/
-lemma chain_rule'' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) : H[X|Y;μ] = H[⟨ X, Y ⟩; μ] - H[Y ; μ] := by
+lemma chain_rule'' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) :
+  H[X|Y;μ] = H[⟨ X, Y ⟩; μ] - H[Y ; μ] := by
   rw [chain_rule μ hX hY, add_sub_cancel']
 
 /-- If $X: \Omega \to S$ and $Y: \Omega \to T$ are random variables, and $f: T \to U$ is an injection then $H[X|f(Y)] = H[X|Y]$.
  -/
-lemma condEntropy_of_inj_map' [MeasurableSingletonClass S] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Function.Injective f) (hfY : Measurable (f ∘ Y)):
+lemma condEntropy_of_inj_map' [MeasurableSingletonClass S] (μ : Measure Ω) [IsProbabilityMeasure μ]
+  (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Function.Injective f)
+  (hfY : Measurable (f ∘ Y)):
     H[X | f ∘ Y ; μ] = H[X | Y ; μ] := by
     rw [chain_rule'' μ hX hY, chain_rule'' μ hX hfY, chain_rule' μ hX hY, chain_rule' μ hX hfY]
     congr 1
@@ -537,7 +541,9 @@ lemma entropy_comp_le
   simp only [le_add_iff_nonneg_right]
   exact condEntropy_nonneg X (f ∘ X) μ
 
-/-- A Schroder-Bernstein type theorem for entropy: if two random variables are functions of each other, then they have the same entropy.  Can be used as a substitute for `entropy_comp_of_injective` if one doesn't want to establish the injectivity. -/
+/-- A Schroder-Bernstein type theorem for entropy: if two random variables are functions of each
+  other, then they have the same entropy.  Can be used as a substitute for
+  `entropy_comp_of_injective` if one doesn't want to establish the injectivity. -/
 lemma entropy_of_comp_eq_of_comp
     (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
     (f : S → T) (g : T → S) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) :
@@ -674,7 +680,8 @@ lemma mutualInformation_add_right {Y : Ω → S} (hX : Measurable X) (hY : Measu
   abel
 
 
-/-- The conditional mutual information $I[X:Y|Z]$ is the mutual information of $X|Z=z$ and $Y|Z=z$, integrated over $z$. -/
+/-- The conditional mutual information $I[X:Y|Z]$ is the mutual information of $X|Z=z$ and $Y|Z=z$,
+integrated over $z$. -/
 noncomputable
 def condMutualInformation (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
     ℝ := (μ.map Z)[fun z ↦ H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨ X, Y ⟩ | Z ← z ; μ]]
@@ -816,23 +823,27 @@ variable {mΩ' : MeasurableSpace Ω'}
 
 /-- The following three lemmas should probably be in Mathlib. -/
 lemma _root_.MeasurableSet_comap_fst {s : Set (S × T)}
-  (h : MeasurableSet[MeasurableSpace.comap Prod.fst inferInstance] s) : ∃ s' : Set S, s' ×ˢ Set.univ = s := by
+  (h : MeasurableSet[MeasurableSpace.comap Prod.fst inferInstance] s) :
+    ∃ s' : Set S, s' ×ˢ Set.univ = s := by
   simp_rw [Set.prod_univ]
   obtain ⟨s', _, hs'⟩ := h
   exact ⟨s', hs'⟩
 
 lemma _root_.MeasurableSet_comap_snd {t : Set (S × T)}
-    (h : MeasurableSet[MeasurableSpace.comap Prod.snd inferInstance] t) : ∃ t' : Set T, Set.univ ×ˢ t' = t := by
+    (h : MeasurableSet[MeasurableSpace.comap Prod.snd inferInstance] t) :
+    ∃ t' : Set T, Set.univ ×ˢ t' = t := by
   simp_rw [Set.univ_prod]
   obtain ⟨t', _, ht'⟩ := h
   exact ⟨t', ht'⟩
 
-lemma _root_.IndepFun.fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] : IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
+lemma _root_.IndepFun.fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+  IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
   rw [@IndepFun_iff]
   intro t1 t2 ht1 ht2
   obtain ⟨t1', ht1'⟩ := MeasurableSet_comap_fst ht1
   obtain ⟨t2', ht2'⟩ := MeasurableSet_comap_snd ht2
-  simp [← ht1',← ht2', Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ, Set.univ_inter, Measure.prod_prod, measure_univ, mul_one, one_mul]
+  simp [← ht1',← ht2', Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ, Set.univ_inter,
+    Measure.prod_prod, measure_univ, mul_one, one_mul]
 
 /-- For $X,Y$ random variables, one can find independent copies $X',Y'$ of $X,Y$. -/
 lemma independent_copies {X : Ω → S} {Y : Ω' → T} (hX: Measurable X) (hY: Measurable Y)
