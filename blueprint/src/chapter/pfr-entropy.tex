@@ -234,13 +234,13 @@ Let $X_1,X_2,\tilde X_1,\tilde X_2$ be as before, and introduce the random varia
 \[ U := X_1 + X_2, \qquad V := \tilde X_1 + X_2, \qquad W := X_1 + \tilde X_1\] and
 \[   S := X_1 + X_2 + \tilde X_1 + \tilde X_2.\]
 
-\begin{lemma}[Symmetry]\label{symm-lemma}
+\begin{lemma}[Symmetry identity]\label{symm-lemma}
   \lean{I₃_eq}\leanok
 We have
 $$ I(U:W | S) = I(V:W | S).$$
 \end{lemma}
 
-\begin{proof}\uses{copy-ent, conditiona-mutual-alt, chain-rule}
+\begin{proof}\uses{copy-ent, conditional-mutual-alt, chain-rule}
 This should follow from Lemma \ref{copy-ent}, Lemma \ref{conditional-mutual-alt}, and Lemma \ref{chain-rule}.
 \end{proof}
 
