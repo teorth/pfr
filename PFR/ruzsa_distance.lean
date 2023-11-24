@@ -218,7 +218,7 @@ lemma continuous_rdist_restrict_probabilityMeasure
     have diff_cts : Continuous (fun (x : G × G) ↦ x.1 - x.2) := by continuity
     have key₁ := ProbabilityMeasure.continuous_prod_of_fintype (α := G) (β := G)
     have key₂ := ProbabilityMeasure.continuous_map diff_cts
-    convert (@continuous_measureEntropy_probabilityMeasure G _ _ _ _ _).comp (key₂.comp key₁)
+    convert continuous_measureEntropy_probabilityMeasure.comp (key₂.comp key₁)
   have obs₁ : Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ H[ id ; μ.1.toMeasure ]) := by
     convert (continuous_measureEntropy_probabilityMeasure (Ω := G)).comp continuous_fst
