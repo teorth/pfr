@@ -703,6 +703,21 @@ lemma condMutualInformation_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Me
   rw [condMutualInformation_eq hX hY hZ, cond_chain_rule _ hX hY hZ]
   ring
 
+lemma condMutualInformation_of_inj_map [IsProbabilityMeasure μ]
+  (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+  {V : Type*} [Nonempty V] [Fintype V] [MeasurableSpace V] [MeasurableSingletonClass V]
+  (f : U → S → V) (hf : ∀ t, Function.Injective (f t)) :
+    I[fun ω ↦ f (Z ω) (X ω) : Y | Z ; μ] =
+    I[X : Y | Z ; μ] := by
+  have hM : Measurable (Function.uncurry f ∘ ⟨Z, X⟩) :=
+    (measurable_of_countable _).comp (hZ.prod_mk hX)
+  have hM : Measurable fun ω ↦ f (Z ω) (X ω) := hM
+  rw [condMutualInformation_eq hM hY hZ, condMutualInformation_eq hX hY hZ]
+  let g : U → (S × T) → (V × T) := fun z (x,y) ↦ (f z x, y)
+  have hg : ∀ t, Function.Injective (g t) :=
+    fun _ _ _ h ↦ Prod.ext_iff.2 ⟨hf _ (Prod.ext_iff.1 h).1, (Prod.ext_iff.1 h).2⟩
+  rw [← condEntropy_of_inj_map μ (hX.prod_mk hY) hZ g hg, ← condEntropy_of_inj_map μ hX hZ _ hf]
+
 section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]
   [MeasurableSingletonClass T]
