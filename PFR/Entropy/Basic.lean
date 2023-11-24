@@ -587,10 +587,10 @@ lemma mutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonCl
 /-- Mutual information is non-negative. -/
 lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsProbabilityMeasure μ] :
+    [IsFiniteMeasure μ] :
     0 ≤ I[X : Y ; μ] := by
-  have : IsProbabilityMeasure (μ.map (⟨ X, Y ⟩)) :=
-    isProbabilityMeasure_map (hX.prod_mk hY).aemeasurable
+  have : IsFiniteMeasure (μ.map (⟨ X, Y ⟩)) :=
+    Measure.isFiniteMeasure_map _ _
   simp_rw [mutualInformation_def, entropy_def]
   have h_fst : μ.map X = (μ.map (⟨ X, Y ⟩)).map Prod.fst := by
     rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
@@ -612,7 +612,7 @@ lemma IdentDistrib.mutualInformation_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ'
 /-- Subadditivity of entropy. -/
 lemma entropy_pair_le_add [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsProbabilityMeasure μ] :
+    [IsFiniteMeasure μ] :
     H[⟨ X, Y ⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
   sub_nonneg.1 $ mutualInformation_nonneg hX hY _
 
@@ -732,15 +732,11 @@ lemma condMutualInformation_comm [MeasurableSingletonClass S] [MeasurableSinglet
     I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
   simp_rw [condMutualInformation_def, add_comm, entropy_comm hX hY]
 
-/-- Conditional information is non-nnegative. -/
+/-- Conditional information is non-nonegative. -/
 lemma condMutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
-    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) [IsFiniteMeasure μ] :
     0 ≤ I[X : Y | Z ; μ] := by
   refine integral_nonneg (fun z ↦ ?_)
-  by_cases hz : μ (Z ⁻¹' {z}) = 0
-  · have : μ[|Z ⁻¹' {z}] = 0 := cond_eq_zero_of_measure_zero hz
-    simp [this]
-  have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ hz
   exact mutualInformation_nonneg hX hY _
 
 /-- $$ I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/

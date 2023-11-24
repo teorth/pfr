@@ -84,7 +84,7 @@ lemma mutualInfo_swapRight (κ : kernel T (S × U)) [IsMarkovKernel κ]
   rfl
 
 lemma mutualInfo_nonneg (κ : kernel T (S × U)) [IsMarkovKernel κ]
-    (μ : Measure T) [IsProbabilityMeasure μ] :
+    (μ : Measure T) [IsFiniteMeasure μ] :
     0 ≤ Ik[κ, μ] := by
   simp_rw [mutualInfo, entropy, integral_eq_sum,
     smul_eq_mul]

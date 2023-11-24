@@ -550,10 +550,46 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
     congr!
     field_simp
 
-/-- It should be possible to remove the requirement here that μ is a probability measure by a case analysis. -/
-lemma measureMutualInfo_nonneg (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
-    0 ≤ Im[μ] :=
-  (measureMutualInfo_nonneg_aux μ).1
+lemma measureMutualInfo_of_not_isFiniteMeasure {μ : Measure (S × U)} (h : ¬ IsFiniteMeasure μ) :
+    Im[μ] = 0 := by
+  rw [measureMutualInfo_def]
+  have h1 : ¬ IsFiniteMeasure (μ.map Prod.fst) := by
+    rw [not_isFiniteMeasure_iff] at h ⊢
+    rw [<- h]
+    convert Measure.map_apply measurable_fst MeasurableSet.univ
+  have h2 : ¬ IsFiniteMeasure (μ.map Prod.snd) := by
+    rw [not_isFiniteMeasure_iff] at h ⊢
+    rw [<- h]
+    convert Measure.map_apply measurable_snd MeasurableSet.univ
+  rw [measureEntropy_of_not_isFiniteMeasure h, measureEntropy_of_not_isFiniteMeasure h1,    measureEntropy_of_not_isFiniteMeasure h2]
+  simp
+
+lemma measureMutualInfo_univ_smul (μ : Measure (S × U)) : Im[(μ Set.univ)⁻¹ • μ] = Im[μ] := by
+  by_cases hμ_fin : IsFiniteMeasure μ
+  swap
+  · rw [measureMutualInfo_of_not_isFiniteMeasure hμ_fin]
+    rw [not_isFiniteMeasure_iff] at hμ_fin
+    simp [hμ_fin]
+  rcases eq_zero_or_neZero μ with hμ | hμ
+  . simp [hμ]
+  rw [measureMutualInfo_def, measureMutualInfo_def]
+  congr 1; congr 1
+  . convert measureEntropy_univ_smul
+    simp; congr; symm
+    convert Measure.map_apply measurable_fst MeasurableSet.univ
+  . convert measureEntropy_univ_smul
+    simp; congr; symm
+    convert Measure.map_apply measurable_snd MeasurableSet.univ
+  convert measureEntropy_univ_smul
+
+lemma measureMutualInfo_nonneg (μ : Measure (S × U)):
+    0 ≤ Im[μ] := by
+  by_cases hμ_fin : IsFiniteMeasure μ
+  . rcases eq_zero_or_neZero μ with hμ|hμ
+    . simp [hμ]
+    rw [<- measureMutualInfo_univ_smul μ]
+    exact (measureMutualInfo_nonneg_aux ((μ Set.univ)⁻¹ • μ)).1
+  rw [measureMutualInfo_of_not_isFiniteMeasure hμ_fin]
 
 lemma measureMutualInfo_eq_zero_iff (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
     Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2} :=
