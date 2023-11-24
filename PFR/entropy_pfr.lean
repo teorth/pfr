@@ -1,4 +1,4 @@
-import PFR.entropy_basic
+import PFR.Entropy.Basic
 import PFR.f2_vec
 import PFR.ruzsa_distance
 import PFR.tau_functional

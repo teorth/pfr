@@ -3,7 +3,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import PFR.Entropy.KernelRuzsa
-import PFR.entropy_basic
+import PFR.Entropy.Basic
 import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.f2_vec
 
