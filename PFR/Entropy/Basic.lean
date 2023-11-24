@@ -799,11 +799,33 @@ variable {μ : Measure Ω}
 /-- The assertion that X and Y are conditionally independent relative to Z.  -/
 def condIndepFun (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : Prop := ∀ᵐ z ∂ (μ.map Z),  IndepFun X Y (μ[|Z ⁻¹' {z}])
 
-lemma condIndepFun_iff (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) : condIndepFun X Y Z μ ↔ ∀ᵐ z ∂ (μ.map Z),  IndepFun X Y (μ[|Z ⁻¹' {z}]) := by rfl
+lemma condIndepFun_iff (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω): condIndepFun X Y Z μ ↔ ∀ᵐ z ∂ (μ.map Z),  IndepFun X Y (μ[|Z ⁻¹' {z}]) := by rfl
+
 
 /-- $I[X:Y|Z]=0$ iff $X,Y$ are conditionally independent over $Z$. -/
-lemma condMutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
-     I[X : Y | Z ; μ] = 0 ↔ condIndepFun X Y Z μ := sorry
+lemma condMutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ]  [Fintype U]:
+     I[X : Y | Z ; μ] = 0 ↔ condIndepFun X Y Z μ := by
+  rw [condIndepFun_iff, condMutualInformation_eq_integral_mutualInformation, integral_eq_zero_iff_of_nonneg ]
+  . dsimp
+    have : (fun x ↦ I[X:Y;μ[|Z ⁻¹' {x}]]) =ᵐ[μ.map Z] 0 ↔ ∀ᵐ z ∂(μ.map Z), I[X : Y ; μ[|Z ⁻¹' {z}]] = 0 := by rfl
+    rw [this]
+    apply Filter.eventually_congr
+    rw [ae_iff_of_fintype]
+    intro z hz
+    rw [Measure.map_apply hZ (measurableSet_singleton z)] at hz
+    have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ hz
+    exact mutualInformation_eq_zero hX hY
+  . dsimp
+    rw [Pi.le_def]
+    intro z; simp
+    by_cases hz : μ (Z ⁻¹' {z}) = 0
+    · have : μ[|Z ⁻¹' {z}] = 0 := cond_eq_zero_of_measure_zero hz
+      simp [this]
+      rw [mutualInformation_def]
+      simp
+    have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ hz
+    apply mutualInformation_nonneg hX hY
+  simp
 
 /-- If $X, Y$ are conditionally independent over $Z$, then $H[X,Y,Z] = H[X,Z] + H[Y,Z] - H[Z]$. -/
 lemma ent_of_cond_indep (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
