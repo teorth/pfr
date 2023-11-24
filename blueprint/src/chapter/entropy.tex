@@ -290,7 +290,7 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
 
 \begin{definition}[Conditionally independent random variables]
 \label{conditional-independent-def}
-\lean{ProbabilityTheory.condIndepFun} 
+\lean{ProbabilityTheory.condIndepFun}
   Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are conditionally independent relative to another random variable $Z: \Omega \to U$ if $P[ X = s \wedge Y = t| Z=u] = P[X=s|Z=u] P[Y=t|Z=u]$ for all $s \in S, t \in T, u \in U$.  (We won't need conditional independence for more variables than this.)
 \end{definition}
 
@@ -300,7 +300,7 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
   If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
 \end{lemma}
 
-\begin{proof} \uses{conditional-nonneg}\leanok Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.
+\begin{proof} \uses{conditional-nonneg, conditional-mutual-def, conditional-independent-def} Immediate from Lemma \ref{conditional-nonneg} and Definitions \ref{conditional-mutual-def}, \ref{conditional-independent-def}.
 \end{proof}
 
 \begin{corollary}[Entropy of conditionally independent variables]\label{cond-trial-ent}
