@@ -157,17 +157,48 @@ structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac
 
 open Set
 
+attribute [-instance] Fintype.instMeasurableSpace in
 /-- Uniform distributions exist.   -/
-lemma exists_isUniform (H : Finset S) (h: H.Nonempty) :
-  ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
-  IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by sorry
+lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
+    ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
+    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by
+  refine ⟨H, Subtype.instMeasurableSpace, (fun x ↦ x),
+      (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, Measure.dirac i, ?_, measurable_subtype_coe, ?_, fun x ↦ x.2⟩
+  · constructor
+    simp only [Finset.univ_eq_attach, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
+      Measure.coe_finset_sum, Pi.smul_apply, Finset.sum_apply, MeasurableSet.univ,
+      Measure.dirac_apply', mem_univ, indicator_of_mem, Pi.one_apply, Finset.sum_const,
+      Finset.card_attach, nsmul_eq_mul, mul_one, smul_eq_mul]
+    rw [ENNReal.inv_mul_cancel]
+    · simpa using h.ne_empty
+    · simp
+  · constructor
+    · intro x y hx hy
+      simp only [Finset.univ_eq_attach, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
+        Measure.coe_finset_sum, Pi.smul_apply, Finset.sum_apply, mem_preimage, mem_singleton_iff,
+        Measure.dirac_apply, smul_eq_mul]
+      rw [Finset.sum_eq_single ⟨x, hx⟩, Finset.sum_eq_single ⟨y, hy⟩]
+      · simp
+      · rintro ⟨b, bH⟩ _hb h'b
+        simp only [ne_eq, Subtype.mk.injEq] at h'b
+        simp [h'b]
+      · simp
+      · rintro ⟨b, bH⟩ _hb h'b
+        simp only [ne_eq, Subtype.mk.injEq] at h'b
+        simp [h'b]
+      · simp
+    · simp
 
 /-- Uniform distributions exist, version within a fintype and giving a measure space  -/
 lemma exists_isUniform_measureSpace
-    {S : Type u} [Fintype S] (H : Set S) (h: H.Nonempty) :
+    {S : Type u} [Fintype S] (H : Set S) (h : H.Nonempty) :
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ ∀ ω : Ω, U ω ∈ H := by
-  sorry
+  let H' : Finset S := H.toFinite.toFinset
+  have : H'.Nonempty := by simpa using h
+  rcases exists_isUniform H' (by simpa using h) with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem⟩
+  simp only [Finite.coe_toFinset, Finite.mem_toFinset] at Xunif Xmem
+  exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem⟩
 
 lemma IsUniform.ae_mem {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) :
     ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
@@ -245,7 +276,7 @@ lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) :
-  ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- entropy X μ)).toNNReal := by sorry
+  ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by sorry
 
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
