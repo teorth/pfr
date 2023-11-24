@@ -96,7 +96,7 @@ lemma sum_of_rdist_eq_step_cond_rdist {Y : Fin 4 → Ω → G} (h_indep: iIndepF
     | 3 => (h_meas 1).sub (h_meas 3)
   have h' (i j : Fin 4) : ⟨Y i, Y j⟩ = ⟨Y i, Y i - (Y i - Y j)⟩ := by simp only [sub_sub_cancel]
   rw [h' 0 2, h' 1 3]
-  exact cond_rdist_foo Y' h_indep' h_meas'
+  exact cond_rdist_of_inj_map Y' h_indep' h_meas'
     ((AddMonoidHom.fst G G).prod ((AddMonoidHom.fst G G) - (AddMonoidHom.snd G G)))
     (fun _ _ _ h ↦ (Prod.ext_iff.1 h).1)
 
@@ -119,9 +119,9 @@ lemma sum_of_rdist_eq_step_condMutualInformation {Y : Fin 4 → Ω → G}
   have hmij {i j : Fin 4} : Measurable (Y i - Y j) := (h_meas _).sub (h_meas _)
   have hm0123 {i j k l : Fin 4} : Measurable (Y i - Y j - (Y k - Y l)) :=
     ((h_meas _).sub (h_meas _)).sub ((h_meas _).sub (h_meas _))
-  rw [← condMutualInformation_comp hmij hmij hm0123 (fun z x ↦ (x, x - z)),
+  rw [← condMutualInformation_of_inj_map hmij hmij hm0123 (fun z x ↦ (x, x - z)),
     condMutualInformation_comm hmf hmij,
-    ← condMutualInformation_comp hmij hmf hm0123 (fun z x ↦ (x + z, x)),
+    ← condMutualInformation_of_inj_map hmij hmf hm0123 (fun z x ↦ (x + z, x)),
     condMutualInformation_comm hmg hmf]
   congr 1
   { ext ω

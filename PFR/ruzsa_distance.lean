@@ -488,7 +488,8 @@ lemma cond_rdist'_of_copy
     (h1 : IdentDistrib X X' μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
     d[X ; μ # Y | W ; μ'] = d[X' ; μ'' # Y' | W' ; μ'''] := by sorry
 
-lemma cond_rdist_of_inj_map (Y : Fin 4 → Ω → G) (h_indep : IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) μ)
+lemma cond_rdist_of_inj_map [IsProbabilityMeasure μ]
+  (Y : Fin 4 → Ω → G) (h_indep : IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) μ)
   (h_meas : ∀ i, Measurable (Y i)) (π : G × G →+ G × G)
   (hπ : ∀ (h : G), Function.Injective (fun g ↦ π (g, h))) :
     d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] = d[Y 0 | Y 2 ; μ # Y 1 | Y 3 ; μ] := by
