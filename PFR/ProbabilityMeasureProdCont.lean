@@ -56,7 +56,7 @@ lemma ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto
   have obs_νs := ((continuous_pmf_apply ab.2).continuousAt (x := ν)).tendsto.comp νs_lim
   exact tendsto_mul.comp (Tendsto.prod_mk_nhds obs_μs obs_νs)
 
--- TODO: Prove more generally.
+-- TODO: Prove more generally in Mathlib.
 instance t1Space_probabilityMeasure_of_fintype {α : Type*}
     [Fintype α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α] [BorelSpace α] :
     T1Space (ProbabilityMeasure α) :=

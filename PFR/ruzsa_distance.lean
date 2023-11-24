@@ -6,6 +6,7 @@ import PFR.Entropy.KernelRuzsa
 import PFR.Entropy.Basic
 import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.f2_vec
+import PFR.ProbabilityMeasureProdCont
 
 
 /-!
@@ -213,11 +214,11 @@ lemma continuous_rdist_restrict_probabilityMeasure
   simp [rdist_def]
   have obs₀ : Continuous (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦
       H[fun x ↦ x.1 - x.2 ; μ.1.toMeasure.prod μ.2.toMeasure]) := by
-    -- Requires:
-    -- (1) Some API about (continuity of) products of probability measures.
-    --     (`ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto` is enough here.)
-    -- (2) Continuity of mapping probability measures: `ProbabilityMeasure.continuous_map`.
-    sorry
+    simp_rw [entropy_def]
+    have diff_cts : Continuous (fun (x : G × G) ↦ x.1 - x.2) := by continuity
+    have key₁ := ProbabilityMeasure.continuous_prod_of_fintype (α := G) (β := G)
+    have key₂ := ProbabilityMeasure.continuous_map diff_cts
+    convert (@continuous_measureEntropy_probabilityMeasure G _ _ _ _ _).comp (key₂.comp key₁)
   have obs₁ : Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ H[ id ; μ.1.toMeasure ]) := by
     convert (continuous_measureEntropy_probabilityMeasure (Ω := G)).comp continuous_fst
