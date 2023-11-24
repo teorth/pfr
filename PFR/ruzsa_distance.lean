@@ -1,6 +1,7 @@
 import Mathlib.Probability.Notation
 import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
+import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import PFR.Entropy.KernelRuzsa
 import PFR.entropy_basic
 import PFR.ForMathlib.FiniteMeasureComponent
@@ -423,10 +424,23 @@ lemma cond_rdist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measu
     d[X ; μ # Y | W ; μ'] =
       dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] := rfl
 
-lemma cond_rdist_of_const (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (c : S) :
+lemma cond_rdist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     d[X|(fun _ => c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
-  rw [cond_rdist_def,cond_rdist'_def]
-  sorry
+  have hcX : Measurable (fun ω => (c, X ω)) := by simp [measurable_prod, hX]
+  have hc : MeasurableSet (Prod.fst ⁻¹' {c} : Set (S × G)) := measurable_fst (by simp)
+  rw [cond_rdist_def, cond_rdist'_def, Measure.map_const,measure_univ,one_smul, kernel.rdist,
+    kernel.rdist, integral_prod,integral_dirac,integral_prod,integral_dirac]
+  dsimp; congr; ext x; congr
+  rw [condEntropyKernel, kernel.comap_apply, kernel.condKernel_apply_of_ne_zero _ _ _]
+  ext s hs
+  rw [Measure.map_apply measurable_snd hs, kernel.const_apply, kernel.const_apply, cond_apply _ hc,
+    Measure.map_apply hcX hc, Measure.map_apply hcX (hc.inter (measurable_snd hs)),
+    Set.preimage_preimage, Set.preimage_inter, Set.preimage_preimage, Set.preimage_preimage,
+    Set.preimage_const_of_mem (by rfl), measure_univ, inv_one, one_mul, Set.univ_inter,
+    Measure.map_apply hX hs]
+  rw [kernel.const_apply,Measure.map_apply hcX hc,Set.preimage_preimage]
+  all_goals simp
 
 lemma condKernel_eq_prod_of_indepFun {X : Ω → G} {Z : Ω → S} {Y : Ω → G} {W : Ω → T}
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
@@ -595,7 +609,7 @@ lemma condDist_le' [Fintype T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) :
     d[X ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[Y : W ; μ']/2 := by
-  rw [←cond_rdist_of_const _ _ _ (0 : Fin 1)]
+  rw [←cond_rdist_of_const hX _ _ (0 : Fin 1)]
   refine' (condDist_le μ μ' hX measurable_const hY hW).trans _
   simp [mutualInformation_const hX (0 : Fin 1)]
 
