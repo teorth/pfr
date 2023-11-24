@@ -103,8 +103,16 @@ lemma diff_rdist_le_4 : d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]
   · apply h₁.entropy_eq
 
 /--  We have $I_1 \leq 2 \eta k$ -/
-lemma first_estimate : I₁ ≤ 2 * η * k := by sorry
-
+lemma first_estimate : I₁ ≤ 2 * η * k := by
+  have v1 := rdist_add_rdist_add_condMutual_eq X₁ X₂ X₁' X₂'
+  have v2 := rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_›
+  have v3 := cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_›
+  have v4 := diff_rdist_le_1 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
+  have v5 := diff_rdist_le_2 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
+  have v6 := diff_rdist_le_3 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
+  have v7 := diff_rdist_le_4 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
+  simp only [η, inv_eq_one_div] at *
+  linarith [v1, v2, v3, v4, v5, v6, v7]
 
 /--
 $$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
