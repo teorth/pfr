@@ -129,6 +129,16 @@ lemma first_estimate : I₁ ≤ 2 * η * k := by
   simp only [η, inv_eq_one_div] at *
   linarith [v1, v2, v3, v4, v5, v6, v7]
 
+--lemma sub_eq_add_rv {Ω : Type*} (X Y : Ω → G) : X + Y = X - Y :=
+--#check ElementaryAddCommGroup
+
+instance (Ω Γ : Type*) (p : ℕ) [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] :
+    ElementaryAddCommGroup (Ω → Γ) p where
+  orderOf_of_ne := by
+    intro f f_ne_zero
+    simp [addOrderOf]
+    sorry
+
 /--
 $$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
 -/
@@ -141,17 +151,13 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
   let D2 := d[p.X₀₂ # X₂]
   let Dc2 := d[p.X₀₂ # X₂ | X₂ + X₁']
   have l68 : D + Dcc + _ = _ :=
-    @rdist_add_rdist_add_condMutual_eq G _ _ _ _ _ Ω _ _ X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
+    rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
   have l610 : Dcc ≥ k - η * (Dc1 - D1) - η * (Dc2 - D2) :=
-    @cond_rdist_of_sums_ge G _ _ _ _ Ω₀₁ Ω₀₂ _ _ p Ω _ X₁ X₂ X₁' X₂' hX₁ hX₂ h_min
-  --have l611a : _ - D1 ≤  _ --: Dc1 - D1 ≤ _ + _
-  --  := @diff_rdist_le_1 G _ _ _ _ _ _ Ω₀₁ Ω₀₂ _ _ _ p Ω _ _ X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
-  --have l611b : _ - D2 ≤ _
-  --  := @diff_rdist_le_2 G _ _ _ _ _ _ Ω₀₁ Ω₀₂ _ _ _ p Ω _ _ X₁ X₂ X₁' X₂' hX₂ hX₁' h₁ h_indep
-  have l611c : Dc1 - D1 ≤ _
-    := @diff_rdist_le_3 G _ _ _ _ _ _ Ω₀₁ Ω₀₂ _ _ _ p Ω _ _ X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
-  have l611d : Dc2 - D2 ≤ _
-    := @diff_rdist_le_4 G _ _ _ _ _ _ Ω₀₁ Ω₀₂ _ _ _ p Ω _ _ X₁ X₂ X₁' X₂' hX₂ hX₁' h₁ h_indep
+    cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' hX₁ hX₂ h_min
+  have l611c : Dc1 - D1 ≤ _ :=
+    diff_rdist_le_3 p X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
+  have l611d : Dc2 - D2 ≤ _ :=
+    diff_rdist_le_4 p X₁ X₂ X₁' X₂' hX₂ hX₁' h₁ h_indep
   have aux' : D + I₁ ≤ k + η * (Dc1 - D1) + η * (Dc2 - D2) := by
     convert add_le_add l68.le (neg_le_neg l610) using 1 <;> ring
   have aux : D + I₁ ≤ (1 + η) * k := by
@@ -165,12 +171,75 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     linarith
   have ind : D = _ :=
     @IndepFun.rdist_eq Ω G _ ℙ _ _ _ _ (X₁ + X₂') _ (X₂ + X₁') ?_ (by measurability) (by measurability)
-  --have obs := add_le_add l68.le (neg_le_neg l610)
-  --simp_rw [show (D + Dcc + I₁) + -Dcc = D + I₁ by ring, ←sub_eq_add_neg, ←sub_add] at obs
-  --ring_nf at obs
-  --have := @sub_add
-  --rw [add_assoc] at obs₂
+  · have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by
+      simp [sub_eq_add]
+      --congr
+      --ext ω
+      --simp [sub_eq_add]
+    have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by sorry
+    rw [ind, ent_sub_eq_ent_add, rw₁] at aux
+    have obs : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + η) * k - I₁ := by
+      linarith
+    apply obs.trans
+    have rw₂ : H[X₁ + X₂'] = k + H[X₁]/2 + H[X₂]/2 := by
+      rw [rdist_def]
+      ring_nf
+      rw [←sub_eq_add]
+      apply congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ))
+      --simp [k]
+      sorry
+    have rw₃ : H[X₂ + X₁'] = k + H[X₁]/2 + H[X₂]/2 := by sorry
+    rw [rw₂, rw₃, add_halves]
+    apply le_of_eq
+    ring_nf
+  · sorry
 
-  --simp only [neg_sub, add_neg_le_iff_le_add] at obs₂
-  --ring_nf at obs₂
-  --have obs₂ := @add_le_add ℝ _ _ _ _ --l68 obs₁
+lemma identDistrib_prod_of_eq (hindep₁ : IndepFun X₁ X₂) (hindep₂ : IndepFun X₁ X₂') :
+    IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁,X₂⟩) :=
+  { aemeasurable_fst := by measurability
+    aemeasurable_snd := by measurability
+    map_eq := by
+      rw [(indepFun_iff_map_prod_eq_prod_map_map hX₁ hX₂').mp
+      (hindep₂), (indepFun_iff_map_prod_eq_prod_map_map hX₁ hX₂).mp (hindep₁), h₂.map_eq] }
+
+/--
+$$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
+-/
+lemma ent_ofsum_le_MB : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+η)*k - I₁ := by
+  have hmeas : ∀ (i : Fin 4), Measurable (![X₁, X₂, X₂', X₁'] i)
+  | 0 => hX₁
+  | 1 => hX₂
+  | 2 => hX₂'
+  | 3 => hX₁'
+  have hφ : Measurable (fun x ↦ (X₁ x, x)) := by exact Measurable.prod hX₁ (measurable_id)
+  have := sub_le_sub (cond_rdist_of_sums_ge _ _ _ X₁' X₂' hX₁ hX₂ h_min)
+    (le_of_eq $ rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep)
+  have hk : k = H[X₁ - X₂] - H[X₁] / 2 - H[X₂] / 2 :=
+  by exact IndepFun.rdist_eq (h_indep.indepFun (show (0 : Fin 4) ≠ 1 by decide)) hX₁ hX₂
+  suffices h₃ : d[X₁ + X₂' # X₂ + X₁'] ≤ (1 + η) * k - I₁
+  · rw [IndepFun.rdist_eq] at h₃
+    simp at h₃
+    suffices h₄ : (1 + η) * k - I₁ + H[X₂ + X₁'] / 2 + H[X₁ + X₂'] / 2 = H[X₁] / 2 + H[X₂] / 2 + (2 + η) * k - I₁
+    · convert (le_of_le_of_eq h₃ h₄) using 2
+      abel
+    have hident_sum₁ : IdentDistrib (X₁ + X₂') (X₁ + X₂) := by
+      exact (identDistrib_prod_of_eq _ _ _ hX₁ hX₂ hX₂' h₂
+      (h_indep.indepFun (show (0:Fin 4) ≠ 1 by decide))
+      (h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide))).comp measurable_add
+    have hident_sum₂ : IdentDistrib (X₂ + X₁') (X₁ + X₂) := by
+      apply ((identDistrib_prod_of_eq _ _ _ hX₂ hX₁' hX₁ h₁.symm
+      (h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide))
+      (h_indep.indepFun (show (1:Fin 4) ≠ 0 by decide))).comp measurable_add).symm.trans
+      apply ProbabilityTheory.IdentDistrib.of_ae_eq (by measurability)
+      rw [add_comm]
+      rfl
+    simp [IdentDistrib.entropy_eq hident_sum₁, IdentDistrib.entropy_eq hident_sum₂, add_mul, add_mul,
+      two_mul, one_mul]
+    suffices h₅ : H[X₁ + X₂] / 2 + H[X₁ + X₂] / 2 = H[X₁] / 2 + H[X₂] / 2 + k
+    · linarith[h₅]
+    norm_num [add_halves, hk]
+    · exact ((h_indep.indepFun_prod_prod hmeas 0 2 1 3
+      (by decide) (by decide) (by decide) (by decide)).comp measurable_add measurable_add)
+    · exact (Measurable.add (hmeas 0) (hmeas 2))
+    · exact (Measurable.add (hmeas 1) (hmeas 3))
+  --linarith [this, diff_rdist_le_3 p _ _ _ X₂' hX₂ hX₁' h₁ h_indep]
