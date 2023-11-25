@@ -195,7 +195,6 @@ lemma exists_isUniform_measureSpace
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ ∀ ω : Ω, U ω ∈ H := by
   let H' : Finset S := H.toFinite.toFinset
-  have : H'.Nonempty := by simpa using h
   rcases exists_isUniform H' (by simpa using h) with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem⟩
   simp only [Finite.coe_toFinset, Finite.mem_toFinset] at Xunif Xmem
   exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem⟩
@@ -203,11 +202,19 @@ lemma exists_isUniform_measureSpace
 lemma IsUniform.ae_mem {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) :
     ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
 
+lemma IsUniform.nonempty {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ)
+    [hμ : NeZero μ] : H.Nonempty := by
+  rcases eq_empty_or_nonempty H with rfl|h'
+  · have : μ univ = 0 := by convert h.measure_preimage_compl; simp
+    simp at this
+    exact (hμ.out this).elim
+  · exact h'
+
 /-- A "unit test" for the definition of uniform distribution. -/
 lemma IsUniform.measure_preimage_of_mem
     {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) (hX : Measurable X)
     {s : S} (hs : s ∈ H) :
-    μ (X ⁻¹' {s}) = (μ Set.univ) / (Nat.card H) := by
+    μ (X ⁻¹' {s}) = μ univ / Nat.card H := by
   let H' := H.toFinite.toFinset
   have B : μ univ = (Nat.card H) * μ (X ⁻¹' {s}) := calc
     μ univ = μ (X ⁻¹' Hᶜ) + μ (X ⁻¹' H) := by
@@ -234,6 +241,14 @@ lemma IsUniform.measure_preimage_of_mem
     · simpa using Nat.pos_iff_ne_zero.mp hH
     · simp
 
+/-- A "unit test" for the definition of uniform distribution. -/
+lemma IsUniform.measureReal_preimage_of_mem
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (h : IsUniform H X μ) (hX : Measurable X) {s : S} (hs : s ∈ H) :
+    μ.real (X ⁻¹' {s}) = 1 / Nat.card H := by
+  rw [measureReal_def, h.measure_preimage_of_mem hX hs]
+  simp [ENNReal.toReal_inv]
+
 /-- Another "unit test" for the definition of uniform distribution. -/
 lemma IsUniform.measure_preimage_of_nmem
     {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
@@ -241,6 +256,12 @@ lemma IsUniform.measure_preimage_of_nmem
   apply le_antisymm ((measure_mono _).trans h.measure_preimage_compl.le) (zero_le _)
   apply preimage_mono
   simpa using hs
+
+/-- Another "unit test" for the definition of uniform distribution. -/
+lemma IsUniform.measureReal_preimage_of_nmem
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
+    μ.real (X ⁻¹' {s}) = 0 := by
+  rw [measureReal_def, h.measure_preimage_of_nmem hs, ENNReal.zero_toReal]
 
 lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω']
     {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ)

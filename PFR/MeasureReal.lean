@@ -172,6 +172,12 @@ theorem measureReal_iUnion_fintype_le [Fintype β] (f : β → Set α) :
   convert measureReal_biUnion_finset_le Finset.univ f
   simp
 
+theorem measureReal_iUnion_fintype [Fintype β] {f : β → Set α} (hn : Pairwise (Disjoint on f))
+    (h : ∀ i, MeasurableSet (f i)) (h' : ∀ i, μ (f i) ≠ ∞ := by finiteness) :
+    μ.real (⋃ b, f b) = ∑ p, μ.real (f p) := by
+  rw [measureReal_def, measure_iUnion hn h, tsum_fintype, ENNReal.toReal_sum (fun i _hi ↦ h' i)]
+  rfl
+
 theorem measureReal_union_null (h₁ : μ.real s₁ = 0) (h₂ : μ.real s₂ = 0) :
     μ.real (s₁ ∪ s₂) = 0 := by
   apply le_antisymm _ measureReal_nonneg
