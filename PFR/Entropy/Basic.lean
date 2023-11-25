@@ -1049,6 +1049,43 @@ lemma independent_copies4_nondep {S : Type u}
     (hX' 0).2, (hX' 1).2, (hX' 2).2, (hX' 3).2⟩
   convert hi; ext i; fin_cases i <;> rfl
 
+lemma law_of_total_probability [Fintype T] [MeasurableSingletonClass T] {Y: Ω → T} (hY: Measurable Y) (μ: Measure Ω) [IsFiniteMeasure μ]: μ = ∑ y : T, (μ (Y⁻¹' {y})) • (μ[|Y ⁻¹' {y}]) := by
+  apply Measure.ext
+  intro E hE
+  simp
+  have : μ E = ∑ y : T, μ (Y⁻¹' {y} ∩ E) := by
+    have : E = ⋃ y ∈ Set.univ, Y⁻¹' {y} ∩ E := by
+      simp; ext _; simp
+    nth_rewrite 1 [this]
+    convert measure_biUnion_finset _ _
+    . simp
+    · intro _ _ _ _ hyz
+      apply Disjoint.inf_left
+      apply Disjoint.inf_right
+      apply Disjoint.preimage
+      simp [hyz]
+    intro b _
+    exact MeasurableSet.inter (hY (MeasurableSet.singleton b)) hE
+  rw [this]
+  congr with y
+  rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
+  . simp [hy]
+    exact measure_inter_null_of_null_left E hy
+  symm
+  rw [mul_comm, cond_mul_eq_inter _ (hY (MeasurableSet.singleton y)) hy]
+
+lemma identDistrib_of_sum (X : Ω → S) (Y : Ω' → S) [Fintype T] (μ : T → Measure Ω) (μ' : T → Measure Ω') (w : T → ENNReal) (hX: Measurable X) (hY: Measurable Y) (h_ident : ∀ y : T, IdentDistrib X Y (μ y) (μ' y)) : IdentDistrib X Y (∑ y : T, (w y) • (μ y)) (∑ y : T, (w y) • (μ' y)) := {
+  aemeasurable_fst := hX.aemeasurable,
+  aemeasurable_snd := hY.aemeasurable,
+  map_eq := by
+    rw [<-Measure.mapₗ_apply_of_measurable hX, <-Measure.mapₗ_apply_of_measurable hY]
+    simp
+    congr with y E _
+    congr 3
+    rw [Measure.mapₗ_apply_of_measurable hX, Measure.mapₗ_apply_of_measurable hY]
+    exact (h_ident y).map_eq
+}
+
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials
 $X_1, X_2, Y'$.-/
 lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (hX: Measurable X) (hY: Measurable Y) (μ: Measure Ω) [IsProbabilityMeasure μ]:
@@ -1058,7 +1095,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by
   let m := fun (y : T) ↦ (((μ[|Y ⁻¹' {y}]).map X).prod ((μ[|Y ⁻¹' {y}]).map X)).prod (Measure.dirac y)
   let ν : Measure ((S × S) × T) := ∑ y : T, ((μ (Y⁻¹' {y})) • (m y))
-  refine ⟨ (S × S) × T, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_, Measurable.comp measurable_fst measurable_fst, Measurable.comp measurable_snd measurable_fst, measurable_snd, ?_, ?_, ?_ ⟩
+  refine ⟨ (S × S) × T, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_, measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst, measurable_snd, ?_, ?_, ?_ ⟩
   . constructor
     simp
     have : ∑ y : T, μ (Y⁻¹' {y})*1 = 1 := by
@@ -1066,8 +1103,8 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
       rw [show 1 = μ Set.univ by simp]
       symm
       convert measure_biUnion_finset _ _
-      . simp; ext _ω; simp
-      . intro _y _hy _z _hz hyz
+      . simp; ext _; simp
+      . intro _ _ _ _ hyz
         apply Disjoint.preimage
         simp [hyz]
       intros
