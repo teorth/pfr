@@ -24,7 +24,7 @@ Here we define Ruzsa distance and establish its basic properties.
 * `rdist_triangle` : The Ruzsa triangle inequality for three random variables.
 
 -/
-open MeasureTheory ProbabilityTheory BigOperators
+open MeasureTheory ProbabilityTheory
 
 universe u
 
@@ -445,75 +445,6 @@ lemma cond_rdist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W 
   rw [kernel.const_apply,Measure.map_apply hcX hc,Set.preimage_preimage]
   all_goals simp
 
-lemma condEntropyKernel_eq_prod_of_indepFun {X : Ω → G} {Z : Ω → S} {Y : Ω → G} {W : Ω → T}
-    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
-    (μ : Measure Ω) [IsProbabilityMeasure μ]
-    (h : IndepFun (⟨X, Z⟩) (⟨Y, W⟩) μ) :
-    condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ
-      =ᵐ[μ.map (⟨Z, W⟩)] kernel.prodMkRight (condEntropyKernel X Z μ) T
-        ×ₖ kernel.prodMkLeft S (condEntropyKernel Y W μ) := by
-  have : IsMarkovKernel (condEntropyKernel X Z μ) := isMarkovKernel_condEntropyKernel hX hZ μ
-  have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
-  rw [Filter.EventuallyEq, ae_iff_of_fintype]
-  intro x hx
-  rw [Measure.map_apply (hZ.prod_mk hW) (measurableSet_singleton _)] at hx
-  ext s hs
-  rw [condEntropyKernel_apply (hX.prod_mk hY) (hZ.prod_mk hW) _ _ hx, kernel.prod_apply _ _ _ hs]
-  simp_rw [kernel.prodMkLeft_apply, kernel.prodMkRight_apply]
-  rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod] at hx
-  have hxZ : μ (Z ⁻¹' {x.1}) ≠ 0 := fun h0 ↦ hx (measure_mono_null (Set.inter_subset_left _ _) h0)
-  have hxW : μ (W ⁻¹' {x.2}) ≠ 0 := fun h0 ↦ hx (measure_mono_null (Set.inter_subset_right _ _) h0)
-  simp_rw [lintegral_eq_sum, condEntropyKernel_apply hX hZ μ _ hxZ,
-    condEntropyKernel_apply hY hW μ _ hxW, Measure.map_apply (hX.prod_mk hY) hs]
-  rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod,
-    cond_apply _ ((hZ (measurableSet_singleton _)).inter (hW (measurableSet_singleton _)))]
-  simp_rw [Measure.map_apply hX (measurableSet_singleton _),
-    cond_apply _ (hZ (measurableSet_singleton _))]
-  change (μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2}))⁻¹
-      * μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2} ∩ (fun a ↦ (X a, Y a)) ⁻¹' s)
-    = ∑ x_1, (μ (Z ⁻¹' {x.1}))⁻¹ * μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {x_1})
-      * ((μ[|W ⁻¹' {x.2}]).map Y) (Prod.mk x_1 ⁻¹' s)
-  simp_rw [Measure.map_apply hY (measurable_prod_mk_left hs),
-    cond_apply _ (hW (measurableSet_singleton _))]
-  have hZW : IndepFun Z W μ := by
-    have h' := IndepFun.comp h measurable_snd measurable_snd
-    exact h'
-  have h_indep1 : (μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2}))⁻¹
-      = (μ (Z ⁻¹' {x.1}))⁻¹ * (μ (W ⁻¹' {x.2}))⁻¹ := by
-    rw [indepFun_iff_measure_inter_preimage_eq_mul.mp hZW _ _ (measurableSet_singleton _)
-      (measurableSet_singleton _), ENNReal.mul_inv (Or.inl hxZ) (Or.inl (measure_ne_top _ _))]
-  rw [h_indep1]
-  simp_rw [mul_assoc, ← Finset.mul_sum]
-  congr 1
-  simp_rw [← mul_assoc, mul_comm _ (μ (W ⁻¹' {x.2}))⁻¹, mul_assoc, ← Finset.mul_sum]
-  congr 1
-  have h_Union : (⟨X, Y⟩) ⁻¹' s = ⋃ a, ((X ⁻¹' {a}) ∩ (Y ⁻¹' (Prod.mk a ⁻¹' s))) := by ext1; simp
-  rw [h_Union, Set.inter_iUnion, measure_iUnion, tsum_fintype]
-  rotate_left
-  · intro i j hij
-    rw [Function.onFun, Set.disjoint_iff]
-    intro y
-    simp only [Set.mem_inter_iff, Set.mem_preimage, Set.mem_singleton_iff, Set.mem_empty_iff_false,
-      and_imp]
-    exact fun _ _ h3 _ _ _ h7 _ ↦ hij (h3.symm.trans h7)
-  · intro b
-    refine ((hZ (measurableSet_singleton _)).inter (hW (measurableSet_singleton _))).inter ?_
-    exact (hX (measurableSet_singleton _)).inter (hY (measurable_prod_mk_left hs))
-  congr with b
-  calc μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2} ∩ (X ⁻¹' {b} ∩ Y ⁻¹' (Prod.mk b ⁻¹' s)))
-    = μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {b} ∩ (W ⁻¹' {x.2} ∩ Y ⁻¹' (Prod.mk b ⁻¹' s))) := by
-        rw [Set.inter_assoc, ← Set.inter_assoc (W ⁻¹' {x.2}), Set.inter_comm (W ⁻¹' {x.2}),
-          ← Set.inter_assoc, ← Set.inter_assoc, ← Set.inter_assoc]
-  _ = μ (⟨X, Z⟩ ⁻¹' {(b, x.1)} ∩ (⟨Y, W⟩ ⁻¹' ((Prod.mk b ⁻¹' s) ×ˢ {x.2}))) := by
-        rw [← Set.singleton_prod_singleton, Set.mk_preimage_prod, Set.inter_comm (Z ⁻¹' {x.1}),
-          Set.mk_preimage_prod, Set.inter_comm (W ⁻¹' {x.2})]
-  _ = μ (⟨X, Z⟩ ⁻¹' {(b, x.1)}) * μ (⟨Y, W⟩ ⁻¹' ((Prod.mk b ⁻¹' s) ×ˢ {x.2})) := by
-        refine indepFun_iff_measure_inter_preimage_eq_mul.mp h _ _ (measurableSet_singleton _) ?_
-        exact (measurable_prod_mk_left hs).prod (measurableSet_singleton _)
-  _ = μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {b}) * μ (W ⁻¹' {x.2} ∩ Y ⁻¹' (Prod.mk b ⁻¹' s)) := by
-        rw [← Set.singleton_prod_singleton, Set.mk_preimage_prod, Set.inter_comm (Z ⁻¹' {x.1}),
-          Set.mk_preimage_prod, Set.inter_comm (W ⁻¹' {x.2})]
-
 /-- If $(X,Z)$ and $(Y,W)$ are independent, then
 $$  d[X  | Z ; Y | W] = H[X'-Y'|Z', W'] - H[X'|Z']/2 - H[Y'|W']/2$$
 -/
@@ -527,15 +458,9 @@ lemma cond_rdist_of_indep
   have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
-  rw[cond_rdist_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy, condEntropy_eq_kernel_entropy,
-    condEntropy_eq_kernel_entropy]
-  rotate_left
-  · exact hY
-  · exact hW
-  · exact hX
-  · exact hZ
-  · exact hX.sub hY
-  · exact hZ.prod_mk hW
+  rw[cond_rdist_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy _ (hZ.prod_mk hW),
+    condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hW]
+  swap; · exact hX.sub hY
   congr 2
   have hZW : IndepFun Z W μ := by
     have h' := IndepFun.comp h measurable_snd measurable_snd
@@ -567,17 +492,20 @@ lemma cond_rdist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
   swap; · exact hX.sub hY
   congr 2
   let Z : Ω → Unit := fun _ ↦ ()
-  have : condEntropyKernel X Z μ = kernel.const Unit (μ.map X) := by
-    ext x s hs
-    rw [condEntropyKernel_apply' hX measurable_const _ _ _ hs]
-    · simp only [Set.mem_singleton_iff, Set.preimage_const_of_mem, measure_univ, inv_one,
-        Set.univ_inter, one_mul]
-      rw [kernel.const_apply, Measure.map_apply hX hs]
-    · simp
-  rw [← this]
-  have h' : IndepFun (⟨X,Z⟩) (⟨Y, W⟩) μ := sorry
+  rw [← condEntropyKernel_unit_right hX μ]
+  have h' : IndepFun (⟨X,Z⟩) (⟨Y, W⟩) μ := by
+    rw [indepFun_iff_measure_inter_preimage_eq_mul]
+    intro s t hs ht
+    have : ⟨X, Z⟩ ⁻¹' s = X ⁻¹' ((fun c ↦ (c, ())) ⁻¹' s) := by ext1 y; simp
+    rw [this]
+    rw [indepFun_iff_measure_inter_preimage_eq_mul] at h
+    exact h _ _ (measurable_prod_mk_right hs) ht
   have h_indep := condEntropyKernel_eq_prod_of_indepFun hX measurable_const hY hW _ h'
-  have h_meas_eq : μ.map (⟨Z, W⟩) = (Measure.dirac ()).prod (μ.map W) := sorry
+  have h_meas_eq : μ.map (⟨Z, W⟩) = (Measure.dirac ()).prod (μ.map W) := by
+    ext s hs
+    rw [Measure.map_apply (measurable_const.prod_mk hW) hs, Measure.prod_apply hs, lintegral_dirac,
+      Measure.map_apply hW (measurable_prod_mk_left hs)]
+    congr
   rw [← h_meas_eq]
   have : kernel.map (kernel.prodMkRight (condEntropyKernel X Z μ) T
         ×ₖ kernel.prodMkLeft Unit (condEntropyKernel Y W μ)) (fun x ↦ x.1 - x.2) measurable_sub
@@ -586,46 +514,33 @@ lemma cond_rdist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     filter_upwards [h_indep] with y hy
     conv_rhs => rw [kernel.map_apply, hy]
   rw [kernel.entropy_congr this]
-  sorry
-  sorry
-  sorry
-
-  let e : Unit × T ≃ᵐ T :=
-  { toFun := Prod.snd,
-    invFun := fun x ↦ ((), x)
-    left_inv := fun x ↦ by simp
-    right_inv := fun x ↦ by simp
-    measurable_toFun := measurable_snd
-    measurable_invFun := measurable_const.prod_mk measurable_id }
-  have h_measure_eq : (Measure.dirac ()).prod (μ.map W) = (μ.map W).map e.symm := by
+  have : kernel.map (condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2) measurable_sub
+      =ᵐ[μ.map (⟨Z, W⟩)] condEntropyKernel (X - Y) (⟨Z, W⟩) μ :=
+    (condEntropyKernel_comp (hX.prod_mk hY) (measurable_const.prod_mk hW) _ _).symm
+  rw [kernel.entropy_congr this]
+  have h_meas : μ.map (⟨Z, W⟩) = (μ.map W).map (Prod.mk ()) := by
     ext s hs
-    rw [Measure.map_apply e.symm.measurable hs, Measure.prod_apply hs, lintegral_dirac]
-    rfl
-  rw [h_measure_eq]
-  have : IsProbabilityMeasure ((μ.map W).map e.symm) :=
-    isProbabilityMeasure_map e.symm.measurable.aemeasurable
-  have : IsProbabilityMeasure (((μ.map W).map e.symm).comap e.symm) := by
-    rw [MeasurableEquiv.comap_symm, Measure.map_map e.measurable e.symm.measurable]
-    simp only [MeasurableEquiv.coe_mk, Equiv.coe_fn_mk, MeasurableEquiv.symm_mk,
-      Equiv.coe_fn_symm_mk, Prod.snd_comp_mk, Measure.map_id]
-    infer_instance
-
-  rw [← kernel.entropy_comap_equiv _ ((μ.map W).map e.symm) e.symm, MeasurableEquiv.comap_symm,
-    Measure.map_map e.measurable e.symm.measurable]
-  simp only [MeasurableEquiv.symm_mk, MeasurableEquiv.coe_mk, Equiv.coe_fn_symm_mk, Equiv.coe_fn_mk,
-    Prod.snd_comp_mk, Measure.map_id]
-  refine kernel.entropy_congr ?_
-  rw [Filter.EventuallyEq, ae_iff_of_fintype]
-  intro x hx
-  rw [Measure.map_apply hW (measurableSet_singleton _)] at hx
-  ext s hs
-  rw [kernel.comap_apply', kernel.map_apply' _ _ _ hs, kernel.prod_apply _ _ _ (measurable_sub hs),
-    kernel.prodMkRight_apply, kernel.const_apply, condEntropyKernel_apply' _ hW _ _ hx hs]
-  swap; · exact hX.sub hY
-  simp_rw [kernel.prodMkLeft_apply, lintegral_eq_sum]
-
-
-#exit
+    rw [Measure.map_apply measurable_prod_mk_left hs, h_meas_eq, Measure.prod_apply hs,
+      lintegral_dirac]
+  have h_ker : condEntropyKernel (X - Y) (⟨Z, W⟩) μ
+      =ᵐ[μ.map (⟨Z, W⟩)] kernel.prodMkLeft Unit (condEntropyKernel (X - Y) W μ) := by
+    rw [Filter.EventuallyEq, ae_iff_of_fintype]
+    intro x hx
+    rw [Measure.map_apply (measurable_const.prod_mk hW) (measurableSet_singleton _)] at hx
+    ext s hs
+    have h_preimage_eq : (fun a ↦ (PUnit.unit, W a)) ⁻¹' {x} = W ⁻¹' {x.2} := by
+      conv_lhs => rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod]
+      ext1 y
+      simp
+    rw [kernel.prodMkLeft_apply, condEntropyKernel_apply' _ (measurable_const.prod_mk hW) _ _ hx hs,
+      condEntropyKernel_apply' _ hW _ _ _ hs]
+    rotate_left
+    · exact hX.sub hY
+    · convert hx
+      exact h_preimage_eq.symm
+    · exact hX.sub hY
+    congr
+  rw [kernel.entropy_congr h_ker, h_meas, kernel.entropy_prodMkLeft_unit]
 
 lemma cond_rdist_of_copy
     {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
