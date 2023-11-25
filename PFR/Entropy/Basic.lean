@@ -1049,6 +1049,8 @@ lemma independent_copies4_nondep {S : Type u}
     (hX' 0).2, (hX' 1).2, (hX' 2).2, (hX' 3).2⟩
   convert hi; ext i; fin_cases i <;> rfl
 
+-- Some helper lemmas below for `condIndependent_copies`.
+
 lemma law_of_total_probability [Fintype T] [MeasurableSingletonClass T] {Y: Ω → T} (hY: Measurable Y) (μ: Measure Ω) [IsFiniteMeasure μ]: μ = ∑ y : T, (μ (Y⁻¹' {y})) • (μ[|Y ⁻¹' {y}]) := by
   apply Measure.ext
   intro E hE
@@ -1106,10 +1108,10 @@ lemma identDistrib_comp_snd {X : Ω → S} (hX: Measurable X) (μ : Measure Ω) 
     simp
 }
 
-lemma identDistrib_map {X : Ω → S} (hX: Measurable X) (μ : Measure Ω) : IdentDistrib id X (μ.map X) μ := {
-  aemeasurable_fst := measurable_id.aemeasurable
-  aemeasurable_snd := hX.aemeasurable
-  map_eq := map_id
+lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measurable f) (μ : Measure Ω) : IdentDistrib f (f ∘ X) (μ.map X) μ := {
+  aemeasurable_fst := hf.aemeasurable
+  aemeasurable_snd := (hf.comp hX).aemeasurable
+  map_eq := map_map hf hX
 }
 
 
@@ -1165,7 +1167,15 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     congr 1
     have : IsProbabilityMeasure ((μ[|Y ⁻¹' {y}]).map X) := h5 hy
     simp
-  . sorry
+  . rw [condIndepFun_iff, ae_iff_of_fintype]
+    intro y hy
+    have h1 : ν.map Prod.snd = μ.map Y := by
+      sorry
+    rw [h1] at hy
+    have h2 : ν[| Prod.snd⁻¹' {y} ] = m y := by
+      sorry
+    rw [h2]
+    sorry
   . rw [law_of_total_probability hY μ]
     apply identDistrib_of_sum ((measurable_fst.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
     intro y hy
@@ -1180,7 +1190,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
       apply (identDistrib_comp_fst measurable_fst _ _).trans
       have : IsProbabilityMeasure ((μ[|Y ⁻¹' {y}]).map X) := h5 hy
       apply (identDistrib_comp_fst measurable_id _ _).trans
-      apply identDistrib_map hX
+      apply identDistrib_map hX measurable_id
     exact (h1.trans h2).trans (h3 y)
   rw [law_of_total_probability hY μ]
   apply identDistrib_of_sum ((measurable_snd.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
@@ -1196,7 +1206,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     apply (identDistrib_comp_fst measurable_snd _ _).trans
     have : IsProbabilityMeasure ((μ[|Y ⁻¹' {y}]).map X) := h5 hy
     apply (identDistrib_comp_snd measurable_id _ _).trans
-    apply identDistrib_map hX
+    apply identDistrib_map hX measurable_id
   exact (h1.trans h2).trans (h3 y)
 
 
