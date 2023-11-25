@@ -1066,18 +1066,17 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
       rw [show 1 = μ Set.univ by simp]
       symm
       convert measure_biUnion_finset _ _
-      . simp; ext ω; simp
-      . intro y _hy z _hz hyz
+      . simp; ext _ω; simp
+      . intro _y _hy _z _hz hyz
         apply Disjoint.preimage
         simp [hyz]
-      intro y _hy
+      intros
       exact hY trivial
     rw [<-this]
     congr with y
     rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
     . simp [hy]
     congr 1
-    show (m y) Set.univ = 1
     have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure μ hy
     have : IsProbabilityMeasure ((μ[|Y ⁻¹' {y}]).map X) := by
       exact isProbabilityMeasure_map (Measurable.aemeasurable hX)
