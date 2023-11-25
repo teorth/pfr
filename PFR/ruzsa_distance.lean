@@ -24,7 +24,7 @@ Here we define Ruzsa distance and establish its basic properties.
 * `rdist_triangle` : The Ruzsa triangle inequality for three random variables.
 
 -/
-open MeasureTheory ProbabilityTheory
+open MeasureTheory ProbabilityTheory BigOperators
 
 universe u
 
@@ -411,6 +411,37 @@ lemma cond_rdist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → 
     d[X | Z ; μ # Y | W ; μ']
       = dk[condEntropyKernel X Z μ ; μ.map Z # condEntropyKernel Y W μ' ; μ'.map W] := rfl
 
+lemma Measure.prod_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
+    (μ : Measure α) (ν : Measure β) [SigmaFinite ν] (x : α × β) :
+    (μ.prod ν) {x} = μ {x.1} * ν {x.2} := by
+  rw [← Prod.eta x, ← Set.singleton_prod_singleton, Measure.prod_prod]
+
+lemma rdist_eq_rdistm : d[X ; μ # Y ; μ'] = kernel.rdistm (μ.map X) (μ'.map Y) := rfl
+
+lemma cond_rdist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
+    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
+    (μ : Measure Ω) [IsFiniteMeasure μ] (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+    d[X | Z ; μ # Y | W ; μ']
+      = ∑ z, ∑ w, (μ (Z ⁻¹' {z})).toReal * (μ' (W ⁻¹' {w})).toReal
+        * d[X ; (μ[|Z ⁻¹' {z}]) # Y ; (μ'[|W ⁻¹' {w}])] := by
+  rw [cond_rdist_def, kernel.rdist, integral_eq_sum]
+  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, smul_eq_mul, Fintype.sum_prod_type,
+    Measure.map_apply hZ (measurableSet_singleton _),
+    Measure.map_apply hW (measurableSet_singleton _)]
+  congr with z
+  congr with w
+  by_cases hz : μ (Z ⁻¹' {z}) = 0
+  · simp only [mul_eq_mul_left_iff, mul_eq_zero]
+    refine Or.inr (Or.inl ?_)
+    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ, hz]
+  by_cases hw : μ' (W ⁻¹' {w}) = 0
+  · simp only [mul_eq_mul_left_iff, mul_eq_zero]
+    refine Or.inr (Or.inr ?_)
+    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
+  congr 1
+  rw [rdist_eq_rdistm]
+  rw [condEntropyKernel_apply hX hZ _ _ hz, condEntropyKernel_apply hY hW _ _ hw]
+
 /-- The conditional Ruzsa distance `d[X ; Y|W]`. -/
 noncomputable
 def cond_rdist' (X : Ω → G) (Y : Ω' → G) (W : Ω' → T)
@@ -426,6 +457,26 @@ lemma cond_rdist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measu
     d[X ; μ # Y | W ; μ'] =
       dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] :=
   rfl
+
+lemma cond_rdist'_eq_sum (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
+    (hY : Measurable Y) (hW : Measurable W)
+    (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+    d[X ; μ # Y | W ; μ']
+      = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ⁻¹' {w}])] := by
+  rw [cond_rdist'_def, kernel.rdist, integral_eq_sum]
+  simp_rw [Measure.prod_apply_singleton, smul_eq_mul, Fintype.sum_prod_type]
+  simp only [Finset.univ_unique, PUnit.default_eq_unit, MeasurableSpace.measurableSet_top,
+    Measure.dirac_apply', Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, one_mul,
+    Finset.sum_singleton]
+  simp_rw [Measure.map_apply hW (measurableSet_singleton _)]
+  congr with w
+  by_cases hw : μ' (W ⁻¹' {w}) = 0
+  · simp only [mul_eq_mul_left_iff]
+    refine Or.inr ?_
+    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
+  congr 1
+  rw [rdist_eq_rdistm, condEntropyKernel_apply hY hW _ _ hw]
+  congr
 
 lemma cond_rdist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
