@@ -96,16 +96,15 @@ lemma sum_condMutual_le :
     · exact Measurable.add' hX₁' hX₁
     · exact Measurable.add' hX₁ hX₂
   rw [I₃_eq, this]
-  -- have h₁ := first_estimate X₁ X₂ X₁' X₂' -- Not used?
   have h₂ := second_estimate X₁ X₂ X₁' X₂'
   have h := add_le_add (add_le_add_left h₂ I₁) h₂
   convert h using 1
   field_simp [η]
   ring
 
-local notation3:max "c[" A "]" => d[p.X₀₁ # A] - d[p.X₀₁ # X₁] + d[p.X₀₂ # A] - d[p.X₀₂ # X₂]
+local notation3:max "c[" A " # " B "]" => d[p.X₀₁ # A] - d[p.X₀₁ # X₁] + d[p.X₀₂ # B] - d[p.X₀₂ # X₂]
 
-local notation3:max "c[" A " | " B "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + d[p.X₀₂ # A|B] - d[p.X₀₂ # X₂]
+local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂]
 
 
 /--
@@ -113,7 +112,7 @@ $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
-lemma sum_dist_diff_le : c[U|S] + c[V|S]  + c[W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by sorry
+lemma sum_dist_diff_le : c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by sorry
 
 /-- $U+V+W=0$. -/
 lemma sum_uvw_eq_zero : U+V+W = 0 := by
@@ -122,16 +121,35 @@ lemma sum_uvw_eq_zero : U+V+W = 0 := by
   rw [add_comm (X₁' ω) (X₂ ω)]
   exact @sum_add_sum_add_sum_eq_zero G addgroup elem _ _ _
 
+section construct_good
+
+variable (T₁ T₂ T₃ : Ω → G) (hT : T₁+T₂+T₃ = 0)
+
+local notation3:max "δ" => I[T₁:T₂] + I[T₂:T₃] + I[T₃:T₁]
+
+local notation3:max "ψ[" A " # " B "]" => d[A # B] + η * (c[A # B])
+
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
 $$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
 Then there exist random variables $T'_1, T'_2$ such that
-
 $$ d[T'_1;T'_2] + \eta (d[X_1^0;T'_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;T'_2] - d[X_2^0;X_2]) $$
+is at most
+$$ \delta + \eta ( d[X^0_1;T_1]-d[X^0_1;X_1]) + \eta (d[X^0_2;T_2]-d[X^0_2;X_2]) $$
+$$ + \tfrac12 \eta \bbI[T_1:T_3] + \tfrac12 \eta \bbI[T_2:T_3].$$
+-/
+lemma construct_good_prelim :
+    ∃ Ω' : Type u, ∃ mΩ' : MeasureSpace Ω', ∃ T₁' T₂' : Ω' → G, ψ[ T₁' # T₂'] ≤ δ + η * c[T₁ # T₂] + η * (I[T₁:T₃] + I[T₂:T₃])/2 := by sorry
 
+
+/-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
+$$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
+Then there exist random variables $T'_1, T'_2$ such that
+$$ d[T'_1;T'_2] + \eta (d[X_1^0;T'_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;T'_2] - d[X_2^0;X_2]) $$
 is at most
 $$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).$$
 -/
 lemma construct_good
-    (T₁ T₂ T₃ : Ω → G) (hT : T₁+T₂+T₃ = 0) (δ : ℝ) (hδ : δ = I[T₁:T₂] + I[T₂:T₃] + I[T₃:T₁]) :
-    ∃ Ω' : Type u, ∃ mΩ' : MeasureSpace Ω', ∃ T₁' T₂' : Ω' → G,
-      d[T₁' # T₂'] + η * (c[T₁'] + c[T₂']) ≤ δ + (η/3) * (δ + c[T₁] + c[T₂] + c[T₃]) := by sorry
+    ∃ Ω' : Type u, ∃ mΩ' : MeasureSpace Ω', ∃ T₁' T₂' : Ω' → G, ψ[ T₁' # T₂'] ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by sorry
+
+
+end construct_good
