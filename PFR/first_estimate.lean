@@ -129,7 +129,52 @@ lemma first_estimate : I₁ ≤ 2 * η * k := by
   simp only [η, inv_eq_one_div] at *
   linarith [v1, v2, v3, v4, v5, v6, v7]
 
+lemma identDistrib_prod_of_eq (hindep₁ : IndepFun X₁ X₂) (hindep₂ : IndepFun X₁ X₂') :
+IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁,X₂⟩) :=
+  { aemeasurable_fst := by measurability
+    aemeasurable_snd := by measurability
+    map_eq := by
+      rw [(indepFun_iff_map_prod_eq_prod_map_map hX₁ hX₂').mp
+      (hindep₂), (indepFun_iff_map_prod_eq_prod_map_map hX₁ hX₂).mp (hindep₁), h₂.map_eq] }
+
 /--
 $$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
 -/
-lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+η)*k - I₁ := by sorry
+lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+η)*k - I₁ := by
+  have hmeas : ∀ (i : Fin 4), Measurable (![X₁, X₂, X₂', X₁'] i)
+  | 0 => hX₁
+  | 1 => hX₂
+  | 2 => hX₂'
+  | 3 => hX₁'
+  have hφ : Measurable (fun x ↦ (X₁ x, x)) := by exact Measurable.prod hX₁ (measurable_id)
+  have := sub_le_sub (cond_rdist_of_sums_ge _ _ _ X₁' X₂' hX₁ hX₂ h_min)
+    (le_of_eq $ rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep)
+  have hk : k = H[X₁ - X₂] - H[X₁] / 2 - H[X₂] / 2 :=
+  by exact IndepFun.rdist_eq (h_indep.indepFun (show (0 : Fin 4) ≠ 1 by decide)) hX₁ hX₂
+  suffices h₃ : d[X₁ + X₂' # X₂ + X₁'] ≤ (1 + η) * k - I₁
+  · rw [IndepFun.rdist_eq] at h₃
+    simp at h₃
+    suffices h₄ : (1 + η) * k - I₁ + H[X₂ + X₁'] / 2 + H[X₁ + X₂'] / 2 = H[X₁] / 2 + H[X₂] / 2 + (2 + η) * k - I₁
+    · convert (le_of_le_of_eq h₃ h₄) using 2
+      abel
+    have hident_sum₁ : IdentDistrib (X₁ + X₂') (X₁ + X₂) := by
+      exact (identDistrib_prod_of_eq _ _ _ hX₁ hX₂ hX₂' h₂
+      (h_indep.indepFun (show (0:Fin 4) ≠ 1 by decide))
+      (h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide))).comp measurable_add
+    have hident_sum₂ : IdentDistrib (X₂ + X₁') (X₁ + X₂) := by
+      apply ((identDistrib_prod_of_eq _ _ _ hX₂ hX₁' hX₁ h₁.symm
+      (h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide))
+      (h_indep.indepFun (show (1:Fin 4) ≠ 0 by decide))).comp measurable_add).symm.trans
+      apply ProbabilityTheory.IdentDistrib.of_ae_eq (by measurability)
+      rw [add_comm]
+      rfl
+    simp [IdentDistrib.entropy_eq hident_sum₁, IdentDistrib.entropy_eq hident_sum₂, add_mul, add_mul,
+      two_mul, one_mul]
+    suffices h₅ : H[X₁ + X₂] / 2 + H[X₁ + X₂] / 2 = H[X₁] / 2 + H[X₂] / 2 + k
+    · linarith[h₅]
+    norm_num [add_halves, hk]
+    · exact ((h_indep.indepFun_prod_prod hmeas 0 2 1 3
+      (by decide) (by decide) (by decide) (by decide)).comp measurable_add measurable_add)
+    · exact (Measurable.add (hmeas 0) (hmeas 2))
+    · exact (Measurable.add (hmeas 1) (hmeas 3))
+  linarith [this, diff_rdist_le_3 p _ _ _ X₂' hX₂ hX₁' h₁ h_indep]
