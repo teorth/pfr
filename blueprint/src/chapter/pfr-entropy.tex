@@ -81,11 +81,11 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
   We have
   \begin{align*}
     &   d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] \\
-    &\quad + I[ X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2 ] = 2k.
+    &\quad + \bbI[ X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2 ] = 2k.
   \end{align*}
 \end{lemma}
 
-\begin{proof}\uses{cor-fibre}  Immediate from Corollary \ref{cor-fibre}.
+\begin{proof}\uses{cor-fibre} \leanok  Immediate from Corollary \ref{cor-fibre}.
 \end{proof}
 
 \begin{lemma}[Lower bound on distances]\label{first-dist-sum}
@@ -130,7 +130,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
   \lean{first_estimate}\leanok We have $I_1 \leq 2 \eta k$.
 \end{lemma}
 
-\begin{proof}\uses{first-fibre, first-dist-sum, first-cond, first-upper}  Take a suitable linear combiation of Lemma \ref{first-fibre}, Lemma \ref{first-dist-sum}, Lemma \ref{first-cond}, and Lemma \ref{first-upper}.
+\begin{proof}\uses{first-fibre, first-dist-sum, first-cond, first-upper}\leanok  Take a suitable linear combiation of Lemma \ref{first-fibre}, Lemma \ref{first-dist-sum}, Lemma \ref{first-cond}, and Lemma \ref{first-upper}.
 \end{proof}
 
 One can also extract the following useful inequality from the proof of the above lemma.
@@ -157,7 +157,7 @@ and the claim follows from Lemma \ref{ruz-indep} and the definition of $k$.
 
 We continue the assumptions from the preceding section.
 We introduce the quantity
-$$ I_2 := I[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
+$$ I_2 := \bbI[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 
 \begin{lemma}[Distance between sums]\label{dist-sums}
   \lean{rdist_of_sums_ge'}\leanok
@@ -195,7 +195,7 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
   Now Corollary \ref{cor-fibre} can be rewritten as
   \begin{align*}
     &d[X_1+\tilde X_1;X_2+\tilde X_2] + d[X_1|X_1+\tilde X_1; X_2|X_2+\tilde X_2] \\
-    &\quad + I[ X_1+X_2 : X_1 + \tilde X_1 \,|\, X_1+X_2+\tilde X_1+\tilde X_2 ] = 2k,
+    &\quad + \bbI[ X_1+X_2 : X_1 + \tilde X_1 \,|\, X_1+X_2+\tilde X_1+\tilde X_2 ] = 2k,
   \end{align*}
   recalling once again that $k := d[X_1;X_2]$.  From Lemma \ref{cond-distance-lower} one has
   \begin{align*}
@@ -211,7 +211,7 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
     \]
   Combining all these inequalities with Lemma \ref{dist-sums}, we have
   \begin{equation}\label{combined}
-  I[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ] \leq \eta ( d[X_1; X_1] + d[X_2; X_2] ).
+  \bbI[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ] \leq \eta ( d[X_1; X_1] + d[X_2; X_2] ).
   \end{equation}
   We may also use Lemma \ref{ruz-indep} to expand
   \begin{align*}
@@ -234,6 +234,16 @@ Let $X_1,X_2,\tilde X_1,\tilde X_2$ be as before, and introduce the random varia
 \[ U := X_1 + X_2, \qquad V := \tilde X_1 + X_2, \qquad W := X_1 + \tilde X_1\] and
 \[   S := X_1 + X_2 + \tilde X_1 + \tilde X_2.\]
 
+\begin{lemma}[Symmetry identity]\label{symm-lemma}
+  \lean{I₃_eq}\leanok
+We have
+$$ I(U:W | S) = I(V:W | S).$$
+\end{lemma}
+
+\begin{proof}\uses{copy-ent, conditional-mutual-alt, chain-rule}
+This should follow from Lemma \ref{copy-ent}, Lemma \ref{conditional-mutual-alt}, and Lemma \ref{chain-rule}.
+\end{proof}
+
 \begin{lemma}[Bound on conditional mutual informations]\label{uvw-s}
 \uses{conditional-information-def}
 \lean{I₃_eq,sum_condMutual_le}\leanok
@@ -244,8 +254,8 @@ $$
 \end{lemma}
 
 \begin{proof}
-  \uses{second-estimate}
-From the definitions of $I_1,I_2$ (and some entropy lemma to deal with the third term), we see that
+  \uses{second-estimate,symm-lemma}\leanok
+From the definitions of $I_1,I_2$ and Lemma \ref{symm-lemma}, we see that
 \[
   I_1 = I(U : V \, | \, S), \qquad I_2 = I(W : U \, | \, S), \qquad I_2 = I(V : W \, | \,S).
 \]
@@ -287,7 +297,7 @@ and the claim follows from some calculation.
   Summing these six estimates and using Lemma \ref{foursum-bound}, we conclude that
   \begin{align*}
     \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] & - d[X^0_i;X_i]\big) \\
-      &\leq 3H[S] - \tfrac{3}{2} \bbH[X_1] - \tfrac{3}{2}H[X_2]\\
+      &\leq 3 \bbH[S] - \tfrac{3}{2} \bbH[X_1] - \tfrac{3}{2} \bbH[X_2]\\
       &\leq (6 - 3\eta) k + 3(2 \eta k - I_1)
   \end{align*}
   as required.
@@ -301,21 +311,24 @@ We have $U+V+W=0$.
 \begin{proof} \leanok Obvious because we are in characteristic two.
 \end{proof}
 
-\begin{lemma}[Constructing good variables]\label{construct-good}
-  \lean{construct_good}\leanok
-  Let $G=\F_2^n$ and let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically. Set
-  \begin{equation}\label{delta-t1t2t3-def}
-    \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j].
-  \end{equation}
-  Then there exist random variables $T'_1, T'_2$ such that
-  \begin{align*}  d[T'_1;T'_2] + & \eta (d[X_1^0;T'_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;T'_2] - d[X_2^0;X_2]) \\ & \leq  \delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).
+For the next two lemmas, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically. Set
+\begin{equation}\label{delta-t1t2t3-def}
+  \delta := \sum_{1 \leq i < j \leq 3} \bbI[T_i;T_j].
+\end{equation}
+
+\begin{lemma}[Constructing good variables, I]\label{construct-good-prelim}
+  \lean{construct_good-prelim}\leanok
+  One has
+  \begin{align*}  k \leq
+    \delta + \eta (& d[X^0_1;T_1]-d[X^0_1;X_1])
+      + \eta (d[X^0_2;T_2]-d[X^0_2;X_2]) \\ & + \tfrac12 \eta \bbI[T_1:T_3] + \tfrac12 \eta \bbI[T_2:T_3].
   \end{align*}
 \end{lemma}
 
-\begin{proof}\uses{lem-bsg, cond-dist-fact}
+\begin{proof}\uses{lem-bsg, cond-dist-fact,distance_lower}
   We apply Lemma \ref{lem-bsg} with $(A,B) = (T_1, T_2)$ there.
   Since $T_1 + T_2 = T_3$, the conclusion is that
-  \begin{align} \nonumber \sum_{t_3} P[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 I[T_1 : T_2] + 2 \bbH[T_3] - \bbH[T_1] - \bbH[T_2].\label{bsg-t1t2}
+  \begin{align} \nonumber \sum_{t_3} \bbP[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 \bbI[T_1 : T_2] + 2 \bbH[T_3] - \bbH[T_1] - \bbH[T_2].\label{bsg-t1t2}
   \end{align}
   The right-hand side in~\eqref{bsg-t1t2} can be rearranged as
   \begin{align*} & 2( \bbH[T_1] + \bbH[T_2] + \bbH[T_3]) - 3 \bbH[T_1,T_2] \\ & = 2(\bbH[T_1] + \bbH[T_2] + \bbH[T_3]) - \bbH[T_1,T_2] - \bbH[T_2,T_3] - \bbH[T_1, T_3] = \delta,\end{align*}
@@ -323,32 +336,33 @@ We have $U+V+W=0$.
   We also have
   \begin{align*}
   &  \sum_{t_3} P[T_3 = t_3] \bigl(d[X^0_1; (T_1 | T_3=t_3)] - d[X^0_1;X_1]\bigr) \\
-  &\quad = d[X^0_1; T_1 | T_3] - d[X^0_1;X_1] \leq d[X^0_1;T_1] - d[X^0_1;X_1] + \tfrac{1}{2} I[T_1 : T_3]
+  &\quad = d[X^0_1; T_1 | T_3] - d[X^0_1;X_1] \leq d[X^0_1;T_1] - d[X^0_1;X_1] + \tfrac{1}{2} \bbI[T_1 : T_3]
   \end{align*}
   by Lemma \ref{cond-dist-fact}, and similarly
   \begin{align*}
-  &  \sum_{t_3} P[T_3 = t_3] (d[X^0_2;(T_2 | T_3=t_3)] - d[X^0_2; X_2]) \\
-  &\quad\quad\quad\quad\quad\quad \leq d[X^0_2;T_2] - d[X^0_2;X_2] + \tfrac{1}{2} I[T_2 : T_3].
+  &  \sum_{t_3} \bbP[T_3 = t_3] (d[X^0_2;(T_2 | T_3=t_3)] - d[X^0_2; X_2]) \\
+  &\quad\quad\quad\quad\quad\quad \leq d[X^0_2;T_2] - d[X^0_2;X_2] + \tfrac{1}{2} \bbI[T_2 : T_3].
   \end{align*}
-  Temporarily define
-  \[ \psi[Y_1; Y_2] := d[Y_1;Y_2] +  \eta (d[X_1^0;Y_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;Y_2] - d[X_2^0;X_2]).\]
-
   Putting the above observations together, we have
   \begin{align*}
-   \sum_{t_3}p P[T_3=t_3] \psi[(T_1 | T_3=t_3); (T_2 | T_3=t_3)] \leq \delta + \eta (d[X^0_1;T_1]-d[X^0_1;X_1]) \\
-     + \eta (d[X^0_2;T_2]-d[X^0_2;X_2]) + \tfrac12 \eta I[T_1:T_3] + \tfrac12 \eta I[T_2:T_3].
+   \sum_{t_3} \bbP[T_3=t_3] \psi[(T_1 | T_3=t_3); (T_2 | T_3=t_3)] \leq \delta + \eta (d[X^0_1;T_1]-d[X^0_1;X_1]) \\
+     + \eta (d[X^0_2;T_2]-d[X^0_2;X_2]) + \tfrac12 \eta \bbI[T_1:T_3] + \tfrac12 \eta \bbI[T_2:T_3]
    \end{align*}
-   Choosing some $t_3$ in the support of $T_3$ that minimizes the $\psi[-;-]$ value, and setting $T'_{1,3} := (T_1 | T_3 = t_3)$, $T'_{2,3} := (T_2 | T_3 = t_3)$, we have
-  \begin{align}\nonumber
-   \psi[T_{1,3}';T_{2,3}'] \leq \delta + \eta (& d[X^0_1;T_1]-d[X^0_1;X_1])
-      + \eta (d[X^0_2;T_2]-d[X^0_2;X_2]) \\ & + \tfrac12 \eta I[T_1:T_3] + \tfrac12 \eta I[T_2:T_3].
-     \label{eq:t1323}
-  \end{align}
-  We now repeat this analysis for all permutations of $\{T_1,T_2,T_3\}$ to get variables $T'_{\alpha,\gamma}, T'_{\beta,\gamma}$ for $\{\alpha,\beta,\gamma\}$ ranging over all six permutations of $\{1,2,3\}$.
-  Averaging the resulting inequalities~\eqref{eq:t1323}, and recalling the definition~\eqref{delta-t1t2t3-def} of $\delta$, we get
-  \[ \tfrac16 \sum_{\alpha,\beta,\gamma} \psi[T_{\alpha,\gamma}';T_{\beta,\gamma}']  \leq  \delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;T_j]-d[X^0_i;X_i]) \biggr),
-  \]
-  from which the result follows (taking $T'_1,T'_2$ to be $T'_{\alpha,\gamma},T'_{\beta,\gamma}$ for some $(\alpha,\beta,\gamma)$ that gives at most the average value).
+where we introduce the notation
+\[ \psi[Y_1; Y_2] := d[Y_1;Y_2] +  \eta (d[X_1^0;Y_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;Y_2] - d[X_2^0;X_2]).\]
+On the other hand, from Lemma \ref{distance-lower} we have $k \leq \psi[Y_1;Y_2]$, and the claim follows.
+  \end{proof}
+
+
+\begin{lemma}[Constructing good variables, II]\label{construct-good}
+  \lean{construct_good}\leanok
+One has
+\begin{align*}  k & \leq  \delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\uses{construct-good-prelim}
+Average Lemma \ref{construct-good-prelim} over all six permutations of $T_1,T_2,T_3$.
 \end{proof}
 
 
@@ -362,8 +376,8 @@ $$
 \end{theorem}
 
 \begin{proof}
-  \uses{construct-good, cond-distance-lower, key-ident, uvw-s, total-dist, first-estimate, eta-def}
-  We take contrapostives and assume that $X_1,X_2$ are tau-minimizers, and wish to show that $k := d[X_1;X_2]$ vanishes.  Applying Lemma \ref{construct-good} with any random variables $(T_1,T_2,T_3)$ such that $T_1+T_2+T_3=0$ holds identically, and applying Lemma \ref{cond-distance-lower} with $X'_1 = T'_1$, $X'_2 = T'_2$, we deduce that
+  \uses{construct-good, key-ident, uvw-s, total-dist, first-estimate, eta-def}
+  We take contrapostives and assume that $X_1,X_2$ are tau-minimizers, and wish to show that $k := d[X_1;X_2]$ vanishes.  Applying Lemma \ref{construct-good} with any random variables $(T_1,T_2,T_3)$ such that $T_1+T_2+T_3=0$ holds identically, we deduce that
 \[
   k \leq \delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_1;T_j] - d[X^0_i;X_i]) \biggr).
 \]
@@ -376,7 +390,7 @@ for $s$ in the range of $S$ (which is a valid choice by Lemma \ref{key-ident}) a
 \[ k \leq \tilde \delta + \frac{\eta}{3} \biggl( \tilde \delta + \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \bigl(  d[X^0_i;A|S] - d[X^0_i;X_i]\bigr) \biggr),\]
 where
 \[
-  \tilde \delta :=  I[U : V | S] + I[V : W | S] + I[W : U | S].
+  \tilde \delta :=  \bbI[U : V | S] + \bbI[V : W | S] + \bbI[W : U | S].
 \]
 Putting this together with Lemma \ref{uvw-s} and Lemma \ref{total-dist}, we conclude that
 \begin{align*}
@@ -384,8 +398,8 @@ Putting this together with Lemma \ref{uvw-s} and Lemma \ref{total-dist}, we conc
   &= (8\eta + \eta^2) k - \biggl( \frac{1 - 5 \eta}{1-\eta}\Bigl(1 + \frac{\eta}{3}\Bigr) -  \eta \biggr)(2 \eta k - I_1)\\
   &\leq (8 \eta + \eta^2) k
  \end{align*}
-since the quantity $2 \eta k - I_1$ is non-negative (by Lemma \ref{first-estimate}), and its coefficient in the above expression is non-positive provided that $\eta(2\eta + 17) \le 3$, which is certainly the case for our choice $\eta = \frac{1}{9}$ (and in fact for any $\eta \leq \frac{1}{6}$).
-Moreover, for\footnote{In fact we can take any $\eta<\frac{1}{4 + \sqrt{17}} = \frac{1}{8.1231\dots}$, and the other constants in the paper can be improved accordingly.} $\eta=\tfrac{1}{9}$ we have $8 \eta + \eta^2 < 1$. It follows that $k=0$, as desired.
+since the quantity $2 \eta k - I_1$ is non-negative (by Lemma \ref{first-estimate}), and its coefficient in the above expression is non-positive provided that $\eta(2\eta + 17) \le 3$, which is certainly the case with Definition \ref{eta-def}.
+Moreover, from Definition \ref{eta-def} we have $8 \eta + \eta^2 < 1$. It follows that $k=0$, as desired.
 \end{proof}
 
 

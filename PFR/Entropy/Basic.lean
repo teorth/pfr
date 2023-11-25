@@ -398,7 +398,7 @@ lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω →
   rw [condEntropy_def, integral_eq_sum]
   simp_rw [smul_eq_mul]
 
-/-- $H[X|Y] = \sum_y \sum_x P[Y=y] P[X=x|Y=y] log ¼{1}{P[X=x|Y=y]$}.-/
+/-- $H[X|Y] = \sum_y \sum_x P[Y=y] P[X=x|Y=y] log \frac{1}{P[X=x|Y=y]$}.-/
 lemma condEntropy_eq_sum_sum [MeasurableSingletonClass T] (hX : Measurable X) (Y : Ω → T)
     (μ : Measure Ω) [IsProbabilityMeasure μ] :
     H[X | Y ; μ]
@@ -587,10 +587,10 @@ lemma mutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonCl
 /-- Mutual information is non-negative. -/
 lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsProbabilityMeasure μ] :
+    [IsFiniteMeasure μ] :
     0 ≤ I[X : Y ; μ] := by
-  have : IsProbabilityMeasure (μ.map (⟨ X, Y ⟩)) :=
-    isProbabilityMeasure_map (hX.prod_mk hY).aemeasurable
+  have : IsFiniteMeasure (μ.map (⟨ X, Y ⟩)) :=
+    Measure.isFiniteMeasure_map _ _
   simp_rw [mutualInformation_def, entropy_def]
   have h_fst : μ.map X = (μ.map (⟨ X, Y ⟩)).map Prod.fst := by
     rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
@@ -612,7 +612,7 @@ lemma IdentDistrib.mutualInformation_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ'
 /-- Subadditivity of entropy. -/
 lemma entropy_pair_le_add [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsProbabilityMeasure μ] :
+    [IsFiniteMeasure μ] :
     H[⟨ X, Y ⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
   sub_nonneg.1 $ mutualInformation_nonneg hX hY _
 
@@ -732,15 +732,11 @@ lemma condMutualInformation_comm [MeasurableSingletonClass S] [MeasurableSinglet
     I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
   simp_rw [condMutualInformation_def, add_comm, entropy_comm hX hY]
 
-/-- Conditional information is non-nnegative. -/
+/-- Conditional information is non-nonegative. -/
 lemma condMutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
-    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) [IsFiniteMeasure μ] :
     0 ≤ I[X : Y | Z ; μ] := by
   refine integral_nonneg (fun z ↦ ?_)
-  by_cases hz : μ (Z ⁻¹' {z}) = 0
-  · have : μ[|Z ⁻¹' {z}] = 0 := cond_eq_zero_of_measure_zero hz
-    simp [this]
-  have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ hz
   exact mutualInformation_nonneg hX hY _
 
 /-- $$ I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
@@ -759,6 +755,21 @@ lemma condMutualInformation_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Me
     I[X : Y | Z ; μ] = H[X | Z ; μ] - H[X | ⟨Y, Z⟩  ; μ] := by
   rw [condMutualInformation_eq hX hY hZ, cond_chain_rule _ hX hY hZ]
   ring
+
+lemma condMutualInformation_of_inj_map [IsProbabilityMeasure μ]
+  (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+  {V : Type*} [Nonempty V] [Fintype V] [MeasurableSpace V] [MeasurableSingletonClass V]
+  (f : U → S → V) (hf : ∀ t, Function.Injective (f t)) :
+    I[fun ω ↦ f (Z ω) (X ω) : Y | Z ; μ] =
+    I[X : Y | Z ; μ] := by
+  have hM : Measurable (Function.uncurry f ∘ ⟨Z, X⟩) :=
+    (measurable_of_countable _).comp (hZ.prod_mk hX)
+  have hM : Measurable fun ω ↦ f (Z ω) (X ω) := hM
+  rw [condMutualInformation_eq hM hY hZ, condMutualInformation_eq hX hY hZ]
+  let g : U → (S × T) → (V × T) := fun z (x,y) ↦ (f z x, y)
+  have hg : ∀ t, Function.Injective (g t) :=
+    fun _ _ _ h ↦ Prod.ext_iff.2 ⟨hf _ (Prod.ext_iff.1 h).1, (Prod.ext_iff.1 h).2⟩
+  rw [← condEntropy_of_inj_map μ (hX.prod_mk hY) hZ g hg, ← condEntropy_of_inj_map μ hX hZ _ hf]
 
 section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]
@@ -948,8 +959,7 @@ lemma map_eval_pi {I} [Fintype I] {Ω : I → Type*} [∀ i, MeasurableSpace (Ω
 
 /-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.
 Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$
-such that each $X'_i$ is a copy of $X_i$.
-May need some hypotheses of measurability and non-degeneracy -/
+such that each $X'_i$ is a copy of $X_i$. -/
 lemma independent_copies' {I: Type u} [Fintype I] {S : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (S i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → S i) (hX : ∀ i : I, Measurable (X i))
@@ -1039,13 +1049,77 @@ lemma independent_copies4_nondep {S : Type u}
     (hX' 0).2, (hX' 1).2, (hX' 2).2, (hX' 3).2⟩
   convert hi; ext i; fin_cases i <;> rfl
 
+lemma law_of_total_probability [Fintype T] [MeasurableSingletonClass T] {Y: Ω → T} (hY: Measurable Y) (μ: Measure Ω) [IsFiniteMeasure μ]: μ = ∑ y : T, (μ (Y⁻¹' {y})) • (μ[|Y ⁻¹' {y}]) := by
+  apply Measure.ext
+  intro E hE
+  simp
+  have : μ E = ∑ y : T, μ (Y⁻¹' {y} ∩ E) := by
+    have : E = ⋃ y ∈ Set.univ, Y⁻¹' {y} ∩ E := by
+      simp; ext _; simp
+    nth_rewrite 1 [this]
+    convert measure_biUnion_finset _ _
+    . simp
+    · intro _ _ _ _ hyz
+      apply Disjoint.inf_left
+      apply Disjoint.inf_right
+      apply Disjoint.preimage
+      simp [hyz]
+    intro b _
+    exact MeasurableSet.inter (hY (MeasurableSet.singleton b)) hE
+  rw [this]
+  congr with y
+  rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
+  . simp [hy]
+    exact measure_inter_null_of_null_left E hy
+  symm
+  rw [mul_comm, cond_mul_eq_inter _ (hY (MeasurableSet.singleton y)) hy]
+
+lemma identDistrib_of_sum (X : Ω → S) (Y : Ω' → S) [Fintype T] (μ : T → Measure Ω) (μ' : T → Measure Ω') (w : T → ENNReal) (hX: Measurable X) (hY: Measurable Y) (h_ident : ∀ y : T, IdentDistrib X Y (μ y) (μ' y)) : IdentDistrib X Y (∑ y : T, (w y) • (μ y)) (∑ y : T, (w y) • (μ' y)) := {
+  aemeasurable_fst := hX.aemeasurable,
+  aemeasurable_snd := hY.aemeasurable,
+  map_eq := by
+    rw [<-Measure.mapₗ_apply_of_measurable hX, <-Measure.mapₗ_apply_of_measurable hY]
+    simp
+    congr with y E _
+    congr 3
+    rw [Measure.mapₗ_apply_of_measurable hX, Measure.mapₗ_apply_of_measurable hY]
+    exact (h_ident y).map_eq
+}
+
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials
 $X_1, X_2, Y'$.-/
-lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T),
-    ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T,
+lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (hX: Measurable X) (hY: Measurable Y) (μ: Measure Ω) [IsProbabilityMeasure μ]:
+    ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X_1 X_2 : Ω' → S) (Y' : Ω' → T) (ν : Measure Ω'),
     IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧
     (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩)
     (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by
+  let m := fun (y : T) ↦ (((μ[|Y ⁻¹' {y}]).map X).prod ((μ[|Y ⁻¹' {y}]).map X)).prod (Measure.dirac y)
+  let ν : Measure ((S × S) × T) := ∑ y : T, ((μ (Y⁻¹' {y})) • (m y))
+  refine ⟨ (S × S) × T, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_, measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst, measurable_snd, ?_, ?_, ?_ ⟩
+  . constructor
+    simp
+    have : ∑ y : T, μ (Y⁻¹' {y})*1 = 1 := by
+      simp
+      rw [show 1 = μ Set.univ by simp]
+      symm
+      convert measure_biUnion_finset _ _
+      . simp; ext _; simp
+      . intro _ _ _ _ hyz
+        apply Disjoint.preimage
+        simp [hyz]
+      intros
+      exact hY trivial
+    rw [<-this]
+    congr with y
+    rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
+    . simp [hy]
+    congr 1
+    have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure μ hy
+    have : IsProbabilityMeasure ((μ[|Y ⁻¹' {y}]).map X) := by
+      exact isProbabilityMeasure_map (Measurable.aemeasurable hX)
+    simp
+  . sorry
+  . sorry
   sorry
 
 

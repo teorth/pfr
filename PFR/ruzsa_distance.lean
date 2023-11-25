@@ -553,6 +553,26 @@ lemma cond_rdist'_of_copy
     (h1 : IdentDistrib X X' μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
     d[X ; μ # Y | W ; μ'] = d[X' ; μ'' # Y' | W' ; μ'''] := by sorry
 
+lemma cond_rdist_of_inj_map [IsProbabilityMeasure μ]
+  (Y : Fin 4 → Ω → G) (h_indep : IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) μ)
+  (h_meas : ∀ i, Measurable (Y i)) (π : G × G →+ G × G)
+  (hπ : ∀ (h : G), Function.Injective (fun g ↦ π (g, h))) :
+    d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] = d[Y 0 | Y 2 ; μ # Y 1 | Y 3 ; μ] := by
+  let f (h : G) (g : G) : G × G := π (g, h)
+  let f' : G × G → G → (G × G) := fun (h1, h2) ↦ fun g ↦ π (g, h1 - h2)
+  have hf' (t : G × G) : Function.Injective (f' t) := fun _ _ h ↦ hπ _ h
+  let f'' : G × G → (G × G) × G := fun (g, h) ↦ (π (g, h), h)
+  have hf'' : Measurable f'' := measurable_of_countable _
+  have hm1 : Measurable (Y 0 - Y 1) := (h_meas 0).sub (h_meas 1)
+  have hm2 : Measurable (⟨Y 2, Y 3⟩) := (h_meas 2).prod_mk (h_meas 3)
+  rw [cond_rdist_of_indep (h_meas 0) (h_meas 2) (h_meas 1) (h_meas 3) μ h_indep,
+    cond_rdist_of_indep ((measurable_of_countable _).comp ((h_meas 0).prod_mk (h_meas 2)))
+    (h_meas 2) ((measurable_of_countable _).comp ((h_meas 1).prod_mk (h_meas 3))) (h_meas 3) μ
+    (h_indep.comp hf'' hf''),
+    ← condEntropy_of_inj_map μ hm1 hm2 f' hf', ← π.comp_sub,
+    ← condEntropy_of_inj_map μ (h_meas 0) (h_meas 2) f hπ,
+    ← condEntropy_of_inj_map μ (h_meas 1) (h_meas 3) f hπ]
+  rfl
 
 /-- The **Kaimonovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y].$$ -/
 lemma kaimonovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)

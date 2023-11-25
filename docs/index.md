@@ -21,8 +21,11 @@ The purpose of this repository is to hold a Lean4 formalization of [the proof of
 
 To build the Lean files of this project, you need to have a working version of Lean.
 See [the installation instructions](https://leanprover-community.github.io/get_started.html) (under Regular install).
+Alternatively, click on the button below to open a Gitpod workspace containing the project.
 
-To build the project, run `lake exe cache get` and then `lake build`.
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://github.com/teorth/pfr)
+
+In either case, run `lake exe cache get` and then `lake build` to build the project.
 
 ## Build the blueprint
 

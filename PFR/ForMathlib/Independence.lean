@@ -89,6 +89,23 @@ lemma iIndepFun.neg (h : iIndepFun n f μ) : iIndepFun n (update f i (-f i)) μ 
   · subst hj; simp [measurable_neg]
   · simp [hj, measurable_id]
 
+variable [IsProbabilityMeasure μ]
+
+lemma iIndepFun.indepFun_prod_prod
+  (h_indep: iIndepFun n f μ) (hf: ∀ i, Measurable (f i))
+  (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
+  IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
+  classical
+  have hd : Disjoint ({i, j} : Finset ι) ({k,l} : Finset ι) := by
+    simp only [Finset.mem_singleton, Finset.disjoint_insert_right, Finset.mem_insert,
+      Finset.disjoint_singleton_right]
+    tauto
+  have h := h_indep.indepFun_finset ({i, j} : Finset ι) ({k,l} : Finset ι) hd hf
+  let g (i j : ι) (v : Π x : ({i, j} : Finset ι), α x) : (α i) × (α j) :=
+    ⟨v ⟨i, Finset.mem_insert_self i {j}⟩, v ⟨j, Finset.mem_insert_of_mem (Finset.mem_singleton_self j)⟩⟩
+  have hg (i j : ι) : Measurable (g i j) := by measurability
+  exact h.comp (hg i j) (hg k l)
+
 end iIndepFun
 
 end ProbabilityTheory

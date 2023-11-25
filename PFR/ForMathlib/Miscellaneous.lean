@@ -19,6 +19,14 @@ instance {α : Type*} [MeasurableSpace α] [MeasurableSingletonClass α] [Sub α
     [Countable α] : MeasurableSub₂ α :=
   ⟨measurable_of_countable _⟩
 
+/- To move close to Set.Finite.measurableSet
+  Should this sort of thing be implied by some kind of class for
+  `MeasurableSpace`s with measure algebra `⊤`?
+  -/
+instance {α : Type*} [MeasurableSpace α] [MeasurableSingletonClass α] [Add α]
+    [Countable α] : MeasurableAdd₂ α :=
+  ⟨measurable_of_countable _⟩
+
 section
 
 open Set
@@ -68,3 +76,13 @@ theorem Finset.prod_finset_eq_prod [Fintype α] {s : Finset α} {f : α → β}
   rw [← Finset.prod_mul_prod_compl s f, this, mul_one]
 
 end
+
+section
+
+-- Move to be near `AddMonoidHom.map_sub`, make multiplicative and additive versions
+@[simp] lemma AddMonoidHom.comp_sub
+    {α : Type*} {H : Type*} {H' : Type*} [AddCommGroup H] [AddCommGroup H']
+    (π : H →+ H') (X Y : α → H) :
+    π ∘ (X - Y) = π ∘ X - π ∘ Y := by
+  ext
+  simp
