@@ -132,4 +132,45 @@ lemma first_estimate : I₁ ≤ 2 * η * k := by
 /--
 $$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
 -/
-lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+η)*k - I₁ := by sorry
+lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+η)*k - I₁ := by
+  --have l68 := rdist_add_rdist_add_condMutual_eq hX₁ hX₂ hX₁' hX₂' sorry
+  let D := d[X₁ + X₂' # X₂ + X₁']
+  let Dcc := d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁' ]
+  let D1 := d[p.X₀₁ # X₁]
+  let Dc1 := d[p.X₀₁ # X₁ | X₁ + X₂']
+  let D2 := d[p.X₀₂ # X₂]
+  let Dc2 := d[p.X₀₂ # X₂ | X₂ + X₁']
+  have l68 : D + Dcc + _ = _ :=
+    @rdist_add_rdist_add_condMutual_eq G _ _ _ _ _ Ω _ _ X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
+  have l610 : Dcc ≥ k - η * (Dc1 - D1) - η * (Dc2 - D2) :=
+    @cond_rdist_of_sums_ge G _ _ _ _ Ω₀₁ Ω₀₂ _ _ p Ω _ X₁ X₂ X₁' X₂' hX₁ hX₂ h_min
+  --have l611a : _ - D1 ≤  _ --: Dc1 - D1 ≤ _ + _
+  --  := @diff_rdist_le_1 G _ _ _ _ _ _ Ω₀₁ Ω₀₂ _ _ _ p Ω _ _ X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
+  --have l611b : _ - D2 ≤ _
+  --  := @diff_rdist_le_2 G _ _ _ _ _ _ Ω₀₁ Ω₀₂ _ _ _ p Ω _ _ X₁ X₂ X₁' X₂' hX₂ hX₁' h₁ h_indep
+  have l611c : Dc1 - D1 ≤ _
+    := @diff_rdist_le_3 G _ _ _ _ _ _ Ω₀₁ Ω₀₂ _ _ _ p Ω _ _ X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
+  have l611d : Dc2 - D2 ≤ _
+    := @diff_rdist_le_4 G _ _ _ _ _ _ Ω₀₁ Ω₀₂ _ _ _ p Ω _ _ X₁ X₂ X₁' X₂' hX₂ hX₁' h₁ h_indep
+  have aux' : D + I₁ ≤ k + η * (Dc1 - D1) + η * (Dc2 - D2) := by
+    convert add_le_add l68.le (neg_le_neg l610) using 1 <;> ring
+  have aux : D + I₁ ≤ (1 + η) * k := by
+    apply aux'.trans
+    rw [add_mul 1, one_mul]
+    simp_rw [add_assoc]
+    apply add_le_add_left
+    rw [← mul_add η]
+    apply (mul_le_mul_left (by norm_num [η])).mpr
+    apply (add_le_add l611c l611d).trans
+    linarith
+  have ind : D = _ :=
+    @IndepFun.rdist_eq Ω G _ ℙ _ _ _ _ (X₁ + X₂') _ (X₂ + X₁') ?_ (by measurability) (by measurability)
+  --have obs := add_le_add l68.le (neg_le_neg l610)
+  --simp_rw [show (D + Dcc + I₁) + -Dcc = D + I₁ by ring, ←sub_eq_add_neg, ←sub_add] at obs
+  --ring_nf at obs
+  --have := @sub_add
+  --rw [add_assoc] at obs₂
+
+  --simp only [neg_sub, add_neg_le_iff_le_add] at obs₂
+  --ring_nf at obs₂
+  --have obs₂ := @add_le_add ℝ _ _ _ _ --l68 obs₁
