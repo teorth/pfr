@@ -570,7 +570,7 @@ lemma measureMutualInfo_univ_smul (μ : Measure (S × U)) : Im[(μ Set.univ)⁻�
   · rw [measureMutualInfo_of_not_isFiniteMeasure hμ_fin]
     rw [not_isFiniteMeasure_iff] at hμ_fin
     simp [hμ_fin]
-  rcases eq_zero_or_neZero μ with hμ | hμ
+  rcases eq_zero_or_neZero μ with hμ | _
   . simp [hμ]
   rw [measureMutualInfo_def, measureMutualInfo_def]
   congr 1; congr 1

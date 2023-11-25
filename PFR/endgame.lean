@@ -138,7 +138,7 @@ $$ \delta + \eta ( d[X^0_1;T_1]-d[X^0_1;X_1]) + \eta (d[X^0_2;T_2]-d[X^0_2;X_2])
 $$ + \tfrac12 \eta \bbI[T_1:T_3] + \tfrac12 \eta \bbI[T_2:T_3].$$
 -/
 lemma construct_good_prelim :
-    ∃ Ω' : Type u, ∃ mΩ' : MeasureSpace Ω', ∃ T₁' T₂' : Ω' → G, ψ[ T₁' # T₂'] ≤ δ + η * c[T₁ # T₂] + η * (I[T₁:T₃] + I[T₂:T₃])/2 := by sorry
+    k ≤ δ + η * c[T₁ # T₂] + η * (I[T₁:T₃] + I[T₂:T₃])/2 := by sorry
 
 
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
@@ -148,8 +148,8 @@ $$ d[T'_1;T'_2] + \eta (d[X_1^0;T'_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;T'_2] - d[X
 is at most
 $$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).$$
 -/
-lemma construct_good
-    ∃ Ω' : Type u, ∃ mΩ' : MeasureSpace Ω', ∃ T₁' T₂' : Ω' → G, ψ[ T₁' # T₂'] ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by sorry
+lemma construct_good :
+    k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by sorry
 
 
 end construct_good
