@@ -1063,7 +1063,15 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     simp
     have : ∑ y : T, μ (Y⁻¹' {y})*1 = 1 := by
       simp
-      sorry
+      rw [show 1 = μ Set.univ by simp]
+      symm
+      convert measure_biUnion_finset _ _
+      . simp; ext ω; simp
+      . intro y _hy z _hz hyz
+        apply Disjoint.preimage
+        simp [hyz]
+      intro y _hy
+      exact hY trivial
     rw [<-this]
     congr with y
     rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
