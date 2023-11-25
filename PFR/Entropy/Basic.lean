@@ -1187,16 +1187,38 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
       apply Filter.eventuallyEq_of_mem (h3' y)
       intro ω; simp; exact fun a ↦ id a.symm
     intro y hy
+    have hy' : ν (Prod.snd⁻¹' {y}) = μ (Y⁻¹' {y}) := by
+      rw [<- map_apply measurable_snd (by simp), <-map_apply hY trivial, h1]
     rw [h1] at hy
-    replace hy : μ (Y⁻¹' {y}) ≠ 0 := by
+    have hy'' : μ (Y⁻¹' {y}) ≠ 0 := by
       convert hy
       exact (map_apply hY trivial).symm
+
     have h2 : ν[| Prod.snd⁻¹' {y} ] = m y := by
-      sorry
+      rw [Measure.ext_iff]
+      intro E _
+      rw [cond_apply ν (measurable_snd (by simp)) E, hy']
+      simp
+      have h3 : (m y) ((Prod.snd⁻¹' {y}) ∩ E) = (m y) E := by
+        apply measure_congr
+        apply inter_ae_eq_right_of_ae_eq_univ
+        simp
+        rw [(show (Prod.snd⁻¹' {y})ᶜ = Prod.snd⁻¹' ({y}ᶜ) by rfl), <- map_apply measurable_snd (by simp)]
+        simp
+      have h3' {x : T} (hx: x ≠ y): (m x) ((Prod.snd⁻¹' {y}) ∩ E) = 0 := by
+        apply measure_inter_null_of_null_left E
+        rw [<- Measure.map_apply measurable_snd (by simp), MeasureTheory.Measure.map_snd_prod]
+        simp; right; exact hx
+      rw [Finset.sum_eq_single_of_mem y (Finset.mem_univ y)]
+      . rw [h3, <-mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
+        finiteness
+      intro x _ hx
+      rw [h3' hx]
+      simp
     rw [h2, indepFun_iff_map_prod_eq_prod_map_map]
     . let f : (S × S) × T → (S × S) := Prod.fst
       show ((m y).map f) = ((m y).map (Prod.fst ∘ f)).prod ((m y).map (Prod.snd ∘ f))
-      have : IsProbabilityMeasure (m' y) := h5 hy
+      have : IsProbabilityMeasure (m' y) := h5 hy''
       have : (m y).map f = (m' y).prod (m' y) := by simp
       rw [<-map_map measurable_fst measurable_fst, <-map_map measurable_snd measurable_fst, this]
       simp
