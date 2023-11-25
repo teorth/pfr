@@ -85,7 +85,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
   \end{align*}
 \end{lemma}
 
-\begin{proof}\uses{cor-fibre}  Immediate from Corollary \ref{cor-fibre}.
+\begin{proof}\uses{cor-fibre}\leanok  Immediate from Corollary \ref{cor-fibre}.
 \end{proof}
 
 \begin{lemma}[Lower bound on distances]\label{first-dist-sum}
@@ -311,7 +311,7 @@ We have $U+V+W=0$.
 \begin{proof} \leanok Obvious because we are in characteristic two.
 \end{proof}
 
-For the next two lemmas, let $G=\F_2^n$ and let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically. Set
+For the next two lemmas, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically. Set
 \begin{equation}\label{delta-t1t2t3-def}
   \delta := \sum_{1 \leq i < j \leq 3} \bbI[T_i;T_j].
 \end{equation}
@@ -398,8 +398,8 @@ Putting this together with Lemma \ref{uvw-s} and Lemma \ref{total-dist}, we conc
   &= (8\eta + \eta^2) k - \biggl( \frac{1 - 5 \eta}{1-\eta}\Bigl(1 + \frac{\eta}{3}\Bigr) -  \eta \biggr)(2 \eta k - I_1)\\
   &\leq (8 \eta + \eta^2) k
  \end{align*}
-since the quantity $2 \eta k - I_1$ is non-negative (by Lemma \ref{first-estimate}), and its coefficient in the above expression is non-positive provided that $\eta(2\eta + 17) \le 3$, which is certainly the case for our choice $\eta = \frac{1}{9}$ (and in fact for any $\eta \leq \frac{1}{6}$).
-Moreover, for\footnote{In fact we can take any $\eta<\frac{1}{4 + \sqrt{17}} = \frac{1}{8.1231\dots}$, and the other constants in the paper can be improved accordingly.} $\eta=\tfrac{1}{9}$ we have $8 \eta + \eta^2 < 1$. It follows that $k=0$, as desired.
+since the quantity $2 \eta k - I_1$ is non-negative (by Lemma \ref{first-estimate}), and its coefficient in the above expression is non-positive provided that $\eta(2\eta + 17) \le 3$, which is certainly the case with Definition \ref{eta-def}.
+Moreover, from Definition \ref{eta-def} we have $8 \eta + \eta^2 < 1$. It follows that $k=0$, as desired.
 \end{proof}
 
 

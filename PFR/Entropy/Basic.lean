@@ -398,7 +398,7 @@ lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω →
   rw [condEntropy_def, integral_eq_sum]
   simp_rw [smul_eq_mul]
 
-/-- $H[X|Y] = \sum_y \sum_x P[Y=y] P[X=x|Y=y] log ¼{1}{P[X=x|Y=y]$}.-/
+/-- $H[X|Y] = \sum_y \sum_x P[Y=y] P[X=x|Y=y] log \frac{1}{P[X=x|Y=y]$}.-/
 lemma condEntropy_eq_sum_sum [MeasurableSingletonClass T] (hX : Measurable X) (Y : Ω → T)
     (μ : Measure Ω) [IsProbabilityMeasure μ] :
     H[X | Y ; μ]
@@ -959,8 +959,7 @@ lemma map_eval_pi {I} [Fintype I] {Ω : I → Type*} [∀ i, MeasurableSpace (Ω
 
 /-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.
 Then there exist jointly independent random variables $X'_i: \Omega' \to S_i$ for $i=1,\dots,k$
-such that each $X'_i$ is a copy of $X_i$.
-May need some hypotheses of measurability and non-degeneracy -/
+such that each $X'_i$ is a copy of $X_i$. -/
 lemma independent_copies' {I: Type u} [Fintype I] {S : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (S i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → S i) (hX : ∀ i : I, Measurable (X i))
@@ -1052,11 +1051,31 @@ lemma independent_copies4_nondep {S : Type u}
 
 /-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials
 $X_1, X_2, Y'$.-/
-lemma condIndependent_copies (X : Ω → S) (Y : Ω → T) (μ: Measure Ω): ∃ ν : Measure (S × S × T),
-    ∃ X_1 X_2 : S × S × T → S, ∃ Y' : S × S × T → T,
+lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (hX: Measurable X) (hY: Measurable Y) (μ: Measure Ω) [IsProbabilityMeasure μ]:
+    ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X_1 X_2 : Ω' → S) (Y' : Ω' → T) (ν : Measure Ω'),
     IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧
     (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩)
     (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by
+  let m := fun (y : T) ↦ (((μ[|Y ⁻¹' {y}]).map X).prod ((μ[|Y ⁻¹' {y}]).map X)).prod (Measure.dirac y)
+  let ν : Measure ((S × S) × T) := ∑ y : T, ((μ (Y⁻¹' {y})) • (m y))
+  refine ⟨ (S × S) × T, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_, Measurable.comp measurable_fst measurable_fst, Measurable.comp measurable_snd measurable_fst, measurable_snd, ?_, ?_, ?_ ⟩
+  . constructor
+    simp
+    have : ∑ y : T, μ (Y⁻¹' {y})*1 = 1 := by
+      simp
+      sorry
+    rw [<-this]
+    congr with y
+    rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
+    . simp [hy]
+    congr 1
+    show (m y) Set.univ = 1
+    have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure μ hy
+    have : IsProbabilityMeasure ((μ[|Y ⁻¹' {y}]).map X) := by
+      exact isProbabilityMeasure_map (Measurable.aemeasurable hX)
+    simp
+  . sorry
+  . sorry
   sorry
 
 
