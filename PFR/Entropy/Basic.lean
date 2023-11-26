@@ -1010,7 +1010,7 @@ It's unfortunately incredibly painful to prove this from the general case. -/
 lemma independent_copies3_nondep {S : Type u}
     [mS : MeasurableSpace S]
     {Ω₁ : Type u_1} {Ω₂ : Type u_2} {Ω₃ : Type u_3}
-    [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂] [mΩ₃ : MeasurableSpace Ω₃]
+    [MeasurableSpace Ω₁] [MeasurableSpace Ω₂] [MeasurableSpace Ω₃]
     {X₁ : Ω₁ → S} {X₂ : Ω₂ → S} {X₃ : Ω₃ → S}
     (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃)
@@ -1024,38 +1024,31 @@ lemma independent_copies3_nondep {S : Type u}
   let Ω₁' : Type (max u_1 u_2 u_3) := ULift.{max u_2 u_3} Ω₁
   let Ω₂' : Type (max u_1 u_2 u_3) := ULift.{max u_1 u_3} Ω₂
   let Ω₃' : Type (max u_1 u_2 u_3) := ULift.{max u_1 u_2} Ω₃
-  let mΩ₁' : MeasurableSpace Ω₁' := inferInstance
-  let mΩ₂' : MeasurableSpace Ω₂' := inferInstance
-  let mΩ₃' : MeasurableSpace Ω₃' := inferInstance
-  let μ₁' : Measure Ω₁' := μ₁.comap ULift.down
-  let μ₂' : Measure Ω₂' := μ₂.comap ULift.down
-  let μ₃' : Measure Ω₃' := μ₃.comap ULift.down
-  have hμ₁' : IsProbabilityMeasure μ₁' := ULift.isProbabilityMeasure hμ₁
-  have hμ₂' : IsProbabilityMeasure μ₂' := ULift.isProbabilityMeasure hμ₂
-  have hμ₃' : IsProbabilityMeasure μ₃' := ULift.isProbabilityMeasure hμ₃
-  let X₁'' : Ω₁' → S := X₁ ∘ ULift.down
-  let X₂'' : Ω₂' → S := X₂ ∘ ULift.down
-  let X₃'' : Ω₃' → S := X₃ ∘ ULift.down
-  have hX₁'' : Measurable X₁'' := hX₁.comp (comap_measurable _)
-  have hX₂'' : Measurable X₂'' := hX₂.comp (comap_measurable _)
-  have hX₃'' : Measurable X₃'' := hX₃.comp (comap_measurable _)
-  have h₁ : IdentDistrib X₁'' X₁ μ₁' μ₁ := (identDistrib_ulift_self hX₁).symm
-  have h₂ : IdentDistrib X₂'' X₂ μ₂' μ₂ := (identDistrib_ulift_self hX₂).symm
-  have h₃ : IdentDistrib X₃'' X₃ μ₃' μ₃ := (identDistrib_ulift_self hX₃).symm
   let Ω : Fin 3 → Type (max u_1 u_2 u_3) := ![Ω₁', Ω₂', Ω₃']
   let mΩ : (i : Fin 3) → MeasurableSpace (Ω i) :=
-    Fin.cases mΩ₁' <| Fin.cases mΩ₂' <| Fin.cases mΩ₃' Fin.rec0
-  let X : (i : Fin 3) → Ω i → S := Fin.cases X₁'' <| Fin.cases X₂'' <| Fin.cases X₃'' Fin.rec0
+    Fin.cases (inferInstance : MeasurableSpace Ω₁') <|
+    Fin.cases (inferInstance : MeasurableSpace Ω₂') <|
+    Fin.cases (inferInstance : MeasurableSpace Ω₃') Fin.rec0
+  let X : (i : Fin 3) → Ω i → S :=
+    Fin.cases (X₁ ∘ ULift.down) <| Fin.cases (X₂ ∘ ULift.down) <| Fin.cases (X₃ ∘ ULift.down) Fin.rec0
   have hX : ∀ (i : Fin 3), @Measurable _ _ (mΩ i) mS (X i) :=
-    Fin.cases hX₁'' <| Fin.cases hX₂'' <| Fin.cases hX₃'' Fin.rec0
+    Fin.cases (hX₁.comp (comap_measurable _)) <|
+    Fin.cases (hX₂.comp (comap_measurable _)) <|
+    Fin.cases (hX₃.comp (comap_measurable _)) Fin.rec0
   let μ : (i : Fin 3) → @Measure (Ω i) (mΩ i) :=
-    Fin.cases μ₁' <| Fin.cases μ₂' <| Fin.cases μ₃' Fin.rec0
+    Fin.cases (μ₁.comap ULift.down) <|
+    Fin.cases (μ₂.comap ULift.down) <|
+    Fin.cases (μ₃.comap ULift.down) Fin.rec0
   let hμ : (i : Fin 3) → IsProbabilityMeasure (μ i) :=
-    Fin.cases hμ₁' <| Fin.cases hμ₂' <| Fin.cases hμ₃' Fin.rec0
+    Fin.cases (ULift.isProbabilityMeasure hμ₁) <|
+    Fin.cases (ULift.isProbabilityMeasure hμ₂) <|
+    Fin.cases (ULift.isProbabilityMeasure hμ₃) Fin.rec0
   obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' X hX μ
   refine ⟨A, mA, μA, X' 0, X' 1, X' 2, hμ, ?_,
     (hX' 0).1, (hX' 1).1, (hX' 2).1,
-    (hX' 0).2.trans h₁, (hX' 1).2.trans h₂, (hX' 2).2.trans h₃⟩
+    (hX' 0).2.trans ((identDistrib_ulift_self hX₁).symm),
+    (hX' 1).2.trans (identDistrib_ulift_self hX₂).symm,
+    (hX' 2).2.trans (identDistrib_ulift_self hX₃).symm⟩
   convert hi; ext i; fin_cases i <;> rfl
 
 /-- A version with exactly 4 random variables that have the same codomain.
