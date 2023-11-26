@@ -318,17 +318,30 @@ lemma Finset.image_min'_le_sum {α β : Type*} [DecidableEq β] [LinearOrder β]
   (s.image f).min' (Finset.Nonempty_image hs f) ≤ s.sum f := sorry
 
 lemma Measure.eq_zero_of_map_eq_zero (X : Ω → S) (μ : Measure Ω) (hX : AEMeasurable X μ)
-  [NeZero μ] (hμ : μ.map X = 0) : μ = 0 := by
+  (hμ : μ.map X = 0) : μ = 0 := by
   have := Measure.preimage_null_of_map_null hX (Measure.measure_univ_eq_zero.mpr hμ)
   rwa [preimage_univ, Measure.measure_univ_eq_zero] at this
 
-lemma negIdMulLog_le_neg_log_of_mem_Icc {x : ℝ} (hx : x ∈ Set.Icc 0 1) :
-  - log x ≤ negIdMulLog x:= sorry
+def Measure.NeZero_map_NeZero {X : Ω → S} (μ : Measure Ω) (hX : AEMeasurable X μ)
+  [NeZero μ] : NeZero (μ.map X) := sorry
+
+lemma IsFiniteMeasure_sum_measure_singleton [Nonempty S] (μ : Measure S)
+  (hμ' : IsFiniteMeasure μ) [NeZero μ] : ∑ s : S, μ {s} = μ Set.univ :=
+  sorry
+
+lemma IsFiniteMeasure_sum_measureReal_singleton [Nonempty S] (μ : Measure S)
+  [IsFiniteMeasure μ] [NeZero μ] : ∑ s : S, μ.real {s} = μ.real Set.univ := sorry
+
+lemma IsFiniteMeasure_sum_measure_univ_inv_mul_measure_singleton [Nonempty S] (μ : Measure S)
+  [IsFiniteMeasure μ] [NeZero μ] : ∑ s : S, ((μ Set.univ)⁻¹ * μ {s}) = 1:= sorry
+
+lemma IsFiniteMeasure_sum_measureReal_univ_inv_mul_measureReal_singleton [Nonempty S] (μ : Measure S)
+  [IsFiniteMeasure μ] [NeZero μ] : ∑ s : S, ((μ.real Set.univ)⁻¹ * μ.real {s}) = 1:= sorry
 
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy [Nonempty S] (X : Ω → S) (hX : Measurable X) (μ : Measure Ω)
-  (hμ' : IsFiniteMeasure μ) [NeZero μ] (hbd : ∀ (s : S), μ.map X {s} ≠ 0) :
+  [hμ' : IsFiniteMeasure μ] [NeZero μ] (hbd : ∀ (s : S), μ.map X {s} ≠ 0) :
   ∃ s : S, μ.map X {s} ≥ (μ.map X Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
   -- A few helper lemmas for later
   have nonempty : (Finset.univ.image (fun (x : S) =>
@@ -345,24 +358,39 @@ lemma prob_ge_exp_neg_entropy [Nonempty S] (X : Ω → S) (hX : Measurable X) (�
     simp only [ENNReal.toReal_mul, gt_iff_lt]
     apply mul_pos (ENNReal.toReal_pos (ENNReal.inv_ne_zero.mpr (measure_ne_top _ _))
       (ENNReal.inv_ne_top.mpr pos')) (ENNReal.toReal_pos (hbd s) (measure_ne_top _ _))
-  have prob_mem_Icc : ∀ (s : S), ((μ.map X Set.univ)⁻¹ * ((μ.map X) {s})).toReal ∈ Set.Icc 0 1
-  · intro s
-    apply (Set.mem_Icc.mpr ⟨ENNReal.toReal_nonneg, _⟩)
-    rw [ENNReal.toReal_mul, ENNReal.toReal_inv, inv_mul_le_iff (ENNReal.toReal_pos pos'
-      (measure_ne_top _ _)), mul_one, ENNReal.toReal_le_toReal (measure_ne_top _ _) (measure_ne_top _ _)]
-    apply measure_mono (by rw [Set.singleton_subset_iff] ; apply Set.mem_univ s)
   -- First notice that H[X] = ∑ s, - ℙ[X = s] log ℙ[X = s] ≥ min - log ℙ[X = s]
   have ineq : H[X ; μ] ≥ (Finset.univ.image (fun (x : S) =>
     (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).min' nonempty
   · calc H[X ; μ] = ∑ x : S, (negIdMulLog (((μ.map X Set.univ)⁻¹ * ((μ.map X) {x})).toReal)) := by
           simp only [entropy_def, measureEntropy_def, Measure.smul_toOuterMeasure,
             OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul, ENNReal.toReal_mul]
-      _ ≥ ∑ x : S, (- log (((μ.map X Set.univ)⁻¹ * ((μ.map X) {x})).toReal)) :=
-           Finset.sum_le_sum (fun i _ => negIdMulLog_le_neg_log_of_mem_Icc (prob_mem_Icc i))
-      _ ≥ (Finset.univ.image (fun (x : S) =>
-            (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).min' nonempty :=
-          Finset.image_min'_le_sum (Finset.univ_nonempty) _ (fun i => neg_nonneg_of_nonpos
-          (log_nonpos (Set.mem_Icc.mp (prob_mem_Icc i)).left (Set.mem_Icc.mp (prob_mem_Icc i)).right))
+      _ ≥ ∑ x : S, ((((μ.map X Set.univ)⁻¹ * ((μ.map X) {x})).toReal) * ((Finset.univ.image (fun (x : S) =>
+            (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).min' nonempty)) := by
+        apply Finset.sum_le_sum
+        intro i _
+        rw [negIdMulLog]
+        suffices : ((Finset.univ.image (fun (x : S) =>
+            (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).min' nonempty) ≤
+            (- log (((μ.map X Set.univ)⁻¹ * ((μ.map X) {i})).toReal))
+        { rw [neg_mul, neg_mul_eq_mul_neg]
+          apply mul_le_mul_of_nonneg_left this (le_of_lt (mul_pos i)) }
+        apply Finset.min'_le
+        apply Finset.mem_image_of_mem _ (Finset.mem_univ i)
+      _ = ((Finset.univ.image (fun (x : S) =>
+            (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).min' nonempty) *
+          (∑ x : S, ((((μ.map X Set.univ)⁻¹ * ((μ.map X) {x})).toReal))) := by
+          rw [Finset.mul_sum]
+          apply Finset.sum_congr rfl (fun x hx => mul_comm _ _)
+      _ =  ((Finset.univ.image (fun (x : S) =>
+            (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).min' nonempty) := by
+        suffices : (∑ x : S, ((((μ.map X Set.univ)⁻¹ * ((μ.map X) {x})).toReal))) = 1
+        · rw [this, mul_one]
+        simp only [ENNReal.toReal_mul]
+        haveI : NeZero (μ.map X) := Measure.NeZero_map_NeZero μ hX.aemeasurable
+        rw [←IsFiniteMeasure_sum_measureReal_univ_inv_mul_measureReal_singleton (μ.map X)]
+        apply Finset.sum_congr rfl
+        intro x _
+        rw [MeasureTheory.Measure.real, MeasureTheory.Measure.real, ENNReal.toReal_inv]
   -- Take s that attains the minimum. This is the element we are after
   obtain ⟨s, _, hs⟩ := (Finset.mem_image.mp (Finset.min'_mem (Finset.univ.image
     (fun (x : S) => (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))) nonempty))
@@ -382,8 +410,16 @@ lemma prob_ge_exp_neg_entropy [Nonempty S] (X : Ω → S) (hX : Measurable X) (�
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy' {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
-    [IsProbabilityMeasure μ] [Fintype S] (X : Ω → S) :
-    ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by sorry
+    [IsProbabilityMeasure μ] [Fintype S] (X : Ω → S) (hX : Measurable X)
+    [NeZero μ] (hbd : ∀ (s : S), μ.map X {s} ≠ 0) :
+    ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by
+  obtain ⟨s, hs⟩ := prob_ge_exp_neg_entropy X hX μ hbd
+  use s
+  haveI : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX.aemeasurable
+  rwa [IsProbabilityMeasure.measure_univ, one_mul, ge_iff_le,
+    (show ENNReal.ofNNReal (toNNReal (rexp (-H[X; μ]))) = ENNReal.ofReal (rexp (-H[X; μ])) from rfl),
+    ENNReal.ofReal_le_iff_le_toReal (measure_ne_top _ _), ←MeasureTheory.Measure.real,
+    map_measureReal_apply hX (MeasurableSet.singleton s)] at hs
 
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
