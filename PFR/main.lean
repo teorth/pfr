@@ -24,7 +24,6 @@ universe u
 
 namespace ProbabilityTheory
 
-
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V` with probability `# (A ∩ B) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fintype G]
@@ -64,7 +63,6 @@ lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fint
     _ = Nat.card (A ∩ B : Set G) / (Nat.card A * Nat.card B) := by
         congr; exact (Nat.card_eq_toFinset_card _).symm
 
-
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V + x` with probability `# (A ∩ (B + x)) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub {G : Type*} [AddCommGroup G] [Fintype G]
@@ -75,7 +73,10 @@ lemma IsUniform.measureReal_preimage_sub {G : Type*} [AddCommGroup G] [Fintype G
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {x})
       = Nat.card (A ∩ (B + {x}) : Set G) / (Nat.card A * Nat.card B) := by
   let W := fun ω ↦ V ω + x
-  have Wunif : IsUniform (B + {x}) W := sorry
+  have Wunif : IsUniform (B + {x}) W := by
+    have : B + {x} = (Equiv.addRight x) '' B := by simp
+    rw [this]
+    exact Vunif.comp (Equiv.injective _)
   have Wmeas : Measurable W := Vmeas.add_const _
   have UWindep : IndepFun U W := by
     have : Measurable (fun g ↦ g + x) := measurable_id'
@@ -88,9 +89,10 @@ lemma IsUniform.measureReal_preimage_sub {G : Type*} [AddCommGroup G] [Fintype G
   congr 3
   exact Nat.card_add_singleton _ _
 
+/-- Record positivity results that are useful in the proof of PFR. -/
 lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := by
+    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K ∧ 1 ≤ K := by
   have card_AA_pos : (0 : ℝ) < Nat.card (A + A) := by
     have : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
     have : Finite (A + A) := by exact Subtype.finite
@@ -98,7 +100,17 @@ lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
   have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
     have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
-  exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
+  refine ⟨KA_pos.2, card_AA_pos, KA_pos.1, ?_⟩
+  rcases h₀A with ⟨x₀, h₀⟩
+  have : Nat.card A ≤ K * Nat.card A := by calc
+    (Nat.card A : ℝ) = Nat.card (A + {x₀} : Set G) := by rw [Nat.card_add_singleton A x₀]
+    _ ≤ Nat.card (A + A : Set G) := by
+      simp only [Nat.cast_le]
+      apply Nat.card_mono (toFinite (A + A))
+      apply add_subset_add_left
+      simpa using h₀
+    _ ≤ K * Nat.card A := hA
+  exact (le_mul_iff_one_le_left KA_pos.2).mp this
 
 /-- A uniform distribution on a set with doubling constant `K` has entropy at most `log K` -/
 theorem rdist_le_of_isUniform_of_card_add_le
@@ -106,7 +118,8 @@ theorem rdist_le_of_isUniform_of_card_add_le
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
-  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+  obtain ⟨A_pos, AA_pos, K_pos, -⟩ :
+      (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K ∧ 1 ≤ K :=
     PFR_conjecture_pos_aux h₀A hA
   rcases independent_copies_two U₀meas U₀meas with ⟨Ω, mΩ, U, U', hP, hU, hU', UU'_indep, idU, idU'⟩
   have Uunif : IsUniform A U := U₀unif.of_identDistrib idU.symm trivial
@@ -134,7 +147,7 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card H ∧ A ⊆ c + H := by
   classical
-  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+  obtain ⟨A_pos, -, K_pos, -⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K ∧ 1 ≤ K :=
     PFR_conjecture_pos_aux h₀A hA
   rcases exists_isUniform_measureSpace A h₀A with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas

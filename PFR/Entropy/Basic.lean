@@ -189,6 +189,18 @@ lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
       · simp
     · simp
 
+open Function
+
+/-- The image of a uniform random variable under an injective map is uniform on the image. -/
+lemma IsUniform.comp
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) {f : S → T} (hf : Injective f) :
+    IsUniform (f '' H) (f ∘ X) μ where
+  eq_of_mem := by
+    rintro - - ⟨x, hx, rfl⟩ ⟨y, hy, rfl⟩
+    have A z : f ⁻¹' {f z} = {z} := by ext; simp [hf.eq_iff]
+    simp [preimage_comp, A, h.eq_of_mem x y hx hy]
+  measure_preimage_compl := by simpa [preimage_comp, hf] using h.measure_preimage_compl
+
 /-- Uniform distributions exist, version within a fintype and giving a measure space  -/
 lemma exists_isUniform_measureSpace
     {S : Type u} [Fintype S] (H : Set S) (h : H.Nonempty) :
