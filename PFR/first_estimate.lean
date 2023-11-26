@@ -143,6 +143,13 @@ instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCo
     sorry
  -/
 
+lemma sum_sum_indep_of_iIndep (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']) :
+    IndepFun (X₁ + X₂') (X₂ + X₁') := by
+  --have obs := @iIndepFun.add Ω _ ℙ _ (Fin 4) G _ _ _ _ h_indep (by sorry) 0 2 1 (by decide) (by decide)
+  --have obs' := @iIndepFun.add Ω _ ℙ _ (Fin 4) G _ _ _ _ h_indep (by sorry) 0 2 3 (by decide) (by decide)
+  --simp at obs obs'
+  sorry
+
 /--
 $$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
 -/
@@ -171,16 +178,6 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     rw [← mul_add η]
     apply (mul_le_mul_left (by norm_num [η])).mpr ((add_le_add lem611c lem611d).trans _)
     linarith
-  have k_eq : k = H[X₁ - X₂'] - H[X₁] / 2 - H[X₂'] / 2 := by
-    have k_eq_aux : k = d[X₁ # X₂'] :=
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂
-    rw [k_eq_aux]
-    exact IndepFun.rdist_eq (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)) hX₁ hX₂'
-  have k_eq' : k = H[X₁' - X₂] - H[X₁'] / 2 - H[X₂] / 2 := by
-    have k_eq_aux : k = d[X₁' # X₂] :=
-      IdentDistrib.rdist_eq h₁ (IdentDistrib.refl hX₂.aemeasurable)
-    rw [k_eq_aux]
-    exact IndepFun.rdist_eq (h_indep.indepFun (show (3 : Fin 4) ≠ 1 by decide)) hX₁' hX₂
   have HX₁_eq : H[X₁] = H[X₁'] :=
     congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ)) h₁.map_eq
   have HX₂_eq : H[X₂] = H[X₂'] :=
@@ -198,20 +195,22 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
       linarith
     apply obs.trans
     have rw₂ : H[X₁ + X₂'] = k + H[X₁]/2 + H[X₂]/2 := by
+      have k_eq : k = H[X₁ - X₂'] - H[X₁] / 2 - H[X₂'] / 2 := by
+        have k_eq_aux : k = d[X₁ # X₂'] :=
+          IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂
+        rw [k_eq_aux]
+        exact IndepFun.rdist_eq (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)) hX₁ hX₂'
       rw [k_eq, ←sub_eq_add_rv, ←HX₂_eq]
       ring
     have rw₃ : H[X₂ + X₁'] = k + H[X₁]/2 + H[X₂]/2 := by
+      have k_eq' : k = H[X₁' - X₂] - H[X₁'] / 2 - H[X₂] / 2 := by
+        have k_eq_aux : k = d[X₁' # X₂] :=
+          IdentDistrib.rdist_eq h₁ (IdentDistrib.refl hX₂.aemeasurable)
+        rw [k_eq_aux]
+        exact IndepFun.rdist_eq (h_indep.indepFun (show (3 : Fin 4) ≠ 1 by decide)) hX₁' hX₂
       rw [add_comm X₂ X₁', k_eq', ←sub_eq_add_rv, ←HX₁_eq]
       ring
     rw [rw₂, rw₃, add_halves]
     apply le_of_eq
     ring_nf
-  · sorry
-
-lemma identDistrib_prod_of_eq (hindep₁ : IndepFun X₁ X₂) (hindep₂ : IndepFun X₁ X₂') :
-    IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁,X₂⟩) :=
-  { aemeasurable_fst := by measurability
-    aemeasurable_snd := by measurability
-    map_eq := by
-      rw [(indepFun_iff_map_prod_eq_prod_map_map hX₁ hX₂').mp
-      (hindep₂), (indepFun_iff_map_prod_eq_prod_map_map hX₁ hX₂).mp (hindep₁), h₂.map_eq] }
+  · exact sum_sum_indep_of_iIndep _ _ _ _ h_indep
