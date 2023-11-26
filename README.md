@@ -29,7 +29,7 @@ git clone git@github.com:plastex/plastex
 pip3 install ./plastex
 git clone git@github.com:PatrickMassot/leanblueprint
 pip3 install ./leanblueprint
-cd sphere-eversion
+cd pfr # go back to the PFR repository
 ```
 
 To actually build the blueprint, run
