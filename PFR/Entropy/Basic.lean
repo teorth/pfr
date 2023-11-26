@@ -1049,8 +1049,7 @@ lemma independent_copies4_nondep {S : Type u}
     (hX' 0).2, (hX' 1).2, (hX' 2).2, (hX' 3).2⟩
   convert hi; ext i; fin_cases i <;> rfl
 
--- Some helper lemmas below for `condIndependent_copies`.
-
+/-- The law of total probability: a measure $\mu$ can be expressed as a mixture of its conditional measures $\mu[|Y^{-1}\{y\}]$ from a finitely valued random variable $Y$.-/
 lemma law_of_total_probability [Fintype T] [MeasurableSingletonClass T] {Y: Ω → T} (hY: Measurable Y) (μ: Measure Ω) [IsFiniteMeasure μ]: μ = ∑ y : T, (μ (Y⁻¹' {y})) • (μ[|Y ⁻¹' {y}]) := by
   apply Measure.ext
   intro E hE
@@ -1076,6 +1075,8 @@ lemma law_of_total_probability [Fintype T] [MeasurableSingletonClass T] {Y: Ω �
   symm
   rw [mul_comm, cond_mul_eq_inter _ (hY (MeasurableSet.singleton y)) hy]
 
+/-- To show identical distribution of two random variables on a mixture of probability measures, it suffices to do so on each non-trivial component. --/
+-- in fact this is an if and only if
 lemma identDistrib_of_sum {X : Ω → S} {Y : Ω' → S} [Fintype T] {μ : T → Measure Ω} {μ' : T → Measure Ω'} {w : T → ENNReal} (hX: Measurable X) (hY: Measurable Y) (h_ident : ∀ y : T, (w y ≠ 0) → IdentDistrib X Y (μ y) (μ' y)) : IdentDistrib X Y (∑ y : T, (w y) • (μ y)) (∑ y : T, (w y) • (μ' y)) := {
   aemeasurable_fst := hX.aemeasurable,
   aemeasurable_snd := hY.aemeasurable,
@@ -1090,6 +1091,7 @@ lemma identDistrib_of_sum {X : Ω → S} {Y : Ω' → S} [Fintype T] {μ : T →
     exact (h_ident y hy).map_eq
 }
 
+/-- A random variable is identically distributed to its lift to a product space (in the first factor). -/
 lemma identDistrib_comp_fst {X : Ω → S} (hX: Measurable X) (μ : Measure Ω) (μ' : Measure Ω') [IsProbabilityMeasure μ']: IdentDistrib (X ∘ Prod.fst) X (μ.prod μ') μ := {
   aemeasurable_fst := (hX.comp measurable_fst).aemeasurable
   aemeasurable_snd := hX.aemeasurable
@@ -1099,6 +1101,7 @@ lemma identDistrib_comp_fst {X : Ω → S} (hX: Measurable X) (μ : Measure Ω) 
     simp
 }
 
+/-- A random variable is identically distributed to its lift to a product space (in the second factor). -/
 lemma identDistrib_comp_snd {X : Ω → S} (hX: Measurable X) (μ : Measure Ω) (μ' : Measure Ω') [MeasureTheory.SigmaFinite μ][IsProbabilityMeasure μ']: IdentDistrib (X ∘ Prod.snd) X (μ'.prod μ) μ := {
   aemeasurable_fst := (hX.comp measurable_snd).aemeasurable
   aemeasurable_snd := hX.aemeasurable
@@ -1108,6 +1111,7 @@ lemma identDistrib_comp_snd {X : Ω → S} (hX: Measurable X) (μ : Measure Ω) 
     simp
 }
 
+/-- A random variable is identically distributed to its pullbacks. -/
 lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measurable f) (μ : Measure Ω) : IdentDistrib f (f ∘ X) (μ.map X) μ := {
   aemeasurable_fst := hf.aemeasurable
   aemeasurable_snd := (hf.comp hX).aemeasurable
@@ -1115,7 +1119,7 @@ lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measu
 }
 
 
-/-- For $X,Y$ random variables, there is a canonical choice of conditionally independent trials
+/-- For $X,Y$ random variables, there exist conditionally independent trials
 $X_1, X_2, Y'$.-/
 lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (hX: Measurable X) (hY: Measurable Y) (μ: Measure Ω) [IsProbabilityMeasure μ]:
     ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X_1 X_2 : Ω' → S) (Y' : Ω' → T) (ν : Measure Ω'),
