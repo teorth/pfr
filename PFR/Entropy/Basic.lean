@@ -273,10 +273,78 @@ lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (
   rw [entropy_def, measureEntropy_eq_card_iff_measure_eq, Measure.map_apply hX MeasurableSet.univ]
   simp
 
+lemma Finset.Nonempty_image {α β : Type*} [DecidableEq β]
+{s : Finset α} (hs : s.Nonempty) (f : α → β) : (s.image f).Nonempty := by
+  rw [Finset.Nonempty] at hs ⊢
+  obtain ⟨x, hx⟩ := hs
+  use (f x)
+  exact Finset.mem_image_of_mem f hx
+
+lemma Finset.image_min'_le_sum {α β : Type*} [DecidableEq β] [LinearOrder β] [AddCommMonoid β]
+{s : Finset α} (hs : s.Nonempty) (f : α → β) (hf : ∀ a, 0 ≤ f a ):
+  (s.image f).min' (Finset.Nonempty_image hs f) ≤ s.sum f := sorry
+
+lemma Measure.eq_zero_of_map_eq_zero (X : Ω → S) (μ : Measure Ω) (hX : AEMeasurable X μ)
+  [NeZero μ] (hμ : μ.map X = 0) : μ = 0 := by
+  have := Measure.preimage_null_of_map_null hX (Measure.measure_univ_eq_zero.mpr hμ)
+  rwa [preimage_univ, Measure.measure_univ_eq_zero] at this
+
+lemma negIdMulLog_le_neg_log_of_mem_Icc {x : ℝ} (hx : x ∈ Set.Icc 0 1) :
+  - log x ≤ negIdMulLog x:= sorry
+
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
-lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) :
-  ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by sorry
+lemma prob_ge_exp_neg_entropy [Nonempty S] (X : Ω → S) (hX : Measurable X) (μ : Measure Ω)
+  (hμ' : IsFiniteMeasure μ) [NeZero μ] (hbd : ∀ (s : S), μ.map X {s} ≠ 0) :
+  ∃ s : S, μ.map X {s} ≥ (μ.map X Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
+  -- A few helper lemmas for later
+  have nonempty : (Finset.univ.image (fun (x : S) =>
+    (-log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).Nonempty
+  · apply Finset.Nonempty_image (Finset.univ_nonempty) _
+  haveI := (Measure.isFiniteMeasure_map μ X)
+  have pos' : (μ.map X Set.univ) ≠ 0
+  · intro h
+    have := Measure.preimage_null_of_map_null hX.aemeasurable h
+    rw [preimage_univ, Measure.measure_univ_eq_zero] at this
+    apply (NeZero.ne μ) this
+  have mul_pos : ∀ (s : S), 0 < ((μ.map X Set.univ)⁻¹ * (μ.map X {s})).toReal
+  · intro s
+    simp only [ENNReal.toReal_mul, gt_iff_lt]
+    apply mul_pos (ENNReal.toReal_pos (ENNReal.inv_ne_zero.mpr (measure_ne_top _ _))
+      (ENNReal.inv_ne_top.mpr pos')) (ENNReal.toReal_pos (hbd s) (measure_ne_top _ _))
+  have prob_mem_Icc : ∀ (s : S), ((μ.map X Set.univ)⁻¹ * ((μ.map X) {s})).toReal ∈ Set.Icc 0 1
+  · intro s
+    apply (Set.mem_Icc.mpr ⟨ENNReal.toReal_nonneg, _⟩)
+    rw [ENNReal.toReal_mul, ENNReal.toReal_inv, inv_mul_le_iff (ENNReal.toReal_pos pos'
+      (measure_ne_top _ _)), mul_one, ENNReal.toReal_le_toReal (measure_ne_top _ _) (measure_ne_top _ _)]
+    apply measure_mono (by rw [Set.singleton_subset_iff] ; apply Set.mem_univ s)
+  -- First notice that H[X] = ∑ s, - ℙ[X = s] log ℙ[X = s] ≥ min - log ℙ[X = s]
+  have ineq : H[X ; μ] ≥ (Finset.univ.image (fun (x : S) =>
+    (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).min' nonempty
+  · calc H[X ; μ] = ∑ x : S, (negIdMulLog (((μ.map X Set.univ)⁻¹ * ((μ.map X) {x})).toReal)) := by
+          simp only [entropy_def, measureEntropy_def, Measure.smul_toOuterMeasure,
+            OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul, ENNReal.toReal_mul]
+      _ ≥ ∑ x : S, (- log (((μ.map X Set.univ)⁻¹ * ((μ.map X) {x})).toReal)) :=
+           Finset.sum_le_sum (fun i _ => negIdMulLog_le_neg_log_of_mem_Icc (prob_mem_Icc i))
+      _ ≥ (Finset.univ.image (fun (x : S) =>
+            (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))).min' nonempty :=
+          Finset.image_min'_le_sum (Finset.univ_nonempty) _ (fun i => neg_nonneg_of_nonpos
+          (log_nonpos (Set.mem_Icc.mp (prob_mem_Icc i)).left (Set.mem_Icc.mp (prob_mem_Icc i)).right))
+  -- Take s that attains the minimum. This is the element we are after
+  obtain ⟨s, _, hs⟩ := (Finset.mem_image.mp (Finset.min'_mem (Finset.univ.image
+    (fun (x : S) => (- log ((μ.map X Set.univ)⁻¹ * (μ.map X) {x}).toReal))) nonempty))
+  use s
+  -- Apply x ↦ exp(- x) on both sides
+  rw [←hs, ge_iff_le, ←neg_le_neg_iff, neg_neg] at ineq
+  replace ineq := exp_monotone ineq
+  -- Rewrite the inequality in terms of ENNReal
+  rw [Real.exp_log (mul_pos s), ENNReal.toReal_mul] at ineq
+  rw [ge_iff_le, ENNReal.mul_le_iff_le_inv pos' (measure_ne_top _ _), ENNReal.ofNNReal,
+    ←ENNReal.toReal_le_toReal _ (ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr pos') (measure_ne_top _ _)),
+    ENNReal.some_eq_coe', ENNReal.coe_toReal, coe_toNNReal',
+    ENNReal.toReal_mul, max_le_iff]
+  · refine ⟨ineq, by rw [←ENNReal.toReal_mul] ; apply ENNReal.toReal_nonneg⟩
+  · apply ENNReal.coe_ne_top
 
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
