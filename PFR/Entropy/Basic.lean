@@ -1008,36 +1008,74 @@ lemma independent_copies' {I: Type u} [Fintype I] {S : I → Type u'}
 /- This is neither `Fin.elim0` nor `Fin.elim0'` -/
 def Fin.rec0 {α : Fin 0 → Sort*} (i : Fin 0) : α i := absurd i.2 (Nat.not_lt_zero _)
 
+instance _root_.ULift.measurableSpace [m : MeasurableSpace Ω] : MeasurableSpace (ULift Ω) :=
+  m.comap ULift.down
+
+def _root_.ULift.isProbabilityMeasure (m : IsProbabilityMeasure μ) :
+    IsProbabilityMeasure (μ.comap ULift.down) := by
+  refine' ⟨_⟩
+  rw [Measure.comap_apply _ ULift.down_injective _ _ MeasurableSet.univ]
+  simp [ULift.down_surjective.range_eq]
+  intro s ⟨s',hs',hs⟩
+  rw [←hs, Set.image_preimage_eq _ ULift.down_surjective]
+  exact hs'
+
+lemma identDistrib_ulift_self {X : Ω → S} (hX : Measurable X) :
+    IdentDistrib X (X ∘ ULift.down) μ (μ.comap ULift.down) := by
+  have hX' : Measurable (X ∘ ULift.down : ULift.{u_1,uΩ} Ω → S) := hX.comp (comap_measurable _)
+  refine' ⟨hX.aemeasurable, hX'.aemeasurable, _⟩
+  ext s hs
+  rw [Measure.map_apply (μ := (μ.comap ULift.down)) hX' hs,
+    Measure.comap_apply _ ULift.down_injective _ _ (hX' hs), Set.preimage_comp,
+    Set.image_preimage_eq _ ULift.down_surjective, Measure.map_apply hX hs]
+  intro s ⟨s',hs',hs⟩
+  rw [←hs, Set.image_preimage_eq _ ULift.down_surjective]
+  exact hs'
+
 /-- A version with exactly 3 random variables that have the same codomain.
 It's unfortunately incredibly painful to prove this from the general case. -/
 lemma independent_copies3_nondep {S : Type u}
     [mS : MeasurableSpace S]
-    {Ω₁ Ω₂ Ω₃ : Type v}
-    [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂] [mΩ₃ : MeasurableSpace Ω₃]
+    {Ω₁ : Type u_1} {Ω₂ : Type u_2} {Ω₃ : Type u_3}
+    [MeasurableSpace Ω₁] [MeasurableSpace Ω₂] [MeasurableSpace Ω₃]
     {X₁ : Ω₁ → S} {X₂ : Ω₂ → S} {X₃ : Ω₃ → S}
     (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂] [hμ₃ : IsProbabilityMeasure μ₃] :
-    ∃ (A : Type v) (mA : MeasurableSpace A) (μA : Measure A)
+    ∃ (A : Type (max u_1 u_2 u_3)) (mA : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' : A → S),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
       IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by
-  let Ω : Fin 3 → Type v := ![Ω₁, Ω₂, Ω₃]
+  let Ω₁' : Type (max u_1 u_2 u_3) := ULift.{max u_2 u_3} Ω₁
+  let Ω₂' : Type (max u_1 u_2 u_3) := ULift.{max u_1 u_3} Ω₂
+  let Ω₃' : Type (max u_1 u_2 u_3) := ULift.{max u_1 u_2} Ω₃
+  let Ω : Fin 3 → Type (max u_1 u_2 u_3) := ![Ω₁', Ω₂', Ω₃']
   let mΩ : (i : Fin 3) → MeasurableSpace (Ω i) :=
-    Fin.cases mΩ₁ <| Fin.cases mΩ₂ <| Fin.cases mΩ₃ Fin.rec0
-  let X : (i : Fin 3) → Ω i → S := Fin.cases X₁ <| Fin.cases X₂ <| Fin.cases X₃ Fin.rec0
+    Fin.cases (inferInstance : MeasurableSpace Ω₁') <|
+    Fin.cases (inferInstance : MeasurableSpace Ω₂') <|
+    Fin.cases (inferInstance : MeasurableSpace Ω₃') Fin.rec0
+  let X : (i : Fin 3) → Ω i → S :=
+    Fin.cases (X₁ ∘ ULift.down) <| Fin.cases (X₂ ∘ ULift.down) <| Fin.cases (X₃ ∘ ULift.down) Fin.rec0
   have hX : ∀ (i : Fin 3), @Measurable _ _ (mΩ i) mS (X i) :=
-    Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₃ Fin.rec0
+    Fin.cases (hX₁.comp (comap_measurable _)) <|
+    Fin.cases (hX₂.comp (comap_measurable _)) <|
+    Fin.cases (hX₃.comp (comap_measurable _)) Fin.rec0
   let μ : (i : Fin 3) → @Measure (Ω i) (mΩ i) :=
-    Fin.cases μ₁ <| Fin.cases μ₂ <| Fin.cases μ₃ Fin.rec0
+    Fin.cases (μ₁.comap ULift.down) <|
+    Fin.cases (μ₂.comap ULift.down) <|
+    Fin.cases (μ₃.comap ULift.down) Fin.rec0
   let hμ : (i : Fin 3) → IsProbabilityMeasure (μ i) :=
-    Fin.cases hμ₁ <| Fin.cases hμ₂ <| Fin.cases hμ₃ Fin.rec0
+    Fin.cases (ULift.isProbabilityMeasure hμ₁) <|
+    Fin.cases (ULift.isProbabilityMeasure hμ₂) <|
+    Fin.cases (ULift.isProbabilityMeasure hμ₃) Fin.rec0
   obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' X hX μ
   refine ⟨A, mA, μA, X' 0, X' 1, X' 2, hμ, ?_,
     (hX' 0).1, (hX' 1).1, (hX' 2).1,
-    (hX' 0).2, (hX' 1).2, (hX' 2).2⟩
+    (hX' 0).2.trans ((identDistrib_ulift_self hX₁).symm),
+    (hX' 1).2.trans (identDistrib_ulift_self hX₂).symm,
+    (hX' 2).2.trans (identDistrib_ulift_self hX₃).symm⟩
   convert hi; ext i; fin_cases i <;> rfl
 
 /-- A version with exactly 4 random variables that have the same codomain.
@@ -1149,18 +1187,20 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     IsProbabilityMeasure ν ∧ Measurable X_1 ∧ Measurable X_2 ∧ Measurable Y' ∧
     (condIndepFun X_1 X_2 Y' ν) ∧ IdentDistrib (⟨ X_1, Y' ⟩)
     (⟨ X, Y ⟩) ν μ ∧ IdentDistrib (⟨ X_2, Y' ⟩) (⟨ X, Y ⟩) ν μ := by
-  let m := fun (y : T) ↦ (((μ[|Y ⁻¹' {y}]).map X).prod ((μ[|Y ⁻¹' {y}]).map X)).prod (Measure.dirac y)
+  let m' := fun (y : T) ↦ ((μ[|Y ⁻¹' {y}]).map X)
+  let m := fun (y : T) ↦ ((m' y).prod (m' y)).prod (Measure.dirac y)
   let ν : Measure ((S × S) × T) := ∑ y : T, ((μ (Y⁻¹' {y})) • (m y))
+
+  have h3' (y : T) : { ω : Ω | Y ω = y } ∈ ae (μ[|Y⁻¹' {y}]) := by
+    rw [mem_ae_iff, <-cond_inter_self]
+    . have : (Y⁻¹' {y}) ∩ { ω : Ω | Y ω = y }ᶜ = ∅ := by
+        ext _; simp
+      simp [this]
+    exact hY trivial
 
   have h3 (y : T) : IdentDistrib (fun ω ↦ (X ω, y)) (⟨ X, Y ⟩) (μ[|Y⁻¹' {y}]) (μ[|Y⁻¹' {y}]) := by
     apply IdentDistrib.of_ae_eq (hX.prod_mk measurable_const).aemeasurable
-    have : { ω : Ω | Y ω = y } ∈ ae (μ[|Y⁻¹' {y}]) := by
-      rw [mem_ae_iff, <-cond_inter_self]
-      . have : (Y⁻¹' {y}) ∩ { ω : Ω | Y ω = y }ᶜ = ∅ := by
-          ext _; simp
-        simp [this]
-      exact hY trivial
-    apply Filter.eventuallyEq_of_mem this
+    apply Filter.eventuallyEq_of_mem (h3' y)
     intro ω; simp; exact fun a ↦ id a.symm
 
   have h4 (y : T): { ω : (S × S) × T| ω.2 = y } ∈ ae ( m y ) := by
@@ -1169,7 +1209,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     rw [this, <-Measure.map_apply measurable_snd]
     all_goals {simp}
 
-  have h5 {y : T} (hy: μ (Y⁻¹' {y}) ≠ 0): IsProbabilityMeasure ((μ[|Y ⁻¹' {y}]).map X) := by
+  have h5 {y : T} (hy: μ (Y⁻¹' {y}) ≠ 0): IsProbabilityMeasure (m' y) := by
     have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure μ hy
     exact isProbabilityMeasure_map (Measurable.aemeasurable hX)
 
@@ -1192,17 +1232,63 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
     . simp [hy]
     congr 1
-    have : IsProbabilityMeasure ((μ[|Y ⁻¹' {y}]).map X) := h5 hy
+    have : IsProbabilityMeasure (m' y) := h5 hy
     simp
   . rw [condIndepFun_iff, ae_iff_of_fintype]
-    intro y hy
     have h1 : ν.map Prod.snd = μ.map Y := by
-      sorry
+      rw [law_of_total_probability hY μ, <-Measure.mapₗ_apply_of_measurable measurable_snd, <-Measure.mapₗ_apply_of_measurable hY]
+      simp
+      congr with y
+      rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
+      . simp [hy]
+      have h6 : IsProbabilityMeasure (m' y) := h5 hy
+      have h7 : IsProbabilityMeasure (μ[|Y⁻¹' {y}]) := cond_isProbabilityMeasure μ hy
+      congr 3
+      rw [Measure.mapₗ_apply_of_measurable measurable_snd, Measure.mapₗ_apply_of_measurable hY]
+      simp
+      have := Measure.map_const (μ[|Y⁻¹' {y}]) y
+      simp at this; rw [<-this]
+      apply Measure.map_congr
+      apply Filter.eventuallyEq_of_mem (h3' y)
+      intro ω; simp; exact fun a ↦ id a.symm
+    intro y hy
+    have hy' : ν (Prod.snd⁻¹' {y}) = μ (Y⁻¹' {y}) := by
+      rw [<- map_apply measurable_snd (by simp), <-map_apply hY trivial, h1]
     rw [h1] at hy
+    have hy'' : μ (Y⁻¹' {y}) ≠ 0 := by
+      convert hy
+      exact (map_apply hY trivial).symm
+
     have h2 : ν[| Prod.snd⁻¹' {y} ] = m y := by
-      sorry
-    rw [h2]
-    sorry
+      rw [Measure.ext_iff]
+      intro E _
+      rw [cond_apply ν (measurable_snd (by simp)) E, hy']
+      simp
+      have h3 : (m y) ((Prod.snd⁻¹' {y}) ∩ E) = (m y) E := by
+        apply measure_congr
+        apply inter_ae_eq_right_of_ae_eq_univ
+        simp
+        rw [(show (Prod.snd⁻¹' {y})ᶜ = Prod.snd⁻¹' ({y}ᶜ) by rfl), <- map_apply measurable_snd (by simp)]
+        simp
+      have h3' {x : T} (hx: x ≠ y): (m x) ((Prod.snd⁻¹' {y}) ∩ E) = 0 := by
+        apply measure_inter_null_of_null_left E
+        rw [<- Measure.map_apply measurable_snd (by simp), MeasureTheory.Measure.map_snd_prod]
+        simp; right; exact hx
+      rw [Finset.sum_eq_single_of_mem y (Finset.mem_univ y)]
+      . rw [h3, <-mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
+        finiteness
+      intro x _ hx
+      rw [h3' hx]
+      simp
+    rw [h2, indepFun_iff_map_prod_eq_prod_map_map]
+    . let f : (S × S) × T → (S × S) := Prod.fst
+      show ((m y).map f) = ((m y).map (Prod.fst ∘ f)).prod ((m y).map (Prod.snd ∘ f))
+      have : IsProbabilityMeasure (m' y) := h5 hy''
+      have : (m y).map f = (m' y).prod (m' y) := by simp
+      rw [<-map_map measurable_fst measurable_fst, <-map_map measurable_snd measurable_fst, this]
+      simp
+    . exact measurable_fst.comp measurable_fst
+    exact measurable_snd.comp measurable_fst
   . rw [law_of_total_probability hY μ]
     apply identDistrib_of_sum ((measurable_fst.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
     intro y hy
