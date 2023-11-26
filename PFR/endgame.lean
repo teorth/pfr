@@ -49,7 +49,7 @@ variable (h_indep : iIndepFun ![hG, hG, hG, hG] ![X₁, X₂, X₁', X₂'])
 
 variable (h_min: tau_minimizes p X₁ X₂)
 
-/-- `k := d[X₁ # X₂]`, the Rusza distance `rdist` between X₁ and X₂. -/
+/-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[ X₁ # X₂]
 
 /-- `U := X₁ + X₂` -/
