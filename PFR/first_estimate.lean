@@ -143,15 +143,6 @@ instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCo
     sorry
  -/
 
-lemma sum_sum_indep_of_iIndep (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']) :
-    IndepFun (X₁ + X₂') (X₂ + X₁') := by
-  have pairs_indep := iIndepFun.indepFun_prod_prod h_indep ?_ 0 2 1 3
-                      (by decide) (by decide) (by decide) (by decide)
-  · exact IndepFun.comp (φ := fun gg ↦ gg.1 + gg.2) (ψ := fun gg ↦ gg.1 + gg.2) pairs_indep
-            measurable_add measurable_add
-  · intro i
-    fin_cases i <;> assumption
-
 /--
 $$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
 -/
