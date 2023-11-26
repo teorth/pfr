@@ -1227,22 +1227,17 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
 
   have h5 {y : T} (hy: μ (Y⁻¹' {y}) ≠ 0): IsProbabilityMeasure (m' y) := by
     have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure μ hy
-    exact isProbabilityMeasure_map (Measurable.aemeasurable hX)
+    exact isProbabilityMeasure_map hX.aemeasurable
 
   refine ⟨ (S × S) × T, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_, measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst, measurable_snd, ?_, ?_, ?_ ⟩
   . constructor
     simp
     have : ∑ y : T, μ (Y⁻¹' {y})*1 = 1 := by
       simp
-      rw [show 1 = μ Set.univ by simp]
-      symm
-      convert measure_biUnion_finset _ _
-      . simp; ext _; simp
-      . intro _ _ _ _ hyz
-        apply Disjoint.preimage
-        simp [hyz]
-      intros
-      exact hY trivial
+      rw [(show 1 =(μ.map Y) Set.univ by
+        simp [μ.map_apply hY MeasurableSet.univ]), <-sum_measure_singleton (μ.map Y)]
+      congr with _
+      exact (map_apply hY trivial).symm
     rw [<-this]
     congr with y
     rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
@@ -1262,7 +1257,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
       congr 3
       rw [Measure.mapₗ_apply_of_measurable measurable_snd, Measure.mapₗ_apply_of_measurable hY]
       simp
-      have := Measure.map_const (μ[|Y⁻¹' {y}]) y
+      have := (μ[|Y⁻¹' {y}]).map_const y
       simp at this; rw [<-this]
       apply Measure.map_congr
       apply Filter.eventuallyEq_of_mem (h3' y)
