@@ -49,18 +49,27 @@ variable (h_indep : iIndepFun ![hG, hG, hG, hG] ![X₁, X₂, X₁', X₂'])
 
 variable (h_min: tau_minimizes p X₁ X₂)
 
+/-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[ X₁ # X₂]
 
+/-- `U := X₁ + X₂` -/
 local notation3 "U" => X₁ + X₂
 
+/-- `V := X₁' + X₂` -/
 local notation3 "V" => X₁' + X₂
 
+/-- `W := X₁' + X₁` -/
 local notation3 "W" => X₁' + X₁
 
+/-- `S := X₁ + X₂ + X₁' + X₂'` -/
 local notation3 "S" => X₁ + X₂ + X₁' + X₂'
 
+/-- `I₁ := I[ U : V | S ]`, the conditional mutual information of `U = X₁ + X₂` and `V = X₁' + X₂`
+given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
 local notation3 "I₁" => I[ U : V | S ]
 
+/-- `I₂ := I[ U : W | S ]`, the conditional mutual information of `U = X₁ + X₂` and `W = X₁' + X₁`
+given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
 local notation3 "I₂" => I[ U : W | S ]
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
