@@ -42,8 +42,11 @@ variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
 
 variable (h_min: tau_minimizes p X₁ X₂)
 
+/-- `k := d[X₁ # X₂]`, the Rusza distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[X₁ # X₂]
 
+/-- `I₁ := I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂']`, the conditional mutual information
+of `X₁ + X₂` and `X₁' + X₂` given the quadruple sum `X₁ + X₂ + X₁' + X₂'`. -/
 local notation3 "I₁" => I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂']
 
 /-- The sum of

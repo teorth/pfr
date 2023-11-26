@@ -59,7 +59,10 @@ can use `τ[X₁ # X₂ | p]`
     (X₁ : Ω₁ → G) (X₂ : Ω₂ → G) (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) : ℝ :=
   d[X₁ ; μ₁ # X₂ ; μ₂] + η * d[p.X₀₁ ; ℙ # X₁ ; μ₁] + η * d[p.X₀₂ ; ℙ # X₂ ; μ₂]
 
+@[inherit_doc tau]
 notation3:max "τ[" X₁ " ; " μ₁ " # " X₂ " ; " μ₂ " | " p"]" => tau p X₁ X₂ μ₁ μ₂
+
+@[inherit_doc tau]
 notation3:max "τ[" X₁ " # " X₂ " | " p"]" => tau p X₁ X₂ MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
 
 lemma continuous_tau_restrict_probabilityMeasure
