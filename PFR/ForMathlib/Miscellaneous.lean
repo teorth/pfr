@@ -106,6 +106,50 @@ lemma Nat.card_mul_singleton {G : Type*} [Group G] (A : Set G) (x : G) :
   have : (Equiv.mulRight x) '' A = A * {x} := by simp
   rw [← this, ← Nat.card_congr_equiv]
 
+@[to_additive]
+lemma Set.finite_mul_iff {G : Type*} [Group G] (A B : Set G) :
+    (A * B).Finite ↔ A = ∅ ∨ B = ∅ ∨ (A.Finite ∧ B.Finite) := by
+  rcases Set.eq_empty_or_nonempty A with rfl|hA
+  · simp
+  rcases Set.eq_empty_or_nonempty B with rfl|hB
+  · simp
+  simp only [hA.ne_empty, hB.ne_empty, false_or]
+  refine ⟨fun h ↦ ⟨?_, ?_⟩, fun h ↦ ?_⟩
+  · rcases hB with ⟨b, hb⟩
+    have F : Set.Finite (A * {b}) := h.subset (mul_subset_mul_left (by simpa using hb))
+    let e := Equiv.mulRight b
+    have : A = e.symm '' (A * {b}) :=
+      (Equiv.eq_image_iff_symm_image_eq e.symm _ _).mpr (by simp)
+    rw [this]
+    exact Finite.image (e.symm) F
+  · rcases hA with ⟨a, ha⟩
+    have F : Set.Finite ({a} * B) := h.subset (mul_subset_mul_right (by simpa using ha))
+    let e := Equiv.mulLeft a
+    have : B = e.symm '' ({a} * B) :=
+      (Equiv.eq_image_iff_symm_image_eq e.symm _ _).mpr (by simp)
+    rw [this]
+    exact Finite.image (e.symm) F
+  · have : Set.Finite (A ×ˢ B) := Set.Finite.prod h.1 h.2
+    rw [← image_mul_prod]
+    exact Finite.image _ this
+
+@[to_additive]
+lemma Nat.card_mul_le {G : Type*} [Group G] (A B : Set G) :
+    Nat.card (A * B) ≤ Nat.card A * Nat.card B := by
+  classical
+  rcases Set.infinite_or_finite (A * B) with h|h
+  · simp [Set.Infinite.card_eq_zero h]
+  rcases Set.eq_empty_or_nonempty A with rfl|hA
+  · simp
+  rcases Set.eq_empty_or_nonempty B with rfl|hB
+  · simp
+  obtain ⟨Afin, Bfin⟩ : Set.Finite A ∧ Set.Finite B := by
+    simpa [Set.finite_mul_iff, hA.ne_empty, hB.ne_empty] using h
+  rw [Nat.card_eq_toFinset_card h, Nat.card_eq_toFinset_card Afin, Nat.card_eq_toFinset_card Bfin]
+  convert Finset.card_mul_le (s := Afin.toFinset) (t := Bfin.toFinset)
+  ext z
+  simp [← Finset.mem_coe]
+
 end
 
 section Rusza_set

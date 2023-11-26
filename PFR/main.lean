@@ -92,7 +92,7 @@ lemma IsUniform.measureReal_preimage_sub {G : Type*} [AddCommGroup G] [Fintype G
 /-- Record positivity results that are useful in the proof of PFR. -/
 lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K ∧ 1 ≤ K := by
+    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := by
   have card_AA_pos : (0 : ℝ) < Nat.card (A + A) := by
     have : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
     have : Finite (A + A) := by exact Subtype.finite
@@ -100,17 +100,8 @@ lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
   have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
     have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
-  refine ⟨KA_pos.2, card_AA_pos, KA_pos.1, ?_⟩
-  rcases h₀A with ⟨x₀, h₀⟩
-  have : Nat.card A ≤ K * Nat.card A := by calc
-    (Nat.card A : ℝ) = Nat.card (A + {x₀} : Set G) := by rw [Nat.card_add_singleton A x₀]
-    _ ≤ Nat.card (A + A : Set G) := by
-      simp only [Nat.cast_le]
-      apply Nat.card_mono (toFinite (A + A))
-      apply add_subset_add_left
-      simpa using h₀
-    _ ≤ K * Nat.card A := hA
-  exact (le_mul_iff_one_le_left KA_pos.2).mp this
+  exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
+
 
 /-- A uniform distribution on a set with doubling constant `K` has entropy at most `log K` -/
 theorem rdist_le_of_isUniform_of_card_add_le
@@ -118,8 +109,7 @@ theorem rdist_le_of_isUniform_of_card_add_le
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
-  obtain ⟨A_pos, AA_pos, K_pos, -⟩ :
-      (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K ∧ 1 ≤ K :=
+  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
   rcases independent_copies_two U₀meas U₀meas with ⟨Ω, mΩ, U, U', hP, hU, hU', UU'_indep, idU, idU'⟩
   have Uunif : IsUniform A U := U₀unif.of_identDistrib idU.symm trivial
@@ -147,7 +137,7 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card H ∧ A ⊆ c + H := by
   classical
-  obtain ⟨A_pos, -, K_pos, -⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K ∧ 1 ≤ K :=
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
   rcases exists_isUniform_measureSpace A h₀A with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
@@ -160,7 +150,6 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm (by trivial)
   have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
-    have : (H : Set G).Nonempty := AddSubgroup.coe_nonempty H
     have : 0 < Nat.card (H : Set G) := Nat.card_pos
     positivity
   have Icard : |log (Nat.card A) - log (Nat.card (H : Set G))| ≤ 11 * log K := by
@@ -240,4 +229,53 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  sorry
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+    PFR_conjecture_pos_aux h₀A hA
+  obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
+    Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
+      ∧ Nat.card (H : Set G) ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card (H : Set G)
+      ∧ A ⊆ c + H :=
+    PFR_conjecture_aux h₀A hA
+  have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
+    have : 0 < Nat.card (H : Set G) := Nat.card_pos; positivity
+  rcases le_or_lt (Nat.card (H : Set G)) (Nat.card A) with h|h
+  · refine ⟨H, c, ?_, h, A_subs_cH⟩
+    calc
+    Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := hc
+    _ ≤ K ^ (13/2) * (K ^ 11 * Nat.card (H : Set G)) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
+      gcongr
+    _ = K ^ 12 := by rpow_ring; norm_num
+    _ ≤ 2 * K ^ 12 := by linarith [show 0 ≤ K ^ 12 by positivity]
+  · obtain ⟨H', H'H, IH'A, IAH'⟩ :
+        ∃ H' : AddSubgroup G, H' ≤ H ∧ Nat.card (H' : Set G) ≤ Nat.card A
+          ∧ Nat.card A ≤ 2 * Nat.card (H' : Set G) :=
+      sorry
+    have : (Nat.card A / 2 : ℝ) ≤ Nat.card (H' : Set G) := by
+      rw [div_le_iff zero_lt_two, mul_comm]; norm_cast
+    have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
+      have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity
+    obtain ⟨u, HH'u, hu⟩ : ∃ (u : Set G), (H : Set G) = H' + u
+      ∧ Nat.card (H : Set G) = Nat.card (H' : Set G) * Nat.card u := sorry
+    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, add_comm u, ← HH'u]⟩
+    calc
+    (Nat.card (c + u) : ℝ)
+      ≤ Nat.card c * Nat.card u := by norm_cast; exact Nat.card_add_le _ _
+    _ ≤ (K ^ (13/2) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
+          * (Nat.card (H : Set G) / Nat.card (H' : Set G)) := by
+        gcongr
+        apply le_of_eq
+        rw [eq_div_iff H'_pos.ne', mul_comm, eq_comm]
+        norm_cast
+    _ ≤ (K ^ (13/2) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
+          * (Nat.card (H : Set G) / (Nat.card A / 2)) := by
+        gcongr
+    _ = 2 * K ^ (13/2) * (Nat.card A) ^ (-1/2) * (Nat.card (H : Set G)) ^ (1/2) := by
+        have : (0 : ℝ) < Nat.card H := H_pos
+        field_simp
+        rpow_ring
+        norm_num
+    _ ≤ 2 * K ^ (13/2) * (Nat.card A) ^ (-1/2) * (K ^ 11 * Nat.card A) ^ (1/2) := by
+        gcongr
+    _ = 2 * K ^ 12 := by
+        rpow_ring
+        norm_num
