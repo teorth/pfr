@@ -8,12 +8,6 @@ open Qq Meta Real
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y)   => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
-/- In this file the division  notation will always mean division of real numbers. -/
-local macro_rules | `($x / $y)   => `(HDiv.hDiv ($x : ℝ) ($y : ℝ))
-
-/- In this file, inversion will always mean inversion of real numbers. -/
-local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
-
 namespace RPowRing
 -- open Ring
 

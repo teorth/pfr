@@ -299,6 +299,12 @@ $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) :
   ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by sorry
 
+/-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
+$P[X=s] \geq \exp(-H[X])$. -/
+lemma prob_ge_exp_neg_entropy' {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
+    [IsProbabilityMeasure μ] [Fintype S] (X : Ω → S) :
+    ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by sorry
+
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
 

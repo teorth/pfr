@@ -1,4 +1,5 @@
 import Mathlib.Probability.IdentDistrib
+import Mathlib.Combinatorics.Additive.RuzsaCovering
 
 /- To move close to Set.Finite.measurableSet-/
 lemma Set.Finite.MeasurableSet
@@ -86,3 +87,49 @@ section
     π ∘ (X - Y) = π ∘ X - π ∘ Y := by
   ext
   simp
+
+end
+
+
+
+
+lemma Nat.card_congr_equiv {α β : Type*} (A : Set α) (e : α ≃ β) : Nat.card A = Nat.card (e '' A) :=
+    Nat.card_congr (e.image A)
+
+section
+
+open scoped Pointwise
+
+@[to_additive]
+lemma Nat.card_mul_singleton {G : Type*} [Group G] (A : Set G) (x : G) :
+    Nat.card (A * ({x} : Set G)) = Nat.card A := by
+  have : (Equiv.mulRight x) '' A = A * {x} := by simp
+  rw [← this, ← Nat.card_congr_equiv]
+
+end
+
+section Rusza_set
+open scoped Pointwise
+
+variable {α : Type*} [CommGroup α]
+
+/-- **Ruzsa's covering lemma**. Version for sets. For finsets,
+see `Finset.exists_subset_mul_div`. -/
+@[to_additive "**Ruzsa's covering lemma**. Version for sets. For finsets,
+see `Finset.exists_subset_add_sub`."]
+theorem Set.exists_subset_mul_div {s : Set α} (hs : s.Finite) {t : Set α} (h't : t.Finite)
+    (ht : t.Nonempty) :
+    ∃ (u : Set α), Nat.card u * Nat.card t ≤ Nat.card (s * t) ∧ s ⊆ u * t / t ∧ u.Finite := by
+  classical
+  let t' := h't.toFinset
+  have : t'.Nonempty := by simpa using ht
+  rcases Finset.exists_subset_mul_div hs.toFinset this with ⟨u, u_card, hu⟩
+  refine ⟨u, ?_, by simpa [← Finset.coe_subset] using hu, u.finite_toSet⟩
+  have : Nat.card t = t'.card := Nat.card_eq_toFinset_card _
+  simp [this]
+  apply u_card.trans (le_of_eq _)
+  rw [← Nat.card_eq_finset_card]
+  congr with x
+  simp [← Finset.mem_coe, Finset.coe_mul]
+
+end Rusza_set

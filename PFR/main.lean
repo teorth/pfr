@@ -14,83 +14,16 @@ local macro_rules | `($x ^ $y)   => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 # Polynomial Freiman-Ruzsa conjecture
 
 Here we prove the polynomial Freiman-Ruzsa conjecture.
-
 -/
 
-open Pointwise ProbabilityTheory MeasureTheory Real
+open Pointwise ProbabilityTheory MeasureTheory Real Set Fintype
+
+open scoped BigOperators
+
 universe u
 
 namespace ProbabilityTheory
 
-lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := by
-  have card_AA_pos : (0 : ℝ) < Nat.card (A + A) := by
-    have : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
-    have : Finite (A + A) := by exact Subtype.finite
-    simp [Nat.cast_pos, Nat.card_pos_iff]
-  have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
-    have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
-    simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
-  exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
-
-
-/-- A uniform distribution on a set with doubling constant `K` has entropy at most `log K` -/
-theorem rdist_le_of_isUniform_of_card_add_le
-    {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
-    {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
-    (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
-  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
-    PFR_conjecture_pos_aux h₀A hA
-  rcases independent_copies_two U₀meas U₀meas with ⟨Ω, mΩ, U, U', hP, hU, hU', UU'_indep, idU, idU'⟩
-  have Uunif : IsUniform A U := U₀unif.of_identDistrib idU.symm trivial
-  have U'unif : IsUniform A U' := U₀unif.of_identDistrib idU'.symm trivial
-  have IU : d[U # U'] ≤ log K := by
-    have I : H[U + U'] ≤ log (Nat.card (A + A)) := by
-      apply entropy_le_log_card_of_mem (hU.add hU')
-      filter_upwards [Uunif.ae_mem, U'unif.ae_mem] with ω h1 h2
-      exact Set.add_mem_add h1 h2
-    have J : log (Nat.card (A + A)) ≤ log K + log (Nat.card A) := by
-      apply (log_le_log' AA_pos hA).trans (le_of_eq _)
-      rw [log_mul K_pos.ne' A_pos.ne']
-    have : H[U + U'] = H[U - U'] := by congr; simp
-    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq, U'unif.entropy_eq, ← this]
-    linarith
-  rwa [idU.rdist_eq idU'] at IU
-
-
-/-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
-$P[X=s] \geq \exp(-H[X])$. -/
-lemma prob_ge_exp_neg_entropy' {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
-    [IsProbabilityMeasure μ] [Fintype S] (X : Ω → S) :
-    ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by sorry
-
-open scoped BigOperators
-
-open Set Fintype
-
-lemma goo (s : Finset α) : ∑ i in s, 1 = s.card := by
-  simp only [Finset.sum_const, smul_eq_mul, mul_one]
-
-
-section
-
-variable {β β' : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → β'}
-
-theorem IndepFun.measure_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
-    {_mβ' : MeasurableSpace β'} (h : IndepFun f g μ) {s : Set β} {t : Set β'}
-    (hs : MeasurableSet s) (ht : MeasurableSet t) :
-    μ (f ⁻¹' s ∩ g ⁻¹' t) = μ (f ⁻¹' s) * μ (g ⁻¹' t) :=
-  indepFun_iff_measure_inter_preimage_eq_mul.1 h _ _ hs ht
-
-theorem IndepFun.measureReal_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
-    {_mβ' : MeasurableSpace β'} (h : IndepFun f g μ) {s : Set β} {t : Set β'}
-    (hs : MeasurableSet s) (ht : MeasurableSet t) :
-    μ.real (f ⁻¹' s ∩ g ⁻¹' t) = μ.real (f ⁻¹' s) * μ.real (g ⁻¹' t) := by
-  rw [measureReal_def, h.measure_inter_preimage_eq_mul hs ht, ENNReal.toReal_mul]; rfl
-
-end
 
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V` with probability `# (A ∩ B) / #A ⬝ #B`. -/
@@ -131,14 +64,6 @@ lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fint
     _ = Nat.card (A ∩ B : Set G) / (Nat.card A * Nat.card B) := by
         congr; exact (Nat.card_eq_toFinset_card _).symm
 
-lemma Nat.card_congr_equiv {α β : Type*} (A : Set α) (e : α ≃ β) : Nat.card A = Nat.card (e '' A) :=
-    Nat.card_congr (e.image A)
-
-@[to_additive]
-lemma Nat.card_mul_singleton {G : Type*} [Group G] (A : Set G) (x : G) :
-    Nat.card (A * ({x} : Set G)) = Nat.card A := by
-  have : (Equiv.mulRight x) '' A = A * {x} := by simp
-  rw [← this, ← Nat.card_congr_equiv]
 
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V + x` with probability `# (A ∩ (B + x)) / #A ⬝ #B`. -/
@@ -163,67 +88,94 @@ lemma IsUniform.measureReal_preimage_sub {G : Type*} [AddCommGroup G] [Fintype G
   congr 3
   exact Nat.card_add_singleton _ _
 
-open Pointwise
+lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
+    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := by
+  have card_AA_pos : (0 : ℝ) < Nat.card (A + A) := by
+    have : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
+    have : Finite (A + A) := by exact Subtype.finite
+    simp [Nat.cast_pos, Nat.card_pos_iff]
+  have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
+    have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
+    simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
+  exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
-section Rusza_set
-variable {α : Type*} [CommGroup α]
-
-/-- **Ruzsa's covering lemma**. Version for sets. For finsets,
-see `Finset.exists_subset_mul_div`. -/
-@[to_additive "**Ruzsa's covering lemma**. Version for sets. For finsets,
-see `Finset.exists_subset_add_sub`."]
-theorem Set.exists_subset_mul_div {s : Set α} (hs : s.Finite) {t : Set α} (h't : t.Finite)
-    (ht : t.Nonempty) :
-    ∃ (u : Set α), Nat.card u * Nat.card t ≤ Nat.card (s * t) ∧ s ⊆ u * t / t ∧ u.Finite := by
-  classical
-  let t' := h't.toFinset
-  have : t'.Nonempty := by simpa using ht
-  rcases Finset.exists_subset_mul_div hs.toFinset this with ⟨u, u_card, hu⟩
-  refine ⟨u, ?_, by simpa [← Finset.coe_subset] using hu, u.finite_toSet⟩
-  have : Nat.card t = t'.card := Nat.card_eq_toFinset_card _
-  simp [this]
-  apply u_card.trans (le_of_eq _)
-  rw [← Nat.card_eq_finset_card]
-  congr with x
-  simp [← Finset.mem_coe, Finset.coe_mul]
-
-end Rusza_set
+/-- A uniform distribution on a set with doubling constant `K` has entropy at most `log K` -/
+theorem rdist_le_of_isUniform_of_card_add_le
+    {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
+    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
+    {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
+    (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
+  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+    PFR_conjecture_pos_aux h₀A hA
+  rcases independent_copies_two U₀meas U₀meas with ⟨Ω, mΩ, U, U', hP, hU, hU', UU'_indep, idU, idU'⟩
+  have Uunif : IsUniform A U := U₀unif.of_identDistrib idU.symm trivial
+  have U'unif : IsUniform A U' := U₀unif.of_identDistrib idU'.symm trivial
+  have IU : d[U # U'] ≤ log K := by
+    have I : H[U + U'] ≤ log (Nat.card (A + A)) := by
+      apply entropy_le_log_card_of_mem (hU.add hU')
+      filter_upwards [Uunif.ae_mem, U'unif.ae_mem] with ω h1 h2
+      exact Set.add_mem_add h1 h2
+    have J : log (Nat.card (A + A)) ≤ log K + log (Nat.card A) := by
+      apply (log_le_log' AA_pos hA).trans (le_of_eq _)
+      rw [log_mul K_pos.ne' A_pos.ne']
+    have : H[U + U'] = H[U - U'] := by congr; simp
+    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq, U'unif.entropy_eq, ← this]
+    linarith
+  rwa [idU.rdist_eq idU'] at IU
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
-such that $A$ can be covered by at most $K^{13/2} #A^{1/2} / #H^{1/2}$ cosets of $H$. -/
+such that $A$ can be covered by at most $K^{13/2} #A^{1/2} / #H^{1/2}$ cosets of $H$, and $H$ has
+the same cardinality as $A$ up to a multiplicative factor $K^11$. -/
 theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
-      ∧ Nat.card H ≤ K ^ (11/2) * Nat.card A ∧ A ⊆ c + H := by
+      ∧ Nat.card H ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card H ∧ A ⊆ c + H := by
   classical
-  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
-  rcases exists_isUniform_measureSpace A h₀A with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, UAmem⟩
+  rcases exists_isUniform_measureSpace A h₀A with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas⟩
+  -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture p with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm (by trivial)
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm (by trivial)
-  -- main step: entropic PFR shows that the entropy of `VA - VH` is small
-  have I : log K * (-11/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
-      ≤ - H[VA - VH] := by
-    have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
-    rw [Vindep.rdist_eq VAmeas VHmeas] at this
-    have : H[VA] = log (Nat.card A) := VAunif.entropy_eq
-    have : H[VH] = log (Nat.card (H : Set G)) := VHunif.entropy_eq
-    linarith
-  have IHA : Nat.card H ≤ K ^ (11/2) * Nat.card A := sorry
-  -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
-  obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
-    prob_ge_exp_neg_entropy' _
+  have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
     have : (H : Set G).Nonempty := AddSubgroup.coe_nonempty H
     have : 0 < Nat.card (H : Set G) := Nat.card_pos
     positivity
+  have Icard : |log (Nat.card A) - log (Nat.card (H : Set G))| ≤ 11 * log K := by
+    rw [← VAunif.entropy_eq, ← VHunif.entropy_eq]
+    apply (diff_ent_le_rdist VAmeas VHmeas).trans
+    linarith
+  have IAH : Nat.card A ≤ K ^ 11 * Nat.card (H : Set G) := by
+    have : log (Nat.card A) ≤ log K * 11 + log (Nat.card (H : Set G)) := by
+      linarith [(le_abs_self _).trans Icard]
+    convert exp_monotone this using 1
+    · exact (exp_log A_pos).symm
+    · rw [exp_add, exp_log H_pos, ← rpow_def_of_pos K_pos]
+  have IHA : Nat.card (H : Set G) ≤ K ^ 11 * Nat.card A := by
+    have : log (Nat.card (H : Set G)) ≤ log K * 11 + log (Nat.card A) := by
+      linarith [(neg_le_abs_self _).trans Icard]
+    convert exp_monotone this using 1
+    · exact (exp_log H_pos).symm
+    · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos]
+  -- entropic PFR shows that the entropy of `VA - VH` is small
+  have I : log K * (-11/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
+      ≤ - H[VA - VH] := by
+    rw [Vindep.rdist_eq VAmeas VHmeas] at this
+    have : H[VA] = log (Nat.card A) := VAunif.entropy_eq
+    have : H[VH] = log (Nat.card (H : Set G)) := VHunif.entropy_eq
+    linarith
+  -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
+  obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
+    prob_ge_exp_neg_entropy' _
   -- massage the previous inequality to get that `A ∩ (H + {x₀})` is large
   have J : K ^ (-11/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (1/2) ≤
       Nat.card (A ∩ (H + {x₀}) : Set G) := by
@@ -244,7 +196,7 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
   `#(A + (A ∩ (H + {x₀}))) / #((A ∩ (H + {x₀})))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
   rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
-    ⟨u, hu, Au, u_fin⟩
+    ⟨u, hu, Au, -⟩
   have Iu : Nat.card u ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
     have : (0 : ℝ) ≤ Nat.card u := by simp
     have Z1 := mul_le_mul_of_nonneg_left J this
@@ -266,7 +218,7 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     rintro - ⟨-, -, ⟨y, xy, hy, hxy, rfl⟩, ⟨z, xz, hz, hxz, rfl⟩, rfl⟩
     simp at hxy hxz
     simpa [hxy, hxz, -sub_eq_add] using H.sub_mem hy hz
-  exact ⟨H, u, Iu, IHA, A_subset_uH⟩
+  exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
 2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{12}$ cosets of
