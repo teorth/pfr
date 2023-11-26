@@ -143,13 +143,6 @@ instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCo
     sorry
  -/
 
-lemma sum_sum_indep_of_iIndep (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']) :
-    IndepFun (X₁ + X₂') (X₂ + X₁') := by
-  --have obs := @iIndepFun.add Ω _ ℙ _ (Fin 4) G _ _ _ _ h_indep (by sorry) 0 2 1 (by decide) (by decide)
-  --have obs' := @iIndepFun.add Ω _ ℙ _ (Fin 4) G _ _ _ _ h_indep (by sorry) 0 2 3 (by decide) (by decide)
-  --simp at obs obs'
-  sorry
-
 /--
 $$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
 -/
@@ -178,10 +171,6 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     rw [← mul_add η]
     apply (mul_le_mul_left (by norm_num [η])).mpr ((add_le_add lem611c lem611d).trans _)
     linarith
-  have HX₁_eq : H[X₁] = H[X₁'] :=
-    congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ)) h₁.map_eq
-  have HX₂_eq : H[X₂] = H[X₂'] :=
-    congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ)) h₂.map_eq
   have ind : D = _ :=
     @IndepFun.rdist_eq Ω G _ ℙ _ _ _ _ (X₁ + X₂') _ (X₂ + X₁') ?_ (by measurability) (by measurability)
   · have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by
@@ -195,6 +184,8 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
       linarith
     apply obs.trans
     have rw₂ : H[X₁ + X₂'] = k + H[X₁]/2 + H[X₂]/2 := by
+      have HX₂_eq : H[X₂] = H[X₂'] :=
+        congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ)) h₂.map_eq
       have k_eq : k = H[X₁ - X₂'] - H[X₁] / 2 - H[X₂'] / 2 := by
         have k_eq_aux : k = d[X₁ # X₂'] :=
           IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂
@@ -203,6 +194,8 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
       rw [k_eq, ←sub_eq_add_rv, ←HX₂_eq]
       ring
     have rw₃ : H[X₂ + X₁'] = k + H[X₁]/2 + H[X₂]/2 := by
+      have HX₁_eq : H[X₁] = H[X₁'] :=
+        congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ)) h₁.map_eq
       have k_eq' : k = H[X₁' - X₂] - H[X₁'] / 2 - H[X₂] / 2 := by
         have k_eq_aux : k = d[X₁' # X₂] :=
           IdentDistrib.rdist_eq h₁ (IdentDistrib.refl hX₂.aemeasurable)
@@ -213,4 +206,9 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     rw [rw₂, rw₃, add_halves]
     apply le_of_eq
     ring_nf
-  · exact sum_sum_indep_of_iIndep _ _ _ _ h_indep
+  · have pairs_indep := iIndepFun.indepFun_prod_prod h_indep ?_ 0 2 1 3
+                      (by decide) (by decide) (by decide) (by decide)
+    · exact IndepFun.comp (φ := fun gg ↦ gg.1 + gg.2) (ψ := fun gg ↦ gg.1 + gg.2) pairs_indep
+              measurable_add measurable_add
+    · intro i
+      fin_cases i <;> assumption
