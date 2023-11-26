@@ -35,8 +35,7 @@ lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fint
       = Nat.card (A ∩ B : Set G) / (Nat.card A * Nat.card B) := by
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
     ext ω; simp [sub_eq_zero, eq_comm]
-  rw [this, measureReal_iUnion_fintype _ (fun i ↦ (Umeas trivial).inter (Vmeas trivial))
-    (fun i ↦ measure_ne_top _ _)]; swap
+  rw [this, measureReal_iUnion_fintype _ (fun i ↦ (Umeas trivial).inter (Vmeas trivial))]; swap
   · intro g g' hgg'
     apply Set.disjoint_iff_inter_eq_empty.2
     ext a
