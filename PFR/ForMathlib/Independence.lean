@@ -1,6 +1,6 @@
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.IdentDistrib
-import PFR.MeasureReal
+import PFR.ForMathlib.MeasureReal
 
 open MeasureTheory ProbabilityTheory Function Set
 
