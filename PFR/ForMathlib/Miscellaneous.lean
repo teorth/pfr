@@ -1,4 +1,5 @@
 import Mathlib.Probability.IdentDistrib
+import Mathlib.Combinatorics.Additive.RuzsaCovering
 
 /- To move close to Set.Finite.measurableSet-/
 lemma Set.Finite.MeasurableSet
@@ -17,6 +18,14 @@ lemma measurableSet_of_countable {α : Type*} [MeasurableSpace α] [MeasurableSi
   -/
 instance {α : Type*} [MeasurableSpace α] [MeasurableSingletonClass α] [Sub α]
     [Countable α] : MeasurableSub₂ α :=
+  ⟨measurable_of_countable _⟩
+
+/- To move close to Set.Finite.measurableSet
+  Should this sort of thing be implied by some kind of class for
+  `MeasurableSpace`s with measure algebra `⊤`?
+  -/
+instance {α : Type*} [MeasurableSpace α] [MeasurableSingletonClass α] [Add α]
+    [Countable α] : MeasurableAdd₂ α :=
   ⟨measurable_of_countable _⟩
 
 section
@@ -68,3 +77,103 @@ theorem Finset.prod_finset_eq_prod [Fintype α] {s : Finset α} {f : α → β}
   rw [← Finset.prod_mul_prod_compl s f, this, mul_one]
 
 end
+
+section
+
+-- Move to be near `AddMonoidHom.map_sub`, make multiplicative and additive versions
+@[simp] lemma AddMonoidHom.comp_sub
+    {α : Type*} {H : Type*} {H' : Type*} [AddCommGroup H] [AddCommGroup H']
+    (π : H →+ H') (X Y : α → H) :
+    π ∘ (X - Y) = π ∘ X - π ∘ Y := by
+  ext
+  simp
+
+end
+
+
+
+
+lemma Nat.card_congr_equiv {α β : Type*} (A : Set α) (e : α ≃ β) : Nat.card A = Nat.card (e '' A) :=
+    Nat.card_congr (e.image A)
+
+section
+
+open scoped Pointwise
+
+@[to_additive]
+lemma Nat.card_mul_singleton {G : Type*} [Group G] (A : Set G) (x : G) :
+    Nat.card (A * ({x} : Set G)) = Nat.card A := by
+  have : (Equiv.mulRight x) '' A = A * {x} := by simp
+  rw [← this, ← Nat.card_congr_equiv]
+
+@[to_additive]
+lemma Set.finite_mul_iff {G : Type*} [Group G] (A B : Set G) :
+    (A * B).Finite ↔ A = ∅ ∨ B = ∅ ∨ (A.Finite ∧ B.Finite) := by
+  rcases Set.eq_empty_or_nonempty A with rfl|hA
+  · simp
+  rcases Set.eq_empty_or_nonempty B with rfl|hB
+  · simp
+  simp only [hA.ne_empty, hB.ne_empty, false_or]
+  refine ⟨fun h ↦ ⟨?_, ?_⟩, fun h ↦ ?_⟩
+  · rcases hB with ⟨b, hb⟩
+    have F : Set.Finite (A * {b}) := h.subset (mul_subset_mul_left (by simpa using hb))
+    let e := Equiv.mulRight b
+    have : A = e.symm '' (A * {b}) :=
+      (Equiv.eq_image_iff_symm_image_eq e.symm _ _).mpr (by simp)
+    rw [this]
+    exact Finite.image (e.symm) F
+  · rcases hA with ⟨a, ha⟩
+    have F : Set.Finite ({a} * B) := h.subset (mul_subset_mul_right (by simpa using ha))
+    let e := Equiv.mulLeft a
+    have : B = e.symm '' ({a} * B) :=
+      (Equiv.eq_image_iff_symm_image_eq e.symm _ _).mpr (by simp)
+    rw [this]
+    exact Finite.image (e.symm) F
+  · have : Set.Finite (A ×ˢ B) := Set.Finite.prod h.1 h.2
+    rw [← image_mul_prod]
+    exact Finite.image _ this
+
+@[to_additive]
+lemma Nat.card_mul_le {G : Type*} [Group G] (A B : Set G) :
+    Nat.card (A * B) ≤ Nat.card A * Nat.card B := by
+  classical
+  rcases Set.infinite_or_finite (A * B) with h|h
+  · simp [Set.Infinite.card_eq_zero h]
+  rcases Set.eq_empty_or_nonempty A with rfl|hA
+  · simp
+  rcases Set.eq_empty_or_nonempty B with rfl|hB
+  · simp
+  obtain ⟨Afin, Bfin⟩ : Set.Finite A ∧ Set.Finite B := by
+    simpa [Set.finite_mul_iff, hA.ne_empty, hB.ne_empty] using h
+  rw [Nat.card_eq_toFinset_card h, Nat.card_eq_toFinset_card Afin, Nat.card_eq_toFinset_card Bfin]
+  convert Finset.card_mul_le (s := Afin.toFinset) (t := Bfin.toFinset)
+  ext z
+  simp [← Finset.mem_coe]
+
+end
+
+section Rusza_set
+open scoped Pointwise
+
+variable {α : Type*} [CommGroup α]
+
+/-- **Ruzsa's covering lemma**. Version for sets. For finsets,
+see `Finset.exists_subset_mul_div`. -/
+@[to_additive "**Ruzsa's covering lemma**. Version for sets. For finsets,
+see `Finset.exists_subset_add_sub`."]
+theorem Set.exists_subset_mul_div {s : Set α} (hs : s.Finite) {t : Set α} (h't : t.Finite)
+    (ht : t.Nonempty) :
+    ∃ (u : Set α), Nat.card u * Nat.card t ≤ Nat.card (s * t) ∧ s ⊆ u * t / t ∧ u.Finite := by
+  classical
+  let t' := h't.toFinset
+  have : t'.Nonempty := by simpa using ht
+  rcases Finset.exists_subset_mul_div hs.toFinset this with ⟨u, u_card, hu⟩
+  refine ⟨u, ?_, by simpa [← Finset.coe_subset] using hu, u.finite_toSet⟩
+  have : Nat.card t = t'.card := Nat.card_eq_toFinset_card _
+  simp [this]
+  apply u_card.trans (le_of_eq _)
+  rw [← Nat.card_eq_finset_card]
+  congr with x
+  simp [← Finset.mem_coe, Finset.coe_mul]
+
+end Rusza_set

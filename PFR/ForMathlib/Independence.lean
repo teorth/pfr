@@ -1,5 +1,6 @@
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.IdentDistrib
+import PFR.MeasureReal
 
 open MeasureTheory ProbabilityTheory Function Set
 
@@ -89,6 +90,42 @@ lemma iIndepFun.neg (h : iIndepFun n f μ) : iIndepFun n (update f i (-f i)) μ 
   · subst hj; simp [measurable_neg]
   · simp [hj, measurable_id]
 
+variable [IsProbabilityMeasure μ]
+
+lemma iIndepFun.indepFun_prod_prod
+  (h_indep: iIndepFun n f μ) (hf: ∀ i, Measurable (f i))
+  (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
+  IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
+  classical
+  have hd : Disjoint ({i, j} : Finset ι) ({k,l} : Finset ι) := by
+    simp only [Finset.mem_singleton, Finset.disjoint_insert_right, Finset.mem_insert,
+      Finset.disjoint_singleton_right]
+    tauto
+  have h := h_indep.indepFun_finset ({i, j} : Finset ι) ({k,l} : Finset ι) hd hf
+  let g (i j : ι) (v : Π x : ({i, j} : Finset ι), α x) : (α i) × (α j) :=
+    ⟨v ⟨i, Finset.mem_insert_self i {j}⟩, v ⟨j, Finset.mem_insert_of_mem (Finset.mem_singleton_self j)⟩⟩
+  have hg (i j : ι) : Measurable (g i j) := by measurability
+  exact h.comp (hg i j) (hg k l)
+
 end iIndepFun
+
+
+section
+
+variable {β β' : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → β'}
+
+theorem IndepFun.measure_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
+    {_mβ' : MeasurableSpace β'} (h : IndepFun f g μ) {s : Set β} {t : Set β'}
+    (hs : MeasurableSet s) (ht : MeasurableSet t) :
+    μ (f ⁻¹' s ∩ g ⁻¹' t) = μ (f ⁻¹' s) * μ (g ⁻¹' t) :=
+  indepFun_iff_measure_inter_preimage_eq_mul.1 h _ _ hs ht
+
+theorem IndepFun.measureReal_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
+    {_mβ' : MeasurableSpace β'} (h : IndepFun f g μ) {s : Set β} {t : Set β'}
+    (hs : MeasurableSet s) (ht : MeasurableSet t) :
+    μ.real (f ⁻¹' s ∩ g ⁻¹' t) = μ.real (f ⁻¹' s) * μ.real (g ⁻¹' t) := by
+  rw [measureReal_def, h.measure_inter_preimage_eq_mul hs ht, ENNReal.toReal_mul]; rfl
+
+end
 
 end ProbabilityTheory

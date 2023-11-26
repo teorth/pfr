@@ -1,6 +1,8 @@
 import Mathlib.MeasureTheory.Measure.Portmanteau
 import Mathlib.MeasureTheory.Measure.Count
 import Mathlib.Tactic
+import Mathlib.Probability.ProbabilityMassFunction.Uniform
+import Mathlib.Probability.Density
 import PFR.Entropy.Basic
 import PFR.ForMathlib.FiniteMeasureComponent
 
