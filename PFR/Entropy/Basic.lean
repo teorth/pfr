@@ -189,13 +189,24 @@ lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
       · simp
     · simp
 
+open Function
+
+/-- The image of a uniform random variable under an injective map is uniform on the image. -/
+lemma IsUniform.comp
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) {f : S → T} (hf : Injective f) :
+    IsUniform (f '' H) (f ∘ X) μ where
+  eq_of_mem := by
+    rintro - - ⟨x, hx, rfl⟩ ⟨y, hy, rfl⟩
+    have A z : f ⁻¹' {f z} = {z} := by ext; simp [hf.eq_iff]
+    simp [preimage_comp, A, h.eq_of_mem x y hx hy]
+  measure_preimage_compl := by simpa [preimage_comp, hf] using h.measure_preimage_compl
+
 /-- Uniform distributions exist, version within a fintype and giving a measure space  -/
 lemma exists_isUniform_measureSpace
     {S : Type u} [Fintype S] (H : Set S) (h : H.Nonempty) :
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ ∀ ω : Ω, U ω ∈ H := by
   let H' : Finset S := H.toFinite.toFinset
-  have : H'.Nonempty := by simpa using h
   rcases exists_isUniform H' (by simpa using h) with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem⟩
   simp only [Finite.coe_toFinset, Finite.mem_toFinset] at Xunif Xmem
   exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem⟩
@@ -203,11 +214,19 @@ lemma exists_isUniform_measureSpace
 lemma IsUniform.ae_mem {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) :
     ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
 
+lemma IsUniform.nonempty {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ)
+    [hμ : NeZero μ] : H.Nonempty := by
+  rcases eq_empty_or_nonempty H with rfl|h'
+  · have : μ univ = 0 := by convert h.measure_preimage_compl; simp
+    simp at this
+    exact (hμ.out this).elim
+  · exact h'
+
 /-- A "unit test" for the definition of uniform distribution. -/
 lemma IsUniform.measure_preimage_of_mem
     {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) (hX : Measurable X)
     {s : S} (hs : s ∈ H) :
-    μ (X ⁻¹' {s}) = (μ Set.univ) / (Nat.card H) := by
+    μ (X ⁻¹' {s}) = μ univ / Nat.card H := by
   let H' := H.toFinite.toFinset
   have B : μ univ = (Nat.card H) * μ (X ⁻¹' {s}) := calc
     μ univ = μ (X ⁻¹' Hᶜ) + μ (X ⁻¹' H) := by
@@ -234,6 +253,14 @@ lemma IsUniform.measure_preimage_of_mem
     · simpa using Nat.pos_iff_ne_zero.mp hH
     · simp
 
+/-- A "unit test" for the definition of uniform distribution. -/
+lemma IsUniform.measureReal_preimage_of_mem
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (h : IsUniform H X μ) (hX : Measurable X) {s : S} (hs : s ∈ H) :
+    μ.real (X ⁻¹' {s}) = 1 / Nat.card H := by
+  rw [measureReal_def, h.measure_preimage_of_mem hX hs]
+  simp [ENNReal.toReal_inv]
+
 /-- Another "unit test" for the definition of uniform distribution. -/
 lemma IsUniform.measure_preimage_of_nmem
     {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
@@ -241,6 +268,12 @@ lemma IsUniform.measure_preimage_of_nmem
   apply le_antisymm ((measure_mono _).trans h.measure_preimage_compl.le) (zero_le _)
   apply preimage_mono
   simpa using hs
+
+/-- Another "unit test" for the definition of uniform distribution. -/
+lemma IsUniform.measureReal_preimage_of_nmem
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
+    μ.real (X ⁻¹' {s}) = 0 := by
+  rw [measureReal_def, h.measure_preimage_of_nmem hs, ENNReal.zero_toReal]
 
 lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω']
     {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ)
@@ -277,6 +310,12 @@ lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) :
   ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by sorry
+
+/-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
+$P[X=s] \geq \exp(-H[X])$. -/
+lemma prob_ge_exp_neg_entropy' {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
+    [IsProbabilityMeasure μ] [Fintype S] (X : Ω → S) :
+    ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by sorry
 
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
