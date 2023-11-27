@@ -60,7 +60,7 @@ One random variable is said to be a copy of another if they have the same distri
 
 \begin{lemma}[Copy preserves entropy]\label{copy-ent}
   \uses{entropy-def}
-  \lean{IdentDistrib.entropy_eq}\leanok
+  \lean{ProbabilityTheory.IdentDistrib.entropy_eq}\leanok
   If $X'$ is a copy of $X$ then $\bbH[X'] = \bbH[X]$.
 \end{lemma}
 
@@ -197,8 +197,8 @@ $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def} Straightforward thanks to Lemma \ref{copy-ent}, Lemma \ref{ruz-copy}, Lemma \ref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
 \end{proof}
 
-\begin{lemma}[Kaimonovich-Vershik-Madiman inequality]\label{kv}
-  \lean{kaimonovich_vershik}\leanok
+\begin{lemma}[Kaimanovich-Vershik-Madiman inequality]\label{kv}
+  \lean{kaimanovich_vershik}\leanok
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
   \bbH[X + Y + Z] - \bbH[X + Y] \leq \bbH[Y+Z] - \bbH[Y].
@@ -217,12 +217,12 @@ However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we h
   For $X,Y$ random variables, there exist random variables $X_1,X_2,Y'$ on a common probability space with $(X_1, Y'), (X_2, Y')$ both having the distribution of $(X,Y)$, and $X_1, X_2$ conditionally independent over $Y'$ in the sense of Definition \ref{conditional-independent-def}.
 \end{lemma}
 
-\begin{proof} Explicit construction.
+\begin{proof}\leanok Explicit construction.
 \end{proof}
 
 
 \begin{lemma}[Balog-Szemer\'edi-Gowers]\label{lem-bsg}
-  \lean{ent_bsg}
+  \lean{ent_bsg}\leanok
   Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z := A+B$.
 Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z}  \bbP[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3  \bbI[A:B] + 2 \bbH[Z] - \bbH[A] - \bbH[B]. \end{equation}

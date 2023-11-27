@@ -44,7 +44,8 @@ attribute [aesop (rule_sets [Finiteness]) safe apply]
   ENNReal.mul_ne_top ENNReal.add_ne_top' ENNReal.sub_ne_top ENNReal.inv_ne_top'
   MeasureTheory.measure_ne_top
 
-attribute [aesop (rule_sets [Finiteness]) safe -50] Aesop.BuiltinRules.assumption
+open Aesop.BuiltinRules in
+attribute [aesop (rule_sets [Finiteness]) safe -50] assumption intros
 
 open Lean Elab Tactic in
 @[aesop safe tactic (rule_sets [Finiteness])]
@@ -56,7 +57,7 @@ nonnegative reals (`ℝ≥0∞`). -/
 macro (name := finiteness) "finiteness" c:Aesop.tactic_clause* : tactic =>
 `(tactic|
   aesop $c*
-    (options := { introsTransparency? := some .default, terminal := true })
+    (options := { introsTransparency? := some .reducible, terminal := true })
     (simp_options := { enabled := false })
     (rule_sets [$(Lean.mkIdent `Finiteness):ident, -default, -builtin]))
 
@@ -71,3 +72,5 @@ example {a : ℝ≥0∞} (ha : a ≠ ∞) : a + 3 < ∞ := by finiteness
 example {a : ℝ≥0∞} (ha : a < ∞) : a + 3 < ∞ := by finiteness
 
 example (a : ℝ) : (ENNReal.ofReal (1 + a ^ 2))⁻¹ < ∞ := by finiteness
+
+example (f : α → ℕ) : ∀ i, (f i : ℝ≥0∞) ≠ ∞ := by finiteness

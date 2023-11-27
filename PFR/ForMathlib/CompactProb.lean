@@ -1,5 +1,5 @@
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
-import PFR.MeasureReal
+import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.Finiteness
 import PFR.ForMathlib.FiniteMeasureComponent
 
