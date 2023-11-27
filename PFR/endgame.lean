@@ -117,6 +117,19 @@ local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d
 
 variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
+lemma hU : H[U] = H[X₁' + X₂'] := by 
+  apply IdentDistrib.entropy_eq
+  apply ProbabilityTheory.IdentDistrib.add
+  repeat assumption
+  · have aux : IndepFun (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 0) 
+                        (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 1) := by
+      apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 0) (j := 1); simp
+    simp at aux; assumption
+  · have aux : IndepFun (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 2) 
+                        (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 3) := by
+      apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 2) (j := 3); decide
+    simp at aux; assumption
+
 /--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
@@ -127,10 +140,9 @@ lemma sum_dist_diff_le
   ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
-
-  have hU : H[U] = H[X₁' + X₂'] := sorry
+ 
   have aux1 : H[S] + H[U] - H[X₁] - H[X₁' + X₂'] = H[S] - H[X₁] := by 
-    rw [hU] 
+    rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep] 
     ring
 
   have independenceCondition1 : iIndepFun (fun x ↦ hG) ![X₁, X₂, X₁' + X₂'] := by 
@@ -138,7 +150,7 @@ lemma sum_dist_diff_le
 
   have aux2 : d[X₀₁ # U | U + (X₁' + X₂')] - d[X₀₁ # X₁] 
             ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₁] - H[X₁' + X₂']) / 2 :=
-    condDist_diff_ofsum_le ℙ ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂) 
+    condDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂) 
     (hZ' := Measurable.add hX₁' hX₂') independenceCondition1
 
   have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by 
