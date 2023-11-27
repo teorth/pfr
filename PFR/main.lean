@@ -248,8 +248,11 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
     _ ≤ 2 * K ^ 12 := by linarith [show 0 ≤ K ^ 12 by positivity]
   · obtain ⟨H', H'H, IH'A, IAH'⟩ :
         ∃ H' : AddSubgroup G, H' ≤ H ∧ Nat.card (H' : Set G) ≤ Nat.card A
-          ∧ Nat.card A ≤ 2 * Nat.card (H' : Set G) :=
+          ∧ Nat.card A ≤ 2 * Nat.card (H' : Set G) := by
       sorry
+
+
+#exit
     have : (Nat.card A / 2 : ℝ) ≤ Nat.card (H' : Set G) := by
       rw [div_le_iff zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
