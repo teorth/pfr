@@ -468,7 +468,7 @@ lemma cond_rdist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measu
       dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] :=
   rfl
 
-lemma cond_rdist'_eq_sum (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
+lemma cond_rdist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
     (hY : Measurable Y) (hW : Measurable W)
     (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
     d[X ; μ # Y | W ; μ']
@@ -635,8 +635,8 @@ lemma cond_rdist_of_inj_map [IsProbabilityMeasure μ]
     ← condEntropy_of_inj_map μ (h_meas 1) (h_meas 3) f hπ]
   rfl
 
-/-- The **Kaimonovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y].$$ -/
-lemma kaimonovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
+/-- The **Kaimanovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y].$$ -/
+lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ] :
     H[X + Y + Z ; μ] - H[X + Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
   suffices : (H[X ; μ] + H[Y ; μ] + H[Z ; μ]) + H[X + Y + Z ; μ]
@@ -668,13 +668,13 @@ lemma kaimonovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
   symm
   exact entropy_of_shear_eq hZ (hX.add hY)
 
-/-- A version of  **Kaimonovich-Vershik inequality** with some variables negated -/
-lemma kaimonovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
+/-- A version of  **Kaimanovich-Vershik inequality** with some variables negated -/
+lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ] :
     H[X - (Y + Z) ; μ] - H[X - Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
   rw [← entropy_neg (hY.add' hZ), ← entropy_neg hY]
   simp_rw [sub_eq_add_neg, neg_add, ← add_assoc]
-  apply kaimonovich_vershik _ hX hY.neg hZ.neg
+  apply kaimanovich_vershik _ hX hY.neg hZ.neg
   convert (h.neg 1).neg 2
   ext i; fin_cases i
   · simp (discharger := decide)
@@ -758,9 +758,9 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
     ← h2.entropy_eq, ← h2Y'.entropy_eq, ← h2Z'.entropy_eq]
   rw [hXY'.rdist_eq hX' hY', hYZ'.rdist_eq hY' hZ', hXYZ'.rdist_eq hX' (hY'.add hZ')]
   constructor
-  · linarith [kaimonovich_vershik' hi hX' hY' hZ']
+  · linarith [kaimanovich_vershik' hi hX' hY' hZ']
   · intro hG
-    rw [pi.sub_eq_add Y' Z']
+    rw [ElementaryAddCommGroup.pi.sub_eq_add Y' Z']
     ring
 
 variable (μ) in

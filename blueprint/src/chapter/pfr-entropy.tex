@@ -1,7 +1,7 @@
 \chapter{Entropy version of PFR}
 
 \begin{definition}\label{eta-def}
- \lean{eta}\leanok
+ \lean{η}\leanok
   $\eta := 1/9$.
 \end{definition}
 
@@ -34,7 +34,7 @@ for all $G$-valued random variables $X'_1, X'_2$.
 
 
 \begin{proposition}[$\tau$ has minimum]\label{tau-min}\uses{tau-min-def}
-  \lean{tau_min_exists}\leanok
+  \lean{tau_minimizer_exists}\leanok
 A pair $X_1, X_2$ of $\tau$-minimizers exist.
 \end{proposition}
 
@@ -64,7 +64,7 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'
 $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 \end{lemma}
 
-\begin{proof}\uses{distance-lower}  Apply Lemma \ref{distance-lower} to conditioned random variables and then average.
+\begin{proof}\uses{distance-lower}\leanok  Apply Lemma \ref{distance-lower} to conditioned random variables and then average.
 \end{proof}
 
 \subsection{First estimate}
@@ -144,7 +144,7 @@ One can also extract the following useful inequality from the proof of the above
   \end{equation}
 \end{lemma}
 
-\begin{proof}\uses{first-cond, first-fibre, first-upper, ruz-indep}
+\begin{proof}\uses{first-cond, first-fibre, first-upper, ruz-indep}\leanok
   Subtracting Lemma \ref{first-cond} from Lemma \ref{first-fibre}, and combining the resulting inequality with Lemma \ref{first-upper} gives the bound
 \[
   d[X_1+\tilde X_2;X_2+\tilde X_1] \le (1 + \eta) k - I_1,
@@ -317,13 +317,15 @@ For the next two lemmas, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable s
 \end{equation}
 
 \begin{lemma}[Constructing good variables, I]\label{construct-good-prelim}
-  \lean{construct_good-prelim}\leanok
+  \lean{construct_good_prelim}\leanok
   One has
   \begin{align*}  k \leq
     \delta + \eta (& d[X^0_1;T_1]-d[X^0_1;X_1])
       + \eta (d[X^0_2;T_2]-d[X^0_2;X_2]) \\ & + \tfrac12 \eta \bbI[T_1:T_3] + \tfrac12 \eta \bbI[T_2:T_3].
   \end{align*}
 \end{lemma}
+
+(Note: in the paper, this lemma was phrased in a more intuitive formulation that is basically the contrapositive of the one here. Similarly for the next two lemmas.)
 
 \begin{proof}\uses{lem-bsg, cond-dist-fact,distance_lower}
   We apply Lemma \ref{lem-bsg} with $(A,B) = (T_1, T_2)$ there.
@@ -361,7 +363,8 @@ One has
   \end{align*}
 \end{lemma}
 
-\begin{proof}\uses{construct-good-prelim}
+\begin{proof}
+\uses{construct-good-prelim}\leanok
 Average Lemma \ref{construct-good-prelim} over all six permutations of $T_1,T_2,T_3$.
 \end{proof}
 
@@ -370,14 +373,12 @@ Average Lemma \ref{construct-good-prelim} over all six permutations of $T_1,T_2,
 
 \begin{theorem}[$\tau$-decrement]\label{de-prop}
   \lean{tau_strictly_decreases}\leanok
-  Let $X_1, X_2$ be two $G$-valued random variables with $d[X_1;X_2] > 0$. Then there are $G$-valued random variables $X'_1, X'_2$ such that
-$$\tau[X'_1;X'_2] < \tau[X_1;X_2].
-$$
+  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] = 0$.
 \end{theorem}
 
 \begin{proof}
   \uses{construct-good, key-ident, uvw-s, total-dist, first-estimate, eta-def}
-  We take contrapostives and assume that $X_1,X_2$ are tau-minimizers, and wish to show that $k := d[X_1;X_2]$ vanishes.  Applying Lemma \ref{construct-good} with any random variables $(T_1,T_2,T_3)$ such that $T_1+T_2+T_3=0$ holds identically, we deduce that
+  Set $k := d[X_1;X_2]$.  Applying Lemma \ref{construct-good} with any random variables $(T_1,T_2,T_3)$ such that $T_1+T_2+T_3=0$ holds identically, we deduce that
 \[
   k \leq \delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_1;T_j] - d[X^0_i;X_i]) \biggr).
 \]

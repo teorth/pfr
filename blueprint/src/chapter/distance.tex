@@ -60,7 +60,7 @@ One random variable is said to be a copy of another if they have the same distri
 
 \begin{lemma}[Copy preserves entropy]\label{copy-ent}
   \uses{entropy-def}
-  \lean{IdentDistrib.entropy_eq}\leanok
+  \lean{ProbabilityTheory.IdentDistrib.entropy_eq}\leanok
   If $X'$ is a copy of $X$ then $\bbH[X'] = \bbH[X]$.
 \end{lemma}
 
@@ -197,8 +197,8 @@ $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def} Straightforward thanks to Lemma \ref{copy-ent}, Lemma \ref{ruz-copy}, Lemma \ref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
 \end{proof}
 
-\begin{lemma}[Kaimonovich-Vershik-Madiman inequality]\label{kv}
-  \lean{kaimonovich_vershik}\leanok
+\begin{lemma}[Kaimanovich-Vershik-Madiman inequality]\label{kv}
+  \lean{kaimanovich_vershik}\leanok
 Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \[
   \bbH[X + Y + Z] - \bbH[X + Y] \leq \bbH[Y+Z] - \bbH[Y].

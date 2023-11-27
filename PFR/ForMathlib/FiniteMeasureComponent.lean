@@ -1,7 +1,7 @@
 import Mathlib.MeasureTheory.Measure.Portmanteau
 import Mathlib.MeasureTheory.Measure.Count
 import Mathlib.Tactic
-import PFR.MeasureReal
+import PFR.ForMathlib.MeasureReal
 
 /-!
 # The measure of a connected component of a space depends continuously on a finite measure
