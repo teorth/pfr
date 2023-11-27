@@ -117,6 +117,12 @@ lemma entropy_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure
   have : IsProbabilityMeasure (Measure.map X μ) := isProbabilityMeasure_map hX.aemeasurable
   rw [entropy_def, measureEntropy_of_isProbabilityMeasure]
 
+lemma entropy_eq_sum' (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    entropy X μ = ∑ x, negIdMulLog ((μ.map X).real {x}) := by
+  have : IsProbabilityMeasure (Measure.map X μ) := isProbabilityMeasure_map hX.aemeasurable
+  simp only [entropy_def, measureEntropy_of_isProbabilityMeasure, Measure.real]
+
+
 /-- $H[X|Y=y] = \sum_s P[X=s|Y=y] \log \frac{1}{P[X=s|Y=y]}$. -/
 lemma entropy_cond_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] (y : T) :
     H[X | Y ← y ; μ] = ∑ x, negIdMulLog ((μ[|Y ⁻¹' {y}]).map X {x}).toReal := by
@@ -261,6 +267,13 @@ lemma IsUniform.measureReal_preimage_of_mem
   rw [measureReal_def, h.measure_preimage_of_mem hX hs]
   simp [ENNReal.toReal_inv]
 
+lemma IsUniform.measureReal_preimage_of_mem'
+    {H : Set S} {X : Ω → S} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (h : IsUniform H X μ) (hX : Measurable X) {s : S} (hs : s ∈ H) :
+    (μ.map X).real {s} = 1 / Nat.card H := by
+  rw [map_measureReal_apply hX ( MeasurableSet.singleton s),
+    IsUniform.measureReal_preimage_of_mem h hX hs]
+
 /-- Another "unit test" for the definition of uniform distribution. -/
 lemma IsUniform.measure_preimage_of_nmem
     {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
@@ -290,7 +303,18 @@ lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω']
 /-- If $X$ is uniformly distributed on $H$, then $H[X] = \log |H|$.
 May need some non-degeneracy and measurability conditions. -/
 lemma IsUniform.entropy_eq (H : Set S) (X : Ω → S) {μ : Measure Ω} [IsProbabilityMeasure μ]
-    (hX : IsUniform H X μ) : H[X ; μ] = log (Nat.card H) := sorry
+    (hX : IsUniform H X μ) (hX' : Measurable X): H[X ; μ] = log (Nat.card H) := by
+  haveI : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX'.aemeasurable
+  have : ∀ (t : S), negIdMulLog ((μ.map X).real {t}) = ((μ.map X).real {t}) * log (Nat.card H)
+  · intro t
+    by_cases ht : t ∈ H
+    · simp only [negIdMulLog, neg_mul, neg_mul_eq_mul_neg, IsUniform.measureReal_preimage_of_mem'
+        hX hX' ht, one_div, log_inv, neg_neg]
+    · simp only [negIdMulLog, map_measureReal_apply hX' (MeasurableSet.singleton t),
+      IsUniform.measureReal_preimage_of_nmem hX ht, neg_zero, log_zero, mul_zero, zero_mul]
+  simp only [entropy_eq_sum' hX', Finset.sum_congr rfl (fun t _ => this t), ←Finset.sum_mul,
+    Finset.sum_realMeasure_singleton, Finset.coe_univ, ne_eq, log_eq_zero,
+    Nat.cast_eq_zero, Nat.cast_eq_one, IsProbabilityMeasure.measureReal_univ, one_mul]
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
 distributed. -/
@@ -306,16 +330,130 @@ lemma entropy_eq_log_card {X : Ω → S} (hX : Measurable X) (μ : Measure Ω) (
   rw [entropy_def, measureEntropy_eq_card_iff_measure_eq, Measure.map_apply hX MeasurableSet.univ]
   simp
 
+/-- $\sum_s g(f(s)) = \sum_{f(s) \neq 0} g(f(s))$ if $g(0) = 0$ -/
+lemma Fintype.sum_eq_sum_nonzero_comp {S α β : Type*} [Zero α] [DecidableEq α] [AddCommMonoid β]
+    [Fintype S] {f : S → α} {g : α → β} (h : g 0 = 0) :
+    Finset.sum Finset.univ (g ∘ f) =
+    Finset.sum (Finset.univ.filter (fun s ↦ f s ≠ 0)) (g ∘ f) := by
+  let S_nonzero := Finset.univ.filter (fun s ↦ f s ≠ 0)
+  let h_nonzero_subset := Finset.filter_subset (fun s ↦ f s ≠ 0) Finset.univ
+  have h_zero_terms : ∀ s ∈ Finset.univ, s ∉ S_nonzero → (g ∘ f) s = 0 := by
+    intros s h_s h_s_notin
+    rw [Finset.mem_filter, not_and_not_right] at h_s_notin
+    rw [show (g ∘ f) s = g (f s) by rfl, h_s_notin h_s, h]
+  rw [Finset.sum_subset h_nonzero_subset h_zero_terms]
+
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
-lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) :
-  ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by sorry
+lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable X) :
+    ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
+  let μS := μ.map X
+  let μs s := μS {s}
+  set S_nonzero := Finset.univ.filter (fun s ↦ μs s ≠ 0) with rw_S_nonzero
+
+  set norm := μS Set.univ with rw_norm
+  have h_norm: norm = μ Set.univ := by
+    have h := MeasureTheory.Measure.map_apply (μ := μ) hX (Finset.univ.measurableSet)
+    rw [Finset.coe_univ] at h
+    exact h
+
+  let pdf_nn s := norm⁻¹ * μs s
+  let pdf s := (pdf_nn s).toReal
+  let neg_log_pdf s := -log (pdf s)
+
+  rcases Finset.eq_empty_or_nonempty S_nonzero with h_empty | h_nonempty
+  . have h_norm_zero : μ Set.univ = 0 := by
+      rw [← h_norm, rw_norm, ← sum_measure_singleton]
+      show ∑ s, (id ∘ μs) s = 0
+      rw [Fintype.sum_eq_sum_nonzero_comp rfl, ← rw_S_nonzero, h_empty]
+      exact rfl
+    let s := Classical.arbitrary (α := S)
+    have h_ineq : μs s ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
+      rw [h_norm_zero, zero_mul]
+      exact le_of_not_gt ENNReal.not_lt_zero
+    exact ⟨ s, h_ineq ⟩
+
+  rcases exists_or_forall_not (fun s ↦ μs s = ∞) with h_infty | h_finite
+  . let ⟨ s, h_s ⟩ := h_infty
+    have h_ineq : μs s ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
+      rw [h_s]
+      exact le_top
+    exact ⟨ s, h_ineq ⟩
+
+  rcases eq_zero_or_neZero μ with h_zero | h_nonzero
+  . let s := Classical.arbitrary (α := S)
+    have h_ineq : μs s ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
+      rw [h_zero, show (0 : Measure Ω) Set.univ = 0 from rfl, zero_mul]
+      exact zero_le _
+    exact ⟨ s, h_ineq ⟩
+
+  have h_norm_pos : 0 < norm := by
+    rw [h_norm, MeasureTheory.Measure.measure_univ_pos]
+    exact NeZero.ne μ
+  have h_norm_ne_zero : norm ≠ 0 := ne_zero_of_lt h_norm_pos
+  have h_norm_nonneg : 0 ≤ norm := le_of_lt h_norm_pos
+  have h_norm_finite : norm < ∞ := by
+    rw [rw_norm, ← sum_measure_singleton]
+    exact ENNReal.sum_lt_top (fun s _ ↦ h_finite s)
+  have h_invinvnorm_finite : norm⁻¹⁻¹ ≠ ∞ := by
+    rw [inv_inv]
+    exact LT.lt.ne_top h_norm_finite
+  have h_invnorm_ne_zero : norm⁻¹ ≠ 0 := ENNReal.inv_ne_top.mp h_invinvnorm_finite
+  have h_invnorm_finite : norm⁻¹ ≠ ∞ := by
+    rw [← ENNReal.inv_ne_zero, inv_inv]
+    exact h_norm_ne_zero
+  have h_pdf_nonneg : ∀ s, 0 ≤ pdf s := fun s ↦ ENNReal.toReal_nonneg
+  have h_pdf_finite : ∀ s ∈ Finset.univ, pdf_nn s ≠ ∞ :=
+    fun s _ ↦ ENNReal.mul_ne_top h_invnorm_finite (h_finite s)
+
+  have h_norm_cancel : norm * norm⁻¹ = 1 :=
+    ENNReal.mul_inv_cancel h_norm_ne_zero (LT.lt.ne_top h_norm_finite)
+  have h_pdf1 : (∑ s, pdf s) = 1 := by
+    rw [← ENNReal.toReal_sum h_pdf_finite, ← Finset.mul_sum,
+      sum_measure_singleton, mul_comm, h_norm_cancel, ENNReal.one_toReal]
+
+  let ⟨ s_max, hs, h_min ⟩ := Finset.exists_min_image S_nonzero neg_log_pdf h_nonempty
+  have h_pdf_s_max_pos : 0 < pdf s_max := by
+    rw [Finset.mem_filter] at hs
+    have h_nonzero : pdf s_max ≠ 0 := ENNReal.toReal_ne_zero.mpr
+      ⟨ mul_ne_zero h_invnorm_ne_zero hs.2, ENNReal.mul_ne_top h_invnorm_finite (h_finite s_max) ⟩
+    exact LE.le.lt_of_ne (h_pdf_nonneg s_max) (Ne.symm h_nonzero)
+
+  have h_ineq : μs s_max ≥ (μ Set.univ) * (rexp (-H[X ; μ])).toNNReal := by
+    rw [← h_norm, ← one_mul (μs s_max), ← h_norm_cancel, mul_assoc]
+    apply mul_le_mul_of_nonneg_left _ h_norm_nonneg
+    suffices pdf s_max ≥ rexp (-H[X ; μ]) by
+      show ENNReal.ofReal (rexp (-H[X ; μ])) ≤ pdf_nn s_max
+      rw [ENNReal.ofReal_le_iff_le_toReal (h_pdf_finite _ (Fintype.complete _))]
+      exact this
+    rw [← Real.exp_log h_pdf_s_max_pos]
+    apply exp_monotone
+    rw [neg_le, ← one_mul (-log (pdf s_max)), ← h_pdf1, Finset.sum_mul]
+    let g_lhs x := (norm⁻¹ * x).toReal * neg_log_pdf s_max
+    have h_lhs : g_lhs 0 = 0 := by simp
+    let g_rhs x := -(norm⁻¹ * x).toReal * log (norm⁻¹ * x).toReal
+    have h_rhs : g_rhs 0 = 0 := by simp
+    show ∑ s, (g_lhs ∘ μs) s ≤ ∑ s, (g_rhs ∘ μs) s
+    rw [Fintype.sum_eq_sum_nonzero_comp h_lhs, Fintype.sum_eq_sum_nonzero_comp h_rhs]
+    apply Finset.sum_le_sum
+    intros s h_s
+    show pdf s * neg_log_pdf s_max ≤ (-pdf s) * log (pdf s)
+    rw [neg_mul_comm]
+    exact mul_le_mul_of_nonneg_left (h_min s h_s) (h_pdf_nonneg s)
+  exact ⟨ s_max, h_ineq ⟩
 
 /-- If $X$ is an $S$-valued random variable, then there exists $s \in S$ such that
 $P[X=s] \geq \exp(-H[X])$. -/
 lemma prob_ge_exp_neg_entropy' {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
-    [IsProbabilityMeasure μ] [Fintype S] (X : Ω → S) :
-    ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by sorry
+    [IsProbabilityMeasure μ] [Fintype S] (X : Ω → S) (hX : Measurable X) :
+    ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by
+  obtain ⟨s, hs⟩ := prob_ge_exp_neg_entropy X μ hX
+  use s
+  haveI : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX.aemeasurable
+  rwa [IsProbabilityMeasure.measure_univ, one_mul, ge_iff_le,
+    (show ENNReal.ofNNReal (toNNReal (rexp (-H[X; μ]))) = ENNReal.ofReal (rexp (-H[X; μ])) from rfl),
+    ENNReal.ofReal_le_iff_le_toReal (measure_ne_top _ _), ←MeasureTheory.Measure.real,
+    map_measureReal_apply hX (MeasurableSet.singleton s)] at hs
 
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} ( X : Ω → S ) ( Y : Ω → T ) (ω : Ω) : S × T := (X ω, Y ω)
@@ -1195,6 +1333,16 @@ lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measu
   map_eq := map_map hf hX
 }
 
+lemma sum_measure_preimage_singleton (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, μ (Y⁻¹' {y}) = 1 := by
+  rw [(show 1 =(μ.map Y) Set.univ by
+    simp [μ.map_apply hY MeasurableSet.univ]), <-sum_measure_singleton (μ.map Y)]
+  congr with y
+  rw [<- map_apply hY (MeasurableSet.singleton y)]
+
+lemma sum_measure_preimage_singleton' (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T][MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, (μ (Y⁻¹' {y})).toReal = 1 := by
+  rw [<- ENNReal.toReal_sum, sum_measure_preimage_singleton μ hY]
+  . rfl
+  finiteness
 
 /-- For $X,Y$ random variables, there exist conditionally independent trials
 $X_1, X_2, Y'$.-/
@@ -1227,22 +1375,14 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
 
   have h5 {y : T} (hy: μ (Y⁻¹' {y}) ≠ 0): IsProbabilityMeasure (m' y) := by
     have : IsProbabilityMeasure (μ[|Y ⁻¹' {y}]) := cond_isProbabilityMeasure μ hy
-    exact isProbabilityMeasure_map (Measurable.aemeasurable hX)
+    exact isProbabilityMeasure_map hX.aemeasurable
 
   refine ⟨ (S × S) × T, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_, measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst, measurable_snd, ?_, ?_, ?_ ⟩
   . constructor
     simp
     have : ∑ y : T, μ (Y⁻¹' {y})*1 = 1 := by
       simp
-      rw [show 1 = μ Set.univ by simp]
-      symm
-      convert measure_biUnion_finset _ _
-      . simp; ext _; simp
-      . intro _ _ _ _ hyz
-        apply Disjoint.preimage
-        simp [hyz]
-      intros
-      exact hY trivial
+      exact sum_measure_preimage_singleton μ hY
     rw [<-this]
     congr with y
     rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
@@ -1262,7 +1402,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
       congr 3
       rw [Measure.mapₗ_apply_of_measurable measurable_snd, Measure.mapₗ_apply_of_measurable hY]
       simp
-      have := Measure.map_const (μ[|Y⁻¹' {y}]) y
+      have := (μ[|Y⁻¹' {y}]).map_const y
       simp at this; rw [<-this]
       apply Measure.map_congr
       apply Filter.eventuallyEq_of_mem (h3' y)

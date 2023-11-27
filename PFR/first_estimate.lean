@@ -42,8 +42,11 @@ variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
 
 variable (h_min: tau_minimizes p X₁ X₂)
 
+/-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[X₁ # X₂]
 
+/-- `I₁ := I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂']`, the conditional mutual information
+of `X₁ + X₂` and `X₁' + X₂` given the quadruple sum `X₁ + X₂ + X₁' + X₂'`. -/
 local notation3 "I₁" => I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂']
 
 /-- The sum of
@@ -82,7 +85,7 @@ lemma cond_rdist_of_sums_ge :
     d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] ≥
       k - η * (d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁])
         - η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
-  condDistance_ge_of_min _ h_min hX₁ hX₂ _ _
+  condDistance_ge_of_min _ h_min hX₁ hX₂ _ _ (by measurability) (by measurability)
 
 /-- $$d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} \bbH[X_2] - \tfrac{1}{4} \bbH[X_1].$$ -/
 lemma diff_rdist_le_1 : d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
@@ -121,27 +124,13 @@ lemma diff_rdist_le_4 : d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]
 lemma first_estimate : I₁ ≤ 2 * η * k := by
   have v1 := rdist_add_rdist_add_condMutual_eq X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› ‹_›
   have v2 := rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_›
-  have v3 := cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_›
+  have v3 := cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› (by measurability) (by measurability)
   have v4 := diff_rdist_le_1 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
   have v5 := diff_rdist_le_2 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
   have v6 := diff_rdist_le_3 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
   have v7 := diff_rdist_le_4 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
   simp only [η, inv_eq_one_div] at *
   linarith [v1, v2, v3, v4, v5, v6, v7]
-
--- This is ad hoc. The better approach would be to fill in the instance below:
--- `ElementaryAddCommGroup (Ω → G) 2`
-lemma sub_eq_add_rv {Ω : Type*} (X Y : Ω → G) : X + Y = X - Y := by
-  ext ω
-  simp only [Pi.add_apply, Pi.sub_apply, sub_eq_add]
-
-/-
-instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] :
-    ElementaryAddCommGroup (Ω → Γ) p where
-  orderOf_of_ne := by
-    intro f f_ne_zero
-    sorry
- -/
 
 /--
 $$H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$$
@@ -156,7 +145,7 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
   have lem68 : D + Dcc + _ = _ :=
     rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
   have lem610 : Dcc ≥ k - η * (Dc1 - D1) - η * (Dc2 - D2) :=
-    cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' hX₁ hX₂ h_min
+    cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' hX₁ hX₂ (by measurability) (by measurability) h_min
   have lem611c : Dc1 - D1 ≤ _ :=
     diff_rdist_le_3 p X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
   have lem611d : Dc2 - D2 ≤ _ :=
@@ -173,12 +162,8 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     linarith
   have ind : D = _ :=
     @IndepFun.rdist_eq Ω G _ ℙ _ _ _ _ (X₁ + X₂') _ (X₂ + X₁') ?_ (by measurability) (by measurability)
-  · have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by
-      simp [sub_eq_add]
-    have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by
-      -- Why doesn't `ring` close this?
-      rw [add_assoc _ _ X₂', add_comm X₁' _, add_assoc _ X₂ _, ← add_assoc _ X₂' _, add_comm X₂ X₂']
-      simp_rw [←add_assoc]
+  · have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by simp
+    have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by abel
     rw [ind, ent_sub_eq_ent_add, rw₁] at aux
     have obs : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + η) * k - I₁ := by
       linarith
@@ -191,7 +176,7 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
           IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂
         rw [k_eq_aux]
         exact IndepFun.rdist_eq (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)) hX₁ hX₂'
-      rw [k_eq, ←sub_eq_add_rv, ←HX₂_eq]
+      rw [k_eq, ←ElementaryAddCommGroup.sub_eq_add, ←HX₂_eq]
       ring
     have rw₃ : H[X₂ + X₁'] = k + H[X₁]/2 + H[X₂]/2 := by
       have HX₁_eq : H[X₁] = H[X₁'] :=
@@ -201,7 +186,7 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
           IdentDistrib.rdist_eq h₁ (IdentDistrib.refl hX₂.aemeasurable)
         rw [k_eq_aux]
         exact IndepFun.rdist_eq (h_indep.indepFun (show (3 : Fin 4) ≠ 1 by decide)) hX₁' hX₂
-      rw [add_comm X₂ X₁', k_eq', ←sub_eq_add_rv, ←HX₁_eq]
+      rw [add_comm X₂ X₁', k_eq', ←ElementaryAddCommGroup.sub_eq_add, ←HX₁_eq]
       ring
     rw [rw₂, rw₃, add_halves]
     apply le_of_eq
