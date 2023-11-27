@@ -4,7 +4,7 @@ import Mathlib.Probability.Notation
 import PFR.ForMathlib.Positivity
 import PFR.ForMathlib.Miscellaneous
 import PFR.neg_xlogx
-import PFR.MeasureReal
+import PFR.ForMathlib.MeasureReal
 
 /-!
 # Entropy of a measure

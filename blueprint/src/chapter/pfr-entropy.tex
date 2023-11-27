@@ -64,7 +64,7 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'
 $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 \end{lemma}
 
-\begin{proof}\uses{distance-lower}  Apply Lemma \ref{distance-lower} to conditioned random variables and then average.
+\begin{proof}\uses{distance-lower}\leanok  Apply Lemma \ref{distance-lower} to conditioned random variables and then average.
 \end{proof}
 
 \subsection{First estimate}
@@ -144,7 +144,7 @@ One can also extract the following useful inequality from the proof of the above
   \end{equation}
 \end{lemma}
 
-\begin{proof}\uses{first-cond, first-fibre, first-upper, ruz-indep}
+\begin{proof}\uses{first-cond, first-fibre, first-upper, ruz-indep}\leanok
   Subtracting Lemma \ref{first-cond} from Lemma \ref{first-fibre}, and combining the resulting inequality with Lemma \ref{first-upper} gives the bound
 \[
   d[X_1+\tilde X_2;X_2+\tilde X_1] \le (1 + \eta) k - I_1,
@@ -363,7 +363,8 @@ One has
   \end{align*}
 \end{lemma}
 
-\begin{proof}\uses{construct-good-prelim}
+\begin{proof}
+\uses{construct-good-prelim}\leanok
 Average Lemma \ref{construct-good-prelim} over all six permutations of $T_1,T_2,T_3$.
 \end{proof}
 
