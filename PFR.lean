@@ -13,10 +13,10 @@ import PFR.ForMathlib.Finiteness
 import PFR.ForMathlib.Finiteness.Attr
 import PFR.ForMathlib.Independence
 import PFR.ForMathlib.Jensen
+import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.Positivity
 import PFR.HundredPercent
 import PFR.main
-import PFR.MeasureReal
 import PFR.neg_xlogx
 import PFR.ruzsa_distance
 import PFR.second_estimate
