@@ -21,15 +21,11 @@ To build the project, run `lake exe cache get` and then `lake build`.
 
 To build the web version of the blueprint, you need a working LaTeX installation.
 Furthermore, you need some packages:
+
 ```
 sudo apt install graphviz libgraphviz-dev
-pip3 install invoke pandoc
-cd .. # go to folder where you are happy clone git repos
-git clone git@github.com:plastex/plastex
-pip3 install ./plastex
-git clone git@github.com:PatrickMassot/leanblueprint
-pip3 install ./leanblueprint
-cd pfr # go back to the PFR repository
+pip uninstall -y leanblueprint
+pip install -r blueprint/requirements.txt
 ```
 
 To actually build the blueprint, run
@@ -41,6 +37,13 @@ inv all
 
 To view the web-version of the blueprint locally, run `inv serve` and navigate to
 `http://localhost:8000/` in your favorite browser.
+
+Or you can just run `inv dev` instead of `inv all` and `inv serve`, after each edit to the LaTeX,
+it will automatically rebuild the blueprint, you just need to refresh the web page to see the rendered result.
+
+Note: If you have something wrong in your LaTeX file, and the LaTeX compilation fails,
+LaTeX will stuck and ask for commands, you'll need to type `X` then return to exit LaTeX,
+then fix the LaTeX error, and run `inv dev` again.
 
 ## Source reference
 
