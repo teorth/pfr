@@ -66,7 +66,8 @@ lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H} (h1 : Measurable Z_1) 
   have hπ1 : IdentDistrib (⟨Z_1, π ∘ Z_1⟩) (⟨W_1, π ∘ W_1⟩) μ ν := hi1.symm.comp hφ
   have hπ2 : IdentDistrib (⟨Z_2, π ∘ Z_2⟩) (⟨W_2, π ∘ W_2⟩) μ' ν := hi2.symm.comp hφ
   rw [← hi1.rdist_eq hi2, ← (hi1.comp hπ).rdist_eq (hi2.comp hπ),
-    rdist_of_indep_eq_sum_fibre π hi m1 m2, cond_rdist_of_copy hπ1 hπ2]
+    rdist_of_indep_eq_sum_fibre π hi m1 m2,
+    cond_rdist_of_copy h1 (hπ.comp h1) h2 (hπ.comp h2) m1 (hπ.comp m1) m2 (hπ.comp m2) hπ1 hπ2]
   exact le_add_of_nonneg_right (condMutualInformation_nonneg (m1.sub m2) (Measurable.prod_mk (hπ.comp m1) (hπ.comp m2)) _ _)
 
 end GeneralFibring
