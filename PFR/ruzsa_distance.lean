@@ -593,11 +593,41 @@ lemma cond_rdist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     congr
   rw [kernel.entropy_congr h_ker, h_meas, kernel.entropy_prodMkLeft_unit]
 
-lemma cond_rdist_of_copy
-    {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
-    {X' : Ω'' → G} {Z' : Ω'' → S} {Y' : Ω''' → G} {W' : Ω''' → T}
+lemma cond_rdist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (hZ : Measurable Z)
+    {Y : Ω' → G} (hY : Measurable Y) {W : Ω' → T} (hW : Measurable W)
+    {X' : Ω'' → G} (hX' : Measurable X') {Z' : Ω'' → S} (hZ' : Measurable Z')
+    {Y' : Ω''' → G} (hY' : Measurable Y') {W' : Ω''' → T} (hW' : Measurable W')
+    [IsFiniteMeasure μ] [IsFiniteMeasure μ'] [IsFiniteMeasure μ''] [IsFiniteMeasure μ''']
     (h1 : IdentDistrib (⟨X, Z⟩) (⟨X', Z'⟩) μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
-    d[X | Z ; μ # Y | W ; μ'] = d[X' | Z' ; μ'' # Y' | W' ; μ'''] := by sorry
+    d[X | Z ; μ # Y | W ; μ'] = d[X' | Z' ; μ'' # Y' | W' ; μ'''] := by
+  rw [cond_rdist_def, cond_rdist_def, kernel.rdist, kernel.rdist, integral_eq_sum, integral_eq_sum]
+  have hZZ' : μ.map Z = μ''.map Z' := (h1.comp measurable_snd).map_eq
+  have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
+  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hZZ', ← hWW',
+    Measure.map_apply hZ (measurableSet_singleton _),
+    Measure.map_apply hW (measurableSet_singleton _)]
+  congr with x
+  by_cases hz : μ (Z ⁻¹' {x.1}) = 0
+  · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
+    refine Or.inr (Or.inl ?_)
+    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top, hz]
+  by_cases hw : μ' (W ⁻¹' {x.2}) = 0
+  · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
+    refine Or.inr (Or.inr ?_)
+    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
+  congr 2
+  · ext s hs
+    rw [condEntropyKernel_apply' hX hZ _ _ hz hs, condEntropyKernel_apply' hX' hZ' _ _ _ hs]
+    swap; · sorry
+    congr
+    · sorry
+    · sorry
+  · ext s hs
+    rw [condEntropyKernel_apply' hY hW _ _ hw hs, condEntropyKernel_apply' hY' hW' _ _ _ hs]
+    swap; · sorry
+    congr
+    · sorry
+    · sorry
 
 lemma cond_rdist'_of_copy
     {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Y' : Ω''' → G} {W' : Ω''' → T}
