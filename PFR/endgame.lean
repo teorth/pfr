@@ -34,18 +34,18 @@ open MeasureTheory ProbabilityTheory
 variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
-variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
+variable {Ω₀₁ Ω₀₂ : Type u} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂] [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 
-variable {Ω : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+variable {Ω : Type u} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 variable (X₁ X₂ X₁' X₂' : Ω → G)
   (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun ![hG, hG, hG, hG] ![X₁, X₂, X₁', X₂'])
+variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
 
 variable (h_min: tau_minimizes p X₁ X₂)
 
@@ -151,5 +151,41 @@ $$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;
 lemma construct_good :
     k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by sorry
 
+local notation3:max "δ'" => I[U:V|S] + I[V:W|S] + I[W:U|S]
+
+lemma cond_construct_good :
+    k ≤ δ' + (η/3) * (δ' + c[U | S # U | S] + c[V | S # V | S] + c[W | S # W | S])  := by
+  sorry --apply construct_good p X₁ X₂ U V W
+
+  --have := cond_rdist_eq_sum
+  --let T₁ := (U|S)
+
 
 end construct_good
+
+/-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that
+Phrased in the contrapositive form for convenience of proof. -/
+theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
+  have hη : η = 1/9 := by rw [η, one_div]
+  have h0 := cond_construct_good p X₁ X₂ X₁' X₂'
+  have h1 := sum_condMutual_le X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁'
+  have h4 := sum_dist_diff_le p X₁ X₂ X₁' X₂'
+  have h : I₁ ≤ 2*η*k := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
+
+  have : (1-5*η)/(1-η)*(1+η/3)-η = 11/27 := by
+    rw [hη]; norm_num
+
+  have h : k ≤ (8*η + η^2) * k := calc
+    k ≤ (1+η/3) * (6*η*k - (1-5*η) / (1-η) * (2*η*k - I₁)) + η/3*((6-3*η)*k + 3*(2*η*k-I₁)) := by
+      rw[hη] at *
+      linarith
+    _ = (8*η+η^2)*k - ((1-5*η)/(1-η)*(1+η/3)-η)*(2*η*k-I₁) := by
+      ring
+    _ ≤ (8*η + η^2) * k := by
+      rw[hη] at *
+      norm_num
+      linarith
+
+  have : 0 ≤ k := rdist_nonneg hX₁ hX₂
+  rw[hη] at *
+  linarith
