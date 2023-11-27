@@ -211,12 +211,47 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
           · exact measurable_of_finite _ hs
         · exact ruzsa_triangle_aux3 κ η
 
+-- note : Measure.prod should be made to use dot notation in the infoview
+
 lemma rdist_triangle (κ η ξ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
     [IsMarkovKernel κ] [IsMarkovKernel η] [IsMarkovKernel ξ]
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ''] :
     dk[κ ; μ # ξ ; μ''] ≤ dk[κ ; μ # η ; μ'] + dk[η ; μ' # ξ ; μ''] := by
   rw [rdist_eq', rdist_eq', rdist_eq']
-  sorry
+  have h := ent_of_diff_le (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T')
+    (prodMkLeft (T × T'') η) ((μ.prod μ'').prod μ')
+  have h1 : Hk[map (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T') (fun p ↦ p.1 - p.2)
+        measurable_sub, (μ.prod μ'').prod μ']
+      = Hk[map (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) measurable_sub,
+        μ.prod μ''] := by rw [map_prodMkRight, entropy_prodMkRight']
+  have h2 :
+      Hk[map (fst (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T') ×ₖ prodMkLeft (T × T'') η)
+          (fun p ↦ p.1 - p.2) measurable_sub, (μ.prod μ'').prod μ']
+      = Hk[map (prodMkRight κ T' ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub,
+        μ.prod μ'] := by
+    rw [fst_prodMkRight, fst_prod]
+    sorry
+  have h3 :
+      Hk[map (prodMkLeft (T × T'') η ×ₖ snd (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T'))
+        (fun p ↦ p.1 - p.2) measurable_sub, (μ.prod μ'').prod μ']
+      = Hk[map (prodMkRight η T'' ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
+        μ'.prod μ''] := by
+    rw [snd_prodMkRight, snd_prod]
+    sorry
+  have h4 : Hk[prodMkLeft (T × T'') η, (μ.prod μ'').prod μ'] = Hk[η, μ'] := entropy_prodMkLeft _ _ _
+  rw [h1, h2, h3, h4] at h
+  calc Hk[map (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) _ , μ.prod μ'']
+      - Hk[κ , μ] / 2 - Hk[ξ , μ''] / 2
+    ≤ Hk[map (prodMkRight κ T' ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub,
+        μ.prod μ']
+      + Hk[map (prodMkRight η T'' ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
+        μ'.prod μ'']
+      - Hk[η, μ']
+      - Hk[κ , μ] / 2 - Hk[ξ , μ''] / 2 := by gcongr
+  _ = Hk[map (prodMkRight κ T' ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) _ , μ.prod μ']
+      - Hk[κ , μ] / 2 - Hk[η , μ'] / 2
+      + (Hk[map (prodMkRight η T'' ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) _ , μ'.prod μ'']
+      - Hk[η , μ'] / 2 - Hk[ξ , μ''] / 2) := by ring
 
 end ProbabilityTheory.kernel

@@ -411,11 +411,6 @@ lemma cond_rdist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → 
     d[X | Z ; μ # Y | W ; μ']
       = dk[condEntropyKernel X Z μ ; μ.map Z # condEntropyKernel Y W μ' ; μ'.map W] := rfl
 
-lemma Measure.prod_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
-    (μ : Measure α) (ν : Measure β) [SigmaFinite ν] (x : α × β) :
-    (μ.prod ν) {x} = μ {x.1} * ν {x.2} := by
-  rw [← Prod.eta x, ← Set.singleton_prod_singleton, Measure.prod_prod]
-
 lemma rdist_eq_rdistm : d[X ; μ # Y ; μ'] = kernel.rdistm (μ.map X) (μ'.map Y) := rfl
 
 lemma cond_rdist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}

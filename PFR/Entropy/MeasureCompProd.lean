@@ -215,7 +215,27 @@ lemma swapLeft_prodMkLeft (κ : kernel α β) (γ : Type*) [MeasurableSpace γ] 
 lemma swapLeft_prodMkRight (κ : kernel α β) (γ : Type*) [MeasurableSpace γ] :
     swapLeft (prodMkRight κ γ) = prodMkLeft γ κ := rfl
 
+lemma map_prodMkRight (κ : kernel α β) (γ : Type*) [MeasurableSpace γ]
+    {f : β → δ} (hf : Measurable f) :
+    map (prodMkRight κ γ) f hf = prodMkRight (map κ f hf) γ := rfl
+
+lemma fst_prodMkRight (κ : kernel α (β × γ)) (δ : Type*) [MeasurableSpace δ] :
+    fst (prodMkRight κ δ) = prodMkRight (fst κ) δ := rfl
+
+lemma snd_prodMkRight (κ : kernel α (β × γ)) (δ : Type*) [MeasurableSpace δ] :
+    snd (prodMkRight κ δ) = prodMkRight (snd κ) δ := rfl
+
 end ProdMkRight
+
+lemma map_prodMkLeft (γ : Type*) [MeasurableSpace γ] (κ : kernel α β)
+    {f : β → δ} (hf : Measurable f) :
+    map (prodMkLeft γ κ) f hf = prodMkLeft γ (map κ f hf) := rfl
+
+lemma fst_prodMkLeft (δ : Type*) [MeasurableSpace δ] (κ : kernel α (β × γ)) :
+    fst (prodMkLeft δ κ) = prodMkLeft δ (fst κ) := rfl
+
+lemma snd_prodMkLeft (δ : Type*) [MeasurableSpace δ] (κ : kernel α (β × γ)) :
+    snd (prodMkLeft δ κ) = prodMkLeft δ (snd κ) := rfl
 
 lemma _root_.MeasureTheory.Measure.comap_swap (μ : Measure (α × β)) :
     μ.comap Prod.swap = μ.map Prod.swap := by
