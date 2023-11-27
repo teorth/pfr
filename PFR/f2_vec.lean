@@ -56,6 +56,11 @@ lemma add_self ( x : G ) : x + x = 0 := by
   rw [← sub_eq_add]
   simp
 
+
+@[simp]
+lemma neg_eq_self ( x : G ) : - x = x := by
+  simpa [-sub_eq_add] using sub_eq_add 0 x
+
 lemma sum_add_sum_eq_sum ( x y z : G ) : (x + y) + (y + z) = x + z := by
   rw [← sub_eq_add x y]
   abel

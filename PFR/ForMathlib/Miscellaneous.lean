@@ -30,6 +30,20 @@ instance {α : Type*} [MeasurableSpace α] [MeasurableSingletonClass α] [Add α
     [Countable α] : MeasurableAdd₂ α :=
   ⟨measurable_of_countable _⟩
 
+/- not sure where to move this. Presumably there are some other lemmas that state
+that a measure on a countable type is determined by its values on singletons?
+Also simplify proof -/
+open MeasureTheory in
+theorem Countable.ae_of_singleton {Ω} [MeasurableSpace Ω] [Countable Ω] {μ : Measure Ω} {p : Ω → Prop}
+    (h : ∀ x, μ {x} ≠ 0 → p x) : ∀ᵐ x ∂μ, p x := by
+  have : {x | ¬ p x} ⊆ {x | μ {x} = 0} := by
+    simp (config := {singlePass := true}) only [← not_imp_not] at h
+    simpa using h
+  apply measure_mono_null this
+  rw [← Set.biUnion_of_singleton {x | μ {x} = 0}]
+  rw [measure_biUnion_null_iff (Set.to_countable _)]
+  exact fun i hi ↦ hi
+
 section
 
 open Set
