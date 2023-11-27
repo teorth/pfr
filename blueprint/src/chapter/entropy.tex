@@ -48,7 +48,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{lemma}[Entropy of uniform random variable]\label{uniform-entropy}
   \uses{entropy-def}
-  \lean{IsUniform.entropy_eq}\leanok
+  \lean{ProbabilityTheory.IsUniform.entropy_eq}\leanok
   If $X$ is $S$-valued random variable, then $\bbH[X] = \log |S|$ if and only if $X$ is uniformly distributed on $S$.
 \end{lemma}
 
@@ -57,7 +57,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{lemma}[Entropy of uniform random variable, II]\label{uniform-entropy-II}
   \uses{entropy-def, uniform-def}
-  \lean{ProbabilityTheory.entropy_of_uniform}\leanok
+  \lean{ProbabilityTheory.IsUniform.entropy_eq}\leanok
   If $X$ is uniformly distributed on $H$, then, then $\bbH[X] = \log |H|$.
 \end{lemma}
 
@@ -304,7 +304,7 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
 \end{proof}
 
 \begin{corollary}[Entropy of conditionally independent variables]\label{cond-trial-ent}
-  \lean{ent_of_cond_indep}\leanok
+  \lean{ProbabilityTheory.ent_of_cond_indep}\leanok
   If $X, Y$ are conditionally independent over $Z$, then
   $$ \bbH[X,Y,Z] =\bbH[X,Z] + \bbH[Y,Z] - \bbH[Z].$$
 \end{corollary}
