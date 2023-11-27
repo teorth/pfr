@@ -483,7 +483,7 @@ lemma cond_rdist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
     (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
     d[X ; μ # Y | W ; μ']
       = (μ'.map W)[fun w ↦ d[X ; μ # Y ; (μ'[|W ⁻¹' {w}])]] := by
-  rw [cond_rdist'_eq_sum _ hY hW]
+  rw [cond_rdist'_eq_sum hY hW]
   simp_rw[←smul_eq_mul]
   convert symm $ integral_eq_sum (μ'.map W) (fun w ↦ d[X ; μ # Y ; (μ'[|W ⁻¹' {w}])])
   rw[Measure.map_apply hW (MeasurableSet.singleton _)]
