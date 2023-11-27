@@ -296,7 +296,8 @@ lemma entropy_prodMkRight' (η : kernel T U)
   ext s hs
   simp_rw [Measure.prod_apply hs, Measure.compProd_apply _ _ hs, kernel.const_apply]
 
-lemma Measure.prod_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
+lemma _root_.MeasureTheory.Measure.prod_apply_singleton {α β : Type*}
+    {_ : MeasurableSpace α} {_ : MeasurableSpace β}
     (μ : Measure α) (ν : Measure β) [SigmaFinite ν] (x : α × β) :
     (μ.prod ν) {x} = μ {x.1} * ν {x.2} := by
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Measure.prod_prod]
