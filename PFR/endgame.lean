@@ -133,6 +133,7 @@ lemma sum_uvw_eq_zero : U+V+W = 0 := by
 section construct_good
 
 variable (T₁ T₂ T₃ : Ω → G) (hT : T₁+T₂+T₃ = 0)
+          (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
 
 local notation3:max "δ" => I[T₁:T₂] + I[T₂:T₃] + I[T₃:T₁]
 
@@ -158,7 +159,13 @@ is at most
 $$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).$$
 -/
 lemma construct_good :
-    k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by sorry
-
-
-end construct_good
+    k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by
+  have v1 := construct_good_prelim p X₁ X₂ T₁ T₂ T₃
+  have v2 := construct_good_prelim p X₁ X₂ T₁ T₃ T₂
+  have v3 := construct_good_prelim p X₁ X₂ T₂ T₁ T₃
+  have v4 := construct_good_prelim p X₁ X₂ T₂ T₃ T₁
+  have v5 := construct_good_prelim p X₁ X₂ T₃ T₁ T₂
+  have v6 := construct_good_prelim p X₁ X₂ T₃ T₂ T₁
+  simp only [mutualInformation, entropy_comm hT₂ hT₁, entropy_comm hT₃ hT₁, entropy_comm hT₃ hT₂]
+    at *
+  linarith
