@@ -74,23 +74,41 @@ local notation3 "I₂" => I[ U : W | S ]
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
 lemma I₃_eq : I[ V : W | S ] = I₂ := by
+  have hident : IdentDistrib (prod X₁ (prod X₂ (prod X₁' X₂'))) (prod X₁' (prod X₂ (prod X₁ X₂'))) := by
+    have h1 : IdentDistrib (prod X₁' X₂') (prod X₁ X₂') := by exact (IdentDistrib.prod_mk h₁.symm (IdentDistrib.refl hX₂'.aemeasurable)
+      (h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)) (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)))
+    -- (Mantas)either iterate the `IdentDistrib.prod_mk` applications or make it a more general lemma
+    sorry
+  -- (Mantas)`measurability` hits max heartbeats on my machine on the following two lemmas
+  have hmeas1 : Measurable (fun p : G × G × G × G => (p.1 + p.2.1, p.1 + p.2.1 + p.2.2.1 + p.2.2.2)) := by sorry
+  have hmeas2 : Measurable (fun p : G × G × G × G => ((p.1 + p.2.1, p.1 + p.2.2.1), p.1 + p.2.1 + p.2.2.1 + p.2.2.2)) := by sorry
+  have hUVS : IdentDistrib (prod U S) (prod V S)
+  · convert (IdentDistrib.comp hident hmeas1)
+    all_goals {simp; abel}
+  have hUVWS : IdentDistrib (prod (prod U W) S) (prod (prod V W) S)
+  · convert (IdentDistrib.comp hident hmeas2)
+    all_goals {simp; abel}
+  rw [condMutualInformation_eq, condMutualInformation_eq, chain_rule'', chain_rule'', chain_rule'',
+    chain_rule'', chain_rule'', IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
+  -- (Mantas) only measurability goals left but `measurability` fails again
+  sorry
+
   -- Note(kmill): I'm not sure this is going anywhere, but in case some of this reindexing
   -- is useful, and this setting-up of the `I'` function, here it is.
   -- Swap X₁ and X₁'
-  let perm : Fin 4 → Fin 4 | 0 => 1 | 1 => 0 | 2 => 2 | 3 => 3
-  have hp : ![X₁, X₁', X₂, X₂'] = ![X₁', X₁, X₂, X₂'] ∘ perm := by
-    ext i
-    fin_cases i <;> rfl
-  let I' (Xs : Fin 4 → Ω → G) := I[Xs 0 + Xs 2 : Xs 1 + Xs 0 | Xs 0 + Xs 2 + Xs 1 + Xs 3]
-  have hI₂ : I₂ = I' ![X₁, X₁', X₂, X₂'] := rfl
-  have hI₃ : I[V : W | S] = I' ![X₁', X₁, X₂, X₂'] := by
-    rw [add_comm X₁' X₁]
-    congr 1
-    change _ = X₁' + X₂ + X₁ + X₂'
-    simp [add_assoc, add_left_comm]
-  rw [hI₂, hI₃, hp]
+  -- let perm : Fin 4 → Fin 4 | 0 => 1 | 1 => 0 | 2 => 2 | 3 => 3
+  -- have hp : ![X₁, X₁', X₂, X₂'] = ![X₁', X₁, X₂, X₂'] ∘ perm := by
+  --   ext i
+  --   fin_cases i <;> rfl
+  -- let I' (Xs : Fin 4 → Ω → G) := I[Xs 0 + Xs 2 : Xs 1 + Xs 0 | Xs 0 + Xs 2 + Xs 1 + Xs 3]
+  -- have hI₂ : I₂ = I' ![X₁, X₁', X₂, X₂'] := rfl
+  -- have hI₃ : I[V : W | S] = I' ![X₁', X₁, X₂, X₂'] := by
+  --   rw [add_comm X₁' X₁]
+  --   congr 1
+  --   change _ = X₁' + X₂ + X₁ + X₂'
+  --   simp [add_assoc, add_left_comm]
+  -- rw [hI₂, hI₃, hp]
   -- ⊢ I' ![X₁', X₁, X₂, X₂'] = I' (![X₁', X₁, X₂, X₂'] ∘ perm)
-  sorry
 
 /--
 $$ I(U : V | S) + I(V : W | S) + I(W : U | S) $$
