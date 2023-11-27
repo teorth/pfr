@@ -603,16 +603,86 @@ lemma cond_rdist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     congr
   rw [kernel.entropy_congr h_ker, h_meas, kernel.entropy_prodMkLeft_unit]
 
-lemma cond_rdist_of_copy
-    {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
-    {X' : Ω'' → G} {Z' : Ω'' → S} {Y' : Ω''' → G} {W' : Ω''' → T}
+lemma cond_rdist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (hZ : Measurable Z)
+    {Y : Ω' → G} (hY : Measurable Y) {W : Ω' → T} (hW : Measurable W)
+    {X' : Ω'' → G} (hX' : Measurable X') {Z' : Ω'' → S} (hZ' : Measurable Z')
+    {Y' : Ω''' → G} (hY' : Measurable Y') {W' : Ω''' → T} (hW' : Measurable W')
+    [IsFiniteMeasure μ] [IsFiniteMeasure μ'] [IsFiniteMeasure μ''] [IsFiniteMeasure μ''']
     (h1 : IdentDistrib (⟨X, Z⟩) (⟨X', Z'⟩) μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
-    d[X | Z ; μ # Y | W ; μ'] = d[X' | Z' ; μ'' # Y' | W' ; μ'''] := by sorry
+    d[X | Z ; μ # Y | W ; μ'] = d[X' | Z' ; μ'' # Y' | W' ; μ'''] := by
+  rw [cond_rdist_def, cond_rdist_def, kernel.rdist, kernel.rdist, integral_eq_sum, integral_eq_sum]
+  have hZZ' : μ.map Z = μ''.map Z' := (h1.comp measurable_snd).map_eq
+  have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
+  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hZZ', ← hWW',
+    Measure.map_apply hZ (measurableSet_singleton _),
+    Measure.map_apply hW (measurableSet_singleton _)]
+  congr with x
+  by_cases hz : μ (Z ⁻¹' {x.1}) = 0
+  · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
+    refine Or.inr (Or.inl ?_)
+    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top, hz]
+  by_cases hw : μ' (W ⁻¹' {x.2}) = 0
+  · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
+    refine Or.inr (Or.inr ?_)
+    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
+  congr 2
+  · have hZZ'x : μ (Z ⁻¹' {x.1}) = μ'' (Z' ⁻¹' {x.1}) := by
+      have : μ.map Z {x.1} = μ''.map Z' {x.1} := by rw [hZZ']
+      rwa [Measure.map_apply hZ (measurableSet_singleton _),
+        Measure.map_apply hZ' (measurableSet_singleton _)] at this
+    ext s hs
+    rw [condEntropyKernel_apply' hX hZ _ _ hz hs, condEntropyKernel_apply' hX' hZ' _ _ _ hs]
+    swap; · rwa [hZZ'x] at hz
+    congr
+    have : μ.map (⟨X, Z⟩) (s ×ˢ {x.1}) = μ''.map (⟨X', Z'⟩) (s ×ˢ {x.1}) := by rw [h1.map_eq]
+    rwa [Measure.map_apply (hX.prod_mk hZ) (hs.prod (measurableSet_singleton _)),
+      Measure.map_apply (hX'.prod_mk hZ') (hs.prod (measurableSet_singleton _)),
+      Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
+      Set.inter_comm ((fun a ↦ X' a) ⁻¹' s)] at this
+  · have hWW'x : μ' (W ⁻¹' {x.2}) = μ''' (W' ⁻¹' {x.2}) := by
+      have : μ'.map W {x.2} = μ'''.map W' {x.2} := by rw [hWW']
+      rwa [Measure.map_apply hW (measurableSet_singleton _),
+        Measure.map_apply hW' (measurableSet_singleton _)] at this
+    ext s hs
+    rw [condEntropyKernel_apply' hY hW _ _ hw hs, condEntropyKernel_apply' hY' hW' _ _ _ hs]
+    swap; · rwa [hWW'x] at hw
+    congr
+    have : μ'.map (⟨Y, W⟩) (s ×ˢ {x.2}) = μ'''.map (⟨Y', W'⟩) (s ×ˢ {x.2}) := by rw [h2.map_eq]
+    rwa [Measure.map_apply (hY.prod_mk hW) (hs.prod (measurableSet_singleton _)),
+      Measure.map_apply (hY'.prod_mk hW') (hs.prod (measurableSet_singleton _)),
+      Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
+      Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
-lemma cond_rdist'_of_copy
-    {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} {X' : Ω'' → G} {Y' : Ω''' → G} {W' : Ω''' → T}
+lemma cond_rdist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
+    {W : Ω' → T} (hW : Measurable W)
+    (X' : Ω'' → G) {Y' : Ω''' → G} (hY' : Measurable Y') {W' : Ω''' → T} (hW' : Measurable W')
+    [IsFiniteMeasure μ'] [IsFiniteMeasure μ''']
     (h1 : IdentDistrib X X' μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
-    d[X ; μ # Y | W ; μ'] = d[X' ; μ'' # Y' | W' ; μ'''] := by sorry
+    d[X ; μ # Y | W ; μ'] = d[X' ; μ'' # Y' | W' ; μ'''] := by
+  rw [cond_rdist'_def, cond_rdist'_def, kernel.rdist, kernel.rdist, integral_eq_sum, integral_eq_sum]
+  have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
+  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hWW',
+    Measure.map_apply hW (measurableSet_singleton _)]
+  congr with x
+  by_cases hw : μ' (W ⁻¹' {x.2}) = 0
+  · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
+    refine Or.inr (Or.inr ?_)
+    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
+  congr 2
+  · rw [kernel.const_apply, kernel.const_apply, h1.map_eq]
+  · have hWW'x : μ' (W ⁻¹' {x.2}) = μ''' (W' ⁻¹' {x.2}) := by
+      have : μ'.map W {x.2} = μ'''.map W' {x.2} := by rw [hWW']
+      rwa [Measure.map_apply hW (measurableSet_singleton _),
+        Measure.map_apply hW' (measurableSet_singleton _)] at this
+    ext s hs
+    rw [condEntropyKernel_apply' hY hW _ _ hw hs, condEntropyKernel_apply' hY' hW' _ _ _ hs]
+    swap; · rwa [hWW'x] at hw
+    congr
+    have : μ'.map (⟨Y, W⟩) (s ×ˢ {x.2}) = μ'''.map (⟨Y', W'⟩) (s ×ˢ {x.2}) := by rw [h2.map_eq]
+    rwa [Measure.map_apply (hY.prod_mk hW) (hs.prod (measurableSet_singleton _)),
+      Measure.map_apply (hY'.prod_mk hW') (hs.prod (measurableSet_singleton _)),
+      Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
+      Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
 lemma cond_rdist_of_inj_map [IsProbabilityMeasure μ]
   (Y : Fin 4 → Ω → G) (h_indep : IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) μ)
@@ -689,7 +759,8 @@ section BalogSzemerediGowers
 /--  The **entropic Balog-Szemerédi-Gowers inequality**. Let $A, B$ be $G$-valued random variables
 on $\Omega$, and set $Z \coloneq A+B$. Then
 $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]. $$ -/
-lemma ent_bsg : 0 = 1 := by sorry
+lemma ent_bsg { A B Z : Ω → G } (hA: Measurable A) (hB: Measurable B) (hZ : Z = A + B) :
+  (μ.map Z)[fun z ↦ d[ A; μ[|Z⁻¹' {z}] # B ; μ[|Z⁻¹' {z}] ]] ≤ 3 * I[ A : B; μ ] + 2 * H[Z;μ] - H[A;μ] - H[B;μ] := by sorry
 
 
 end BalogSzemerediGowers
@@ -716,7 +787,8 @@ lemma condDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω'
   have hind' : IndepFun X' Y' ν := IndepFun.comp hind measurable_fst measurable_fst
   rw [show XZ' = ⟨X', Z'⟩ by rfl] at hIdXZ hind
   rw [show YW' = ⟨Y', W'⟩ by rfl] at hIdYW hind
-  rw [←cond_rdist_of_copy hIdXZ hIdYW, cond_rdist_of_indep hX' hZ' hY' hW' _ hind]
+  rw [←cond_rdist_of_copy hX' hZ' hY' hW' hX hZ hY hW hIdXZ hIdYW,
+    cond_rdist_of_indep hX' hZ' hY' hW' _ hind]
   have hIdX : IdentDistrib X X' μ ν := hIdXZ.symm.comp measurable_fst
   have hIdY : IdentDistrib Y Y' μ' ν := hIdYW.symm.comp measurable_fst
   rw [IdentDistrib.rdist_eq (μ'' := ν) (μ''' := ν) hIdX hIdY]

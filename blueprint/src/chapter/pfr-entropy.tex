@@ -327,7 +327,7 @@ For the next two lemmas, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable s
 
 (Note: in the paper, this lemma was phrased in a more intuitive formulation that is basically the contrapositive of the one here. Similarly for the next two lemmas.)
 
-\begin{proof}\uses{lem-bsg, cond-dist-fact,distance_lower}
+\begin{proof}\uses{lem-bsg, cond-dist-fact,distance_lower}\leanok
   We apply Lemma \ref{lem-bsg} with $(A,B) = (T_1, T_2)$ there.
   Since $T_1 + T_2 = T_3$, the conclusion is that
   \begin{align} \nonumber \sum_{t_3} \bbP[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 \bbI[T_1 : T_2] + 2 \bbH[T_3] - \bbH[T_1] - \bbH[T_2].\label{bsg-t1t2}

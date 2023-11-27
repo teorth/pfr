@@ -194,7 +194,7 @@ and similarly
 $$  d[X;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \end{lemma}
 
-\begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def} Straightforward thanks to Lemma \ref{copy-ent}, Lemma \ref{ruz-copy}, Lemma \ref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
+\begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def}\leanok Straightforward thanks to Lemma \ref{copy-ent}, Lemma \ref{ruz-copy}, Lemma \ref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
 \end{proof}
 
 \begin{lemma}[Kaimanovich-Vershik-Madiman inequality]\label{kv}
@@ -222,7 +222,7 @@ However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we h
 
 
 \begin{lemma}[Balog-Szemer\'edi-Gowers]\label{lem-bsg}
-  \lean{ent_bsg}
+  \lean{ent_bsg}\leanok
   Let $A,B$ be $G$-valued random variables on $\Omega$, and set $Z := A+B$.
 Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z}  \bbP[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3  \bbI[A:B] + 2 \bbH[Z] - \bbH[A] - \bbH[B]. \end{equation}
@@ -266,7 +266,7 @@ $3 \bbI[A:B] + 2\bbH[Z]-\bbH[A]-\bbH[B]$ as claimed.
   Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then
   \[    d[X  | Z;Y | W] \leq d[X; Y] + \tfrac{1}{2}  \bbI[X : Z] + \tfrac{1}{2}  \bbI[Y : W].\]
   In particular,
-  \[    d[X ;Y | W] \leq d[X; Y] + \tfrac{1}{2}   \tfrac{1}{2}  \bbI[Y : W].\]
+  \[    d[X ;Y | W] \leq d[X; Y] + \tfrac{1}{2}  \bbI[Y : W].\]
 \end{lemma}
 
 \begin{proof}
