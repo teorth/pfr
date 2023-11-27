@@ -119,7 +119,7 @@ lemma sum_uvw_eq_zero : U+V+W = 0 := by
   funext ω
   dsimp
   rw [add_comm (X₁' ω) (X₂ ω)]
-  exact @sum_add_sum_add_sum_eq_zero G addgroup elem _ _ _
+  exact @ElementaryAddCommGroup.sum_add_sum_add_sum_eq_zero G addgroup elem _ _ _
 
 section construct_good
 

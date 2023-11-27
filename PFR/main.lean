@@ -218,8 +218,8 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     apply add_subset_add_left
     apply (sub_subset_sub (inter_subset_right _ _) (inter_subset_right _ _)).trans
     rintro - ⟨-, -, ⟨y, xy, hy, hxy, rfl⟩, ⟨z, xz, hz, hxz, rfl⟩, rfl⟩
-    simp at hxy hxz
-    simpa [hxy, hxz, -sub_eq_add] using H.sub_mem hy hz
+    simp only [mem_singleton_iff] at hxy hxz
+    simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
@@ -228,7 +228,7 @@ a subgroup of cardinality at most $|A|$. -/
 theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+    Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
@@ -245,16 +245,13 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
     _ ≤ K ^ (13/2) * (K ^ 11 * Nat.card (H : Set G)) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
       gcongr
     _ = K ^ 12 := by rpow_ring; norm_num
-    _ ≤ 2 * K ^ 12 := by linarith [show 0 ≤ K ^ 12 by positivity]
-  · obtain ⟨H', H'H, IH'A, IAH'⟩ :
-        ∃ H' : AddSubgroup G, H' ≤ H ∧ Nat.card (H' : Set G) ≤ Nat.card A
-          ∧ Nat.card A ≤ 2 * Nat.card (H' : Set G) := by
-      sorry
-
-
-#exit
-    have : (Nat.card A / 2 : ℝ) ≤ Nat.card (H' : Set G) := by
-      rw [div_le_iff zero_lt_two, mul_comm]; norm_cast
+    _ < 2 * K ^ 12 := by linarith [show 0 < K ^ 12 by positivity]
+  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card (H' : Set G) ≤ Nat.card A
+          ∧ Nat.card A < 2 * Nat.card (H' : Set G) ∧ H' ≤ H := by
+      have A_pos' : 0 < Nat.card A := by exact_mod_cast A_pos
+      exact ElementaryAddCommGroup.exists_subgroup_subset_card_le H h.le A_pos'.ne'
+    have : (Nat.card A / 2 : ℝ) < Nat.card (H' : Set G) := by
+      rw [div_lt_iff zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
       have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity
     obtain ⟨u, HH'u, hu⟩ : ∃ (u : Set G), (H : Set G) = H' + u
@@ -269,7 +266,7 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
         apply le_of_eq
         rw [eq_div_iff H'_pos.ne', mul_comm, eq_comm]
         norm_cast
-    _ ≤ (K ^ (13/2) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
+    _ < (K ^ (13/2) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
           * (Nat.card (H : Set G) / (Nat.card A / 2)) := by
         gcongr
     _ = 2 * K ^ (13/2) * (Nat.card A) ^ (-1/2) * (Nat.card (H : Set G)) ^ (1/2) := by
