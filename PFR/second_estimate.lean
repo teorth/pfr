@@ -16,7 +16,7 @@ Assumptions:
 It may make sense to merge this file with first_estimate.lean
 -/
 
-open MeasureTheory ProbabilityTheory
+open MeasureTheory ProbabilityTheory ElementaryAddCommGroup
 
 variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
@@ -74,7 +74,7 @@ lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (
   rw [← h₂.rdist_eq h₁, rdist_symm, rdist_symm (X:= X₂ + X₂'),
     cond_rdist_symm (Z := X₂ + X₂') (W := X₁ + X₁') hX₂ (hX₂.add hX₂') hX₁ (hX₁.add hX₁'),
     add_comm X₂ X₁, add_right_comm _ X₂', ← two_mul] at h
-  have h' := condDistance_ge_of_min p h_min hX₁ hX₂ (X₁ + X₁') (X₂ + X₂') (μ'₁ := ℙ) (μ'₂ := ℙ)
+  have h' := condDistance_ge_of_min p h_min hX₁ hX₂ (X₁ + X₁') (X₂ + X₂') (hX₁.add hX₁') (hX₂.add hX₂')
   have h₁' := condDist_diff_le''' ℙ p.hmeas1 hX₁ hX₁' hX₁_indep
   have h₂' := condDist_diff_le''' ℙ p.hmeas2 hX₂ hX₂' hX₂_indep
   rw [h₁.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁] at h₁'
