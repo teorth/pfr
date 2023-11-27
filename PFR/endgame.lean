@@ -152,10 +152,15 @@ lemma construct_good_prelim :
 
 
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
+
 $$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
+
 Then there exist random variables $T'_1, T'_2$ such that
-$$ d[T'_1;T'_2] + \eta (d[X_1^0;T'_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;T'_2] - d[X_2^0;X_2]) $$
+
+$$ d[T'_1;T'_2] + \eta (d[X_1^0;T'_1] - d[X_1^0;X _1]) + \eta(d[X_2^0;T'_2] - d[X_2^0;X_2])$$
+
 is at most
+
 $$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).$$
 -/
 lemma construct_good :
