@@ -349,12 +349,11 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable 
     ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
   let μS := μ.map X
   let μs s := μS {s}
-  let S_nonzero := Finset.univ.filter (fun s ↦ μs s ≠ 0)
+  set S_nonzero := Finset.univ.filter (fun s ↦ μs s ≠ 0) with rw_S_nonzero
 
-  let norm := μS Set.univ
+  set norm := μS Set.univ with rw_norm
   have h_norm: norm = μ Set.univ := by
-    rw [← preimage_univ]
-    have h := MeasureTheory.Measure.map_apply (μ := μ) hX (Finset.measurableSet Finset.univ)
+    have h := MeasureTheory.Measure.map_apply (μ := μ) hX (Finset.univ.measurableSet)
     rw [Finset.coe_univ] at h
     exact h
 
@@ -364,11 +363,10 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable 
 
   rcases Finset.eq_empty_or_nonempty S_nonzero with h_empty | h_nonempty
   . have h_norm_zero : μ Set.univ = 0 := by
-      rw [← h_norm, show norm = μS Set.univ from rfl, ← sum_measure_singleton]
+      rw [← h_norm, rw_norm, ← sum_measure_singleton]
       show ∑ s, (id ∘ μs) s = 0
-      rw [Fintype.sum_eq_sum_nonzero_comp (f := μs) (g := id) rfl]
-      show Finset.sum S_nonzero μs = 0
-      rw [h_empty, show Finset.sum ∅ μs = 0 from rfl]
+      rw [Fintype.sum_eq_sum_nonzero_comp rfl, ← rw_S_nonzero, h_empty]
+      exact rfl
     let s := Classical.arbitrary (α := S)
     have h_ineq : μs s ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
       rw [h_norm_zero, zero_mul]
@@ -395,7 +393,7 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable 
   have h_norm_ne_zero : norm ≠ 0 := ne_zero_of_lt h_norm_pos
   have h_norm_nonneg : 0 ≤ norm := le_of_lt h_norm_pos
   have h_norm_finite : norm < ∞ := by
-    rw [show norm = μS Set.univ from rfl, ← sum_measure_singleton μS]
+    rw [rw_norm, ← sum_measure_singleton]
     exact ENNReal.sum_lt_top (fun s _ ↦ h_finite s)
   have h_invinvnorm_finite : norm⁻¹⁻¹ ≠ ∞ := by
     rw [inv_inv]
@@ -405,22 +403,20 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable 
     rw [← ENNReal.inv_ne_zero, inv_inv]
     exact h_norm_ne_zero
   have h_pdf_nonneg : ∀ s, 0 ≤ pdf s := fun s ↦ ENNReal.toReal_nonneg
-  have h_pdf_finite : ∀ s ∈ Finset.univ, pdf_nn s ≠ ⊤ :=
+  have h_pdf_finite : ∀ s ∈ Finset.univ, pdf_nn s ≠ ∞ :=
     fun s _ ↦ ENNReal.mul_ne_top h_invnorm_finite (h_finite s)
 
   have h_norm_cancel : norm * norm⁻¹ = 1 :=
     ENNReal.mul_inv_cancel h_norm_ne_zero (LT.lt.ne_top h_norm_finite)
   have h_pdf1 : (∑ s, pdf s) = 1 := by
     rw [← ENNReal.toReal_sum h_pdf_finite, ← Finset.mul_sum,
-      sum_measure_singleton μS, mul_comm, h_norm_cancel]
-    exact ENNReal.one_toReal
+      sum_measure_singleton, mul_comm, h_norm_cancel, ENNReal.one_toReal]
 
   let ⟨ s_max, hs, h_min ⟩ := Finset.exists_min_image S_nonzero neg_log_pdf h_nonempty
   have h_pdf_s_max_pos : 0 < pdf s_max := by
     rw [Finset.mem_filter] at hs
-    have h_nonzero : pdf s_max ≠ 0 := by
-      exact ENNReal.toReal_ne_zero.mpr ⟨ mul_ne_zero h_invnorm_ne_zero hs.2,
-        ENNReal.mul_ne_top h_invnorm_finite (h_finite s_max) ⟩
+    have h_nonzero : pdf s_max ≠ 0 := ENNReal.toReal_ne_zero.mpr
+      ⟨ mul_ne_zero h_invnorm_ne_zero hs.2, ENNReal.mul_ne_top h_invnorm_finite (h_finite s_max) ⟩
     exact LE.le.lt_of_ne (h_pdf_nonneg s_max) (Ne.symm h_nonzero)
 
   have h_ineq : μs s_max ≥ (μ Set.univ) * (rexp (-H[X ; μ])).toNNReal := by
@@ -428,12 +424,11 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable 
     apply mul_le_mul_of_nonneg_left _ h_norm_nonneg
     suffices pdf s_max ≥ rexp (-H[X ; μ]) by
       show ENNReal.ofReal (rexp (-H[X ; μ])) ≤ pdf_nn s_max
-      rw [ENNReal.ofReal_le_iff_le_toReal (h_pdf_finite s_max (Fintype.complete s_max))]
+      rw [ENNReal.ofReal_le_iff_le_toReal (h_pdf_finite _ (Fintype.complete _))]
       exact this
     rw [← Real.exp_log h_pdf_s_max_pos]
     apply exp_monotone
-    rw [neg_le, show -log (pdf s_max) = neg_log_pdf s_max from rfl,
-      ← one_mul (neg_log_pdf s_max), ← h_pdf1, Finset.sum_mul]
+    rw [neg_le, ← one_mul (-log (pdf s_max)), ← h_pdf1, Finset.sum_mul]
     let g_lhs x := (norm⁻¹ * x).toReal * neg_log_pdf s_max
     have h_lhs : g_lhs 0 = 0 := by simp
     let g_rhs x := -(norm⁻¹ * x).toReal * log (norm⁻¹ * x).toReal
@@ -443,7 +438,7 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable 
     apply Finset.sum_le_sum
     intros s h_s
     show pdf s * neg_log_pdf s_max ≤ (-pdf s) * log (pdf s)
-    rw [neg_mul_comm, show -log (pdf s) = neg_log_pdf s from rfl]
+    rw [neg_mul_comm]
     exact mul_le_mul_of_nonneg_left (h_min s h_s) (h_pdf_nonneg s)
   exact ⟨ s_max, h_ineq ⟩
 
