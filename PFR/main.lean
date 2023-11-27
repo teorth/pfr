@@ -88,6 +88,9 @@ lemma IsUniform.measureReal_preimage_sub {G : Type*} [AddCommGroup G] [Fintype G
   congr 3
   exact Nat.card_add_singleton _ _
 
+end ProbabilityTheory
+
+
 /-- Record positivity results that are useful in the proof of PFR. -/
 lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
@@ -100,7 +103,6 @@ lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
     have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
-
 
 /-- A uniform distribution on a set with doubling constant `K` has entropy at most `log K` -/
 theorem rdist_le_of_isUniform_of_card_add_le
@@ -125,6 +127,7 @@ theorem rdist_le_of_isUniform_of_card_add_le
     rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq, U'unif.entropy_eq, ← this]
     linarith
   rwa [idU.rdist_eq idU'] at IU
+
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
