@@ -411,6 +411,16 @@ lemma cond_rdist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → 
     d[X | Z ; μ # Y | W ; μ']
       = dk[condEntropyKernel X Z μ ; μ.map Z # condEntropyKernel Y W μ' ; μ'.map W] := rfl
 
+lemma cond_rdist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
+    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    d[X | Z ; μ # Y | W ; μ'] = d[Y | W ; μ' # X | Z ; μ] := by
+  have := isMarkovKernel_condEntropyKernel hX hZ μ
+  have := isMarkovKernel_condEntropyKernel hY hW μ'
+  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
+  have : IsProbabilityMeasure (μ'.map W) := isProbabilityMeasure_map hW.aemeasurable
+  rw [cond_rdist_def, cond_rdist_def, kernel.rdist_symm]
+
 lemma Measure.prod_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
     (μ : Measure α) (ν : Measure β) [SigmaFinite ν] (x : α × β) :
     (μ.prod ν) {x} = μ {x.1} * ν {x.2} := by
