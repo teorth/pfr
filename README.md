@@ -38,6 +38,13 @@ inv all
 To view the web-version of the blueprint locally, run `inv serve` and navigate to
 `http://localhost:8000/` in your favorite browser.
 
+Or you can just run `inv dev` instead of `inv all` and `inv serve`, after each edit to the LaTeX,
+it will automatically rebuild the blueprint, you just need to refresh the web page to see the rendered result.
+
+Note: If you have something wrong in your LaTeX file, and the LaTeX compilation fails,
+LaTeX will stuck and ask for commands, you'll need to type `X` then return to exit LaTeX,
+then fix the LaTeX error, and run `inv dev` again.
+
 ## Source reference
 
 `[GGMT]`: <https://arxiv.org/abs/2311.05762>
