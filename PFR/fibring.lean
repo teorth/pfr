@@ -186,5 +186,5 @@ lemma sum_of_rdist_eq_char_2
         + d[ Y 0 | (Y 0) + (Y 2); μ # Y 1 | (Y 1) + (Y 3); μ]
         + I[ (Y 0) + (Y 1) : (Y 1) + (Y 3) | (Y 0) + (Y 1) + (Y 2) + (Y 3); μ] := by
   have h := sum_of_rdist_eq Y h_indep h_meas
-  simp [sub_eq_add] at h
+  simp only [ElementaryAddCommGroup.pi.sub_eq_add] at h
   exact h

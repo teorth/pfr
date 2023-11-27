@@ -136,7 +136,7 @@ lemma first_estimate : I₁ ≤ 2 * η * k := by
 -- `ElementaryAddCommGroup (Ω → G) 2`
 lemma sub_eq_add_rv {Ω : Type*} (X Y : Ω → G) : X + Y = X - Y := by
   ext ω
-  simp only [Pi.add_apply, Pi.sub_apply, sub_eq_add]
+  simp only [Pi.add_apply, Pi.sub_apply, ElementaryAddCommGroup.sub_eq_add]
 
 /-
 instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] :
@@ -176,12 +176,8 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     linarith
   have ind : D = _ :=
     @IndepFun.rdist_eq Ω G _ ℙ _ _ _ _ (X₁ + X₂') _ (X₂ + X₁') ?_ (by measurability) (by measurability)
-  · have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by
-      simp [sub_eq_add]
-    have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by
-      -- Why doesn't `ring` close this?
-      rw [add_assoc _ _ X₂', add_comm X₁' _, add_assoc _ X₂ _, ← add_assoc _ X₂' _, add_comm X₂ X₂']
-      simp_rw [←add_assoc]
+  · have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by simp
+    have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by abel
     rw [ind, ent_sub_eq_ent_add, rw₁] at aux
     have obs : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + η) * k - I₁ := by
       linarith

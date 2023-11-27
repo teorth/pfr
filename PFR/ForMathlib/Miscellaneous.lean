@@ -1,5 +1,7 @@
 import Mathlib.Probability.IdentDistrib
 import Mathlib.Combinatorics.Additive.RuzsaCovering
+import Mathlib.GroupTheory.Sylow
+import Mathlib.GroupTheory.Complement
 
 /- To move close to Set.Finite.measurableSet-/
 lemma Set.Finite.MeasurableSet
@@ -153,6 +155,8 @@ lemma Nat.card_mul_le {G : Type*} [Group G] (A B : Set G) :
 end
 
 section Rusza_set
+/- move close to `Finset.exists_subset_mul_div` -/
+
 open scoped Pointwise
 
 variable {α : Type*} [CommGroup α]
@@ -177,3 +181,124 @@ theorem Set.exists_subset_mul_div {s : Set α} (hs : s.Finite) {t : Set α} (h't
   simp [← Finset.mem_coe, Finset.coe_mul]
 
 end Rusza_set
+
+
+
+section
+
+/-- Replace `pow_unbounded_of_one_lt` by this one, which has strictly weaker assumptions (notably,
+it applies to `ℕ`). -/
+theorem pow_unbounded_of_one_lt' {α : Type*}
+   [StrictOrderedSemiring α] [Archimedean α] [ExistsAddOfLE α]
+    (x : α) {y : α} (hy1 : 1 < y) : ∃ n : ℕ, x < y ^ n := by
+  obtain ⟨c, c_pos, rfl⟩ : ∃ c > 0, 1 + c = y := exists_pos_add_of_lt' hy1
+  rw [add_comm]
+  exact add_one_pow_unbounded_of_pos _ c_pos
+
+/-- Replace `exists_nat_pow_near` by this one, which has strictly weaker assumptions (notably,
+it applies to `ℕ`). -/
+theorem exists_nat_pow_near' {α : Type*} [LinearOrderedSemiring α] [Archimedean α] [ExistsAddOfLE α]
+    {x : α} {y : α} (hx : 1 ≤ x) (hy : 1 < y) :
+    ∃ n : ℕ, y ^ n ≤ x ∧ x < y ^ (n + 1) := by
+  have h : ∃ n : ℕ, x < y ^ n := pow_unbounded_of_one_lt' _ hy
+  classical exact
+      let n := Nat.find h
+      have hn : x < y ^ n := Nat.find_spec h
+      have hnp : 0 < n :=
+        pos_iff_ne_zero.2 fun hn0 => by rw [hn0, pow_zero] at hn; exact not_le_of_gt hn hx
+      have hnsp : Nat.pred n + 1 = n := Nat.succ_pred_eq_of_pos hnp
+      have hltn : Nat.pred n < n := Nat.pred_lt (ne_of_gt hnp)
+      ⟨Nat.pred n, le_of_not_lt (Nat.find_min h hltn), by rwa [hnsp]⟩
+
+end
+
+
+
+namespace Sylow
+/- Move the content of this section close to `Sylow.exists_subgroup_card_pow_prime`. -/
+
+open Nat
+
+variable {G : Type*} [Group G] {p : ℕ} [hp : Fact p.Prime] (h : IsPGroup p G)
+
+attribute [local instance 10] Subtype.fintype setFintype Classical.propDecidable
+
+lemma exists_subgroup_card_eq {s : ℕ} (hs : p ^ s ≤ Nat.card G) :
+    ∃ (H : Subgroup G), Nat.card H = p ^ s := by
+  let A : Fintype G := by
+    have : Nat.card G ≠ 0 := by linarith [one_le_pow s p hp.out.pos]
+    have : Finite G := finite_of_card_ne_zero this
+    exact Fintype.ofFinite G
+  suffices ∃ (H : Subgroup G), Fintype.card H = p ^ s by simpa [card_eq_fintype_card]
+  apply Sylow.exists_subgroup_card_pow_prime
+  rcases IsPGroup.iff_card.mp h with ⟨k, hk⟩
+  simp_rw [card_eq_fintype_card] at hk hs ⊢
+  rw [hk] at hs ⊢
+  have : s ≤ k := (pow_le_pow_iff (Prime.one_lt hp.out)).1 hs
+  exact pow_dvd_pow p this
+
+lemma exists_subgroup_subset_card_eq {s : ℕ} {H : Subgroup G} (hs : p ^ s ≤ Nat.card H) :
+    ∃ (H' : Subgroup G), Nat.card H' = p ^ s ∧ H' ≤ H := by
+  rcases exists_subgroup_card_eq (IsPGroup.to_subgroup h H) hs with ⟨H', H'card⟩
+  let L := H'.map H.subtype
+  refine ⟨L, ?_, Subgroup.map_subtype_le H'⟩
+  convert H'card using 1
+  let e : H' ≃* L := H'.equivMapOfInjective (Subgroup.subtype H) H.subtype_injective
+  exact card_congr e.symm.toEquiv
+
+lemma exists_subgroup_subset_card_le {k : ℕ} (H : Subgroup G)
+    (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
+    ∃ (H' : Subgroup G), Nat.card H' ≤ k ∧ k < p * Nat.card H' ∧ H' ≤ H := by
+  obtain ⟨s, sk, ks⟩  : ∃ s, p ^ s ≤ k ∧ k < p ^ (s + 1) :=
+    exists_nat_pow_near' (one_le_iff_ne_zero.mpr h'k) (Prime.one_lt hp.out)
+  rcases exists_subgroup_subset_card_eq h (sk.trans hk) with ⟨H', H'card, H'H⟩
+  simp only [_root_.pow_succ] at ks
+  rw [← H'card] at sk ks
+  exact ⟨H', sk, ks, H'H⟩
+
+end Sylow
+
+
+
+namespace Subgroup
+/- Move to `GroupTheory.Complement` -/
+
+open Set
+open scoped Pointwise
+
+variable {G : Type*} [Group G]
+
+@[to_additive]
+lemma IsComplement.mul_eq {G : Type*} [Group G] {A B : Set G} (h : IsComplement A B) :
+    A * B = univ := by
+  apply eq_univ_iff_forall.2 (fun x ↦ ?_)
+  rcases (h.existsUnique x).exists with ⟨⟨⟨y, hy⟩, ⟨z, hz⟩⟩, rfl⟩
+  exact mem_mul.2 ⟨y, z, hy, hz, rfl⟩
+
+@[to_additive AddSubgroup.IsComplement.mul_card_eq]
+lemma IsComplement.mul_card_eq {G : Type*} [Group G] {A B : Set G} (h : IsComplement A B) :
+    Nat.card A * Nat.card B = Nat.card G := by
+  convert Nat.card_congr (Equiv.ofBijective _ h)
+  exact (Nat.card_prod ↑A ↑B).symm
+
+/-- Given two subgroups `H' ⊆ H`, there exists a transversal `c` to `H'` inside `H`. -/
+@[to_additive]
+lemma exists_mul_eq_subgroup_of_le {H' H : Subgroup G} (h : H' ≤ H) :
+    ∃ (c : Set G), c * (H' : Set G) = H ∧ Nat.card c * Nat.card H' = Nat.card H := by
+  let H'' : Subgroup H := H'.comap H.subtype
+  have : H' = H''.map H.subtype := by simp [h]
+  rw [this]
+  obtain ⟨c, cmem, -⟩ : ∃ c ∈ Subgroup.leftTransversals H'', (1 : H) ∈ c :=
+    Subgroup.exists_left_transversal 1
+  refine ⟨H.subtype '' c, ?_, ?_⟩
+  · have A : H.subtype '' (c * (H'' : Set H)) = H.subtype '' c * (H''.map H.subtype) :=
+      image_mul (Subgroup.subtype H)
+    rw [← A, IsComplement.mul_eq cmem]
+    simp
+    rfl
+  · have I : Nat.card c * Nat.card H'' = Nat.card H := IsComplement.mul_card_eq cmem
+    have J : Nat.card (H''.map H.subtype) = Nat.card H'' :=
+      Nat.card_congr (Equiv.Set.image H.subtype _ (subtype_injective H)).symm
+    rw [← I, Nat.card_congr (Equiv.Set.image H.subtype _ (subtype_injective H)).symm, J]
+
+end Subgroup
