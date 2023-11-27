@@ -52,9 +52,15 @@ def serve(ctx, random_port=False):
     Handler = http.server.SimpleHTTPRequestHandler
     if random_port:
         port = random.randint(8000, 8100)
-        print("Serving on port " + str(port))
     else:
         port = 8000
+
     httpd = socketserver.TCPServer(("", port), Handler)
-    httpd.serve_forever()
-    os.chdir(cwd)
+    try:
+        (ip, port) = httpd.server_address
+        ip = ip or 'localhost'
+        print(f'Serving http://{ip}:{port}/ ...')
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
