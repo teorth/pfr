@@ -104,7 +104,8 @@ lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
-/-- A uniform distribution on a set with doubling constant `K` has entropy at most `log K` -/
+/-- A uniform distribution on a set with doubling constant `K` has self Rusza distance
+at most `log K`. -/
 theorem rdist_le_of_isUniform_of_card_add_le
     {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
@@ -124,7 +125,7 @@ theorem rdist_le_of_isUniform_of_card_add_le
       apply (log_le_log' AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
     have : H[U + U'] = H[U - U'] := by congr; simp
-    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq, U'unif.entropy_eq, ← this]
+    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq hU, U'unif.entropy_eq hU', ← this]
     linarith
   rwa [idU.rdist_eq idU'] at IU
 
@@ -133,7 +134,7 @@ theorem rdist_le_of_isUniform_of_card_add_le
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
 such that $A$ can be covered by at most $K^{13/2} #A^{1/2} / #H^{1/2}$ cosets of $H$, and $H$ has
 the same cardinality as $A$ up to a multiplicative factor $K^11$. -/
-theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
+lemma PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
@@ -155,7 +156,7 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     have : 0 < Nat.card (H : Set G) := Nat.card_pos
     positivity
   have Icard : |log (Nat.card A) - log (Nat.card (H : Set G))| ≤ 11 * log K := by
-    rw [← VAunif.entropy_eq, ← VHunif.entropy_eq]
+    rw [← VAunif.entropy_eq VAmeas, ← VHunif.entropy_eq VHmeas]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
     linarith
   have IAH : Nat.card A ≤ K ^ 11 * Nat.card (H : Set G) := by
@@ -174,12 +175,12 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
   have I : log K * (-11/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
       ≤ - H[VA - VH] := by
     rw [Vindep.rdist_eq VAmeas VHmeas] at this
-    have : H[VA] = log (Nat.card A) := VAunif.entropy_eq
-    have : H[VH] = log (Nat.card (H : Set G)) := VHunif.entropy_eq
+    have : H[VA] = log (Nat.card A) := VAunif.entropy_eq VAmeas
+    have : H[VH] = log (Nat.card (H : Set G)) := VHunif.entropy_eq VHmeas
     linarith
   -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
-    prob_ge_exp_neg_entropy' _
+    prob_ge_exp_neg_entropy' _ ((VAmeas.sub VHmeas).comp measurable_id')
   -- massage the previous inequality to get that `A ∩ (H + {x₀})` is large
   have J : K ^ (-11/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (1/2) ≤
       Nat.card (A ∩ (H + {x₀}) : Set G) := by
@@ -195,9 +196,9 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
     simp only [Nat.card_eq_fintype_card, card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
       not_nonempty_iff_eq_empty.1 h'] at this
-  /- use Rusza covering lemma to cover `A` by few translates of `A ∩ ((H + {x₀}) - A ∩ ((H + {x₀}`
+  /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
   (which is contained in `H`). The number of translates is at most
-  `#(A + (A ∩ (H + {x₀}))) / #((A ∩ (H + {x₀})))`, where the numerator is controlled as this is
+  `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
   rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
     ⟨u, hu, Au, -⟩
@@ -220,9 +221,10 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     apply add_subset_add_left
     apply (sub_subset_sub (inter_subset_right _ _) (inter_subset_right _ _)).trans
     rintro - ⟨-, -, ⟨y, xy, hy, hxy, rfl⟩, ⟨z, xz, hz, hxz, rfl⟩, rfl⟩
-    simp at hxy hxz
-    simpa [hxy, hxz, -sub_eq_add] using H.sub_mem hy hz
+    simp only [mem_singleton_iff] at hxy hxz
+    simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
+
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
 2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{12}$ cosets of
@@ -230,9 +232,10 @@ a subgroup of cardinality at most $|A|$. -/
 theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+    Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
+  -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
       ∧ Nat.card (H : Set G) ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card (H : Set G)
@@ -241,24 +244,28 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
     have : 0 < Nat.card (H : Set G) := Nat.card_pos; positivity
   rcases le_or_lt (Nat.card (H : Set G)) (Nat.card A) with h|h
+  -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := hc
     _ ≤ K ^ (13/2) * (K ^ 11 * Nat.card (H : Set G)) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
       gcongr
     _ = K ^ 12 := by rpow_ring; norm_num
-    _ ≤ 2 * K ^ 12 := by linarith [show 0 ≤ K ^ 12 by positivity]
-  · obtain ⟨H', H'H, IH'A, IAH'⟩ :
-        ∃ H' : AddSubgroup G, H' ≤ H ∧ Nat.card (H' : Set G) ≤ Nat.card A
-          ∧ Nat.card A ≤ 2 * Nat.card (H' : Set G) :=
-      sorry
-    have : (Nat.card A / 2 : ℝ) ≤ Nat.card (H' : Set G) := by
-      rw [div_le_iff zero_lt_two, mul_comm]; norm_cast
+    _ < 2 * K ^ 12 := by linarith [show 0 < K ^ 12 by positivity]
+  -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
+  -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
+  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card (H' : Set G) ≤ Nat.card A
+          ∧ Nat.card A < 2 * Nat.card (H' : Set G) ∧ H' ≤ H := by
+      have A_pos' : 0 < Nat.card A := by exact_mod_cast A_pos
+      exact ElementaryAddCommGroup.exists_subgroup_subset_card_le H h.le A_pos'.ne'
+    have : (Nat.card A / 2 : ℝ) < Nat.card (H' : Set G) := by
+      rw [div_lt_iff zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
       have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity
-    obtain ⟨u, HH'u, hu⟩ : ∃ (u : Set G), (H : Set G) = H' + u
-      ∧ Nat.card (H : Set G) = Nat.card (H' : Set G) * Nat.card u := sorry
-    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, add_comm u, ← HH'u]⟩
+    obtain ⟨u, HH'u, hu⟩ : ∃ (u : Set G), u + (H' : Set G) = H
+        ∧ Nat.card u * Nat.card (H' : Set G) = Nat.card (H : Set G) :=
+      AddSubgroup.exists_add_eq_addSubgroup_of_le H'H
+    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := by norm_cast; exact Nat.card_add_le _ _
@@ -266,9 +273,9 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
           * (Nat.card (H : Set G) / Nat.card (H' : Set G)) := by
         gcongr
         apply le_of_eq
-        rw [eq_div_iff H'_pos.ne', mul_comm, eq_comm]
+        rw [eq_div_iff H'_pos.ne']
         norm_cast
-    _ ≤ (K ^ (13/2) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
+    _ < (K ^ (13/2) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
           * (Nat.card (H : Set G) / (Nat.card A / 2)) := by
         gcongr
     _ = 2 * K ^ (13/2) * (Nat.card A) ^ (-1/2) * (Nat.card (H : Set G)) ^ (1/2) := by

@@ -750,7 +750,7 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
   constructor
   · linarith [kaimanovich_vershik' hi hX' hY' hZ']
   · intro hG
-    rw [pi.sub_eq_add Y' Z']
+    rw [ElementaryAddCommGroup.pi.sub_eq_add Y' Z']
     ring
 
 variable (μ) in
