@@ -478,6 +478,16 @@ lemma cond_rdist'_eq_sum (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
   rw [rdist_eq_rdistm, condEntropyKernel_apply hY hW _ _ hw]
   congr
 
+lemma cond_rdist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
+    (hY : Measurable Y) (hW : Measurable W)
+    (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+    d[X ; μ # Y | W ; μ']
+      = (μ'.map W)[fun w ↦ d[X ; μ # Y ; (μ'[|W ⁻¹' {w}])]] := by
+  rw [cond_rdist'_eq_sum _ hY hW]
+  simp_rw[←smul_eq_mul]
+  convert symm $ integral_eq_sum (μ'.map W) (fun w ↦ d[X ; μ # Y ; (μ'[|W ⁻¹' {w}])])
+  rw[Measure.map_apply hW (MeasurableSet.singleton _)]
+
 lemma cond_rdist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     d[X|(fun _ => c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by

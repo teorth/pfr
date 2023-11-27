@@ -31,6 +31,8 @@ universe u
 
 open MeasureTheory ProbabilityTheory
 
+open scoped BigOperators
+
 variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
@@ -104,7 +106,9 @@ lemma sum_condMutual_le :
 
 local notation3:max "c[" A " # " B "]" => d[p.X₀₁ # A] - d[p.X₀₁ # X₁] + d[p.X₀₂ # B] - d[p.X₀₂ # X₂]
 
-local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂]
+local notation3:max "c[" A " ; " μ " # " B " ; " μ' "]" => d[p.X₀₁ ; ℙ # A ; μ] - d[p.X₀₁ # X₁] + d[p.X₀₂ ; ℙ # B ; μ'] - d[p.X₀₂ # X₂]
+
+local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ ; ℙ # A|B ; ℙ] - d[p.X₀₁ # X₁] + d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂]
 
 
 /--
@@ -122,10 +126,13 @@ lemma sum_uvw_eq_zero : U+V+W = 0 := by
   exact @sum_add_sum_add_sum_eq_zero G addgroup elem _ _ _
 
 section construct_good
+variable {Ω' : Type u} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
+variable (T₁ T₂ T₃ : Ω' → G) (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
+  (hT : T₁+T₂+T₃ = 0)
 
-variable (T₁ T₂ T₃ : Ω → G) (hT : T₁+T₂+T₃ = 0)
-
+local notation3:max "δ[" μ "]" => I[T₁:T₂ ; μ] + I[T₂:T₃ ; μ] + I[T₃:T₁ ; μ]
 local notation3:max "δ" => I[T₁:T₂] + I[T₂:T₃] + I[T₃:T₁]
+
 
 local notation3:max "ψ[" A " # " B "]" => d[A # B] + η * (c[A # B])
 
@@ -151,15 +158,46 @@ $$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;
 lemma construct_good :
     k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by sorry
 
-local notation3:max "δ'" => I[U:V|S] + I[V:W|S] + I[W:U|S]
+lemma construct_good' (μ : Measure Ω'):
+    k ≤ δ[μ] + (η/3) * (δ[μ] + c[T₁ ; μ # T₁ ; μ] + c[T₂ ; μ # T₂ ; μ] + c[T₃ ; μ # T₃ ; μ]) := by
+  letI : MeasureSpace Ω' := ⟨μ⟩
+  apply construct_good p X₁ X₂ T₁ T₂ T₃
+
+lemma cond_c_eq_integral {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable Z) : c[Y | Z # Y | Z] =
+    (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ⁻¹' {z}] # Y ; ℙ[|Z ⁻¹' {z}]]] := by
+  simp only [integral_eq_sum, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib, Finset.sum_add_distrib]
+  simp_rw[←integral_eq_sum]
+  rw[←cond_rdist'_eq_integral _ hY hZ, ←cond_rdist'_eq_integral _ hY hZ, integral_const, integral_const]
+  have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
+  simp
+
+variable {R : Ω' → G} (hR : Measurable R)
+local notation3:max "δ'" => I[T₁:T₂|R] + I[T₂:T₃|R] + I[T₃:T₁|R]
+
+lemma delta'_eq_integral : δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
+  simp_rw [condMutualInformation_eq_integral_mutualInformation, integral_eq_sum, smul_add,
+    Finset.sum_add_distrib]
 
 lemma cond_construct_good :
-    k ≤ δ' + (η/3) * (δ' + c[U | S # U | S] + c[V | S # V | S] + c[W | S # W | S])  := by
-  sorry --apply construct_good p X₁ X₂ U V W
-
-  --have := cond_rdist_eq_sum
-  --let T₁ := (U|S)
-
+    k ≤ δ' + (η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R])  := by
+  rw[delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
+    cond_c_eq_integral _ _ _ hT₃ hR]
+  simp_rw[integral_eq_sum, ←Finset.sum_add_distrib, ←smul_add, Finset.mul_sum, mul_smul_comm,
+    ←Finset.sum_add_distrib, ←smul_add]
+  simp_rw[←integral_eq_sum]
+  have : IsProbabilityMeasure (Measure.map R ℙ) := isProbabilityMeasure_map (by measurability)
+  calc
+    k = (Measure.map R ℙ)[fun _r => k] := by
+      rw [integral_const]; simp
+    _ ≤ _ := ?_
+  simp_rw[integral_eq_sum]
+  apply Finset.sum_le_sum
+  intro r _
+  simp_rw [smul_eq_mul]
+  gcongr (?_ * ?_)
+  · apply rdist_nonneg hX₁ hX₂
+  · rfl
+  apply construct_good'
 
 end construct_good
 
@@ -167,7 +205,8 @@ end construct_good
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have hη : η = 1/9 := by rw [η, one_div]
-  have h0 := cond_construct_good p X₁ X₂ X₁' X₂'
+  have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ U V W (by measurability)
+    (by measurability) (by measurability) (show Measurable S by measurability)
   have h1 := sum_condMutual_le X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁'
   have h4 := sum_dist_diff_le p X₁ X₂ X₁' X₂'
   have h : I₁ ≤ 2*η*k := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
