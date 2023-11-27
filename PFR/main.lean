@@ -5,6 +5,7 @@ import Mathlib.GroupTheory.OrderOfElement
 import PFR.f2_vec
 import PFR.entropy_pfr
 import PFR.Tactic.RPowSimp
+import Mathlib.GroupTheory.Complement
 
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
@@ -224,6 +225,7 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
+
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
 2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{12}$ cosets of
 a subgroup of cardinality at most $|A|$. -/
@@ -256,9 +258,10 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
       rw [div_lt_iff zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
       have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity
-    obtain ⟨u, HH'u, hu⟩ : ∃ (u : Set G), (H : Set G) = H' + u
-      ∧ Nat.card (H : Set G) = Nat.card (H' : Set G) * Nat.card u := sorry
-    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, add_comm u, ← HH'u]⟩
+    obtain ⟨u, HH'u, hu⟩ : ∃ (u : Set G), u + (H' : Set G) = H
+        ∧ Nat.card u * Nat.card (H' : Set G) = Nat.card (H : Set G) :=
+      AddSubgroup.exists_add_eq_addSubgroup_of_le H'H
+    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := by norm_cast; exact Nat.card_add_le _ _
@@ -266,7 +269,7 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
           * (Nat.card (H : Set G) / Nat.card (H' : Set G)) := by
         gcongr
         apply le_of_eq
-        rw [eq_div_iff H'_pos.ne', mul_comm, eq_comm]
+        rw [eq_div_iff H'_pos.ne']
         norm_cast
     _ < (K ^ (13/2) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
           * (Nat.card (H : Set G) / (Nat.card A / 2)) := by
