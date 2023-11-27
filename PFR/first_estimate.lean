@@ -143,13 +143,13 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
   let Dc1 := d[p.X₀₁ # X₁ | X₁ + X₂']
   let D2 := d[p.X₀₂ # X₂]
   let Dc2 := d[p.X₀₂ # X₂ | X₂ + X₁']
-  have lem68 : D + Dcc + _ = _ :=
+  have lem68 : D + Dcc + I₁ = 2 * k :=
     rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
   have lem610 : Dcc ≥ k - η * (Dc1 - D1) - η * (Dc2 - D2) :=
     cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' hX₁ hX₂ (by measurability) (by measurability) h_min
-  have lem611c : Dc1 - D1 ≤ _ :=
+  have lem611c : Dc1 - D1 ≤ k / 2 + H[X₁] / 4 - H[X₂] / 4 :=
     diff_rdist_le_3 p X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
-  have lem611d : Dc2 - D2 ≤ _ :=
+  have lem611d : Dc2 - D2 ≤ k / 2 + H[X₂] / 4 - H[X₁] / 4 :=
     diff_rdist_le_4 p X₁ X₂ X₁' X₂' hX₂ hX₁' h₁ h_indep
   have aux : D + I₁ ≤ (1 + η) * k := by
     calc D + I₁
@@ -160,16 +160,16 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     · refine add_le_add (add_le_add (le_refl _) ?_) ?_
       · apply (mul_le_mul_left (by norm_num [η])).mpr lem611c
       · apply (mul_le_mul_left (by norm_num [η])).mpr lem611d
+  have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by simp
+  have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by abel
   have ind_aux : IndepFun (X₁ + X₂') (X₂ + X₁') := by
     have pairs_indep := iIndepFun.indepFun_prod_prod h_indep
           (fun i ↦ by fin_cases i <;> assumption)
           0 2 1 3 (by decide) (by decide) (by decide) (by decide)
     exact IndepFun.comp (φ := fun gg ↦ gg.1 + gg.2) (ψ := fun gg ↦ gg.1 + gg.2) pairs_indep
               measurable_add measurable_add
-  have ind : D = _ :=
+  have ind : D = H[X₁ + X₂' - (X₂ + X₁')] - H[X₁ + X₂'] / 2 - H[X₂ + X₁'] / 2 :=
     @IndepFun.rdist_eq Ω G _ ℙ _ _ _ _ (X₁ + X₂') _ (X₂ + X₁') ind_aux (by measurability) (by measurability)
-  have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by simp
-  have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by abel
   rw [ind, ent_sub_eq_ent_add, rw₁] at aux
   have obs : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + η) * k - I₁ := by
     linarith
@@ -195,6 +195,6 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     ring
   calc H[X₁ + X₂ + X₁' + X₂']
       ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + η) * k - I₁    := obs
-    _ ≤ (k + H[X₁] / 2 + H[X₂] / 2) / 2
+    _ = (k + H[X₁] / 2 + H[X₂] / 2) / 2
         + (k + H[X₁] / 2 + H[X₂] / 2) / 2 + (1 + η) * k - I₁    := by rw [rw₂, rw₃]
     _ = H[X₁] / 2 + H[X₂] / 2 + (2 + η) * k - I₁                := by ring
