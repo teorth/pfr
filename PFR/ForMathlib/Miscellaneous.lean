@@ -1,7 +1,7 @@
 import Mathlib.Probability.IdentDistrib
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Sylow
-
+import Mathlib.GroupTheory.Complement
 
 /- To move close to Set.Finite.measurableSet-/
 lemma Set.Finite.MeasurableSet
@@ -261,6 +261,10 @@ end Sylow
 
 
 namespace Subgroup
+/- Move to `GroupTheory.Complement` -/
+
+open Set
+open scoped Pointwise
 
 variable {G : Type*} [Group G]
 

@@ -5,7 +5,6 @@ import Mathlib.GroupTheory.OrderOfElement
 import PFR.f2_vec
 import PFR.entropy_pfr
 import PFR.Tactic.RPowSimp
-import Mathlib.GroupTheory.Complement
 
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
