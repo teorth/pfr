@@ -115,7 +115,7 @@ local notation3:max "c[" A " # " B "]" => d[p.X₀₁ # A] - d[p.X₀₁ # X₁]
 
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂]
 
-#check condDist_diff_ofsum_le 
+variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
 /--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
@@ -127,7 +127,22 @@ lemma sum_dist_diff_le : c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S]
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
 
-  have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
+  have hU : H[U] = H[X₁' + X₂'] := sorry
+  have aux1 : H[S] + H[U] - H[X₁] - H[X₁' + X₂'] = H[S] - H[X₁] := by 
+    rw [hU] 
+    ring
+
+  have independenceCondition1 : iIndepFun (fun x ↦ hG) ![X₁, X₂, X₁' + X₂'] := by 
+    sorry
+
+  have aux2 : d[X₀₁ # U | U + (X₁' + X₂')] - d[X₀₁ # X₁] 
+            ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₁] - H[X₁' + X₂']) / 2 :=
+    condDist_diff_ofsum_le ℙ ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂) 
+    (hZ' := Measurable.add hX₁' hX₂') independenceCondition1
+
+  have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by 
+    rw [← add_assoc, aux1] at aux2
+    linarith [aux2] 
   have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
   have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
   have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
