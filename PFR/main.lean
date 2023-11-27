@@ -179,7 +179,7 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     linarith
   -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
-    prob_ge_exp_neg_entropy' _
+    prob_ge_exp_neg_entropy' _ ((VAmeas.sub VHmeas).comp measurable_id')
   -- massage the previous inequality to get that `A ∩ (H + {x₀})` is large
   have J : K ^ (-11/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (1/2) ≤
       Nat.card (A ∩ (H + {x₀}) : Set G) := by
