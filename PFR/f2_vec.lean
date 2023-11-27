@@ -33,15 +33,11 @@ lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ}
     rcases eq_or_ne gm 1 with rfl|hg
     · exact ⟨0, by simp⟩
     · refine ⟨1, ?_⟩
-      have : (Multiplicative.toAdd gm) ≠ 0 := hg
+      have : Multiplicative.toAdd gm ≠ 0 := hg
       simpa [h.orderOf_of_ne this] using addOrderOf_nsmul_eq_zero (Multiplicative.toAdd gm)
   let Hm : Subgroup Gm := AddSubgroup.toSubgroup H
-  have card_Hm : Nat.card Hm = Nat.card H := rfl
-  rw [← card_Hm] at hk
   rcases Sylow.exists_subgroup_subset_card_le hm Hm hk h'k with ⟨H'm, H'mk, kH'm, H'mHm⟩
-  let H' := AddSubgroup.toSubgroup.symm H'm
-  exact ⟨H', H'mk, kH'm, H'mHm⟩
-
+  exact ⟨AddSubgroup.toSubgroup.symm H'm, H'mk, kH'm, H'mHm⟩
 
 variable [AddCommGroup G] [elem : ElementaryAddCommGroup G 2]
 

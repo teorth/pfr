@@ -155,6 +155,8 @@ lemma Nat.card_mul_le {G : Type*} [Group G] (A B : Set G) :
 end
 
 section Rusza_set
+/- move close to `Finset.exists_subset_mul_div` -/
+
 open scoped Pointwise
 
 variable {α : Type*} [CommGroup α]
@@ -213,6 +215,8 @@ end
 
 
 namespace Sylow
+/- Move the content of this section close to `Sylow.exists_subgroup_card_pow_prime`. -/
+
 open Nat
 
 variable {G : Type*} [Group G] {p : ℕ} [hp : Fact p.Prime] (h : IsPGroup p G)
@@ -245,8 +249,8 @@ lemma exists_subgroup_subset_card_eq {s : ℕ} {H : Subgroup G} (hs : p ^ s ≤ 
 lemma exists_subgroup_subset_card_le {k : ℕ} (H : Subgroup G)
     (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
     ∃ (H' : Subgroup G), Nat.card H' ≤ k ∧ k < p * Nat.card H' ∧ H' ≤ H := by
-  obtain ⟨s, sk, ks⟩  : ∃ s, p ^ s ≤ k ∧ k < p ^ (s + 1) := by
-    apply exists_nat_pow_near' (one_le_iff_ne_zero.mpr h'k) (Prime.one_lt hp.out)
+  obtain ⟨s, sk, ks⟩  : ∃ s, p ^ s ≤ k ∧ k < p ^ (s + 1) :=
+    exists_nat_pow_near' (one_le_iff_ne_zero.mpr h'k) (Prime.one_lt hp.out)
   rcases exists_subgroup_subset_card_eq h (sk.trans hk) with ⟨H', H'card, H'H⟩
   simp only [_root_.pow_succ] at ks
   rw [← H'card] at sk ks
