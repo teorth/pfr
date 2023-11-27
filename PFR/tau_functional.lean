@@ -142,7 +142,7 @@ lemma tau_minimizer_exists [MeasurableSingletonClass G] :
   convert (tau_min_exists_measure p).choose_spec.2.2 ν₁ ν₂ h₁ h₂
 
 
-variable [MeasureSpace Ω] [MeasureSpace Ω'₁] [MeasureSpace Ω'₂]
+variable [MeasureSpace Ω] [hΩ₁ : MeasureSpace Ω'₁] [hΩ₂ : MeasureSpace Ω'₂]
   [IsProbabilityMeasure (ℙ : Measure Ω)]
   [IsProbabilityMeasure (ℙ : Measure Ω'₁)] [IsProbabilityMeasure (ℙ : Measure Ω'₂)]
   {X₁ : Ω → G} {X₂ : Ω → G} {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G}
@@ -167,6 +167,18 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁)
   simp [tau] at Z
   linarith
 
+/-- Version of `distance_ge_of_min` with the measures made explicit. -/
+lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂) [MeasurableSpace Ω'₁] [ MeasurableSpace Ω'₂] {μ: Measure Ω'₁} {μ' : Measure Ω'₂} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X'₁: Ω'₁ → G} {X'₂: Ω'₂ → G} (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
+    d[X₁ # X₂] - η * (d[p.X₀₁; volume # X'₁; μ] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂; volume # X'₂; μ'] - d[p.X₀₂ # X₂])
+      ≤ d[X'₁; μ # X'₂; μ'] := by
+  set M1 : MeasureSpace Ω'₁ := { volume := μ }
+  set M2 : MeasureSpace Ω'₂ := { volume := μ' }
+  exact distance_ge_of_min p h h1 h2
+
+
+open BigOperators
+
+#check distance_ge_of_min
 /--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower bound $d[X'_1|Z;X'_2|W]$ by
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
@@ -174,7 +186,31 @@ lemma condDistance_ge_of_min
     [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
     (h : tau_minimizes p X₁ X₂)
-    (h1 : Measurable X'₁) (h2 : Measurable X'₂) (Z : Ω'₁ → S) (W : Ω'₂ → T) :
+    (h1 : Measurable X'₁) (h2 : Measurable X'₂) (Z : Ω'₁ → S) (W : Ω'₂ → T) (hZ : Measurable Z) (hW : Measurable W):
     d[X₁ # X₂] - η * (d[p.X₀₁ # X'₁ | Z] - d[p.X₀₁ # X₁])
       - η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])
-    ≤ d[X'₁ | Z ; μ'₁ # X'₂ | W ; μ'₂] := sorry
+    ≤ d[X'₁ | Z # X'₂ | W] := by
+      have hz (a : ℝ) : a = ∑ z : S, (ℙ (Z ⁻¹' {z})).toReal * a := by
+        rw [<-Finset.sum_mul,sum_measure_preimage_singleton' ℙ hZ, one_mul]
+      have hw (a : ℝ) : a = ∑ w : T, (ℙ (W ⁻¹' {w})).toReal * a := by
+        rw [<-Finset.sum_mul,sum_measure_preimage_singleton' ℙ hW, one_mul]
+      rw [cond_rdist_eq_sum h1 hZ h2 hW, cond_rdist'_eq_sum h1 hZ, hz d[X₁ # X₂], hz d[p.X₀₁ # X₁], hz (η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])), <-Finset.sum_sub_distrib,Finset.mul_sum, <-Finset.sum_sub_distrib, <-Finset.sum_sub_distrib]
+      apply Finset.sum_le_sum
+      intro z _
+      rw [cond_rdist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂], hw ((ℙ (Z ⁻¹' {z})).toReal * d[X₁ # X₂] - η * ((ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ ; ℙ # X'₁ ; ℙ[|Z ⁻¹' {z}]] - (ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ # X₁])), <-Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, <-Finset.sum_sub_distrib]
+      apply Finset.sum_le_sum
+      intro w _
+      rcases eq_or_ne (ℙ (Z ⁻¹' {z})) 0 with hpz | hpz
+      . simp [hpz]
+      rcases eq_or_ne (ℙ (W ⁻¹' {w})) 0 with hpw | hpw
+      . simp [hpw]
+      set μ := (hΩ₁.volume)[|Z ⁻¹' {z}]
+      have hμ : IsProbabilityMeasure μ :=  cond_isProbabilityMeasure ℙ hpz
+      set μ' := ℙ[|W ⁻¹' {w}]
+      have hμ' : IsProbabilityMeasure μ' :=  cond_isProbabilityMeasure ℙ hpw
+      suffices : d[X₁ # X₂] - η * (d[p.X₀₁; volume # X'₁; μ] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂; volume # X'₂; μ'] - d[p.X₀₂ # X₂])
+      ≤ d[X'₁ ; μ # X'₂; μ']
+      . replace this := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)
+        convert this using 1
+        ring
+      exact distance_ge_of_min' p h h1 h2

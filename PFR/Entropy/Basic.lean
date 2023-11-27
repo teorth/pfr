@@ -1195,6 +1195,16 @@ lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measu
   map_eq := map_map hf hX
 }
 
+lemma sum_measure_preimage_singleton (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, μ (Y⁻¹' {y}) = 1 := by
+  rw [(show 1 =(μ.map Y) Set.univ by
+    simp [μ.map_apply hY MeasurableSet.univ]), <-sum_measure_singleton (μ.map Y)]
+  congr with y
+  rw [<- map_apply hY (MeasurableSet.singleton y)]
+
+lemma sum_measure_preimage_singleton' (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T][MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, (μ (Y⁻¹' {y})).toReal = 1 := by
+  rw [<- ENNReal.toReal_sum, sum_measure_preimage_singleton μ hY]
+  . rfl
+  finiteness
 
 /-- For $X,Y$ random variables, there exist conditionally independent trials
 $X_1, X_2, Y'$.-/
@@ -1234,10 +1244,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     simp
     have : ∑ y : T, μ (Y⁻¹' {y})*1 = 1 := by
       simp
-      rw [(show 1 =(μ.map Y) Set.univ by
-        simp [μ.map_apply hY MeasurableSet.univ]), <-sum_measure_singleton (μ.map Y)]
-      congr with _
-      exact (map_apply hY trivial).symm
+      exact sum_measure_preimage_singleton μ hY
     rw [<-this]
     congr with y
     rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
