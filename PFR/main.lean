@@ -124,7 +124,7 @@ theorem rdist_le_of_isUniform_of_card_add_le
       apply (log_le_log' AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
     have : H[U + U'] = H[U - U'] := by congr; simp
-    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq, U'unif.entropy_eq, ← this]
+    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq hU, U'unif.entropy_eq hU', ← this]
     linarith
   rwa [idU.rdist_eq idU'] at IU
 
@@ -155,7 +155,7 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     have : 0 < Nat.card (H : Set G) := Nat.card_pos
     positivity
   have Icard : |log (Nat.card A) - log (Nat.card (H : Set G))| ≤ 11 * log K := by
-    rw [← VAunif.entropy_eq, ← VHunif.entropy_eq]
+    rw [← VAunif.entropy_eq VAmeas, ← VHunif.entropy_eq VHmeas]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
     linarith
   have IAH : Nat.card A ≤ K ^ 11 * Nat.card (H : Set G) := by
@@ -174,8 +174,8 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
   have I : log K * (-11/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
       ≤ - H[VA - VH] := by
     rw [Vindep.rdist_eq VAmeas VHmeas] at this
-    have : H[VA] = log (Nat.card A) := VAunif.entropy_eq
-    have : H[VH] = log (Nat.card (H : Set G)) := VHunif.entropy_eq
+    have : H[VA] = log (Nat.card A) := VAunif.entropy_eq VAmeas
+    have : H[VH] = log (Nat.card (H : Set G)) := VHunif.entropy_eq VHmeas
     linarith
   -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
