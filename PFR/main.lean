@@ -104,7 +104,8 @@ lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
-/-- A uniform distribution on a set with doubling constant `K` has entropy at most `log K` -/
+/-- A uniform distribution on a set with doubling constant `K` has self Rusza distance
+at most `log K`. -/
 theorem rdist_le_of_isUniform_of_card_add_le
     {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
@@ -133,7 +134,7 @@ theorem rdist_le_of_isUniform_of_card_add_le
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
 such that $A$ can be covered by at most $K^{13/2} #A^{1/2} / #H^{1/2}$ cosets of $H$, and $H$ has
 the same cardinality as $A$ up to a multiplicative factor $K^11$. -/
-theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
+lemma PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
@@ -195,9 +196,9 @@ theorem PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup 
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
     simp only [Nat.card_eq_fintype_card, card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
       not_nonempty_iff_eq_empty.1 h'] at this
-  /- use Rusza covering lemma to cover `A` by few translates of `A ∩ ((H + {x₀}) - A ∩ ((H + {x₀}`
+  /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
   (which is contained in `H`). The number of translates is at most
-  `#(A + (A ∩ (H + {x₀}))) / #((A ∩ (H + {x₀})))`, where the numerator is controlled as this is
+  `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
   rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
     ⟨u, hu, Au, -⟩
@@ -234,6 +235,7 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
     Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
+  -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
       ∧ Nat.card (H : Set G) ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card (H : Set G)
@@ -242,6 +244,7 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
     have : 0 < Nat.card (H : Set G) := Nat.card_pos; positivity
   rcases le_or_lt (Nat.card (H : Set G)) (Nat.card A) with h|h
+  -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := hc
@@ -249,6 +252,8 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
       gcongr
     _ = K ^ 12 := by rpow_ring; norm_num
     _ < 2 * K ^ 12 := by linarith [show 0 < K ^ 12 by positivity]
+  -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
+  -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
   · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card (H' : Set G) ≤ Nat.card A
           ∧ Nat.card A < 2 * Nat.card (H' : Set G) ∧ H' ≤ H := by
       have A_pos' : 0 < Nat.card A := by exact_mod_cast A_pos
