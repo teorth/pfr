@@ -115,15 +115,19 @@ local notation3:max "c[" A " # " B "]" => d[p.X₀₁ # A] - d[p.X₀₁ # X₁]
 
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂]
 
-#check condDist_diff_ofsum_le 
+#check condDist_diff_ofsum_le
+/-
+lemma test : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+η)*k - I₁  := by
+  apply ent_ofsum_le --p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂'
 
-/--
+/-- -/
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
-lemma sum_dist_diff_le : c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] 
-  ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by 
+lemma sum_dist_diff_le
+: c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S]
+  ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
 
@@ -131,15 +135,50 @@ lemma sum_dist_diff_le : c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S]
   have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
   have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
   have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
-  
-  let W' := X₂ + X₂' 
-  have ineq5 : d[X₀₁ # W | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 := by 
+
+  let W' := X₂ + X₂'
+  have ineq5 : d[X₀₁ # W | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 := by
     sorry
 
-  have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2 := by 
+  have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2 := by
     sorry
 
-  sorry
+  have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S] := sorry
+
+  -- Put everything together to bound the sum of the `c` terms
+  have ineq7 : c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ]
+  · have step₁ :  c[U|S # U|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
+    · calc c[U|S # U|S] = (d[p.X₀₁ # U|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # U|S] - d[p.X₀₂ # X₂]) := by ring
+        _ ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 + (H[S ; ℙ] - H[X₂ ; ℙ])/2 := add_le_add ineq1 ineq2
+        _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
+    have step₂ : c[V|S # V|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
+    · calc c[V|S # V|S] =(d[p.X₀₁ # V|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # V|S] - d[p.X₀₂ # X₂]) := by ring
+        _ ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 + (H[S ; ℙ] - H[X₂ ; ℙ])/2 := add_le_add ineq3 ineq4
+        _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
+    have step₃ : c[W|S # W|S] ≤  H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
+    · calc c[W|S # W|S] = (d[X₀₁ # W | S] - d[X₀₁ # X₁]) + (d[X₀₂ # W' | S] - d[X₀₂ # X₂]) :=
+          by rw [dist_eq] ; ring
+        _ ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 + (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
+          := add_le_add ineq5 ineq6
+        _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
+    calc c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) +
+      (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) + (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) :=
+        add_le_add (add_le_add step₁ step₂) step₃
+    _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
+
+  -- This could maybe be inlined once we've resolved the timeout issue!
+  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁
+  · calc 3 * H[S ; ℙ] ≤ 3 * (1/2 * H[X₁ ; ℙ] + 1/2 * H[X₂ ; ℙ] + (2+η)*k - I₁) := by
+          apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr sorry
+         -- The following should work `apply ent_ofsum_le p X₁ X₂ X₁' X₂'` but seems to cause a timeout...
+      _ =  3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁ := by ring
+
+  -- Final computation
+  calc c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S]  ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := ineq7
+     _ = 3 * H[S ; ℙ] - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) := by ring
+     _ ≤ (3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁) - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) :=
+        sub_le_sub_right ineq8 _
+     _ = (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by ring
 
 /-- $U+V+W=0$. -/
 lemma sum_uvw_eq_zero : U+V+W = 0 := by
@@ -170,7 +209,7 @@ lemma construct_good_prelim :
 
 
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
-
+-
 $$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
 
 Then there exist random variables $T'_1, T'_2$ such that
