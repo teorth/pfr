@@ -74,10 +74,18 @@ local notation3 "I₂" => I[ U : W | S ]
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
 lemma I₃_eq : I[ V : W | S ] = I₂ := by
+  have hXmeas : ∀ i : Fin 4, Measurable (![X₁, X₂, X₁', X₂'] i) :=
+  Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <| Fin.cases hX₂' Fin.rec0
   have hident : IdentDistrib (prod X₁ (prod X₂ (prod X₁' X₂'))) (prod X₁' (prod X₂ (prod X₁ X₂'))) := by
-    have h1 : IdentDistrib (prod X₁' X₂') (prod X₁ X₂') := by exact (IdentDistrib.prod_mk h₁.symm (IdentDistrib.refl hX₂'.aemeasurable)
+    have : IdentDistrib (prod X₁' X₂') (prod X₁ X₂') := by exact (IdentDistrib.prod_mk h₁.symm (IdentDistrib.refl hX₂'.aemeasurable)
       (h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)) (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)))
-    -- (Mantas)either iterate the `IdentDistrib.prod_mk` applications or make it a more general lemma
+    -- (Mantas) either iterate the `IdentDistrib.prod_mk` applications or make it a more general lemma
+    have hX2ind1 : IndepFun (prod X₁' X₂') X₂ := by exact (iIndepFun.indepFun_prod (ι := Fin 4) h_indep
+      (fun i => by fin_cases i ; all_goals { simpa }) 2 3 1 (by decide) (by decide))
+    have hX2ind2 : IndepFun (prod X₁ X₂') X₂ := by exact (iIndepFun.indepFun_prod (ι := Fin 4) h_indep
+      (fun i => by fin_cases i ; all_goals { simpa }) 0 3 1 (by decide) (by decide))
+    -- instant not synthesized
+    replace this := IdentDistrib.prod_mk (IdentDistrib.refl hX₂.aemeasurable) this hX2ind1.symm hX2ind2.symm
     sorry
   -- (Mantas)`measurability` hits max heartbeats on my machine on the following two lemmas
   have hmeas1 : Measurable (fun p : G × G × G × G => (p.1 + p.2.1, p.1 + p.2.1 + p.2.2.1 + p.2.2.2)) := by sorry
