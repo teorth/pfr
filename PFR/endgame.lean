@@ -34,18 +34,19 @@ open MeasureTheory ProbabilityTheory
 variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
-variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
-variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+variable {Ω₀₁ Ω₀₂ : Type u} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
+  [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 
-variable {Ω : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+variable {Ω : Type u} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 variable (X₁ X₂ X₁' X₂' : Ω → G)
   (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun ![hG, hG, hG, hG] ![X₁, X₂, X₁', X₂'])
+variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₁', X₂'])
 
 variable (h_min: tau_minimizes p X₁ X₂)
 
@@ -105,7 +106,7 @@ lemma sum_condMutual_le :
     · exact Measurable.add' hX₁' hX₁
     · exact Measurable.add' hX₁ hX₂
   rw [I₃_eq, this]
-  have h₂ := second_estimate X₁ X₂ X₁' X₂'
+  have h₂ := second_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h := add_le_add (add_le_add_left h₂ I₁) h₂
   convert h using 1
   field_simp [η]
