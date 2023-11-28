@@ -32,8 +32,8 @@ variable (p : refPackage Ω₀₁ Ω₀₂ G) {X₁ : Ω → G} {X₂ : Ω → G
 /-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases (h_min : tau_minimizes p X₁ X₂) : d[X₁ # X₂] = 0 := by
-  let ⟨A, mA, μ, Y₁, Y₂, Y₂', Y₁', hμ, h_indep, hY₁, hY₂, hY₂', hY₁', h_id1, h_id2, h_id2', h_id1'⟩
-    := independent_copies4_nondep hX₁ hX₂ hX₂ hX₁ ℙ ℙ ℙ ℙ
+  let ⟨A, mA, μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
+    := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
   rw [←h_id1.rdist_eq h_id2]
   letI : MeasureSpace A := ⟨μ⟩
   have : μ = ℙ := rfl
