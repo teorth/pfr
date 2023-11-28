@@ -15,7 +15,7 @@ Assumptions:
 
 ## Main results
 
-* `second_estimate` : $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$ 
+* `second_estimate` : $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
 -/
 
 open MeasureTheory ProbabilityTheory ElementaryAddCommGroup
@@ -96,13 +96,13 @@ lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (
   refine' h''.trans (mul_le_mul_of_nonneg_left _ (show 0 ≤ η by rw [η]; positivity))
   have h : d[X₁ + X₁' # X₂+ X₂'] ≤ (2 + η) * k - (d[X₁# X₁] + d[X₂ # X₂]) / 2 - I₁ := by
     have h := hX_indep.rdist_eq (hX₁.add hX₁') (hX₂.add hX₂')
-    rw [pi.sub_eq_add (X₁ + X₁') (X₂ + X₂'), ← pi.sub_eq_add X₁ X₁', ← pi.sub_eq_add X₂ X₂',
+    rw [sub_eq_add (X₁ + X₁') (X₂ + X₂'), ← sub_eq_add X₁ X₁', ← sub_eq_add X₂ X₂',
       sub_eq_iff_eq_add.mp (sub_eq_iff_eq_add.mp (hX₁_indep.rdist_eq hX₁ hX₁').symm),
       sub_eq_iff_eq_add.mp (sub_eq_iff_eq_add.mp (hX₂_indep.rdist_eq hX₂ hX₂').symm),
       ← h₁.entropy_eq, ← h₂.entropy_eq, add_assoc, add_assoc, add_halves', add_halves',
       ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁,
       ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂,
-      pi.sub_eq_add X₁ X₁', pi.sub_eq_add X₂ X₂', ← add_assoc, add_right_comm _ X₁'] at h
+      sub_eq_add X₁ X₁', sub_eq_add X₂ X₂', ← add_assoc, add_right_comm _ X₁'] at h
     have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
       let σ : Fin 4 ≃ Fin 4 := { toFun := ![0, 1, 3, 2], invFun := ![0, 1, 3, 2], left_inv := by intro i; fin_cases i <;> rfl, right_inv := by intro i; fin_cases i <;> rfl }
       refine' iIndepFun.reindex σ.symm _; convert h_indep using 1; ext i; fin_cases i <;> rfl

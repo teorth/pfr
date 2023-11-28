@@ -173,10 +173,7 @@ lemma sum_dist_diff_le :
 
 /-- $U+V+W=0$. -/
 lemma sum_uvw_eq_zero : U+V+W = 0 := by
-  funext ω
-  dsimp
-  rw [add_comm (X₁' ω) (X₂ ω)]
-  exact @ElementaryAddCommGroup.sum_add_sum_add_sum_eq_zero G addgroup elem _ _ _
+  rw [add_comm X₁' X₂, ElementaryAddCommGroup.sum_add_sum_add_sum_eq_zero]
 
 section construct_good
 variable {Ω' : Type u} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
@@ -210,10 +207,10 @@ lemma construct_good_prelim :
   have hη : 0 ≤ η := by norm_num [η]
   have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
   have h2T₃ : T₃ = T₁ + T₂
-  · calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; ext x; simp
+  · calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp
       _ = T₁ + T₂ := by rw [add_sub_cancel]
-  have h2T₁ : T₁ = T₂ + T₃ := by ext; simp [h2T₃, add_left_comm]
-  have h2T₂ : T₂ = T₃ + T₁ := by ext; simp [h2T₁, add_left_comm]
+  have h2T₁ : T₁ = T₂ + T₃ := by simp [h2T₃, add_left_comm]
+  have h2T₂ : T₂ = T₃ + T₁ := by simp [h2T₁, add_left_comm]
 
   have h1 : sum1 ≤ δ
   · have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := ent_bsg hT₁ hT₂ h2T₃
