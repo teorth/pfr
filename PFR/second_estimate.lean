@@ -13,7 +13,9 @@ Assumptions:
 * $I_1 :=  I_1 [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ]$
 * $I_2 := I[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ]$
 
-It may make sense to merge this file with first_estimate.lean
+## Main results
+
+* `second_estimate` : $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$ 
 -/
 
 open MeasureTheory ProbabilityTheory ElementaryAddCommGroup

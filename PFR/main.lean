@@ -132,7 +132,7 @@ theorem rdist_le_of_isUniform_of_card_add_le
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
-such that $A$ can be covered by at most $K^{13/2} #A^{1/2} / #H^{1/2}$ cosets of $H$, and $H$ has
+such that $A$ can be covered by at most $K^{13/2} |A|^{1/2} / |H|^{1/2}$ cosets of $H$, and $H$ has
 the same cardinality as $A$ up to a multiplicative factor $K^11$. -/
 lemma PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty)

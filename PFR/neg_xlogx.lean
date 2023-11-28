@@ -16,6 +16,7 @@ $$h(x) = - x * \log x$$ on the unit interval, for use in the theory of Shannon e
 ## Main results
 
 * `sum_negIdMulLog_le`: a Jensen inequality for `negIdMulLog`
+* `sum_negIdMulLog_eq`: the equality case of this inequality
 
 -/
 

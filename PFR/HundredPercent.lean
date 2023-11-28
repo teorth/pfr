@@ -5,6 +5,10 @@ import PFR.ruzsa_distance
 # The 100% version of entropic PFR
 
 Here we show entropic PFR in the case of doubling constant zero.
+
+## Main results
+
+* `exists_isUniform_of_rdist_eq_zero` : If $d[X_1;X_2]=0$, then there exists a subgroup $H \leq G$ such that $d[X_1;U_H] = d[X_2;U_H] = 0$.
 -/
 
 open MeasureTheory ProbabilityTheory Real

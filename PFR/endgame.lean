@@ -155,7 +155,7 @@ Then there exist random variables $T'_1, T'_2$ such that
 $$ d[T'_1;T'_2] + \eta (d[X_1^0;T'_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;T'_2] - d[X_2^0;X_2]) $$
 is at most
 $$ \delta + \eta ( d[X^0_1;T_1]-d[X^0_1;X_1]) + \eta (d[X^0_2;T_2]-d[X^0_2;X_2]) $$
-$$ + \tfrac12 \eta \bbI[T_1:T_3] + \tfrac12 \eta \bbI[T_2:T_3].$$
+$$ + \tfrac12 \eta I[T_1:T_3] + \tfrac12 \eta I[T_2:T_3].$$
 -/
 lemma construct_good_prelim :
     k ≤ δ + η * c[T₁ # T₂] + η * (I[T₁:T₃] + I[T₂:T₃])/2 := by

@@ -9,6 +9,18 @@ import PFR.ForMathlib.BorelSpace
 # The tau functional
 
 Definition of the tau functional and basic facts
+
+## Main definitions:
+
+* `η`: $1/9$
+* `τ`: The tau functional  $\tau[X_1; X_2] = d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$
+
+## Main results
+
+* `tau_minimizer_exists`: A pair of random variables minimizing $\tau$ exists.
+* ` condDistance_ge_of_min`: If $X_1,X_2$ is a tau-minimizer with $k = d[X_1;X_2]$, then $d[X'_1|Z, X'_2|W]$ is at least
+$$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] )$$
+for any $X'_1, Z, X'_2, W$.
 -/
 
 open MeasureTheory ProbabilityTheory
@@ -99,6 +111,7 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
   ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
+/-- A pair of measures minimizing $\tau$ exists. -/
 lemma tau_min_exists_measure [MeasurableSingletonClass G] :
     ∃ (μ : Measure G × Measure G),
     IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
@@ -120,6 +133,7 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
   let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ⟨ν₂, Pν₂⟩⟩
   exact hμ ν
 
+/-- A pair of random variables minimizing $τ$ exists. -/
 lemma tau_minimizer_exists [MeasurableSingletonClass G] :
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
     Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
@@ -178,7 +192,6 @@ lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂
 
 open BigOperators
 
-#check distance_ge_of_min
 /--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower bound $d[X'_1|Z;X'_2|W]$ by
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/

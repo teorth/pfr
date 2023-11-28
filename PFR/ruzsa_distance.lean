@@ -22,7 +22,9 @@ Here we define Ruzsa distance and establish its basic properties.
 ## Main results
 
 * `rdist_triangle` : The Ruzsa triangle inequality for three random variables.
-
+* `kaimanovich-vershik`. $$H[X + Y + Z] - H[X + Y] \leq H[Y+Z] - H[Y].$$
+* `ent-bsg`: If $Z=A+B$, then
+$$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B].$$
 -/
 open MeasureTheory ProbabilityTheory BigOperators
 
@@ -40,8 +42,6 @@ variable {Ω : Type u} {Ω' Ω'' Ω''' G T : Type*}
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 
--- may also want [DecidableEq G]
-
 /-- If $X$ is $G$-valued, then $H[-X]=H[X]$. -/
 lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
@@ -52,6 +52,7 @@ lemma entropy_sub_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
   rw [← neg_sub]
   exact entropy_neg (hY.sub hX)
 
+/-- $$H[X+Y|Y] = H[X|Y].$$ -/
 lemma condEntropy_of_sum_eq {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] : H[X+Y | Y ; μ] = H[X | Y ; μ] := by
   refine condEntropy_of_inj_map μ hX hY (fun y x ↦ x + y) ?_
   exact fun y ↦ add_left_injective y
@@ -65,6 +66,7 @@ lemma entropy_sub_mutualInformation_le_entropy_add
   rw [<- condEntropy_of_sum_eq hX hY]
   exact condEntropy_le_entropy _ (hX.add hY) hY
 
+/-- $$H[X-Y|Y] = H[X|Y].$$-/
 lemma condEntropy_of_sub_eq {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] : H[X-Y | Y ; μ] = H[X | Y ; μ] := by
   refine condEntropy_of_inj_map μ hX hY (fun y x ↦ x - y) ?_
   exact fun y ↦ sub_left_injective
@@ -174,7 +176,7 @@ lemma ent_of_indep_diff_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X)
   · exact (entropy_neg hY).symm
   · ext x ; simp [sub_eq_add_neg]
 
-/-- The Ruzsa distance `dist X Y` between two random variables is defined as
+/-- The Ruzsa distance `rdist X Y` or $d[X;Y]$ between two random variables is defined as
 $H[X'-Y'] - H[X']/2 - H[Y']/2$, where $X', Y'$ are independent copies of $X, Y$. -/
 noncomputable
 def rdist (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
@@ -186,10 +188,12 @@ def rdist (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
 
 @[inherit_doc rdist] notation3:max "d[" X " # " Y "]" => rdist X Y volume volume
 
+/-- Explicit formula for the Ruzsa distance. -/
 lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') :
     d[ X ; μ # Y ; μ' ]
       = H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2 := rfl
 
+/-- Entropy depends continuously on the measure. -/
 -- TODO: Use notation `Hm[μ]` here? (figure out how)
 lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Fintype Ω]
     [TopologicalSpace Ω] [DiscreteTopology Ω] [MeasurableSpace Ω] [OpensMeasurableSpace Ω] :
@@ -206,6 +210,7 @@ lemma continuous_entropy_restrict_probabilityMeasure
   simp only [entropy_def, Measure.map_id]
   exact continuous_measureEntropy_probabilityMeasure
 
+/-- Ruzsa distance depends continuously on the measure. -/
 lemma continuous_rdist_restrict_probabilityMeasure
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
     Continuous
@@ -241,9 +246,11 @@ lemma continuous_rdist_restrict_probabilityMeasure₁
   have ι_cont : Continuous ι := Continuous.Prod.mk _
   convert continuous_rdist_restrict_probabilityMeasure.comp ι_cont
 
+/-- Ruzsa distance between random variables equals Ruzsa distance between their distributions.-/
 lemma rdist_eq_rdist_id_map : d[ X ; μ # Y ; μ' ] = d[ id ; μ.map X # id ; μ'.map Y ] := by
   simp only [rdist_def, entropy_def, Measure.map_id]
 
+/-- Ruzsa distance depends continuously on the second measure. -/
 lemma continuous_rdist_restrict_probabilityMeasure₁'
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
     (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
@@ -280,8 +287,6 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
   rw [this, entropy_def, ← Measure.map_map (measurable_fst.sub measurable_snd) measurable_swap,
     Measure.prod_swap]
   rfl
-
--- note : many of the statements below probably need measurability hypotheses on X, Y, and/or guarantees that a measure is a probability measure.
 
 /-- $$|H[X]-H[Y]| \leq 2 d[X ; Y].$$ -/
 lemma diff_ent_le_rdist [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
@@ -411,6 +416,7 @@ lemma cond_rdist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → 
     d[X | Z ; μ # Y | W ; μ']
       = dk[condEntropyKernel X Z μ ; μ.map Z # condEntropyKernel Y W μ' ; μ'.map W] := rfl
 
+/-- $$ d[X|Z; Y|W] = d[Y|W; X|Z]$$-/
 lemma cond_rdist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
@@ -421,13 +427,16 @@ lemma cond_rdist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' →
   have : IsProbabilityMeasure (μ'.map W) := isProbabilityMeasure_map hW.aemeasurable
   rw [cond_rdist_def, cond_rdist_def, kernel.rdist_symm]
 
+/-- Formula for the product measure applied to a singleton. -/
 lemma Measure.prod_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
     (μ : Measure α) (ν : Measure β) [SigmaFinite ν] (x : α × β) :
     (μ.prod ν) {x} = μ {x.1} * ν {x.2} := by
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Measure.prod_prod]
 
+/-- Ruzsa distance of random variables equals Ruzsa distance of the kernels. -/
 lemma rdist_eq_rdistm : d[X ; μ # Y ; μ'] = kernel.rdistm (μ.map X) (μ'.map Y) := rfl
 
+/-- Explicit formula for conditional Ruzsa distance $d[X|Z; Y|W]$. -/
 lemma cond_rdist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
     (μ : Measure Ω) [IsFiniteMeasure μ] (μ' : Measure Ω') [IsFiniteMeasure μ'] :
@@ -463,11 +472,13 @@ notation3:max "d[" X " ; " μ " # " Y " | " W " ; " μ' "]" => cond_rdist' X Y W
 @[inherit_doc cond_rdist']
 notation3:max "d[" X " # " Y " | " W "]" => cond_rdist' X Y W volume volume
 
+/-- Conditional Ruzsa distance equals Ruzsa distance of associated kernels. -/
 lemma cond_rdist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) (μ' : Measure Ω') :
     d[X ; μ # Y | W ; μ'] =
       dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] :=
   rfl
 
+/-- Explicit formula for conditional Ruzsa distance $d[X; Y|W]$. -/
 lemma cond_rdist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
     (hY : Measurable Y) (hW : Measurable W)
     (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
@@ -488,6 +499,7 @@ lemma cond_rdist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
   rw [rdist_eq_rdistm, condEntropyKernel_apply hY hW _ _ hw]
   congr
 
+/-- Conditioning by a constant does not affect Ruzsa distance. -/
 lemma cond_rdist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     d[X|(fun _ => c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
@@ -541,6 +553,7 @@ lemma cond_rdist_of_indep
     rw [kernel.map_apply, kernel.map_apply, hx]
   exact (condEntropyKernel_eq_prod_of_indepFun hX hZ hY hW μ h).symm
 
+/-- Formula for conditional Ruzsa distance for independent sets of variables. -/
 lemma cond_rdist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W)
     (μ : Measure Ω) [IsProbabilityMeasure μ]
@@ -603,6 +616,7 @@ lemma cond_rdist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     congr
   rw [kernel.entropy_congr h_ker, h_meas, kernel.entropy_prodMkLeft_unit]
 
+/-- Conditional Ruzsa distance is unchanged if the sets of random variables are replaced with copies. -/
 lemma cond_rdist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (hZ : Measurable Z)
     {Y : Ω' → G} (hY : Measurable Y) {W : Ω' → T} (hW : Measurable W)
     {X' : Ω'' → G} (hX' : Measurable X') {Z' : Ω'' → S} (hZ' : Measurable Z')
@@ -757,7 +771,7 @@ lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X,
 section BalogSzemerediGowers
 
 /--  The **entropic Balog-Szemerédi-Gowers inequality**. Let $A, B$ be $G$-valued random variables
-on $\Omega$, and set $Z \coloneq A+B$. Then
+on $\Omega$, and set $Z := A+B$. Then
 $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]. $$ -/
 lemma ent_bsg { A B Z : Ω → G } (hA: Measurable A) (hB: Measurable B) (hZ : Z = A + B) :
   (μ.map Z)[fun z ↦ d[ A; μ[|Z⁻¹' {z}] # B ; μ[|Z⁻¹' {z}] ]] ≤ 3 * I[ A : B; μ ] + 2 * H[Z;μ] - H[A;μ] - H[B;μ] := by sorry

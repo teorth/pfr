@@ -28,7 +28,7 @@ variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
 
 variable (p : refPackage Ω₀₁ Ω₀₂ G) {X₁ : Ω → G} {X₂ : Ω → G}
 
-/-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that
+/-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that $\tau[X'_1;X'_2] < \tau[X_1;X_2]$.
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases (h : tau_minimizes p X₁ X₂) : d[X₁ # X₂] = 0 := sorry
 

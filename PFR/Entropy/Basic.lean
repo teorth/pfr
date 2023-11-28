@@ -105,6 +105,7 @@ lemma entropy_le_log_card
     (X : Ω → S) (μ : Measure Ω) : H[X ; μ] ≤ log (Fintype.card S) :=
   measureEntropy_le_log_card _
 
+/-- Entropy is at most the logarithm of the cardinality of a set in which X almost surely takes values in. -/
 lemma entropy_le_log_card_of_mem {A : Set S} {μ : Measure Ω} {X : Ω → S}
     (hX : Measurable X) (h : ∀ᵐ ω ∂μ, X ω ∈ A) :
     H[X ; μ] ≤ log (Nat.card A) := by
@@ -217,9 +218,11 @@ lemma exists_isUniform_measureSpace
   simp only [Finite.coe_toFinset, Finite.mem_toFinset] at Xunif Xmem
   exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem⟩
 
+/-- A uniform random variable on H almost surely takes values in H. -/
 lemma IsUniform.ae_mem {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ) :
     ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
 
+/-- Uniform random variables only exist for non-empty sets H. -/
 lemma IsUniform.nonempty {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ)
     [hμ : NeZero μ] : H.Nonempty := by
   rcases eq_empty_or_nonempty H with rfl|h'
@@ -288,6 +291,7 @@ lemma IsUniform.measureReal_preimage_of_nmem
     μ.real (X ⁻¹' {s}) = 0 := by
   rw [measureReal_def, h.measure_preimage_of_nmem hs, ENNReal.zero_toReal]
 
+/-- A copy of a uniform random variable is also uniform.-/
 lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω']
     {H : Set S} {X : Ω → S} {μ : Measure Ω} (h : IsUniform H X μ)
     {X' : Ω' → S} {μ' : Measure Ω'} (h' : IdentDistrib X X' μ μ') (hH : MeasurableSet H) :
@@ -483,6 +487,7 @@ lemma entropy_add_right {Y : Ω → S}
   change H[(Equiv.refl _).prodShear Equiv.addLeft ∘ ⟨ X, Y ⟩ ; μ] = H[⟨ X, Y ⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
 
+/-- $H[X, f(X)] = H[X]$.-/
 @[simp] lemma entropy_prod_comp (hX : Measurable X) (μ : Measure Ω) (f : S → T) :
     H[⟨ X, f ∘ X ⟩; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) (fun _ _ ab ↦ (Prod.ext_iff.1 ab).1)
@@ -523,6 +528,7 @@ lemma condEntropy_eq_kernel_entropy
   rw [condEntropyKernel_apply' hX hY _ _ ht hS, Measure.map_apply hX hS,
       cond_apply _ (hY (measurableSet_singleton _))]
 
+/-- The law of $(X,Z)$ is the image of the law of $(Z,X)$.-/
 lemma map_prod_comap_swap (hX : Measurable X) (hZ : Measurable Z) (μ : Measure Ω) :
     (μ.map (fun ω ↦ (X ω, Z ω))).comap Prod.swap = μ.map (fun ω ↦ (Z ω, X ω)) := by
   ext s hs
@@ -620,6 +626,7 @@ lemma condEntropy_comp_of_injective [MeasurableSingletonClass S] [MeasurableSing
     H[f ∘ X | Y ; μ] = H[X | Y ; μ] :=
   integral_congr_ae (ae_of_all _ (fun _ ↦ entropy_comp_of_injective _ hX f hf))
 
+/-- $H[X,Y|Z] = H[Y,X|Z]$. -/
 lemma condEntropy_comm {Z : Ω → U} [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨ X, Y ⟩ | Z ; μ] = H[⟨ Y, X ⟩ | Z; μ] := by
@@ -677,6 +684,7 @@ lemma condEntropy_of_inj_map' [MeasurableSingletonClass S] (μ : Measure Ω) [Is
       exact condEntropy_comp_of_injective μ hY f hf
     exact entropy_comp_of_injective μ hY f hf
 
+/-- $H[X|f(X)] = H[X] - H[f(X)]$. -/
 lemma condEntropy_comp_self [IsProbabilityMeasure μ]
   (hX : Measurable X) {f : S → U} (hf : Measurable f) :
     H[X| f ∘ X; μ] = H[X; μ] - H[f ∘ X; μ] := by
@@ -933,6 +941,7 @@ lemma condMutualInformation_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Me
   rw [condMutualInformation_eq hX hY hZ, cond_chain_rule _ hX hY hZ]
   ring
 
+/-- If $f(Z,X)$ is injective for each fixed $Z$, then $I[f(Z,X):Y|Z] = I[X:Y|Z]$.-/
 lemma condMutualInformation_of_inj_map [IsProbabilityMeasure μ]
   (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
   {V : Type*} [Nonempty V] [Fintype V] [MeasurableSpace V] [MeasurableSingletonClass V]
@@ -1333,12 +1342,14 @@ lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measu
   map_eq := map_map hf hX
 }
 
+/-- The sum of measures of preimages of singletons sums to one in a probability space. -/
 lemma sum_measure_preimage_singleton (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, μ (Y⁻¹' {y}) = 1 := by
   rw [(show 1 =(μ.map Y) Set.univ by
     simp [μ.map_apply hY MeasurableSet.univ]), <-sum_measure_singleton (μ.map Y)]
   congr with y
   rw [<- map_apply hY (MeasurableSet.singleton y)]
 
+/-- Variant of previous lemma using real numbers rather than extended nonnegative reals. -/
 lemma sum_measure_preimage_singleton' (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T][MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, (μ (Y⁻¹' {y})).toReal = 1 := by
   rw [<- ENNReal.toReal_sum, sum_measure_preimage_singleton μ hY]
   . rfl
