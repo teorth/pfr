@@ -264,6 +264,9 @@ section condEntropyKernel
 
 variable {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
 
+/-- Given two random variables `X : Ω → S` and `Y : Ω → T` defined on a common space, the kernel
+`condEntropyKernel X Y μ` is the kernel from `T` to `S` registering the distribution of `X` on fibers
+of `Y`. -/
 noncomputable
 def condEntropyKernel (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
     kernel T S :=

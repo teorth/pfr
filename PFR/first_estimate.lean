@@ -61,12 +61,13 @@ lemma rdist_add_rdist_add_condMutual_eq : d[X₁ + X₂' # X₂ + X₁'] + d[X�
   have h1 : ![X₁, X₂, X₂', X₁'] 1 = X₂ := rfl
   have h2 : ![X₁, X₂, X₂', X₁'] 2 = X₂' := rfl
   have h3 : ![X₁, X₂, X₂', X₁'] 3 = X₁' := rfl
-  have h := sum_of_rdist_eq_char_2 ![X₁, X₂, X₂', X₁'] h_indep (fun i => by fin_cases i <;> assumption)
+  have h := sum_of_rdist_eq_char_2 ![X₁, X₂, X₂', X₁'] h_indep
+    (fun i => by fin_cases i <;> assumption)
   rw [h0, h1, h2, h3] at h
   have heq : d[X₂' # X₁'] = k
   · rw [rdist_symm]
     apply ProbabilityTheory.IdentDistrib.rdist_eq h₁.symm h₂.symm
-  rw[heq] at h
+  rw [heq] at h
   convert h.symm using 1
   · congr 2 <;> abel
   · ring
@@ -105,20 +106,22 @@ lemma diff_rdist_le_2 : d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/
     exact ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₁
   · exact h₁.entropy_eq
 
-/-- $$ d[X_1^0;X_1|X_1+\tilde X_2] - d[X_1^0;X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} \mathbb{H}[X_1] - \tfrac{1}{4} \mathbb{H}[X_2].$$ -/
+/-- $$ d[X_1^0;X_1|X_1+\tilde X_2] - d[X_1^0;X_1] \leq
+    \tfrac{1}{2} k + \tfrac{1}{4} \mathbb{H}[X_1] - \tfrac{1}{4} \mathbb{H}[X_2].$$ -/
 lemma diff_rdist_le_3 : d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₁]/4 - H[X₂]/4 := by
   have h : IndepFun X₁ X₂'
   · simpa using h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide)
   convert condDist_diff_le''' ℙ p.hmeas1 hX₁ hX₂' h using 3
-  · rw[ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂]
+  · rw [ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂]
   · apply h₂.entropy_eq
 
-/-- $$ d[X_2^0; X_2|X_2+\tilde X_1] - d[X_2^0; X_2] \leq \tfrac{1}{2}k + \tfrac{1}{4} \mathbb{H}[X_2] - \tfrac{1}{4} \mathbb{H}[X_1].$$ -/
+/-- $$ d[X_2^0; X_2|X_2+\tilde X_1] - d[X_2^0; X_2] \leq
+    \tfrac{1}{2}k + \tfrac{1}{4} \mathbb{H}[X_2] - \tfrac{1}{4} \mathbb{H}[X_1].$$ -/
 lemma diff_rdist_le_4 : d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
   have h : IndepFun X₂ X₁'
   · simpa using h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide)
   convert condDist_diff_le''' ℙ p.hmeas2 hX₂ hX₁' h using 3
-  · rw[rdist_symm, ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₁]
+  · rw [rdist_symm, ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₁]
   · apply h₁.entropy_eq
 
 /--  We have $I_1 \leq 2 \eta k$ -/
@@ -181,7 +184,7 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
         IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂
       rw [k_eq_aux]
       exact IndepFun.rdist_eq (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)) hX₁ hX₂'
-    rw [k_eq, ←ElementaryAddCommGroup.sub_eq_add, ←HX₂_eq]
+    rw [k_eq, ← ElementaryAddCommGroup.sub_eq_add, ← HX₂_eq]
     ring
   have rw₃ : H[X₂ + X₁'] = k + H[X₁]/2 + H[X₂]/2 := by
     have HX₁_eq : H[X₁] = H[X₁'] :=
@@ -191,7 +194,7 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
         IdentDistrib.rdist_eq h₁ (IdentDistrib.refl hX₂.aemeasurable)
       rw [k_eq_aux]
       exact IndepFun.rdist_eq (h_indep.indepFun (show (3 : Fin 4) ≠ 1 by decide)) hX₁' hX₂
-    rw [add_comm X₂ X₁', k_eq', ←ElementaryAddCommGroup.sub_eq_add, ←HX₁_eq]
+    rw [add_comm X₂ X₁', k_eq', ← ElementaryAddCommGroup.sub_eq_add, ← HX₁_eq]
     ring
   calc H[X₁ + X₂ + X₁' + X₂']
       ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + η) * k - I₁    := obs

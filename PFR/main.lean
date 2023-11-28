@@ -23,19 +23,20 @@ open scoped BigOperators
 universe u
 
 namespace ProbabilityTheory
+variable {G Ω : Type*} [AddCommGroup G] [Fintype G]
+    [MeasurableSpace G] [MeasurableSingletonClass G] {A B : Set G}
+    [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G}
 
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V` with probability `# (A ∩ B) / #A ⬝ #B`. -/
-lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fintype G]
-    {A B : Set G}
-    {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G}
-    (Uunif : IsUniform A U) (Umeas : Measurable U) (Vunif : IsUniform B V) (Vmeas : Measurable V)
-    (hindep : IndepFun U V) :
+lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : Measurable U)
+    (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {0})
       = Nat.card (A ∩ B : Set G) / (Nat.card A * Nat.card B) := by
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
     ext ω; simp [sub_eq_zero, eq_comm]
-  rw [this, measureReal_iUnion_fintype _ (fun i ↦ (Umeas trivial).inter (Vmeas trivial))]; swap
+  rw [this, measureReal_iUnion_fintype _
+    (fun i ↦ (Umeas $ measurableSet_discrete _).inter $ Vmeas $ measurableSet_discrete _)]; swap
   · intro g g' hgg'
     apply Set.disjoint_iff_inter_eq_empty.2
     ext a
@@ -45,7 +46,8 @@ lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fint
     ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p} ∩ V ⁻¹' {p})
       = ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply sum_congr _ _ (fun g ↦ ?_)
-        rw [hindep.measureReal_inter_preimage_eq_mul trivial trivial]
+        rw [hindep.measureReal_inter_preimage_eq_mul (measurableSet_discrete _) $
+          measurableSet_discrete _]
     _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply (Finset.sum_subset W.subset_univ _).symm
         intro i _ hi
@@ -64,11 +66,8 @@ lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fint
 
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V + x` with probability `# (A ∩ (B + x)) / #A ⬝ #B`. -/
-lemma IsUniform.measureReal_preimage_sub {G : Type*} [AddCommGroup G] [Fintype G]
-    {A B : Set G}
-    {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G}
-    (Uunif : IsUniform A U) (Umeas : Measurable U) (Vunif : IsUniform B V) (Vmeas : Measurable V)
-    (hindep : IndepFun U V) (x : G) :
+lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measurable U)
+    (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) (x : G) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {x})
       = Nat.card (A ∩ (B + {x}) : Set G) / (Nat.card A * Nat.card B) := by
   let W := fun ω ↦ V ω + x
@@ -78,7 +77,7 @@ lemma IsUniform.measureReal_preimage_sub {G : Type*} [AddCommGroup G] [Fintype G
     exact Vunif.comp (Equiv.injective _)
   have Wmeas : Measurable W := Vmeas.add_const _
   have UWindep : IndepFun U W := by
-    have : Measurable (fun g ↦ g + x) := measurable_id'
+    have : Measurable (fun g ↦ g + x) := measurable_add_const x
     exact hindep.comp measurable_id this
   have : (U - V) ⁻¹' {x} = (U - W) ⁻¹' {0} := by
     ext ω
@@ -104,18 +103,19 @@ lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Fintype G]
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
+variable {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+  [MeasurableSingletonClass G] {A : Set G} {K : ℝ}
+
 /-- A uniform distribution on a set with doubling constant `K` has self Rusza distance
 at most `log K`. -/
-theorem rdist_le_of_isUniform_of_card_add_le
-    {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
+theorem rdist_le_of_isUniform_of_card_add_le (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
   obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
   rcases independent_copies_two U₀meas U₀meas with ⟨Ω, mΩ, U, U', hP, hU, hU', UU'_indep, idU, idU'⟩
-  have Uunif : IsUniform A U := U₀unif.of_identDistrib idU.symm trivial
-  have U'unif : IsUniform A U' := U₀unif.of_identDistrib idU'.symm trivial
+  have Uunif : IsUniform A U := U₀unif.of_identDistrib idU.symm $ measurableSet_discrete _
+  have U'unif : IsUniform A U' := U₀unif.of_identDistrib idU'.symm $ measurableSet_discrete _
   have IU : d[U # U'] ≤ log K := by
     have I : H[U + U'] ≤ log (Nat.card (A + A)) := by
       apply entropy_le_log_card_of_mem (hU.add hU')
@@ -134,9 +134,8 @@ theorem rdist_le_of_isUniform_of_card_add_le
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
 such that $A$ can be covered by at most $K^{13/2} |A|^{1/2} / |H|^{1/2}$ cosets of $H$, and $H$ has
 the same cardinality as $A$ up to a multiplicative factor $K^11$. -/
-lemma PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
-    (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
+lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card H ∧ A ⊆ c + H := by
   classical
@@ -149,8 +148,8 @@ lemma PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 
   rcases entropic_PFR_conjecture p with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
-  have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm (by trivial)
-  have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm (by trivial)
+  have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm $ measurableSet_discrete _
+  have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
   have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
     have : 0 < Nat.card (H : Set G) := Nat.card_pos
@@ -229,10 +228,9 @@ lemma PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
 2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{12}$ cosets of
 a subgroup of cardinality at most $|A|$. -/
-theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
-    (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+     ∃ (H : AddSubgroup G) (c : Set G),
+      Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.

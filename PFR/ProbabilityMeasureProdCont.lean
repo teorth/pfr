@@ -17,7 +17,7 @@ namespace MeasureTheory
 /-- Probability measures on a finite space tend to a limit if and only if the probability masses
 of all points tend to the corresponding limits. -/
 lemma ProbabilityMeasure.tendsto_iff_forall_apply_tendsto
-    {ι : Type*} {L : Filter ι} [NeBot L]
+    {ι : Type*} {L : Filter ι}
     {α : Type*} [Fintype α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α]
     [BorelSpace α] (μs : ι → ProbabilityMeasure α) (μ : ProbabilityMeasure α) :
     Tendsto μs L (𝓝 μ) ↔ ∀ (a : α), Tendsto (fun i ↦ μs i {a}) L (𝓝 (μ {a})) := by
@@ -42,7 +42,7 @@ instance {α : Type*} [Fintype α] [TopologicalSpace α] : SecondCountableTopolo
 on the product space tend to the product of the limits.
 TODO: In Mathlib, this should be done on all separable metrizable spaces. -/
 lemma ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto
-    {ι : Type*} {L : Filter ι} [NeBot L] {α β : Type*}
+    {ι : Type*} {L : Filter ι} {α β : Type*}
     [Fintype α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α] [BorelSpace α]
     [Fintype β] [TopologicalSpace β] [DiscreteTopology β] [MeasurableSpace β] [BorelSpace β]
     (μs : ι → ProbabilityMeasure α) (μ : ProbabilityMeasure α) (μs_lim : Tendsto μs L (𝓝 μ))
