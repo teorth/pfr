@@ -25,8 +25,8 @@ variable {Ω₀₁ Ω₀₂ : Type u} [MeasureSpace Ω₀₁] [MeasureSpace Ω�
 variable {Ω Ω' : Type u} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
-variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
-
+variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+  [MeasurableSingletonClass G]
 variable (p : refPackage Ω₀₁ Ω₀₂ G) {X₁ : Ω → G} {X₂ : Ω → G} (hX₁ : Measurable X₁) (hX₂ : Measurable X₂)
 
 /-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that $\tau[X'_1;X'_2] < \tau[X_1;X_2]$.
@@ -36,7 +36,6 @@ theorem tau_strictly_decreases (h_min : tau_minimizes p X₁ X₂) : d[X₁ # X�
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
   rw [←h_id1.rdist_eq h_id2]
   letI : MeasureSpace A := ⟨μ⟩
-  have : μ = ℙ := rfl
   have : IsProbabilityMeasure (ℙ : Measure A) := hμ
   rw[←h_id1.tau_minimizes p h_id2] at h_min
   apply tau_strictly_decreases_aux p Y₁ Y₂ Y₁' Y₂' hY₁ hY₂ hY₁' hY₂' (h_id1.trans h_id1'.symm)
@@ -56,8 +55,6 @@ theorem entropic_PFR_conjecture :
   have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
   rw [tau, tau, η] at h
   norm_num at h
-  have : d[U # X₁] = d[X₁ # U] := rdist_symm
-  have : d[U # X₂] = d[X₂ # U] := rdist_symm
   have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm
   have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle _ _ _ p.hmeas1 hX₁ hU
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle _ _ _ p.hmeas2 hX₂ hU

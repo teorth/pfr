@@ -37,8 +37,8 @@ variable {Ω : Type u} {Ω' Ω'' Ω''' G T : Type*}
   [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
   [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G]
-  [Fintype S] [Nonempty S] [MeasurableSpace S] [MeasurableSingletonClass S]
-  [Fintype T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
+  [Fintype S] [Nonempty S] [MeasurableSpace S]
+  [Fintype T] [Nonempty T] [MeasurableSpace T]
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
 
@@ -118,7 +118,7 @@ lemma ent_of_diff_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
     exact entropy_sub_mutualInformation_le_entropy_sub hY hX
 
 /-- $$ \max(H[X|Z], H[Y|Z]) - I[X :Y|Z] \leq H[X + Y|Z] $$ -/
-lemma condEnt_of_sum_lower {Y : Ω → G} {Z : Ω → T}
+lemma condEnt_of_sum_lower [MeasurableSingletonClass T] {Y : Ω → G} {Z : Ω → T}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [IsProbabilityMeasure μ] :
     (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X + Y | Z ; μ] := by
@@ -139,7 +139,7 @@ lemma condEnt_of_sum_lower {Y : Ω → G} {Z : Ω → T}
   simp [add_comm (X ω)]
 
 /-- $$ \max(H[X|Z], H[Y|Z]) - I[X :Y|Z] \leq H[X - Y|Z] $$ -/
-lemma condEnt_of_diff_lower {Y : Ω → G} {Z : Ω → T}
+lemma condEnt_of_diff_lower [MeasurableSingletonClass T] {Y : Ω → G} {Z : Ω → T}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [IsProbabilityMeasure μ] :
     (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X - Y | Z ; μ] := by
@@ -398,6 +398,8 @@ lemma rdist_triangle {Ω Ω' Ω'' : Type u}
         rw [ProbabilityTheory.IndepFun.rdist_eq (by simpa using (iIndepFun.indepFun hInd
           (show 0 ≠ 1 by norm_cast))) hX' hY', ProbabilityTheory.IndepFun.rdist_eq
           (by simpa using (iIndepFun.indepFun hInd (show 1 ≠ 2 by norm_cast))) hY' hZ']
+
+variable [MeasurableSingletonClass S] [MeasurableSingletonClass T]
 
 /-- The conditional Ruzsa distance `d[X|Z ; Y|W]`. -/
 noncomputable
@@ -776,8 +778,6 @@ lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X,
   · simp (discharger := decide)
   · rw [← show ∀ h : 2 < 3, (2 : Fin 3) = ⟨2, h⟩ by intro; rfl]
     simp (discharger := decide)
-
-
 
 section BalogSzemerediGowers
 
