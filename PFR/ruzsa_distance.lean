@@ -63,7 +63,7 @@ lemma entropy_sub_mutualInformation_le_entropy_add
     H[X ; μ] - I[X : Y ; μ] ≤ H[X + Y ; μ] := by
   rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
   ring_nf
-  rw [<- condEntropy_of_sum_eq hX hY]
+  rw [← condEntropy_of_sum_eq hX hY]
   exact condEntropy_le_entropy _ (hX.add hY) hY
 
 /-- $$H[X-Y|Y] = H[X|Y].$$-/
@@ -77,7 +77,7 @@ lemma entropy_sub_mutualInformation_le_entropy_sub
     H[X ; μ] - I[X : Y ; μ] ≤ H[X - Y ; μ] := by
   rw [mutualInformation_eq_entropy_sub_condEntropy hX hY]
   ring_nf
-  rw [<- condEntropy_of_sub_eq hX hY]
+  rw [← condEntropy_of_sub_eq hX hY]
   exact condEntropy_le_entropy _ (hX.sub hY) hY
 
 /--$$H[X, X+Y] = H[X, Y]$$ --/
@@ -508,9 +508,9 @@ lemma cond_rdist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
     d[X ; μ # Y | W ; μ']
       = (μ'.map W)[fun w ↦ d[X ; μ # Y ; (μ'[|W ⁻¹' {w}])]] := by
   rw [cond_rdist'_eq_sum hY hW]
-  simp_rw[←smul_eq_mul]
+  simp_rw [← smul_eq_mul]
   convert symm $ integral_eq_sum (μ'.map W) (fun w ↦ d[X ; μ # Y ; (μ'[|W ⁻¹' {w}])])
-  rw[Measure.map_apply hW (MeasurableSet.singleton _)]
+  rw [Measure.map_apply hW (MeasurableSet.singleton _)]
 
 /-- Conditioning by a constant does not affect Ruzsa distance. -/
 lemma cond_rdist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
@@ -544,7 +544,7 @@ lemma cond_rdist_of_indep
   have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
-  rw[cond_rdist_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy _ (hZ.prod_mk hW),
+  rw [cond_rdist_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy _ (hZ.prod_mk hW),
     condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hW]
   swap; · exact hX.sub hY
   congr 2
@@ -574,7 +574,7 @@ lemma cond_rdist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     d[X ; μ # Y | W ; μ] = H[X-Y | W ; μ] - H[X ; μ]/2 - H[Y | W ; μ]/2 := by
   have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
   have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
-  rw[cond_rdist'_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy _ hW,
+  rw [cond_rdist'_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy _ hW,
     condEntropy_eq_kernel_entropy hY hW, entropy_eq_kernel_entropy]
   swap; · exact hX.sub hY
   congr 2
@@ -812,7 +812,7 @@ lemma condDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω'
   have hind' : IndepFun X' Y' ν := IndepFun.comp hind measurable_fst measurable_fst
   rw [show XZ' = ⟨X', Z'⟩ by rfl] at hIdXZ hind
   rw [show YW' = ⟨Y', W'⟩ by rfl] at hIdYW hind
-  rw [←cond_rdist_of_copy hX' hZ' hY' hW' hX hZ hY hW hIdXZ hIdYW,
+  rw [← cond_rdist_of_copy hX' hZ' hY' hW' hX hZ hY hW hIdXZ hIdYW,
     cond_rdist_of_indep hX' hZ' hY' hW' _ hind]
   have hIdX : IdentDistrib X X' μ ν := hIdXZ.symm.comp measurable_fst
   have hIdY : IdentDistrib Y Y' μ' ν := hIdYW.symm.comp measurable_fst
@@ -829,7 +829,7 @@ lemma condDist_le' [Fintype T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) :
     d[X ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[Y : W ; μ']/2 := by
-  rw [←cond_rdist_of_const hX _ _ (0 : Fin 1)]
+  rw [← cond_rdist_of_const hX _ _ (0 : Fin 1)]
   refine' (condDist_le μ μ' hX measurable_const hY hW).trans _
   simp [mutualInformation_const hX (0 : Fin 1)]
 

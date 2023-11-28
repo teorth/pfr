@@ -50,9 +50,6 @@ lemma sub_eq_add ( x y : G ) : x - y = x + y := by
   · simpa only [elem.orderOf_of_ne h, two_nsmul] using (addOrderOf_nsmul_eq_zero y)
 
 @[simp]
-lemma pi.sub_eq_add {ι} ( x y : ι → G ) : x - y = x + y := by ext; simp
-
-@[simp]
 lemma add_self ( x : G ) : x + x = 0 := by
   rw [← sub_eq_add]
   simp
@@ -97,16 +94,10 @@ lemma two_le_char_of_nonzero {Γ : Type*} [NeZero p] [AddCommGroup Γ] [Elementa
   · simp_all only [neZero_zero_iff_false]
   · exact char_ne_one_of_nonzero x_ne_zero hp
 
-lemma mem_periodicPts_of_nonzero {Γ : Type*} [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p]
-    {x : Γ} (x_ne_zero : x ≠ 0) (y : Γ) :
-    y ∈ periodicPts (fun z ↦ x + z) := by
-  have obs := ElementaryAddCommGroup.orderOf_of_ne x_ne_zero
-  rw [addOrderOf] at obs
-  rw [periodicPts]
-  simp_rw [IsPeriodicPt]
-  simp only [gt_iff_lt, add_left_iterate, Set.mem_setOf_eq]
-  existsi p
-  refine ⟨Fin.size_pos', by simp [IsFixedPt]⟩
+lemma mem_periodicPts {Γ : Type*} [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p]
+    {x : Γ} (y : Γ) : y ∈ periodicPts (fun z ↦ x + z) := by
+  simp only [periodicPts, IsPeriodicPt, add_left_iterate, Set.mem_setOf_eq]
+  exact ⟨p, Fin.size_pos', by simp [IsFixedPt]⟩
 
 open Nat in
 instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] :
@@ -144,5 +135,7 @@ instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCo
     intro n n_lt_p
     by_contra con
     exact no_less n con.1 n_lt_p con.2
+
+lemma pi.sub_eq_add {ι} ( x y : ι → G ) : x - y = x + y := by simp
 
 end ElementaryAddCommGroup

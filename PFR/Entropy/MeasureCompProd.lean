@@ -263,11 +263,13 @@ attribute [local simp] kernel.const_apply kernel.prodMkLeft_apply kernel.prodMkL
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
 
+/-- The composition product of a measure and a kernel. -/
 noncomputable
 def compProd (μ : Measure α) (κ : kernel α β) :
     Measure (α × β) :=
   ((kernel.const Unit μ) ⊗ₖ (kernel.prodMkLeft Unit κ)) ()
 
+/-- The composition product of a measure and a kernel. -/
 scoped[ProbabilityTheory] infixl:100 " ⊗ₘ " => MeasureTheory.Measure.compProd
 
 @[simp]
