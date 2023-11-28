@@ -80,22 +80,6 @@ end
 
 section
 
-open scoped BigOperators
-
-variable [CommMonoid β]
-
-@[to_additive]
-theorem Finset.prod_finset_eq_prod [Fintype α] {s : Finset α} {f : α → β}
-    (h : ∀ i ∉ s, f i = 1) :
-    ∏ i in s, f i = ∏ i, f i := by
-  classical
-  have : ∏ i in sᶜ, f i = 1 := Finset.prod_eq_one (fun i hi ↦ h i (Finset.mem_compl.mp hi))
-  rw [← Finset.prod_mul_prod_compl s f, this, mul_one]
-
-end
-
-section
-
 -- Move to be near `AddMonoidHom.map_sub`, make multiplicative and additive versions
 @[simp] lemma AddMonoidHom.comp_sub
     {α : Type*} {H : Type*} {H' : Type*} [AddCommGroup H] [AddCommGroup H']
