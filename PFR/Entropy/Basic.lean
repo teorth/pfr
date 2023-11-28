@@ -61,8 +61,8 @@ def entropy (X : Ω → S) (μ : Measure Ω := by volume_tac) := Hm[μ.map X]
 
 @[inherit_doc entropy] notation3:max "H[" X "; " μ "]" => entropy X μ
 @[inherit_doc entropy] notation3:max "H[" X "]" => entropy X volume
-@[inherit_doc entropy] notation3:max "H[" X "|" Y "← " y "; " μ "]" => entropy X (μ[|Y ⁻¹' {y}])
-@[inherit_doc entropy] notation3:max "H[" X "|" Y "← " y "]" => entropy X (ℙ[|Y ⁻¹' {y}])
+@[inherit_doc entropy] notation3:max "H[" X "|" Y "←" y "; " μ "]" => entropy X (μ[|Y ⁻¹' {y}])
+@[inherit_doc entropy] notation3:max "H[" X "|" Y "←" y "]" => entropy X (ℙ[|Y ⁻¹' {y}])
 
 /-- Entropy of a random variable agrees with entropy of its distribution. -/
 lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X] := rfl
@@ -564,7 +564,7 @@ lemma condEntropy_of_inj_map [MeasurableSingletonClass S] [MeasurableSingletonCl
     (f : T → S → U) (hf : ∀ t : T, Function.Injective (f t)) :
     H[(fun ω ↦ f (Y ω) (X ω)) | Y ; μ] = H[X | Y ; μ] := by
   rw [condEntropy_eq_sum, condEntropy_eq_sum]
-  have : ∀ y, H[fun ω ↦ f (Y ω) (X ω)|Y← y; μ] = H[(f y ∘ X) | Y ← y ; μ] := by
+  have : ∀ y, H[fun ω ↦ f (Y ω) (X ω)|Y←y; μ] = H[(f y ∘ X) | Y ← y ; μ] := by
     intro y
     refine entropy_congr ?_
     have : ∀ᵐ ω ∂μ[|Y ⁻¹' {y}], Y ω = y := by

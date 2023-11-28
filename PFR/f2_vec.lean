@@ -23,7 +23,8 @@ class ElementaryAddCommGroup (G : Type*) [AddCommGroup G] (p : outParam ℕ) : P
 
 namespace ElementaryAddCommGroup
 
-/-- In an elementary abelian $p$-group, every finite subgroup $H$ contains a further subgroup of cardinality between $k$ and $pk$, if $k \leq |H|$.-/
+/-- In an elementary abelian $p$-group, every finite subgroup $H$ contains a further subgroup of
+cardinality between $k$ and $pk$, if $k \leq |H|$.-/
 lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ}
     [AddCommGroup G] [h : ElementaryAddCommGroup G p] [Fact p.Prime]
     {k : ℕ} (H : AddSubgroup G) (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
@@ -77,7 +78,7 @@ open Function
     simpa only [obs, add_left_iterate, add_zero] using
       iterate_minimalPeriod (f := fun z ↦ x + z) (x := 0)
 
-lemma char_ne_one_of_nonzero {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] {x : Γ}
+lemma char_ne_one_of_ne_zero {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] {x : Γ}
     (x_ne_zero : x ≠ 0) : p ≠ 1 := by
   have obs := ElementaryAddCommGroup.orderOf_of_ne x_ne_zero
   rw [addOrderOf] at obs
@@ -86,13 +87,13 @@ lemma char_ne_one_of_nonzero {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGr
   simpa only [obs, maybe_one, iterate_succ, iterate_zero, comp_apply, add_zero, id_eq] using
     iterate_minimalPeriod (f := fun z ↦ x + z) (x := 0)
 
-lemma two_le_char_of_nonzero {Γ : Type*} [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] {x : Γ}
-    (x_ne_zero : x ≠ 0) : 2 ≤ p := by
+lemma two_le_char_of_ne_zero {Γ : Type*} [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p]
+    {x : Γ} (x_ne_zero : x ≠ 0) : 2 ≤ p := by
   by_contra maybe_small
   have p_le_one : p ≤ 1 := by linarith
   rcases Nat.le_one_iff_eq_zero_or_eq_one.mp p_le_one with hp|hp
   · simp_all only [neZero_zero_iff_false]
-  · exact char_ne_one_of_nonzero x_ne_zero hp
+  · exact char_ne_one_of_ne_zero x_ne_zero hp
 
 lemma mem_periodicPts {Γ : Type*} [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p]
     {x : Γ} (y : Γ) : y ∈ periodicPts (fun z ↦ x + z) := by
