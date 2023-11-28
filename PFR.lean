@@ -10,7 +10,6 @@ import PFR.Entropy.MeasureCompProd
 import PFR.entropy_pfr
 import PFR.f2_vec
 import PFR.fibring
-import PFR.FiniteMeasureFintype
 import PFR.first_estimate
 import PFR.ForMathlib.BorelSpace
 import PFR.ForMathlib.CompactProb
