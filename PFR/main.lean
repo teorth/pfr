@@ -288,3 +288,10 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
     _ = 2 * K ^ 12 := by
         rpow_ring
         norm_num
+
+
+/-- Corollary of `PFR_conjecture` in which the ambient group is not required to be finite (but) then $H$ and $c$ are finite. -/
+theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
+    {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
+    (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
+    Set.Finite H.carrier ∧ Set.Finite c ∧ Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by sorry

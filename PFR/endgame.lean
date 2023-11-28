@@ -37,7 +37,8 @@ variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpa
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
 variable {Ω₀₁ Ω₀₂ : Type u} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
-variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+  [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 
 variable {Ω : Type u} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
@@ -47,7 +48,7 @@ variable (X₁ X₂ X₁' X₂' : Ω → G)
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
+variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₁', X₂'])
 
 variable (h_min: tau_minimizes p X₁ X₂)
 
@@ -107,7 +108,7 @@ lemma sum_condMutual_le :
     · exact Measurable.add' hX₁' hX₁
     · exact Measurable.add' hX₁ hX₂
   rw [I₃_eq, this]
-  have h₂ := second_estimate X₁ X₂ X₁' X₂'
+  have h₂ := second_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h := add_le_add (add_le_add_left h₂ I₁) h₂
   convert h using 1
   field_simp [η]
@@ -300,9 +301,12 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have hη : η = 1/9 := by rw [η, one_div]
   have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)  (show Measurable U by measurability)
     (show Measurable V by measurability) (show Measurable W by measurability) (show Measurable S by measurability)
-  have h1 := sum_condMutual_le X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁'
-  have h4 := sum_dist_diff_le p X₁ X₂ X₁' X₂'
-  have h := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
+  have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
+  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂'
+  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']
+  · let σ : Fin 4 ≃ Fin 4 := { toFun := ![0, 1, 3, 2], invFun := ![0, 1, 3, 2], left_inv := by intro i; fin_cases i <;> rfl, right_inv := by intro i; fin_cases i <;> rfl }
+    refine' iIndepFun.reindex σ.symm _; convert h_indep using 1; ext i; fin_cases i <;> rfl
+  have h3 := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
 
   --have h : I₁ ≤ 2*η*k := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
 
