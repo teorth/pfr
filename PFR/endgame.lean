@@ -129,6 +129,8 @@ lemma I₃_eq : I[ V : W | S ] = I₂ := by
     IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
   · exact Measurable.prod (by exact hU) (by exact hW)
   · exact Measurable.prod (by exact hV) (by exact hW)
+
+
 /--
 $$ I(U : V | S) + I(V : W | S) + I(W : U | S) $$
 is less than or equal to
@@ -147,6 +149,7 @@ lemma sum_condMutual_le :
   convert h using 1
   field_simp [η]
   ring
+  all_goals { simpa }
 
 local notation3:max "c[" A "; " μ " # " B " ; " μ' "]" =>
   d[p.X₀₁; ℙ # A; μ] - d[p.X₀₁ # X₁] + (d[p.X₀₂; ℙ # B; μ'] - d[p.X₀₂ # X₂])
