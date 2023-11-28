@@ -2,6 +2,8 @@ import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.Data.Finset.Pointwise
 import Mathlib.Data.Real.Basic
 import Mathlib.GroupTheory.OrderOfElement
+import PFR.ForMathlib.Set
+import PFR.ForMathlib.MonoidHom
 import PFR.f2_vec
 import PFR.entropy_pfr
 import PFR.Tactic.RPowSimp
@@ -16,7 +18,7 @@ local macro_rules | `($x ^ $y)   => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 Here we prove the polynomial Freiman-Ruzsa conjecture.
 -/
 
-open Pointwise ProbabilityTheory MeasureTheory Real Set Fintype
+open Pointwise ProbabilityTheory MeasureTheory Real Set Fintype Function
 
 open scoped BigOperators
 
@@ -287,9 +289,33 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
         rpow_ring
         norm_num
 
-
-/-- Corollary of `PFR_conjecture` in which the ambient group is not required to be finite (but) then $H$ and $c$ are finite. -/
+/-- Corollary of `PFR_conjecture` in which the ambient group is not required to be finite (but) then
+$H$ and $c$ are finite. -/
 theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
-    (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
-    Set.Finite H.carrier ∧ Set.Finite c ∧ Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by sorry
+    [MeasurableSpace G] [MeasurableSingletonClass G]
+    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
+    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+      Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  let G' := AddSubgroup.closure A
+  let G'fin : Fintype G' := by
+    exact Finite.fintype (ElementaryAddCommGroup.finite_closure Afin)
+  have G'Elem : ElementaryAddCommGroup G' 2 := ElementaryAddCommGroup.subgroup _
+  let ι : G'→+ G := G'.subtype
+  have ι_inj : Injective ι := AddSubgroup.subtype_injective G'
+  let A' : Set G' := ι ⁻¹' A
+  have A_rg : A ⊆ range ι := by simpa using AddSubgroup.subset_closure
+  have cardA' : Nat.card A' = Nat.card A := ι_inj.nat_card_preimage Afin A_rg
+  have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
+    rwa [cardA', preimage_add_preimage ι_inj A_rg A_rg,
+         ι_inj.nat_card_preimage (Afin.add Afin) (add_subset_range A_rg A_rg)]
+  rcases PFR_conjecture (h₀A.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
+  use AddSubgroup.map ι H', ι '' c', ?_, ?_, ?_, ?_
+  · intro x hx
+    erw [← image_add]
+    exact ⟨⟨x, AddSubgroup.subset_closure hx⟩, hH'₂ hx, rfl⟩
+  · exact toFinite (ι '' c')
+  · exact toFinite (ι '' H')
+  · rwa [nat_card_image_of_injective ι_inj (toFinite c')]
+  · erw [nat_card_image_of_injective ι_inj, ← cardA']
+    exacts [hH', toFinite (H' : Set G')]

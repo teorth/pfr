@@ -1,6 +1,7 @@
 import Mathlib.Data.Finset.Pointwise
 import Mathlib.GroupTheory.OrderOfElement
 import Mathlib.Tactic
+import Mathlib.Data.Finsupp.Fintype
 import PFR.ForMathlib.Miscellaneous
 
 /-!
@@ -87,6 +88,12 @@ lemma char_ne_one_of_ne_zero {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGr
   simpa only [obs, maybe_one, iterate_succ, iterate_zero, comp_apply, add_zero, id_eq] using
     iterate_minimalPeriod (f := fun z ↦ x + z) (x := 0)
 
+@[simp] lemma char_smul_eq_zero' {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] (x : Γ)
+    (k : ℤ) :  (k*p) • x = 0 := by
+  rw [mul_smul]
+  norm_cast
+  simp
+
 lemma two_le_char_of_ne_zero {Γ : Type*} [NeZero p] [AddCommGroup Γ] [ElementaryAddCommGroup Γ p]
     {x : Γ} (x_ne_zero : x ≠ 0) : 2 ≤ p := by
   by_contra maybe_small
@@ -138,5 +145,51 @@ instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCo
     exact no_less n con.1 n_lt_p con.2
 
 lemma pi.sub_eq_add {ι} ( x y : ι → G ) : x - y = x + y := by simp
+
+lemma Int.mod_eq (n m : ℤ) : n % m = n - (n / m) * m := by
+  rw [eq_sub_iff_add_eq, add_comm, Int.ediv_add_emod']
+
+open Set
+
+lemma exists_finsupp {G : Type*} [AddCommGroup G] {n : ℕ}
+    [ElementaryAddCommGroup G (n + 1)] {A : Set G} {x : G} (hx : x ∈ Submodule.span ℤ A) :
+    ∃ μ : A →₀ ZMod (n + 1), (μ.sum fun a r ↦ (r : ℤ) • (a : G)) = x  := by
+  rcases mem_span_set.1 hx with ⟨w, hw, rfl⟩; clear hx
+  use (w.subtypeDomain A).mapRange (↑) rfl
+  rw [Finsupp.sum_mapRange_index (by simp)]
+  set A' := w.support.preimage ((↑) : A → G) injOn_subtype_val
+  erw [Finsupp.sum_subtypeDomain_index hw (h := fun (a : G) (r : ℤ) ↦ ((r : ZMod (n+1)) : ℤ) • a)]
+  refine (Finsupp.sum_congr ?_).symm
+  intro g _
+  generalize w g = r
+  have : ∃ k : ℤ, ((r : ZMod (n+1)) : ℤ) = r + k*(n+1) := by
+    use -(r / (n+1))
+    rw_mod_cast [ZMod.coe_int_cast, Int.mod_eq, sub_eq_add_neg, neg_mul]
+  rcases this with ⟨k, hk⟩
+  rw [hk, add_smul]
+  norm_cast
+  simp only [char_smul_eq_zero', add_zero]
+
+lemma finite_closure {G : Type*} [AddCommGroup G] {n : ℕ}
+    [ElementaryAddCommGroup G (n + 1)] {A : Set G} (h : A.Finite) :
+    (AddSubgroup.closure A : Set G).Finite := by
+  classical
+  have : Fintype A := Finite.fintype h
+  have : Fintype (A →₀ ZMod (n + 1)) := Finsupp.fintype
+  rw [← Submodule.span_int_eq_addSubgroup_closure, Submodule.coe_toAddSubgroup]
+  let φ : (A →₀ ZMod (n + 1)) → G := fun μ ↦ μ.sum fun a r ↦ (r : ℤ) • (a : G)
+  have : SurjOn φ univ (Submodule.span ℤ A : Set G) := by
+    intro x hx
+    rcases exists_finsupp hx with ⟨μ, hμ⟩
+    use μ, trivial, hμ
+  exact Finite.of_surjOn _ this finite_univ
+
+lemma subgroup {G : Type*} [AddCommGroup G] {n : ℕ}
+    [ElementaryAddCommGroup G n] (H : AddSubgroup G) : ElementaryAddCommGroup H n := by
+  constructor
+  intro x hx
+  rw [← AddSubgroup.addOrderOf_coe x]
+  apply orderOf_of_ne
+  norm_cast
 
 end ElementaryAddCommGroup
