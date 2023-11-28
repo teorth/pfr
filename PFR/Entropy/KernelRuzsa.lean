@@ -79,60 +79,16 @@ lemma rdist_symm (κ : kernel T G) (η : kernel T' G) [IsFiniteKernel κ] [IsFin
     comap_prod_swap, map_map]
   congr
 
-lemma ruzsa_triangle_aux1 (κ : kernel T (G × G)) (η : kernel T G)
-    [IsMarkovKernel κ] [IsMarkovKernel η] :
-    map (κ ×ₖ η) (fun x ↦ x.1.1 - x.1.2) (measurable_of_finite _)
-      = map κ (fun p ↦ p.1 - p.2) measurable_sub := by
-  ext x s hs
-  rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply]
-  swap; · exact measurable_of_finite _ hs
-  simp only [Set.mem_preimage]
-  classical
-  have : ∀ b : G × G, η x {_c | b.1 - b.2 ∈ s}
-      = ((fun p : G × G ↦ p.1 - p.2) ⁻¹' s).indicator (fun _ ↦ 1) b := by
-    intro b
-    simp only [Set.mem_preimage, Set.indicator_apply]
-    split_ifs with h <;> simp [h]
-  simp_rw [this]
-  rw [lintegral_indicator_const, one_mul]
-  exact measurable_of_finite _ hs
-
-lemma ruzsa_triangle_aux2 (κ : kernel T (G × G)) (η : kernel T G)
-    [IsMarkovKernel κ] [IsMarkovKernel η] :
-    map (κ ×ₖ η) (fun x ↦ (x.1.2, x.1.1 - x.1.2)) (measurable_of_finite _)
-      = map κ (fun p ↦ (p.2, p.1 - p.2)) (measurable_of_finite _) := by
-  ext x s hs
-  rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply]
-  swap; · exact measurable_of_finite _ hs
-  simp only [Set.mem_preimage]
-  classical
-  have : ∀ b : G × G, η x {_c | (b.2, b.1 - b.2) ∈ s}
-      = ((fun p : G × G ↦ (p.2, p.1 - p.2)) ⁻¹' s).indicator (fun _ ↦ 1) b := by
-    intro b
-    simp only [Set.mem_preimage, Set.indicator_apply]
-    split_ifs with h <;> simp [h]
-  simp_rw [this]
-  rw [lintegral_indicator_const, one_mul]
-  exact measurable_of_finite _ hs
-
-lemma ruzsa_triangle_aux3 (κ : kernel T (G × G)) (η : kernel T G)
+lemma ruzsa_triangle_aux (κ : kernel T (G × G)) (η : kernel T G)
     [IsMarkovKernel κ] [IsMarkovKernel η] :
     map (κ ×ₖ η) (fun p ↦ p.2 - p.1.2) (measurable_of_finite _)
       = map (η ×ₖ snd κ) (fun p ↦ p.1 - p.2) (measurable_of_finite _) := by
   have : (fun p : G × G ↦ p.1 - p.2) = (fun p ↦ p.2 - p.1) ∘ Prod.swap := by ext1 p; simp
-  rw [this, ← map_map]
-  rotate_left
-  · exact measurable_swap
-  · exact measurable_of_finite _
-  rw [map_prod_swap]
+  rw [this, ← map_map _ measurable_swap (measurable_of_finite _), map_prod_swap]
   ext x s hs
-  rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply, prod_apply]
-  rotate_left
-  · exact measurable_of_finite _ hs
-  · exact measurable_of_finite _ hs
-  rw [lintegral_snd]
-  · congr
-  · exact measurable_of_finite _
+  rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply _ _ _ (measurable_of_finite _ hs),
+    prod_apply _ _ _ (measurable_of_finite _ hs), lintegral_snd _ _ (measurable_of_finite _)]
+  congr
 
 -- Kernel equivalent of `H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ]`
 -- `κ` is `⟨X,Y⟩`, `η` is `Z`. Independence is expressed through the product `×ₖ`.
@@ -153,11 +109,16 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
     rw [deleteMiddle_map_prod _ (measurable_of_finite _) (measurable_of_finite _)
         (measurable_of_finite _)] at h
     have : map (κ ×ₖ η) (fun x ↦ x.1.1 - x.1.2) (measurable_of_finite _)
-        = map κ (fun p ↦ p.1 - p.2) measurable_sub := ruzsa_triangle_aux1 κ η
+        = map κ (fun p ↦ p.1 - p.2) measurable_sub := by
+      have : (fun x : (G × G) × G ↦ x.1.1 - x.1.2)
+        = (fun x ↦ x.1 - x.2) ∘ Prod.fst := by ext1 y; simp
+      rw [this, ← map_map, ← kernel.fst, fst_prod]
     rw [this] at h
     refine h.trans_eq ?_
     congr 2
-    exact ruzsa_triangle_aux2 κ η
+    have : (fun x : (G × G) × G ↦ (x.1.2, x.1.1 - x.1.2))
+      = (fun x ↦ (x.2, x.1 - x.2)) ∘ Prod.fst := by ext1 y; simp
+    rw [this, ← map_map, ← kernel.fst, fst_prod]
   have h2 : Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.1 - p.1.2)) (measurable_of_finite _), μ]
       ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_finite _), μ]
         + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_finite _), μ] := by
@@ -215,7 +176,7 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
           · exact measurable_of_finite _
           · exact measurable_sub hs
           · exact measurable_of_finite _ hs
-        · exact ruzsa_triangle_aux3 κ η
+        · exact ruzsa_triangle_aux κ η
 
 lemma rdist_triangle (κ η ξ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
     [IsMarkovKernel κ] [IsMarkovKernel η] [IsMarkovKernel ξ]
