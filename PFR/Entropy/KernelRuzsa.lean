@@ -213,7 +213,7 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
 
 -- note : Measure.prod should be made to use dot notation in the infoview
 
-lemma rdist_triangle (κ η ξ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
+lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
     [IsMarkovKernel κ] [IsMarkovKernel η] [IsMarkovKernel ξ]
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ''] :
