@@ -1,4 +1,3 @@
-
 import PFR.f2_vec
 import PFR.ruzsa_distance
 import PFR.ForMathlib.CompactProb
@@ -18,7 +17,7 @@ Definition of the tau functional and basic facts
 ## Main results
 
 * `tau_minimizer_exists`: A pair of random variables minimizing $\tau$ exists.
-* ` condDistance_ge_of_min`: If $X_1,X_2$ is a tau-minimizer with $k = d[X_1;X_2]$, then $d[X'_1|Z, X'_2|W]$ is at least
+* `condDistance_ge_of_min`: If $X_1,X_2$ is a tau-minimizer with $k = d[X_1;X_2]$, then $d[X'_1|Z, X'_2|W]$ is at least
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] )$$
 for any $X'_1, Z, X'_2, W$.
 -/
