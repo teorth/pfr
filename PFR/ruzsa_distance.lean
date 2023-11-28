@@ -174,7 +174,7 @@ lemma ent_of_indep_diff_lower  {X : Ω → G} {Y : Ω → G} (hX : Measurable X)
   have : IndepFun X (-Y) μ := h.comp measurable_id measurable_neg
   convert ent_of_indep_sum_lower hX hY.neg this using 2
   · exact (entropy_neg hY).symm
-  · ext x ; simp [sub_eq_add_neg]
+  · simp [sub_eq_add_neg]
 
 /-- The Ruzsa distance `rdist X Y` or $d[X;Y]$ between two random variables is defined as
 $H[X'-Y'] - H[X']/2 - H[Y']/2$, where $X', Y'$ are independent copies of $X, Y$. -/
@@ -857,7 +857,7 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
   constructor
   · linarith [kaimanovich_vershik' hi hX' hY' hZ']
   · intro hG
-    rw [ElementaryAddCommGroup.pi.sub_eq_add Y' Z']
+    rw [ElementaryAddCommGroup.sub_eq_add Y' Z']
     ring
 
 variable (μ) in

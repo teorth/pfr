@@ -144,8 +144,6 @@ instance (Ω Γ : Type*) (p : ℕ) [NeZero p] [AddCommGroup Γ] [ElementaryAddCo
     by_contra con
     exact no_less n con.1 n_lt_p con.2
 
-lemma pi.sub_eq_add {ι} ( x y : ι → G ) : x - y = x + y := by simp
-
 lemma Int.mod_eq (n m : ℤ) : n % m = n - (n / m) * m := by
   rw [eq_sub_iff_add_eq, add_comm, Int.ediv_add_emod']
 

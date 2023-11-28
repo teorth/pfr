@@ -292,11 +292,12 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
 /-- Corollary of `PFR_conjecture` in which the ambient group is not required to be finite (but) then
 $H$ and $c$ are finite. -/
 theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
-    [MeasurableSpace G] [MeasurableSingletonClass G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  let mG : MeasurableSpace G := ⊤
+  have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
   let G' := AddSubgroup.closure A
   let G'fin : Fintype G' := by
     exact Finite.fintype (ElementaryAddCommGroup.finite_closure Afin)
