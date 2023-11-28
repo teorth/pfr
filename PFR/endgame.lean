@@ -130,20 +130,46 @@ lemma ruzsa_helper_lemma [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] {A B C 
   sorry
   sorry
 
-lemma Measurable_fun_add  {A B : Ω → G} (hA : Measurable A) (hB : Measurable B) :
-  Measurable (A + B) := by
-  exact Measurable.add' hA hB
+variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+
+lemma hU : H[U] = H[X₁' + X₂'] := by
+  apply IdentDistrib.entropy_eq
+  apply ProbabilityTheory.IdentDistrib.add
+  repeat assumption
+  · have aux : IndepFun (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 0)
+                        (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 1) := by
+      apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 0) (j := 1); simp
+    simp at aux; assumption
+  · have aux : IndepFun (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 2)
+                        (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 3) := by
+      apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 2) (j := 3); decide
+    simp at aux; assumption
 
 /--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
-lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] :
+lemma sum_dist_diff_le :
   c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
-  have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
+
+  have aux1 : H[S] + H[U] - H[X₁] - H[X₁' + X₂'] = H[S] - H[X₁] := by
+    rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep]
+    ring
+
+  have independenceCondition1 : iIndepFun (fun x ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
+    sorry
+
+  have aux2 : d[X₀₁ # U | U + (X₁' + X₂')] - d[X₀₁ # X₁]
+            ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₁] - H[X₁' + X₂']) / 2 :=
+    condDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂)
+    (hZ' := Measurable.add hX₁' hX₂') independenceCondition1
+
+  have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by
+    rw [← add_assoc, aux1] at aux2
+    linarith [aux2]
   have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
   have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
   have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
