@@ -131,10 +131,9 @@ lemma iIndepFun.neg (h : iIndepFun n f μ) : iIndepFun n (update f i (-f i)) μ 
 
 variable [IsProbabilityMeasure μ]
 
-lemma iIndepFun.indepFun_prod_prod
-  (h_indep: iIndepFun n f μ) (hf: ∀ i, Measurable (f i))
-  (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
-  IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
+lemma iIndepFun.indepFun_prod_prod (h_indep: iIndepFun n f μ) (hf: ∀ i, Measurable (f i))
+    (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
+    IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
   classical
   have hd : Disjoint ({i, j} : Finset ι) ({k,l} : Finset ι) := by
     simp only [Finset.mem_singleton, Finset.disjoint_insert_right, Finset.mem_insert,
@@ -145,6 +144,13 @@ lemma iIndepFun.indepFun_prod_prod
     ⟨v ⟨i, Finset.mem_insert_self i {j}⟩, v ⟨j, Finset.mem_insert_of_mem (Finset.mem_singleton_self j)⟩⟩
   have hg (i j : ι) : Measurable (g i j) := by measurability
   exact h.comp (hg i j) (hg k l)
+
+@[to_additive]
+lemma iIndepFun.indepFun_mul_mul {β : Type*} {m : MeasurableSpace β} {f : ι → Ω → β} [Mul β]
+    [hβ : MeasurableMul₂ β] (h_indep: iIndepFun (fun _ => m) f μ) (hf: ∀ i, Measurable (f i))
+    (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
+    IndepFun (f i * f j) (f k * f l) μ :=
+  (h_indep.indepFun_prod_prod hf i j k l hik hil hjk hjl).comp hβ.measurable_mul hβ.measurable_mul
 
 end iIndepFun
 
