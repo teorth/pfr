@@ -41,14 +41,14 @@ lemma entropy_le_log (hX : Measurable X): H[X] ≤ log (Fintype.card S) := by
     have : 0 < N := ProbabilitySpace.range_nonempty' hΩ hX
     unfold entropy
     have hN : log N = N * h (∑ s : S, N⁻¹ * P[ X ⁻¹' {s} ]) := by
-      rw [<-Finset.mul_sum]
+      rw [← Finset.mul_sum]
       norm_cast
       rw [ProbabilitySpace.totalProb hΩ hX]
       simp
       unfold h
       rw [log_inv]
       field_simp; ring
-    rw [hN, <- inv_mul_le_iff, Finset.mul_sum]
+    rw [hN, ← inv_mul_le_iff, Finset.mul_sum]
     set w := fun _ : S ↦ N⁻¹
     set p := fun s : S ↦ (P[ X ⁻¹' {s} ] : ℝ)
 

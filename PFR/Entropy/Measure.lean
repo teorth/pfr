@@ -247,8 +247,8 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
   calc
   ∑ x, negIdMulLog (μ {x}).toReal
     = ∑ x in A, negIdMulLog (μ {x}).toReal := by
-      apply (Finset.sum_finset_eq_sum _).symm
-      intro i hi
+      apply (Finset.sum_subset A.subset_univ _).symm
+      intro i _ hi
       have : μ {i} = 0 :=
         le_antisymm ((measure_mono (by simpa using hi)).trans (le_of_eq hμ)) bot_le
       simp [this]
@@ -292,7 +292,7 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     -- use equality case of Jensen
     convert sum_negIdMulLog_eq_aux2 hw1 hw2 hp using 2
     · simp [measureEntropy_def', Finset.mul_sum]
-    · simp [negIdMulLog, ←Finset.mul_sum]
+    · simp [negIdMulLog, ← Finset.mul_sum]
     · rw [← Finset.mul_sum]
       simp
 
@@ -428,10 +428,12 @@ end measureEntropy
 
 section measureMutualInfo
 
+/-- The mutual information between the marginals of a measure on a product space. -/
 noncomputable
 def measureMutualInfo (μ : Measure (S × T) := by volume_tac) : ℝ :=
   Hm[μ.map Prod.fst] + Hm[μ.map Prod.snd] - Hm[μ]
 
+/-- The mutual information between the marginals of a measure on a product space. -/
 notation:100 "Im[" μ "]" => measureMutualInfo μ
 
 lemma measureMutualInfo_def (μ : Measure (S × T)) :
@@ -534,7 +536,7 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
   constructor
   · rw [← neg_nonpos]
     convert sum_negIdMulLog_le hw1 hw2 hf
-  rw [←neg_eq_zero]
+  rw [← neg_eq_zero]
   convert sum_negIdMulLog_eq_aux3 hw1 hw2 hf with p
   · have hp1 := h_fst_ne_zero p
     have hp2 := h_snd_ne_zero p
@@ -543,7 +545,6 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
     · simp [hp1', hp1 hp1']
     by_cases hp2' : (μ.map Prod.snd).real {p.2} = 0
     · simp [hp2', hp2 hp2']
-    have : 0 < w p := by positivity
     have hw : (w p)⁻¹ ≠ 0 := by positivity
     rw [← mul_right_inj' hw]
     simp (config := {zeta := false}) [H, -mul_eq_mul_left_iff, -Fintype.sum_prod_type]
@@ -555,13 +556,14 @@ lemma measureMutualInfo_of_not_isFiniteMeasure {μ : Measure (S × U)} (h : ¬ I
   rw [measureMutualInfo_def]
   have h1 : ¬ IsFiniteMeasure (μ.map Prod.fst) := by
     rw [not_isFiniteMeasure_iff] at h ⊢
-    rw [<- h]
+    rw [← h]
     convert Measure.map_apply measurable_fst MeasurableSet.univ
   have h2 : ¬ IsFiniteMeasure (μ.map Prod.snd) := by
     rw [not_isFiniteMeasure_iff] at h ⊢
-    rw [<- h]
+    rw [← h]
     convert Measure.map_apply measurable_snd MeasurableSet.univ
-  rw [measureEntropy_of_not_isFiniteMeasure h, measureEntropy_of_not_isFiniteMeasure h1,    measureEntropy_of_not_isFiniteMeasure h2]
+  rw [measureEntropy_of_not_isFiniteMeasure h, measureEntropy_of_not_isFiniteMeasure h1,
+    measureEntropy_of_not_isFiniteMeasure h2]
   simp
 
 lemma measureMutualInfo_univ_smul (μ : Measure (S × U)) : Im[(μ Set.univ)⁻¹ • μ] = Im[μ] := by
@@ -587,7 +589,7 @@ lemma measureMutualInfo_nonneg (μ : Measure (S × U)):
   by_cases hμ_fin : IsFiniteMeasure μ
   . rcases eq_zero_or_neZero μ with hμ|hμ
     . simp [hμ]
-    rw [<- measureMutualInfo_univ_smul μ]
+    rw [← measureMutualInfo_univ_smul μ]
     exact (measureMutualInfo_nonneg_aux ((μ Set.univ)⁻¹ • μ)).1
   rw [measureMutualInfo_of_not_isFiniteMeasure hμ_fin]
 

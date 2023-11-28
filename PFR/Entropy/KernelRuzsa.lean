@@ -29,14 +29,20 @@ variable {T T' T'' G : Type*}
   [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G]
   {κ : kernel T G} {η : kernel T' G} {μ : Measure T}  {ν : Measure T'}
 
+/-- The Rusza distance between two measures, defined as `H[X - Y] - H[X]/2 - H[Y]/2` where `X`
+and `Y` are independent variables distributed according to the two measures. -/
 noncomputable
 def rdistm (μ : Measure G) (ν : Measure G) : ℝ :=
     Hm[(μ.prod ν).map (fun x ↦ x.1 - x.2)] - Hm[μ]/2 - Hm[ν]/2
 
+/-- The Rusza distance between two kernels taking values in the same space, defined as the average
+Rusza distance between the image measures. -/
 noncomputable
 def rdist (κ : kernel T G) (η : kernel T' G) (μ : Measure T) (ν : Measure T') : ℝ :=
   (μ.prod ν)[fun p ↦ rdistm (κ p.1) (η p.2)]
 
+/-- The Rusza distance between two kernels taking values in the same space, defined as the average
+Rusza distance between the image measures. -/
 notation3:max "dk[" κ " ; " μ " # " η " ; " μ' "]" => rdist κ η μ μ'
 
 lemma rdist_eq (κ : kernel T G) (η : kernel T' G) (μ : Measure T) (ν : Measure T')

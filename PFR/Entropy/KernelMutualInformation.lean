@@ -40,6 +40,7 @@ noncomputable
 def mutualInfo (κ : kernel T (S × U)) (μ : Measure T) : ℝ :=
   Hk[fst κ, μ] + Hk[snd κ, μ] - Hk[κ, μ]
 
+/-- Mutual information of a kernel into a product space with respect to a measure. -/
 notation3:100 "Ik[" κ " , " μ "]" => kernel.mutualInfo κ μ
 
 lemma mutualInfo_def (κ : kernel T (S × U)) (μ : Measure T) :
@@ -77,14 +78,12 @@ lemma mutualInfo_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [I
   rw [mutualInfo, snd_prod, fst_prod, entropy_prod, sub_self]
 
 @[simp]
-lemma mutualInfo_swapRight (κ : kernel T (S × U)) [IsMarkovKernel κ]
-    (μ : Measure T) [IsProbabilityMeasure μ] :
+lemma mutualInfo_swapRight (κ : kernel T (S × U)) (μ : Measure T) :
     Ik[swapRight κ, μ] = Ik[κ, μ] := by
   rw [mutualInfo, fst_swapRight, snd_swapRight, entropy_swapRight, add_comm]
   rfl
 
-lemma mutualInfo_nonneg (κ : kernel T (S × U)) [IsMarkovKernel κ]
-    (μ : Measure T) [IsFiniteMeasure μ] :
+lemma mutualInfo_nonneg (κ : kernel T (S × U)) (μ : Measure T) [IsFiniteMeasure μ] :
     0 ≤ Ik[κ, μ] := by
   simp_rw [mutualInfo, entropy, integral_eq_sum,
     smul_eq_mul]
@@ -138,6 +137,7 @@ section measurableEquiv
 variable {α β γ δ : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
     {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
 
+/-- Canonical bijection between `α × β × γ` and `(α × β) × γ`. -/
 def assocEquiv : α × β × γ ≃ᵐ (α × β) × γ where
   toFun := fun p ↦ ((p.1, p.2.1), p.2.2)
   invFun := fun p ↦ (p.1.1, (p.1.2, p.2))
@@ -169,6 +169,7 @@ lemma map_swapRight (κ : kernel α (β × γ)) {f : (γ × β) → δ} (hf : Me
     map (swapRight κ) f hf = map κ (f ∘ Prod.swap) (hf.comp measurable_swap) := by
   rw [swapRight, map_map]
 
+/-- Given a kernel taking values in a product of three spaces, forget the middle one. -/
 noncomputable
 def deleteMiddle (κ : kernel α (β × γ × δ)) :
     kernel α (β × δ) :=
@@ -192,7 +193,7 @@ lemma snd_deleteMiddle (κ : kernel α (β × γ × δ)) : snd (deleteMiddle κ)
     rfl
   · exact measurable_fst
 
-@[simp]
+@[simp, nolint simpNF]
 lemma deleteMiddle_map_prod (κ : kernel α β) {f : β → γ} {g : β → δ} {g' : β → ε}
     (hf : Measurable f) (hg : Measurable g) (hg' : Measurable g') :
     deleteMiddle (map κ (fun b ↦ (f b, g b, g' b)) (hf.prod_mk (hg.prod_mk hg')))
@@ -213,9 +214,9 @@ lemma deleteMiddle_compProd (ξ : kernel α β) [IsSFiniteKernel ξ]
   swap; · exact measurable_prod_mk_left hs
   congr
 
+/-- Given a kernel taking values in a product of three spaces, forget the last variable. -/
 noncomputable
-def deleteRight (κ : kernel α (β × γ × δ)) :
-    kernel α (β × γ) :=
+def deleteRight (κ : kernel α (β × γ × δ)) : kernel α (β × γ) :=
   map κ (fun p ↦ (p.1, p.2.1)) (measurable_fst.prod_mk (measurable_fst.comp measurable_snd))
 
 instance (κ : kernel α (β × γ × δ)) [IsMarkovKernel κ] :
@@ -235,7 +236,7 @@ lemma snd_deleteRight (κ : kernel α (β × γ × δ)) : snd (deleteRight κ) =
     rfl
   · exact measurable_fst
 
-@[simp]
+@[simp, nolint simpNF]
 lemma deleteRight_map_prod (κ : kernel α β) {f : β → γ} {g : β → δ} {g' : β → ε}
     (hf : Measurable f) (hg : Measurable g) (hg' : Measurable g') :
     deleteRight (map κ (fun b ↦ (f b, g b, g' b)) (hf.prod_mk (hg.prod_mk hg')))
@@ -243,9 +244,9 @@ lemma deleteRight_map_prod (κ : kernel α β) {f : β → γ} {g : β → δ} {
   simp only [deleteRight, map_map]
   congr
 
+/-- Given a kernel taking values in a product of three spaces, reverse the order of the spaces. -/
 noncomputable
-def reverse (κ : kernel α (β × γ × δ)) :
-    kernel α (δ × γ × β) :=
+def reverse (κ : kernel α (β × γ × δ)) : kernel α (δ × γ × β) :=
   map κ (fun p ↦ (p.2.2, (p.2.1, p.1)))
     ((measurable_snd.comp measurable_snd).prod_mk
       ((measurable_fst.comp measurable_snd).prod_mk measurable_fst))

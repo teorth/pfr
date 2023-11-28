@@ -97,7 +97,7 @@ lemma continuous_pmf_apply (i : X) :
 -- KK: I will reuse this, so could be used in `homeomorph_probabilityMeasure_stdSimplex`, too.
 open Filter in
 lemma tendsto_lintegral_of_forall_of_fintype {ι : Type*} {L : Filter ι}
-    (μs : ι → Measure X) [∀ i, IsFiniteMeasure (μs i)] (μ : Measure X) [IsFiniteMeasure μ]
+    (μs : ι → Measure X) (μ : Measure X)
     (f : X →ᵇ ℝ≥0) (h : ∀ (x : X), Tendsto (fun i ↦ μs i {x}) L (𝓝 (μ {x}))) :
     Tendsto (fun i ↦ ∫⁻ x, f x ∂(μs i)) L (𝓝 (∫⁻ x, f x ∂μ)) := by
   simp only [lintegral_fintype]
@@ -106,6 +106,8 @@ lemma tendsto_lintegral_of_forall_of_fintype {ι : Type*} {L : Filter ι}
 
 variable (X)
 
+/-- The canonical homeomorphism between the space of probability measures on a finite space and the
+standard simplex. -/
 noncomputable def homeomorph_probabilityMeasure_stdSimplex
     [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X] :
     ProbabilityMeasure X ≃ₜ stdSimplex ℝ X where

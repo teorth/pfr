@@ -77,10 +77,10 @@ lemma prob_raw (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawMeasure Ω E := by
 
 /-- Probability can be computed using raw finite measure. -/
 lemma prob_raw' (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawFiniteMeasure Ω E := by
-  rw [<-ENNReal.coe_eq_coe, prob_raw E]
+  rw [← ENNReal.coe_eq_coe, prob_raw E]
   push_cast
   congr
-  rw [←rawFiniteMeasure_eq E]
+  rw [← rawFiniteMeasure_eq E]
 
 variable (Ω) in
 /-- If nondegenerate, we have a full measure.  -/
@@ -150,7 +150,7 @@ attribute [instance] MeasureTheory.Measure.Subtype.measureSpace
 
 /-- The raw finite measure after conditioning. -/
 lemma condRaw_eq [hΩ: ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet F) : @rawFiniteMeasure Ω (Subset.probabilitySpace E) F = rawFiniteMeasure Ω (F ∩ E) := by
-  rw [<-ENNReal.coe_eq_coe, @rawFiniteMeasure_eq Ω hΩ (F ∩ E), @rawFiniteMeasure_eq Ω (Subset.probabilitySpace E) F]
+  rw [← ENNReal.coe_eq_coe, @rawFiniteMeasure_eq Ω hΩ (F ∩ E), @rawFiniteMeasure_eq Ω (Subset.probabilitySpace E) F]
   unfold rawMeasure
   show (volume.restrict E) F = volume (F ∩ E)
   exact Measure.restrict_apply hF
@@ -173,7 +173,7 @@ lemma condProb_eq [hΩ : ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet
   . simp [ha]; left
     suffices : b ≤ a
     . rw [ha] at this; exact le_zero_iff.mp this
-    rw [<- a_def, <- b_def, rawMass_eq']
+    rw [← a_def, ← b_def, rawMass_eq']
     apply FiniteMeasure.apply_mono
     simp
   rcases eq_or_ne b 0 with hb | hb
@@ -201,13 +201,13 @@ random variable sum to 1. Proof is way too long.
 
 TODO: connect this with `Mathlib.Probability.ProbabilityMassFunction.Basic`. -/
 lemma totalProb (h : isNondeg Ω) {X : Ω → S} (hX : Measurable X) : ∑ s, P[X ⁻¹' {s}] = 1 := by
-  rw [<-ENNReal.coe_eq_coe]
+  rw [← ENNReal.coe_eq_coe]
   push_cast
   conv =>
     lhs; congr; rfl; intro s
     rw [prob_eq']
-  rw [<- MeasureTheory.measure_biUnion_finset]
-  . rw [<-prob_eq']
+  rw [← MeasureTheory.measure_biUnion_finset]
+  . rw [← prob_eq']
     norm_cast
     convert prob_univ Ω h
     ext _
@@ -221,7 +221,7 @@ lemma totalProb (h : isNondeg Ω) {X : Ω → S} (hX : Measurable X) : ∑ s, P[
       exact Set.nmem_singleton_empty.mp hxy
     rcases this with ⟨ a, ha ⟩
     simp at ha
-    rw [<-ha.1, <-ha.2]
+    rw [← ha.1, ← ha.2]
   intro s _
   exact hX trivial
 

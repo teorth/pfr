@@ -23,7 +23,7 @@ lemma set_coerce {X : Type*} {E : Set X} {F : Set E} : (Subtype.val '' F) = (F :
 /-- The restricted measure on a subset agrees with the original measure. -/
 lemma measure_restrict {X : Type*} [hX: MeasureTheory.MeasureSpace X] {E : Set X} (hE: MeasurableSet E) {F : Set E} (hF : MeasurableSet
 F) : MeasureTheory.MeasureSpace.volume F = MeasureTheory.MeasureSpace.volume (F : Set X) := by
-  rw [<- set_coerce]
+  rw [← set_coerce]
   dsimp [SetCoe.measureSpace]
   rw [MeasureTheory.Measure.comap_apply]
   . exact Subtype.val_injective
