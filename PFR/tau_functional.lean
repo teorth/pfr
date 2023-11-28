@@ -23,7 +23,7 @@ for any $X'_1, Z, X'_2, W$.
 -/
 
 open MeasureTheory ProbabilityTheory
-universe u
+universe uG
 
 
 /-- For mathlib -/
@@ -37,7 +37,7 @@ lemma identDistrib_id {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] 
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-variable (G : Type u) [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+variable (G : Type uG) [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
 
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
@@ -146,7 +146,7 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
 
 /-- A pair of random variables minimizing $τ$ exists. -/
 lemma tau_minimizer_exists [MeasurableSingletonClass G] :
-    ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+    ∃ (Ω : Type uG) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
     Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
     tau_minimizes p X₁ X₂ := by
   let μ := (tau_min_exists_measure p).choose
