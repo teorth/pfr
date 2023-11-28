@@ -305,7 +305,7 @@ lemma IsUniform.entropy_eq (H : Set S) (X : Ω → S) {μ : Measure Ω} [IsProba
         hX hX' ht, one_div, log_inv, neg_neg]
     · simp only [negIdMulLog, map_measureReal_apply hX' (MeasurableSet.singleton t),
       IsUniform.measureReal_preimage_of_nmem hX ht, neg_zero, log_zero, mul_zero, zero_mul]
-  simp only [entropy_eq_sum' hX', Finset.sum_congr rfl (fun t _ => this t), ←Finset.sum_mul,
+  simp only [entropy_eq_sum' hX', Finset.sum_congr rfl (fun t _ => this t), ← Finset.sum_mul,
     Finset.sum_realMeasure_singleton, Finset.coe_univ, ne_eq, log_eq_zero,
     Nat.cast_eq_zero, Nat.cast_eq_one, IsProbabilityMeasure.measureReal_univ, one_mul]
 
@@ -801,7 +801,7 @@ lemma IndepFun.condEntropy_eq_entropy {μ : Measure Ω} (h : IndepFun X Y μ)
 lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
     [IsProbabilityMeasure μ] :
     H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by
-  rw [eq_comm, ←sub_eq_zero]
+  rw [eq_comm, ← sub_eq_zero]
   exact mutualInformation_eq_zero hX hY
 
 /-- If $X,Y$ are independent, then $H[X,Y] = H[X] + H[Y]$. -/
@@ -1072,7 +1072,7 @@ instance _root_.ULift.isProbabilityMeasure [IsProbabilityMeasure μ] :
   rw [Measure.comap_apply _ ULift.down_injective _ _ MeasurableSet.univ]
   simp [ULift.down_surjective.range_eq]
   intro s ⟨s',hs',hs⟩
-  rw [←hs, Set.image_preimage_eq _ ULift.down_surjective]
+  rw [← hs, Set.image_preimage_eq _ ULift.down_surjective]
   exact hs'
 
 @[simp]
@@ -1141,7 +1141,7 @@ lemma identDistrib_ulift_self {X : Ω → S} (hX : Measurable X) :
     Measure.comap_apply _ ULift.down_injective _ _ (hX' hs), Set.preimage_comp,
     Set.image_preimage_eq _ ULift.down_surjective, Measure.map_apply hX hs]
   intro s ⟨s',hs',hs⟩
-  rw [←hs, Set.image_preimage_eq _ ULift.down_surjective]
+  rw [← hs, Set.image_preimage_eq _ ULift.down_surjective]
   exact hs'
 
 /-- A version with exactly 3 random variables that have the same codomain.
@@ -1258,7 +1258,7 @@ lemma identDistrib_of_sum {X : Ω → S} {Y : Ω' → S} [Fintype T] {μ : T →
   aemeasurable_fst := hX.aemeasurable,
   aemeasurable_snd := hY.aemeasurable,
   map_eq := by
-    rw [←Measure.mapₗ_apply_of_measurable hX, ←Measure.mapₗ_apply_of_measurable hY]
+    rw [← Measure.mapₗ_apply_of_measurable hX, ← Measure.mapₗ_apply_of_measurable hY]
     simp
     congr with y E _
     rcases eq_or_ne (w y) 0 with hy | hy
@@ -1273,7 +1273,7 @@ lemma identDistrib_comp_fst {X : Ω → S} (hX: Measurable X) (μ : Measure Ω) 
   aemeasurable_fst := (hX.comp measurable_fst).aemeasurable
   aemeasurable_snd := hX.aemeasurable
   map_eq := by
-    rw [←Measure.map_map hX measurable_fst, Measure.map_fst_prod]
+    rw [← Measure.map_map hX measurable_fst, Measure.map_fst_prod]
     congr
     simp
 }
@@ -1283,7 +1283,7 @@ lemma identDistrib_comp_snd {X : Ω → S} (hX: Measurable X) (μ : Measure Ω) 
   aemeasurable_fst := (hX.comp measurable_snd).aemeasurable
   aemeasurable_snd := hX.aemeasurable
   map_eq := by
-    rw [←Measure.map_map hX measurable_snd, Measure.map_snd_prod]
+    rw [← Measure.map_map hX measurable_snd, Measure.map_snd_prod]
     congr
     simp
 }
@@ -1298,13 +1298,13 @@ lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measu
 /-- The sum of measures of preimages of singletons sums to one in a probability space. -/
 lemma sum_measure_preimage_singleton (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, μ (Y⁻¹' {y}) = 1 := by
   rw [(show 1 =(μ.map Y) Set.univ by
-    simp [μ.map_apply hY MeasurableSet.univ]), ←sum_measure_singleton (μ.map Y)]
+    simp [μ.map_apply hY MeasurableSet.univ]), ← sum_measure_singleton (μ.map Y)]
   congr with y
-  rw [←map_apply hY (MeasurableSet.singleton y)]
+  rw [← map_apply hY (MeasurableSet.singleton y)]
 
 /-- Variant of previous lemma using real numbers rather than extended nonnegative reals. -/
 lemma sum_measure_preimage_singleton' (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T][MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, (μ (Y⁻¹' {y})).toReal = 1 := by
-  rw [←ENNReal.toReal_sum, sum_measure_preimage_singleton μ hY]
+  rw [← ENNReal.toReal_sum, sum_measure_preimage_singleton μ hY]
   . rfl
   finiteness
 
@@ -1322,7 +1322,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
   let ν : Measure ((S × S) × T) := ∑ y : T, ((μ (Y⁻¹' {y})) • (m y))
 
   have h3' (y : T) : { ω : Ω | Y ω = y } ∈ ae (μ[|Y⁻¹' {y}]) := by
-    rw [mem_ae_iff, ←cond_inter_self]
+    rw [mem_ae_iff, ← cond_inter_self]
     . have : (Y⁻¹' {y}) ∩ { ω : Ω | Y ω = y }ᶜ = ∅ := by
         ext _; simp
       simp [this]
@@ -1336,7 +1336,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
   have h4 (y : T): { ω : (S × S) × T| ω.2 = y } ∈ ae ( m y ) := by
     rw [mem_ae_iff]
     have : { ω : (S × S) × T | ω.2 = y}ᶜ = Prod.snd⁻¹' {t : T | t ≠ y} := by simp; rfl
-    rw [this, ←Measure.map_apply measurable_snd]
+    rw [this, ← Measure.map_apply measurable_snd]
     all_goals {simp}
 
   have h5 {y : T} (hy: μ (Y⁻¹' {y}) ≠ 0): IsProbabilityMeasure (m' y) := by
@@ -1349,7 +1349,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     have : ∑ y : T, μ (Y⁻¹' {y})*1 = 1 := by
       simp
       exact sum_measure_preimage_singleton μ hY
-    rw [←this]
+    rw [← this]
     congr with y
     rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
     . simp [hy]
@@ -1358,7 +1358,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
     simp
   . rw [condIndepFun_iff, ae_iff_of_fintype]
     have h1 : ν.map Prod.snd = μ.map Y := by
-      rw [law_of_total_probability hY μ, ←Measure.mapₗ_apply_of_measurable measurable_snd, ←Measure.mapₗ_apply_of_measurable hY]
+      rw [law_of_total_probability hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
       simp
       congr with y
       rcases eq_or_ne (μ (Y⁻¹' {y})) 0 with hy | hy
@@ -1369,13 +1369,13 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
       rw [Measure.mapₗ_apply_of_measurable measurable_snd, Measure.mapₗ_apply_of_measurable hY]
       simp
       have := (μ[|Y⁻¹' {y}]).map_const y
-      simp at this; rw [←this]
+      simp at this; rw [← this]
       apply Measure.map_congr
       apply Filter.eventuallyEq_of_mem (h3' y)
       intro ω; simp; exact fun a ↦ id a.symm
     intro y hy
     have hy' : ν (Prod.snd⁻¹' {y}) = μ (Y⁻¹' {y}) := by
-      rw [←map_apply measurable_snd (by simp), ←map_apply hY $ measurableSet_discrete _, h1]
+      rw [← map_apply measurable_snd (by simp), ← map_apply hY $ measurableSet_discrete _, h1]
     rw [h1] at hy
     have hy'' : μ (Y⁻¹' {y}) ≠ 0 := by
       convert hy
@@ -1390,14 +1390,14 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
         apply measure_congr
         apply inter_ae_eq_right_of_ae_eq_univ
         simp
-        rw [(show (Prod.snd⁻¹' {y})ᶜ = Prod.snd⁻¹' ({y}ᶜ) by rfl), ←map_apply measurable_snd (by simp)]
+        rw [(show (Prod.snd⁻¹' {y})ᶜ = Prod.snd⁻¹' ({y}ᶜ) by rfl), ← map_apply measurable_snd (by simp)]
         simp
       have h3' {x : T} (hx: x ≠ y): (m x) ((Prod.snd⁻¹' {y}) ∩ E) = 0 := by
         apply measure_inter_null_of_null_left E
-        rw [←Measure.map_apply measurable_snd (by simp), MeasureTheory.Measure.map_snd_prod]
+        rw [← Measure.map_apply measurable_snd (by simp), MeasureTheory.Measure.map_snd_prod]
         simp; right; exact hx
       rw [Finset.sum_eq_single_of_mem y (Finset.mem_univ y)]
-      . rw [h3, ←mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
+      . rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
         finiteness
       intro x _ hx
       rw [h3' hx]
@@ -1407,7 +1407,7 @@ lemma condIndependent_copies {S T : Type u} [MeasurableSpace S] [Fintype T] [Mea
       show ((m y).map f) = ((m y).map (Prod.fst ∘ f)).prod ((m y).map (Prod.snd ∘ f))
       have : IsProbabilityMeasure (m' y) := h5 hy''
       have : (m y).map f = (m' y).prod (m' y) := by simp
-      rw [←map_map measurable_fst measurable_fst, ←map_map measurable_snd measurable_fst, this]
+      rw [← map_map measurable_fst measurable_fst, ← map_map measurable_snd measurable_fst, this]
       simp
     . exact measurable_fst.comp measurable_fst
     exact measurable_snd.comp measurable_fst
@@ -1462,4 +1462,3 @@ example (hX : Measurable X) (hY : Measurable Y) :
   H[⟨ X, Y ⟩] = H[Y] + H[X | Y] := chain_rule _ hX hY
 
 end MeasureSpace_example
-

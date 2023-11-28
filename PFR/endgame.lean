@@ -10,7 +10,8 @@ The endgame on tau-minimizers.
 Assumptions:
 
 * $X_1, X_2$ are tau-minimizers
-* $X_1, X_2, \tilde X_1, \tilde X_2$ be independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
+* $X_1, X_2, \tilde X_1, \tilde X_2$ be independent random variables, with $X_1,\tilde X_1$ copies
+    of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
 * $d[X_1;X_2] = k$
 * $U := X_1 + X_2$
 * $V := \tilde X_1 + X_2$
@@ -24,7 +25,8 @@ Assumptions:
 
 * `sum_condMutual_le` : An upper bound on the total conditional mutual information $I_1+I_2+I_3$.
 * `sum_dist_diff_le`: A sum of the "costs" of $U$, $V$, $W$.
-* `construct_good`: A construction of two random variables with small Ruzsa distance between them given some random variables with control on total cost, as well as total mutual information.
+* `construct_good`: A construction of two random variables with small Ruzsa distance between them
+  given some random variables with control on total cost, as well as total mutual information.
 -/
 
 universe u
@@ -129,7 +131,8 @@ $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
-lemma sum_dist_diff_le : c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by sorry
+lemma sum_dist_diff_le :
+    c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by sorry
 
 /-- $U+V+W=0$. -/
 lemma sum_uvw_eq_zero : U+V+W = 0 := by
@@ -234,14 +237,12 @@ $$ d[T'_1;T'_2] + \eta (d[X_1^0;T'_1] - d[X_1^0;X _1]) + \eta(d[X_2^0;T'_2] - d[
 
 is at most
 
-$$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3 (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).$$
+$$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3
+    (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).$$
 -/
 lemma construct_good : k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by
-  have v1 := construct_good_prelim p X₁ X₂ h_min hT hT₁ hT₂ hT₃
   have v2 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₁ hT₃ hT₂
   have v3 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₂ hT₁ hT₃
-  have v4 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₂ hT₃ hT₁
-  have v5 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₃ hT₁ hT₂
   have v6 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₃ hT₂ hT₁
   simp only [mutualInformation, entropy_comm hT₂ hT₁, entropy_comm hT₃ hT₁, entropy_comm hT₃ hT₂]
     at *
@@ -254,9 +255,11 @@ lemma construct_good' (μ : Measure Ω') [IsProbabilityMeasure μ]:
 
 lemma cond_c_eq_integral {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable Z) : c[Y | Z # Y | Z] =
     (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ⁻¹' {z}] # Y ; ℙ[|Z ⁻¹' {z}]]] := by
-  simp only [integral_eq_sum, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib, Finset.sum_add_distrib]
-  simp_rw[←integral_eq_sum]
-  rw[←cond_rdist'_eq_integral _ hY hZ, ←cond_rdist'_eq_integral _ hY hZ, integral_const, integral_const]
+  simp only [integral_eq_sum, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
+    Finset.sum_add_distrib]
+  simp_rw [← integral_eq_sum]
+  rw [← cond_rdist'_eq_integral _ hY hZ, ← cond_rdist'_eq_integral _ hY hZ, integral_const,
+    integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
   simp
 
@@ -269,17 +272,17 @@ lemma delta'_eq_integral : δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r
 
 lemma cond_construct_good :
     k ≤ δ' + (η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R])  := by
-  rw[delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
+  rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
-  simp_rw[integral_eq_sum, ←Finset.sum_add_distrib, ←smul_add, Finset.mul_sum, mul_smul_comm,
-    ←Finset.sum_add_distrib, ←smul_add]
-  simp_rw[←integral_eq_sum]
+  simp_rw [integral_eq_sum, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum, mul_smul_comm,
+    ← Finset.sum_add_distrib, ← smul_add]
+  simp_rw [← integral_eq_sum]
   have : IsProbabilityMeasure (Measure.map R ℙ) := isProbabilityMeasure_map (by measurability)
   calc
     k = (Measure.map R ℙ)[fun _r => k] := by
       rw [integral_const]; simp
     _ ≤ _ := ?_
-  simp_rw[integral_eq_sum]
+  simp_rw [integral_eq_sum]
   apply Finset.sum_le_sum
   intro r _
   by_cases hr : ℙ (R⁻¹' {r}) = 0
@@ -299,29 +302,31 @@ end construct_good
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have hη : η = 1/9 := by rw [η, one_div]
-  have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)  (show Measurable U by measurability)
-    (show Measurable V by measurability) (show Measurable W by measurability) (show Measurable S by measurability)
+  have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)
+    (show Measurable U by measurability) (show Measurable V by measurability)
+    (show Measurable W by measurability) (show Measurable S by measurability)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂'
-  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']
-  · let σ : Fin 4 ≃ Fin 4 := { toFun := ![0, 1, 3, 2], invFun := ![0, 1, 3, 2], left_inv := by intro i; fin_cases i <;> rfl, right_inv := by intro i; fin_cases i <;> rfl }
-    refine' iIndepFun.reindex σ.symm _; convert h_indep using 1; ext i; fin_cases i <;> rfl
+  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
+    let σ : Fin 4 ≃ Fin 4 :=
+    { toFun := ![0, 1, 3, 2]
+      invFun := ![0, 1, 3, 2]
+      left_inv := by intro i; fin_cases i <;> rfl
+      right_inv := by intro i; fin_cases i <;> rfl }
+    refine' iIndepFun.reindex σ.symm _
+    convert h_indep using 1
+    ext i; fin_cases i <;> rfl
   have h3 := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
-
-  have : (1-5*η)/(1-η)*(1+η/3)-η = 11/27 := by
-    rw [hη]; norm_num
-
   have h : k ≤ (8*η + η^2) * k := calc
     k ≤ (1+η/3) * (6*η*k - (1-5*η) / (1-η) * (2*η*k - I₁)) + η/3*((6-3*η)*k + 3*(2*η*k-I₁)) := by
-      rw[hη] at *
+      rw [hη] at *
       linarith
     _ = (8*η+η^2)*k - ((1-5*η)/(1-η)*(1+η/3)-η)*(2*η*k-I₁) := by
       ring
     _ ≤ (8*η + η^2) * k := by
-      rw[hη] at *
+      rw [hη] at *
       norm_num
       linarith
-
   have : 0 ≤ k := rdist_nonneg hX₁ hX₂
-  rw[hη] at *
+  rw [hη] at *
   linarith

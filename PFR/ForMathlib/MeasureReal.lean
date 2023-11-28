@@ -45,7 +45,6 @@ lemma Finset.sum_toReal_measure_singleton {S : Type*} {s : Finset S} {_ : Measur
 
 -- probably don't need this version but it was stated previously and will need to search for and
 -- eliminate any explicit uses
-@[simp]
 lemma sum_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
     [MeasurableSingletonClass S] (μ : Measure S) :
     ∑ x, μ {x} = μ Set.univ := by
@@ -53,7 +52,6 @@ lemma sum_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
 
 -- probably don't need this version but it was stated previously and will need to search for and
 -- eliminate any explicit uses
-@[simp]
 lemma sum_toReal_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace S}
     [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
     ∑ x : S, (μ {x}).toReal = (μ Set.univ).toReal := by
@@ -65,6 +63,7 @@ namespace MeasureTheory
 
 variable {α : Type*} {β : Type*} {_ : MeasurableSpace α} [MeasurableSpace β] (μ : Measure α)
 
+/-- The real-valued version of a measure. Maps infinite measure sets to zero. Use as `μ.real s`. -/
 @[pp_dot]
 protected def Measure.real (s : Set α) : ℝ :=
   (μ s).toReal
@@ -81,7 +80,6 @@ theorem measure_ne_top_of_subset (h : s ⊆ t) (ht : μ t ≠ ∞) : μ s ≠ �
 
 theorem measure_diff_eq_top (hs : μ s = ∞) (ht : μ t ≠ ∞) : μ (s \ t) = ∞ := by
   contrapose! hs
-  have : s ⊆ s \ t ∪ t := subset_diff_union s t
   apply ((measure_mono (subset_diff_union s t)).trans_lt _).ne
   apply (measure_union_le _ _).trans_lt
   exact ENNReal.add_lt_top.2 ⟨hs.lt_top, ht.lt_top⟩
@@ -306,7 +304,7 @@ of the fibers `f ⁻¹' {y}`. -/
 theorem sum_measureReal_preimage_singleton (s : Finset β) {f : α → β}
     (hf : ∀ y ∈ s, MeasurableSet (f ⁻¹' {y})) (h : ∀ a ∈ s, μ (f ⁻¹' {a}) ≠ ∞ := by finiteness) :
     (∑ b in s, μ.real (f ⁻¹' {b})) = μ.real (f ⁻¹' ↑s) := by
-  simp only [measureReal_def, ←sum_measure_preimage_singleton s hf, ENNReal.toReal_sum h]
+  simp only [measureReal_def, ← sum_measure_preimage_singleton s hf, ENNReal.toReal_sum h]
 
 /-- If `s` is a `Finset`, then the sums of the real measures of the singletons in the set is the
 real measure of the set. -/

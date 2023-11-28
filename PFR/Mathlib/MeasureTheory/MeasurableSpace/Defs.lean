@@ -26,5 +26,5 @@ instance [Countable α] [MeasurableSingletonClass α] : DiscreteMeasurableSpace 
   eq_top := by
     ext s
     simp only [MeasurableSpace.measurableSet_top, iff_true]
-    rw [←biUnion_of_singleton s]
+    rw [← biUnion_of_singleton s]
     exact MeasurableSet.biUnion s.to_countable (fun _ _ ↦ measurableSet_singleton _)
