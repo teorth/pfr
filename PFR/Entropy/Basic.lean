@@ -332,8 +332,7 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable 
 
   set norm := μS Set.univ with rw_norm
   have h_norm: norm = μ Set.univ := by
-    have h := Measure.map_apply (μ := μ) hX Finset.univ.measurableSet
-    rwa [Finset.coe_univ] at h
+    simp [hX]
 
   let pdf_nn s := norm⁻¹ * μs s
   let pdf s := (pdf_nn s).toReal
@@ -1295,13 +1294,10 @@ lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measu
   map_eq := map_map hf hX
 }
 
-/-- Pushforward preserves total mass.  (For mathlib, perhaps?)-/
-lemma mass_of_map_eq {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {μ: Measure Ω} {f: Ω → Ω'} (hf: Measurable f) : (μ.map f) Set.univ = μ Set.univ := μ.map_apply hf MeasurableSet.univ
-
 /-- The sum of measures of preimages of singletons sums to one in a probability space. -/
 lemma sum_measure_preimage_singleton (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, μ (Y⁻¹' {y}) = 1 := by
   rw [(show 1 =(μ.map Y) Set.univ by
-    simp [mass_of_map_eq hY]), ← sum_measure_singleton (μ.map Y)]
+    simp [hY]), ← sum_measure_singleton (μ.map Y)]
   congr with y
   rw [← map_apply hY (MeasurableSet.singleton y)]
 
