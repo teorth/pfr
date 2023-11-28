@@ -13,47 +13,22 @@ open scoped Topology ENNReal NNReal BoundedContinuousFunction
 variable {ι : Type _} {Ω : Type _}
 variable [MeasurableSpace Ω] [TopologicalSpace Ω] [OpensMeasurableSpace Ω]
 
-section pmf
-/-! ### Point mass function of a finite measures
+-- Mathlib: Why is `Countable` an assumption in `Measure.toPMF`?
 
--/
+-- to Mathlib
+lemma Measure.count_apply_pos (X : Type*) [MeasurableSpace X] {s : Set X}
+    (s_nonemp : s.Nonempty) (s_mble : MeasurableSet s) :
+    0 < Measure.count s := by
+  by_contra maybe_zero
+  have maybe_zero' : Measure.count s = 0 := by aesop
+  rw [Measure.count_eq_zero_iff'] at maybe_zero'
+  · aesop
+  · exact s_mble
 
-/-- The point mass function of a finite measure. -/
-def FiniteMeasure.pmf (μ : FiniteMeasure Ω) (ω : Ω) : ℝ := (μ : Measure Ω).real {ω}
-
-/-
-Q: Why doesn't the spelling `μ.pmf` work?
-
-invalid field 'pmf', the environment does not contain 'Subtype.pmf'
-  μ
-has type
-  { μ // IsFiniteMeasure μ }
--/
-/-- The point masses of a finite measure on a discrete topological space depend continuously on the
-finite measure. -/
-lemma continuous_pmf_apply [DiscreteTopology Ω] (ω : Ω) :
-    Continuous (fun (μ : FiniteMeasure Ω) ↦ FiniteMeasure.pmf μ ω) :=
-  continuous_finiteMeasure_apply_of_isClopen ⟨isOpen_discrete _, T1Space.t1 _⟩
-
-end pmf --section
-
-section entropy
-/-! ### Continuity of entropy-like quantitites for finite measures / probability measures
-
--/
-
-open ProbabilityTheory
-
--- TODO: Use notation `Hm[μ]` (figure out how).
-lemma continuous_measureEntropy_probabilityMeasure [Fintype Ω] [DiscreteTopology Ω] :
-    Continuous (fun (μ : ProbabilityMeasure Ω) ↦ measureEntropy (S := Ω) μ) := by
-  apply continuous_finset_sum
-  intro ω _
-  apply continuous_negIdMulLog.comp
-  simp only [measure_univ, inv_one, one_smul]
-  exact continuous_probabilityMeasure_apply_of_isClopen (s := {ω}) ⟨isOpen_discrete _, T1Space.t1 _⟩
-
-end entropy -- section
+-- to Mathlib
+lemma Measure.count_univ_pos (X : Type*) [MeasurableSpace X] [Nonempty X] :
+    0 < Measure.count (univ : Set X) :=
+  Measure.count_apply_pos _ univ_nonempty MeasurableSet.univ
 
 section count
 /-! ### Counting measure as a finite measure and discrete uniform measure as a probability measure
@@ -85,21 +60,6 @@ noncomputable def finUniformProbaOn {X : Type*} [MeasurableSpace X] {s : Set X}
     (s_nonemp : s.Nonempty) (s_finite : s.Finite) (s_mble : MeasurableSet s) :
     ProbabilityMeasure X :=
   @FiniteMeasure.normalize X (Exists.nonempty s_nonemp) _ (finCountOn s_finite s_mble)
-
--- to Mathlib
-lemma Measure.count_apply_pos (X : Type*) [MeasurableSpace X] {s : Set X}
-    (s_nonemp : s.Nonempty) (s_mble : MeasurableSet s) :
-    0 < Measure.count s := by
-  by_contra maybe_zero
-  have maybe_zero' : Measure.count s = 0 := by aesop
-  rw [Measure.count_eq_zero_iff'] at maybe_zero'
-  · aesop
-  · exact s_mble
-
--- to Mathlib
-lemma Measure.count_univ_pos (X : Type*) [MeasurableSpace X] [Nonempty X] :
-    0 < Measure.count (univ : Set X) :=
-  Measure.count_apply_pos _ univ_nonempty MeasurableSet.univ
 
 lemma finCount_mass_pos [Nonempty Ω] : 0 < (finCount Ω).mass := by
   apply ENNReal.toNNReal_pos _ (measure_ne_top _ univ)
@@ -138,8 +98,6 @@ lemma pmf_finUniformProba_eq_uniformOfFintype [Nonempty Ω] :
   simp only [finUniformProba_apply_eq_inv_mul_card', toFinite_toFinset,
     toFinset_singleton, Finset.card_singleton, Nat.cast_one, mul_one, PMF.uniformOfFintype_apply]
   rfl
-
-#check Measure.toPMF -- Mathlib: Why is `Countable` an assumption in `toPMF`?
 
 -- By this experiment, I'm not sure `(X.map μ).toPMF = PMF.uniformOfFinset _ _` would be a
 -- nice enough spelling for `IsUniform`.

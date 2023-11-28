@@ -247,8 +247,8 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
   calc
   ∑ x, negIdMulLog (μ {x}).toReal
     = ∑ x in A, negIdMulLog (μ {x}).toReal := by
-      apply (Finset.sum_finset_eq_sum _).symm
-      intro i hi
+      apply (Finset.sum_subset A.subset_univ _).symm
+      intro i _ hi
       have : μ {i} = 0 :=
         le_antisymm ((measure_mono (by simpa using hi)).trans (le_of_eq hμ)) bot_le
       simp [this]

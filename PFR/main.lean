@@ -47,8 +47,8 @@ lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fint
         apply sum_congr _ _ (fun g ↦ ?_)
         rw [hindep.measureReal_inter_preimage_eq_mul trivial trivial]
     _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
-        apply (Finset.sum_finset_eq_sum _).symm
-        intro i hi
+        apply (Finset.sum_subset W.subset_univ _).symm
+        intro i _ hi
         simp only [Finite.mem_toFinset, mem_inter_iff, not_and_or] at hi
         rcases hi with h'i|h'i
         · simp [Uunif.measureReal_preimage_of_nmem h'i]
@@ -132,7 +132,7 @@ theorem rdist_le_of_isUniform_of_card_add_le
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
-such that $A$ can be covered by at most $K^{13/2} #A^{1/2} / #H^{1/2}$ cosets of $H$, and $H$ has
+such that $A$ can be covered by at most $K^{13/2} |A|^{1/2} / |H|^{1/2}$ cosets of $H$, and $H$ has
 the same cardinality as $A$ up to a multiplicative factor $K^11$. -/
 lemma PFR_conjecture_aux {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
@@ -288,3 +288,10 @@ theorem PFR_conjecture {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
     _ = 2 * K ^ 12 := by
         rpow_ring
         norm_num
+
+
+/-- Corollary of `PFR_conjecture` in which the ambient group is not required to be finite (but) then $H$ and $c$ are finite. -/
+theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
+    {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
+    (hA : Nat.card (A + A) ≤ K * Nat.card A) : ∃ (H : AddSubgroup G) (c : Set G),
+    Set.Finite H.carrier ∧ Set.Finite c ∧ Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by sorry
