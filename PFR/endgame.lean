@@ -308,8 +308,6 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
     refine' iIndepFun.reindex σ.symm _; convert h_indep using 1; ext i; fin_cases i <;> rfl
   have h3 := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
 
-  --have h : I₁ ≤ 2*η*k := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
-
   have : (1-5*η)/(1-η)*(1+η/3)-η = 11/27 := by
     rw [hη]; norm_num
 
