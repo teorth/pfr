@@ -77,25 +77,61 @@ local notation3 "I₁" => I[ U : V | S ]
 given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
 local notation3 "I₂" => I[ U : W | S ]
 
+--(Mantas) this times out in the proof below
+private lemma hmeas2 : Measurable
+    (fun p : Fin 4 → G => ((p 0 + p 1, p 0 + p 2), p 0 + p 1 + p 2 + p 3)) := by measurability
+
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
 lemma I₃_eq : I[ V : W | S ] = I₂ := by
-  -- Note(kmill): I'm not sure this is going anywhere, but in case some of this reindexing
-  -- is useful, and this setting-up of the `I'` function, here it is.
-  -- Swap X₁ and X₁'
-  let perm : Fin 4 → Fin 4 | 0 => 1 | 1 => 0 | 2 => 2 | 3 => 3
-  have hp : ![X₁, X₁', X₂, X₂'] = ![X₁', X₁, X₂, X₂'] ∘ perm := by
-    ext i
-    fin_cases i <;> rfl
-  let I' (Xs : Fin 4 → Ω → G) := I[Xs 0 + Xs 2 : Xs 1 + Xs 0 | Xs 0 + Xs 2 + Xs 1 + Xs 3]
-  have hI₂ : I₂ = I' ![X₁, X₁', X₂, X₂'] := rfl
-  have hI₃ : I[V : W | S] = I' ![X₁', X₁, X₂, X₂'] := by
-    rw [add_comm X₁' X₁]
-    congr 1
-    change _ = X₁' + X₂ + X₁ + X₂'
-    simp [add_assoc, add_left_comm]
-  rw [hI₂, hI₃, hp]
-  -- ⊢ I' ![X₁', X₁, X₂, X₂'] = I' (![X₁', X₁, X₂, X₂'] ∘ perm)
-  sorry
+  have h_indep2 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁, X₂'] := by
+    apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 4) 2)
+    convert h_indep using 1
+    ext x
+    fin_cases x
+    all_goals aesop
+  have hident : IdentDistrib (fun a (i : Fin 4) => ![X₁, X₂, X₁', X₂'] i a)
+    (fun a (j : Fin 4) => ![X₁', X₂, X₁, X₂'] j a) := by
+    exact { aemeasurable_fst := by
+              apply Measurable.aemeasurable
+              rw [measurable_pi_iff]
+              intro x
+              fin_cases x;
+              all_goals aesop
+            aemeasurable_snd := by
+              apply Measurable.aemeasurable
+              rw [measurable_pi_iff]
+              intro x
+              fin_cases x;
+              all_goals aesop
+            map_eq := by
+              rw [(ProbabilityTheory.iIndepFun_iff_map_prod_eq_prod_map_map (![X₁, X₂, X₁', X₂'])
+              (fun _ ↦ hG) (Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <|
+              Fin.cases hX₂' Fin.rec0)).mp h_indep,
+              (ProbabilityTheory.iIndepFun_iff_map_prod_eq_prod_map_map (![X₁', X₂, X₁, X₂'])
+              (fun _ ↦ hG) (Fin.cases hX₁' <| Fin.cases hX₂ <| Fin.cases hX₁ <|
+              Fin.cases hX₂' Fin.rec0)).mp h_indep2]
+              congr
+              ext i
+              fin_cases i
+              all_goals simp[h₁.map_eq] }
+  have hmeas1 : Measurable (fun p : Fin 4 → G => (p 0 + p 1, p 0 + p 1 + p 2 + p 3)) := by
+    measurability
+  have hUVS : IdentDistrib (prod U S) (prod V S)
+  · convert (IdentDistrib.comp hident hmeas1)
+    all_goals {simp; abel}
+  have hUVWS : IdentDistrib (prod (prod U W) S) (prod (prod V W) S)
+  · convert (IdentDistrib.comp hident hmeas2)
+    all_goals {simp; abel}
+  have hU : Measurable U := Measurable.add hX₁ hX₂
+  have hV : Measurable V := Measurable.add hX₁' hX₂
+  have hW : Measurable W := Measurable.add hX₁' hX₁
+  have hS : Measurable S := by measurability
+  rw [condMutualInformation_eq hV hW hS, condMutualInformation_eq hU hW hS, chain_rule'' ℙ hU hS,
+    chain_rule'' ℙ hV hS, chain_rule'' ℙ hW hS, chain_rule'' ℙ _ hS, chain_rule'' ℙ _ hS,
+    IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
+  · exact Measurable.prod (by exact hU) (by exact hW)
+  · exact Measurable.prod (by exact hV) (by exact hW)
+
 
 /--
 $$ I(U : V | S) + I(V : W | S) + I(W : U | S) $$
@@ -115,6 +151,7 @@ lemma sum_condMutual_le :
   convert h using 1
   field_simp [η]
   ring
+  all_goals { simpa }
 
 local notation3:max "c[" A "; " μ " # " B " ; " μ' "]" =>
   d[p.X₀₁; ℙ # A; μ] - d[p.X₀₁ # X₁] + (d[p.X₀₂; ℙ # B; μ'] - d[p.X₀₂ # X₂])
