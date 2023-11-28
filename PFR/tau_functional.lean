@@ -110,6 +110,14 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
   ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
+/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. --/
+lemma ProbabilityTheory.IdentDistrib.tau_minimizes [MeasureSpace Ω]
+    [MeasureSpace Ω']
+    {X₁ X₂ : Ω → G} {X₁' X₂' : Ω' → G}
+    (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂') :
+    tau_minimizes p X₁ X₂ ↔ tau_minimizes p X₁' X₂' := by
+  simp_rw[_root_.tau_minimizes, h₁.tau_eq p h₂]
+  
 /-- A pair of measures minimizing $\tau$ exists. -/
 lemma tau_min_exists_measure [MeasurableSingletonClass G] :
     ∃ (μ : Measure G × Measure G),
