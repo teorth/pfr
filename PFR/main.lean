@@ -47,8 +47,8 @@ lemma IsUniform.measureReal_preimage_sub_zero {G : Type*} [AddCommGroup G] [Fint
         apply sum_congr _ _ (fun g ↦ ?_)
         rw [hindep.measureReal_inter_preimage_eq_mul trivial trivial]
     _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
-        apply (Finset.sum_finset_eq_sum _).symm
-        intro i hi
+        apply (Finset.sum_subset W.subset_univ _).symm
+        intro i _ hi
         simp only [Finite.mem_toFinset, mem_inter_iff, not_and_or] at hi
         rcases hi with h'i|h'i
         · simp [Uunif.measureReal_preimage_of_nmem h'i]
