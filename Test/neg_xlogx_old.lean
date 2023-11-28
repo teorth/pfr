@@ -36,26 +36,26 @@ lemma h_nonneg (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ h x := by
 lemma log_le {x:ℝ} (hx: 0 ≤ x) : log x ≤ x / rexp 1 := by
   rw [le_iff_lt_or_eq] at hx
   rcases hx with hx | hx
-  . rw [<-sub_le_sub_iff_right 1]
+  . rw [← sub_le_sub_iff_right 1]
     convert (log_le_sub_one_of_pos (show 0 < (x * (Real.exp 1)⁻¹) by positivity)) using 1
     rw [log_mul]
     . simp; ring
     all_goals positivity
-  simp [<-hx]
+  simp [← hx]
 
 /-- an upper bound for h that can help prove continuity at 0. -/
 lemma h_le {x : ℝ} (hx : 0 ≤ x) : h x ≤ 2 * (sqrt x) / rexp 1 := by
   unfold h
   rw [le_iff_lt_or_eq] at hx
   rcases hx with hx | hx
-  . rw [neg_mul_comm, ←log_inv, ←sq_sqrt (show 0 ≤ x⁻¹ by positivity), log_pow, ←mul_assoc,
-      ←le_div_iff']
+  . rw [neg_mul_comm, ← log_inv, ← sq_sqrt (show 0 ≤ x⁻¹ by positivity), log_pow, ← mul_assoc,
+      ← le_div_iff']
     convert log_le (show 0 ≤ sqrt x⁻¹ by positivity) using 1
     field_simp
-    nth_rewrite 3 [<- sq_sqrt (show 0 ≤ x by positivity)]
+    nth_rewrite 3 [← sq_sqrt (show 0 ≤ x by positivity)]
     ring
     positivity
-  simp [<-hx]
+  simp [← hx]
 
 /-- To prove continuity of h we will need a version of the squeeze test. -/
 lemma squeeze [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [OrderTopology β]
@@ -65,7 +65,7 @@ lemma squeeze [TopologicalSpace α] [TopologicalSpace β] [LinearOrder β] [Orde
   rw [continuousAt_iff_lower_upperSemicontinuousAt] at f_cont h_cont ⊢
   dsimp [LowerSemicontinuousAt, UpperSemicontinuousAt] at f_cont h_cont ⊢
   rw [hfg] at f_cont
-  rw [<-hgh] at h_cont
+  rw [← hgh] at h_cont
   constructor
   . intro a ha
     apply Filter.Eventually.mono (f_cont.1 a ha)
@@ -100,7 +100,7 @@ lemma h_cont : ContinuousOn h (Set.Icc 0 1) := by
   . refine (continuous_id.neg.continuousAt.mul (continuousAt_log ?_)).continuousWithinAt
     linarith
 -- the tricky case : continuity at zero!
-  rw [<- hx1]
+  rw [← hx1]
   let f := fun _ : ℝ ↦ (0:ℝ)
   let g := fun x : ℝ ↦ (2 * sqrt x) / rexp 1
   have f_cont : ContinuousWithinAt f (Set.Icc 0 1) 0 := by

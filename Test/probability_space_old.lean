@@ -69,13 +69,13 @@ open BigOperators
 
 /-- The law of total probability: the probability densities of a discrete random variable sum to 1. Proof is way too long.  TODO: connect this with Mathlib.Probability.ProbabilityMassFunction.Basic -/
 lemma totalProb {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Measurable X): ∑ s : S, P[ X ⁻¹' {s} ] = 1 := by
-  rw [<-ENNReal.coe_eq_coe]
+  rw [← ENNReal.coe_eq_coe]
   push_cast
   conv =>
     lhs; congr; rfl; intro s
     rw [prob_eq']
-  rw [<- MeasureTheory.measure_biUnion_finset]
-  . rw [<-prob_eq']
+  rw [← MeasureTheory.measure_biUnion_finset]
+  . rw [← prob_eq']
     norm_cast
     convert prob_univ Ω
     ext _
@@ -89,7 +89,7 @@ lemma totalProb {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Meas
       exact Set.nmem_singleton_empty.mp hxy
     rcases this with ⟨ a, ha ⟩
     simp at ha
-    rw [<-ha.1, <-ha.2]
+    rw [← ha.1, ← ha.2]
   intro s _
   exact hX trivial
 
