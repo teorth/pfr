@@ -74,22 +74,29 @@ local notation3 "I₂" => I[ U : W | S ]
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
 lemma I₃_eq : I[ V : W | S ] = I₂ := by
-  have hXmeas : ∀ i : Fin 4, Measurable (![X₁, X₂, X₁', X₂'] i) :=
-  Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <| Fin.cases hX₂' Fin.rec0
-  have hident : IdentDistrib (prod X₁ (prod X₂ (prod X₁' X₂'))) (prod X₁' (prod X₂ (prod X₁ X₂'))) := by
-    have : IdentDistrib (prod X₁' X₂') (prod X₁ X₂') := by exact (IdentDistrib.prod_mk h₁.symm (IdentDistrib.refl hX₂'.aemeasurable)
-      (h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)) (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)))
-    -- (Mantas) either iterate the `IdentDistrib.prod_mk` applications or make it a more general lemma
-    have hX2ind1 : IndepFun (prod X₁' X₂') X₂ := by exact (iIndepFun.indepFun_prod (ι := Fin 4) h_indep
-      (fun i => by fin_cases i ; all_goals { simpa }) 2 3 1 (by decide) (by decide))
-    have hX2ind2 : IndepFun (prod X₁ X₂') X₂ := by exact (iIndepFun.indepFun_prod (ι := Fin 4) h_indep
-      (fun i => by fin_cases i ; all_goals { simpa }) 0 3 1 (by decide) (by decide))
-    -- instant not synthesized
-    replace this := IdentDistrib.prod_mk (IdentDistrib.refl hX₂.aemeasurable) this hX2ind1.symm hX2ind2.symm
-    sorry
-  -- (Mantas)`measurability` hits max heartbeats on my machine on the following two lemmas
-  have hmeas1 : Measurable (fun p : G × G × G × G => (p.1 + p.2.1, p.1 + p.2.1 + p.2.2.1 + p.2.2.2)) := by sorry
-  have hmeas2 : Measurable (fun p : G × G × G × G => ((p.1 + p.2.1, p.1 + p.2.2.1), p.1 + p.2.1 + p.2.2.1 + p.2.2.2)) := by sorry
+  have h_indep1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁', X₂'] := by
+    convert h_indep using 1
+    ext x
+    fin_cases x
+    all_goals aesop
+  have h_indep2 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁, X₂'] := by sorry
+  have hident : IdentDistrib (fun a (i : Fin 4) => ![X₁, X₂, X₁', X₂'] i a) (fun a (j : Fin 4) => ![X₁', X₂, X₁, X₂'] j a) := by
+    exact { aemeasurable_fst := by sorry
+            aemeasurable_snd := sorry
+            map_eq := by
+              rw [(ProbabilityTheory.iIndepFun_iff_map_prod_eq_prod_map_map (![X₁, X₂, X₁', X₂'])
+              (fun _ ↦ hG) (Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <|
+              Fin.cases hX₂' Fin.rec0)).mp h_indep1,
+              (ProbabilityTheory.iIndepFun_iff_map_prod_eq_prod_map_map (![X₁', X₂, X₁, X₂'])
+              (fun _ ↦ hG) (Fin.cases hX₁' <| Fin.cases hX₂ <| Fin.cases hX₁ <|
+              Fin.cases hX₂' Fin.rec0)).mp h_indep2]
+              congr
+              ext i
+              fin_cases i
+              all_goals simp[h₁.map_eq] }
+  have hmeas1 : Measurable (fun p : Fin 4 → G => (p 0 + p 1, p 0 + p 1 + p 2 + p 3)) := by measurability
+  -- (Mantas)`measurability` hits max heartbeats on my machine on the following lemma
+  have hmeas2 : Measurable (fun p : Fin 4 → G => ((p 0 + p 1, p 0 + p 2), p 0 + p 1 + p 2 + p 3)) := sorry
   have hUVS : IdentDistrib (prod U S) (prod V S)
   · convert (IdentDistrib.comp hident hmeas1)
     all_goals {simp; abel}
@@ -99,24 +106,7 @@ lemma I₃_eq : I[ V : W | S ] = I₂ := by
   rw [condMutualInformation_eq, condMutualInformation_eq, chain_rule'', chain_rule'', chain_rule'',
     chain_rule'', chain_rule'', IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
   -- (Mantas) only measurability goals left but `measurability` fails again
-  sorry
-
-  -- Note(kmill): I'm not sure this is going anywhere, but in case some of this reindexing
-  -- is useful, and this setting-up of the `I'` function, here it is.
-  -- Swap X₁ and X₁'
-  -- let perm : Fin 4 → Fin 4 | 0 => 1 | 1 => 0 | 2 => 2 | 3 => 3
-  -- have hp : ![X₁, X₁', X₂, X₂'] = ![X₁', X₁, X₂, X₂'] ∘ perm := by
-  --   ext i
-  --   fin_cases i <;> rfl
-  -- let I' (Xs : Fin 4 → Ω → G) := I[Xs 0 + Xs 2 : Xs 1 + Xs 0 | Xs 0 + Xs 2 + Xs 1 + Xs 3]
-  -- have hI₂ : I₂ = I' ![X₁, X₁', X₂, X₂'] := rfl
-  -- have hI₃ : I[V : W | S] = I' ![X₁', X₁, X₂, X₂'] := by
-  --   rw [add_comm X₁' X₁]
-  --   congr 1
-  --   change _ = X₁' + X₂ + X₁ + X₂'
-  --   simp [add_assoc, add_left_comm]
-  -- rw [hI₂, hI₃, hp]
-  -- ⊢ I' ![X₁', X₁, X₂, X₂'] = I' (![X₁', X₁, X₂, X₂'] ∘ perm)
+  all_goals { sorry }
 
 /--
 $$ I(U : V | S) + I(V : W | S) + I(W : U | S) $$
