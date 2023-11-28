@@ -115,22 +115,34 @@ local notation3:max "c[" A " # " B "]" => d[p.X₀₁ # A] - d[p.X₀₁ # X₁]
 
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂]
 
-#check condDist_diff_ofsum_le
-/-
-lemma test : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+η)*k - I₁  := by
-  apply ent_ofsum_le --p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂'
+lemma ruzsa_helper_lemma [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] {A B C : Ω → G}
+  (hB : Measurable B) (hC : Measurable C) (hA : Measurable A)
+  (H : A = B + C) : d[p.X₀₂ # B | A] = d[p.X₀₂ # C | A] := by
+  rw [cond_rdist'_eq_sum, cond_rdist'_eq_sum]
+  apply Finset.sum_congr rfl
+  intro x
+  simp only [Finset.mem_univ, mul_eq_mul_left_iff]
+  intro _
+  apply Or.intro_left
+  sorry
+  sorry
+  sorry
+  sorry
+  sorry
 
-/-- -/
+lemma Measurable_fun_add  {A B : Ω → G} (hA : Measurable A) (hB : Measurable B) :
+  Measurable (A + B) := by
+  exact Measurable.add' hA hB
+
+/--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
-lemma sum_dist_diff_le
-: c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S]
-  ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
+lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] :
+  c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
-
   have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
   have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
   have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
@@ -143,7 +155,11 @@ lemma sum_dist_diff_le
   have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2 := by
     sorry
 
-  have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S] := sorry
+  have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S]
+  · have S_eq : S = (X₂ + X₂') + (X₁' + X₁)
+    · rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ←add_assoc X₂, ←add_assoc X₂, add_comm X₂]
+    apply ruzsa_helper_lemma p (Measurable.add' hX₂ hX₂') (Measurable.add' hX₁' hX₁) _ S_eq
+    · rw [S_eq] ; apply (Measurable.add' (Measurable.add' hX₂ hX₂') (Measurable.add' hX₁' hX₁))
 
   -- Put everything together to bound the sum of the `c` terms
   have ineq7 : c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ]
