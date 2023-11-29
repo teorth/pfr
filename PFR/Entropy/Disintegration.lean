@@ -1,5 +1,6 @@
 
 import PFR.Entropy.MeasureCompProd
+import Mathlib.Probability.kernel.CondDistrib
 
 /-!
 # Disintegration of kernels in finite spaces
@@ -7,16 +8,13 @@ import PFR.Entropy.MeasureCompProd
 We can write `κ : kernel S (T × U)` as a composition-product `(fst κ) ⊗ₖ (condKernel κ)` where
 `fst κ : kernel S T` and `condKernel : kernel (S × T) U` is defined in this file.
 
-## Main definitions
+## TODO
 
-* `measureEntropy`: entropy of a measure `μ`, denoted by `Hm[μ]`
-* `measureMutualInfo`: mutual information of a measure over a product space, denoted by `Im[μ]`,
-  equal to `Hm[μ.map Prod.fst] + Hm[μ.map Prod.snd] - Hm[μ]`
+Most of the results in this file should be changed to reuse Mathlib results about the
+kernels `Measure.condKernel` and `condDistrib`. See for example the lemma
+`condEntropyKernel_eq_condDistrib`, which states that the new `condEntropyKernel X Y μ` introduced
+here is the same as `condDistrib X Y μ` (almost surely with respect to the law of `Y`).
 
-## Notations
-
-* `Hm[μ] = measureEntropy μ`
-* `Im[μ] = measureMutualInfo μ`
 -/
 
 open Real MeasureTheory
@@ -499,6 +497,17 @@ lemma map_compProd_condEntropyKernel
     exact (hZ (measurableSet_singleton _)).inter (measurable_const.prod_mk hX hA)
   rw [tsum_eq_sum]
   simp
+
+/-- `condEntropyKernel X Y μ` is equal to `condDistrib X Y μ`, almost surely with respect to the
+law of `Y`. -/
+lemma condEntropyKernel_eq_condDistrib [TopologicalSpace S] [DiscreteTopology S] [BorelSpace S]
+    (hX : Measurable X) (hY : Measurable Y)
+    {μ : Measure Ω} [IsProbabilityMeasure μ] :
+    condEntropyKernel X Y μ =ᵐ[μ.map Y] condDistrib X Y μ := by
+  have : IsMarkovKernel (condEntropyKernel X Y μ) := isMarkovKernel_condEntropyKernel hX hY μ
+  refine condDistrib_ae_eq_of_measure_eq_compProd hY hX (condEntropyKernel X Y μ) ?_
+  rw [← map_compProd_condEntropyKernel hX hY]
+  rfl
 
 section Independence
 
