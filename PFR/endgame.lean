@@ -436,7 +436,7 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
     (show Measurable U by measurability) (show Measurable V by measurability)
     (show Measurable W by measurability) (show Measurable S by measurability)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
-  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂'
+  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
   have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
     let σ : Fin 4 ≃ Fin 4 :=
     { toFun := ![0, 1, 3, 2]
@@ -450,7 +450,7 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have h : k ≤ (8*η + η^2) * k := calc
     k ≤ (1+η/3) * (6*η*k - (1-5*η) / (1-η) * (2*η*k - I₁)) + η/3*((6-3*η)*k + 3*(2*η*k-I₁)) := by
       rw [hη] at *
-      sorry --`linarith` used to close this, but this stopped working for some reason
+      linarith
     _ = (8*η+η^2)*k - ((1-5*η)/(1-η)*(1+η/3)-η)*(2*η*k-I₁) := by
       ring
     _ ≤ (8*η + η^2) * k := by
