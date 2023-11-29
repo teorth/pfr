@@ -332,8 +332,7 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) (hX : Measurable 
 
   set norm := μS Set.univ with rw_norm
   have h_norm: norm = μ Set.univ := by
-    have h := Measure.map_apply (μ := μ) hX Finset.univ.measurableSet
-    rwa [Finset.coe_univ] at h
+    simp [hX]
 
   let pdf_nn s := norm⁻¹ * μs s
   let pdf s := (pdf_nn s).toReal
@@ -1194,7 +1193,7 @@ lemma independent_copies3_nondep {S : Type u}
 It's unfortunately incredibly painful to prove this from the general case. -/
 lemma independent_copies4_nondep {S : Type u}
     [mS : MeasurableSpace S]
-    {Ω₁ Ω₂ Ω₃ Ω₄ : Type v}
+    {Ω₁ : Type u_1} {Ω₂ : Type u_2} {Ω₃ : Type u_3} {Ω₄ : Type u_4}
     [mΩ₁ : MeasurableSpace Ω₁] [mΩ₂ : MeasurableSpace Ω₂]
     [mΩ₃ : MeasurableSpace Ω₃] [mΩ₄ : MeasurableSpace Ω₄]
     {X₁ : Ω₁ → S} {X₂ : Ω₂ → S} {X₃ : Ω₃ → S} {X₄ : Ω₄ → S}
@@ -1202,28 +1201,42 @@ lemma independent_copies4_nondep {S : Type u}
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) (μ₄ : Measure Ω₄)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂]
     [hμ₃ : IsProbabilityMeasure μ₃] [hμ₄ : IsProbabilityMeasure μ₄] :
-    ∃ (A : Type v) (mA : MeasurableSpace A) (μA : Measure A)
+    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (mA : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' X₄' : A → S),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃', X₄'] μA ∧
     Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧ Measurable X₄' ∧
     IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧
     IdentDistrib X₃' X₃ μA μ₃ ∧ IdentDistrib X₄' X₄ μA μ₄ := by
-  let Ω : Fin 4 → Type v := ![Ω₁, Ω₂, Ω₃, Ω₄]
+  let Ω₁' : Type (max u_1 u_2 u_3 u_4) := ULift.{max u_2 u_3 u_4} Ω₁
+  let Ω₂' : Type (max u_1 u_2 u_3 u_4) := ULift.{max u_1 u_3 u_4} Ω₂
+  let Ω₃' : Type (max u_1 u_2 u_3 u_4) := ULift.{max u_1 u_2 u_4} Ω₃
+  let Ω₄' : Type (max u_1 u_2 u_3 u_4) := ULift.{max u_1 u_2 u_3} Ω₄
+  let Ω : Fin 4 → Type (max u_1 u_2 u_3 u_4) := ![Ω₁', Ω₂', Ω₃', Ω₄']
   let mΩ : (i : Fin 4) → MeasurableSpace (Ω i) :=
-    Fin.cases mΩ₁ <| Fin.cases mΩ₂ <| Fin.cases mΩ₃ <| Fin.cases mΩ₄ Fin.rec0
+    Fin.cases (inferInstance : MeasurableSpace Ω₁') <|
+    Fin.cases (inferInstance : MeasurableSpace Ω₂') <|
+    Fin.cases (inferInstance : MeasurableSpace Ω₃') <|
+    Fin.cases (inferInstance : MeasurableSpace Ω₄') Fin.rec0
   let X : (i : Fin 4) → Ω i → S :=
-    Fin.cases X₁ <| Fin.cases X₂ <| Fin.cases X₃ <| Fin.cases X₄ Fin.rec0
+    Fin.cases (X₁ ∘ ULift.down) <| Fin.cases (X₂ ∘ ULift.down) <|
+    Fin.cases (X₃ ∘ ULift.down) <| Fin.cases (X₄ ∘ ULift.down) Fin.rec0
   have hX : ∀ (i : Fin 4), @Measurable _ _ (mΩ i) mS (X i) :=
-    Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₃ <| Fin.cases hX₄ Fin.rec0
+    Fin.cases (hX₁.comp (comap_measurable _)) <| Fin.cases (hX₂.comp (comap_measurable _)) <|
+    Fin.cases (hX₃.comp (comap_measurable _)) <| Fin.cases (hX₄.comp (comap_measurable _)) Fin.rec0
   let μ : (i : Fin 4) → @Measure (Ω i) (mΩ i) :=
-    Fin.cases μ₁ <| Fin.cases μ₂ <| Fin.cases μ₃ <| Fin.cases μ₄ Fin.rec0
+    Fin.cases (μ₁.comap ULift.down) <| Fin.cases (μ₂.comap ULift.down) <|
+    Fin.cases (μ₃.comap ULift.down) <| Fin.cases (μ₄.comap ULift.down) Fin.rec0
   let hμ : (i : Fin 4) → IsProbabilityMeasure (μ i) :=
-    Fin.cases hμ₁ <| Fin.cases hμ₂ <| Fin.cases hμ₃ <| Fin.cases hμ₄ Fin.rec0
+    Fin.cases ULift.isProbabilityMeasure <| Fin.cases ULift.isProbabilityMeasure <|
+    Fin.cases ULift.isProbabilityMeasure <| Fin.cases ULift.isProbabilityMeasure Fin.rec0
   obtain ⟨A, mA, μA, X', hμ, hi, hX'⟩ := independent_copies' X hX μ
   refine ⟨A, mA, μA, X' 0, X' 1, X' 2, X' 3, hμ, ?_,
     (hX' 0).1, (hX' 1).1, (hX' 2).1, (hX' 3).1,
-    (hX' 0).2, (hX' 1).2, (hX' 2).2, (hX' 3).2⟩
+    (hX' 0).2.trans ((identDistrib_ulift_self hX₁).symm),
+    (hX' 1).2.trans ((identDistrib_ulift_self hX₂).symm),
+    (hX' 2).2.trans ((identDistrib_ulift_self hX₃).symm),
+    (hX' 3).2.trans ((identDistrib_ulift_self hX₄).symm)⟩
   convert hi; ext i; fin_cases i <;> rfl
 
 /-- The law of total probability: a measure $\mu$ can be expressed as a mixture of its conditional measures $\mu[|Y^{-1}\{y\}]$ from a finitely valued random variable $Y$.-/
@@ -1295,13 +1308,10 @@ lemma identDistrib_map {X : Ω → S} (hX: Measurable X) {f: S → T} (hf: Measu
   map_eq := map_map hf hX
 }
 
-/-- Pushforward preserves total mass.  (For mathlib, perhaps?)-/
-lemma mass_of_map_eq {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {μ: Measure Ω} {f: Ω → Ω'} (hf: Measurable f) : (μ.map f) Set.univ = μ Set.univ := μ.map_apply hf MeasurableSet.univ
-
 /-- The sum of measures of preimages of singletons sums to one in a probability space. -/
 lemma sum_measure_preimage_singleton (μ: Measure Ω) [IsProbabilityMeasure μ] {T : Type u} [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y: Ω → T} (hY : Measurable Y) : ∑ y : T, μ (Y⁻¹' {y}) = 1 := by
   rw [(show 1 =(μ.map Y) Set.univ by
-    simp [mass_of_map_eq hY]), ← sum_measure_singleton (μ.map Y)]
+    simp [hY]), ← sum_measure_singleton (μ.map Y)]
   congr with y
   rw [← map_apply hY (MeasurableSet.singleton y)]
 
