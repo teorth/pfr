@@ -1,6 +1,6 @@
 
 import PFR.Entropy.MeasureCompProd
-import Mathlib.Probability.kernel.CondDistrib
+import Mathlib.Probability.Kernel.CondDistrib
 
 /-!
 # Disintegration of kernels in finite spaces
