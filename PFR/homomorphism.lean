@@ -18,4 +18,4 @@ lemma goursat : 0 = 1 := by sorry
 $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
 $$ |\{ f(x) - \phi(x)\}| \leq 4 |S|^{24}.$$ -/
-lemma homomorphism_pfr : 0 = 1 := by sorry
+theorem homomorphism_pfr : 0 = 1 := by sorry
