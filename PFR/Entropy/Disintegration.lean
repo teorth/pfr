@@ -1,6 +1,6 @@
 
 import PFR.Entropy.MeasureCompProd
-import Mathlib.Probability.kernel.CondDistrib
+import Mathlib.Probability.Kernel.CondDistrib
 
 /-!
 # Disintegration of kernels in finite spaces
@@ -497,6 +497,8 @@ lemma map_compProd_condEntropyKernel
   rw [tsum_eq_sum]
   simp
 
+/-- `condEntropyKernel X Y μ` is equal to `condDistrib X Y μ`, almost surely with respect to the
+law of `Y`. -/
 lemma condEntropyKernel_eq_condDistrib [TopologicalSpace S] [DiscreteTopology S] [BorelSpace S]
     (hX : Measurable X) (hY : Measurable Y)
     {μ : Measure Ω} [IsProbabilityMeasure μ] :
