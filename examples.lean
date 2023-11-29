@@ -19,7 +19,7 @@ end PFR
 
 
 section RealMeasure
--- some examples to showcase real-valued measuresin a self-contained fashion?
+-- some examples to showcase real-valued measures in a self-contained fashion?
 
 end RealMeasure
 
