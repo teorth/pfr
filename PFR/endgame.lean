@@ -157,7 +157,7 @@ local notation3:max "c[" A "; " μ " # " B " ; " μ' "]" =>
 local notation3:max "c[" A " # " B "]" =>
   d[p.X₀₁ # A] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # B] - d[p.X₀₂ # X₂])
 
-local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂]
+local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
 lemma ruzsa_helper_lemma [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] {A B C : Ω → G}
   (hB : Measurable B) (hC : Measurable C) (hA : Measurable A)
@@ -243,7 +243,7 @@ lemma sum_dist_diff_le :
         _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
     have step₃ : c[W|S # W|S] ≤  H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
     · calc c[W|S # W|S] = (d[X₀₁ # W | S] - d[X₀₁ # X₁]) + (d[X₀₂ # W' | S] - d[X₀₂ # X₂]) :=
-          by rw [dist_eq] ; ring
+          by rw [dist_eq]
         _ ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 + (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
           := add_le_add ineq5 ineq6
         _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
@@ -391,7 +391,6 @@ lemma cond_c_eq_integral {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable 
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
   simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
-  ring
 
 
 variable {R : Ω' → G} (hR : Measurable R)
