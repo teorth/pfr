@@ -1,19 +1,26 @@
 import Mathlib.Probability.Notation
 import PFR.main
+import PFR.homomorphism
 
 
 section PFR
 
 open Pointwise
 
+variable {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] [Fintype G]
+
+variable {G' : Type*} [AddCommGroup G'] [Module (ZMod 2) G'] [Fintype G']
+
 /-- A self-contained version of the PFR conjecture using only Mathlib definitions. -/
-example {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
+example {A : Set G} {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+    ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  convert PFR_conjecture' h₀A Afin hA
+  convert PFR_conjecture h₀A hA
   norm_cast
+
+/-- The homomorphism version of PFR. -/
+example (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) - (f x) - (f y) ∈ S): ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x : G, (f x) - (φ x) ∈ T := homomorphism_pfr f S hS
 
 end PFR
 
@@ -69,7 +76,7 @@ example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInformation
 example : 0 ≤ I[X : Y | Z] := condMutualInformation_nonneg hX hY Z ℙ
 
 /-- Relation between conditional mutual information and conditional independence. -/
-example : I[X : Y | Z]  = 0  ↔ condIndepFun X Y Z ℙ := condMutualInformation_eq_zero hX hY hZ
+example : I[X : Y | Z]  = 0  ↔ condIndepFun X Y Z := condMutualInformation_eq_zero hX hY hZ
 
 
 end Entropy
@@ -104,8 +111,27 @@ example (h: Z = X+Y) : ((ℙ:Measure Ω).map Z)[fun z ↦ d[ X; ℙ[|Z⁻¹' {z}
 
 end RuzsaDistance
 
-
 section Finiteness
--- some examples to showcase the Finiteness tactic?
+-- some examples to showcase the Finiteness tactic
+
+open ENNReal
+
+example : (1:ℝ≥0∞) < ∞ := by finiteness
+
+example : (3:ℝ≥0∞) ≠ ∞ := by finiteness
+
+example (a : ℝ) (b : ℕ) : ENNReal.ofReal a + b < ∞ := by finiteness
+
+example {a : ℝ≥0∞} (ha : a ≠ ∞) : a + 3 < ∞ := by finiteness
+example {a : ℝ≥0∞} (ha : a < ∞) : a + 3 < ∞ := by finiteness
+
+example (a : ℝ) : (ENNReal.ofReal (1 + a ^ 2))⁻¹ < ∞ := by finiteness
+
+example (f : α → ℕ) : ∀ i, (f i : ℝ≥0∞) ≠ ∞ := by finiteness
+
+open MeasureTheory
+
+example {Ω Ω': Type*} [MeasurableSpace Ω] (μ : Measure Ω) [IsFiniteMeasure μ] [MeasurableSpace Ω'] (μ' : Measure Ω') [IsFiniteMeasure μ']  (E: Set (Ω × Ω')): (μ.prod μ') E < ∞ := by finiteness
+
 
 end Finiteness
