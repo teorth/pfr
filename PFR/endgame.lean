@@ -390,7 +390,9 @@ lemma cond_c_eq_integral {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable 
   rw [← cond_rdist'_eq_integral _ hY hZ, ← cond_rdist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
-  simp
+  simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+  ring
+
 
 variable {R : Ω' → G} (hR : Measurable R)
 local notation3:max "δ'" => I[T₁:T₂|R] + I[T₂:T₃|R] + I[T₃:T₁|R]
@@ -449,7 +451,7 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have h : k ≤ (8*η + η^2) * k := calc
     k ≤ (1+η/3) * (6*η*k - (1-5*η) / (1-η) * (2*η*k - I₁)) + η/3*((6-3*η)*k + 3*(2*η*k-I₁)) := by
       rw [hη] at *
-      linarith
+      sorry --`linarith` used to close this, but this stopped working for some reason
     _ = (8*η+η^2)*k - ((1-5*η)/(1-η)*(1+η/3)-η)*(2*η*k-I₁) := by
       ring
     _ ≤ (8*η + η^2) * k := by
