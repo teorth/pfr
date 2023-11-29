@@ -1,3 +1,4 @@
+import Mathlib.Probability.Notation
 import PFR.main
 
 
@@ -30,7 +31,46 @@ end Kernels
 
 
 section Entropy
--- some examples to showcase Shannon entropy in a self-contained fashion?
+-- some examples to showcase Shannon entropy in a self-contained fashion
+
+open MeasureTheory ProbabilityTheory BigOperators
+
+variable {Ω : Type*} [MeasureSpace Ω] [hΩ : IsProbabilityMeasure (ℙ : Measure Ω)]
+
+variable {S : Type*} [Fintype S] [Nonempty S][MeasurableSpace S] [MeasurableSingletonClass S]
+
+variable {T : Type*} [Fintype T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
+
+variable {U : Type*} [Fintype U] [Nonempty U][MeasurableSpace U] [MeasurableSingletonClass U]
+
+variable (X : Ω → S) (hX: Measurable X) (Y : Ω → T) (hY: Measurable Y) (Z : Ω → U) (hZ: Measurable Z)
+
+/-- $H[X]$ is the Shannon entropy of $X$. -/
+example : H[X] = - ∑ x, ((ℙ: Measure Ω).map X {x}).toReal * Real.log ((ℙ: Measure Ω).map X {x}).toReal := by
+  rw [entropy_eq_sum hX ℙ, <-Finset.sum_neg_distrib]
+  congr with x
+  unfold Real.negIdMulLog
+  ring
+
+/-- $\langle X,Y \rangle$ is the random variable formed by pairing $X$ and $Y$. -/
+
+example (ω : Ω) : (⟨X, Y⟩) ω = (X ω, Y ω) := rfl
+
+/-- $H[X|Y]$ is the conditional entropy of $X$ relative to $Y$. -/
+example : H[X|Y] = H[⟨ X,Y ⟩] - H[Y] := chain_rule'' ℙ hX hY
+
+/-- $I[X:Y]$ is the mutual information between $X$ and $Y$. -/
+example : I[X:Y] = H[X] + H[Y] - H[⟨ X,Y ⟩] := rfl
+
+/-- $I[X:Y|Z]$ is the conditional mutual information between $X$ and $Y$ relative to $Z$. -/
+example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInformation_eq hX hY hZ ℙ
+
+/-- Submodularity: conditional information is nonnegative. -/
+example : 0 ≤ I[X : Y | Z] := condMutualInformation_nonneg hX hY Z ℙ
+
+/-- Relation between conditional mutual information and conditional independence. -/
+example : I[X : Y | Z]  = 0  ↔ condIndepFun X Y Z ℙ := condMutualInformation_eq_zero hX hY hZ
+
 
 end Entropy
 
