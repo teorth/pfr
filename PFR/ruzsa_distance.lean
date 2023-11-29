@@ -423,12 +423,6 @@ lemma cond_rdist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' →
   have : IsProbabilityMeasure (μ'.map W) := isProbabilityMeasure_map hW.aemeasurable
   rw [cond_rdist_def, cond_rdist_def, kernel.rdist_symm]
 
-/-- Formula for the product measure applied to a singleton. -/
-lemma Measure.prod_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
-    (μ : Measure α) (ν : Measure β) [SigmaFinite ν] (x : α × β) :
-    (μ.prod ν) {x} = μ {x.1} * ν {x.2} := by
-  rw [← Prod.eta x, ← Set.singleton_prod_singleton, Measure.prod_prod]
-
 /-- Ruzsa distance of random variables equals Ruzsa distance of the kernels. -/
 lemma rdist_eq_rdistm : d[X ; μ # Y ; μ'] = kernel.rdistm (μ.map X) (μ'.map Y) := rfl
 
