@@ -19,7 +19,7 @@ In particular, $|H| = |H_0| |H_1|$.
 \begin{theorem}[Homomorphism form of PFR]\label{hom-pfr}\lean{homomorphism-pfr}  Let $f: G \to G'$ be a function, and let $S$ denote the set
 $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
-$$ |\{ f(x) - \phi(x)\}| \leq 4 |S|^{24}.$$
+$$ |\{ f(x) - \phi(x): x \in G \}| \leq 4 |S|^{24}.$$
 \end{theorem}
 
 \begin{proof}\uses{goursat, pfr} Consider the graph $A \subset G \times G'$ defined by
