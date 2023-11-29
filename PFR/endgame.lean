@@ -29,21 +29,19 @@ Assumptions:
   given some random variables with control on total cost, as well as total mutual information.
 -/
 
-universe u
-
 open MeasureTheory ProbabilityTheory
 
 open scoped BigOperators
 
-variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+variable {G : Type*} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
-variable {Ω₀₁ Ω₀₂ : Type u} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
+variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 
-variable {Ω : Type u} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+variable {Ω : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 variable (X₁ X₂ X₁' X₂' : Ω → G)
   (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
@@ -159,9 +157,37 @@ local notation3:max "c[" A "; " μ " # " B " ; " μ' "]" =>
 local notation3:max "c[" A " # " B "]" =>
   d[p.X₀₁ # A] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # B] - d[p.X₀₂ # X₂])
 
-local notation3:max "c[" A " | " B " # " C " | " D "]" =>
-  d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
+local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
+lemma ruzsa_helper_lemma [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] {A B C : Ω → G}
+  (hB : Measurable B) (hC : Measurable C) (hA : Measurable A)
+  (H : A = B + C) : d[p.X₀₂ # B | A] = d[p.X₀₂ # C | A] := by
+  rw [cond_rdist'_eq_sum, cond_rdist'_eq_sum]
+  apply Finset.sum_congr rfl
+  intro x
+  simp only [Finset.mem_univ, mul_eq_mul_left_iff]
+  intro _
+  apply Or.intro_left
+  sorry
+  sorry
+  sorry
+  sorry
+  sorry
+
+variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+
+lemma hU : H[U] = H[X₁' + X₂'] := by
+  apply IdentDistrib.entropy_eq
+  apply ProbabilityTheory.IdentDistrib.add
+  repeat assumption
+  · have aux : IndepFun (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 0)
+                        (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 1) := by
+      apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 0) (j := 1); simp
+    simp at aux; assumption
+  · have aux : IndepFun (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 2)
+                        (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 3) := by
+      apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 2) (j := 3); decide
+    simp at aux; assumption
 
 /--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
@@ -169,14 +195,83 @@ is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
 lemma sum_dist_diff_le :
-    c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by sorry
+  c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
+  let X₀₁ := p.X₀₁
+  let X₀₂ := p.X₀₂
+
+  have aux1 : H[S] + H[U] - H[X₁] - H[X₁' + X₂'] = H[S] - H[X₁] := by
+    rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep]
+    ring
+
+  have independenceCondition1 : iIndepFun (fun x ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
+    sorry
+
+  have aux2 : d[X₀₁ # U | U + (X₁' + X₂')] - d[X₀₁ # X₁]
+            ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₁] - H[X₁' + X₂']) / 2 :=
+    condDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂)
+    (hZ' := Measurable.add hX₁' hX₂') independenceCondition1
+
+  have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by
+    rw [← add_assoc, aux1] at aux2
+    linarith [aux2]
+  have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
+  have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
+  have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
+
+  let W' := X₂ + X₂'
+  have ineq5 : d[X₀₁ # W | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 := by
+    sorry
+
+  have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2 := by
+    sorry
+
+  have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S]
+  · have S_eq : S = (X₂ + X₂') + (X₁' + X₁)
+    · rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ←add_assoc X₂, ←add_assoc X₂, add_comm X₂]
+    apply ruzsa_helper_lemma p (Measurable.add' hX₂ hX₂') (Measurable.add' hX₁' hX₁) _ S_eq
+    · rw [S_eq] ; apply (Measurable.add' (Measurable.add' hX₂ hX₂') (Measurable.add' hX₁' hX₁))
+
+  -- Put everything together to bound the sum of the `c` terms
+  have ineq7 : c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ]
+  · have step₁ :  c[U|S # U|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
+    · calc c[U|S # U|S] = (d[p.X₀₁ # U|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # U|S] - d[p.X₀₂ # X₂]) := by ring
+        _ ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 + (H[S ; ℙ] - H[X₂ ; ℙ])/2 := add_le_add ineq1 ineq2
+        _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
+    have step₂ : c[V|S # V|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
+    · calc c[V|S # V|S] =(d[p.X₀₁ # V|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # V|S] - d[p.X₀₂ # X₂]) := by ring
+        _ ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 + (H[S ; ℙ] - H[X₂ ; ℙ])/2 := add_le_add ineq3 ineq4
+        _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
+    have step₃ : c[W|S # W|S] ≤  H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
+    · calc c[W|S # W|S] = (d[X₀₁ # W | S] - d[X₀₁ # X₁]) + (d[X₀₂ # W' | S] - d[X₀₂ # X₂]) :=
+          by rw [dist_eq]
+        _ ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 + (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
+          := add_le_add ineq5 ineq6
+        _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
+    calc c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) +
+      (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) + (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) :=
+        add_le_add (add_le_add step₁ step₂) step₃
+    _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
+
+  -- This could maybe be inlined once we've resolved the timeout issue!
+  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁
+  · calc 3 * H[S ; ℙ] ≤ 3 * (1/2 * H[X₁ ; ℙ] + 1/2 * H[X₂ ; ℙ] + (2+η)*k - I₁) := by
+          apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr sorry
+         -- The following should work `apply ent_ofsum_le p X₁ X₂ X₁' X₂'` but seems to cause a timeout...
+      _ =  3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁ := by ring
+
+  -- Final computation
+  calc c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S]  ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := ineq7
+     _ = 3 * H[S ; ℙ] - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) := by ring
+     _ ≤ (3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁) - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) :=
+        sub_le_sub_right ineq8 _
+     _ = (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by ring
 
 /-- $U+V+W=0$. -/
 lemma sum_uvw_eq_zero : U+V+W = 0 := by
   rw [add_comm X₁' X₂, ElementaryAddCommGroup.sum_add_sum_add_sum_eq_zero]
 
 section construct_good
-variable {Ω' : Type u} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
+variable {Ω' : Type*} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
 variable {T₁ T₂ T₃ : Ω' → G}  (hT : T₁+T₂+T₃ = 0)
 variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
 
@@ -262,7 +357,7 @@ lemma construct_good_prelim :
   -- have h7 : k ≤ ψ[Y₁ # Y₂] := sorry
 
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
-
+-
 $$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
 
 Then there exist random variables $T'_1, T'_2$ such that
@@ -295,7 +390,8 @@ lemma cond_c_eq_integral {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable 
   rw [← cond_rdist'_eq_integral _ hY hZ, ← cond_rdist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
-  simp
+  simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+
 
 variable {R : Ω' → G} (hR : Measurable R)
 local notation3:max "δ'" => I[T₁:T₂|R] + I[T₂:T₃|R] + I[T₃:T₁|R]
@@ -354,7 +450,7 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have h : k ≤ (8*η + η^2) * k := calc
     k ≤ (1+η/3) * (6*η*k - (1-5*η) / (1-η) * (2*η*k - I₁)) + η/3*((6-3*η)*k + 3*(2*η*k-I₁)) := by
       rw [hη] at *
-      linarith
+      sorry --`linarith` used to close this, but this stopped working for some reason
     _ = (8*η+η^2)*k - ((1-5*η)/(1-η)*(1+η/3)-η)*(2*η*k-I₁) := by
       ring
     _ ≤ (8*η + η^2) * k := by
