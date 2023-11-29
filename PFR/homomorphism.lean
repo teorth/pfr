@@ -5,8 +5,18 @@ open Pointwise
 variable {G G' : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [AddCommGroup G'] [ElementaryAddCommGroup G' 2] [Fintype G']
 
 /-- Let $H_0$ be a subgroup of $G$.  Then every homomorphism $\phi: H_0 \to G'$ can be extended to a homomorphism $\tilde \phi: G \to G'$. -/
-lemma hahn_banach (H₀ : AddSubgroup G) (φ : H₀ →+ G') : ∃ (φ' : G →+ G'), ∀ x : H₀, φ x = φ' x := sorry
-
+lemma hahn_banach (H₀ : AddSubgroup G) (φ : H₀ →+ G') : ∃ (φ' : G →+ G'), ∀ x : H₀, φ x = φ' x := by
+  haveI : ElementaryAddCommGroup H₀ 2 := ElementaryAddCommGroup.subgroup _
+  let ι := ElementaryAddCommGroup.linearMap H₀.subtype
+  have hι : Function.Injective ι :=
+    show Function.Injective H₀.subtype from AddSubgroup.subtype_injective H₀
+  have : LinearMap.ker ι = ⊥ := by exact LinearMap.ker_eq_bot.mpr hι
+  obtain ⟨g,hg⟩ := LinearMap.exists_leftInverse_of_injective ι this
+  use φ.comp g.toAddMonoidHom
+  intro x
+  show φ x = φ ((g.comp ι) x)
+  rw [hg]
+  rfl
 
 /-- Let $H$ be a subgroup of $G \times G'$.  Then there exists a subgroup $H_0$ of $G$, a subgroup $H_1$ of $G'$, and a homomorphism $\phi: G \to G'$ such that
 $$ H := \{ (x, \phi(x) + y): x \in H_0, y \in H_1 \}.$$
