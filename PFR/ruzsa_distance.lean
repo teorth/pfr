@@ -28,9 +28,7 @@ $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - 
 -/
 open MeasureTheory ProbabilityTheory BigOperators
 
-universe u
-
-variable {Ω : Type u} {Ω' Ω'' Ω''' G T : Type*}
+variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
@@ -370,11 +368,7 @@ lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
     rw [entropy_sub_comm hY hZ]
 
 /-- The **entropic Ruzsa triangle inequality** -/
-lemma rdist_triangle {Ω Ω' Ω'' : Type u}
-  [mΩ : MeasurableSpace Ω] (μ : Measure Ω)
-  [mΩ' : MeasurableSpace Ω'] (μ' : Measure Ω')
-  [mΩ'' : MeasurableSpace Ω''] (μ'' : Measure Ω'')
-  {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
+lemma rdist_triangle {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
   (hX: Measurable X) (hY: Measurable Y) (hZ : Measurable Z)
   [hμ : IsProbabilityMeasure μ] [hμ' : IsProbabilityMeasure μ'] [hμ'' : IsProbabilityMeasure μ''] :
     d[X ; μ # Z ; μ''] ≤ d[X ; μ # Y ; μ'] + d[Y ; μ' # Z ; μ''] := by

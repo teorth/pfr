@@ -29,21 +29,19 @@ Assumptions:
   given some random variables with control on total cost, as well as total mutual information.
 -/
 
-universe u
-
 open MeasureTheory ProbabilityTheory
 
 open scoped BigOperators
 
-variable {G : Type u} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+variable {G : Type*} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
-variable {Ω₀₁ Ω₀₂ : Type u} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
+variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 
-variable {Ω : Type u} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+variable {Ω : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 variable (X₁ X₂ X₁' X₂' : Ω → G)
   (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
@@ -176,7 +174,7 @@ lemma sum_uvw_eq_zero : U+V+W = 0 := by
   rw [add_comm X₁' X₂, ElementaryAddCommGroup.sum_add_sum_add_sum_eq_zero]
 
 section construct_good
-variable {Ω' : Type u} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
+variable {Ω' : Type*} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
 variable {T₁ T₂ T₃ : Ω' → G}  (hT : T₁+T₂+T₃ = 0)
 variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
 
