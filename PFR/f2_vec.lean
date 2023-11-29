@@ -24,6 +24,11 @@ class ElementaryAddCommGroup (G : Type*) [AddCommGroup G] (p : outParam ℕ) : P
 
 namespace ElementaryAddCommGroup
 
+def ofModule {G : Type*} [AddCommGroup G] [Module (ZMod p) G] [Fact p.Prime] :
+    ElementaryAddCommGroup G p where
+  orderOf_of_ne h :=
+    addOrderOf_eq_prime ((Basis.ofVectorSpace (ZMod p) G).ext_elem_iff.mpr (fun i => by simp)) h
+
 /-- In an elementary abelian $p$-group, every finite subgroup $H$ contains a further subgroup of
 cardinality between $k$ and $pk$, if $k \leq |H|$.-/
 lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ}
