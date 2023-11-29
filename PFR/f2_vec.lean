@@ -28,8 +28,7 @@ namespace ElementaryAddCommGroup
 -- We can't make this an instance as `p` is not determined.
 def ofModule {G : Type*} [AddCommGroup G] [Module (ZMod p) G] [Fact p.Prime] :
     ElementaryAddCommGroup G p where
-  orderOf_of_ne h :=
-    addOrderOf_eq_prime ((Basis.ofVectorSpace (ZMod p) G).ext_elem_iff.mpr (fun i => by simp)) h
+  orderOf_of_ne := addOrderOf_eq_prime (Basis.ext_elem (.ofVectorSpace (ZMod p) G) (by simp))
 
 -- We add the special case instance for `p = 2`.
 instance {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] :
