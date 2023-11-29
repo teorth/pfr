@@ -8,11 +8,12 @@ import Mathlib.Probability.Kernel.CondDistrib
 We can write `κ : kernel S (T × U)` as a composition-product `(fst κ) ⊗ₖ (condKernel κ)` where
 `fst κ : kernel S T` and `condKernel : kernel (S × T) U` is defined in this file.
 
-TODO: most of the results in this file should be changed to reuse Mathlib results about the
+## TODO
+
+Most of the results in this file should be changed to reuse Mathlib results about the
 kernels `Measure.condKernel` and `condDistrib`. See for example the lemma
 `condEntropyKernel_eq_condDistrib`, which states that the new `condEntropyKernel X Y μ` introduced
 here is the same as `condDistrib X Y μ` (almost surely with respect to the law of `Y`).
-
 
 -/
 
