@@ -26,13 +26,11 @@ namespace ElementaryAddCommGroup
 
 /-- A vector space over Z/p is an elementary abelian p-group. -/
 -- We can't make this an instance as `p` is not determined.
-def ofModule {G : Type*} [AddCommGroup G] [Module (ZMod p) G] [Fact p.Prime] :
-    ElementaryAddCommGroup G p where
+def ofModule [AddCommGroup G] [Module (ZMod p) G] [Fact p.Prime] : ElementaryAddCommGroup G p where
   orderOf_of_ne := addOrderOf_eq_prime (Basis.ext_elem (.ofVectorSpace (ZMod p) G) (by simp))
 
 -- We add the special case instance for `p = 2`.
-instance {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] :
-    ElementaryAddCommGroup G 2 := ofModule
+instance [AddCommGroup G] [Module (ZMod 2) G] : ElementaryAddCommGroup G 2 := ofModule
 
 /-- In an elementary abelian $p$-group, every finite subgroup $H$ contains a further subgroup of
 cardinality between $k$ and $pk$, if $k \leq |H|$.-/
