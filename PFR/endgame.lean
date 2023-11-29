@@ -159,6 +159,39 @@ local notation3:max "c[" A " # " B "]" =>
 
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
+lemma ruzsa_helper_lemma'
+    [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω → G}
+    (hX : Measurable X) (hB : Measurable B) (hC : Measurable C)
+    (h_indep : IndepFun X (⟨B, C⟩)) :
+    d[X # B | B + C] = d[X # C | B + C] := by
+  let π : G × G →+ G :=
+  { toFun := fun x ↦ x.2 - x.1
+    map_zero' := by simp
+    map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add,
+      ElementaryAddCommGroup.sub_eq_add]; abel }
+  let Y : Fin 4 → Ω → G := ![-X, C, fun ω ↦ 0, B + C]
+  have hY_meas : ∀ i, Measurable (Y i) := by
+    intro i
+    fin_cases i
+    exacts [hX.neg, hC, measurable_const, hB.add hC]
+  calc d[X # B | B + C]
+    = d[X | fun ω : Ω ↦ (0 : G) # B | B + C] := by rw [cond_rdist_of_const hX]
+  _ = d[π ∘ ⟨-X, fun ω : Ω ↦ (0 : G)⟩ | fun ω : Ω ↦ (0 : G) # π ∘ ⟨C, B + C⟩ | B + C] := by
+        congr
+        · ext1 ω; simp
+        · ext1 ω
+          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply, Pi.add_apply]
+          abel
+  _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 # π ∘ ⟨Y 1, Y 3⟩ | Y 3] := by congr
+  _ = d[-X | fun ω : Ω ↦ (0 : G) # C | B + C] := by
+        rw [cond_rdist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
+        · congr
+        · sorry -- ⊢ IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) -- deduce it from h_indep
+  _ = d[-X # C | B + C] := by rw [cond_rdist_of_const]; exact hX.neg
+  _ = d[X # C | B + C] := by -- because ElementaryAddCommGroup G 2
+        congr
+        simp
+
 lemma ruzsa_helper_lemma [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] {A B C : Ω → G}
   (hB : Measurable B) (hC : Measurable C) (hA : Measurable A)
   (H : A = B + C) : d[p.X₀₂ # B | A] = d[p.X₀₂ # C | A] := by
