@@ -17,6 +17,12 @@ example {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
 end PFR
 
 
+
+section RealMeasure
+-- some examples to showcase real-valued measuresin a self-contained fashion?
+
+end RealMeasure
+
 section Kernels
 -- some examples to showcase the probability kernel stuff in a self-contained fashion?
 
