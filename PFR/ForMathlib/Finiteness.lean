@@ -48,6 +48,7 @@ open Aesop.BuiltinRules in
 attribute [aesop (rule_sets [Finiteness]) safe -50] assumption intros
 
 open Lean Elab Tactic in
+/-- A version of the positivity tactic for use by `aesop`. -/
 @[aesop safe tactic (rule_sets [Finiteness])]
 def PositivityForAesop : TacticM Unit :=
   liftMetaTactic fun g => do Mathlib.Meta.Positivity.positivity g; pure []

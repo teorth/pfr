@@ -2,7 +2,7 @@ import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.MeasureReal
 
-open MeasureTheory ProbabilityTheory Function Set
+open MeasureTheory ProbabilityTheory Function Set BigOperators
 
 namespace ProbabilityTheory
 
@@ -29,6 +29,45 @@ theorem indepFun_iff_map_prod_eq_prod_map_map' {mβ : MeasurableSpace β} {mβ' 
   · intro h s t hs ht
     rw [(h₀ hs ht).1, (h₀ hs ht).2, h, Measure.prod_prod]
 
+-- todo: (Mantas) add this to mathlib & upgrade to work for `AEMeasurable` (currently lemmas missing)
+theorem iIndepFun_iff_map_prod_eq_prod_map_map
+    {ι : Type*} {β : ι → Type*} [Fintype ι] (f : ∀ x : ι, Ω → β x) (m: ∀ x : ι, MeasurableSpace (β x))
+    [IsProbabilityMeasure μ] (hf : ∀ (x : ι), Measurable (f x)) :
+    iIndepFun m f μ ↔ μ.map (fun ω i ↦ f i ω) = (Measure.pi (fun i => μ.map (f i))) := by
+  classical -- might be able to get rid of this
+  rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
+  have h₀  {h: (i : ι) → Set (β i)} (hm : ∀ (i : ι), MeasurableSet (h i)) :
+      ∏ i : ι, μ ((f i)⁻¹' (h i)) = ∏ i : ι, μ.map (f i) (h i) ∧
+      μ (⋂ i : ι, ((f i)⁻¹' (h i))) = μ.map (fun ω i ↦ f i ω) (Set.pi univ h) := by
+      constructor
+      · rw [Finset.prod_congr (show Finset.univ = Finset.univ by rfl) (fun x _ => Measure.map_apply_of_aemeasurable (hf x).aemeasurable (hm x))]
+      · rw [Measure.map_apply_of_aemeasurable _ (MeasurableSet.univ_pi hm)]
+        · congr
+          aesop
+        measurability
+  constructor
+  · refine fun hS ↦ (Measure.pi_eq fun h hm ↦ ?_).symm
+    rw [← (h₀ hm).1, ← (h₀ hm).2]
+    convert hS Finset.univ (sets := h)
+    simp [hm]
+  · intro h S s hs
+    set l : (i : ι) → Set (β i) := fun i ↦ if i ∈ S then s i else univ with hldef
+    have hl : (∀ (i : ι), MeasurableSet (l i)) := by
+      intro i
+      by_cases hiS : i ∈ S
+      · simp[hldef, hiS, hs i]
+      · simp[hldef, hiS]
+    specialize h₀ hl
+    rw [h] at h₀
+    convert h₀.2 using 1
+    · congr
+      aesop
+    · convert h₀.1 using 1
+      · rw [hldef, ← Finset.prod_compl_mul_prod S]
+        suffices : ∀ i ∈ Sᶜ, μ (f i ⁻¹' (fun i ↦ if i ∈ S then s i else univ) i) = 1
+        · rw [Finset.prod_congr (show Sᶜ = Sᶜ by rfl) this]; aesop
+        aesop
+      . aesop
 
 variable [IsFiniteMeasure μ] [IsFiniteMeasure ν] in
 theorem IdentDistrib.prod_mk
@@ -92,10 +131,9 @@ lemma iIndepFun.neg (h : iIndepFun n f μ) : iIndepFun n (update f i (-f i)) μ 
 
 variable [IsProbabilityMeasure μ]
 
-lemma iIndepFun.indepFun_prod_prod
-  (h_indep: iIndepFun n f μ) (hf: ∀ i, Measurable (f i))
-  (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
-  IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
+lemma iIndepFun.indepFun_prod_prod (h_indep: iIndepFun n f μ) (hf: ∀ i, Measurable (f i))
+    (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
+    IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
   classical
   have hd : Disjoint ({i, j} : Finset ι) ({k,l} : Finset ι) := by
     simp only [Finset.mem_singleton, Finset.disjoint_insert_right, Finset.mem_insert,
@@ -106,6 +144,13 @@ lemma iIndepFun.indepFun_prod_prod
     ⟨v ⟨i, Finset.mem_insert_self i {j}⟩, v ⟨j, Finset.mem_insert_of_mem (Finset.mem_singleton_self j)⟩⟩
   have hg (i j : ι) : Measurable (g i j) := by measurability
   exact h.comp (hg i j) (hg k l)
+
+@[to_additive]
+lemma iIndepFun.indepFun_mul_mul {β : Type*} {m : MeasurableSpace β} {f : ι → Ω → β} [Mul β]
+    [hβ : MeasurableMul₂ β] (h_indep: iIndepFun (fun _ => m) f μ) (hf: ∀ i, Measurable (f i))
+    (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
+    IndepFun (f i * f j) (f k * f l) μ :=
+  (h_indep.indepFun_prod_prod hf i j k l hik hil hjk hjl).comp hβ.measurable_mul hβ.measurable_mul
 
 end iIndepFun
 
