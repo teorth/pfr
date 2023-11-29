@@ -1,9 +1,9 @@
 import PFR.main
 
 
+section PFR
+
 open Pointwise
-
-
 
 /-- A self-contained version of the PFR conjecture using only Mathlib definitions. -/
 example {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
@@ -14,4 +14,28 @@ example {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
   convert PFR_conjecture' h₀A Afin hA
   norm_cast
 
---- Maybe some examples to demonstrate the notions of Shannon entropy, mutual information, Ruzsa distance, and state some of our inequalities about them (E.g., Ruzsa triangle inequality?)
+end PFR
+
+
+section Kernels
+-- some examples to showcase the probability kernel stuff in a self-contained fashion?
+
+end Kernels
+
+
+section Entropy
+-- some examples to showcase Shannon entropy in a self-contained fashion?
+
+end Entropy
+
+
+section RuzsaDistance
+-- some examples to showcase Ruzsa distance in a self-contained fashion?
+
+end RuzsaDistance
+
+
+section Finiteness
+-- some examples to showcase the Finiteness tactic?
+
+end Finiteness
