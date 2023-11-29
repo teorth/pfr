@@ -35,7 +35,7 @@ section Entropy
 
 open MeasureTheory ProbabilityTheory BigOperators
 
-variable {Ω : Type*} [MeasureSpace Ω] [hΩ : IsProbabilityMeasure (ℙ : Measure Ω)]
+variable {Ω : Type*} [MeasureSpace Ω] [ IsProbabilityMeasure (ℙ : Measure Ω)]
 
 variable {S : Type*} [Fintype S] [Nonempty S][MeasurableSpace S] [MeasurableSingletonClass S]
 
@@ -76,7 +76,31 @@ end Entropy
 
 
 section RuzsaDistance
--- some examples to showcase Ruzsa distance in a self-contained fashion?
+-- some examples to showcase Ruzsa distance in a self-contained fashion
+
+open MeasureTheory ProbabilityTheory
+
+variable {Ω : Type*} [MeasureSpace Ω] [ IsProbabilityMeasure (ℙ : Measure Ω)]
+
+variable {G : Type*} [hG: MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
+  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G]
+
+variable (X : Ω → G) (hX: Measurable X) (Y : Ω → G) (hY: Measurable Y) (Z : Ω → G) (hZ: Measurable Z) (X' : Ω → G) (Y' : Ω → G)
+
+/-- `d[X # Y]` is the Ruzsa distance when `X`, `Y` are independent. -/
+example (h : IndepFun X Y) : d[X # Y] = H[X-Y] - H[X]/2 - H[Y]/2 := ProbabilityTheory.IndepFun.rdist_eq h hX hY
+
+/-- `d[X # Y]` depends only on the distribution of `X` and `Y`.-/
+example (h1: IdentDistrib X X') (h2: IdentDistrib Y Y') : d[X # Y] = d[X' # Y'] := ProbabilityTheory.IdentDistrib.rdist_eq h1 h2
+
+/-- The Ruzsa triangle inequality. -/
+example : d[X # Z] ≤ d[X # Y] + d[Y # Z] := rdist_triangle hX hY hZ
+
+/-- The Kaimanovich-Vershik-Madiman inequality -/
+example (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z]) : H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y] := kaimanovich_vershik h hX hY hZ
+
+/-- The entropic Balog--Szemeredi--Gowers inequality -/
+example (h: Z = X+Y) : ((ℙ:Measure Ω).map Z)[fun z ↦ d[ X; ℙ[|Z⁻¹' {z}] # Y ; ℙ[|Z⁻¹' {z}] ]] ≤ 3 * I[ X : Y] + 2 * H[Z] - H[X] - H[Y] := ent_bsg  hX hY h
 
 end RuzsaDistance
 
