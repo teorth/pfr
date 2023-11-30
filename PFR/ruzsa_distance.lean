@@ -699,15 +699,16 @@ lemma cond_rdist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
-lemma cond_rdist_of_inj_map [IsProbabilityMeasure μ]
+lemma cond_rdist_of_inj_map {G' : Type*} [Fintype G'] [AddCommGroup G']
+  [MeasurableSpace G'] [MeasurableSingletonClass G'] [IsProbabilityMeasure μ]
   (Y : Fin 4 → Ω → G) (h_indep : IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) μ)
-  (h_meas : ∀ i, Measurable (Y i)) (π : G × G →+ G × G)
+  (h_meas : ∀ i, Measurable (Y i)) (π : G × G →+ G')
   (hπ : ∀ (h : G), Function.Injective (fun g ↦ π (g, h))) :
     d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] = d[Y 0 | Y 2 ; μ # Y 1 | Y 3 ; μ] := by
-  let f (h : G) (g : G) : G × G := π (g, h)
-  let f' : G × G → G → (G × G) := fun (h1, h2) ↦ fun g ↦ π (g, h1 - h2)
+  let f (h : G) (g : G) : G' := π (g, h)
+  let f' : G × G → G → G' := fun (h1, h2) ↦ fun g ↦ π (g, h1 - h2)
   have hf' (t : G × G) : Function.Injective (f' t) := fun _ _ h ↦ hπ _ h
-  let f'' : G × G → (G × G) × G := fun (g, h) ↦ (π (g, h), h)
+  let f'' : G × G → G' × G := fun (g, h) ↦ (π (g, h), h)
   have hf'' : Measurable f'' := measurable_of_countable _
   have hm1 : Measurable (Y 0 - Y 1) := (h_meas 0).sub (h_meas 1)
   have hm2 : Measurable (⟨Y 2, Y 3⟩) := (h_meas 2).prod_mk (h_meas 3)
