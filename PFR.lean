@@ -22,6 +22,7 @@ import PFR.ForMathlib.Jensen
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.Miscellaneous
 import PFR.ForMathlib.Positivity
+import PFR.homomorphism
 import PFR.HundredPercent
 import PFR.main
 import PFR.neg_xlogx

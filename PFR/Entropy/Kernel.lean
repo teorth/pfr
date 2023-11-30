@@ -289,6 +289,30 @@ lemma entropy_prodMkRight (κ : kernel T S) (η : kernel T U)
   simp_rw [this, ← Finset.mul_sum, sum_toReal_measure_singleton]
   simp
 
+lemma entropy_prodMkRight' (η : kernel T U)
+    (μ : Measure T) [IsProbabilityMeasure μ] (ν : Measure S) [IsProbabilityMeasure ν] :
+    Hk[prodMkRight η S, μ.prod ν] = Hk[η, μ] := by
+  rw [← entropy_prodMkRight (kernel.const T ν) η μ]
+  congr
+  ext s hs
+  simp_rw [Measure.prod_apply hs, Measure.compProd_apply _ _ hs, kernel.const_apply]
+
+lemma _root_.MeasureTheory.Measure.prod_apply_singleton {α β : Type*}
+    {_ : MeasurableSpace α} {_ : MeasurableSpace β}
+    (μ : Measure α) (ν : Measure β) [SigmaFinite ν] (x : α × β) :
+    (μ.prod ν) {x} = μ {x.1} * ν {x.2} := by
+  rw [← Prod.eta x, ← Set.singleton_prod_singleton, Measure.prod_prod]
+
+@[simp]
+lemma entropy_prodMkLeft (η : kernel T U)
+    (ν : Measure S) [IsProbabilityMeasure ν] (μ : Measure T) [IsProbabilityMeasure μ] :
+    Hk[prodMkLeft S η, ν.prod μ] = Hk[η, μ] := by
+  simp_rw [entropy, prodMkLeft_apply, integral_eq_sum, smul_eq_mul]
+  rw [Fintype.sum_prod_type]
+  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, mul_assoc, ← Finset.mul_sum,
+    ← Finset.sum_mul, sum_toReal_measure_singleton]
+  simp
+
 @[simp]
 lemma entropy_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) [IsProbabilityMeasure μ] :
