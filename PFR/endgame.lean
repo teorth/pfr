@@ -159,21 +159,6 @@ local notation3:max "c[" A " # " B "]" =>
 
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
-lemma ruzsa_helper_lemma [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] {A B C : Ω → G}
-  (hB : Measurable B) (hC : Measurable C) (hA : Measurable A)
-  (H : A = B + C) : d[p.X₀₂ # B | A] = d[p.X₀₂ # C | A] := by
-  rw [cond_rdist'_eq_sum, cond_rdist'_eq_sum]
-  apply Finset.sum_congr rfl
-  intro x
-  simp only [Finset.mem_univ, mul_eq_mul_left_iff]
-  intro _
-  apply Or.intro_left
-  sorry
-  sorry
-  sorry
-  sorry
-  sorry
-
 variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
 lemma hU : H[U] = H[X₁' + X₂'] := by
@@ -214,7 +199,9 @@ lemma sum_dist_diff_le :
   have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by
     rw [← add_assoc, aux1] at aux2
     linarith [aux2]
-  have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
+  have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by
+    rw [← add_assoc, aux1] at aux2
+    linarith [aux2]
   have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by sorry
   have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by sorry
 
