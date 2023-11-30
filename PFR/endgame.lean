@@ -189,6 +189,91 @@ lemma hU : H[U] = H[X₁' + X₂'] := by
       apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 2) (j := 3); decide
     simp at aux; assumption
 
+
+abbrev ι := Fin 4
+abbrev ι' := Fin 3 
+
+abbrev S1 : ι' → Finset ι 
+  | 0 => {0} 
+  | 1 => {1} 
+  | 2 => {2, 3}
+
+def beta1 := fun x ↦ Π i : S1 x, G
+
+def f1 (x : Fin 3) : Ω → Π i : S1 x, G := 
+  match x with 
+  | 0 => fun ω _ => X₁ ω 
+  | 1 => fun ω _ => X₂ ω
+  | 2 => fun ω i => match i with 
+                    | { val := 2, property := _ } => X₁' ω
+                    | { val := 3, property := _ } => X₂' ω
+
+lemma aux_0 (i : { x // x ∈ S1 0 }) : (↑i : Fin 4) = 0 := by
+  rw [← List.mem_singleton]
+  apply i.property
+
+lemma aux_1 (i : { x // x ∈ S1 1 }) : (↑i : Fin 4) = 1 := by
+  rw [← List.mem_singleton]
+  apply i.property
+
+variable {X₁ X₂ X₁' X₂'} in
+lemma independenceCondition1' : iIndepFun (fun _ => MeasurableSpace.pi) (f1 X₁ X₂ X₁' X₂') := by
+  have aux : f1 X₁ X₂ X₁' X₂' = fun (l : ι') (x : Ω) (i : S1 l) ↦ ![X₁, X₂, X₁', X₂'] (↑i) x := by 
+    funext a
+    match a with 
+    | 0 => simp [aux_0]; rfl
+    | 1 => simp [aux_1]; rfl
+    | 2 => 
+      funext x i 
+      have hi : i = (2 : Fin 4) ∨ i = (3 : Fin 4) := by 
+        match i with  
+        | { val := 2, property := _ }
+        | { val := 3, property := _ } => reduce; decide
+      rcases hi with hi2 | hi3 
+      · rw [show i = { val := 2, property := by decide } from (by aesop)]
+        rfl
+      · rw [show i = { val := 3, property := by decide } from (by aesop)]
+        rfl
+  rw [aux]
+  apply iIndepFun.prod
+  exact h_indep
+
+def g : (i : Fin 3) → ({ x // x ∈ S1 i } → G) → G 
+  | 0 => fun X => X { val := 0, property := by decide }
+  | 1 => fun X => X { val := 1, property := by decide }
+  | 2 => fun X => X { val := 2, property := by decide } + X { val := 3, property := by decide } 
+
+lemma measurable_g (i : Fin 3) : Measurable (g (G := G) i) := by 
+  match i with 
+  | 2 => 
+    have aux : 
+    Measurable (fun (X : { x // x ∈ S1 2 } → G) ↦ X { val := 2, property := by decide }
+                                                 + X { val := 3, property := by decide }):= by 
+      measurability
+    exact aux 
+  | 0 => 
+    unfold g
+    have aux : 
+    Measurable (fun (X : { x // x ∈ S1 0 } → G) ↦ X { val := 0, property := by decide }) := by 
+      measurability
+    exact aux
+  | 1 => 
+    have aux : 
+    Measurable (fun (X : { x // x ∈ S1 1 } → G) ↦ X { val := 1, property := by decide }) := by 
+      measurability
+    exact aux
+
+variable {X₁ X₂ X₁' X₂'} in
+lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
+
+  have aux : ![X₁, X₂, X₁' + X₂'] = (fun i => g i ∘ f1 X₁ X₂ X₁' X₂' i) := by 
+    funext i 
+    match i with 
+    | 0 | 1 | 2 => rfl
+  
+  rw [aux]
+  apply iIndepFun.comp (independenceCondition1' h_indep) g measurable_g
+
 /--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
@@ -203,13 +288,10 @@ lemma sum_dist_diff_le :
     rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep]
     ring
 
-  have independenceCondition1 : iIndepFun (fun x ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
-    sorry
-
   have aux2 : d[X₀₁ # U | U + (X₁' + X₂')] - d[X₀₁ # X₁]
             ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₁] - H[X₁' + X₂']) / 2 :=
     condDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂)
-    (hZ' := Measurable.add hX₁' hX₂') independenceCondition1
+    (hZ' := Measurable.add hX₁' hX₂') (independenceCondition1 h_indep)
 
   have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by
     rw [← add_assoc, aux1] at aux2
