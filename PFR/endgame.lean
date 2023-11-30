@@ -159,23 +159,6 @@ local notation3:max "c[" A " # " B "]" =>
 
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
-lemma ruzsa_helper_lemma [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] {A B C : Ω → G}
-  (hB : Measurable B) (hC : Measurable C) (hA : Measurable A)
-  (H : A = B + C) : d[p.X₀₂ # B | A] = d[p.X₀₂ # C | A] := by
-  rw [cond_rdist'_eq_sum, cond_rdist'_eq_sum]
-  apply Finset.sum_congr rfl
-  intro x
-  simp only [Finset.mem_univ, mul_eq_mul_left_iff]
-  intro _
-  apply Or.intro_left
-  sorry
-  sorry
-  sorry
-  sorry
-  sorry
-
-variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-
 lemma hU : H[U] = H[X₁' + X₂'] := by
   apply IdentDistrib.entropy_eq
   apply ProbabilityTheory.IdentDistrib.add
@@ -200,8 +183,7 @@ lemma sum_dist_diff_le :
   let X₀₂ := p.X₀₂
 
   have aux1 : H[S] + H[U] - H[X₁] - H[X₁' + X₂'] = H[S] - H[X₁] := by
-    rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep]
-    ring
+    rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep] ; ring
 
   have independenceCondition1 : iIndepFun (fun x ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
     sorry
@@ -251,12 +233,16 @@ lemma sum_dist_diff_le :
       (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) + (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) :=
         add_le_add (add_le_add step₁ step₂) step₃
     _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
+  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']
+  · apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (2 : Fin 4) 3)
+    convert h_indep using 1
+    ext x
+    fin_cases x ; all_goals { aesop }
 
-  -- This could maybe be inlined once we've resolved the timeout issue!
-  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁
-  · calc 3 * H[S ; ℙ] ≤ 3 * (1/2 * H[X₁ ; ℙ] + 1/2 * H[X₂ ; ℙ] + (2+η)*k - I₁) := by
-          apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr sorry
-         -- The following should work `apply ent_ofsum_le p X₁ X₂ X₁' X₂'` but seems to cause a timeout...
+  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * (H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁
+  · calc 3 * H[S ; ℙ] ≤ 3 * (H[X₁ ; ℙ] / 2 + H[X₂ ; ℙ] / 2 + (2+η)*k - I₁) := by
+          apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr
+            (ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min)
       _ =  3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁ := by ring
 
   -- Final computation
