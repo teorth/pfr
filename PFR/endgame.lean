@@ -252,11 +252,16 @@ lemma sum_dist_diff_le :
         add_le_add (add_le_add step₁ step₂) step₃
     _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
 
-  -- This could maybe be inlined once we've resolved the timeout issue!
-  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁
-  · calc 3 * H[S ; ℙ] ≤ 3 * (1/2 * H[X₁ ; ℙ] + 1/2 * H[X₂ ; ℙ] + (2+η)*k - I₁) := by
-          apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr sorry
-         -- The following should work `apply ent_ofsum_le p X₁ X₂ X₁' X₂'` but seems to cause a timeout...
+  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']
+  · apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (2 : Fin 4) 3)
+    convert h_indep using 1
+    ext x
+    fin_cases x ; all_goals { aesop }
+
+  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * (H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁
+  · calc 3 * H[S ; ℙ] ≤ 3 * (H[X₁ ; ℙ] / 2 + H[X₂ ; ℙ] / 2 + (2+η)*k - I₁) := by
+          apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr
+            (ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min)
       _ =  3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁ := by ring
 
   -- Final computation
@@ -436,7 +441,7 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
     (show Measurable U by measurability) (show Measurable V by measurability)
     (show Measurable W by measurability) (show Measurable S by measurability)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
-  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂'
+  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
     let σ : Fin 4 ≃ Fin 4 :=
     { toFun := ![0, 1, 3, 2]
@@ -450,7 +455,8 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have h : k ≤ (8*η + η^2) * k := calc
     k ≤ (1+η/3) * (6*η*k - (1-5*η) / (1-η) * (2*η*k - I₁)) + η/3*((6-3*η)*k + 3*(2*η*k-I₁)) := by
       rw [hη] at *
-      sorry --`linarith` used to close this, but this stopped working for some reason
+      linarith
+      --`linarith` used to close this, but this stopped working for some reason
     _ = (8*η+η^2)*k - ((1-5*η)/(1-η)*(1+η/3)-η)*(2*η*k-I₁) := by
       ring
     _ ≤ (8*η + η^2) * k := by
