@@ -77,7 +77,16 @@ local notation3 "I₂" => I[ U : W | S ]
 
 --(Mantas) this times out in the proof below
 private lemma hmeas2 : Measurable
-    (fun p : Fin 4 → G => ((p 0 + p 1, p 0 + p 2), p 0 + p 1 + p 2 + p 3)) := by measurability
+    (fun p : Fin 4 → G => ((p 0 + p 1, p 0 + p 2), p 0 + p 1 + p 2 + p 3)) := by
+  apply Measurable.prod
+  · apply Measurable.prod
+    · exact (measurable_pi_apply _).add (measurable_pi_apply _)
+    · exact (measurable_pi_apply _).add (measurable_pi_apply _)
+  · apply Measurable.add
+    · apply Measurable.add
+      · exact (measurable_pi_apply _).add (measurable_pi_apply _)
+      · apply measurable_pi_apply
+    · apply measurable_pi_apply
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
 lemma I₃_eq : I[ V : W | S ] = I₂ := by
@@ -113,7 +122,14 @@ lemma I₃_eq : I[ V : W | S ] = I₂ := by
               fin_cases i
               all_goals simp[h₁.map_eq] }
   have hmeas1 : Measurable (fun p : Fin 4 → G => (p 0 + p 1, p 0 + p 1 + p 2 + p 3)) := by
-    measurability
+    simp_all only [Matrix.cons_val', Matrix.empty_val', Matrix.cons_val_fin_one]
+    apply Measurable.prod
+    · exact (measurable_pi_apply _).add (measurable_pi_apply _)
+    · apply Measurable.add
+      · apply Measurable.add
+        · exact (measurable_pi_apply _).add (measurable_pi_apply _)
+        · apply measurable_pi_apply
+      · apply measurable_pi_apply
   have hUVS : IdentDistrib (prod U S) (prod V S)
   · convert (IdentDistrib.comp hident hmeas1)
     all_goals {simp; abel}
@@ -158,6 +174,113 @@ local notation3:max "c[" A " # " B "]" =>
   d[p.X₀₁ # A] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # B] - d[p.X₀₂ # X₂])
 
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
+
+lemma ruzsa_helper_lemma' [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω → G}
+    (hX : Measurable X) (hB : Measurable B) (hC : Measurable C)
+    (h_indep : IndepFun X (⟨B, C⟩)) :
+    d[X # B | B + C] = d[X # C | B + C] := by
+  let π : G × G →+ G :=
+  { toFun := fun x ↦ x.2 - x.1
+    map_zero' := by simp
+    map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add,
+      ElementaryAddCommGroup.sub_eq_add]; abel }
+  let Y : Fin 4 → Ω → G := ![-X, C, fun _ ↦ 0, B + C]
+  have hY_meas : ∀ i, Measurable (Y i) := by
+    intro i
+    fin_cases i
+    exacts [hX.neg, hC, measurable_const, hB.add hC]
+  calc d[X # B | B + C]
+    = d[X | fun _ : Ω ↦ (0 : G) # B | B + C] := by rw [cond_rdist_of_const hX]
+  _ = d[π ∘ ⟨-X, fun _ : Ω ↦ (0 : G)⟩ | fun _ : Ω ↦ (0 : G) # π ∘ ⟨C, B + C⟩ | B + C] := by
+        congr
+        · ext1 ω; simp
+        · ext1 ω
+          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply, Pi.add_apply]
+          abel
+  _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 # π ∘ ⟨Y 1, Y 3⟩ | Y 3] := by congr
+  _ = d[-X | fun _ : Ω ↦ (0 : G) # C | B + C] := by
+        rw [cond_rdist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
+        · congr
+        · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp
+          have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
+            ext1 ω;
+            simp only [ElementaryAddCommGroup.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
+              Function.comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
+              Matrix.cons_val_fin_one, true_and]
+            congr
+          rw [h1, h2]
+          refine h_indep.comp ?_ ?_
+          · exact measurable_neg.prod_mk measurable_const
+          · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
+  _ = d[-X # C | B + C] := by rw [cond_rdist_of_const]; exact hX.neg
+  _ = d[X # C | B + C] := by -- because ElementaryAddCommGroup G 2
+        congr
+        simp
+
+lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C) :
+    d[p.X₀₂ # B | B + C] = d[p.X₀₂ # C | B + C] := by
+  -- we want to apply `ruzsa_helper_lemma'`, but for that all variables need to be in the same
+  -- probability space
+  let Ω' := Ω₀₂ × Ω
+  set X₂' : Ω' → G := p.X₀₂ ∘ Prod.fst with hX₂'_def
+  have hX₂' : Measurable X₂' := p.hmeas2.comp measurable_fst
+  let B' : Ω' → G := B ∘ Prod.snd
+  have hB' : Measurable B' := hB.comp measurable_snd
+  let C' : Ω' → G := C ∘ Prod.snd
+  have hC' : Measurable C' := hC.comp measurable_snd
+  -- h1 and h2 should be applications of a new lemma?
+  have h1 : d[p.X₀₂ # B | B + C] = d[X₂' # B' | B' + C'] := by
+    refine cond_rdist'_of_copy p.X₀₂ hB (hB.add hC) X₂' hB' (hB'.add hC') ?_ ?_
+    · constructor
+      · exact p.hmeas2.aemeasurable
+      · exact hX₂'.aemeasurable
+      · rw [Measure.volume_eq_prod, ← Measure.map_map p.hmeas2 measurable_fst]
+        simp
+    · constructor
+      · exact (hB.prod_mk (hB.add hC)).aemeasurable
+      · exact (hB'.prod_mk (hB'.add hC')).aemeasurable
+      · rw [Measure.volume_eq_prod]
+        have : ⟨B', B' + C'⟩ = (⟨B, B + C⟩) ∘ Prod.snd := by ext1 _; simp
+        rw [this, ← Measure.map_map _ measurable_snd]
+        · simp only [Measure.map_snd_prod, measure_univ, one_smul]
+          rfl
+        · exact hB.prod_mk (hB.add hC)
+  have h2 : d[p.X₀₂ # C | B + C] = d[X₂' # C' | B' + C'] := by
+    refine cond_rdist'_of_copy p.X₀₂ hC (hB.add hC) X₂' hC' (hB'.add hC') ?_ ?_
+    · constructor
+      · exact p.hmeas2.aemeasurable
+      · exact hX₂'.aemeasurable
+      · rw [Measure.volume_eq_prod, ← Measure.map_map p.hmeas2 measurable_fst]
+        simp
+    · constructor
+      · exact (hC.prod_mk (hB.add hC)).aemeasurable
+      · exact (hC'.prod_mk (hB'.add hC')).aemeasurable
+      · rw [Measure.volume_eq_prod]
+        have : ⟨C', B' + C'⟩ = (⟨C, B + C⟩) ∘ Prod.snd := by ext1 _; simp
+        rw [this, ← Measure.map_map _ measurable_snd]
+        · simp only [Measure.map_snd_prod, measure_univ, one_smul]
+          rfl
+        · exact hC.prod_mk (hB.add hC)
+  rw [h1, h2, ruzsa_helper_lemma' hX₂' hB' hC']
+  rw [indepFun_iff_map_prod_eq_prod_map_map hX₂' (hB'.prod_mk hC'), Measure.volume_eq_prod]
+  have h_prod : (fun ω ↦ (X₂' ω, prod B' C' ω)) = Prod.map p.X₀₂ (⟨B, C⟩) := by ext1; simp
+  have h_comp_snd : (fun a ↦ (B' a, C' a)) = (⟨B, C⟩) ∘ Prod.snd := by ext1; simp
+  rw [h_prod, h_comp_snd, hX₂'_def, ← Measure.map_map _ measurable_snd,
+    ← Measure.map_map _ measurable_fst, Measure.map_prod_map]
+  rotate_left
+  · simp only [Measure.map_fst_prod, measure_univ, one_smul]
+    infer_instance
+  · simp only [Measure.map_snd_prod, measure_univ, one_smul]
+    infer_instance
+  · exact p.hmeas2
+  · exact hB.prod_mk hC
+  · exact p.hmeas2
+  · exact hB.prod_mk hC
+  congr
+  · simp
+  · simp
+
+variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
 lemma hU : H[U] = H[X₁' + X₂'] := by
   apply IdentDistrib.entropy_eq
@@ -210,8 +333,8 @@ lemma sum_dist_diff_le :
   have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S]
   · have S_eq : S = (X₂ + X₂') + (X₁' + X₁)
     · rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ←add_assoc X₂, ←add_assoc X₂, add_comm X₂]
-    apply ruzsa_helper_lemma p (Measurable.add' hX₂ hX₂') (Measurable.add' hX₁' hX₁) _ S_eq
-    · rw [S_eq] ; apply (Measurable.add' (Measurable.add' hX₂ hX₂') (Measurable.add' hX₁' hX₁))
+    rw [S_eq]
+    exact ruzsa_helper_lemma p (hX₂.add hX₂') (hX₁'.add hX₁)
 
   -- Put everything together to bound the sum of the `c` terms
   have ineq7 : c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ]
@@ -422,7 +545,7 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
     (show Measurable U by measurability) (show Measurable V by measurability)
     (show Measurable W by measurability) (show Measurable S by measurability)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
-  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂'
+  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
   have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
     let σ : Fin 4 ≃ Fin 4 :=
     { toFun := ![0, 1, 3, 2]
@@ -436,7 +559,7 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have h : k ≤ (8*η + η^2) * k := calc
     k ≤ (1+η/3) * (6*η*k - (1-5*η) / (1-η) * (2*η*k - I₁)) + η/3*((6-3*η)*k + 3*(2*η*k-I₁)) := by
       rw [hη] at *
-      sorry --`linarith` used to close this, but this stopped working for some reason
+      linarith
     _ = (8*η+η^2)*k - ((1-5*η)/(1-η)*(1+η/3)-η)*(2*η*k-I₁) := by
       ring
     _ ≤ (8*η + η^2) * k := by

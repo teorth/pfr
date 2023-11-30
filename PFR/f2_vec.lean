@@ -198,4 +198,37 @@ lemma subgroup {G : Type*} [AddCommGroup G] {n : ℕ}
   apply orderOf_of_ne
   norm_cast
 
+def smul : ZMod 2 → G → G
+  | 0, _ => 0
+  | 1, x => x
+
+instance : Module (ZMod 2) G where
+  smul := smul
+  one_smul := fun _ => rfl
+  mul_smul := by
+    intro a b x
+    fin_cases a <;> fin_cases b <;> abel
+  smul_zero := by intro a ; fin_cases a <;> rfl
+  smul_add := by
+    intro a x y
+    fin_cases a
+    · change 0 = 0 + 0 ; simp
+    · rfl
+  add_smul := by
+    intro a b x
+    fin_cases a <;> fin_cases b
+    · simp only [Fin.zero_eta, CharTwo.add_self_eq_zero, ElementaryAddCommGroup.add_self] ; rfl
+    · simp only [Fin.zero_eta, Fin.mk_one, zero_add, self_eq_add_left] ; rfl
+    · simp only [Fin.mk_one, Fin.zero_eta, add_zero, self_eq_add_right] ; rfl
+    · simp only [Fin.mk_one, CharTwo.add_self_eq_zero, ElementaryAddCommGroup.add_self] ; rfl
+  zero_smul := fun _ => rfl
+
+def linearMap {G' : Type*} [AddCommGroup G'] [ElementaryAddCommGroup G' 2]
+    (f : G →+ G') : G →ₗ[ZMod 2] G' where
+  toFun := f
+  map_add' := f.map_add
+  map_smul' := by
+    intro a x
+    fin_cases a <;> simp
+
 end ElementaryAddCommGroup

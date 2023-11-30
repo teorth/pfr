@@ -22,6 +22,17 @@ instance : MeasurableNeg G := by
   ext x
   simp
 
+lemma measureEntropy_neg (μ : Measure G) :
+    Hm[μ.map (fun x ↦ -x)] = Hm[μ] :=
+  measureEntropy_map_of_injective μ (fun x ↦ -x) neg_injective
+
+lemma measureEntropy_sub_comm (μ : Measure (G × G)) :
+    Hm[μ.map (fun p ↦ p.2 - p.1)]
+      = Hm[μ.map (fun p ↦ p.1 - p.2)] := by
+  have : (fun p : G × G ↦ p.2 - p.1) = (fun x ↦ - x) ∘ (fun p ↦ p.1 - p.2) := by ext; simp
+  simp_rw [this]
+  rw [← Measure.map_map measurable_neg measurable_sub, measureEntropy_neg]
+
 namespace ProbabilityTheory.kernel
 
 lemma entropy_neg (κ : kernel T G) (μ : Measure T) :
