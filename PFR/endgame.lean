@@ -140,7 +140,7 @@ lemma I₃_eq : I[ V : W | S ] = I₂ := by
   have hV : Measurable V := Measurable.add hX₁' hX₂
   have hW : Measurable W := Measurable.add hX₁' hX₁
   have hS : Measurable S := by measurability
-  rw [condMutualInformation_eq hV hW hS, condMutualInformation_eq hU hW hS, chain_rule'' ℙ hU hS,
+  rw [condMutualInfo_eq hV hW hS, condMutualInfo_eq hU hW hS, chain_rule'' ℙ hU hS,
     chain_rule'' ℙ hV hS, chain_rule'' ℙ hW hS, chain_rule'' ℙ _ hS, chain_rule'' ℙ _ hS,
     IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
   · exact Measurable.prod (by exact hU) (by exact hW)
@@ -156,7 +156,7 @@ lemma sum_condMutual_le :
     I[ U : V | S ] + I[ V : W | S ] + I[ W : U | S ]
       ≤ 6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁) := by
   have : I[W:U|S] = I₂ := by
-    rw [condMutualInformation_comm]
+    rw [condMutualInfo_comm]
     · exact Measurable.add' hX₁' hX₁
     · exact Measurable.add' hX₁ hX₂
   rw [I₃_eq, this]
@@ -504,7 +504,7 @@ lemma construct_good_prelim :
         (fun x ↦ (x.1 + x.2, x.1)) (fun x ↦ (x.2, x.1 + x.2))
       · ext1 x; simp [h2T₃]
       · ext1 x; simp [h2T₂]
-    simp_rw [mutualInformation_def] at h1 ⊢; linarith
+    simp_rw [mutualInfo_def] at h1 ⊢; linarith
 
   have h2 : η * sum2 ≤ η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
   · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
@@ -558,7 +558,7 @@ lemma construct_good : k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂]
   have v2 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₁ hT₃ hT₂
   have v3 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₂ hT₁ hT₃
   have v6 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₃ hT₂ hT₁
-  simp only [mutualInformation, entropy_comm hT₂ hT₁, entropy_comm hT₃ hT₁, entropy_comm hT₃ hT₂]
+  simp only [mutualInfo, entropy_comm hT₂ hT₁, entropy_comm hT₃ hT₁, entropy_comm hT₃ hT₂]
     at *
   linarith
 
@@ -582,7 +582,7 @@ variable {R : Ω' → G} (hR : Measurable R)
 local notation3:max "δ'" => I[T₁:T₂|R] + I[T₂:T₃|R] + I[T₃:T₁|R]
 
 lemma delta'_eq_integral : δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
-  simp_rw [condMutualInformation_eq_integral_mutualInformation, integral_eq_sum, smul_add,
+  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum, smul_add,
     Finset.sum_add_distrib]
 
 lemma cond_construct_good :

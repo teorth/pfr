@@ -3,7 +3,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
 import Mathlib.Probability.IdentDistrib
-import PFR.Entropy.KernelMutualInformation
+import PFR.Entropy.KernelMutualInfo
 import PFR.ForMathlib.Independence
 import PFR.ForMathlib.Miscellaneous
 import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
@@ -15,7 +15,7 @@ import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 
 * `entropy`: entropy of a random variable, defined as `measureEntropy (volume.map X)`
 * `condEntropy`: conditional entropy of a random variable `X` w.r.t. another one `Y`
-* `mutualInformation`: mutual information of two random variables
+* `mutualInfo`: mutual information of two random variables
 
 ## Main statements
 
@@ -28,7 +28,7 @@ import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 * `H[X] = entropy X`
 * `H[X | Y ← y] = Hm[(ℙ[| Y ⁻¹' {y}]).map X]`
 * `H[X | Y] = condEntropy X Y`, such that `H[X | Y] = (volume.map Y)[fun y ↦ H[X | Y ← y]]`
-* `I[X : Y] = mutualInformation X Y`
+* `I[X : Y] = mutualInfo X Y`
 
 All notations have variants where we can specify the measure (which is otherwise
 supposed to be `volume`). For example `H[X ; μ]` and `I[X : Y ; μ]` instead of `H[X]` and
@@ -700,37 +700,40 @@ lemma entropy_of_comp_eq_of_comp
 
 end pair
 
-section mutualInformation
+section mutualInfo
 
 /-- The mutual information $I[X:Y]$ of two random variables is defined to be $H[X] + H[Y] - H[X;Y]$. -/
 noncomputable
-def mutualInformation (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac) : ℝ :=
+def mutualInfo (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac) : ℝ :=
   H[X ; μ] + H[Y ; μ] - H[⟨ X, Y ⟩ ; μ]
 
-lemma mutualInformation_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
-  mutualInformation X Y μ = H[X ; μ] + H[Y ; μ] - H[⟨ X, Y ⟩ ; μ] := rfl
+@[inherit_doc mutualInfo] notation3:max "I[" X ":" Y ";" μ "]" => mutualInfo X Y μ
+@[inherit_doc mutualInfo] notation3:max "I[" X ":" Y "]" => mutualInfo X Y volume
 
-@[inherit_doc mutualInformation] notation3:max "I[" X ":" Y ";" μ "]" => mutualInformation X Y μ
-@[inherit_doc mutualInformation] notation3:max "I[" X ":" Y "]" => mutualInformation X Y volume
+lemma mutualInfo_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
+  I[X : Y ; μ] = H[X ; μ] + H[Y ; μ] - H[⟨X, Y⟩ ; μ] := rfl
+
+lemma entropy_add_entropy_sub_mutualInfo (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
+  H[X ; μ] + H[Y ; μ] - I[X : Y ; μ] = H[⟨X, Y⟩ ; μ] := sub_sub_self _ _
 
 /-- $I[X:Y] = H[X] - H[X|Y]$. -/
-lemma mutualInformation_eq_entropy_sub_condEntropy [MeasurableSingletonClass S]
+lemma mutualInfo_eq_entropy_sub_condEntropy [MeasurableSingletonClass S]
     [MeasurableSingletonClass T] (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
     [IsProbabilityMeasure μ] :
     I[X : Y ; μ] = H[X ; μ] - H[X | Y ; μ] := by
-  rw [mutualInformation_def, chain_rule μ hX hY]
+  rw [mutualInfo_def, chain_rule μ hX hY]
   abel
 
 /-- $I[X:Y] = I[Y:X]$. -/
-lemma mutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+lemma mutualInfo_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
-    I[X : Y ; μ] = I[Y : X ; μ] := by simp_rw [mutualInformation, add_comm, entropy_comm hX hY]
+    I[X : Y ; μ] = I[Y : X ; μ] := by simp_rw [mutualInfo, add_comm, entropy_comm hX hY]
 
 /-- Mutual information is non-negative. -/
-lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+lemma mutualInfo_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     0 ≤ I[X : Y ; μ] := by
-  simp_rw [mutualInformation_def, entropy_def]
+  simp_rw [mutualInfo_def, entropy_def]
   have h_fst : μ.map X = (μ.map (⟨ X, Y ⟩)).map Prod.fst := by
     rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
     congr
@@ -741,26 +744,26 @@ lemma mutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingleton
   exact measureMutualInfo_nonneg _
 
 /-- Substituting variables for ones with the same distributions doesn't change the mutual information. -/
-lemma IdentDistrib.mutualInformation_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
+lemma IdentDistrib.mutualInfo_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
     {X' : Ω' → S} {Y' : Ω' → T} (hXY : IdentDistrib (⟨X,Y⟩) (⟨X',Y'⟩) μ μ') :
       I[X : Y ; μ] = I[X' : Y' ; μ'] := by
   have hX : IdentDistrib X X' μ μ' := hXY.comp measurable_fst
   have hY : IdentDistrib Y Y' μ μ' := hXY.comp measurable_snd
-  simp_rw [mutualInformation_def,hX.entropy_eq,hY.entropy_eq,hXY.entropy_eq]
+  simp_rw [mutualInfo_def,hX.entropy_eq,hY.entropy_eq,hXY.entropy_eq]
 
 /-- Subadditivity of entropy. -/
 lemma entropy_pair_le_add [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨ X, Y ⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
-  sub_nonneg.1 $ mutualInformation_nonneg hX hY _
+  sub_nonneg.1 $ mutualInfo_nonneg hX hY _
 
 /-- $I[X:Y]=0$ iff $X,Y$ are independent. -/
-lemma mutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+lemma mutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
     [IsProbabilityMeasure μ] :
     I[X : Y ; μ] = 0 ↔ IndepFun X Y μ := by
   have : IsProbabilityMeasure (μ.map (⟨ X, Y ⟩)) :=
     isProbabilityMeasure_map (hX.prod_mk hY).aemeasurable
-  simp_rw [mutualInformation_def, entropy_def]
+  simp_rw [mutualInfo_def, entropy_def]
   have h_fst : μ.map X = (μ.map (⟨ X, Y ⟩)).map Prod.fst := by
     rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
     congr
@@ -785,15 +788,15 @@ lemma indepFun_const [IsProbabilityMeasure μ] (c : T) :
   all_goals simp [h]
 
 /-- The mutual information with a constant is always zero. -/
-lemma mutualInformation_const (hX : Measurable X) (c : T) {μ : Measure Ω} [IsProbabilityMeasure μ] :
+lemma mutualInfo_const (hX : Measurable X) (c : T) {μ : Measure Ω} [IsProbabilityMeasure μ] :
     I[X : (fun _ => c) ; μ] = 0 := by
-  exact (mutualInformation_eq_zero hX measurable_const).mpr (indepFun_const c)
+  exact (mutualInfo_eq_zero hX measurable_const).mpr (indepFun_const c)
 
 lemma IndepFun.condEntropy_eq_entropy {μ : Measure Ω} (h : IndepFun X Y μ)
     (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ]  :
     H[X | Y ; μ] = H[X ; μ] := by
-  have := (mutualInformation_eq_zero hX hY).2 h
-  rw [mutualInformation_eq_entropy_sub_condEntropy hX hY] at this
+  have := (mutualInfo_eq_zero hX hY).2 h
+  rw [mutualInfo_eq_entropy_sub_condEntropy hX hY] at this
   linarith
 
 /-- $H[X,Y] = H[X] + H[Y]$ if and only if $X,Y$ are independent. -/
@@ -801,7 +804,7 @@ lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure 
     [IsProbabilityMeasure μ] :
     H[⟨ X, Y ⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by
   rw [eq_comm, ← sub_eq_zero]
-  exact mutualInformation_eq_zero hX hY
+  exact mutualInfo_eq_zero hX hY
 
 /-- If $X,Y$ are independent, then $H[X,Y] = H[X] + H[Y]$. -/
 lemma entropy_pair_eq_add' (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
@@ -811,35 +814,35 @@ lemma entropy_pair_eq_add' (hX : Measurable X) (hY : Measurable Y) {μ : Measure
 
 variable [AddGroup S] in
 /-- $I[X : X + Y] = H[X + Y] - H[Y]$ iff $X, Y$ are independent. -/
-lemma mutualInformation_add_right {Y : Ω → S} (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
+lemma mutualInfo_add_right {Y : Ω → S} (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
     [IsProbabilityMeasure μ] (h: IndepFun X Y μ) :
     I[X : X + Y ; μ] = H[X + Y; μ] - H[Y; μ] := by
-  rw [mutualInformation_def, entropy_add_right hX hY, entropy_pair_eq_add' hX hY h]
+  rw [mutualInfo_def, entropy_add_right hX hY, entropy_pair_eq_add' hX hY h]
   abel
 
 
 /-- The conditional mutual information $I[X:Y|Z]$ is the mutual information of $X|Z=z$ and $Y|Z=z$,
 integrated over $z$. -/
 noncomputable
-def condMutualInformation (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
+def condMutualInfo (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
     ℝ := (μ.map Z)[fun z ↦ H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨ X, Y ⟩ | Z ← z ; μ]]
 
-lemma condMutualInformation_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) :
-    condMutualInformation X Y Z μ = (μ.map Z)[fun z ↦
+lemma condMutualInfo_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) :
+    condMutualInfo X Y Z μ = (μ.map Z)[fun z ↦
       H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨ X, Y ⟩ | Z ← z ; μ]] := rfl
 
-@[inherit_doc condMutualInformation]
-notation3:max "I[" X ":" Y "|" Z ";" μ "]" => condMutualInformation X Y Z μ
-@[inherit_doc condMutualInformation]
-notation3:max "I[" X ":" Y "|" Z "]" => condMutualInformation X Y Z volume
+@[inherit_doc condMutualInfo]
+notation3:max "I[" X ":" Y "|" Z ";" μ "]" => condMutualInfo X Y Z μ
+@[inherit_doc condMutualInfo]
+notation3:max "I[" X ":" Y "|" Z "]" => condMutualInfo X Y Z volume
 
 /-- The conditional mutual information agrees with the information of the conditional kernel.
 -/
-lemma condMutualInformation_eq_kernel_mutualInfo
+lemma condMutualInfo_eq_kernel_mutualInfo
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (μ : Measure Ω) [IsProbabilityMeasure μ] :
     I[X : Y | Z ; μ] = Ik[condEntropyKernel (⟨ X, Y ⟩) Z μ, μ.map Z] := by
-  simp_rw [condMutualInformation_def, entropy_def, kernel.mutualInfo, kernel.entropy,
+  simp_rw [condMutualInfo_def, entropy_def, kernel.mutualInfo, kernel.entropy,
     integral_eq_sum, smul_eq_mul, mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib]
   congr with x
   · have h := condEntropyKernel_fst_ae_eq hX hY hZ μ
@@ -861,41 +864,41 @@ lemma condMutualInformation_eq_kernel_mutualInfo
     rw [condEntropyKernel_apply (hX.prod_mk hY) hZ]
     rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
 
-lemma condMutualInformation_eq_integral_mutualInformation :
+lemma condMutualInfo_eq_integral_mutualInfo :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[|Z ⁻¹' {z}]]] := rfl
 
 /-- $I[X:Y|Z] = I[Y:X|Z]$. -/
-lemma condMutualInformation_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+lemma condMutualInfo_comm [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) :
     I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
-  simp_rw [condMutualInformation_def, add_comm, entropy_comm hX hY]
+  simp_rw [condMutualInfo_def, add_comm, entropy_comm hX hY]
 
 /-- Conditional information is non-nonegative. -/
-lemma condMutualInformation_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
+lemma condMutualInfo_nonneg [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) :
     0 ≤ I[X : Y | Z ; μ] := by
   refine integral_nonneg (fun z ↦ ?_)
-  exact mutualInformation_nonneg hX hY _
+  exact mutualInfo_nonneg hX hY _
 
 /-- $$ I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[X,Y|Z].$$ -/
-lemma condMutualInformation_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+lemma condMutualInfo_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (μ : Measure Ω) [IsProbabilityMeasure μ] :
     I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by
-  rw [condMutualInformation_eq_kernel_mutualInfo hX hY hZ, kernel.mutualInfo,
+  rw [condMutualInfo_eq_kernel_mutualInfo hX hY hZ, kernel.mutualInfo,
     kernel.entropy_congr (condEntropyKernel_fst_ae_eq hX hY hZ _),
     kernel.entropy_congr (condEntropyKernel_snd_ae_eq hX hY hZ _),
     condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hZ,
     condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ]
 
 /-- $$ I[X:Y|Z] = H[X|Z] - H[X|Y,Z].$$ -/
-lemma condMutualInformation_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+lemma condMutualInfo_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (μ : Measure Ω) [IsProbabilityMeasure μ] :
     I[X : Y | Z ; μ] = H[X | Z ; μ] - H[X | ⟨Y, Z⟩  ; μ] := by
-  rw [condMutualInformation_eq hX hY hZ, cond_chain_rule _ hX hY hZ]
+  rw [condMutualInfo_eq hX hY hZ, cond_chain_rule _ hX hY hZ]
   ring
 
 /-- If $f(Z,X)$ is injective for each fixed $Z$, then $I[f(Z,X):Y|Z] = I[X:Y|Z]$.-/
-lemma condMutualInformation_of_inj_map [IsProbabilityMeasure μ]
+lemma condMutualInfo_of_inj_map [IsProbabilityMeasure μ]
   (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
   {V : Type*} [Nonempty V] [Fintype V] [MeasurableSpace V] [MeasurableSingletonClass V]
   (f : U → S → V) (hf : ∀ t, Function.Injective (f t)) :
@@ -904,7 +907,7 @@ lemma condMutualInformation_of_inj_map [IsProbabilityMeasure μ]
   have hM : Measurable (Function.uncurry f ∘ ⟨Z, X⟩) :=
     (measurable_of_countable _).comp (hZ.prod_mk hX)
   have hM : Measurable fun ω ↦ f (Z ω) (X ω) := hM
-  rw [condMutualInformation_eq hM hY hZ, condMutualInformation_eq hX hY hZ]
+  rw [condMutualInfo_eq hM hY hZ, condMutualInfo_eq hX hY hZ]
   let g : U → (S × T) → (V × T) := fun z (x,y) ↦ (f z x, y)
   have hg : ∀ t, Function.Injective (g t) :=
     fun _ _ _ h ↦ Prod.ext_iff.2 ⟨hf _ (Prod.ext_iff.1 h).1, (Prod.ext_iff.1 h).2⟩
@@ -917,12 +920,12 @@ variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S
 /-- $$ H[X] - H[X|Y] = I[X:Y] $$ -/
 lemma entropy_sub_condEntropy (hX : Measurable X) (hY : Measurable Y) :
     H[X ; μ] - H[X | Y ; μ] = I[X : Y ; μ] := by
-  rw [mutualInformation_def, chain_rule _ hX hY, add_comm, add_sub_add_left_eq_sub]
+  rw [mutualInfo_def, chain_rule _ hX hY, add_comm, add_sub_add_left_eq_sub]
 
 /-- $$ H[X|Y] ≤ H[X] $$ -/
 lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] :
     H[X | Y ; μ] ≤ H[X ; μ] :=
-  sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInformation_nonneg hX hY _
+  sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInfo_nonneg hX hY _
 
 /-- $H[X|Y,Z] \leq H[X|Z]$ -/
 lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
@@ -953,9 +956,9 @@ lemma condIndepFun_iff (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measur
 
 
 /-- $I[X:Y|Z]=0$ iff $X,Y$ are conditionally independent over $Z$. -/
-lemma condMutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ]  [Fintype U]:
+lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ]  [Fintype U]:
      I[X : Y | Z ; μ] = 0 ↔ condIndepFun X Y Z μ := by
-  rw [condIndepFun_iff, condMutualInformation_eq_integral_mutualInformation, integral_eq_zero_iff_of_nonneg ]
+  rw [condIndepFun_iff, condMutualInfo_eq_integral_mutualInfo, integral_eq_zero_iff_of_nonneg ]
   . dsimp
     have : (fun x ↦ I[X:Y;μ[|Z ⁻¹' {x}]]) =ᵐ[μ.map Z] 0 ↔ ∀ᵐ z ∂(μ.map Z), I[X : Y ; μ[|Z ⁻¹' {z}]] = 0 := by rfl
     rw [this]
@@ -964,29 +967,29 @@ lemma condMutualInformation_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ 
     intro z hz
     rw [Measure.map_apply hZ (measurableSet_singleton z)] at hz
     have : IsProbabilityMeasure (μ[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ hz
-    exact mutualInformation_eq_zero hX hY
+    exact mutualInfo_eq_zero hX hY
   . dsimp
     rw [Pi.le_def]
     intro z; simp
     by_cases hz : μ (Z ⁻¹' {z}) = 0
     · have : μ[|Z ⁻¹' {z}] = 0 := cond_eq_zero_of_measure_zero hz
       simp [this]
-      rw [mutualInformation_def]
+      rw [mutualInfo_def]
       simp
-    exact mutualInformation_nonneg hX hY _
+    exact mutualInfo_nonneg hX hY _
   simp
 
 /-- If $X, Y$ are conditionally independent over $Z$, then $H[X,Y,Z] = H[X,Z] + H[Y,Z] - H[Z]$. -/
 lemma ent_of_cond_indep (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
      (h : condIndepFun X Y Z μ) [IsProbabilityMeasure μ] :
      H[ ⟨ X, ⟨ Y, Z ⟩ ⟩ ; μ ] = H[ ⟨ X, Z ⟩; μ ] + H[ ⟨ Y, Z ⟩; μ ] - H[Z; μ] := by
-  have hI : I[X : Y | Z ; μ] = 0 := (condMutualInformation_eq_zero hX hY hZ).mpr h
-  rw [condMutualInformation_eq hX hY hZ] at hI
+  have hI : I[X : Y | Z ; μ] = 0 := (condMutualInfo_eq_zero hX hY hZ).mpr h
+  rw [condMutualInfo_eq hX hY hZ] at hI
   rw [entropy_assoc hX hY hZ, chain_rule _ (hX.prod_mk hY) hZ, chain_rule _ hX hZ, chain_rule _ hY hZ]
   linarith [hI]
 
 end IsProbabilityMeasure
-end mutualInformation
+end mutualInfo
 
 section copy
 

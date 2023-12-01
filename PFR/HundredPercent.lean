@@ -75,8 +75,8 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
       rw [hindep.rdist_eq hX' hY', ← (hidX.trans hidY.symm).entropy_eq] at this
       linarith
   have I : IndepFun (X' - Y') Y' := by
-    refine (ProbabilityTheory.mutualInformation_eq_zero (hX'.sub' hY') hY').1 ?_
-    rw [mutualInformation_eq_entropy_sub_condEntropy (hX'.sub' hY') hY', A, sub_self]
+    refine (ProbabilityTheory.mutualInfo_eq_zero (hX'.sub' hY') hY').1 ?_
+    rw [mutualInfo_eq_entropy_sub_condEntropy (hX'.sub' hY') hY', A, sub_self]
   have M : ∀ c, ℙ (Y' ⁻¹' {c}) ≠ 0 → IdentDistrib (fun ω ↦ X' ω - c) (X' - Y') := by
     intro c hc
     let F := fun ω ↦ X' ω - c

@@ -151,7 +151,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{definition}[Mutual information]
   \label{information-def}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.mutualInformation, ProbabilityTheory.mutualInformation_def}
+  \lean{ProbabilityTheory.mutualInfo, ProbabilityTheory.mutualInfo_def}
   \leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$ are random variables, then
   $$\bbI[X : Y] := \bbH[X] + \bbH[Y] - \bbH[X,Y].$$
@@ -160,7 +160,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{lemma}[Alternative formulae for mutual information]
   \label{alternative-mutual}
   \uses{information-def}
-  \lean{ProbabilityTheory.mutualInformation_comm, ProbabilityTheory.mutualInformation_eq_entropy_sub_condEntropy}
+  \lean{ProbabilityTheory.mutualInfo_comm, ProbabilityTheory.mutualInfo_eq_entropy_sub_condEntropy}
   \leanok
   With notation as above, we have
   $$  \bbI[X : Y] = \bbI[Y:X]$$
@@ -176,7 +176,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 
 \begin{lemma}[Nonnegativity of mutual information]
   \label{mutual-nonneg}
-  \lean{ProbabilityTheory.mutualInformation_nonneg}
+  \lean{ProbabilityTheory.mutualInfo_nonneg}
   \leanok
   We have $\bbI[X:Y] \geq 0$.
 \end{lemma}
@@ -236,7 +236,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{lemma}[Vanishing of mutual information]
   \label{vanish-entropy}
   \uses{information-def, independent-def}
-  \lean{ProbabilityTheory.mutualInformation_eq_zero}
+  \lean{ProbabilityTheory.mutualInfo_eq_zero}
   \leanok
   If $X,Y$ are random variables, then $\bbI[X:Y] = 0$ if and only if $X,Y$ are independent.
   \end{lemma}
@@ -258,7 +258,7 @@ $$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{definition}[Conditional mutual information]
 \label{conditional-mutual-def}
 \uses{information-def,condition-event-def}
-\lean{ProbabilityTheory.condMutualInformation}
+\lean{ProbabilityTheory.condMutualInfo}
 \leanok
 If $X,Y,Z$ are random variables, with $Z$ $U$-valued, then
 $$ \bbI[X:Y|Z] := \sum_{z \in U} P[Z=z] \bbI[(X|Z=z): (Y|Z=z)].$$
@@ -267,7 +267,7 @@ $$ \bbI[X:Y|Z] := \sum_{z \in U} P[Z=z] \bbI[(X|Z=z): (Y|Z=z)].$$
 \begin{lemma}[Alternate formula for conditional mutual information]
   \label{conditional-mutual-alt}
   \uses{conditional-mutual-def}
-  \lean{ProbabilityTheory.condMutualInformation_eq, ProbabilityTheory.condMutualInformation_eq'}\leanok
+  \lean{ProbabilityTheory.condMutualInfo_eq, ProbabilityTheory.condMutualInfo_eq'}\leanok
 We have
   $$ \bbI[X:Y|Z] := \bbH[X|Z] + \bbH[Y|Z] - \bbH[X,Y|Z]$$
 and
@@ -280,7 +280,7 @@ and
 \begin{lemma}[Nonnegativity of conditional mutual information]
 \label{conditional-nonneg}
 \uses{conditional-mutual-def}
-\lean{ProbabilityTheory.condMutualInformation_nonneg}\leanok
+\lean{ProbabilityTheory.condMutualInfo_nonneg}\leanok
 If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] \ge 0$.
 \end{lemma}
 \begin{proof}
@@ -296,7 +296,7 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
 \end{definition}
 
 \begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}
-  \lean{ProbabilityTheory.condMutualInformation_eq_zero}
+  \lean{ProbabilityTheory.condMutualInfo_eq_zero}
   \leanok
   If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
 \end{lemma}
