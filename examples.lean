@@ -31,11 +31,6 @@ section RealMeasure
 
 end RealMeasure
 
-section Kernels
--- some examples to showcase the probability kernel stuff in a self-contained fashion?
-
-end Kernels
-
 
 section Entropy
 -- some examples to showcase Shannon entropy in a self-contained fashion
