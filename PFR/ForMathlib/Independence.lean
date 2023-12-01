@@ -152,6 +152,13 @@ lemma iIndepFun.indepFun_mul_mul {β : Type*} {m : MeasurableSpace β} {f : ι �
     IndepFun (f i * f j) (f k * f l) μ :=
   (h_indep.indepFun_prod_prod hf i j k l hik hil hjk hjl).comp hβ.measurable_mul hβ.measurable_mul
 
+variable {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
+lemma iIndepFun.prod (h : iIndepFun n f μ) :
+    let β := fun k ↦ Π i : ST k, α i
+    iIndepFun (β := β) (fun k ↦ MeasurableSpace.pi)
+      (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
+  sorry
+
 end iIndepFun
 
 
