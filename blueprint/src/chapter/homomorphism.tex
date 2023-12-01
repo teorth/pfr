@@ -2,7 +2,7 @@
 
 In this section, $G, G'$ are finite abelian $2$-groups.
 
-\begin{lemma}[Hahn-Banach type theorem]\label{hb-thm}\lean{hahn-banach}\leanok  Let $H_0$ be a subgroup of $G$.  Then every homomorphism $\phi: H_0 \to G'$ can be extended to a homomorphism $\tilde \phi: G \to G'$.
+\begin{lemma}[Hahn-Banach type theorem]\label{hb-thm}\lean{hahn_banach}\leanok  Let $H_0$ be a subgroup of $G$.  Then every homomorphism $\phi: H_0 \to G'$ can be extended to a homomorphism $\tilde \phi: G \to G'$.
 \end{lemma}
 
 \begin{proof}\leanok  By induction it suffices to treat the case where $H_0$ has index $2$ in $G$, but then the extension can be constructed by hand.
@@ -16,7 +16,7 @@ In particular, $|H| = |H_0| |H_1|$.
 \begin{proof}\uses{hb-thm} We can take $H_0$ to be the projection of $H$ to $G$, and $H_1$ to be the slice $H_1 := \{ y: (0,y) \in H \}$.  One can construct $\phi$ on $H_0$ one generator at a time by the greedy algorithm, and then extend to $G$ by Lemma \ref{hb-thm}.  The cardinality bound is clear from direct counting.
 \end{proof}
 
-\begin{theorem}[Homomorphism form of PFR]\label{hom-pfr}\lean{homomorphism-pfr}\leanok  Let $f: G \to G'$ be a function, and let $S$ denote the set
+\begin{theorem}[Homomorphism form of PFR]\label{hom-pfr}\lean{homomorphism_pfr}\leanok  Let $f: G \to G'$ be a function, and let $S$ denote the set
 $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
 $$ |\{ f(x) - \phi(x): x \in G \}| \leq 4 |S|^{24}.$$
