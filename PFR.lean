@@ -3,7 +3,7 @@ import PFR.Entropy.Basic
 import PFR.Entropy.Disintegration
 import PFR.Entropy.Group
 import PFR.Entropy.Kernel
-import PFR.Entropy.KernelMutualInformation
+import PFR.Entropy.KernelMutualInfo
 import PFR.Entropy.KernelRuzsa
 import PFR.Entropy.Measure
 import PFR.Entropy.MeasureCompProd
@@ -21,10 +21,13 @@ import PFR.ForMathlib.Independence
 import PFR.ForMathlib.Jensen
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.Miscellaneous
+import PFR.ForMathlib.MonoidHom
 import PFR.ForMathlib.Positivity
+import PFR.ForMathlib.Set
 import PFR.homomorphism
 import PFR.HundredPercent
 import PFR.main
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 import PFR.neg_xlogx
 import PFR.ProbabilityMeasureProdCont
 import PFR.ruzsa_distance

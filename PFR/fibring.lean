@@ -54,7 +54,7 @@ lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h: IndepFun Z_1 Z_2 μ)
     have hf : Function.Injective f := fun _ _ h ↦ (Prod.ext_iff.1 h).1
     have mf : Measurable f := measurable_id.prod_mk measurable_sub
     refine condEntropy_of_inj_map' μ m1 m2 f hf (mf.comp m2)
-  rw [step1, condMutualInformation_eq' m1 m2 m3, entroplem,
+  rw [step1, condMutualInfo_eq' m1 m2 m3, entroplem,
     cond_rdist_of_indep h1 (hπ.comp h1) h2 (hπ.comp h2) μ h']
   ring_nf
 
@@ -68,7 +68,7 @@ lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H} (h1 : Measurable Z_1) 
   rw [← hi1.rdist_eq hi2, ← (hi1.comp hπ).rdist_eq (hi2.comp hπ),
     rdist_of_indep_eq_sum_fibre π hi m1 m2,
     cond_rdist_of_copy h1 (hπ.comp h1) h2 (hπ.comp h2) m1 (hπ.comp m1) m2 (hπ.comp m2) hπ1 hπ2]
-  exact le_add_of_nonneg_right (condMutualInformation_nonneg (m1.sub m2) (Measurable.prod_mk (hπ.comp m1) (hπ.comp m2)) _ _)
+  exact le_add_of_nonneg_right (condMutualInfo_nonneg (m1.sub m2) (Measurable.prod_mk (hπ.comp m1) (hπ.comp m2)) _ _)
 
 end GeneralFibring
 
@@ -102,7 +102,7 @@ lemma sum_of_rdist_eq_step_cond_rdist {Y : Fin 4 → Ω → G} (h_indep: iIndepF
     (fun _ _ _ h ↦ (Prod.ext_iff.1 h).1)
 
 /-- The conditional mutual information step of `sum_of_rdist_eq` -/
-lemma sum_of_rdist_eq_step_condMutualInformation {Y : Fin 4 → Ω → G}
+lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
   (h_meas : ∀ i, Measurable (Y i)) :
     I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
     I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - Y 2 + Y 3;μ] := by
@@ -120,10 +120,10 @@ lemma sum_of_rdist_eq_step_condMutualInformation {Y : Fin 4 → Ω → G}
   have hmij {i j : Fin 4} : Measurable (Y i - Y j) := (h_meas _).sub (h_meas _)
   have hm0123 {i j k l : Fin 4} : Measurable (Y i - Y j - (Y k - Y l)) :=
     ((h_meas _).sub (h_meas _)).sub ((h_meas _).sub (h_meas _))
-  rw [← condMutualInformation_of_inj_map hmij hmij hm0123 (fun z x ↦ (x, x - z)),
-    condMutualInformation_comm hmf hmij,
-    ← condMutualInformation_of_inj_map hmij hmf hm0123 (fun z x ↦ (x + z, x)),
-    condMutualInformation_comm hmg hmf]
+  rw [← condMutualInfo_of_inj_map hmij hmij hm0123 (fun z x ↦ (x, x - z)),
+    condMutualInfo_comm hmf hmij,
+    ← condMutualInfo_of_inj_map hmij hmf hm0123 (fun z x ↦ (x + z, x)),
+    condMutualInfo_comm hmg hmf]
   congr 1
   { ext ω
     { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] }
@@ -172,7 +172,7 @@ lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 
   rw [← h_add, rdist_of_indep_eq_sum_fibre π h_indep_Z m1 m2]
   simp only [hπ, hZ]
   rw [sum_of_rdist_eq_step_cond_rdist h_indep h_meas,
-    sum_of_rdist_eq_step_condMutualInformation h_meas]
+    sum_of_rdist_eq_step_condMutualInfo h_meas]
 
 /-- Let $Y_1,Y_2,Y_3$ and $Y_4$ be independent $G$-valued random variables.
   Then
