@@ -55,7 +55,7 @@ theorem entropic_PFR_conjecture :
   have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
   rw [tau, tau, η] at h
   norm_num at h
-  have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm
+  have : d[p.X₀₁ # p.X₀₂] = d[p.X₀₂ # p.X₀₁] := rdist_symm
   have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle p.hmeas1 hX₁ hU
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
   linarith
@@ -64,7 +64,7 @@ theorem entropic_PFR_conjecture' :
     ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsUniform H U ∧ d[p.X₀₁ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] ∧
       d[p.X₀₂ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] := by
-  have : d[p.X₀₁ # p.X₀₂ ] = d[p.X₀₂ # p.X₀₁] := rdist_symm
+  have : d[p.X₀₁ # p.X₀₂] = d[p.X₀₂ # p.X₀₁] := rdist_symm
   obtain ⟨H, Ω, mΩ, U, H', hU, hUnif, h'⟩ := entropic_PFR_conjecture p
   refine ⟨H, Ω, mΩ, U, hUnif, ?_⟩
   have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle p.hmeas1 p.hmeas2 hU

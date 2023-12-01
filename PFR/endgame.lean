@@ -17,9 +17,9 @@ Assumptions:
 * $V := \tilde X_1 + X_2$
 * $W := X_1 + \tilde X_1$
 * $S := X_1 + X_2 + \tilde X_1 + \tilde X_2$.
-* $I_1 := I[ U : V | S ]$
-* $I_2 := I[ U : W | S ]$
-* $I_3 := I[ V : W | S ]$ (not explicitly defined in Lean)
+* $I_1 := I[U : V | S]$
+* $I_2 := I[U : W | S]$
+* $I_3 := I[V : W | S]$ (not explicitly defined in Lean)
 
 # Main results:
 
@@ -53,7 +53,7 @@ variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₁', X₂'])
 variable (h_min: tau_minimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
-local notation3 "k" => d[ X₁ # X₂]
+local notation3 "k" => d[X₁ # X₂]
 
 /-- `U := X₁ + X₂` -/
 local notation3 "U" => X₁ + X₂
@@ -67,13 +67,13 @@ local notation3 "W" => X₁' + X₁
 /-- `S := X₁ + X₂ + X₁' + X₂'` -/
 local notation3 "S" => X₁ + X₂ + X₁' + X₂'
 
-/-- `I₁ := I[ U : V | S ]`, the conditional mutual information of `U = X₁ + X₂` and `V = X₁' + X₂`
+/-- `I₁ := I[U : V | S]`, the conditional mutual information of `U = X₁ + X₂` and `V = X₁' + X₂`
 given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
-local notation3 "I₁" => I[ U : V | S ]
+local notation3 "I₁" => I[U : V | S]
 
-/-- `I₂ := I[ U : W | S ]`, the conditional mutual information of `U = X₁ + X₂` and `W = X₁' + X₁`
+/-- `I₂ := I[U : W | S]`, the conditional mutual information of `U = X₁ + X₂` and `W = X₁' + X₁`
 given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
-local notation3 "I₂" => I[ U : W | S ]
+local notation3 "I₂" => I[U : W | S]
 
 --(Mantas) this times out in the proof below
 private lemma hmeas2 : Measurable
@@ -89,7 +89,7 @@ private lemma hmeas2 : Measurable
     · apply measurable_pi_apply
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
-lemma I₃_eq : I[ V : W | S ] = I₂ := by
+lemma I₃_eq : I[V : W | S] = I₂ := by
   have h_indep2 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁, X₂'] := by
     apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 4) 2)
     convert h_indep using 1
@@ -153,7 +153,7 @@ is less than or equal to
 $$ 6 \eta k - \frac{1 - 5 \eta}{1-\eta} (2 \eta k - I_1).$$
 -/
 lemma sum_condMutual_le :
-    I[ U : V | S ] + I[ V : W | S ] + I[ W : U | S ]
+    I[U : V | S] + I[V : W | S] + I[W : U | S]
       ≤ 6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁) := by
   have : I[W:U|S] = I₂ := by
     rw [condMutualInfo_comm]
@@ -190,7 +190,7 @@ lemma ruzsa_helper_lemma' [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω 
     fin_cases i
     exacts [hX.neg, hC, measurable_const, hB.add hC]
   calc d[X # B | B + C]
-    = d[X | fun _ : Ω ↦ (0 : G) # B | B + C] := by rw [cond_rdist_of_const hX]
+    = d[X | fun _ : Ω ↦ (0 : G) # B | B + C] := by rw [condRuzsaDist_of_const hX]
   _ = d[π ∘ ⟨-X, fun _ : Ω ↦ (0 : G)⟩ | fun _ : Ω ↦ (0 : G) # π ∘ ⟨C, B + C⟩ | B + C] := by
         congr
         · ext1 ω; simp
@@ -199,7 +199,7 @@ lemma ruzsa_helper_lemma' [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω 
           abel
   _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 # π ∘ ⟨Y 1, Y 3⟩ | Y 3] := by congr
   _ = d[-X | fun _ : Ω ↦ (0 : G) # C | B + C] := by
-        rw [cond_rdist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
+        rw [condRuzsaDist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
         · congr
         · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp
           have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
@@ -212,7 +212,7 @@ lemma ruzsa_helper_lemma' [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω 
           refine h_indep.comp ?_ ?_
           · exact measurable_neg.prod_mk measurable_const
           · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
-  _ = d[-X # C | B + C] := by rw [cond_rdist_of_const]; exact hX.neg
+  _ = d[-X # C | B + C] := by rw [condRuzsaDist_of_const]; exact hX.neg
   _ = d[X # C | B + C] := by -- because ElementaryAddCommGroup G 2
         congr
         simp
@@ -230,7 +230,7 @@ lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C
   have hC' : Measurable C' := hC.comp measurable_snd
   -- h1 and h2 should be applications of a new lemma?
   have h1 : d[p.X₀₂ # B | B + C] = d[X₂' # B' | B' + C'] := by
-    refine cond_rdist'_of_copy p.X₀₂ hB (hB.add hC) X₂' hB' (hB'.add hC') ?_ ?_
+    refine condRuzsaDist'_of_copy p.X₀₂ hB (hB.add hC) X₂' hB' (hB'.add hC') ?_ ?_
     · constructor
       · exact p.hmeas2.aemeasurable
       · exact hX₂'.aemeasurable
@@ -246,7 +246,7 @@ lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C
           rfl
         · exact hB.prod_mk (hB.add hC)
   have h2 : d[p.X₀₂ # C | B + C] = d[X₂' # C' | B' + C'] := by
-    refine cond_rdist'_of_copy p.X₀₂ hC (hB.add hC) X₂' hC' (hB'.add hC') ?_ ?_
+    refine condRuzsaDist'_of_copy p.X₀₂ hC (hB.add hC) X₂' hC' (hB'.add hC') ?_ ?_
     · constructor
       · exact p.hmeas2.aemeasurable
       · exact hX₂'.aemeasurable
@@ -430,7 +430,7 @@ lemma construct_good_prelim :
   have h2 : η * sum2 ≤ η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
   · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
-      simp_rw [cond_rdist'_eq_sum hT₁ hT₃, integral_eq_sum,
+      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum,
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
     linarith [condDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
@@ -438,7 +438,7 @@ lemma construct_good_prelim :
   have h3 : η * sum3 ≤ η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
   · have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
-      simp_rw [cond_rdist'_eq_sum hT₂ hT₃, integral_eq_sum,
+      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum,
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
     linarith [condDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
@@ -493,7 +493,7 @@ lemma cond_c_eq_integral {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable 
   simp only [integral_eq_sum, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
     Finset.sum_add_distrib]
   simp_rw [← integral_eq_sum]
-  rw [← cond_rdist'_eq_integral _ hY hZ, ← cond_rdist'_eq_integral _ hY hZ, integral_const,
+  rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
   simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]

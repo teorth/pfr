@@ -95,7 +95,7 @@ lemma continuous_tau_restrict_probabilityMeasure
     Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _ p.hmeas1) continuous_fst
   continuity
 
-/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. --/
+/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. -/
 lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂]
     {μ₁ : Measure Ω₁} {μ₂ : Measure Ω₂} {μ'₁ : Measure Ω'₁} {μ'₂ : Measure Ω'₂}
@@ -114,7 +114,7 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
   ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
-/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. --/
+/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. -/
 lemma ProbabilityTheory.IdentDistrib.tau_minimizes [MeasureSpace Ω]
     [MeasureSpace Ω']
     {X₁ X₂ : Ω → G} {X₁' X₂' : Ω' → G}
@@ -195,7 +195,7 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁)
 
 /-- Version of `distance_ge_of_min` with the measures made explicit. -/
 lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂)
-    [MeasurableSpace Ω'₁] [ MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
+    [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X'₁: Ω'₁ → G} {X'₂: Ω'₂ → G}
     (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
     d[X₁ # X₂] - η * (d[p.X₀₁; ℙ # X'₁; μ] - d[p.X₀₁ # X₁])
@@ -222,12 +222,12 @@ lemma condDistance_ge_of_min
     rw [← Finset.sum_mul,sum_measure_preimage_singleton' ℙ hZ, one_mul]
   have hw (a : ℝ) : a = ∑ w : T, (ℙ (W ⁻¹' {w})).toReal * a := by
     rw [← Finset.sum_mul,sum_measure_preimage_singleton' ℙ hW, one_mul]
-  rw [cond_rdist_eq_sum h1 hZ h2 hW, cond_rdist'_eq_sum h1 hZ, hz d[X₁ # X₂],
+  rw [condRuzsaDist_eq_sum h1 hZ h2 hW, condRuzsaDist'_eq_sum h1 hZ, hz d[X₁ # X₂],
     hz d[p.X₀₁ # X₁], hz (η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro z _
-  rw [cond_rdist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂],
+  rw [condRuzsaDist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂],
     hw ((ℙ (Z ⁻¹' {z})).toReal * d[X₁ # X₂] - η * ((ℙ (Z ⁻¹' {z})).toReal *
       d[p.X₀₁ ; ℙ # X'₁ ; ℙ[|Z ⁻¹' {z}]] - (ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ # X₁])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]

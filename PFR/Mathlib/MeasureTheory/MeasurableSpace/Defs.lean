@@ -9,10 +9,10 @@ variable {α β γ δ δ' : Type*} {ι : Sort*} {s t u : Set α}
 class DiscreteMeasurableSpace (α : Type*) [MeasurableSpace α] : Prop where
   eq_top : ‹MeasurableSpace α› = ⊤
 
-variable [MeasurableSpace α]
+variable [MeasurableSpace α] [MeasurableSpace β]
 
 section DiscreteMeasurableSpace
-variable [MeasurableSpace α] [DiscreteMeasurableSpace α] [MeasurableSpace β]
+variable [DiscreteMeasurableSpace α]
 
 @[simp]
 lemma measurableSet_discrete (s : Set α) : MeasurableSet s :=

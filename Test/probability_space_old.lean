@@ -25,7 +25,7 @@ def Probspace.measure (Ω : Type*) [ProbSpace Ω] : Measure Ω := volume
 def prob {Ω : Type*} [ProbSpace Ω] (E : Set Ω) := probMeasure Ω E
 
 /-- The customary notation for probability.  Todo: integrate this with https://leanprover-community.github.io/mathlib4_docs/Mathlib/Probability/Notation.html -/
-notation:100 "P[ " E " ]" => prob E
+notation:100 "P[" E "]" => prob E
 
 /-- Total event has probability one. -/
 lemma prob_univ (Ω : Type*) [ProbSpace Ω] : P[(⊤ : Set Ω)] = 1 := (probMeasure Ω).coeFn_univ
@@ -35,21 +35,21 @@ lemma prob_mono {Ω : Type*} [ProbSpace Ω] {A B : Set Ω} (h : A ≤ B) : P[A] 
   (probMeasure Ω).apply_mono h
 
 /-- All events have probability at most 1.  Measurability not required! -/
-lemma prob_le_one [ProbSpace Ω] (E : Set Ω) : P[ E ] ≤ 1 := (probMeasure Ω).apply_le_one E
+lemma prob_le_one [ProbSpace Ω] (E : Set Ω) : P[E] ≤ 1 := (probMeasure Ω).apply_le_one E
 
 /- an alternate proof:
 
-lemma prob_le_one' [ProbSpace Ω] (E : Set Ω) : P[ E ] ≤ 1 := by
+lemma prob_le_one' [ProbSpace Ω] (E : Set Ω) : P[E] ≤ 1 := by
   rw [← prob_univ Ω]
   simp [prob_mono]
 
 -/
 
 /-- Probability can be computed using probMeasure. -/
-lemma prob_eq [ProbSpace Ω] (E : Set Ω) : P[ E ] = probMeasure Ω E := rfl
+lemma prob_eq [ProbSpace Ω] (E : Set Ω) : P[E] = probMeasure Ω E := rfl
 
 /-- Probability can be computed using measure (after coercion to ENNReal). -/
-lemma prob_eq' [ProbSpace Ω] (E : Set Ω) : P[ E ] = Probspace.measure Ω E := by
+lemma prob_eq' [ProbSpace Ω] (E : Set Ω) : P[E] = Probspace.measure Ω E := by
    unfold prob probMeasure Probspace.measure
    simp
    congr
@@ -68,7 +68,7 @@ noncomputable def diracProbSpace [MeasurableSpace S] (a : S) : ProbSpace S where
 open BigOperators
 
 /-- The law of total probability: the probability densities of a discrete random variable sum to 1. Proof is way too long.  TODO: connect this with Mathlib.Probability.ProbabilityMassFunction.Basic -/
-lemma totalProb {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Measurable X): ∑ s : S, P[ X ⁻¹' {s} ] = 1 := by
+lemma totalProb {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX : Measurable X): ∑ s : S, P[X ⁻¹' {s}] = 1 := by
   rw [← ENNReal.coe_eq_coe]
   push_cast
   conv =>
@@ -94,17 +94,17 @@ lemma totalProb {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Meas
   exact hX trivial
 
 /-- Random variables always take values in non-empty sets. -/
-lemma range_nonempty {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Measurable X) : Nonempty S := by
+lemma range_nonempty {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX : Measurable X) : Nonempty S := by
   rcases isEmpty_or_nonempty S with hS | hS
   . have := totalProb hX
     simp [hS] at this
   assumption
 
-lemma range_nonempty' {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX: Measurable X) : 0 < Fintype.card S := by
+lemma range_nonempty' {Ω : Type*} [ProbSpace Ω] [Fintype S] {X : Ω → S} (hX : Measurable X) : 0 < Fintype.card S := by
   suffices : Fintype.card S ≠ 0
   . contrapose! this; linarith
   have := range_nonempty hX
   apply Fintype.card_ne_zero
 
 /-- Definition of a uniform random variable on a set S -/
-def isUniform {Ω : Type*} [ProbSpace Ω] [Fintype S] (X : Ω → S) := (Measurable X) ∧ (∀ s : S, P[ X ⁻¹' {s} ] = (Fintype.card S)⁻¹)
+def isUniform {Ω : Type*} [ProbSpace Ω] [Fintype S] (X : Ω → S) := (Measurable X) ∧ (∀ s : S, P[X ⁻¹' {s}] = (Fintype.card S)⁻¹)
