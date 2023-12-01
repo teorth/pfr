@@ -17,15 +17,16 @@ Here we define Ruzsa distance and establish its basic properties.
 
 ## Main definitions
 
-* `rdist` : The Ruzsa distance $d[X ; Y]$ between two random variables
-* `condRuzsaDist` : The conditional Ruzsa distance $d[X|Z; Y|W]$ (or $d[X ; Y|W]$) between two random variables, conditioned on additional random variables
+* `rdist`: The Ruzsa distance $d[X ; Y]$ between two random variables
+* `condRuzsaDist`: The conditional Ruzsa distance $d[X | Z ; Y | W]$ (or $d[X ; Y | W]$) between two
+  random variables, conditioned on additional random variables
 
 ## Main results
 
-* `rdist_triangle` : The Ruzsa triangle inequality for three random variables.
+* `rdist_triangle`: The Ruzsa triangle inequality for three random variables.
 * `kaimanovich-vershik`. $$H[X + Y + Z] - H[X + Y] \leq H[Y+ Z] - H[Y]$$
 * `ent-bsg`: If $Z=A+B$, then
-$$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]$$
+  $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]$$
 -/
 open MeasureTheory ProbabilityTheory BigOperators
 
@@ -606,7 +607,8 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     congr
   rw [kernel.entropy_congr h_ker, h_meas, kernel.entropy_prodMkLeft_unit]
 
-/-- Conditional Ruzsa distance is unchanged if the sets of random variables are replaced with copies. -/
+/-- The conditional Ruzsa distance is unchanged if the sets of random variables are replaced with
+copies. -/
 lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (hZ : Measurable Z)
     {Y : Ω' → G} (hY : Measurable Y) {W : Ω' → T} (hW : Measurable W)
     {X' : Ω'' → G} (hX' : Measurable X') {Z' : Ω'' → S} (hZ' : Measurable Z')
@@ -614,7 +616,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
     [IsFiniteMeasure μ] [IsFiniteMeasure μ'] [IsFiniteMeasure μ''] [IsFiniteMeasure μ''']
     (h1 : IdentDistrib (⟨X, Z⟩) (⟨X', Z'⟩) μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
     d[X | Z ; μ # Y | W ; μ'] = d[X' | Z' ; μ'' # Y' | W' ; μ'''] := by
-  rw [condRuzsaDist_def, condRuzsaDist_def, kernel.rdist, kernel.rdist, integral_eq_sum, integral_eq_sum]
+  rw [condRuzsaDist_def, condRuzsaDist_def, kernel.rdist, kernel.rdist, integral_eq_sum,
+    integral_eq_sum]
   have hZZ' : μ.map Z = μ''.map Z' := (h1.comp measurable_snd).map_eq
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hZZ', ← hWW',
@@ -663,7 +666,8 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     [IsFiniteMeasure μ'] [IsFiniteMeasure μ''']
     (h1 : IdentDistrib X X' μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
     d[X ; μ # Y | W ; μ'] = d[X' ; μ'' # Y' | W' ; μ'''] := by
-  rw [condRuzsaDist'_def, condRuzsaDist'_def, kernel.rdist, kernel.rdist, integral_eq_sum, integral_eq_sum]
+  rw [condRuzsaDist'_def, condRuzsaDist'_def, kernel.rdist, kernel.rdist, integral_eq_sum,
+    integral_eq_sum]
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hWW',
     Measure.map_apply hW (measurableSet_singleton _)]
@@ -718,18 +722,20 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
     ≤ (H[X ; μ] + H[Y + Z ; μ]) + (H[Z ; μ] + H[X + Y ; μ])
   . linarith
   have : ∀ (i : Fin 3), Measurable (![X, Y, Z] i) := fun i ↦ by fin_cases i <;> assumption
-  convert entropy_triple_add_entropy_le _ hX hZ (show Measurable (X + (Y+ Z)) by measurability) using 2
+  convert entropy_triple_add_entropy_le _ hX hZ (show Measurable (X + (Y + Z)) by measurability)
+    using 2
   . calc
       H[X ; μ] + H[Y ; μ] + H[Z ; μ] = H[⟨X, Y⟩ ; μ] + H[Z ; μ] := by
         congr 1
-        symm ; apply entropy_pair_eq_add' hX hY
+        symm; apply entropy_pair_eq_add' hX hY
         convert h.indepFun (show 0 ≠ 1 by decide)
       _ = H[⟨ ⟨X, Y⟩, Z ⟩ ; μ] := by
         symm; apply entropy_pair_eq_add' (hX.prod_mk hY) hZ
         exact h.indepFun_prod this 0 1 2 (by decide) (by decide)
       _ = H[⟨X, ⟨Z , X + (Y + Z)⟩⟩ ; μ] := by
-        apply entropy_of_comp_eq_of_comp μ (by measurability) (by measurability) (fun ((x, y), z) ↦ (x, (z, x+y+z))) (fun (a, (b, c)) ↦ ((a, c-a-b), b))
-        all_goals { funext ω ; dsimp [prod] ; ext <;> dsimp ; abel }
+        apply entropy_of_comp_eq_of_comp μ (by measurability) (by measurability)
+          (fun ((x, y), z) ↦ (x, z, x + y + z)) (fun (a, b, c) ↦ ((a, c - a - b), b))
+        all_goals { funext ω; dsimp [prod]; ext <;> dsimp; abel }
   . rw [add_assoc]
   . symm
     refine (entropy_add_right hX (hY.add hZ) _).trans $ entropy_pair_eq_add' hX (hY.add hZ) ?_
@@ -757,15 +763,107 @@ section BalogSzemerediGowers
 /-- The **entropic Balog-Szemerédi-Gowers inequality**. Let $A, B$ be $G$-valued random variables on
 $\Omega$, and set $Z := A+B$. Then
 $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]. $$ -/
-lemma ent_bsg { A B Z : Ω → G } (hA: Measurable A) (hB: Measurable B) (hZ : Z = A + B) :
-  (μ.map Z)[fun z ↦ d[A; μ[|Z⁻¹' {z}] # B ; μ[|Z⁻¹' {z}]]] ≤ 3 * I[A : B; μ] + 2 * H[Z;μ] - H[A;μ] - H[B;μ] := by sorry
-
+lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB : Measurable B) :
+    (μ.map (A + B))[fun z ↦ d[A ; μ[|(A + B) ⁻¹' {z}] # B ; μ[|(A + B) ⁻¹' {z}]]]
+      ≤ 3 * I[A : B; μ] + 2 * H[A + B ; μ] - H[A ; μ] - H[B ; μ] := by
+  let Z := A + B
+  have hZ : Measurable Z := hA.add hB
+  obtain ⟨Ω', _, AB₁, AB₂, Z', ν, _, hAB₁, hAB₂, hZ', hABZ, hAB₁Z, hAB₂Z⟩ :=
+    condIndependent_copies (fun ω ↦ (A ω, B ω)) Z (hA.prod_mk hB) hZ μ
+  let A₁ := fun ω ↦ (AB₁ ω).1
+  let B₁ := fun ω ↦ (AB₁ ω).2
+  let A₂ := fun ω ↦ (AB₂ ω).1
+  let B₂ := fun ω ↦ (AB₂ ω).2
+  have hZ₁ : Z' = A₁ + B₁ := sorry
+  have hZ₂ : Z' = A₂ + B₂ := sorry
+  have hA₁ : Measurable A₁ := measurable_fst.comp hAB₁
+  have hB₁ : Measurable B₁ := measurable_snd.comp hAB₁
+  have hA₂ : Measurable A₂ := measurable_fst.comp hAB₂
+  have hB₂ : Measurable B₂ := measurable_snd.comp hAB₂
+  have :=
+    calc
+      H[⟨A₁, ⟨B₁, A₁ - B₂⟩⟩ ; ν]
+        = H[⟨⟨A₁, B₁⟩, ⟨⟨A₂, B₂⟩, Z'⟩⟩ ; ν] := entropy_of_comp_eq_of_comp _
+          (hA₁.prod_mk $ hB₁.prod_mk $ hA₁.sub hB₂) (hAB₁.prod_mk $ hAB₂.prod_mk hZ')
+            (fun (a, b, c) ↦ ((a, b), (b + c, a - c), a + b))
+            (fun ((a, b), (c, d), e) ↦ (a, b, a - d))
+          (by funext; simpa [sub_add_eq_add_sub, Prod.ext_iff, ←hZ₁, hZ₂, two_nsmul, ←add_sub_assoc,
+            add_comm, eq_sub_iff_add_eq] using congr_fun (hZ₂.symm.trans hZ₁) _) rfl
+      _ = H[⟨⟨A₁, B₁⟩, Z'⟩ ; ν] + H[⟨⟨A₂, B₂⟩, Z'⟩ ; ν] - H[Z' ; ν] :=
+        ent_of_cond_indep hAB₁ hAB₂ hZ' hABZ
+      _ = 2 * H[⟨⟨A, B⟩, Z⟩ ; μ] - H[Z ; μ] := by
+        rw [two_mul]
+        congr 1
+        congr 1 <;> exact IdentDistrib.entropy_eq ‹_›
+        exact (hAB₁Z.comp measurable_snd).entropy_eq
+      _ = 2 * H[⟨A, B⟩ ; μ] - H[Z ; μ] := by
+        congr 2
+        exact entropy_prod_comp (hA.prod_mk hB) _ fun x ↦ x.1 + x.2
+  have :=
+    calc
+      H[⟨A₁, A₁ - B₂⟩ ; ν]
+        = H[⟨A₁, B₂⟩ ; ν] := entropy_sub_right hA₁ hB₂ _
+      _ ≤ H[A₁ ; ν] + H[B₂ ; ν] := entropy_pair_le_add hA₁ hB₂ _
+      _ = H[A ; μ] + H[B ; μ] := by
+        congr 1
+        exact (hAB₁Z.comp $ measurable_fst.comp measurable_fst).entropy_eq
+        exact (hAB₂Z.comp $ measurable_snd.comp measurable_fst).entropy_eq
+  have :=
+    calc
+      H[⟨B₁, A₁ - B₂⟩ ; ν]
+        = H[⟨A₂, B₁⟩ ; ν] := by
+          rw [entropy_comm hB₁ (show Measurable (A₁ - B₂) from hA₁.sub hB₂),
+            ←entropy_sub_left' hA₂ hB₁, sub_eq_sub_iff_add_eq_add.2 $ hZ₁.symm.trans hZ₂]
+      _ ≤ H[A₂ ; ν] + H[B₁ ; ν] := entropy_pair_le_add hA₂ hB₁ _
+      _ = H[A ; μ] + H[B ; μ] := by
+        congr 1
+        exact (hAB₂Z.comp $ measurable_fst.comp measurable_fst).entropy_eq
+        exact (hAB₁Z.comp $ measurable_snd.comp measurable_fst).entropy_eq
+  have :=
+    calc
+     _ ≤ _ := entropy_triple_add_entropy_le ν hA₁ hB₁ (show Measurable (A₁ - B₂) from hA₁.sub hB₂)
+     _ ≤ _ := add_le_add ‹_› ‹_›
+  have :=
+    calc
+      H[A₁ - B₂ | Z' ; ν]
+        ≤ H[A₁ - B₂ ; ν] := condEntropy_le_entropy _ (hA₁.sub hB₂) hZ'
+      _ ≤ _ := le_sub_iff_add_le'.2 ‹_›
+      _ = 2 * I[A : B ; μ] + H[Z ; μ] := by
+        rw [‹H[⟨A₁, ⟨B₁, A₁ - B₂⟩⟩ ; ν] = _›, mutualInfo_def]; ring
+  have hA₁Z :=
+    calc
+      H[A₁ | Z' ; ν]
+      _ = H[⟨A₁, B₁⟩ ; ν] - H[Z' ; ν] := by
+        rw [chain_rule'', hZ₁, entropy_add_right, entropy_comm] <;> assumption
+      _ = H[⟨A, B⟩ ; μ] - H[Z ; μ] := by
+        congr 1
+        exact (hAB₁Z.comp measurable_fst).entropy_eq
+        exact (hAB₁Z.comp measurable_snd).entropy_eq
+      _ = H[A ; μ] + H[B ; μ] - I[A : B ; μ] - H[Z ; μ] := by
+        rw [←entropy_add_entropy_sub_mutualInfo]
+  have hB₂Z :=
+    calc
+      H[B₂ | Z' ; ν]
+      _ = H[⟨A₂, B₂⟩ ; ν] - H[Z' ; ν] := by
+        rw [chain_rule'', hZ₂, entropy_add_right', entropy_comm] <;> assumption
+      _ = H[⟨A, B⟩ ; μ] - H[Z ; μ] := by
+        congr 1
+        exact (hAB₂Z.comp measurable_fst).entropy_eq
+        exact (hAB₁Z.comp measurable_snd).entropy_eq
+      _ = H[A ; μ] + H[B ; μ] - I[A : B ; μ] - H[Z ; μ] := by
+        rw [←entropy_add_entropy_sub_mutualInfo]
+  calc
+    (μ.map (A + B))[fun z ↦ d[A ; μ[|(A + B) ⁻¹' {z}] # B ; μ[|(A + B) ⁻¹' {z}]]]
+      = H[A₁ - B₂ | Z' ; ν] - H[A₁ | Z' ; ν] / 2 - H[B₂ | Z' ; ν] / 2 := sorry
+    _ ≤ (2 * I[A : B ; μ] + H[Z ; μ]) - H[A₁ | Z' ; ν] / 2 - H[B₂ | Z' ; ν] / 2 :=
+        sub_le_sub_right (sub_le_sub_right ‹_› _) _
+    _ = _ := by rw [hA₁Z, hB₂Z]; ring
 
 end BalogSzemerediGowers
 
 variable (μ μ') in
-/-- Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian group. Then $$d[X | Z ; Y | W] \leq d[X ; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W]$$
--/
+/-- Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian
+group. Then $$d[X | Z ; Y | W] \leq d[X ; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W]$$ -/
 lemma condDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Nonempty S]
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W) :
@@ -831,13 +929,13 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
     ring
 
 variable (μ) in
-/-- Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$ independent. Then we have
-  $$ d[X ; Y + Z] -d[X ; Y] \leq \tfrac{1}{2} (H[Y+ Z] - H[Y]) $$
-  $$ = \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Z] - \tfrac{1}{4} H[Y]$$
-  and
-$$
-  d[X ; Y|Y+ Z] - d[X ; Y] \leq \tfrac{1}{2} \bigl(H[Y+ Z] - H[Z]\bigr) $$
-$$  = \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z]$$
+/-- Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$
+independent. Then we have
+$$d[X ; Y + Z] -d[X ; Y] \leq \tfrac{1}{2} (H[Y+ Z] - H[Y])$$
+$$= \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Z] - \tfrac{1}{4} H[Y]$$
+and
+$$d[X ; Y|Y+ Z] - d[X ; Y] \leq \tfrac{1}{2} \bigl(H[Y+ Z] - H[Z]\bigr)$$
+$$= \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z]$$
 -/
 lemma condDist_diff_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
