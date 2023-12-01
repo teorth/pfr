@@ -118,7 +118,7 @@ where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{in
   \uses{ruz-dist-def}
   \lean{diff_ent_le_rdist}\leanok
   If $X,Y$ are $G$-valued random variables, then
-$$|H[X]-H[Y]| \leq 2 d[X;Y].$$
+$$|\bbH[X]-H[Y]| \leq 2 d[X;Y].$$
 \end{lemma}
 
 \begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
@@ -233,13 +233,13 @@ Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call 
 
 Observe from Lemma \ref{ruz-indep} that the left-hand side of~\eqref{2-bsg-takeaway} is
 \begin{equation}\label{lhs-to-bound}
-H[A_1 - B_2| Z] - \bbH[A_1 | Z]/2 - \bbH[B_2 | Z]/2.
+\bbH[A_1 - B_2| Z] - \bbH[A_1 | Z]/2 - \bbH[B_2 | Z]/2.
 \end{equation}
 since, crucially, $(A_1 | Z=z)$ and $(B_2 | Z=z)$ are independent for all $z$.
 
-Applying submodularity (Lemma \ref{submodularity}) gives
+Applying submodularity (Lemma \ref{alt-submodularity}) gives
 \begin{equation}\label{bsg-31} \begin{split}
-&H[A_1 - B_2] + \bbH[A_1 - B_2, A_1, B_1] \\
+&\bbH[A_1 - B_2] + \bbH[A_1 - B_2, A_1, B_1] \\
 &\qquad \leq \bbH[A_1 - B_2, A_1] + \bbH[A_1 - B_2,B_1].
 \end{split}\end{equation}
 We estimate the second, third and fourth terms appearing here.
@@ -252,7 +252,7 @@ Finally, we have
 \begin{equation}\label{bsg-25} \bbH[A_1 - B_2, B_1] = \bbH[A_2 - B_1, B_1] = \bbH[A_2, B_1] \leq \bbH[A] + \bbH[B].\end{equation}
 Substituting~\eqref{bsg-24},~\eqref{bsg-23} and~\eqref{bsg-25} into~\eqref{bsg-31} yields
 \[ \bbH[A_1 - B_2] \leq 2 \bbI[A:B] + \bbH[Z]\] and so by Corollary \ref{cond-reduce}
-\[H[A_1 - B_2 | Z]  \leq 2 \bbI[A:B] + \bbH[Z].\]
+\[\bbH[A_1 - B_2 | Z]  \leq 2 \bbI[A:B] + \bbH[Z].\]
 Since
 \begin{align*} \bbH[A_1 | Z] & = \bbH[A_1, A_1 + B_1] - \bbH[Z] \\ & = \bbH[A,B] - \bbH[Z] \\ & = \bbH[Z] -  \bbI[A:B] - 2 \bbH[Z]- \bbH[A]-\bbH[B]\end{align*}
 and similarly for $\bbH[B_2 | Z]$, we see that~\eqref{lhs-to-bound} is bounded by
