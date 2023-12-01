@@ -295,18 +295,12 @@ lemma hU : H[U] = H[X₁' + X₂'] := by
       apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 2) (j := 3); decide
     simp at aux; assumption
 
-
-abbrev ι := Fin 4
-abbrev ι' := Fin 3 
-
-abbrev S1 : ι' → Finset ι 
+abbrev S1 : Fin 3 → Finset (Fin 4) 
   | 0 => {0} 
   | 1 => {1} 
   | 2 => {2, 3}
 
-def beta1 := fun x ↦ Π i : S1 x, G
-
-def f1 (x : Fin 3) : Ω → Π i : S1 x, G := 
+def f1 (x : Fin 3) : Ω → Π _ : S1 x, G := 
   match x with 
   | 0 => fun ω _ => X₁ ω 
   | 1 => fun ω _ => X₂ ω
@@ -314,17 +308,15 @@ def f1 (x : Fin 3) : Ω → Π i : S1 x, G :=
                     | { val := 2, property := _ } => X₁' ω
                     | { val := 3, property := _ } => X₂' ω
 
-lemma aux_0 (i : { x // x ∈ S1 0 }) : (↑i : Fin 4) = 0 := by
-  rw [← List.mem_singleton]
-  apply i.property
-
-lemma aux_1 (i : { x // x ∈ S1 1 }) : (↑i : Fin 4) = 1 := by
-  rw [← List.mem_singleton]
-  apply i.property
-
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition1' : iIndepFun (fun _ => MeasurableSpace.pi) (f1 X₁ X₂ X₁' X₂') := by
-  have aux : f1 X₁ X₂ X₁' X₂' = fun (l : ι') (x : Ω) (i : S1 l) ↦ ![X₁, X₂, X₁', X₂'] (↑i) x := by 
+  have aux_0 (i : { x // x ∈ S1 0 }) : (↑i : Fin 4) = 0 := by
+    rw [← List.mem_singleton]
+    apply i.property
+  have aux_1 (i : { x // x ∈ S1 1 }) : (↑i : Fin 4) = 1 := by
+    rw [← List.mem_singleton]
+    apply i.property
+  have aux : f1 X₁ X₂ X₁' X₂' = fun (l : Fin 3) (x : Ω) (i : S1 l) ↦ ![X₁, X₂, X₁', X₂'] (↑i) x := by 
     funext a
     match a with 
     | 0 => simp [aux_0]; rfl
@@ -371,12 +363,10 @@ lemma measurable_g (i : Fin 3) : Measurable (g (G := G) i) := by
 
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
-
   have aux : ![X₁, X₂, X₁' + X₂'] = (fun i => g i ∘ f1 X₁ X₂ X₁' X₂' i) := by 
     funext i 
     match i with 
     | 0 | 1 | 2 => rfl
-  
   rw [aux]
   apply iIndepFun.comp (independenceCondition1' h_indep) g measurable_g
 
