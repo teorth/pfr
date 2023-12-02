@@ -12,7 +12,7 @@
 # If $directory is omitted, creates `PFR.lean`.
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"/../PFR
-if [[$# = 1]]; then
+if [[ $# = 1 ]]; then
   dir="${1%/}"  # remove trailing slash if present
 else
   dir="."
