@@ -1,4 +1,4 @@
-import PFR.Entropy.KernelMutualInformation
+import PFR.Entropy.KernelMutualInfo
 /-!
 # Kernel entropy and mutual information in a commutative group
 

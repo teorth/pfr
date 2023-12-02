@@ -31,11 +31,6 @@ section RealMeasure
 
 end RealMeasure
 
-section Kernels
--- some examples to showcase the probability kernel stuff in a self-contained fashion?
-
-end Kernels
-
 
 section Entropy
 -- some examples to showcase Shannon entropy in a self-contained fashion
@@ -70,13 +65,13 @@ example : H[X|Y] = H[⟨ X,Y ⟩] - H[Y] := chain_rule'' ℙ hX hY
 example : I[X:Y] = H[X] + H[Y] - H[⟨ X,Y ⟩] := rfl
 
 /-- $I[X:Y|Z]$ is the conditional mutual information between $X$ and $Y$ relative to $Z$. -/
-example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInformation_eq hX hY hZ ℙ
+example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInfo_eq hX hY hZ ℙ
 
 /-- Submodularity: conditional information is nonnegative. -/
-example : 0 ≤ I[X : Y | Z] := condMutualInformation_nonneg hX hY Z ℙ
+example : 0 ≤ I[X : Y | Z] := condMutualInfo_nonneg hX hY Z ℙ
 
 /-- Relation between conditional mutual information and conditional independence. -/
-example : I[X : Y | Z]  = 0  ↔ condIndepFun X Y Z := condMutualInformation_eq_zero hX hY hZ
+example : I[X : Y | Z]  = 0  ↔ condIndepFun X Y Z := condMutualInfo_eq_zero hX hY hZ
 
 
 end Entropy

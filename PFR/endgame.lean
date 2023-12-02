@@ -140,7 +140,7 @@ lemma I₃_eq : I[ V : W | S ] = I₂ := by
   have hV : Measurable V := Measurable.add hX₁' hX₂
   have hW : Measurable W := Measurable.add hX₁' hX₁
   have hS : Measurable S := by measurability
-  rw [condMutualInformation_eq hV hW hS, condMutualInformation_eq hU hW hS, chain_rule'' ℙ hU hS,
+  rw [condMutualInfo_eq hV hW hS, condMutualInfo_eq hU hW hS, chain_rule'' ℙ hU hS,
     chain_rule'' ℙ hV hS, chain_rule'' ℙ hW hS, chain_rule'' ℙ _ hS, chain_rule'' ℙ _ hS,
     IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
   · exact Measurable.prod (by exact hU) (by exact hW)
@@ -156,7 +156,7 @@ lemma sum_condMutual_le :
     I[ U : V | S ] + I[ V : W | S ] + I[ W : U | S ]
       ≤ 6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁) := by
   have : I[W:U|S] = I₂ := by
-    rw [condMutualInformation_comm]
+    rw [condMutualInfo_comm]
     · exact Measurable.add' hX₁' hX₁
     · exact Measurable.add' hX₁ hX₂
   rw [I₃_eq, this]
@@ -295,18 +295,12 @@ lemma hU : H[U] = H[X₁' + X₂'] := by
       apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 2) (j := 3); decide
     simp at aux; assumption
 
-
-abbrev ι := Fin 4
-abbrev ι' := Fin 3
-
-abbrev S1 : ι' → Finset ι
+abbrev S1 : Fin 3 → Finset (Fin 4)
   | 0 => {0}
   | 1 => {1}
   | 2 => {2, 3}
 
-def beta1 := fun x ↦ Π i : S1 x, G
-
-def f1 (x : Fin 3) : Ω → Π i : S1 x, G :=
+def f1 (x : Fin 3) : Ω → Π _ : S1 x, G :=
   match x with
   | 0 => fun ω _ => X₁ ω
   | 1 => fun ω _ => X₂ ω
@@ -314,17 +308,15 @@ def f1 (x : Fin 3) : Ω → Π i : S1 x, G :=
                     | { val := 2, property := _ } => X₁' ω
                     | { val := 3, property := _ } => X₂' ω
 
-lemma aux_0 (i : { x // x ∈ S1 0 }) : (↑i : Fin 4) = 0 := by
-  rw [← List.mem_singleton]
-  apply i.property
-
-lemma aux_1 (i : { x // x ∈ S1 1 }) : (↑i : Fin 4) = 1 := by
-  rw [← List.mem_singleton]
-  apply i.property
-
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition1' : iIndepFun (fun _ => MeasurableSpace.pi) (f1 X₁ X₂ X₁' X₂') := by
-  have aux : f1 X₁ X₂ X₁' X₂' = fun (l : ι') (x : Ω) (i : S1 l) ↦ ![X₁, X₂, X₁', X₂'] (↑i) x := by
+  have aux_0 (i : { x // x ∈ S1 0 }) : (↑i : Fin 4) = 0 := by
+    rw [← List.mem_singleton]
+    apply i.property
+  have aux_1 (i : { x // x ∈ S1 1 }) : (↑i : Fin 4) = 1 := by
+    rw [← List.mem_singleton]
+    apply i.property
+  have aux : f1 X₁ X₂ X₁' X₂' = fun (l : Fin 3) (x : Ω) (i : S1 l) ↦ ![X₁, X₂, X₁', X₂'] (↑i) x := by
     funext a
     match a with
     | 0 => simp [aux_0]; rfl
@@ -371,12 +363,10 @@ lemma measurable_g (i : Fin 3) : Measurable (g (G := G) i) := by
 
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
-
   have aux : ![X₁, X₂, X₁' + X₂'] = (fun i => g i ∘ f1 X₁ X₂ X₁' X₂' i) := by
     funext i
     match i with
     | 0 | 1 | 2 => rfl
-
   rw [aux]
   apply iIndepFun.comp (independenceCondition1' h_indep) g measurable_g
 
@@ -514,7 +504,7 @@ lemma construct_good_prelim :
         (fun x ↦ (x.1 + x.2, x.1)) (fun x ↦ (x.2, x.1 + x.2))
       · ext1 x; simp [h2T₃]
       · ext1 x; simp [h2T₂]
-    simp_rw [mutualInformation_def] at h1 ⊢; linarith
+    simp_rw [mutualInfo_def] at h1 ⊢; linarith
 
   have h2 : η * sum2 ≤ η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
   · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
@@ -568,7 +558,7 @@ lemma construct_good : k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂]
   have v2 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₁ hT₃ hT₂
   have v3 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₂ hT₁ hT₃
   have v6 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₃ hT₂ hT₁
-  simp only [mutualInformation, entropy_comm hT₂ hT₁, entropy_comm hT₃ hT₁, entropy_comm hT₃ hT₂]
+  simp only [mutualInfo, entropy_comm hT₂ hT₁, entropy_comm hT₃ hT₁, entropy_comm hT₃ hT₂]
     at *
   linarith
 
@@ -592,7 +582,7 @@ variable {R : Ω' → G} (hR : Measurable R)
 local notation3:max "δ'" => I[T₁:T₂|R] + I[T₂:T₃|R] + I[T₃:T₁|R]
 
 lemma delta'_eq_integral : δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
-  simp_rw [condMutualInformation_eq_integral_mutualInformation, integral_eq_sum, smul_add,
+  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum, smul_add,
     Finset.sum_add_distrib]
 
 lemma cond_construct_good :
