@@ -1,14 +1,9 @@
-import Mathlib.Data.Prod.TProd
-import Mathlib.Probability.IdentDistrib
-import Mathlib.Probability.Independence.Basic
-import Mathlib.Probability.Notation
-import PFR.Entropy.KernelMutualInfo
-import PFR.ForMathlib.Independence
-import PFR.ForMathlib.Miscellaneous
+import PFR.Entropy.Kernel.MutualInfo
 import PFR.Mathlib.Data.Set.Image
 import PFR.Mathlib.MeasureTheory.Group.Arithmetic
 import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.Independence.Conditional
+import PFR.Mathlib.SetTheory.Cardinal.Finite
 
 /-!
 # Entropy and conditional entropy
@@ -38,7 +33,7 @@ supposed to be `volume`). For example `H[X ; μ]` and `I[X : Y ; μ]` instead of
 
 -/
 
-open Function MeasureTheory Real
+open Function MeasureTheory Measure Real
 open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 
 namespace ProbabilityTheory
@@ -100,7 +95,7 @@ lemma entropy_le_log_card_of_mem {A : Set S} {μ : Measure Ω} {X : Ω → S}
     (hX : Measurable X) (h : ∀ᵐ ω ∂μ, X ω ∈ A) :
     H[X ; μ] ≤ log (Nat.card A) := by
   apply measureEntropy_le_log_card_of_mem
-  rwa [Measure.map_apply hX (measurableSet_of_countable _)]
+  rwa [Measure.map_apply hX (measurableSet_discrete _)]
 
 /-- $H[X] = \sum_s P[X=s] \log \frac{1}{P[X=s]}$. -/
 lemma entropy_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] :
@@ -118,7 +113,7 @@ lemma entropy_eq_sum' (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasur
 lemma entropy_cond_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] (y : T) :
     H[X | Y ← y ; μ] = ∑ x, negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
   by_cases hy : μ (Y ⁻¹' {y}) = 0
-  · rw [entropy_def, cond_eq_zero_of_measure_zero hy]
+  · rw [entropy_def, cond_eq_zero_of_measure_eq_zero hy]
     simp
   · have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure _ hy
     rw [entropy_eq_sum hX]
@@ -227,7 +222,7 @@ lemma IsUniform.measure_preimage_of_mem
   let H' := H.toFinite.toFinset
   have B : μ univ = (Nat.card H) * μ (X ⁻¹' {s}) := calc
     μ univ = μ (X ⁻¹' Hᶜ) + μ (X ⁻¹' H) := by
-      rw [← measure_union (disjoint_compl_left.preimage _) (hX (measurableSet_of_countable _))]
+      rw [← measure_union (disjoint_compl_left.preimage _) (hX (measurableSet_discrete _))]
       simp
     _ = μ (X ⁻¹' H) := by rw [h.measure_preimage_compl, zero_add]
     _ = ∑ x in H', μ (X ⁻¹' {x}) := by
@@ -237,7 +232,7 @@ lemma IsUniform.measure_preimage_of_mem
         apply Disjoint.preimage
         simp [hyz]
       · intro y _hy
-        exact hX (measurableSet_of_countable _)
+        exact hX (measurableSet_discrete _)
     _ = ∑ _x in H', μ (X ⁻¹' {s}) :=
       Finset.sum_congr rfl (fun x hx ↦ h.eq_of_mem x s (by simpa using hx) hs)
     _ = H'.card * μ (X ⁻¹' {s}) := by simp
@@ -1015,7 +1010,7 @@ lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measu
     rw [Pi.le_def]
     intro z; simp
     by_cases hz : μ (Z ⁻¹' {z}) = 0
-    · have : μ[| Z ⁻¹' {z}] = 0 := cond_eq_zero_of_measure_zero hz
+    · have : μ[| Z ⁻¹' {z}] = 0 := cond_eq_zero_of_measure_eq_zero hz
       simp [this]
       rw [mutualInfo_def]
       simp

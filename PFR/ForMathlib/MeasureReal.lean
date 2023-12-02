@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Basic
-import PFR.ForMathlib.Finiteness
+import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
+import PFR.Tactic.Finiteness.Basic
 
 /-!
 # Measures as real valued-functions
@@ -489,3 +490,24 @@ def evalMeasureReal : PositivityExt where eval {_ _} _zα _pα e := do
   pure (.nonnegative p)
 
 end Mathlib.Meta.Positivity
+section aux_lemmas
+
+lemma measureReal_preimage_fst_singleton_eq_sum {S T : Type*} {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (x : S) :
+    μ.real (Prod.fst ⁻¹' {x}) = ∑ y : T, μ.real {(x, y)} := by
+  rw [measureReal_def, measure_preimage_fst_singleton_eq_sum, ENNReal.toReal_sum]
+  · rfl
+  intros
+  finiteness
+
+lemma measureReal_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (y : T) :
+    μ.real (Prod.snd ⁻¹' {y}) = ∑ x : S, μ.real {(x, y)} := by
+  rw [measureReal_def, measure_preimage_snd_singleton_eq_sum, ENNReal.toReal_sum]
+  · rfl
+  intros
+  finiteness
+
+end aux_lemmas

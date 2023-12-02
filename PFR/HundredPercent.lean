@@ -1,4 +1,4 @@
-import PFR.ruzsa_distance
+import PFR.Entropy.RuzsaDist
 
 /-!
 # The 100% version of entropic PFR

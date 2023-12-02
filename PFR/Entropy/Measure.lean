@@ -1,10 +1,6 @@
-import Mathlib.Probability.ConditionalProbability
-import Mathlib.Probability.Independence.Basic
-import Mathlib.Probability.Notation
-import PFR.ForMathlib.Positivity
-import PFR.ForMathlib.Miscellaneous
-import PFR.neg_xlogx
 import PFR.ForMathlib.MeasureReal
+import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
+import PFR.Mathlib.Data.Fintype.Card
 
 /-!
 # Entropy of a measure
@@ -23,134 +19,15 @@ import PFR.ForMathlib.MeasureReal
 -/
 
 open Real MeasureTheory
-
-open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
-
-section aux_lemmas
-
--- seems reasonable for Mathlib?
-attribute [pp_dot] Measure.map
-
-lemma integral_eq_sum {S E : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
-     (μ : Measure S) [IsFiniteMeasure μ] (f : S → E) :
-    ∫ x, f x ∂μ = ∑ x, (μ {x}).toReal • f x :=
-  integral_fintype _ $ integrable_of_fintype _ _
-
-lemma ae_iff_of_fintype {S : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    (μ : Measure S) (p : S → Prop) :
-    (∀ᵐ x ∂μ, p x) ↔ ∀ x, μ {x} ≠ 0 → p x := by
-  rw [ae_iff]
-  conv_lhs => rw [← Measure.sum_smul_dirac μ]
-  simp only [Measure.sum_fintype, Measure.coe_finset_sum, Measure.smul_toOuterMeasure,
-    OuterMeasure.coe_smul, Finset.sum_apply, Pi.smul_apply, measurableSet_setOf, Set.mem_setOf_eq,
-    Measure.dirac_apply, not_not, smul_eq_mul, Finset.sum_eq_zero_iff, Finset.mem_univ, mul_eq_zero,
-    Set.indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, forall_true_left, ne_eq]
-  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
-  · intro x
-    cases h x with
-    | inl h => exact fun h_not ↦ absurd h h_not
-    | inr h =>
-      intro _
-      by_contra hpx
-      exact h hpx
-  · intro x
-    by_cases hμx : μ {x} = 0
-    · exact Or.inl hμx
-    · exact Or.inr (fun hpx ↦ hpx (h x hμx))
-
--- TODO: Change RHS of `lintegral_fintype`
-lemma lintegral_eq_sum {S : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-     (μ : Measure S) (f : S → ℝ≥0∞) :
-    ∫⁻ x, f x ∂μ = ∑ x, (μ {x}) * (f x) := by simp_rw [lintegral_fintype, mul_comm]
-
-/-- `μ[|s]` is always a finite measure. -/
-instance cond_isFiniteMeasure {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}
-    (s : Set α) : IsFiniteMeasure (μ[|s]) := by
-  constructor
-  simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, MeasurableSet.univ,
-    Measure.restrict_apply, Set.univ_inter, smul_eq_mul, ProbabilityTheory.cond,
-    ← ENNReal.div_eq_inv_mul]
-  exact ENNReal.div_self_le_one.trans_lt ENNReal.one_lt_top
-
-lemma cond_eq_zero_of_measure_zero {α : Type*} {_ : MeasurableSpace α} {μ : Measure α} {s : Set α}
-    (hμs : μ s = 0) :
-    μ[|s] = 0 := by
-  have : μ.restrict s = 0 := by simp [hμs]
-  simp [ProbabilityTheory.cond, this]
-
-lemma measure_preimage_fst_singleton_eq_sum {S T : Type*} {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
-    [MeasurableSingletonClass T] (μ : Measure (S × T)) (x : S) :
-    μ (Prod.fst ⁻¹' {x}) = ∑ y : T, μ {(x, y)} := by
-  have : Prod.fst ⁻¹' {x} = ⋃ y : T, {(x, y)} := by
-    ext y
-    simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.iUnion_singleton_eq_range,
-      Set.mem_range]
-    exact ⟨fun h ↦ ⟨y.2, by rw [← h]⟩, fun ⟨b, h⟩ ↦ by rw [← h]⟩
-  rw [this, measure_iUnion, tsum_eq_sum]
-  · simp
-  · intro a a' haa'
-    rw [Function.onFun, Set.disjoint_iff]
-    intro su
-    simp only [Set.mem_inter_iff, Set.mem_singleton_iff, Set.mem_empty_iff_false, and_imp]
-    intro h1 h2
-    rw [h2] at h1
-    simp only [Prod.mk.injEq, true_and] at h1
-    exact haa' h1.symm
-  · simp
-
-lemma measureReal_preimage_fst_singleton_eq_sum {S T : Type*} {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
-    [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (x : S) :
-    μ.real (Prod.fst ⁻¹' {x}) = ∑ y : T, μ.real {(x, y)} := by
-  rw [measureReal_def, measure_preimage_fst_singleton_eq_sum, ENNReal.toReal_sum]
-  · rfl
-  intros
-  finiteness
-
-lemma measure_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S] {_ : MeasurableSpace T}
-    [MeasurableSingletonClass T] (μ : Measure (S × T)) (y : T) :
-    μ (Prod.snd ⁻¹' {y}) = ∑ x : S, μ {(x, y)} := by
-  have : Prod.snd ⁻¹' {y} = ⋃ x : S, {(x, y)} := by
-    ext y
-    simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.iUnion_singleton_eq_range,
-      Set.mem_range]
-    exact ⟨fun h ↦ ⟨y.1, by rw [← h]⟩, fun ⟨b, h⟩ ↦ by rw [← h]⟩
-  rw [this, measure_iUnion, tsum_eq_sum]
-  · simp
-  · intro a a' haa'
-    rw [Function.onFun, Set.disjoint_iff]
-    intro su
-    simp only [Set.mem_inter_iff, Set.mem_singleton_iff, Set.mem_empty_iff_false, and_imp]
-    intro h1 h2
-    rw [h2] at h1
-    simp only [Prod.mk.injEq, and_true] at h1
-    exact haa' h1.symm
-  · simp
-
-lemma measureReal_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
-    [MeasurableSingletonClass S] {_ : MeasurableSpace T}
-    [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (y : T) :
-    μ.real (Prod.snd ⁻¹' {y}) = ∑ x : S, μ.real {(x, y)} := by
-  rw [measureReal_def, measure_preimage_snd_singleton_eq_sum, ENNReal.toReal_sum]
-  · rfl
-  intros
-  finiteness
-
-end aux_lemmas
-
+open scoped ENNReal NNReal Topology BigOperators
 
 namespace ProbabilityTheory
-
 variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
   [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
   [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
   [Fintype U] [MeasurableSpace U] [MeasurableSingletonClass U]
 
 section measureEntropy
-
 variable {μ : Measure S}
 
 /-- Entropy of a measure on a finite measurable space.
@@ -177,8 +54,7 @@ lemma measureEntropy_def' (μ : Measure S) :
 @[inherit_doc measureEntropy] notation:100 "Hm[" μ "]" => measureEntropy μ
 
 @[simp]
-lemma measureEntropy_zero : Hm[(0 : Measure S)] = 0 := by
-  simp [measureEntropy]
+lemma measureEntropy_zero : Hm[(0 : Measure S)] = 0 := by simp [measureEntropy]
 
 @[simp]
 lemma measureEntropy_dirac (x : S) : Hm[Measure.dirac x] = 0 := by
@@ -192,8 +68,7 @@ lemma measureEntropy_dirac (x : S) : Hm[Measure.dirac x] = 0 := by
     simp [Ne.symm hb]
   · simp
 
-lemma measureEntropy_of_not_isFiniteMeasure (h : ¬ IsFiniteMeasure μ) :
-    Hm[μ] = 0 := by
+lemma measureEntropy_of_not_isFiniteMeasure (h : ¬ IsFiniteMeasure μ) : Hm[μ] = 0 := by
   simp [measureEntropy, not_isFiniteMeasure_iff.mp h]
 
 lemma measureEntropy_of_isProbabilityMeasure (μ : Measure S) [IsProbabilityMeasure μ] :
@@ -322,8 +197,7 @@ lemma measureEntropy_le_log_card_of_mem {A : Set S} (μ : Measure S) (hμA : μ 
     rw [AA', Nat.card_eq_fintype_card]
     exact Fintype.card_coe A'
 
-lemma measureEntropy_le_log_card (μ : Measure S) :
-    Hm[μ] ≤ log (Fintype.card S) := by
+lemma measureEntropy_le_log_card (μ : Measure S) : Hm[μ] ≤ log (Fintype.card S) := by
   convert measureEntropy_le_log_card_of_mem (A := (Set.univ : Set S)) μ (by simp)
   simpa only [Nat.card_eq_fintype_card] using
     ((set_fintype_card_eq_univ_iff (Set.univ : Set S)).2 rfl).symm
