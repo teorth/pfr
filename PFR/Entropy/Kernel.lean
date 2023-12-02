@@ -62,7 +62,7 @@ lemma entropy_le_log_card (κ : kernel T S) (μ : Measure T) [IsProbabilityMeasu
   · simp
 
 lemma entropy_eq_integral_sum (κ : kernel T S) [IsMarkovKernel κ] (μ : Measure T) :
-    Hk[κ, μ] = μ[fun y ↦ ∑ x, negIdMulLog (κ y {x}).toReal] := by
+    Hk[κ, μ] = μ[fun y ↦ ∑ x, negMulLog (κ y {x}).toReal] := by
   simp_rw [entropy, measureEntropy_of_isProbabilityMeasure]
 
 -- entropy_map_of_injective is a special case of this (see def of map)
@@ -180,22 +180,22 @@ lemma entropy_compProd_aux [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKerne
     · intro b _ hb
       simp [hb]
     · simp
-  simp_rw [this, ENNReal.toReal_mul, negIdMulLog_mul, Finset.sum_neg_distrib,
+  simp_rw [this, ENNReal.toReal_mul, negMulLog_mul, Finset.sum_neg_distrib,
     Finset.sum_add_distrib]
   have h_left : ∀ x, -∑ su : S × U,
         (η (x, su.1) {su.2}).toReal * (κ x {su.1}).toReal * log (κ x {su.1}).toReal
-      = ∑ s, negIdMulLog (κ x {s}).toReal := by
+      = ∑ s, negMulLog (κ x {s}).toReal := by
     intro hX
     simp_rw [mul_assoc, Fintype.sum_prod_type, ← Finset.sum_mul]
-    simp [negIdMulLog]
+    simp [negMulLog]
   have h_right : ∀ x, -∑ su : S × U,
         (κ x {su.1}).toReal * (η (x, su.1) {su.2}).toReal * log (η (x, su.1) {su.2}).toReal
-      = ∑ s, (κ x {s}).toReal * ∑ u, negIdMulLog (η (x, s) {u}).toReal := by
+      = ∑ s, (κ x {s}).toReal * ∑ u, negMulLog (η (x, s) {u}).toReal := by
     intro x
     simp_rw [Fintype.sum_prod_type, ← Finset.sum_neg_distrib]
     congr with s
     simp_rw [mul_assoc, neg_mul_eq_mul_neg (κ x {s}).toReal]
-    simp only [mul_neg, Finset.sum_neg_distrib, negIdMulLog, neg_mul, neg_inj]
+    simp only [mul_neg, Finset.sum_neg_distrib, negMulLog, neg_mul, neg_inj]
     rw [Finset.mul_sum]
   simp_rw [neg_add, h_left, h_right, integral_eq_sum, smul_add]
   rw [Finset.sum_add_distrib]

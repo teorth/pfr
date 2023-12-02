@@ -10,7 +10,7 @@ import PFR.Tactic.RPowSimp
 
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
-local macro_rules | `($x ^ $y)   => `(HPow.hPow ($x : ℝ) ($y : ℝ))
+local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
 /-!
 # Polynomial Freiman-Ruzsa conjecture

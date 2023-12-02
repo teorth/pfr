@@ -14,7 +14,7 @@ Assumptions:
 * $X_1, X_2$ are tau-minimizers
 * $X_1, X_2, \tilde X_1, \tilde X_2$ are independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
 * $k := d[X_1;X_2]$
-* $I_1 :=  I [X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2]$
+* $I_1 := I [X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2]$
 
 ## Main results
 
@@ -124,7 +124,7 @@ lemma diff_rdist_le_4 : d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]
   · rw [rdist_symm, (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁]
   · apply h₁.entropy_eq
 
-/--  We have $I_1 \leq 2 \eta k$ -/
+/-- We have $I_1 \leq 2 \eta k$ -/
 lemma first_estimate : I₁ ≤ 2 * η * k := by
   have v1 := rdist_add_rdist_add_condMutual_eq X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› ‹_›
   have v2 := rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_›
@@ -156,7 +156,7 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     diff_rdist_le_4 p X₁ X₂ X₁' X₂' hX₂ hX₁' h₁ h_indep
   have aux : D + I₁ ≤ (1 + η) * k := by
     calc D + I₁
-       ≤ k + η * (Dc1 - D1) + η * (Dc2 - D2)                                            := ?_
+       ≤ k + η * (Dc1 - D1) + η * (Dc2 - D2)                                         := ?_
      _ ≤ k + η * (k / 2 + H[X₁] / 4 - H[X₂] / 4) + η * (k / 2 + H[X₂] / 4 - H[X₁] / 4)  := ?_
      _ = (1 + η) * k                                                                    := by ring
     · convert add_le_add lem68.le (neg_le_neg lem610) using 1 <;> ring

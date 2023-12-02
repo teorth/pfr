@@ -55,7 +55,7 @@ example :
       -∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
   rw [entropy_eq_sum hX ℙ, <-Finset.sum_neg_distrib]
   congr with x
-  unfold Real.negIdMulLog
+  unfold Real.negMulLog
   ring
 
 /-- $\langle X,Y \rangle$ is the random variable formed by pairing $X$ and $Y$. -/
@@ -75,7 +75,7 @@ example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInfo_eq hX 
 example : 0 ≤ I[X : Y | Z] := condMutualInfo_nonneg hX hY Z ℙ
 
 /-- Relation between conditional mutual information and conditional independence. -/
-example : I[X : Y | Z]  = 0  ↔ condIndepFun X Y Z := condMutualInfo_eq_zero hX hY hZ
+example : I[X : Y | Z] = 0 ↔ condIndepFun X Y Z := condMutualInfo_eq_zero hX hY hZ
 
 
 end Entropy
@@ -95,7 +95,7 @@ variable (X : Ω → G) (hX : Measurable X) (Y : Ω → G) (hY : Measurable Y) (
   (hZ : Measurable Z) (X' Y' : Ω → G)
 
 /-- `d[X # Y]` is the Ruzsa distance when `X`, `Y` are independent. -/
-example (h : IndepFun X Y) : d[X # Y] = H[X-Y] - H[X]/2 - H[Y]/2 := h.rdist_eq  hX hY
+example (h : IndepFun X Y) : d[X # Y] = H[X-Y] - H[X]/2 - H[Y]/2 := h.rdist_eq hX hY
 
 /-- `d[X # Y]` depends only on the distribution of `X` and `Y`.-/
 example (h1 : IdentDistrib X X') (h2 : IdentDistrib Y Y') : d[X # Y] = d[X' # Y'] := h1.rdist_eq h2
@@ -109,8 +109,8 @@ example (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z]) : H[X + Y + Z] - H[X + Y] ≤ 
 
 /-- The entropic Balog--Szemeredi--Gowers inequality -/
 example (h : Z = X + Y) :
-    ((ℙ : Measure Ω).map Z)[fun z ↦ d[X ; ℙ[|Z⁻¹' {z}] # Y ; ℙ[|Z⁻¹' {z}]]]
-      ≤ 3 * I[X : Y] + 2 * H[Z] - H[X] - H[Y] := ent_bsg  hX hY h
+    ((ℙ : Measure Ω).map Z)[fun z ↦ d[X ; ℙ[|Z ← z] # Y ; ℙ[|Z ← z]]]
+      ≤ 3 * I[X : Y] + 2 * H[Z] - H[X] - H[Y] := by subst h; exact ent_bsg hX hY
 
 end RuzsaDistance
 
@@ -134,7 +134,8 @@ example (f : α → ℕ) : ∀ i, (f i : ℝ≥0∞) ≠ ∞ := by finiteness
 
 open MeasureTheory
 
-example {Ω Ω': Type*} [MeasurableSpace Ω] (μ : Measure Ω) [IsFiniteMeasure μ] [MeasurableSpace Ω'] (μ' : Measure Ω') [IsFiniteMeasure μ']  (E: Set (Ω × Ω')): (μ.prod μ') E < ∞ := by finiteness
+example {Ω Ω': Type*} [MeasurableSpace Ω] (μ : Measure Ω) [IsFiniteMeasure μ] [MeasurableSpace Ω']
+    (μ' : Measure Ω') [IsFiniteMeasure μ'] (E : Set (Ω × Ω')) : (μ.prod μ') E < ∞ := by finiteness
 
 
 end Finiteness

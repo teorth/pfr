@@ -41,7 +41,7 @@ A pair $X_1, X_2$ of $\tau$-minimizers exist.
 \begin{proof}\uses{tau-copy}\leanok By Lemma \ref{tau-copy}, $\tau$ only depends on the probability distributions of $X_1, X_2$. This ranges over a compact space, and $\tau$ is continuous.  So $\tau$ has a minimum.
 \end{proof}
 
-\subsection{Basic facts about minimizers}
+\section{Basic facts about minimizers}
 
 In this section we assume that $X_1,X_2$ are $\tau$-minimizers. We also write $k := d[X_1;X_2]$.
 
@@ -67,7 +67,7 @@ $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^
 \begin{proof}\uses{distance-lower}\leanok  Apply Lemma \ref{distance-lower} to conditioned random variables and then average.
 \end{proof}
 
-\subsection{First estimate}
+\section{First estimate}
 
 We continue the assumptions from the preceding section.
 
@@ -153,7 +153,7 @@ and the claim follows from Lemma \ref{ruz-indep} and the definition of $k$.
 \end{proof}
 
 
-\subsection{Second estimate}
+\section{Second estimate}
 
 We continue the assumptions from the preceding section.
 We introduce the quantity
@@ -228,7 +228,7 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
 \end{proof}
 
 
-\subsection{Endgame}
+\section{Endgame}
 
 Let $X_1,X_2,\tilde X_1,\tilde X_2$ be as before, and introduce the random variables
 \[U := X_1 + X_2, \qquad V := \tilde X_1 + X_2, \qquad W := X_1 + \tilde X_1\] and
@@ -404,7 +404,7 @@ Moreover, from Definition \ref{eta-def} we have $8 \eta + \eta^2 < 1$. It follow
 \end{proof}
 
 
-\subsection{Conclusion}
+\section{Conclusion}
 
 \begin{theorem}[Entropy version of PFR]\label{entropy-pfr}
   \lean{entropic_PFR_conjecture}\leanok

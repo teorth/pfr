@@ -49,7 +49,7 @@ lemma continuous_integral_probabilityMeasure
     Continuous (fun (μ : ProbabilityMeasure α) ↦ ∫ x, f x ∂μ) := by
   apply continuous_iff_continuousAt.mpr
   intro μ
-  exact  continuousAt_of_tendsto_nhds
+  exact continuousAt_of_tendsto_nhds
     (ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp tendsto_id f)
 
 /-- The indicator function of a clopen set, as a bounded continuous function. -/

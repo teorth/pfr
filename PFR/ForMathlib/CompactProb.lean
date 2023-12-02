@@ -86,7 +86,7 @@ lemma continuous_pmf_apply' (i : X) :
     ⟨isOpen_discrete _, T1Space.t1 _⟩
 
 lemma continuous_pmf_apply (i : X) :
-    Continuous (fun (μ : ProbabilityMeasure X) ↦ μ {i}) :=  by
+    Continuous (fun (μ : ProbabilityMeasure X) ↦ μ {i}) := by
   -- KK: The coercion fight here is one reason why I now prefer ℝ-valued and not ℝ≥0-valued probas.
   convert continuous_real_toNNReal.comp (continuous_pmf_apply' i)
   ext

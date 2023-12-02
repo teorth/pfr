@@ -27,9 +27,16 @@ import PFR.ForMathlib.Set
 import PFR.homomorphism
 import PFR.HundredPercent
 import PFR.main
+import PFR.Mathlib.Data.Set.Image
+import PFR.Mathlib.Init.Core
 import PFR.Mathlib.MeasureTheory.Group.Arithmetic
 import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
+import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
+import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
+import PFR.Mathlib.Probability.ConditionalProbability
+import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Probability.Independence.Basic
+import PFR.Mathlib.Probability.Independence.Conditional
 import PFR.Mathlib.Probability.Independence.Kernel
 import PFR.neg_xlogx
 import PFR.ProbabilityMeasureProdCont

@@ -36,7 +36,7 @@ theorem iIndepFun_iff_map_prod_eq_prod_map_map
     iIndepFun m f μ ↔ μ.map (fun ω i ↦ f i ω) = (Measure.pi (fun i => μ.map (f i))) := by
   classical -- might be able to get rid of this
   rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
-  have h₀  {h : (i : ι) → Set (β i)} (hm : ∀ (i : ι), MeasurableSet (h i)) :
+  have h₀ {h : (i : ι) → Set (β i)} (hm : ∀ (i : ι), MeasurableSet (h i)) :
       ∏ i : ι, μ ((f i)⁻¹' (h i)) = ∏ i : ι, μ.map (f i) (h i) ∧
       μ (⋂ i : ι, ((f i)⁻¹' (h i))) = μ.map (fun ω i ↦ f i ω) (Set.pi univ h) := by
       constructor

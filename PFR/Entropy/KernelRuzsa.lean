@@ -27,7 +27,7 @@ variable {T T' T'' G : Type*}
   [Fintype T''] [Nonempty T''] [MeasurableSpace T''] [MeasurableSingletonClass T'']
   [Fintype G] [Nonempty G] [MeasurableSpace G] [MeasurableSingletonClass G]
   [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G]
-  {κ : kernel T G} {η : kernel T' G} {μ : Measure T}  {ν : Measure T'}
+  {κ : kernel T G} {η : kernel T' G} {μ : Measure T} {ν : Measure T'}
 
 /-- The Rusza distance between two measures, defined as `H[X - Y] - H[X]/2 - H[Y]/2` where `X`
 and `Y` are independent variables distributed according to the two measures. -/

@@ -12,7 +12,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 \end{proof}
 
 \begin{lemma}[Shearing preserves entropy]\label{shear-ent}
-  \lean{condEntropy_of_sum_eq, condEntropy_of_diff_eq,entropy_of_shear_eq,entropy_of_shear_eq'}\leanok
+  \lean{condEntropy_add_right, condEntropy_of_diff_eq,entropy_of_shear_eq,entropy_of_shear_eq'}\leanok
   If $X,Y$ are $G$-valued, then $\bbH[X \pm Y | Y]=\bbH[X|Y]$ and $\bbH[X \pm Y, Y] = \bbH[X, Y]$.
 \end{lemma}
 
@@ -213,7 +213,7 @@ However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we h
 
 \begin{lemma}[Existence of conditional independent trials]\label{cond-indep-exist}
   \uses{conditional-independent-def}
-  \lean{ProbabilityTheory.condIndependent_copies}\leanok
+  \lean{ProbabilityTheory.condIndep_copies}\leanok
   For $X,Y$ random variables, there exist random variables $X_1,X_2,Y'$ on a common probability space with $(X_1, Y'), (X_2, Y')$ both having the distribution of $(X,Y)$, and $X_1, X_2$ conditionally independent over $Y'$ in the sense of Definition \ref{conditional-independent-def}.
 \end{lemma}
 
@@ -228,7 +228,9 @@ Then
 \begin{equation}\label{2-bsg-takeaway} \sum_{z}  \bbP[Z=z] d[(A | Z = z); (B | Z = z)] \leq 3  \bbI[A:B] + 2 \bbH[Z] - \bbH[A] - \bbH[B]. \end{equation}
 \end{lemma}
 
-\begin{proof}\uses{cond-indep-exist, cond-trial-ent,cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy, ruz-indep}
+\begin{proof}
+  \uses{cond-indep-exist, cond-trial-ent, cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy, ruz-indep}
+  \leanok
 Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$ as produced by Lemma \ref{cond-indep-exist}, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
 Observe from Lemma \ref{ruz-indep} that the left-hand side of~\eqref{2-bsg-takeaway} is

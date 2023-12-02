@@ -162,13 +162,13 @@ The added complexity in the expression is not an issue because if `μ` is a prob
 a call to `simp` will simplify `(μ Set.univ)⁻¹ • μ` to `μ`. -/
 noncomputable
 def measureEntropy (μ : Measure S := by volume_tac) : ℝ :=
-  ∑ s, negIdMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal
+  ∑ s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal
 
 lemma measureEntropy_def (μ : Measure S) :
-    measureEntropy μ = ∑ s, negIdMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := rfl
+    measureEntropy μ = ∑ s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := rfl
 
 lemma measureEntropy_def' (μ : Measure S) :
-    measureEntropy μ = ∑ s, negIdMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
+    measureEntropy μ = ∑ s, negMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
   rw [measureEntropy_def]
   congr! with s
   simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul,
@@ -197,11 +197,11 @@ lemma measureEntropy_of_not_isFiniteMeasure (h : ¬ IsFiniteMeasure μ) :
   simp [measureEntropy, not_isFiniteMeasure_iff.mp h]
 
 lemma measureEntropy_of_isProbabilityMeasure (μ : Measure S) [IsProbabilityMeasure μ] :
-    Hm[μ] = ∑ s, negIdMulLog (μ {s}).toReal := by
+    Hm[μ] = ∑ s, negMulLog (μ {s}).toReal := by
   simp [measureEntropy]
 
 lemma measureEntropy_of_isProbabilityMeasure' (μ : Measure S) [IsProbabilityMeasure μ] :
-    Hm[μ] = ∑ s, negIdMulLog (μ.real {s}) :=
+    Hm[μ] = ∑ s, negMulLog (μ.real {s}) :=
   measureEntropy_of_isProbabilityMeasure μ
 
 lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
@@ -225,7 +225,7 @@ lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
 lemma measureEntropy_nonneg (μ : Measure S) : 0 ≤ Hm[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
   swap; · rw [measureEntropy_of_not_isFiniteMeasure hμ_fin]
-  refine Finset.sum_nonneg (fun s _ ↦ negIdMulLog_nonneg ENNReal.toReal_nonneg ?_)
+  refine Finset.sum_nonneg (fun s _ ↦ negMulLog_nonneg ENNReal.toReal_nonneg ?_)
   refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
   rw [ENNReal.ofReal_one]
   cases eq_zero_or_neZero μ with
@@ -245,31 +245,31 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
     · simpa using Finset.card_pos.mpr hA
   simp only [measureEntropy_def, measure_univ, inv_one, one_smul]
   calc
-  ∑ x, negIdMulLog (μ {x}).toReal
-    = ∑ x in A, negIdMulLog (μ {x}).toReal := by
+  ∑ x, negMulLog (μ {x}).toReal
+    = ∑ x in A, negMulLog (μ {x}).toReal := by
       apply (Finset.sum_subset A.subset_univ _).symm
       intro i _ hi
       have : μ {i} = 0 :=
         le_antisymm ((measure_mono (by simpa using hi)).trans (le_of_eq hμ)) bot_le
       simp [this]
-  _ = N * ∑ x in A, (N : ℝ)⁻¹ * negIdMulLog (μ {x}).toReal := by
+  _ = N * ∑ x in A, (N : ℝ)⁻¹ * negMulLog (μ {x}).toReal := by
       rw [Finset.mul_sum]
       congr with x
       rw [← mul_assoc, mul_inv_cancel, one_mul]
       exact N_pos.ne'
-  _ ≤ N * negIdMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
+  _ ≤ N * negMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
       refine mul_le_mul le_rfl ?_ ?_ ?_
-      · exact sum_negIdMulLog_finset_le (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)
+      · exact sum_negMulLog_finset_le (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)
       · refine Finset.sum_nonneg (fun x _ ↦ ?_)
         refine mul_nonneg ?_ ?_
         · simp
-        · refine negIdMulLog_nonneg (by simp) ?_
+        · refine negMulLog_nonneg (by simp) ?_
           refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
           rw [ENNReal.ofReal_one]
           exact prob_le_one
       · positivity
-  _ = N * negIdMulLog ((N : ℝ)⁻¹) := by simp [← Finset.mul_sum, μA]
-  _ = log A.card := by simp [negIdMulLog, ← mul_assoc, mul_inv_cancel N_pos.ne']
+  _ = N * negMulLog ((N : ℝ)⁻¹) := by simp [← Finset.mul_sum, μA]
+  _ = log A.card := by simp [negMulLog, ← mul_assoc, mul_inv_cancel N_pos.ne']
 
 lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     (μ : Measure S) [IsProbabilityMeasure μ] :
@@ -290,9 +290,9 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     let p (s : S) := μ.real {s}
     have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
     -- use equality case of Jensen
-    convert sum_negIdMulLog_eq_aux2 hw1 hw2 hp using 2
+    convert sum_negMulLog_eq_aux2 hw1 hw2 hp using 2
     · simp [measureEntropy_def', Finset.mul_sum]
-    · simp [negIdMulLog, ← Finset.mul_sum]
+    · simp [negMulLog, ← Finset.mul_sum]
     · rw [← Finset.mul_sum]
       simp
 
@@ -354,7 +354,7 @@ lemma measureEntropy_eq_card_iff_measure_eq [MeasurableSingletonClass S] [IsFini
   · finiteness
 
 lemma measureEntropy_map_of_injective
-    (μ : Measure S) (f : S → T) (hf : Function.Injective f)  :
+    (μ : Measure S) (f : S → T) (hf : Function.Injective f) :
     Hm[μ.map f] = Hm[μ] := by
   have hf_m : Measurable f := measurable_of_finite f
   have : μ.map f Set.univ = μ Set.univ := by
@@ -364,9 +364,9 @@ lemma measureEntropy_map_of_injective
     Measure.map_apply hf_m (measurableSet_singleton _)]
   rw [this]
   classical
-  have : ∑ x : T, negIdMulLog ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})).toReal
+  have : ∑ x : T, negMulLog ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})).toReal
       = ∑ x in Finset.univ.image f,
-        negIdMulLog ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})).toReal := by
+        negMulLog ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})).toReal := by
     rw [← Finset.sum_subset]
     · exact Finset.subset_univ _
     · intro y _ hy
@@ -392,7 +392,7 @@ lemma measureEntropy_comap (μ : Measure S) (f : T → S) (hf : MeasurableEmbedd
   simp only [Set.image_univ, Set.image_singleton, smul_eq_mul, ENNReal.toReal_mul]
   classical
   rw [← Finset.sum_image
-    (f := fun x ↦ negIdMulLog (((μ (Set.range f))⁻¹).toReal * (μ {x}).toReal)) (g := f)]
+    (f := fun x ↦ negMulLog (((μ (Set.range f))⁻¹).toReal * (μ {x}).toReal)) (g := f)]
   rw [measure_congr hf_range]
   rw [Finset.sum_subset]
   · exact Finset.subset_univ _
@@ -420,7 +420,7 @@ lemma measureEntropy_prod (μ : Measure S) (ν : Measure T)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     Hm[μ.prod ν] = Hm[μ] + Hm[ν] := by
   simp_rw [measureEntropy_of_isProbabilityMeasure, Fintype.sum_prod_type,
-    ← Set.singleton_prod_singleton, Measure.prod_prod, ENNReal.toReal_mul, negIdMulLog_mul',
+    ← Set.singleton_prod_singleton, Measure.prod_prod, ENNReal.toReal_mul, negMulLog_mul',
     Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.sum_mul, sum_toReal_measure_singleton]
   simp only [measure_univ, ENNReal.one_toReal, one_mul]
 
@@ -514,30 +514,30 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
           field_simp [h_fst_ne_zero p hp, h_snd_ne_zero p hp]
           ring
       _ = 1 := by simp [-Fintype.sum_prod_type]
-  have H1 : -measureMutualInfo (μ := μ) = ∑ p : S × U, w p * negIdMulLog (f p) :=
+  have H1 : -measureMutualInfo (μ := μ) = ∑ p : S × U, w p * negMulLog (f p) :=
   calc
     _ = ∑ p : S × U,
           (-(μ.real {p} * log (μ.real {p}))
           + (μ.real {p} * log ((μ.map Prod.snd).real {p.2})
             + μ.real {p} * log ((μ.map Prod.fst).real {p.1}))) := by
-        simp_rw [measureMutualInfo_def, measureEntropy_of_isProbabilityMeasure', negIdMulLog]
+        simp_rw [measureMutualInfo_def, measureEntropy_of_isProbabilityMeasure', negMulLog]
         simp [Finset.sum_add_distrib, Finset.sum_comm (γ := U), Finset.sum_mul, h1, h2]
-    _ = ∑ p : S × U, w p * negIdMulLog (f p) := by
+    _ = ∑ p : S × U, w p * negMulLog (f p) := by
         congr! 1 with p
         by_cases hp : μ.real {p} = 0
         · simp [hp]
         have := h_fst_ne_zero p hp
         have := h_snd_ne_zero p hp
-        rw [negIdMulLog, log_mul, log_inv, log_mul]
+        rw [negMulLog, log_mul, log_inv, log_mul]
         · field_simp
           ring
         all_goals positivity
-  have H2 : 0 = negIdMulLog (∑ s : S × U, w s * f s) := by simpa using congr_arg negIdMulLog H.symm
+  have H2 : 0 = negMulLog (∑ s : S × U, w s * f s) := by simpa using congr_arg negMulLog H.symm
   constructor
   · rw [← neg_nonpos]
-    convert sum_negIdMulLog_le hw1 hw2 hf
+    convert sum_negMulLog_le hw1 hw2 hf
   rw [← neg_eq_zero]
-  convert sum_negIdMulLog_eq_aux3 hw1 hw2 hf with p
+  convert sum_negMulLog_eq_aux3 hw1 hw2 hf with p
   · have hp1 := h_fst_ne_zero p
     have hp2 := h_snd_ne_zero p
     rw [not_imp_not] at hp1 hp2

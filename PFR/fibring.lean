@@ -29,7 +29,7 @@ variable {Ω Ω' : Type*} [mΩ : MeasurableSpace Ω] [mΩ' : MeasurableSpace Ω'
 /-- If $Z_1, Z_2$ are independent, then $d[Z_1; Z_2]$ is equal to
 $$ d[\pi(Z_1);\pi(Z_2)] + d[Z_1|\pi(Z_1); Z_2 |\pi(Z_2)]$$
 plus
-$$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
+$$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2)) | \pi(Z_1 - Z_2) ).$$
 -/
 lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
     (h1 : Measurable Z_1) (h2 : Measurable Z_2) :
@@ -60,7 +60,7 @@ lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
 
 lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H} (h1 : Measurable Z_1) (h2 : Measurable Z_2) :
     d[Z_1; μ # Z_2; μ'] ≥ d[π ∘ Z_1; μ # π ∘ Z_2; μ'] + d[Z_1|π∘Z_1; μ # Z_2|π∘Z_2; μ'] := by
-  obtain ⟨ν, W_1, W_2, hν, m1, m2, hi, hi1, hi2⟩ :=  ProbabilityTheory.independent_copies h1 h2 μ μ'
+  obtain ⟨ν, W_1, W_2, hν, m1, m2, hi, hi1, hi2⟩ := ProbabilityTheory.independent_copies h1 h2 μ μ'
   have hπ : Measurable π := measurable_of_countable _
   have hφ : Measurable (fun x ↦ (x, π x)) := measurable_of_countable _
   have hπ1 : IdentDistrib (⟨Z_1, π ∘ Z_1⟩) (⟨W_1, π ∘ W_1⟩) μ ν := hi1.symm.comp hφ
@@ -139,7 +139,7 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
 /-- Let $Y_1,Y_2,Y_3$ and $Y_4$ be independent $G$-valued random variables.
   Then
 $$d[Y_1-Y_3; Y_2-Y_4] + d[Y_1|Y_1-Y_3; Y_2|Y_2-Y_4] $$
-$$  + I[Y_1-Y_2 : Y_2 - Y_4 | Y_1-Y_2-Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
+$$ + I[Y_1-Y_2 : Y_2 - Y_4 | Y_1-Y_2-Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
 -/
 lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
   (h_meas : ∀ i, Measurable (Y i)) :
@@ -177,7 +177,7 @@ lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 
 /-- Let $Y_1,Y_2,Y_3$ and $Y_4$ be independent $G$-valued random variables.
   Then
 $$d[Y_1+Y_3; Y_2+Y_4] + d[Y_1|Y_1+Y_3; Y_2|Y_2+Y_4] $$
-$$  + I[Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
+$$ + I[Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
 -/
 lemma sum_of_rdist_eq_char_2
   [ElementaryAddCommGroup G 2] (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
