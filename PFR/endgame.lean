@@ -414,17 +414,12 @@ lemma construct_good_prelim :
   have h2T₂ : T₂ = T₃ + T₁ := by simp [h2T₁, add_left_comm]
 
   have h1 : sum1 ≤ δ
-  · have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := ent_bsg hT₁ hT₂ h2T₃
+  · have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := by
+      subst h2T₃; exact ent_bsg hT₁ hT₂
     have h2 : H[⟨T₂, T₃⟩] = H[⟨T₁, T₂⟩]
-    · apply entropy_of_comp_eq_of_comp ℙ (hT₂.prod_mk hT₃) (hT₁.prod_mk hT₂)
-        (fun x ↦ (x.1 + x.2, x.1)) (fun x ↦ (x.2, x.1 + x.2))
-      · ext1 x; simp [h2T₁]
-      · ext1 x; simp [h2T₃]
+    · rw [h2T₃, entropy_add_right', entropy_comm] <;> assumption
     have h3 : H[⟨T₁, T₂⟩] = H[⟨T₃, T₁⟩]
-    · apply entropy_of_comp_eq_of_comp ℙ (hT₁.prod_mk hT₂) (hT₃.prod_mk hT₁)
-        (fun x ↦ (x.1 + x.2, x.1)) (fun x ↦ (x.2, x.1 + x.2))
-      · ext1 x; simp [h2T₃]
-      · ext1 x; simp [h2T₂]
+    · rw [h2T₃, entropy_add_left, entropy_comm] <;> assumption
     simp_rw [mutualInfo_def] at h1 ⊢; linarith
 
   have h2 : η * sum2 ≤ η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)

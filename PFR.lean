@@ -27,7 +27,10 @@ import PFR.ForMathlib.Set
 import PFR.homomorphism
 import PFR.HundredPercent
 import PFR.main
+import PFR.Mathlib.MeasureTheory.Group.Arithmetic
 import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
+import PFR.Mathlib.Probability.Independence.Basic
+import PFR.Mathlib.Probability.Independence.Kernel
 import PFR.neg_xlogx
 import PFR.ProbabilityMeasureProdCont
 import PFR.ruzsa_distance

@@ -769,7 +769,7 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
   let Z := A + B
   have hZ : Measurable Z := hA.add hB
   obtain ⟨Ω', _, AB₁, AB₂, Z', ν, _, hAB₁, hAB₂, hZ', hABZ, hAB₁Z, hAB₂Z⟩ :=
-    condIndependent_copies (fun ω ↦ (A ω, B ω)) Z (hA.prod_mk hB) hZ μ
+    condIndependent_copies (⟨A, B⟩) Z (hA.prod_mk hB) hZ μ
   let A₁ := fun ω ↦ (AB₁ ω).1
   let B₁ := fun ω ↦ (AB₁ ω).2
   let A₂ := fun ω ↦ (AB₂ ω).1
