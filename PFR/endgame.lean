@@ -297,20 +297,20 @@ lemma hU : H[U] = H[X₁' + X₂'] := by
 
 
 abbrev ι := Fin 4
-abbrev ι' := Fin 3 
+abbrev ι' := Fin 3
 
-abbrev S1 : ι' → Finset ι 
-  | 0 => {0} 
-  | 1 => {1} 
+abbrev S1 : ι' → Finset ι
+  | 0 => {0}
+  | 1 => {1}
   | 2 => {2, 3}
 
 def beta1 := fun x ↦ Π i : S1 x, G
 
-def f1 (x : Fin 3) : Ω → Π i : S1 x, G := 
-  match x with 
-  | 0 => fun ω _ => X₁ ω 
+def f1 (x : Fin 3) : Ω → Π i : S1 x, G :=
+  match x with
+  | 0 => fun ω _ => X₁ ω
   | 1 => fun ω _ => X₂ ω
-  | 2 => fun ω i => match i with 
+  | 2 => fun ω i => match i with
                     | { val := 2, property := _ } => X₁' ω
                     | { val := 3, property := _ } => X₂' ω
 
@@ -324,18 +324,18 @@ lemma aux_1 (i : { x // x ∈ S1 1 }) : (↑i : Fin 4) = 1 := by
 
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition1' : iIndepFun (fun _ => MeasurableSpace.pi) (f1 X₁ X₂ X₁' X₂') := by
-  have aux : f1 X₁ X₂ X₁' X₂' = fun (l : ι') (x : Ω) (i : S1 l) ↦ ![X₁, X₂, X₁', X₂'] (↑i) x := by 
+  have aux : f1 X₁ X₂ X₁' X₂' = fun (l : ι') (x : Ω) (i : S1 l) ↦ ![X₁, X₂, X₁', X₂'] (↑i) x := by
     funext a
-    match a with 
+    match a with
     | 0 => simp [aux_0]; rfl
     | 1 => simp [aux_1]; rfl
-    | 2 => 
-      funext x i 
-      have hi : i = (2 : Fin 4) ∨ i = (3 : Fin 4) := by 
-        match i with  
+    | 2 =>
+      funext x i
+      have hi : i = (2 : Fin 4) ∨ i = (3 : Fin 4) := by
+        match i with
         | { val := 2, property := _ }
         | { val := 3, property := _ } => reduce; decide
-      rcases hi with hi2 | hi3 
+      rcases hi with hi2 | hi3
       · rw [show i = { val := 2, property := by decide } from (by aesop)]
         rfl
       · rw [show i = { val := 3, property := by decide } from (by aesop)]
@@ -344,39 +344,39 @@ lemma independenceCondition1' : iIndepFun (fun _ => MeasurableSpace.pi) (f1 X₁
   apply iIndepFun.prod
   exact h_indep
 
-def g : (i : Fin 3) → ({ x // x ∈ S1 i } → G) → G 
+def g : (i : Fin 3) → ({ x // x ∈ S1 i } → G) → G
   | 0 => fun X => X { val := 0, property := by decide }
   | 1 => fun X => X { val := 1, property := by decide }
-  | 2 => fun X => X { val := 2, property := by decide } + X { val := 3, property := by decide } 
+  | 2 => fun X => X { val := 2, property := by decide } + X { val := 3, property := by decide }
 
-lemma measurable_g (i : Fin 3) : Measurable (g (G := G) i) := by 
-  match i with 
-  | 2 => 
-    have aux : 
+lemma measurable_g (i : Fin 3) : Measurable (g (G := G) i) := by
+  match i with
+  | 2 =>
+    have aux :
     Measurable (fun (X : { x // x ∈ S1 2 } → G) ↦ X { val := 2, property := by decide }
-                                                 + X { val := 3, property := by decide }):= by 
-      measurability
-    exact aux 
-  | 0 => 
-    unfold g
-    have aux : 
-    Measurable (fun (X : { x // x ∈ S1 0 } → G) ↦ X { val := 0, property := by decide }) := by 
+                                                 + X { val := 3, property := by decide }):= by
       measurability
     exact aux
-  | 1 => 
-    have aux : 
-    Measurable (fun (X : { x // x ∈ S1 1 } → G) ↦ X { val := 1, property := by decide }) := by 
+  | 0 =>
+    unfold g
+    have aux :
+    Measurable (fun (X : { x // x ∈ S1 0 } → G) ↦ X { val := 0, property := by decide }) := by
+      measurability
+    exact aux
+  | 1 =>
+    have aux :
+    Measurable (fun (X : { x // x ∈ S1 1 } → G) ↦ X { val := 1, property := by decide }) := by
       measurability
     exact aux
 
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
 
-  have aux : ![X₁, X₂, X₁' + X₂'] = (fun i => g i ∘ f1 X₁ X₂ X₁' X₂' i) := by 
-    funext i 
-    match i with 
+  have aux : ![X₁, X₂, X₁' + X₂'] = (fun i => g i ∘ f1 X₁ X₂ X₁' X₂' i) := by
+    funext i
+    match i with
     | 0 | 1 | 2 => rfl
-  
+
   rw [aux]
   apply iIndepFun.comp (independenceCondition1' h_indep) g measurable_g
 
@@ -631,7 +631,7 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
     (show Measurable U by measurability) (show Measurable V by measurability)
     (show Measurable W by measurability) (show Measurable S by measurability)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
-  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
+  have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
     let σ : Fin 4 ≃ Fin 4 :=
     { toFun := ![0, 1, 3, 2]
