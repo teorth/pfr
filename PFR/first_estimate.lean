@@ -14,7 +14,7 @@ Assumptions:
 * $X_1, X_2$ are tau-minimizers
 * $X_1, X_2, \tilde X_1, \tilde X_2$ are independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
 * $k := d[X_1;X_2]$
-* $I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ]$
+* $I_1 := I [X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2]$
 
 ## Main results
 
@@ -53,7 +53,7 @@ local notation3 "I₁" => I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X
 /-- The sum of
 $$ d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] $$
 and
-$$ I[ X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2 ] $$
+$$ I[X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2] $$
 is equal to $2k$. -/
 lemma rdist_add_rdist_add_condMutual_eq : d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁']
     + I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂'] = 2 * k := by
@@ -83,7 +83,7 @@ lemma rdist_of_sums_ge :
 /-- The distance $d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]$ is at least
 $$ k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).$$
 -/
-lemma cond_rdist_of_sums_ge :
+lemma condRuzsaDist_of_sums_ge :
     d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] ≥
       k - η * (d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁])
         - η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
@@ -103,7 +103,7 @@ lemma diff_rdist_le_2 : d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/
   · simpa using h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide)
   convert condDist_diff_le' ℙ p.hmeas2 hX₂ hX₁' h using 4
   · rw [rdist_symm]
-    exact ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₁
+    exact (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁
   · exact h₁.entropy_eq
 
 /-- $$ d[X_1^0;X_1|X_1+\tilde X_2] - d[X_1^0;X_1] \leq
@@ -112,7 +112,7 @@ lemma diff_rdist_le_3 : d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁]
   have h : IndepFun X₁ X₂'
   · simpa using h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide)
   convert condDist_diff_le''' ℙ p.hmeas1 hX₁ hX₂' h using 3
-  · rw [ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂]
+  · rw [(IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
   · apply h₂.entropy_eq
 
 /-- $$ d[X_2^0; X_2|X_2+\tilde X_1] - d[X_2^0; X_2] \leq
@@ -121,14 +121,14 @@ lemma diff_rdist_le_4 : d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]
   have h : IndepFun X₂ X₁'
   · simpa using h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide)
   convert condDist_diff_le''' ℙ p.hmeas2 hX₂ hX₁' h using 3
-  · rw [rdist_symm, ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₁]
+  · rw [rdist_symm, (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁]
   · apply h₁.entropy_eq
 
-/--  We have $I_1 \leq 2 \eta k$ -/
+/-- We have $I_1 \leq 2 \eta k$ -/
 lemma first_estimate : I₁ ≤ 2 * η * k := by
   have v1 := rdist_add_rdist_add_condMutual_eq X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› ‹_›
   have v2 := rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_›
-  have v3 := cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› (by measurability) (by measurability)
+  have v3 := condRuzsaDist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› (by measurability) (by measurability)
   have v4 := diff_rdist_le_1 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
   have v5 := diff_rdist_le_2 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
   have v6 := diff_rdist_le_3 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›
@@ -141,7 +141,7 @@ $$\mathbb{H}[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} \mathbb{H}[X_1]+\tf
 -/
 lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+η)*k - I₁ := by
   let D := d[X₁ + X₂' # X₂ + X₁']
-  let Dcc := d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁' ]
+  let Dcc := d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁']
   let D1 := d[p.X₀₁ # X₁]
   let Dc1 := d[p.X₀₁ # X₁ | X₁ + X₂']
   let D2 := d[p.X₀₂ # X₂]
@@ -149,14 +149,14 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
   have lem68 : D + Dcc + I₁ = 2 * k :=
     rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
   have lem610 : Dcc ≥ k - η * (Dc1 - D1) - η * (Dc2 - D2) :=
-    cond_rdist_of_sums_ge p X₁ X₂ X₁' X₂' hX₁ hX₂ (by measurability) (by measurability) h_min
+    condRuzsaDist_of_sums_ge p X₁ X₂ X₁' X₂' hX₁ hX₂ (by measurability) (by measurability) h_min
   have lem611c : Dc1 - D1 ≤ k / 2 + H[X₁] / 4 - H[X₂] / 4 :=
     diff_rdist_le_3 p X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
   have lem611d : Dc2 - D2 ≤ k / 2 + H[X₂] / 4 - H[X₁] / 4 :=
     diff_rdist_le_4 p X₁ X₂ X₁' X₂' hX₂ hX₁' h₁ h_indep
   have aux : D + I₁ ≤ (1 + η) * k := by
     calc D + I₁
-       ≤ k + η * (Dc1 - D1) + η * (Dc2 - D2)                                            := ?_
+       ≤ k + η * (Dc1 - D1) + η * (Dc2 - D2)                                         := ?_
      _ ≤ k + η * (k / 2 + H[X₁] / 4 - H[X₂] / 4) + η * (k / 2 + H[X₂] / 4 - H[X₁] / 4)  := ?_
      _ = (1 + η) * k                                                                    := by ring
     · convert add_le_add lem68.le (neg_le_neg lem610) using 1 <;> ring
@@ -180,10 +180,9 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     have HX₂_eq : H[X₂] = H[X₂'] :=
       congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ)) h₂.map_eq
     have k_eq : k = H[X₁ - X₂'] - H[X₁] / 2 - H[X₂'] / 2 := by
-      have k_eq_aux : k = d[X₁ # X₂'] :=
-        IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂
+      have k_eq_aux : k = d[X₁ # X₂'] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂
       rw [k_eq_aux]
-      exact IndepFun.rdist_eq (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)) hX₁ hX₂'
+      exact (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)).rdist_eq hX₁ hX₂'
     rw [k_eq, ← ElementaryAddCommGroup.sub_eq_add, ← HX₂_eq]
     ring
   have rw₃ : H[X₂ + X₁'] = k + H[X₁]/2 + H[X₂]/2 := by

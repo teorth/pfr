@@ -11,12 +11,12 @@ $$h(x) = - x * \log x$$ on the unit interval, for use in the theory of Shannon e
 
 ## Main definitions
 
-* `negIdMulLog`: the function `x ↦ - x log x`
+* `negMulLog`: the function `x ↦ - x log x`
 
 ## Main results
 
-* `sum_negIdMulLog_le`: a Jensen inequality for `negIdMulLog`
-* `sum_negIdMulLog_eq`: the equality case of this inequality
+* `sum_negMulLog_le`: a Jensen inequality for `negMulLog`
+* `sum_negMulLog_eq`: the equality case of this inequality
 
 -/
 
@@ -103,30 +103,30 @@ lemma id_mul_log_nonneg {x : ℝ} (hx : 1 ≤ x) : 0 ≤ x * log x :=
   mul_nonneg (zero_le_one.trans hx) (log_nonneg hx)
 
 
-section negIdMulLog
+section negMulLog
 
 /-- The function `x ↦ - x * log x` from `ℝ` to `ℝ`. -/
 noncomputable
-def negIdMulLog (x : ℝ) : ℝ := - x * log x
+def negMulLog (x : ℝ) : ℝ := - x * log x
 
 @[simp]
-lemma negIdMulLog_zero : negIdMulLog (0 : ℝ) = 0 := by simp [negIdMulLog]
+lemma negMulLog_zero : negMulLog (0 : ℝ) = 0 := by simp [negMulLog]
 
 @[simp]
-lemma negIdMulLog_one : negIdMulLog (1 : ℝ) = 0 := by simp [negIdMulLog]
+lemma negMulLog_one : negMulLog (1 : ℝ) = 0 := by simp [negMulLog]
 
-lemma negIdMulLog_eq_neg : negIdMulLog = fun x ↦ - (x * log x) := by
+lemma negMulLog_eq_neg : negMulLog = fun x ↦ - (x * log x) := by
   funext
-  simp [negIdMulLog]
+  simp [negMulLog]
 
-lemma negIdMulLog_nonneg {x : ℝ} (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ negIdMulLog x := by
-  rw [negIdMulLog, neg_mul_comm]
+lemma negMulLog_nonneg {x : ℝ} (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ negMulLog x := by
+  rw [negMulLog, neg_mul_comm]
   apply mul_nonneg h1
   simp only [Left.nonneg_neg_iff]
   exact log_nonpos h1 h2
 
-lemma negIdMulLog_mul (x y : ℝ) : negIdMulLog (x * y) = - (y * x * log x + x * y * log y) := by
-  simp only [negIdMulLog, neg_mul, neg_add_rev]
+lemma negMulLog_mul (x y : ℝ) : negMulLog (x * y) = - (y * x * log x + x * y * log y) := by
+  simp only [negMulLog, neg_mul, neg_add_rev]
   by_cases hx : x = 0
   · simp [hx]
   by_cases hy : y = 0
@@ -134,66 +134,66 @@ lemma negIdMulLog_mul (x y : ℝ) : negIdMulLog (x * y) = - (y * x * log x + x *
   rw [log_mul hx hy]
   ring
 
-lemma negIdMulLog_mul' (x y : ℝ) : negIdMulLog (x * y) = y * negIdMulLog x + x * negIdMulLog y := by
-  simp_rw [negIdMulLog_mul, negIdMulLog]
+lemma negMulLog_mul' (x y : ℝ) : negMulLog (x * y) = y * negMulLog x + x * negMulLog y := by
+  simp_rw [negMulLog_mul, negMulLog]
   ring
 
-lemma concaveOn_negIdMulLog : ConcaveOn ℝ (Set.Ici (0 : ℝ)) negIdMulLog := by
-  rw [negIdMulLog_eq_neg]
+lemma concaveOn_negMulLog : ConcaveOn ℝ (Set.Ici (0 : ℝ)) negMulLog := by
+  rw [negMulLog_eq_neg]
   exact convexOn_id_mul_log.neg
 
-lemma strictConcaveOn_negIdMulLog : StrictConcaveOn ℝ (Set.Ici (0 : ℝ)) negIdMulLog := by
-  rw [negIdMulLog_eq_neg]
+lemma strictConcaveOn_negMulLog : StrictConcaveOn ℝ (Set.Ici (0 : ℝ)) negMulLog := by
+  rw [negMulLog_eq_neg]
   exact strictConvexOn_id_mul_log.neg
 
-lemma sum_negIdMulLog_finset_le {S : Type*} {A : Finset S} {w : S → ℝ} {p : S → ℝ}
+lemma sum_negMulLog_finset_le {S : Type*} {A : Finset S} {w : S → ℝ} {p : S → ℝ}
     (h0 : ∀ s ∈ A, 0 ≤ w s) (h1 : ∑ s in A, w s = 1) (hmem : ∀ s ∈ A, 0 ≤ p s) :
-    ∑ s in A, (w s) * negIdMulLog (p s) ≤ negIdMulLog (∑ s in A, (w s) * (p s)) :=
-  ConcaveOn.le_map_sum concaveOn_negIdMulLog h0 h1 hmem
+    ∑ s in A, (w s) * negMulLog (p s) ≤ negMulLog (∑ s in A, (w s) * (p s)) :=
+  ConcaveOn.le_map_sum concaveOn_negMulLog h0 h1 hmem
 
-lemma sum_negIdMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
+lemma sum_negMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
     (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
-    ∑ s, (w s) * negIdMulLog (p s) ≤ negIdMulLog (∑ s, (w s) * (p s)) :=
-  sum_negIdMulLog_finset_le (fun s _hs ↦ h0 s) h1 (fun s _hs ↦ hmem s)
+    ∑ s, (w s) * negMulLog (p s) ≤ negMulLog (∑ s, (w s) * (p s)) :=
+  sum_negMulLog_finset_le (fun s _hs ↦ h0 s) h1 (fun s _hs ↦ hmem s)
 
 -- a form of equality case of Jensen
-lemma sum_negIdMulLog_eq_aux {w : S → ℝ} {p : S → ℝ} {U : Finset S}
+lemma sum_negMulLog_eq_aux {w : S → ℝ} {p : S → ℝ} {U : Finset S}
     (h0 : ∀ s ∈ U, 0 < w s) (h₁ : ∑ s in U, w s = 1) (hmem : ∀ s ∈ U, 0 ≤ p s) :
-    negIdMulLog (∑ s in U, w s • p s) = ∑ s in U, w s • negIdMulLog (p s)
+    negMulLog (∑ s in U, w s • p s) = ∑ s in U, w s • negMulLog (p s)
     ↔ ∀ j ∈ U, p j = ∑ s in U, w s * p s :=
-  strictConcaveOn_negIdMulLog.map_sum_eq_iff h0 h₁ hmem
+  strictConcaveOn_negMulLog.map_sum_eq_iff h0 h₁ hmem
 
 -- a form of equality case of Jensen
-lemma sum_negIdMulLog_eq_aux2 {w : S → ℝ} {p : S → ℝ} {U : Finset S}
+lemma sum_negMulLog_eq_aux2 {w : S → ℝ} {p : S → ℝ} {U : Finset S}
     (h0 : ∀ s ∈ U, 0 < w s) (h1 : ∑ s in U, w s = 1) (hmem : ∀ s ∈ U, 0 ≤ p s) :
-    ∑ s in U, w s * negIdMulLog (p s) = negIdMulLog (∑ s in U, w s * p s)
+    ∑ s in U, w s * negMulLog (p s) = negMulLog (∑ s in U, w s * p s)
     ↔ ∀ j ∈ U, p j = ∑ s in U, w s * p s := by
   rw [eq_comm]
-  exact strictConcaveOn_negIdMulLog.map_sum_eq_iff h0 h1 hmem
+  exact strictConcaveOn_negMulLog.map_sum_eq_iff h0 h1 hmem
 
 -- a form of equality case of Jensen
-lemma sum_negIdMulLog_eq_aux3 {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
+lemma sum_negMulLog_eq_aux3 {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
     (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
-    ∑ s, w s * negIdMulLog (p s) = negIdMulLog (∑ s, w s * p s)
+    ∑ s, w s * negMulLog (p s) = negMulLog (∑ s, w s * p s)
     ↔ ∀ s, w s = 0 ∨ p s = ∑ s', w s' * p s' := by
   rw [eq_comm]
-  exact strictConcaveOn_negIdMulLog.map_sum_eq_iff' h0 h1 hmem
+  exact strictConcaveOn_negMulLog.map_sum_eq_iff' h0 h1 hmem
 
 /-- the equality case of Jensen's inequality -/
-lemma sum_negIdMulLog_eq {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
+lemma sum_negMulLog_eq {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
     (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s)
-    (heq : ∑ s, (w s) * negIdMulLog (p s) = negIdMulLog (∑ s, (w s) * (p s)))
+    (heq : ∑ s, (w s) * negMulLog (p s) = negMulLog (∑ s, (w s) * (p s)))
     (s : S) (hs : 0 < w s) : p s = ∑ s', (w s') * (p s') :=
-  ((sum_negIdMulLog_eq_aux3 h0 h1 hmem).1 heq s).resolve_left hs.ne'
+  ((sum_negMulLog_eq_aux3 h0 h1 hmem).1 heq s).resolve_left hs.ne'
 
-lemma continuous_negIdMulLog : Continuous negIdMulLog :=  by
+lemma continuous_negMulLog : Continuous negMulLog := by
   change Continuous (fun (x : ℝ) ↦ - x * Real.log x)
   have aux : Continuous (fun (x : ℝ) ↦ (-1 : ℝ) * (x * Real.log x)) :=
     continuous_const.mul continuous_id_mul_log
   convert aux using 1
   simp only [neg_mul, one_mul]
 
-end negIdMulLog
+end negMulLog
 
 
 end Real

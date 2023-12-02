@@ -6,7 +6,7 @@ open Lean hiding Rat
 open Qq Meta Real
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
-local macro_rules | `($x ^ $y)   => `(HPow.hPow ($x : ℝ) ($y : ℝ))
+local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
 namespace RPowRing
 -- open Ring

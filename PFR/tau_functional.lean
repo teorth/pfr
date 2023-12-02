@@ -12,7 +12,7 @@ Definition of the tau functional and basic facts
 ## Main definitions:
 
 * `η`: $1/9$
-* `τ`: The tau functional  $\tau[X_1; X_2] = d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$
+* `τ`: The tau functional $\tau[X_1; X_2] = d[X_1; X_2] + \eta d[X^0_1; X_1] + \eta d[X^0_2; X_2].$
 
 ## Main results
 
@@ -24,16 +24,6 @@ for any $X'_1, Z, X'_2, W$.
 
 open MeasureTheory ProbabilityTheory
 universe uG
-
-
-/-- For mathlib -/
-lemma identDistrib_id {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] {μ : Measure α}
-    {X : α → β} (hX : AEMeasurable X μ) :
-    IdentDistrib X id μ (μ.map X) where
-  aemeasurable_fst := hX
-  aemeasurable_snd := aemeasurable_id
-  map_eq := by simp
-
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
@@ -62,7 +52,7 @@ Taking `η = 1/9` works fine for the final computations. -/
 noncomputable def η := (9:ℝ)⁻¹
 
 /-- If $X_1,X_2$ are two $G$-valued random variables, then
-$$  \tau[X_1; X_2] := d[X_1; X_2] + \eta  d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
+$$ \tau[X_1; X_2] := d[X_1; X_2] + \eta d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
 Here, $X^0_1$ and $X^0_2$ are two random variables fixed once and for all in most of the argument.
 To lighten notation, We package `X^0_1` and `X^0_2` in a single object named `p`.
 
@@ -95,7 +85,7 @@ lemma continuous_tau_restrict_probabilityMeasure
     Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _ p.hmeas1) continuous_fst
   continuity
 
-/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. --/
+/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. -/
 lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂]
     {μ₁ : Measure Ω₁} {μ₂ : Measure Ω₂} {μ'₁ : Measure Ω'₁} {μ'₂ : Measure Ω'₂}
@@ -114,7 +104,7 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
   ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
-/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. --/
+/-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. -/
 lemma ProbabilityTheory.IdentDistrib.tau_minimizes [MeasureSpace Ω]
     [MeasureSpace Ω']
     {X₁ X₂ : Ω → G} {X₁' X₂' : Ω' → G}
@@ -160,10 +150,10 @@ lemma tau_minimizer_exists [MeasurableSingletonClass G] :
     apply ProbabilityTheory.IdentDistrib.tau_eq
     · have : μ.1 = (μ.1.prod μ.2).map Prod.fst := by simp
       rw [this]
-      exact identDistrib_id measurable_fst.aemeasurable
+      exact identDistrib_id_right measurable_fst.aemeasurable
     · have : μ.2 = (μ.1.prod μ.2).map Prod.snd := by simp
       rw [this]
-      exact identDistrib_id measurable_snd.aemeasurable
+      exact identDistrib_id_right measurable_snd.aemeasurable
   convert (tau_min_exists_measure p).choose_spec.2.2 ν₁ ν₂ h₁ h₂
 
 
@@ -176,8 +166,8 @@ lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : M
     τ[X₁ # X₂ | p] ≤ τ[X'₁ # X'₂ | p] := by
   let ν₁ := (ℙ : Measure Ω'₁).map X'₁
   let ν₂ := (ℙ : Measure Ω'₂).map X'₂
-  have B : τ[X'₁  # X'₂ | p] = τ[id ; ν₁ # id ; ν₂ | p] :=
-    (identDistrib_id h1.aemeasurable).tau_eq p (identDistrib_id h2.aemeasurable)
+  have B : τ[X'₁ # X'₂ | p] = τ[id ; ν₁ # id ; ν₂ | p] :=
+    (identDistrib_id_right h1.aemeasurable).tau_eq p (identDistrib_id_right h2.aemeasurable)
   convert h ν₁ ν₂ (isProbabilityMeasure_map h1.aemeasurable)
     (isProbabilityMeasure_map h2.aemeasurable)
 
@@ -195,7 +185,7 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁)
 
 /-- Version of `distance_ge_of_min` with the measures made explicit. -/
 lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂)
-    [MeasurableSpace Ω'₁] [ MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
+    [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X'₁: Ω'₁ → G} {X'₂: Ω'₂ → G}
     (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
     d[X₁ # X₂] - η * (d[p.X₀₁; ℙ # X'₁; μ] - d[p.X₀₁ # X₁])
@@ -207,7 +197,7 @@ lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂
 
 open BigOperators
 
-/--   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower
+/-- For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower
 bound $d[X'_1|Z;X'_2|W]$ by
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
@@ -222,14 +212,14 @@ lemma condDistance_ge_of_min
     rw [← Finset.sum_mul,sum_measure_preimage_singleton' ℙ hZ, one_mul]
   have hw (a : ℝ) : a = ∑ w : T, (ℙ (W ⁻¹' {w})).toReal * a := by
     rw [← Finset.sum_mul,sum_measure_preimage_singleton' ℙ hW, one_mul]
-  rw [cond_rdist_eq_sum h1 hZ h2 hW, cond_rdist'_eq_sum h1 hZ, hz d[X₁ # X₂],
+  rw [condRuzsaDist_eq_sum h1 hZ h2 hW, condRuzsaDist'_eq_sum h1 hZ, hz d[X₁ # X₂],
     hz d[p.X₀₁ # X₁], hz (η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro z _
-  rw [cond_rdist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂],
+  rw [condRuzsaDist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂],
     hw ((ℙ (Z ⁻¹' {z})).toReal * d[X₁ # X₂] - η * ((ℙ (Z ⁻¹' {z})).toReal *
-      d[p.X₀₁ ; ℙ # X'₁ ; ℙ[|Z ⁻¹' {z}]] - (ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ # X₁])),
+      d[p.X₀₁ ; ℙ # X'₁ ; ℙ[|Z ← z]] - (ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ # X₁])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro w _
@@ -237,10 +227,10 @@ lemma condDistance_ge_of_min
   . simp [hpz]
   rcases eq_or_ne (ℙ (W ⁻¹' {w})) 0 with hpw | hpw
   . simp [hpw]
-  set μ := (hΩ₁.volume)[|Z ⁻¹' {z}]
-  have hμ : IsProbabilityMeasure μ :=  cond_isProbabilityMeasure ℙ hpz
-  set μ' := ℙ[|W ⁻¹' {w}]
-  have hμ' : IsProbabilityMeasure μ' :=  cond_isProbabilityMeasure ℙ hpw
+  set μ := (hΩ₁.volume)[|Z ← z]
+  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure ℙ hpz
+  set μ' := ℙ[|W ← w]
+  have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure ℙ hpw
   suffices : d[X₁ # X₂] - η * (d[p.X₀₁; volume # X'₁; μ] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂; volume # X'₂; μ'] - d[p.X₀₂ # X₂])
   ≤ d[X'₁ ; μ # X'₂; μ']
   . replace this := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)

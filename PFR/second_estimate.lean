@@ -10,8 +10,8 @@ Assumptions:
 * $X_1, X_2$ are tau-minimizers
 * $X_1, X_2, \tilde X_1, \tilde X_2$ be independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
 * $d[X_1;X_2] = k$
-* $I_1 :=  I_1 [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ]$
-* $I_2 := I[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ]$
+* $I_1 := I_1 [X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2]$
+* $I_2 := I[X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2]$
 
 ## Main results
 
@@ -62,7 +62,7 @@ lemma rdist_of_sums_ge' : d[X₁ + X₁' # X₂ + X₂'] ≥ k - η * (d[X₁ # 
   rw [h₂.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂] at h₂'
   linarith
 
-/--  $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$ -/
+/-- $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$ -/
 lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (1 - η) := by
   have hX₁_indep : IndepFun X₁ X₁' (μ := ℙ) := h_indep.indepFun (show 0 ≠ 2 by decide)
   have hX₂_indep : IndepFun X₂ X₂' (μ := ℙ) := h_indep.indepFun (show 1 ≠ 3 by decide)
@@ -77,7 +77,7 @@ lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (
   have h := sum_of_rdist_eq_char_2 Y hY_indep hY
   rw [show Y 0 = X₂ by rfl, show Y 1 = X₁ by rfl, show Y 2 = X₂' by rfl, show Y 3 = X₁' by rfl] at h
   rw [← h₂.rdist_eq h₁, rdist_symm, rdist_symm (X:= X₂ + X₂'),
-    cond_rdist_symm (Z := X₂ + X₂') (W := X₁ + X₁') hX₂ (hX₂.add hX₂') hX₁ (hX₁.add hX₁'),
+    condRuzsaDist_symm (Z := X₂ + X₂') (W := X₁ + X₁') hX₂ (hX₂.add hX₂') hX₁ (hX₁.add hX₁'),
     add_comm X₂ X₁, add_right_comm _ X₂', ← two_mul] at h
   have h' := condDistance_ge_of_min p h_min hX₁ hX₂ (X₁ + X₁') (X₂ + X₂') (hX₁.add hX₁') (hX₂.add hX₂')
   have h₁' := condDist_diff_le''' ℙ p.hmeas1 hX₁ hX₁' hX₁_indep

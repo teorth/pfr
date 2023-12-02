@@ -17,9 +17,9 @@ Assumptions:
 * $V := \tilde X_1 + X_2$
 * $W := X_1 + \tilde X_1$
 * $S := X_1 + X_2 + \tilde X_1 + \tilde X_2$.
-* $I_1 := I[ U : V | S ]$
-* $I_2 := I[ U : W | S ]$
-* $I_3 := I[ V : W | S ]$ (not explicitly defined in Lean)
+* $I_1 := I[U : V | S]$
+* $I_2 := I[U : W | S]$
+* $I_3 := I[V : W | S]$ (not explicitly defined in Lean)
 
 # Main results:
 
@@ -30,7 +30,6 @@ Assumptions:
 -/
 
 open MeasureTheory ProbabilityTheory
-
 open scoped BigOperators
 
 variable {G : Type*} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
@@ -53,7 +52,7 @@ variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₁', X₂'])
 variable (h_min: tau_minimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
-local notation3 "k" => d[ X₁ # X₂]
+local notation3 "k" => d[X₁ # X₂]
 
 /-- `U := X₁ + X₂` -/
 local notation3 "U" => X₁ + X₂
@@ -67,13 +66,13 @@ local notation3 "W" => X₁' + X₁
 /-- `S := X₁ + X₂ + X₁' + X₂'` -/
 local notation3 "S" => X₁ + X₂ + X₁' + X₂'
 
-/-- `I₁ := I[ U : V | S ]`, the conditional mutual information of `U = X₁ + X₂` and `V = X₁' + X₂`
+/-- `I₁ := I[U : V | S]`, the conditional mutual information of `U = X₁ + X₂` and `V = X₁' + X₂`
 given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
-local notation3 "I₁" => I[ U : V | S ]
+local notation3 "I₁" => I[U : V | S]
 
-/-- `I₂ := I[ U : W | S ]`, the conditional mutual information of `U = X₁ + X₂` and `W = X₁' + X₁`
+/-- `I₂ := I[U : W | S]`, the conditional mutual information of `U = X₁ + X₂` and `W = X₁' + X₁`
 given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
-local notation3 "I₂" => I[ U : W | S ]
+local notation3 "I₂" => I[U : W | S]
 
 --(Mantas) this times out in the proof below
 private lemma hmeas2 : Measurable
@@ -89,7 +88,7 @@ private lemma hmeas2 : Measurable
     · apply measurable_pi_apply
 
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
-lemma I₃_eq : I[ V : W | S ] = I₂ := by
+lemma I₃_eq : I[V : W | S] = I₂ := by
   have h_indep2 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁, X₂'] := by
     apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 4) 2)
     convert h_indep using 1
@@ -140,7 +139,7 @@ lemma I₃_eq : I[ V : W | S ] = I₂ := by
   have hV : Measurable V := Measurable.add hX₁' hX₂
   have hW : Measurable W := Measurable.add hX₁' hX₁
   have hS : Measurable S := by measurability
-  rw [condMutualInformation_eq hV hW hS, condMutualInformation_eq hU hW hS, chain_rule'' ℙ hU hS,
+  rw [condMutualInfo_eq hV hW hS, condMutualInfo_eq hU hW hS, chain_rule'' ℙ hU hS,
     chain_rule'' ℙ hV hS, chain_rule'' ℙ hW hS, chain_rule'' ℙ _ hS, chain_rule'' ℙ _ hS,
     IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
   · exact Measurable.prod (by exact hU) (by exact hW)
@@ -153,10 +152,10 @@ is less than or equal to
 $$ 6 \eta k - \frac{1 - 5 \eta}{1-\eta} (2 \eta k - I_1).$$
 -/
 lemma sum_condMutual_le :
-    I[ U : V | S ] + I[ V : W | S ] + I[ W : U | S ]
+    I[U : V | S] + I[V : W | S] + I[W : U | S]
       ≤ 6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁) := by
   have : I[W:U|S] = I₂ := by
-    rw [condMutualInformation_comm]
+    rw [condMutualInfo_comm]
     · exact Measurable.add' hX₁' hX₁
     · exact Measurable.add' hX₁ hX₂
   rw [I₃_eq, this]
@@ -190,7 +189,7 @@ lemma ruzsa_helper_lemma' [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω 
     fin_cases i
     exacts [hX.neg, hC, measurable_const, hB.add hC]
   calc d[X # B | B + C]
-    = d[X | fun _ : Ω ↦ (0 : G) # B | B + C] := by rw [cond_rdist_of_const hX]
+    = d[X | fun _ : Ω ↦ (0 : G) # B | B + C] := by rw [condRuzsaDist_of_const hX]
   _ = d[π ∘ ⟨-X, fun _ : Ω ↦ (0 : G)⟩ | fun _ : Ω ↦ (0 : G) # π ∘ ⟨C, B + C⟩ | B + C] := by
         congr
         · ext1 ω; simp
@@ -199,7 +198,7 @@ lemma ruzsa_helper_lemma' [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω 
           abel
   _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 # π ∘ ⟨Y 1, Y 3⟩ | Y 3] := by congr
   _ = d[-X | fun _ : Ω ↦ (0 : G) # C | B + C] := by
-        rw [cond_rdist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
+        rw [condRuzsaDist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
         · congr
         · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp
           have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
@@ -212,7 +211,7 @@ lemma ruzsa_helper_lemma' [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω 
           refine h_indep.comp ?_ ?_
           · exact measurable_neg.prod_mk measurable_const
           · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
-  _ = d[-X # C | B + C] := by rw [cond_rdist_of_const]; exact hX.neg
+  _ = d[-X # C | B + C] := by rw [condRuzsaDist_of_const]; exact hX.neg
   _ = d[X # C | B + C] := by -- because ElementaryAddCommGroup G 2
         congr
         simp
@@ -230,7 +229,7 @@ lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C
   have hC' : Measurable C' := hC.comp measurable_snd
   -- h1 and h2 should be applications of a new lemma?
   have h1 : d[p.X₀₂ # B | B + C] = d[X₂' # B' | B' + C'] := by
-    refine cond_rdist'_of_copy p.X₀₂ hB (hB.add hC) X₂' hB' (hB'.add hC') ?_ ?_
+    refine condRuzsaDist'_of_copy p.X₀₂ hB (hB.add hC) X₂' hB' (hB'.add hC') ?_ ?_
     · constructor
       · exact p.hmeas2.aemeasurable
       · exact hX₂'.aemeasurable
@@ -246,7 +245,7 @@ lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C
           rfl
         · exact hB.prod_mk (hB.add hC)
   have h2 : d[p.X₀₂ # C | B + C] = d[X₂' # C' | B' + C'] := by
-    refine cond_rdist'_of_copy p.X₀₂ hC (hB.add hC) X₂' hC' (hB'.add hC') ?_ ?_
+    refine condRuzsaDist'_of_copy p.X₀₂ hC (hB.add hC) X₂' hC' (hB'.add hC') ?_ ?_
     · constructor
       · exact p.hmeas2.aemeasurable
       · exact hX₂'.aemeasurable
@@ -301,7 +300,7 @@ is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
 lemma sum_dist_diff_le :
-  c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
+  c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
 
@@ -339,7 +338,7 @@ lemma sum_dist_diff_le :
 
   -- Put everything together to bound the sum of the `c` terms
   have ineq7 : c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ]
-  · have step₁ :  c[U|S # U|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
+  · have step₁ : c[U|S # U|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
     · calc c[U|S # U|S] = (d[p.X₀₁ # U|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # U|S] - d[p.X₀₂ # X₂]) := by ring
         _ ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 + (H[S ; ℙ] - H[X₂ ; ℙ])/2 := add_le_add ineq1 ineq2
         _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
@@ -347,7 +346,7 @@ lemma sum_dist_diff_le :
     · calc c[V|S # V|S] =(d[p.X₀₁ # V|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # V|S] - d[p.X₀₂ # X₂]) := by ring
         _ ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 + (H[S ; ℙ] - H[X₂ ; ℙ])/2 := add_le_add ineq3 ineq4
         _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
-    have step₃ : c[W|S # W|S] ≤  H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
+    have step₃ : c[W|S # W|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
     · calc c[W|S # W|S] = (d[X₀₁ # W | S] - d[X₀₁ # X₁]) + (d[X₀₂ # W' | S] - d[X₀₂ # X₂]) :=
           by rw [dist_eq]
         _ ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 + (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
@@ -363,10 +362,10 @@ lemma sum_dist_diff_le :
   · calc 3 * H[S ; ℙ] ≤ 3 * (1/2 * H[X₁ ; ℙ] + 1/2 * H[X₂ ; ℙ] + (2+η)*k - I₁) := by
           apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr sorry
          -- The following should work `apply ent_ofsum_le p X₁ X₂ X₁' X₂'` but seems to cause a timeout...
-      _ =  3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁ := by ring
+      _ = 3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁ := by ring
 
   -- Final computation
-  calc c[U|S # U|S] + c[V|S # V|S]  + c[W|S # W|S]  ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := ineq7
+  calc c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := ineq7
      _ = 3 * H[S ; ℙ] - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) := by ring
      _ ≤ (3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁) - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) :=
         sub_le_sub_right ineq8 _
@@ -378,7 +377,7 @@ lemma sum_uvw_eq_zero : U+V+W = 0 := by
 
 section construct_good
 variable {Ω' : Type*} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
-variable {T₁ T₂ T₃ : Ω' → G}  (hT : T₁+T₂+T₃ = 0)
+variable {T₁ T₂ T₃ : Ω' → G} (hT : T₁+T₂+T₃ = 0)
 variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
 
 
@@ -389,7 +388,6 @@ local notation3:max "ψ[" A " # " B "]" => d[A # B] + η * (c[A # B])
 local notation3:max "ψ[" A "; " μ " # " B " ; " μ' "]" =>
   d[A ; μ # B ; μ'] + η * c[A ; μ # B ; μ']
 
-open BigOperators in
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
 $$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
 Then there exist random variables $T'_1, T'_2$ such that
@@ -414,23 +412,18 @@ lemma construct_good_prelim :
   have h2T₂ : T₂ = T₃ + T₁ := by simp [h2T₁, add_left_comm]
 
   have h1 : sum1 ≤ δ
-  · have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := ent_bsg hT₁ hT₂ h2T₃
+  · have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := by
+      subst h2T₃; exact ent_bsg hT₁ hT₂
     have h2 : H[⟨T₂, T₃⟩] = H[⟨T₁, T₂⟩]
-    · apply entropy_of_comp_eq_of_comp ℙ (hT₂.prod_mk hT₃) (hT₁.prod_mk hT₂)
-        (fun x ↦ (x.1 + x.2, x.1)) (fun x ↦ (x.2, x.1 + x.2))
-      · ext1 x; simp [h2T₁]
-      · ext1 x; simp [h2T₃]
+    · rw [h2T₃, entropy_add_right', entropy_comm] <;> assumption
     have h3 : H[⟨T₁, T₂⟩] = H[⟨T₃, T₁⟩]
-    · apply entropy_of_comp_eq_of_comp ℙ (hT₁.prod_mk hT₂) (hT₃.prod_mk hT₁)
-        (fun x ↦ (x.1 + x.2, x.1)) (fun x ↦ (x.2, x.1 + x.2))
-      · ext1 x; simp [h2T₃]
-      · ext1 x; simp [h2T₂]
-    simp_rw [mutualInformation_def] at h1 ⊢; linarith
+    · rw [h2T₃, entropy_add_left, entropy_comm] <;> assumption
+    simp_rw [mutualInfo_def] at h1 ⊢; linarith
 
   have h2 : η * sum2 ≤ η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
   · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
-      simp_rw [cond_rdist'_eq_sum hT₁ hT₃, integral_eq_sum,
+      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum,
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
     linarith [condDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
@@ -438,7 +431,7 @@ lemma construct_good_prelim :
   have h3 : η * sum3 ≤ η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
   · have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
-      simp_rw [cond_rdist'_eq_sum hT₂ hT₃, integral_eq_sum,
+      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum,
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
     linarith [condDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
@@ -460,8 +453,6 @@ lemma construct_good_prelim :
     linarith only [distance_ge_of_min' (μ := ℙ[|T₃ ⁻¹' {t}]) (μ' := ℙ[|T₃ ⁻¹' {t}]) p h_min hT₁ hT₂]
   exact hk.trans h4
 
-  -- have h7 : k ≤ ψ[Y₁ # Y₂] := sorry
-
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
 -
 $$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
@@ -479,7 +470,7 @@ lemma construct_good : k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂]
   have v2 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₁ hT₃ hT₂
   have v3 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₂ hT₁ hT₃
   have v6 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₃ hT₂ hT₁
-  simp only [mutualInformation, entropy_comm hT₂ hT₁, entropy_comm hT₃ hT₁, entropy_comm hT₃ hT₂]
+  simp only [mutualInfo, entropy_comm hT₂ hT₁, entropy_comm hT₃ hT₁, entropy_comm hT₃ hT₂]
     at *
   linarith
 
@@ -489,11 +480,11 @@ lemma construct_good' (μ : Measure Ω') [IsProbabilityMeasure μ]:
   apply construct_good p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 
 lemma cond_c_eq_integral {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable Z) : c[Y | Z # Y | Z] =
-    (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ⁻¹' {z}] # Y ; ℙ[|Z ⁻¹' {z}]]] := by
+    (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ← z] # Y ; ℙ[|Z ← z]]] := by
   simp only [integral_eq_sum, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
     Finset.sum_add_distrib]
   simp_rw [← integral_eq_sum]
-  rw [← cond_rdist'_eq_integral _ hY hZ, ← cond_rdist'_eq_integral _ hY hZ, integral_const,
+  rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
   simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
@@ -503,11 +494,11 @@ variable {R : Ω' → G} (hR : Measurable R)
 local notation3:max "δ'" => I[T₁:T₂|R] + I[T₂:T₃|R] + I[T₃:T₁|R]
 
 lemma delta'_eq_integral : δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
-  simp_rw [condMutualInformation_eq_integral_mutualInformation, integral_eq_sum, smul_add,
+  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum, smul_add,
     Finset.sum_add_distrib]
 
 lemma cond_construct_good :
-    k ≤ δ' + (η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R])  := by
+    k ≤ δ' + (η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
   simp_rw [integral_eq_sum, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum, mul_smul_comm,
@@ -534,7 +525,7 @@ lemma cond_construct_good :
 
 end construct_good
 
-/-- If $d[X_1;X_2] > 0$ then  there are $G$-valued random variables $X'_1, X'_2$ such that
+/-- If $d[X_1;X_2] > 0$ then there are $G$-valued random variables $X'_1, X'_2$ such that
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
   have hη : η = 1/9 := by rw [η, one_div]

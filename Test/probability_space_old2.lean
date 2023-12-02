@@ -50,33 +50,33 @@ lemma rawMass_eq : rawMass Ω = rawMeasure Ω univ := rawFiniteMeasure_eq _
 /-- The raw mass is the mass of the raw finite measure. -/
 lemma rawMass_eq' : rawMass Ω = rawFiniteMeasure Ω univ := rfl
 
-/-- P[ E ] is the probability of E. -/
-notation:max "P[ " E " ]" => (finiteMeasure _) E
+/-- P[E] is the probability of E. -/
+notation:max "P[" E "]" => (finiteMeasure _) E
 
 /-- An alternate notation where one makes the probability space `X = ‹ProbabilitySpace Ω›`
 explicit. -/
-notation:100 "P[ " E " ; " X " ]" => @finiteMeasure _ X E
+notation:100 "P[" E " ; " X "]" => @finiteMeasure _ X E
 
 /-- Probability can be computed using finiteMeasure. -/
-lemma prob_eq (E : Set Ω) : P[ E ] = finiteMeasure Ω E := rfl
+lemma prob_eq (E : Set Ω) : P[E] = finiteMeasure Ω E := rfl
 
 /-- Probability can also be computed using measure. -/
-lemma prob_eq' (E : Set Ω) : P[ E ] = measure Ω E := by
+lemma prob_eq' (E : Set Ω) : P[E] = measure Ω E := by
   unfold measure finiteMeasure
   simp
   congr
 
-lemma prob_eq'' (E : Set Ω) : P[ E ; ‹ ProbabilitySpace Ω› ] = P[ E ] := by rfl
+lemma prob_eq'' (E : Set Ω) : P[E ; ‹ ProbabilitySpace Ω›] = P[E] := by rfl
 
 /-- Probability can be computed using raw measure. -/
-lemma prob_raw (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawMeasure Ω E := by
+lemma prob_raw (E : Set Ω) : P[E] = (rawMass Ω)⁻¹ * rawMeasure Ω E := by
   rw [prob_eq' E]
   unfold measure
   rw [Measure.smul_apply]
   congr
 
 /-- Probability can be computed using raw finite measure. -/
-lemma prob_raw' (E : Set Ω) : P[ E ] = (rawMass Ω)⁻¹ * rawFiniteMeasure Ω E := by
+lemma prob_raw' (E : Set Ω) : P[E] = (rawMass Ω)⁻¹ * rawFiniteMeasure Ω E := by
   rw [← ENNReal.coe_eq_coe, prob_raw E]
   push_cast
   congr
@@ -107,8 +107,8 @@ lemma prob_mono {A B : Set Ω} (h : A ⊆ B) : P[A] ≤ P[B] := by
   exact FiniteMeasure.apply_mono (finiteMeasure Ω) h
 
 /-- All events occur with probability at most 1. -/
-lemma prob_le_one (E : Set Ω) : P[ E ] ≤ 1 := by
-  by_cases h: isNondeg Ω
+lemma prob_le_one (E : Set Ω) : P[E] ≤ 1 := by
+  by_cases h : isNondeg Ω
   . rw [← prob_univ Ω h]
     simp [prob_mono]
   rw [prob_zero h E]
@@ -124,7 +124,7 @@ def ofFiniteMeasure [MeasurableSpace Ω] (μ : FiniteMeasure Ω) : ProbabilitySp
 /-- The formula for probability in `ProbabilitySpace.ofFiniteMeasure` in terms of the original
 measure -/
 lemma ofFiniteMeasure.prob_eq [MeasurableSpace Ω] (μ : FiniteMeasure Ω) (E : Set Ω) :
-    P[ E ; ofFiniteMeasure μ ] = (μ Set.univ)⁻¹ * μ E := by
+    P[E ; ofFiniteMeasure μ] = (μ Set.univ)⁻¹ * μ E := by
   unfold finiteMeasure
   rw [FiniteMeasure.coeFn_smul]
   dsimp
@@ -161,11 +161,11 @@ lemma condRawMass_eq [hΩ: ProbabilitySpace Ω] {E : Set Ω} : @rawMass Ω (Subs
   simp
   exact MeasurableSet.univ
 
-notation:100 "P[ " F " | " E " ]" => P[ F ; Subset.probabilitySpace E ]
+notation:100 "P[" F " | " E "]" => P[F ; Subset.probabilitySpace E]
 
 /-- The conditional probability formula. -/
 lemma condProb_eq [hΩ : ProbabilitySpace Ω] {E F : Set Ω} (hF : MeasurableSet F) :
-    P[ F | E ] = P[ E ]⁻¹ * P[ F ∩ E ]  := by
+    P[F | E] = P[E]⁻¹ * P[F ∩ E]  := by
   rw [@prob_raw' Ω (Subset.probabilitySpace E) F, @prob_raw' Ω hΩ (F ∩ E), @prob_raw' Ω hΩ E, condRaw_eq hF, condRawMass_eq]
   generalize a_def : rawMass Ω = a
   generalize b_def : rawFiniteMeasure Ω E = b
@@ -239,6 +239,6 @@ lemma range_nonempty' (h : isNondeg Ω) (hX : Measurable X) : 0 < Fintype.card S
   apply Fintype.card_ne_zero
 
 /-- Definition of a uniform random variable on a set S -/
-def isUniform (X : Ω → S) := (Measurable X) ∧ (∀ s : S, P[ X ⁻¹' {s} ] = ((Fintype.card S) : ℝ)⁻¹)
+def isUniform (X : Ω → S) := (Measurable X) ∧ (∀ s : S, P[X ⁻¹' {s}] = ((Fintype.card S) : ℝ)⁻¹)
 
 end ProbabilitySpace

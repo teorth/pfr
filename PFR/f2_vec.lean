@@ -97,7 +97,7 @@ lemma char_ne_one_of_ne_zero {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGr
     iterate_minimalPeriod (f := fun z ↦ x + z) (x := 0)
 
 @[simp] lemma char_smul_eq_zero' {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] (x : Γ)
-    (k : ℤ) :  (k*p) • x = 0 := by
+    (k : ℤ) : (k*p) • x = 0 := by
   rw [mul_smul]
   norm_cast
   simp
@@ -159,7 +159,7 @@ open Set
 
 lemma exists_finsupp {G : Type*} [AddCommGroup G] {n : ℕ}
     [ElementaryAddCommGroup G (n + 1)] {A : Set G} {x : G} (hx : x ∈ Submodule.span ℤ A) :
-    ∃ μ : A →₀ ZMod (n + 1), (μ.sum fun a r ↦ (r : ℤ) • (a : G)) = x  := by
+    ∃ μ : A →₀ ZMod (n + 1), (μ.sum fun a r ↦ (r : ℤ) • (a : G)) = x := by
   rcases mem_span_set.1 hx with ⟨w, hw, rfl⟩; clear hx
   use (w.subtypeDomain A).mapRange (↑) rfl
   rw [Finsupp.sum_mapRange_index (by simp)]

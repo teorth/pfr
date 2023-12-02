@@ -247,7 +247,7 @@ lemma exists_subgroup_subset_card_eq {s : ℕ} {H : Subgroup G} (hs : p ^ s ≤ 
 lemma exists_subgroup_subset_card_le {k : ℕ} (H : Subgroup G)
     (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
     ∃ (H' : Subgroup G), Nat.card H' ≤ k ∧ k < p * Nat.card H' ∧ H' ≤ H := by
-  obtain ⟨s, sk, ks⟩  : ∃ s, p ^ s ≤ k ∧ k < p ^ (s + 1) :=
+  obtain ⟨s, sk, ks⟩ : ∃ s, p ^ s ≤ k ∧ k < p ^ (s + 1) :=
     exists_nat_pow_near' (one_le_iff_ne_zero.mpr h'k) (Prime.one_lt hp.out)
   rcases exists_subgroup_subset_card_eq h (sk.trans hk) with ⟨H', H'card, H'H⟩
   simp only [_root_.pow_succ] at ks

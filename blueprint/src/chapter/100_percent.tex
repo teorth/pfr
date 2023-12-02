@@ -2,7 +2,7 @@
 
 \begin{definition}[Symmetry group]\label{sym-group-def}
 \lean{symmGroup}\leanok
-If $X$ is a $G$-valued random variable, then the symmetry group $\mathrm{Sym}[X]$ is the set of all $h \in G$ such that $X+h$ has the same distribution as $X$.
+If $X$ is a $G$-valued random variable, then the symmetry group $\mathrm{Sym}[X]$ is the set of all $h \in G$ such that $X +h$ has the same distribution as $X$.
 \end{definition}
 
 \begin{lemma}[Symmetry group is a group]\label{sym-group}\uses{sym-group-def}
@@ -15,23 +15,23 @@ If $X$ is a $G$-valued random variable, then $\mathrm{Sym}[X]$ is a subgroup of 
 
 \begin{lemma}[Zero Ruzsa distance implies large symmetry group]\label{zero-large}
   \lean{sub_mem_symmGroup}\leanok  If $X$ is a $G$-valued random variable such that
-  $d[X;X]=0$, and $x,y \in G$ are such that $P[X=x], P[X=y]>0$, then $x-y \in \mathrm{Sym}[X]$.
+  $d[X ;X]=0$, and $x,y \in G$ are such that $P[X=x], P[X=y]>0$, then $x-y \in \mathrm{Sym}[X]$.
 \end{lemma}
 
 \begin{proof}
   \uses{ruz-indep, ruz-copy, relabeled-entropy-cond,vanish-entropy, alternative-mutual, independent-exist,sym-group-def}\leanok
    Let $X_1,X_2$ be independent copies of $X$ (from Lemma \ref{independent-exist}). Let $A$ denote the range of $X$.  From Lemma \ref{ruz-indep} and Lemma \ref{ruz-copy} we have
-  $$ H[X_1-X_2] = H[X_1].$$
+  $$ \bbH[X_1-X_2] = \bbH[X_1].$$
 Observe from Lemma \ref{relabeled-entropy-cond} that
-$$ H[X_1-X_2|X_2] = H[X_1|X_2] = H[X_1]$$
+$$ \bbH[X_1-X_2|X_2] = \bbH[X_1|X_2] = \bbH[X_1]$$
 and hence by Lemma \ref{alternative-mutual}
-$$ I[ X_1-X_2 : X_1 ] = 0.$$
+$$ \bbI[X_1-X_2 : X_1] = 0.$$
 By Corollary \ref{vanish-entropy}, $X_1-X_2$ and $X_1$ are therefore independent, thus the law of $(X_1-X_2|X_1=x)$ does not depend on $x \in A$. The claim follows.
 \end{proof}
 
 \begin{lemma}[Translate is uniform on symmetry group]\label{sym-zero}
 \lean{isUniform_sub_const_of_rdist_eq_zero}\leanok
-  If $X$ is a $G$-valued random variable with $d[X;X]=0$, and $x_0$ is a point with $P[X=x_0] > 0$, then $X-x_0$ is uniformly distributed on $\mathrm{Sym}[X]$.
+  If $X$ is a $G$-valued random variable with $d[X ;X]=0$, and $x_0$ is a point with $P[X=x_0] > 0$, then $X-x_0$ is uniformly distributed on $\mathrm{Sym}[X]$.
 \end{lemma}
 
 \begin{proof}\uses{zero-large,sym-group-def,uniform-def}\leanok  The law of $X-x_0$ is invariant under $\mathrm{Sym}[X]$, non-zero at the origin, and supported on  $\mathrm{Sym}[X]$, giving the claim.
@@ -41,11 +41,11 @@ By Corollary \ref{vanish-entropy}, $X_1-X_2$ and $X_1$ are therefore independent
 \begin{lemma}[Symmetric 100\% inverse theorem]\label{lem:100pc-self}
   \lean{exists_isUniform_of_rdist_self_eq_zero}\leanok
   Suppose that $X$ is a $G$-valued random variable such that
-  $d[X;X]=0$. Then there exists a subgroup $H \leq G$ such that $d[X;U_H] = 0$.
+  $d[X ;X]=0$. Then there exists a subgroup $H \leq G$ such that $d[X ;U_H] = 0$.
 \end{lemma}
 
 \begin{proof}\uses{sym-group, sym-zero}\leanok
-Take $H$ to be the symmetry group of $X$, which is a group by Lemma \ref{sym-group}. From Lemma \ref{sym-zero}, $X-x_0$ is uniform on $H$, and $d[X;X-x_0] = d[X;X] \leq 0$, and the claim follows.
+Take $H$ to be the symmetry group of $X$, which is a group by Lemma \ref{sym-group}. From Lemma \ref{sym-zero}, $X-x_0$ is uniform on $H$, and $d[X ;X-x_0] = d[X ;X] \leq 0$, and the claim follows.
 \end{proof}
 
 \begin{corollary}[General 100\% inverse theorem]\label{lem:100pc}
