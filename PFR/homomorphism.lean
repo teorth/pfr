@@ -105,10 +105,31 @@ lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : Ad
     Function.bijective_iff_has_inverse.mpr (Exists.intro bij_inv (And.intro h_leftinv h_rightinv))
   rw [← Nat.card_eq_of_bijective bij h_bij, Nat.card_prod H₀ H₁]
 
-lemma Nat.card_image_le {α β: Type*} {s : Set α} {f : α → β} (hs : s.Finite) :
-    Nat.card (f '' s) ≤ Nat.card s := by
-  simp only [Set.Nat.card_coe_set_eq]
-  exact Set.ncard_image_le hs
+
+-- lemma Nat.card_image_le {α β: Type*} {s : Set α} {f : α → β} (hs : s.Finite) :
+--     Nat.card (f '' s) ≤ Nat.card s := by
+--   simp only [Set.Nat.card_coe_set_eq]
+--   exact Set.ncard_image_le hs
+
+-- @[to_additive]
+-- lemma Nat.card_inv [Group G] (S : Set G) : Nat.card (S⁻¹ : Set G) = Nat.card S := by
+--   rw [←Set.image_inv]
+--   apply Set.nat_card_image_of_injective
+--   · exact inv_injective
+--   · exact Set.toFinite S
+
+-- @[simp]
+-- lemma Nat.card_singleton_prod {α β : Type*} (a : α) (B : Set β) : Nat.card ({a} ×ˢ B) = Nat.card B := by
+--   by_cases hB : Set.Finite B
+--   · rw[Set.singleton_prod, Set.nat_card_image_of_injective (Prod.mk.inj_left a) hB]
+--   · rw[Set.Infinite.card_eq_zero hB, Set.Infinite.card_eq_zero <| Set.Infinite.prod_right hB ⟨a,by rfl⟩]
+
+-- @[simp]
+-- lemma Nat.card_prod_singleton {α β : Type*} (A : Set α) (b : β) : Nat.card (A ×ˢ {b}) = Nat.card A := by
+--   by_cases hA : Set.Finite A
+--   · rw[Set.prod_singleton, Set.nat_card_image_of_injective (Prod.mk.inj_right b) hA]
+--   · rw[Set.Infinite.card_eq_zero hA, Set.Infinite.card_eq_zero <| Set.Infinite.prod_left hA ⟨b,by rfl⟩]
+
 
 @[to_additive]
 lemma Nat.card_inv [Group G] (S : Set G) : Nat.card (S⁻¹ : Set G) = Nat.card S := by
@@ -116,18 +137,6 @@ lemma Nat.card_inv [Group G] (S : Set G) : Nat.card (S⁻¹ : Set G) = Nat.card 
   apply Set.nat_card_image_of_injective
   · exact inv_injective
   · exact Set.toFinite S
-
-@[simp]
-lemma Nat.card_singleton_prod {α β : Type*} (a : α) (B : Set β) : Nat.card ({a} ×ˢ B) = Nat.card B := by
-  by_cases hB : Set.Finite B
-  · rw[Set.singleton_prod, Set.nat_card_image_of_injective (Prod.mk.inj_left a) hB]
-  · rw[Set.Infinite.card_eq_zero hB, Set.Infinite.card_eq_zero <| Set.Infinite.prod_right hB ⟨a,by rfl⟩]
-
-@[simp]
-lemma Nat.card_prod_singleton {α β : Type*} (A : Set α) (b : β) : Nat.card (A ×ˢ {b}) = Nat.card A := by
-  by_cases hA : Set.Finite A
-  · rw[Set.prod_singleton, Set.nat_card_image_of_injective (Prod.mk.inj_right b) hA]
-  · rw[Set.Infinite.card_eq_zero hA, Set.Infinite.card_eq_zero <| Set.Infinite.prod_left hA ⟨b,by rfl⟩]
 
 open Set Fintype in
 -- variable [DecidableEq G] [DecidableEq G'] in
