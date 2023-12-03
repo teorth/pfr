@@ -1,7 +1,6 @@
 import Mathlib.Probability.Notation
-import PFR.main
 import PFR.homomorphism
-
+import PFR.ForMathlib.MeasureReal
 
 section PFR
 
@@ -28,7 +27,29 @@ end PFR
 
 
 section RealMeasure
--- some examples to showcase real-valued measures in a self-contained fashion?
+-- some examples to showcase real-valued measures in a self-contained fashion
+
+open MeasureTheory ProbabilityTheory BigOperators
+
+variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+
+/-- The probability measure ℙ, but taking values in the reals. -/
+local notation3 "ℙᵣ" => (ℙ : Measure Ω).real
+
+example : ℙᵣ Set.univ = 1 := by simp
+
+example {A : Type*} [Fintype A] (E : A → Set Ω) : ℙᵣ (⋃ a, E a) ≤ ∑ a, ℙᵣ (E a) :=
+  measureReal_iUnion_fintype_le E
+
+example {A : Type*} [Fintype A] (E : A → Set Ω)   (hn : Pairwise (Disjoint on E)) (h : ∀ i, MeasurableSet (E i))
+: ℙᵣ (⋃ a, E a) = ∑ a, ℙᵣ (E a) :=
+  measureReal_iUnion_fintype hn h
+
+/-- A simple example of applying real-valued subtraction. -/
+example (E F : Set Ω) (h : NullMeasurableSet F ℙ)
+ : ℙᵣ (E ∩ F) = ℙᵣ E - ℙᵣ (E \ F) := by
+  rw [<-measureReal_inter_add_diff₀ E h]
+  ring
 
 end RealMeasure
 
