@@ -56,8 +56,8 @@ lemma rdist_of_sums_ge' : d[X₁ + X₁' # X₂ + X₂'] ≥ k - η * (d[X₁ # 
   refine' LE.le.ge (LE.le.trans _ (distance_ge_of_min p h_min (hX₁.add hX₁') (hX₂.add hX₂')))
   rw [sub_sub, sub_le_sub_iff_left k, ← mul_add,mul_div_assoc]
   refine' mul_le_mul_of_nonneg_left _ (by rw [η]; positivity)
-  have h₁' := condDist_diff_le' ℙ p.hmeas1 hX₁ hX₁' (h_indep.indepFun (show 0 ≠ 2 by decide))
-  have h₂' := condDist_diff_le' ℙ p.hmeas2 hX₂ hX₂' (h_indep.indepFun (show 1 ≠ 3 by decide))
+  have h₁' := condRuzsaDist_diff_le' ℙ p.hmeas1 hX₁ hX₁' (h_indep.indepFun (show 0 ≠ 2 by decide))
+  have h₂' := condRuzsaDist_diff_le' ℙ p.hmeas2 hX₂ hX₂' (h_indep.indepFun (show 1 ≠ 3 by decide))
   rw [h₁.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁] at h₁'
   rw [h₂.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂] at h₂'
   linarith
@@ -79,9 +79,9 @@ lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (
   rw [← h₂.rdist_eq h₁, rdist_symm, rdist_symm (X:= X₂ + X₂'),
     condRuzsaDist_symm (Z := X₂ + X₂') (W := X₁ + X₁') hX₂ (hX₂.add hX₂') hX₁ (hX₁.add hX₁'),
     add_comm X₂ X₁, add_right_comm _ X₂', ← two_mul] at h
-  have h' := condDistance_ge_of_min p h_min hX₁ hX₂ (X₁ + X₁') (X₂ + X₂') (hX₁.add hX₁') (hX₂.add hX₂')
-  have h₁' := condDist_diff_le''' ℙ p.hmeas1 hX₁ hX₁' hX₁_indep
-  have h₂' := condDist_diff_le''' ℙ p.hmeas2 hX₂ hX₂' hX₂_indep
+  have h' := condRuzsaDistance_ge_of_min p h_min hX₁ hX₂ (X₁ + X₁') (X₂ + X₂') (hX₁.add hX₁') (hX₂.add hX₂')
+  have h₁' := condRuzsaDist_diff_le''' ℙ p.hmeas1 hX₁ hX₁' hX₁_indep
+  have h₂' := condRuzsaDist_diff_le''' ℙ p.hmeas2 hX₂ hX₂' hX₂_indep
   rw [h₁.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁] at h₁'
   rw [h₂.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂] at h₂'
   have h'' : I₂ ≤ η * (d[X₁ # X₁] + d[X₂ # X₂]) := by

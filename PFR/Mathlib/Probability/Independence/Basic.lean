@@ -104,3 +104,19 @@ theorem IndepFun.measureReal_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
   rw [measureReal_def, h.measure_inter_preimage_eq_mul hs ht, ENNReal.toReal_mul]; rfl
 
 end
+
+variable {Ω' : Type*} [MeasurableSpace Ω'] [MeasurableSpace α] [MeasurableSpace β]
+
+/-- Random variables are always independent of constants. -/
+lemma indepFun_const [IsProbabilityMeasure μ] (c : α) : IndepFun f (fun _ => c) μ := by
+  rw [IndepFun_iff, MeasurableSpace.comap_const]
+  intro t₁ t₂ _ ht₂
+  rcases MeasurableSpace.measurableSet_bot_iff.mp ht₂ with h | h
+  all_goals simp [h]
+
+lemma indepFun_fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
+  rw [@IndepFun_iff]
+  rintro _ _ ⟨t1, _, rfl⟩ ⟨t1, _, rfl⟩
+  simp [←Set.prod_univ, ←Set.univ_prod, Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ,
+    Set.univ_inter, Measure.prod_prod, measure_univ, mul_one, one_mul]

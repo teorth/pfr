@@ -112,7 +112,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{lemma}[Conditional entropy and relabeling]\label{relabeled-entropy-cond}
   \uses{conditional-entropy-def}
-  \lean{ProbabilityTheory.condEntropy_comp_of_injective, ProbabilityTheory.condEntropy_of_inj_map'}\leanok
+  \lean{ProbabilityTheory.condEntropy_comp_of_injective, ProbabilityTheory.condEntropy_of_injective'}\leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $\bbH[X|Z] = \bbH[Y|Z]$.
 
   Similarly, if $g: T \to U$ is injective, then $\bbH[X|g(Y)] = \bbH[X|Y]$.

@@ -84,13 +84,13 @@ lemma condRuzsaDist_of_sums_ge :
     d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] ≥
       k - η * (d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁])
         - η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
-  condDistance_ge_of_min _ h_min hX₁ hX₂ _ _ (by measurability) (by measurability)
+  condRuzsaDistance_ge_of_min _ h_min hX₁ hX₂ _ _ (by measurability) (by measurability)
 
 /-- $$d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} \bbH[X_2] - \tfrac{1}{4} \bbH[X_1].$$ -/
 lemma diff_rdist_le_1 : d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
   have h : IndepFun X₁ X₂'
   · simpa using h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide)
-  convert condDist_diff_le' ℙ p.hmeas1 hX₁ hX₂' h using 4
+  convert condRuzsaDist_diff_le' ℙ p.hmeas1 hX₁ hX₂' h using 4
   · exact ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂
   · exact h₂.entropy_eq
 
@@ -98,7 +98,7 @@ lemma diff_rdist_le_1 : d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/
 lemma diff_rdist_le_2 : d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/2 + H[X₁]/4 - H[X₂]/4 := by
   have h : IndepFun X₂ X₁'
   · simpa using h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide)
-  convert condDist_diff_le' ℙ p.hmeas2 hX₂ hX₁' h using 4
+  convert condRuzsaDist_diff_le' ℙ p.hmeas2 hX₂ hX₁' h using 4
   · rw [rdist_symm]
     exact (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁
   · exact h₁.entropy_eq
@@ -108,7 +108,7 @@ lemma diff_rdist_le_2 : d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/
 lemma diff_rdist_le_3 : d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₁]/4 - H[X₂]/4 := by
   have h : IndepFun X₁ X₂'
   · simpa using h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide)
-  convert condDist_diff_le''' ℙ p.hmeas1 hX₁ hX₂' h using 3
+  convert condRuzsaDist_diff_le''' ℙ p.hmeas1 hX₁ hX₂' h using 3
   · rw [(IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
   · apply h₂.entropy_eq
 
@@ -117,7 +117,7 @@ lemma diff_rdist_le_3 : d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁]
 lemma diff_rdist_le_4 : d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
   have h : IndepFun X₂ X₁'
   · simpa using h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide)
-  convert condDist_diff_le''' ℙ p.hmeas2 hX₂ hX₁' h using 3
+  convert condRuzsaDist_diff_le''' ℙ p.hmeas2 hX₂ hX₁' h using 3
   · rw [rdist_symm, (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁]
   · apply h₁.entropy_eq
 

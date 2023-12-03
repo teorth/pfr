@@ -3,7 +3,7 @@ import PFR.ForMathlib.MeasureReal
 import PFR.Mathlib.Analysis.Convex.Topology
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
-import PFR.Tactic.Finiteness.Basic
+import PFR.Tactic.Finiteness
 
 /-!
 # Compactness of the space of probability measures

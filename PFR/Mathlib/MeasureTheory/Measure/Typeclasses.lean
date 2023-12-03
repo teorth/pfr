@@ -1,4 +1,5 @@
 import Mathlib.MeasureTheory.Measure.Typeclasses
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
 
 open Function MeasureTheory Measure
 
@@ -21,3 +22,14 @@ lemma isProbabilityMeasure_comap (hf : Injective f) (hf' : ∀ᵐ a ∂μ, ∃ b
     rw [comap_apply _ hf hf'' _ MeasurableSet.univ,
       ←mem_ae_iff_apply_eq_one (hf'' _ MeasurableSet.univ)]
     simpa
+
+instance isProbabilityMeasure_map_up [IsProbabilityMeasure μ] :
+    IsProbabilityMeasure (μ.map ULift.up) := isProbabilityMeasure_map measurable_up.aemeasurable
+
+instance isProbabilityMeasure_comap_down [IsProbabilityMeasure μ] :
+    IsProbabilityMeasure (μ.comap ULift.down) := by
+  refine isProbabilityMeasure_comap ?_ ?_ $ by
+    rintro s hs
+    change MeasurableSet (ULift.down ⁻¹' (ULift.down '' s))
+    rwa [Set.preimage_image_eq _ ULift.down_injective]
+  all_goals simp [ULift.down_injective]

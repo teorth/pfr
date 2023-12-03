@@ -313,7 +313,7 @@ lemma sum_dist_diff_le :
 
   have aux2 : d[X₀₁ # U | U + (X₁' + X₂')] - d[X₀₁ # X₁]
             ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₁] - H[X₁' + X₂']) / 2 :=
-    condDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂)
+    condRuzsaDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂)
     (hZ' := Measurable.add hX₁' hX₂') independenceCondition1
 
   have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by
@@ -426,7 +426,7 @@ lemma construct_good_prelim :
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum,
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
-    linarith [condDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
+    linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
 
   have h3 : η * sum3 ≤ η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
   · have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂]
@@ -434,7 +434,7 @@ lemma construct_good_prelim :
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum,
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
-    linarith [condDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
+    linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
 
   have h4 : sum4 ≤ δ + η * c[T₁ # T₂] + η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2
   · have : sum4 = sum1 + η * (sum2 + sum3)
