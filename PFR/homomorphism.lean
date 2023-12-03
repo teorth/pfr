@@ -1,9 +1,8 @@
-import PFR.main
+import PFR.ForMathlib.Graph
+import PFR.Main
 import Mathlib.Data.Set.Card
-import Mathlib.Data.Set.Pointwise.Basic
 
 open Pointwise
-open scoped Pointwise
 
 variable {G G' : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [AddCommGroup G'] [ElementaryAddCommGroup G' 2] [Fintype G']
 
@@ -35,106 +34,89 @@ lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : Ad
   let H₁ := AddSubgroup.map π₂ (H ⊓ π₁.ker)
   have : ElementaryAddCommGroup H 2 := ElementaryAddCommGroup.subgroup H
   have : ElementaryAddCommGroup H₀ 2 := ElementaryAddCommGroup.subgroup H₀
-  let ι := ElementaryAddCommGroup.linearMap p₁
-  obtain ⟨ φ', hφ' ⟩ := LinearMap.exists_rightInverse_of_surjective ι
+  let p₁' := ElementaryAddCommGroup.linearMap p₁
+  obtain ⟨ φ', hφ' ⟩ := LinearMap.exists_rightInverse_of_surjective p₁'
     (LinearMap.range_eq_top.mpr (AddMonoidHom.addSubgroupMap_surjective π₁ H))
   obtain ⟨ φ, hφ ⟩ := hahn_banach H₀ ((π₂.restrict H).comp φ'.toAddMonoidHom)
 
-  have h_bij : ∀ x : G × G', x ∈ H ↔ (x.1 ∈ H₀ ∧ x.2 - φ x.1 ∈ H₁) := by
+  let bij (x : H) : G × G' := (x.val.1, x.val.2 - φ x.val.1)
+  let bij_inv (x : H₀ × H₁) : G × G' := (x.1.val, φ x.1.val + x.2.val)
+  have h_bij' : ∀ x : G × G', x ∈ H ↔ (x.1 ∈ H₀ ∧ x.2 - φ x.1 ∈ H₁) := by
     intro x
     constructor
 
     intro hx
+    let x₁ : H₀ := ⟨ x.1, AddSubgroup.mem_map_of_mem π₁ hx ⟩
+    let x₂ : H := { val := x, property := hx } - (φ' x₁)
+    have h_ker : x₂.val ∈ π₁.ker := by
+      show π₁ x - p₁'.comp φ' x₁ = 0
+      rw [sub_eq_zero, hφ', show LinearMap.id x₁ = π₁ x from rfl]
     constructor
-    exact AddSubgroup.mem_map_of_mem π₁ hx
-    let x₁ : H₀ := { val := x.1, property := AddSubgroup.mem_map_of_mem π₁ hx }
+    exact AddSubgroup.mem_map_of_mem (K := H) π₁ hx
     rw [← hφ x₁]
-    let x' : H := { val := x, property := hx } - (φ' x₁)
-    have h_ker : x'.val ∈ π₁.ker := by
-      show π₁ x - ι.comp φ' x₁ = 0
-      rw [hφ', sub_eq_zero, show LinearMap.id x₁ = π₁ x from rfl]
-    exact AddSubgroup.mem_map_of_mem (K := H ⊓ π₁.ker) π₂ (Set.mem_inter x'.property h_ker)
+    exact AddSubgroup.mem_map_of_mem (K := H ⊓ π₁.ker) π₂ (Set.mem_inter x₂.property h_ker)
 
     intro hx
-    let x1 : H₀ := { val := x.1, property := hx.1 }
-    let x2 : H₁ := { val := x.2 - φ x1, property := hx.2 }
-    let y : H := φ'.toAddMonoidHom x1
-    let z : G × G' := ((0 : G), x.2 - φ x1)
-    have h_z : z ∈ H := by
-      obtain ⟨ g, hg ⟩ := Set.Nonempty.preimage (Set.singleton_nonempty x2)
+    let x₁ : H₀ := ⟨ x.1, hx.left ⟩
+    let x₂ : H₁ := ⟨ x.2 - φ x₁, hx.right ⟩
+    let xₗ : H := φ' x₁
+    let xᵣ : G × G' := (0, x₂.val)
+    have hxₗ : xₗ.val = (x.1, φ x₁) := by
+      have hx₁ : xₗ.val.1 = x.1 := by
+        rw [show xₗ.val.1 = p₁'.comp φ' x₁ from rfl, hφ', show LinearMap.id x₁ = x.1 from rfl]
+      exact Prod.ext hx₁ (hφ x₁)
+    have hxᵣ : xᵣ ∈ H := by
+      obtain ⟨ g, hg ⟩ := Set.Nonempty.preimage (Set.singleton_nonempty x₂)
         (AddMonoidHom.addSubgroupMap_surjective π₂ (H ⊓ π₁.ker))
       have h_ker : g.val ∈ H ∧ g.val ∈ π₁.ker := AddSubgroup.mem_inf.mp g.property
-      have h_gz1 : g.val.1 = z.1 := (AddMonoidHom.mem_ker π₁).mp h_ker.right
-      have h_gz2 : g.val.2 = z.2 := by { show p₂ g = x2.val ; rw [← hg]}
-      rw [← Prod.ext h_gz1 h_gz2]
+      have hg₁ : g.val.1 = xᵣ.1 := (AddMonoidHom.mem_ker π₁).mp h_ker.right
+      have hg₂ : g.val.2 = xᵣ.2 := by { show (p₂ g).val = x₂.val ; rw [← hg] }
+      rw [← Prod.ext hg₁ hg₂]
       exact h_ker.left
-    let z : H := { val := z, property := h_z }
-    have h_y : y.val = (x.1, φ x1) := by
-      have h_1 : y.val.1 = x.1 := by
-        rw [show y.val.1 = ι.comp φ' x1 from rfl, hφ', show LinearMap.id x1 = x.1 from rfl]
-      exact Prod.ext h_1 (hφ x1)
-    have h_xw : x = y.val + z.val := by
-      rw [h_y, show z.val = ((0 : G), x.2 - φ x1) from rfl, Prod.mk_add_mk, add_zero,
-        ← add_sub_assoc, add_comm, add_sub_assoc, sub_self, add_zero]
-    rw [h_xw]
-    exact (y + z).property
+    let xᵣ : H := ⟨ xᵣ, hxᵣ ⟩
+    have hx : x = xₗ.val + xᵣ.val := by
+      rw [hxₗ, show xᵣ = _ from rfl, Prod.mk_add_mk, add_zero, ← add_comm_sub, sub_self, zero_add]
+    rw [hx]
+    exact (xₗ + xᵣ).property
+
+  have h_bij_prop (x : H) : (bij x).1 ∈ H₀ ∧ (bij x).2 ∈ H₁ := (h_bij' x.val).mp x.property
+  let bij (x : H) : H₀ × H₁ := (⟨ (bij x).1, (h_bij_prop x).1 ⟩, ⟨ (bij x).2, (h_bij_prop x).2 ⟩)
+  have h_bij_inv_prop (x : H₀ × H₁) : bij_inv x ∈ H := (h_bij' (bij_inv x)).mpr
+    ⟨ x.1.property, by simp only [x.2.property, add_comm, add_sub_assoc, sub_self, add_zero] ⟩
+  let bij_inv (x : H₀ × H₁) : H := ⟨ bij_inv x, h_bij_inv_prop x ⟩
+  have h_leftinv : Function.LeftInverse bij_inv bij := fun _ ↦ by
+    simp_rw [← add_comm_sub, sub_self, zero_add]
+  have h_rightinv : Function.RightInverse bij_inv bij := fun _ ↦ by
+    simp_rw [add_comm, add_sub_assoc, sub_self, add_zero]
+  have h_bij : Function.Bijective bij :=
+    Function.bijective_iff_has_inverse.mpr ⟨ bij_inv, ⟨ h_leftinv, h_rightinv ⟩ ⟩
 
   use H₀, H₁, φ
   constructor
-  exact h_bij
-
-  have h_bij_prop (x : H₀ × H₁) : (x.1.val, φ x.1.val + x.2.val) ∈ H := by
-    have h_x2 : φ x.1.val + x.2.val - φ x.1.val ∈ H₁ := by
-      rw [add_comm, add_sub_assoc, sub_self, add_zero]
-      exact x.2.property
-    exact (h_bij (x.1.val, φ x.1.val + x.2.val)).mpr (And.intro x.1.property h_x2)
-  let bij (x : H₀ × H₁) : H := { val := (x.1.val, φ x.1.val + x.2.val), property := h_bij_prop x }
-  have h_bij_inv_prop (x : H) : x.val.1 ∈ H₀ ∧ x.val.2 - φ x.val.1 ∈ H₁ :=
-    (h_bij x.val).mp x.property
-  let bij_inv (x : H) : H₀ × H₁ := (
-    { val := x.val.1, property := (h_bij_inv_prop x).1 },
-    { val := x.val.2 - φ x.val.1, property := (h_bij_inv_prop x).2 }
-  )
-  have h_leftinv : Function.LeftInverse bij_inv bij := by
-    intro x
-    simp_rw [add_comm, add_sub_assoc, sub_self, add_zero]
-  have h_rightinv : Function.RightInverse bij_inv bij := by
-    intro x
-    simp_rw [← add_comm_sub, sub_self, zero_add]
-  have h_bij : Function.Bijective bij :=
-    Function.bijective_iff_has_inverse.mpr (Exists.intro bij_inv (And.intro h_leftinv h_rightinv))
-  rw [← Nat.card_eq_of_bijective bij h_bij, Nat.card_prod H₀ H₁]
+  exact h_bij'
+  rw [Nat.card_eq_of_bijective bij h_bij, Nat.card_prod H₀ H₁]
 
 
--- lemma Nat.card_image_le {α β: Type*} {s : Set α} {f : α → β} (hs : s.Finite) :
---     Nat.card (f '' s) ≤ Nat.card s := by
---   simp only [Set.Nat.card_coe_set_eq]
---   exact Set.ncard_image_le hs
+/- TODO: Find an appropriate home for these lemmas -/
+lemma Nat.card_image_le {α β: Type*} {s : Set α} {f : α → β} (hs : s.Finite) :
+    Nat.card (f '' s) ≤ Nat.card s := by
+  simp only [Set.Nat.card_coe_set_eq]
+  exact Set.ncard_image_le hs
 
--- @[to_additive]
--- lemma Nat.card_inv [Group G] (S : Set G) : Nat.card (S⁻¹ : Set G) = Nat.card S := by
---   rw [←Set.image_inv]
---   apply Set.nat_card_image_of_injective
---   · exact inv_injective
---   · exact Set.toFinite S
+lemma Nat.card_singleton_prod {α β : Type*} (a : α) (B : Set β) : Nat.card ({a} ×ˢ B) = Nat.card B := by
+  by_cases hB : Set.Finite B
+  · rw[Set.singleton_prod, Nat.card_image_of_injective (Prod.mk.inj_left a) hB]
+  · rw[Set.Infinite.card_eq_zero hB, Set.Infinite.card_eq_zero <| Set.Infinite.prod_right hB ⟨a,by rfl⟩]
 
--- @[simp]
--- lemma Nat.card_singleton_prod {α β : Type*} (a : α) (B : Set β) : Nat.card ({a} ×ˢ B) = Nat.card B := by
---   by_cases hB : Set.Finite B
---   · rw[Set.singleton_prod, Set.nat_card_image_of_injective (Prod.mk.inj_left a) hB]
---   · rw[Set.Infinite.card_eq_zero hB, Set.Infinite.card_eq_zero <| Set.Infinite.prod_right hB ⟨a,by rfl⟩]
-
--- @[simp]
--- lemma Nat.card_prod_singleton {α β : Type*} (A : Set α) (b : β) : Nat.card (A ×ˢ {b}) = Nat.card A := by
---   by_cases hA : Set.Finite A
---   · rw[Set.prod_singleton, Set.nat_card_image_of_injective (Prod.mk.inj_right b) hA]
---   · rw[Set.Infinite.card_eq_zero hA, Set.Infinite.card_eq_zero <| Set.Infinite.prod_left hA ⟨b,by rfl⟩]
-
+lemma Nat.card_prod_singleton {α β : Type*} (A : Set α) (b : β) : Nat.card (A ×ˢ {b}) = Nat.card A := by
+  by_cases hA : Set.Finite A
+  · rw[Set.prod_singleton, Nat.card_image_of_injective (Prod.mk.inj_right b) hA]
+  · rw[Set.Infinite.card_eq_zero hA, Set.Infinite.card_eq_zero <| Set.Infinite.prod_left hA ⟨b,by rfl⟩]
 
 @[to_additive]
 lemma Nat.card_inv [Group G] (S : Set G) : Nat.card (S⁻¹ : Set G) = Nat.card S := by
   rw [←Set.image_inv]
-  apply Set.nat_card_image_of_injective
+  apply Nat.card_image_of_injective
   · exact inv_injective
   · exact Set.toFinite S
 

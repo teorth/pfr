@@ -8,7 +8,7 @@ open MeasureTheory
 
 attribute [coe] Lean.Internal.coeM
 
-/-- A technical lemma to compare the internal Lean set coercion with what Subtype.val produces.  Thanks to Patrick Massot for code. --/
+/-- A technical lemma to compare the internal Lean set coercion with what Subtype.val produces.  Thanks to Patrick Massot for code. -/
 lemma set_coerce {X : Type*} {E : Set X} {F : Set E} : (Subtype.val '' F) = (F : Set X) := by
   dsimp [Lean.Internal.coeM]
   ext x
@@ -21,7 +21,7 @@ lemma set_coerce {X : Type*} {E : Set X} {F : Set E} : (Subtype.val '' F) = (F :
     use ⟨x, xE⟩
 
 /-- The restricted measure on a subset agrees with the original measure. -/
-lemma measure_restrict {X : Type*} [hX: MeasureTheory.MeasureSpace X] {E : Set X} (hE: MeasurableSet E) {F : Set E} (hF : MeasurableSet
+lemma measure_restrict {X : Type*} [hX : MeasureTheory.MeasureSpace X] {E : Set X} (hE: MeasurableSet E) {F : Set E} (hF : MeasurableSet
 F) : MeasureTheory.MeasureSpace.volume F = MeasureTheory.MeasureSpace.volume (F : Set X) := by
   rw [← set_coerce]
   dsimp [SetCoe.measureSpace]
