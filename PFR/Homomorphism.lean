@@ -113,13 +113,6 @@ lemma Nat.card_prod_singleton {α β : Type*} (A : Set α) (b : β) : Nat.card (
   · rw[Set.prod_singleton, Nat.card_image_of_injective (Prod.mk.inj_right b) hA]
   · rw[Set.Infinite.card_eq_zero hA, Set.Infinite.card_eq_zero <| Set.Infinite.prod_left hA ⟨b,by rfl⟩]
 
-@[to_additive]
-lemma Nat.card_inv [Group G] (S : Set G) : Nat.card (S⁻¹ : Set G) = Nat.card S := by
-  rw [←Set.image_inv]
-  apply Nat.card_image_of_injective
-  · exact inv_injective
-  · exact Set.toFinite S
-
 open Set Fintype in
 -- variable [DecidableEq G] [DecidableEq G'] in
 /-- Let $f: G \to G'$ be a function, and let $S$ denote the set
@@ -131,26 +124,25 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
   classical
   let A := graph f
 
-  let B := A + ({0}×ˢ(-S))
+  let B := A - {0}×ˢS
 
   have hAB : A + A ⊆ B
   · intro x hx
     obtain ⟨a, a', ha, ha', haa'⟩ := Set.mem_add.mp hx
     simp at ha ha'
-    rw [Set.mem_add]
-    refine ⟨(x.1, f x.1), (0, -f (a.1 + a'.1) + f a.1 + f a'.1), ?_, ?_⟩
+    rw [Set.mem_sub]
+    refine ⟨(x.1, f x.1), (0, f (a.1 + a'.1) - f a.1 - f a'.1), ?_, ?_⟩
     · simp
     · simp only [singleton_prod, mem_image, mem_neg,
-      Prod.mk.injEq, true_and, exists_eq_right, Prod.mk_add_mk,
-      add_zero]
+      Prod.mk.injEq, true_and, exists_eq_right, Prod.mk_sub_mk,
+      sub_zero]
       constructor
-      · convert hS a.1 a'.1 using 1
-        abel
-      rw [←Prod.fst_add, ha, ha', add_assoc, ←Prod.snd_add, haa', ←add_assoc, add_neg_self, zero_add]
+      · apply hS
+      rw [←Prod.fst_add, ha, ha', sub_sub, ←Prod.snd_add, haa', ←sub_add, sub_self, zero_add]
 
   have hB_card : Nat.card B ≤ Nat.card S * Nat.card A
   · rw [mul_comm]
-    simpa only [Nat.card_singleton_prod, Nat.card_neg] using (Nat.card_add_le A ({0} ×ˢ (-S)))
+    simpa only [Nat.card_singleton_prod, Nat.card_neg] using (Nat.card_sub_le A ({0} ×ˢ S))
 
   have hA_le : Nat.card ((A:Set (G×G'))+(A:Set (G×G'))) ≤ (Nat.card S:ℝ) * Nat.card A
   · norm_cast

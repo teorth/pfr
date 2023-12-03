@@ -34,3 +34,16 @@ lemma Nat.card_mul_le {G : Type*} [Group G] (A B : Set G) :
   convert Finset.card_mul_le (s := Afin.toFinset) (t := Bfin.toFinset)
   ext z
   simp [← Finset.mem_coe]
+
+@[to_additive]
+lemma Nat.card_inv [Group G] (S : Set G) : Nat.card (S⁻¹ : Set G) = Nat.card S := by
+  by_cases hS : Set.Finite S
+  · rw [←Set.image_inv]
+    apply Nat.card_image_of_injective inv_injective hS
+  · rw[Set.Infinite.card_eq_zero hS, ←Set.image_inv, Set.Infinite.card_eq_zero]
+    apply Set.Infinite.image (inv_injective.injOn S) hS
+
+@[to_additive]
+lemma Nat.card_div_le [Group G] (A B : Set G) : Nat.card (A / B) ≤ Nat.card A * Nat.card B := by
+  rw[div_eq_mul_inv, ←Nat.card_inv B]
+  apply card_mul_le A (B⁻¹)
