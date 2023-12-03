@@ -1,7 +1,9 @@
-import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
-import PFR.ForMathlib.MeasureReal
-import PFR.ForMathlib.Finiteness
 import PFR.ForMathlib.FiniteMeasureComponent
+import PFR.ForMathlib.MeasureReal
+import PFR.Mathlib.Analysis.Convex.Topology
+import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
+import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+import PFR.Tactic.Finiteness.Basic
 
 /-!
 # Compactness of the space of probability measures
@@ -16,24 +18,46 @@ theorem which we don't have currently in mathlib.
 -/
 
 open MeasureTheory
+open scoped BigOperators Topology ENNReal NNReal BoundedContinuousFunction
 
-attribute [simp] lintegral_dirac
+variable {X : Type*} [MeasurableSpace X]
 
-open scoped BigOperators Topology
+section
 
-open scoped Topology ENNReal NNReal BoundedContinuousFunction
+variable [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X]
 
-variable (X : Type*) [Fintype X] [MeasurableSpace X]
+lemma continuous_pmf_apply' (i : X) :
+    Continuous fun μ : ProbabilityMeasure X ↦ (μ : Measure X).real {i} :=
+  continuous_probabilityMeasure_apply_of_isClopen (s := {i})
+    ⟨isOpen_discrete _, T1Space.t1 _⟩
 
-@[simp] lemma ProbabilityMeasure.coe_mk (μ : Measure X) (hμ : IsProbabilityMeasure μ) :
-  ((↑) : ProbabilityMeasure X → Measure X) (⟨μ, hμ⟩ : ProbabilityMeasure X) = μ := rfl
+lemma continuous_pmf_apply (i : X) :  Continuous fun μ : ProbabilityMeasure X ↦ μ {i} := by
+  -- KK: The coercion fight here is one reason why I now prefer ℝ-valued and not ℝ≥0-valued probas.
+  convert continuous_real_toNNReal.comp (continuous_pmf_apply' i)
+  ext
+  simp only [Measure.real, Function.comp_apply, Real.coe_toNNReal', ge_iff_le,
+             ENNReal.toReal_nonneg, max_eq_left]
+  rfl
 
-instance {X : Type*} [Fintype X] : CompactSpace (stdSimplex ℝ X) :=
-  isCompact_iff_compactSpace.mp (isCompact_stdSimplex X)
+-- KK: I will reuse this, so could be used in `probabilityMeasureHomeoStdSimplex`, too.
+open Filter in
+lemma tendsto_lintegral_of_forall_of_finite [Finite X] {ι : Type*} {L : Filter ι}
+    (μs : ι → Measure X) (μ : Measure X)
+    (f : X →ᵇ ℝ≥0) (h : ∀ (x : X), Tendsto (fun i ↦ μs i {x}) L (𝓝 (μ {x}))) :
+    Tendsto (fun i ↦ ∫⁻ x, f x ∂(μs i)) L (𝓝 (∫⁻ x, f x ∂μ)) := by
+  cases nonempty_fintype X
+  simp only [lintegral_fintype]
+  refine tendsto_finset_sum Finset.univ ?_
+  exact fun x _ ↦ ENNReal.Tendsto.const_mul (h x) (Or.inr ENNReal.coe_ne_top)
+
+end
+
+section Fintype
+variable [Fintype X]
 
 /-- The canonical bijection between the set of probability measures on a fintype and the set of
 nonnegative functions on the points adding up to one. -/
-noncomputable def equiv_probabilityMeasure_stdSimplex [MeasurableSingletonClass X] :
+noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingletonClass X] :
     ProbabilityMeasure X ≃ stdSimplex ℝ X where
   toFun := by
     intro μ
@@ -67,51 +91,21 @@ noncomputable def equiv_probabilityMeasure_stdSimplex [MeasurableSingletonClass 
     · intro b _ bi
       simp [bi]
 
-@[simp] lemma equiv_probabilityMeasure_stdSimplex_symm_coe_apply [MeasurableSingletonClass X]
+@[simp] lemma probabilityMeasureEquivStdSimplex_symm_coe_apply [MeasurableSingletonClass X]
     (p : stdSimplex ℝ X) :
-    ((equiv_probabilityMeasure_stdSimplex X).symm p : Measure X) =
+    (probabilityMeasureEquivStdSimplex.symm p : Measure X) =
        ∑ i, ENNReal.ofReal ((p : X → ℝ) i) • Measure.dirac i := rfl
 
-@[simp] lemma equiv_probabilityMeasure_stdSimplex_coe_apply [MeasurableSingletonClass X]
+@[simp] lemma probabilityMeasureEquivStdSimplex_coe_apply [MeasurableSingletonClass X]
     (μ : ProbabilityMeasure X) (i : X) :
-    ((equiv_probabilityMeasure_stdSimplex X) μ : X → ℝ) i = (μ {i}).toReal := rfl
+    (probabilityMeasureEquivStdSimplex μ : X → ℝ) i = (μ {i}).toReal := rfl
 
 variable [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X]
 
-variable {X}
-
-lemma continuous_pmf_apply' (i : X) :
-    Continuous (fun (μ : ProbabilityMeasure X) ↦ (μ : Measure X).real {i}) :=
-  continuous_probabilityMeasure_apply_of_isClopen (s := {i})
-    ⟨isOpen_discrete _, T1Space.t1 _⟩
-
-lemma continuous_pmf_apply (i : X) :
-    Continuous (fun (μ : ProbabilityMeasure X) ↦ μ {i}) := by
-  -- KK: The coercion fight here is one reason why I now prefer ℝ-valued and not ℝ≥0-valued probas.
-  convert continuous_real_toNNReal.comp (continuous_pmf_apply' i)
-  ext
-  simp only [Measure.real, Function.comp_apply, Real.coe_toNNReal', ge_iff_le,
-             ENNReal.toReal_nonneg, max_eq_left]
-  rfl
-
--- KK: I will reuse this, so could be used in `homeomorph_probabilityMeasure_stdSimplex`, too.
-open Filter in
-lemma tendsto_lintegral_of_forall_of_fintype {ι : Type*} {L : Filter ι}
-    (μs : ι → Measure X) (μ : Measure X)
-    (f : X →ᵇ ℝ≥0) (h : ∀ (x : X), Tendsto (fun i ↦ μs i {x}) L (𝓝 (μ {x}))) :
-    Tendsto (fun i ↦ ∫⁻ x, f x ∂(μs i)) L (𝓝 (∫⁻ x, f x ∂μ)) := by
-  simp only [lintegral_fintype]
-  refine tendsto_finset_sum Finset.univ ?_
-  exact fun x _ ↦ ENNReal.Tendsto.const_mul (h x) (Or.inr ENNReal.coe_ne_top)
-
-variable (X)
-
 /-- The canonical homeomorphism between the space of probability measures on a finite space and the
 standard simplex. -/
-noncomputable def homeomorph_probabilityMeasure_stdSimplex
-    [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X] :
-    ProbabilityMeasure X ≃ₜ stdSimplex ℝ X where
-  __ := equiv_probabilityMeasure_stdSimplex X
+noncomputable def probabilityMeasureHomeoStdSimplex : ProbabilityMeasure X ≃ₜ stdSimplex ℝ X where
+  __ := probabilityMeasureEquivStdSimplex
   continuous_toFun := by
     apply continuous_iff_continuousAt.2 (fun μ ↦ ?_)
     rw [ContinuousAt, tendsto_subtype_rng, tendsto_pi_nhds]
@@ -121,14 +115,19 @@ noncomputable def homeomorph_probabilityMeasure_stdSimplex
     apply continuous_iff_continuousAt.2 (fun p ↦ ?_)
     rw [ContinuousAt, ProbabilityMeasure.tendsto_iff_forall_lintegral_tendsto]
     intro f
-    simp only [Equiv.invFun_as_coe, equiv_probabilityMeasure_stdSimplex_symm_coe_apply,
+    simp only [Equiv.invFun_as_coe, probabilityMeasureEquivStdSimplex_symm_coe_apply,
       lintegral_finset_sum_measure, lintegral_smul_measure, lintegral_dirac]
     apply tendsto_finset_sum _ (fun i _hi ↦ ?_)
     apply ENNReal.Tendsto.mul_const (ENNReal.tendsto_ofReal _) (by simp)
     exact ((continuous_apply i).tendsto _).comp (continuous_subtype_val.tendsto _)
 
+end Fintype
+
+variable [TopologicalSpace X] [OpensMeasurableSpace X] [Finite X] [DiscreteTopology X]
+  [BorelSpace X]
+
 /-- This is still true when `X` is a metrizable compact space, but the proof requires Riesz
 representation theorem.
 TODO: remove once the general version is proved. -/
-instance : CompactSpace (ProbabilityMeasure X) :=
-  (homeomorph_probabilityMeasure_stdSimplex X).symm.compactSpace
+instance : CompactSpace (ProbabilityMeasure X) := by
+  cases nonempty_fintype X; exact probabilityMeasureHomeoStdSimplex.symm.compactSpace
