@@ -97,13 +97,12 @@ lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Finite G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := by
   have card_AA_pos : (0 : ℝ) < Nat.card (A + A) := by
-    have hn : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
-    have hf : Finite (A + A) := by exact Subtype.finite
-    simp only [Nat.cast_pos, Nat.card_pos_iff]
-    exact ⟨hn, hf⟩
+    have : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
+    have : Finite (A + A) := by exact Subtype.finite
+    simp [Nat.cast_pos, Nat.card_pos_iff]
   have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
     have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
-    simpa only [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
+    simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
 variable {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
