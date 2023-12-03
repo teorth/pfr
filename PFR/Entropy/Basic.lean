@@ -1070,9 +1070,9 @@ lemma independent_copies {X : Ω → S} {Y : Ω' → T} (hX : Measurable X) (hY 
   use Prod.snd
   refine ⟨inferInstance, measurable_fst, measurable_snd, IndepFun.fst_snd, ?_, ?_⟩
   · refine ⟨measurable_fst.aemeasurable, hX.aemeasurable, ?_⟩
-    simp? says simp only [Measure.map_fst_prod, measure_univ, one_smul]
+    simp? says simp only [map_fst_prod, measure_univ, one_smul]
   · refine ⟨measurable_snd.aemeasurable, hY.aemeasurable, ?_⟩
-    simp? says simp only [Measure.map_snd_prod, measure_univ, one_smul]
+    simp? says simp only [map_snd_prod, measure_univ, one_smul]
 
 /-- For $X, Y$ random variables, one can find independent copies $X', Y'$ of $X, Y$. Version
 formulated in spaces with a canonical measures. -/
