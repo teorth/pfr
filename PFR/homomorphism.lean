@@ -1,7 +1,9 @@
 import PFR.main
 import Mathlib.Data.Set.Card
+import Mathlib.Data.Set.Pointwise.Basic
 
 open Pointwise
+open scoped Pointwise
 
 variable {G G' : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [AddCommGroup G'] [ElementaryAddCommGroup G' 2] [Fintype G']
 
@@ -153,10 +155,28 @@ lemma graph_add {f : G →+ G'} {c : G × G'} : (c+·) '' graph f = {(g, f g + (
     abel_nf
 
 lemma Nat.card_image_le {α β: Type*} {s : Set α} {f : α → β} (hs : s.Finite) :
-    Nat.card (f '' s) ≤ Nat.card s:= sorry
+    Nat.card (f '' s) ≤ Nat.card s := by
+  simp only [Set.Nat.card_coe_set_eq]
+  exact Set.ncard_image_le hs
 
-lemma Set.card_prod (a b : Set G) : Nat.card (a ×ˢ b) = Nat.card a * Nat.card b := by
-  sorry
+@[to_additive]
+lemma Nat.card_inv [Group G] (S : Set G) : Nat.card (S⁻¹ : Set G) = Nat.card S := by
+  rw [←Set.image_inv]
+  apply Set.nat_card_image_of_injective
+  · exact inv_injective
+  · exact Set.toFinite S
+
+@[simp]
+lemma Nat.card_singleton_prod {α β : Type*} (a : α) (B : Set β) : Nat.card ({a} ×ˢ B) = Nat.card B := by
+  by_cases hB : Set.Finite B
+  · rw[Set.singleton_prod, Set.nat_card_image_of_injective (Prod.mk.inj_left a) hB]
+  · rw[Set.Infinite.card_eq_zero hB, Set.Infinite.card_eq_zero <| Set.Infinite.prod_right hB ⟨a,by rfl⟩]
+
+@[simp]
+lemma Nat.card_prod_singleton {α β : Type*} (A : Set α) (b : β) : Nat.card (A ×ˢ {b}) = Nat.card A := by
+  by_cases hA : Set.Finite A
+  · rw[Set.prod_singleton, Set.nat_card_image_of_injective (Prod.mk.inj_right b) hA]
+  · rw[Set.Infinite.card_eq_zero hA, Set.Infinite.card_eq_zero <| Set.Infinite.prod_left hA ⟨b,by rfl⟩]
 
 #check PFR_conjecture
 open Set Fintype in
@@ -187,29 +207,13 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         abel
       rw [←Prod.fst_add, ha, ha', add_assoc, ←Prod.snd_add, haa', ←add_assoc, add_neg_self, zero_add]
 
-  have hS_neg : Nat.card (@Neg.neg (Set G') Set.neg S) = Nat.card S
-  · rw [←Set.image_neg]
-    apply Set.nat_card_image_of_injective
-    · exact neg_injective
-    · exact toFinite S
-
   have hB_card : Nat.card B ≤ Nat.card S * Nat.card A
   · rw [mul_comm]
-    have := Nat.card_add_le A ({0} ×ˢ (-S))
-    convert this using 2
-    · rw[Set.singleton_prod]
-      symm
-      rw[Set.nat_card_image_of_injective]
-      · exact hS_neg
-      · exact Prod.mk.inj_left 0
-      · exact toFinite (-S)
+    simpa only [Nat.card_singleton_prod, Nat.card_neg] using (Nat.card_add_le A ({0} ×ˢ (-S)))
 
   have hA_le : Nat.card ((A:Set (G×G'))+(A:Set (G×G'))) ≤ (Nat.card S:ℝ) * Nat.card A
   · norm_cast
-    trans Nat.card B
-    · apply Nat.card_mono _ hAB
-      exact toFinite B
-    exact hB_card
+    exact (Nat.card_mono (toFinite B) hAB).trans hB_card
 
   have hA_nonempty : A.Nonempty
   · use (0, f 0)
@@ -254,8 +258,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
   have : Nat.card H₁ ≤ 2*(Nat.card S : ℝ)^(12:ℝ)
   · calc
       (Nat.card H₁:ℝ) = (Nat.card H:ℝ) / Nat.card H₀ := by
-        rw [hH_card, Nat.cast_mul, mul_div_cancel_left]
-        simp
+        field_simp[hH_card, mul_comm]
       _ ≤ (Nat.card G : ℝ) / Nat.card H₀ := by
         gcongr
         rw[card_graph f] at hHA
@@ -277,6 +280,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         Prod.mk.injEq, true_and, exists_eq_right, hg.2]
     · simp only [mem_setOf_eq, Prod.mk.injEq, exists_eq_left, Prod.mk_add_mk, zero_add, true_and,
         sub_add_cancel]
+
   have hA_sub : A ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G})
   · calc
       A ⊆ c + (H : Set _) := hAcH
@@ -296,12 +300,11 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         norm_cast; apply Nat.card_image_le (toFinite _)
       _ ≤ Nat.card c * Nat.card H₁ := by
         norm_cast
-        rw[Set.singleton_prod]
         apply (Nat.card_add_le _ _).trans
-        gcongr
-        apply Nat.card_image_le (toFinite _)
+        rw[Nat.card_singleton_prod]
+        rfl
       _ ≤ (2 * (Nat.card S) ^(12:ℝ)) * (2 * (Nat.card S) ^(12:ℝ)) := by
-        gcongr;
+        gcongr
       _ ≤ _ := by
         ring_nf
         rw[sq, ←Real.rpow_add]
