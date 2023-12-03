@@ -106,6 +106,8 @@ lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : Ad
 
 def graph (f : G → G') : Set (G×G') := {(x, f x) | x : G}
 
+lemma graph_def (f : G → G') : graph f = {(x, f x) | x : G} := rfl
+
 lemma card_graph (f : G → G') : Nat.card (graph f) = Nat.card G := by
   apply Nat.card_congr ⟨fun p => p.1.1, fun x => ⟨⟨x, f x⟩, ⟨x, rfl⟩⟩,
       by rintro ⟨p, ⟨h, hh⟩⟩; simp[←hh],
@@ -122,11 +124,38 @@ lemma mem_graph {f : G → G'} (x : G × G') : x ∈ graph f ↔ f x.1 = x.2 := 
 lemma image_fst_graph {f : G → G'} : Prod.fst '' (graph f) = Set.univ := by
   ext x; simp
 
+@[simp]
+lemma image_snd_graph {f : G → G'} : Prod.snd '' (graph f) = f '' Set.univ := by
+  ext x; simp
+
+lemma graph_comp {A B C : Type*} {f : A → B} (g : B → C) :
+    graph (g ∘ f) = (fun p ↦ (p.1, g p.2)) '' graph f := by
+  ext x;
+  simp only [mem_graph, Function.comp_apply, Set.mem_image, Prod.exists, exists_eq_left']
+  constructor
+  · intro h
+    use x.1
+    rw [h]
+  · rintro ⟨x, rfl⟩; rfl
+
+lemma graph_add {f : G →+ G'} {c : G × G'} : (c+·) '' graph f = {(g, f g + (c.2 - f c.1)) | g : G} := by
+  ext x
+  simp only [Set.image_add_left, Set.mem_preimage, mem_graph,
+    Prod.fst_add, Prod.snd_add, Set.mem_setOf_eq, Prod.fst_neg, Prod.snd_neg, AddMonoidHom.map_add,
+    AddMonoidHom.map_neg]
+  constructor
+  · intro h
+    use x.1
+    rw[add_comm, sub_eq_add_neg, add_assoc, h]
+    convert show (x.1, x.2) = x from rfl
+    abel
+  · rintro ⟨g, rfl⟩;
+    abel_nf
 
 lemma Nat.card_image_le {α β: Type*} {s : Set α} {f : α → β} (hs : s.Finite) :
     Nat.card (f '' s) ≤ Nat.card s:= sorry
 
-example (a b : Set G) : Nat.card (a ×ˢ b) = Nat.card a * Nat.card b := by
+lemma Set.card_prod (a b : Set G) : Nat.card (a ×ˢ b) = Nat.card a * Nat.card b := by
   sorry
 
 #check PFR_conjecture
@@ -138,14 +167,11 @@ Then there exists a homomorphism $\phi: G \to G'$ such that
 $$ |\{ f(x) - \phi(x)\}| \leq 4 |S|^{24}.$$ -/
 theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) - (f x) - (f y) ∈ S):
   ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S:ℝ)^(24:ℝ) ∧ ∀ x : G, (f x) - (φ x) ∈ T := by
-  -- A = {(x, f x) | x ∈ G}
   classical
   let A := graph f
-  have hA_card : Nat.card ↑A = Nat.card G := card_graph f
-  save
-  let g (p : G × G') : G × G' := (p.1, f p.1 + p.2)
-  let B := A + ({0}×ˢ(-S))--{(x, f x - s) | (x : G) (s : G') (_:s ∈ S)}
-  --let B := g '' (Set.univ ×ˢ S)
+
+  let B := A + ({0}×ˢ(-S))
+
   have hAB : A + A ⊆ B
   · intro x hx
     obtain ⟨a, a', ha, ha', haa'⟩ := Set.mem_add.mp hx
@@ -161,12 +187,22 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         abel
       rw [←Prod.fst_add, ha, ha', add_assoc, ←Prod.snd_add, haa', ←add_assoc, add_neg_self, zero_add]
 
+  have hS_neg : Nat.card (@Neg.neg (Set G') Set.neg S) = Nat.card S
+  · rw [←Set.image_neg]
+    apply Set.nat_card_image_of_injective
+    · exact neg_injective
+    · exact toFinite S
+
   have hB_card : Nat.card B ≤ Nat.card S * Nat.card A
   · rw [mul_comm]
     have := Nat.card_add_le A ({0} ×ˢ (-S))
     convert this using 2
-    --rw [card_graph]
-    · sorry
+    · rw[Set.singleton_prod]
+      symm
+      rw[Set.nat_card_image_of_injective]
+      · exact hS_neg
+      · exact Prod.mk.inj_left 0
+      · exact toFinite (-S)
 
   have hA_le : Nat.card ((A:Set (G×G'))+(A:Set (G×G'))) ≤ (Nat.card S:ℝ) * Nat.card A
   · norm_cast
@@ -174,20 +210,21 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
     · apply Nat.card_mono _ hAB
       exact toFinite B
     exact hB_card
-  save
 
-  obtain ⟨H, c, hcS, hHA, hAcH⟩ := PFR_conjecture sorry hA_le
+  have hA_nonempty : A.Nonempty
+  · use (0, f 0)
+    exact ⟨0, rfl⟩
+
+  obtain ⟨H, c, hcS, hHA, hAcH⟩ := PFR_conjecture hA_nonempty hA_le
   obtain ⟨H₀, H₁, φ, hH₀₁, hH_card⟩ := goursat H
+
   let c' := (Prod.fst) '' c
   have hc'_card : Nat.card c' ≤ Nat.card c := Nat.card_image_le (toFinite c)
-    -- simp_rw [Nat.card_eq_fintype_card, Set.card_image_of_injective, Prod.snd_surjective]
-    -- simp only [Nat.card_eq_fintype_card, card_ofFinset, Finset.filter_congr_decidable,
-    -- Finset.mem_univ, forall_true_left, Prod.forall, ]
   have h_fstH : Prod.fst '' (H:Set (G × G')) = (H₀ : Set G)
   · ext x
     simp only [mem_image, SetLike.mem_coe, hH₀₁, Prod.exists,
       exists_and_right, exists_and_left, exists_eq_right, and_iff_left_iff_imp]
-    intro hx
+    intro _
     use φ x
     simp[AddSubgroup.zero_mem]
 
@@ -213,7 +250,6 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         gcongr
         apply hc'_card_real.trans
         apply hcS.le
-    -- apply (Nat.card_add_le _ _).trans
 
   have : Nat.card H₁ ≤ 2*(Nat.card S : ℝ)^(12:ℝ)
   · calc
@@ -229,7 +265,6 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         · apply hG_card_le
         simp[Nat.pos_iff_ne_zero]
 
-  use φ
   have : (H:Set (G×G')) ⊆ ({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G}
   · rintro ⟨g, g'⟩ hg
     rw [SetLike.mem_coe, hH₀₁] at hg
@@ -242,10 +277,43 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         Prod.mk.injEq, true_and, exists_eq_right, hg.2]
     · simp only [mem_setOf_eq, Prod.mk.injEq, exists_eq_left, Prod.mk_add_mk, zero_add, true_and,
         sub_add_cancel]
-  have : A ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G})
+  have hA_sub : A ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G})
   · calc
       A ⊆ c + (H : Set _) := hAcH
       _ ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G}) := add_subset_add_left this
+  rw[←add_assoc] at hA_sub
 
-  use (Prod.snd '' c) + (H₁ : Set G')
-  sorry
+  let T := (fun p ↦ p.2 - φ p.1) '' (c + {0} ×ˢ (H₁: Set G'))
+  have : A ⊆ ⋃ (c ∈ T), {(x, φ x + c) | x : G}
+  · convert hA_sub
+    rw[← Set.iUnion_add_left_image, ←graph_def]
+    simp_rw[graph_add, Set.biUnion_image]
+  use φ
+  use T
+  constructor
+  · calc
+      (Nat.card T:ℝ) ≤ Nat.card (c + {(0:G)} ×ˢ (H₁:Set G')) := by
+        norm_cast; apply Nat.card_image_le (toFinite _)
+      _ ≤ Nat.card c * Nat.card H₁ := by
+        norm_cast
+        rw[Set.singleton_prod]
+        apply (Nat.card_add_le _ _).trans
+        gcongr
+        apply Nat.card_image_le (toFinite _)
+      _ ≤ (2 * (Nat.card S) ^(12:ℝ)) * (2 * (Nat.card S) ^(12:ℝ)) := by
+        gcongr;
+      _ ≤ _ := by
+        ring_nf
+        rw[sq, ←Real.rpow_add]
+        · norm_num
+        · norm_cast
+          rw [Nat.card_pos_iff]
+          refine ⟨⟨_, hS 0 0⟩, Subtype.finite⟩
+  · intro g
+    specialize this (⟨g, rfl⟩ : (g, f g) ∈ A)
+    simp only [exists_eq_right, iUnion_exists, mem_iUnion, mem_setOf_eq,
+      Prod.mk.injEq, exists_eq_left, exists_prop, exists_and_right] at this
+    obtain ⟨t, ⟨ht, h⟩⟩ := this
+    rw[←h]
+    convert ht
+    abel
