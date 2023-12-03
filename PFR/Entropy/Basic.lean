@@ -758,7 +758,7 @@ variable {μ : Measure Ω}
 /-- $I[X : Y| Z]=0$ iff $X, Y$ are conditionally independent over $Z$. -/
 lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [IsProbabilityMeasure μ] [Fintype U] :
-    I[X : Y | Z ; μ] = 0 ↔ condIndepFun X Y Z μ := by
+    I[X : Y | Z ; μ] = 0 ↔ CondIndepFun X Y Z μ := by
   rw [condIndepFun_iff, condMutualInfo_eq_integral_mutualInfo, integral_eq_zero_iff_of_nonneg]
   . dsimp
     have : (fun x ↦ I[X : Y;μ[| Z ⁻¹' {x}]]) =ᵐ[μ.map Z] 0 ↔ ∀ᵐ z ∂(μ.map Z), I[X : Y ; μ[| Z ⁻¹' {z}]] = 0 := by rfl
@@ -782,7 +782,7 @@ lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measu
 
 /-- If $X, Y$ are conditionally independent over $Z$, then $H[X, Y, Z] = H[X, Z] + H[Y, Z] - H[Z]$. -/
 lemma ent_of_cond_indep (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-     (h : condIndepFun X Y Z μ) [IsProbabilityMeasure μ] :
+     (h : CondIndepFun X Y Z μ) [IsProbabilityMeasure μ] :
      H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨X, Z⟩; μ] + H[⟨Y, Z⟩; μ] - H[Z; μ] := by
   have hI : I[X : Y | Z ; μ] = 0 := (condMutualInfo_eq_zero hX hY hZ).mpr h
   rw [condMutualInfo_eq hX hY hZ] at hI

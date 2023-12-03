@@ -21,8 +21,7 @@ variable {μ : Measure α} {ν : Measure β} {f f' : α → γ} {g g' : β → �
 
 attribute [mk_iff] IdentDistrib
 
-lemma identDistrib_id_left {X : α → β} (hX : AEMeasurable X μ) :
-    IdentDistrib id X (μ.map X) μ where
+lemma identDistrib_id_left {X : α → β} (hX : AEMeasurable X μ) : IdentDistrib id X (μ.map X) μ where
   aemeasurable_fst := aemeasurable_id
   aemeasurable_snd := hX
   map_eq := by simp
@@ -55,17 +54,42 @@ protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (
     · exact (hfg.comp measurable_fst).aemeasurable_snd.mono_ac cond_absolutelyContinuous
     · exact (hfg.comp measurable_fst).aemeasurable_fst.mono_ac cond_absolutelyContinuous
 
+/-- A function is identically distributed to itself composed with a measurable embedding of conull
+range. -/
+lemma identDistrib_comp_left {i : δ → α} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂μ, a ∈ range i)
+    (hf : Measurable f) : IdentDistrib (f ∘ i) f (μ.comap i) μ where
+  aemeasurable_fst := (hf.comp hi.measurable).aemeasurable
+  aemeasurable_snd := hf.aemeasurable
+  map_eq := by rw [←Measure.map_map hf hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
+
+/-- A function is identically distributed to itself composed with a measurable embedding of conull
+range. -/
+lemma identDistrib_comp_right {i : δ → α} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂μ, a ∈ range i)
+    (hf : Measurable f) : IdentDistrib f (f ∘ i) μ (μ.comap i) :=
+  (identDistrib_comp_left hi hi' hf).symm
+
+-- TODO: Can we get rid of the measurability assumption in the following two?
+-- https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/docs.23MeasureTheory.2EMeasure.2Emap_map
+/-- Composing identically distributed functions with a measurable embedding of conull range
+gives identically distributed functions. -/
+lemma IdentDistrib.comp_left {i : δ → α} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂μ, a ∈ range i)
+    (hf : Measurable f) (hfg : IdentDistrib f g μ ν) : IdentDistrib (f ∘ i) g (μ.comap i) ν :=
+  (identDistrib_comp_left hi hi' hf).trans hfg
+
+/-- Composing identically distributed functions with a measurable embedding of conull range
+gives identically distributed functions. -/
+lemma IdentDistrib.comp_right {i : δ → β} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂ν, a ∈ range i)
+    (hg : Measurable g) (hfg : IdentDistrib f g μ ν) : IdentDistrib f (g ∘ i) μ (ν.comap i) :=
+  hfg.trans $ identDistrib_comp_right hi hi' hg
+
 end ProbabilityTheory
 
 open MeasureTheory ProbabilityTheory Function Set BigOperators
 
 namespace ProbabilityTheory
-
 section IdentDistrib
 variable {Ω Ω' α ι β β' : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
-  {mβ : MeasurableSpace β}
-  {μ : Measure Ω} {ν : Measure Ω'}
-  {f g : Ω → β} {f' g' : Ω' → β}
+  {mβ : MeasurableSpace β} {μ : Measure Ω} {ν : Measure Ω'} {f g : Ω → β} {f' g' : Ω' → β}
 
 -- todo: replace mathlib version with this lemma (this lemma uses `AEMeasurable`)
 theorem indepFun_iff_map_prod_eq_prod_map_map' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'}

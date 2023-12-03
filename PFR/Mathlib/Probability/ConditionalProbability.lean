@@ -2,10 +2,11 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 
-open ENNReal MeasureTheory MeasurableSpace Measure
+open ENNReal MeasureTheory MeasurableSpace Measure Set
 open scoped BigOperators
 
-variable {Ω α β γ : Type*} {m : MeasurableSpace Ω} {μ : Measure Ω} {s t : Set Ω}
+variable {Ω Ω' α β γ : Type*} {m : MeasurableSpace Ω} [MeasurableSpace Ω'] {μ : Measure Ω}
+  {s t : Set Ω} {i : Ω' → Ω}
 
 namespace ProbabilityTheory
 
@@ -28,11 +29,25 @@ lemma cond_eq_zero_of_measure_eq_zero (hμs : μ s = 0) : μ[|s] = 0 := by
 
 @[simp] lemma cond_eq_zero (hμs : μ s ≠ ⊤) : μ[|s] = 0 ↔ μ s = 0 := by simp [cond, hμs]
 
+lemma comap_cond (hi : MeasurableEmbedding i) (hi' : ∀ᵐ ω ∂μ, ω ∈ range i) (hs : MeasurableSet s) :
+    comap i (μ[|s]) = (comap i μ)[|i ⁻¹' s] := by
+  ext t ht
+  change μ (range i)ᶜ = 0 at hi'
+  rw [cond_apply, comap_apply, cond_apply, comap_apply, comap_apply, image_inter,
+    image_preimage_eq_inter_range, inter_right_comm, measure_inter_conull hi',
+    measure_inter_conull hi']
+  all_goals first
+  | exact hi.injective
+  | exact hi.measurableSet_image'
+  | exact hs
+  | exact ht
+  | exact hi.measurable hs
+  | exact (hi.measurable hs).inter ht
+
 variable [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
 
 /-- The law of total probability : a measure $\mu$ can be expressed as a mixture of its conditional measures $\mu[|Y^{-1}\{y\}]$ from a finitely valued random variable $Y$.-/
-lemma law_of_total_probability {Y : Ω → T}
-    (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ] :
+lemma law_of_total_probability {Y : Ω → T} (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ] :
     μ = ∑ y, μ (Y ⁻¹' {y}) • (μ[|Y ← y]) := by
   apply Measure.ext
   intro E hE

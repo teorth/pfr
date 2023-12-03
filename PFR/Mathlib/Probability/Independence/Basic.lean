@@ -1,8 +1,9 @@
 import Mathlib.Probability.Independence.Basic
 import PFR.ForMathlib.MeasureReal
+import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.Mathlib.Probability.Independence.Kernel
 
-open Function MeasureTheory MeasurableSpace Set
+open Function MeasureTheory MeasurableSpace Measure Set
 open scoped BigOperators MeasureTheory ENNReal
 
 namespace ProbabilityTheory
@@ -116,7 +117,27 @@ lemma indepFun_const [IsProbabilityMeasure μ] (c : α) : IndepFun f (fun _ => c
 
 lemma indepFun_fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
-  rw [@IndepFun_iff]
-  rintro _ _ ⟨t1, _, rfl⟩ ⟨t1, _, rfl⟩
+  rw [IndepFun_iff]
+  rintro _ _ ⟨s, _, rfl⟩ ⟨t, _, rfl⟩
   simp [←Set.prod_univ, ←Set.univ_prod, Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ,
     Set.univ_inter, Measure.prod_prod, measure_univ, mul_one, one_mul]
+
+variable {f : Ω → α} {g : Ω → β}
+
+/-- Composing independent functions with a measurable embedding of conull range gives independent
+functions. -/
+lemma IndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂μ, a ∈ range i)
+    (hf : Measurable f) (hg : Measurable g) (hfg : IndepFun f g μ) : IndepFun (f ∘ i) (g ∘ i) (μ.comap i) := by
+  change μ (range i)ᶜ = 0 at hi'
+  rw [IndepFun_iff] at hfg ⊢
+  rintro _ _ ⟨s, hs, rfl⟩ ⟨t, ht, rfl⟩
+  rw [preimage_comp, preimage_comp, ←preimage_inter, comap_apply, comap_apply, comap_apply,
+    image_preimage_eq_inter_range, image_preimage_eq_inter_range, image_preimage_eq_inter_range,
+    measure_inter_conull hi', measure_inter_conull hi', measure_inter_conull hi',
+    hfg _ _ ⟨_, hs, rfl⟩ ⟨_, ht, rfl⟩]
+  all_goals first
+  | exact hi.injective
+  | exact hi.measurableSet_image'
+  | exact hi.measurable $ hf hs
+  | exact hi.measurable $ hg ht
+  | exact hi.measurable $ (hf hs).inter $ hg ht
