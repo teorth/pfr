@@ -51,6 +51,14 @@ example (E F : Set Ω) (h : NullMeasurableSet F ℙ)
   rw [<-measureReal_inter_add_diff₀ E h]
   ring
 
+example (E : Set Ω) : 0 ≤ ℙᵣ E ∧ ℙᵣ E ≤ 1 := by
+  constructor
+  . simp
+  have : E ⊆ Set.univ := by simp
+  convert measureReal_mono (μ := ℙ) this
+  simp
+
+
 end RealMeasure
 
 
