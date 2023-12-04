@@ -199,7 +199,7 @@ def smul : ZMod 2 → G → G
   | 0, _ => 0
   | 1, x => x
 
-instance : Module (ZMod 2) G where
+instance (priority := low) module : Module (ZMod 2) G where
   smul := smul
   one_smul := fun _ => rfl
   mul_smul := by
@@ -220,12 +220,88 @@ instance : Module (ZMod 2) G where
     · simp only [Fin.mk_one, CharTwo.add_self_eq_zero, ElementaryAddCommGroup.add_self] ; rfl
   zero_smul := fun _ => rfl
 
-def linearMap {G' : Type*} [AddCommGroup G'] [ElementaryAddCommGroup G' 2]
-    (f : G →+ G') : G →ₗ[ZMod 2] G' where
-  toFun := f
-  map_add' := f.map_add
-  map_smul' := by
-    intro a x
-    fin_cases a <;> simp
-
 end ElementaryAddCommGroup
+
+/- TODO: Find an appropriate home for these sections -/
+section AddCommMonoid
+
+variable { n : ℕ } { M : Type* } [AddCommMonoid M] [Module (ZMod (n + 1)) M]
+
+/- FIXME: n is not unified/inferred -/
+@[coe] def AddSubmonoid.toSubmodule (S : AddSubmonoid M) : Submodule (ZMod (n + 1)) M := by
+  have smul_mem : ∀ (c : ZMod (n + 1)) { x : M }, x ∈ S.carrier → c • x ∈ S.carrier := by
+    intros c _ hx
+    induction' c using Fin.induction with _ hc
+    · simp_rw [zero_smul, AddSubmonoid.mem_carrier, AddSubmonoid.zero_mem]
+    · rw [← Fin.coeSucc_eq_succ, Module.add_smul, one_smul] ; exact S.add_mem hc hx
+  exact { S with smul_mem' := smul_mem }
+
+@[simp, norm_cast] theorem AddSubmonoid.coe_toSubmodule (S : AddSubmonoid M) :
+  S.toSubmodule (n := n) = (S : Set M) := rfl
+
+#align add_submonoid.to_submodule AddSubmonoid.toSubmodule
+#align add_submonoid.coe_to_submodule AddSubmonoid.coe_toSubmodule
+instance : Coe (AddSubmonoid M) (Submodule (ZMod (n + 1)) M) := ⟨ AddSubmonoid.toSubmodule ⟩
+
+variable { M' : Type* } [AddCommMonoid M'] [Module (ZMod (n + 1)) M']
+
+@[coe] def AddMonoidHom.toLinearMap (f : M →+ M') : M →ₗ[ZMod (n + 1)] M' := by
+  have map_smul : ∀ (c : ZMod (n + 1)) (x : M), f (c • x) = c • f x := by
+    intros c _
+    induction' c using Fin.induction with _ hc
+    · simp_rw [zero_smul, map_zero]
+    · simp_rw [← Fin.coeSucc_eq_succ, Module.add_smul, one_smul, f.map_add, hc]
+  exact { f with map_smul' := map_smul }
+
+@[simp, norm_cast] theorem AddMonoidHom.coe_toLinearMap (f : M →+ M) :
+  ⇑(f.toLinearMap (n := n)) = f := rfl
+
+#align add_monoid_hom.to_linear_map AddMonoidHom.toLinearMap
+#align add_monoid_hom.coe_to_linear_map AddMonoidHom.coe_toLinearMap
+instance : Coe (M →+ M') (M →ₗ[ZMod (n + 1)] M') := ⟨ AddMonoidHom.toLinearMap ⟩
+
+end AddCommMonoid
+
+section AddCommGroup
+
+variable { n : ℕ } { G : Type* } [AddCommGroup G] [Module (ZMod n) G]
+
+@[coe] def AddSubgroup.toSubmodule (H : AddSubgroup G) : Submodule (ZMod n) G := by
+  have smul_mem : ∀ (c : ZMod n) { x : G }, x ∈ H.carrier → c • x ∈ H.carrier := by
+    cases' n with n; swap
+    · exact fun c _ hx ↦ (AddSubmonoid.toSubmodule H.toAddSubmonoid).smul_mem c hx
+    · intros c _ hx
+      induction' c using Int.induction_on with _ hc _ hc
+      · simp_rw [zero_smul, AddSubgroup.mem_carrier, AddSubgroup.zero_mem]
+      · simp_rw [Module.add_smul, one_smul, AddSubgroup.mem_carrier, H.add_mem hc hx]
+      · simp_rw [sub_smul, one_smul, AddSubgroup.mem_carrier, H.sub_mem hc hx]
+  exact { H with smul_mem' := smul_mem }
+
+@[simp, norm_cast] theorem AddSubgroup.coe_toSubmodule (H : AddSubgroup G) :
+  H.toSubmodule (n := n) = (H : Set G) := rfl
+
+#align add_subgroup.to_submodule AddSubgroup.toSubmodule
+#align add_subgroup.coe_to_submodule AddSubgroup.coe_toSubmodule
+instance : Coe (AddSubgroup G) (Submodule (ZMod n) G) := ⟨ AddSubgroup.toSubmodule ⟩
+
+variable { G': Type* } [AddCommGroup G'] [Module (ZMod n) G']
+
+@[coe] def AddMonoidHom.toLinearMapGroup (f : G →+ G') : G →ₗ[ZMod n] G' := by
+  have map_smul : ∀ (c : ZMod n) (x : G), f (c • x) = c • f x := by
+    cases' n with n; swap
+    · exact (AddMonoidHom.toLinearMap f).map_smul
+    · intros c _
+      induction' c using Int.induction_on with _ hc _ hc
+      · simp_rw [zero_smul, map_zero]
+      · simp_rw [Module.add_smul, one_smul, f.map_add, hc]
+      · simp_rw [sub_smul, one_smul, f.map_sub, hc]
+  exact { f with map_smul' := map_smul }
+
+@[simp, norm_cast] theorem AddMonoidHom.coe_toLinearMapGroup (f : G →+ G') :
+  ⇑(f.toLinearMapGroup (n := n)) = f := rfl
+
+#align add_monoid_hom.to_linear_map_group AddMonoidHom.toLinearMapGroup
+#align add_monoid_hom.coe_to_linear_map_group AddMonoidHom.coe_toLinearMapGroup
+instance : Coe (G →+ G') (G →ₗ[ZMod n] G') := ⟨ AddMonoidHom.toLinearMapGroup ⟩
+
+end AddCommGroup
