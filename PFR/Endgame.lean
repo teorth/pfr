@@ -32,6 +32,28 @@ Assumptions:
 open MeasureTheory ProbabilityTheory
 open scoped BigOperators
 
+section
+variable {Ω α β γ δ : Type*} [MeasurableSpace Ω] [MeasurableSpace α] {W X Y Z : Ω → α}
+  {μ : Measure Ω} [IsProbabilityMeasure μ]
+
+def aux (α : Type*) : Fin 3 → Type _
+| 0 => α
+| 1 => α
+| 2 => α × α
+
+def aux' : ∀ i, MeasurableSpace (aux α i)
+| 0 => ‹_›
+| 1 => ‹_›
+| 2 => MeasurableSpace.prod ‹_› ‹_›
+
+lemma hopelessly_specific (hWXYZ : iIndepFun (fun _ ↦ ‹_›) ![W, X, Y, Z] μ) :
+    iIndepFun aux'
+      (Fin.cases W <| Fin.cases X <| Fin.cases (⟨Y, Z⟩) Fin.rec0 : ∀ i, Ω → aux _ i) μ := by
+  rw [iIndepFun_iff_pi_map_eq_map]
+  sorry
+
+end
+
 variable {G : Type*} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
