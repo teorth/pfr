@@ -27,6 +27,14 @@ instance instNoZeroSMulDivisors : NoZeroSMulDivisors ℝ≥0∞ (Measure α) whe
 
 end Measure
 
+variable [MeasurableSpace α] {μ : Measure α} {s t : Set α}
+
+lemma measure_inter_conull' (ht : μ (s \ t) = 0) : μ (s ∩ t) = μ s := by
+  rw [←diff_compl, measure_diff_null']; rwa [←diff_eq]
+
+lemma measure_inter_conull (ht : μ tᶜ = 0) : μ (s ∩ t) = μ s := by
+  rw [←diff_compl, measure_diff_null ht]
+
 lemma measure_preimage_eq_zero_iff_of_countable {Ω α : Type*} [MeasurableSpace Ω]
     {H : Set α} {X : Ω → α} {μ : Measure Ω} (hs : H.Countable) :
     μ (X ⁻¹' H) = 0 ↔ ∀ x ∈ H, μ (X ⁻¹' {x}) = 0 := by

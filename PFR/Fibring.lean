@@ -51,7 +51,7 @@ lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
     let f : H' × H' → (H' × H') × H' := fun (x,y) ↦ ((x,y), x - y)
     have hf : Function.Injective f := fun _ _ h ↦ (Prod.ext_iff.1 h).1
     have mf : Measurable f := measurable_id.prod_mk measurable_sub
-    refine condEntropy_of_inj_map' μ m1 m2 f hf (mf.comp m2)
+    refine condEntropy_of_injective' μ m1 m2 f hf (mf.comp m2)
   rw [step1, condMutualInfo_eq' m1 m2 m3, entroplem,
     condRuzsaDist_of_indep h1 (hπ.comp h1) h2 (hπ.comp h2) μ h']
   ring_nf

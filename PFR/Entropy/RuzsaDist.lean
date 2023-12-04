@@ -1,13 +1,10 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
-import PFR.Entropy.Basic
+import PFR.Entropy.Group
 import PFR.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.Elementary
-import PFR.ForMathlib.FiniteMeasureComponent
-import PFR.ProbabilityMeasureProdCont
+import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.Mathlib.Algebra.Group.Hom.Basic
-import PFR.Mathlib.Init.Core
 import PFR.Mathlib.Probability.IdentDistrib
-import PFR.Mathlib.Probability.Independence.Basic
 
 /-!
 # Ruzsa distance
@@ -44,130 +41,6 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [Fintype T] [Nonempty T] [MeasurableSpace T]
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
-
-/-- If $X$ is $G$-valued, then $H[-X]=H[X]$. -/
-lemma entropy_neg (hX : Measurable X) : H[-X ; μ] = H[X ; μ] :=
-  entropy_comp_of_injective μ hX (fun x ↦ - x) neg_injective
-
-/-- $$H[X - Y]=H[Y-X]$$ -/
-lemma entropy_sub_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
-    H[X - Y ; μ] = H[Y - X ; μ] := by
-  rw [← neg_sub]
-  exact entropy_neg (hY.sub hX)
-
-/-- $$H[X + Y|Y] = H[X|Y]$$ -/
-lemma condEntropy_add_right {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    [IsFiniteMeasure μ] : H[X + Y | Y ; μ] = H[X | Y ; μ] := by
-  refine condEntropy_of_inj_map μ hX hY (fun y x ↦ x + y) ?_
-  exact fun y ↦ add_left_injective y
-
-section IsProbabilityMeasure
-variable [IsProbabilityMeasure μ] {Y : Ω → G}
-
-/-- $$H[X] - I[X : Y] \leq H[X + Y]$$ -/
-lemma entropy_sub_mutualInfo_le_entropy_add (hX : Measurable X) (hY : Measurable Y) :
-    H[X ; μ] - I[X : Y ; μ] ≤ H[X + Y ; μ] := by
-  rw [mutualInfo_eq_entropy_sub_condEntropy hX hY]
-  ring_nf
-  rw [← condEntropy_add_right hX hY]
-  exact condEntropy_le_entropy _ (hX.add hY) hY
-
-/-- $$H[X - Y|Y] = H[X|Y]$$ -/
-lemma condEntropy_of_sub_eq (hX : Measurable X) (hY : Measurable Y) :
-    H[X - Y | Y ; μ] = H[X | Y ; μ] := by
-  refine condEntropy_of_inj_map μ hX hY (fun y x ↦ x - y) ?_
-  exact fun y ↦ sub_left_injective
-
-/-- $$H[X] - I[X :Y] \leq H[X - Y]$$ -/
-lemma entropy_sub_mutualInfo_le_entropy_sub (hX : Measurable X) (hY : Measurable Y) :
-    H[X ; μ] - I[X : Y ; μ] ≤ H[X - Y ; μ] := by
-  rw [mutualInfo_eq_entropy_sub_condEntropy hX hY]
-  ring_nf
-  rw [← condEntropy_of_sub_eq hX hY]
-  exact condEntropy_le_entropy _ (hX.sub hY) hY
-
-/-- $$ \max(H[X], H[Y]) - I[X :Y] \leq H[X + Y]$$ -/
-lemma ent_of_sum_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    [IsProbabilityMeasure μ] :
-    (max H[X ; μ] H[Y ; μ]) - I[X : Y ; μ] ≤ H[X + Y ; μ] := by
-  rw [sub_le_iff_le_add']
-  refine max_le ?_ ?_
-  · rw [← sub_le_iff_le_add']
-    exact entropy_sub_mutualInfo_le_entropy_add hX hY
-  · rw [← sub_le_iff_le_add', mutualInfo_comm hX hY, add_comm X]
-    exact entropy_sub_mutualInfo_le_entropy_add hY hX
-
-/-- $$ \max(H[X], H[Y]) - I[X :Y] \leq H[X - Y]$$ -/
-lemma ent_of_diff_lower {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    [IsProbabilityMeasure μ] :
-  (max H[X ; μ] H[Y ; μ]) - I[X : Y ; μ] ≤ H[X - Y ; μ] := by
-  rw [sub_le_iff_le_add']
-  refine max_le ?_ ?_
-  · rw [← sub_le_iff_le_add']
-    exact entropy_sub_mutualInfo_le_entropy_sub hX hY
-  · rw [← sub_le_iff_le_add', mutualInfo_comm hX hY, entropy_sub_comm hX hY]
-    exact entropy_sub_mutualInfo_le_entropy_sub hY hX
-
-/-- $$ \max(H[X|Z], H[Y|Z]) - I[X :Y|Z] \leq H[X + Y|Z] $$ -/
-lemma condEnt_of_sum_lower [MeasurableSingletonClass T] {Y : Ω → G} {Z : Ω → T}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    [IsProbabilityMeasure μ] :
-    (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X + Y | Z ; μ] := by
-  have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
-    isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
-  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
-  rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
-    condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
-    condEntropy_eq_kernel_entropy ?_ hZ]
-  swap ; · exact hX.add hY
-  rw [kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ μ).symm,
-    kernel.entropy_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ).symm,
-    max_comm]
-  refine (kernel.ent_of_sum_lower _ _ ).trans_eq ?_
-  have h := condEntropyKernel_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.1 + x.2)
-  rw [kernel.entropy_congr h.symm]
-  congr with ω
-  simp [add_comm (X ω)]
-
-/-- $$ \max(H[X|Z], H[Y|Z]) - I[X :Y|Z] \leq H[X - Y|Z] $$ -/
-lemma condEnt_of_diff_lower [MeasurableSingletonClass T] {Y : Ω → G} {Z : Ω → T}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    [IsProbabilityMeasure μ] :
-    (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X - Y | Z ; μ] := by
-  have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
-    isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
-  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
-  rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
-    condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
-    condEntropy_eq_kernel_entropy ?_ hZ]
-  swap ; · exact hX.sub hY
-  rw [kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ μ).symm,
-    kernel.entropy_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ).symm,
-    max_comm]
-  refine (kernel.ent_of_diff_lower _ _ ).trans_eq ?_
-  rw [kernel.entropy_sub_comm]
-  have h := condEntropyKernel_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 - x.1)
-  rw [kernel.entropy_congr h.symm]
-  rfl
-
-/-- If $X, Y$ are independent, then $$ \max(H[X], H[Y]) \leq H[X + Y]$$. -/
-lemma ent_of_indep_sum_lower {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    (h : IndepFun X Y μ) [IsProbabilityMeasure μ] :
-    max H[X ; μ] H[Y ; μ] ≤ H[X + Y ; μ] := by
-  calc max H[X ; μ] H[Y ; μ] = (max H[X ; μ] H[Y ; μ]) - I[X : Y ; μ] := by
-        rw [(mutualInfo_eq_zero hX hY).mpr h, sub_zero]
-  _ ≤ H[X + Y ; μ] := ent_of_sum_lower hX hY
-
-/-- If $X, Y$ are independent, then $$ \max(H[X], H[Y]) \leq H[X - Y]$$. -/
-lemma ent_of_indep_diff_lower {X : Ω → G} {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y)
-    (h : IndepFun X Y μ) [IsProbabilityMeasure μ] :
-    (max H[X ; μ] H[Y ; μ]) ≤ H[X - Y ; μ] := by
-  have : IndepFun X (- Y) μ := h.comp measurable_id measurable_neg
-  convert ent_of_indep_sum_lower hX hY.neg this using 2
-  · exact (entropy_neg hY).symm
-  · ext; simp [sub_eq_add_neg]
-
-end IsProbabilityMeasure
 
 /-- The Ruzsa distance `rdist X Y` or $d[X ;Y]$ between two random variables is defined as
 $H[X'- Y'] - H[X']/2 - H[Y']/2$, where $X', Y'$ are independent copies of $X, Y$. -/
@@ -287,7 +160,7 @@ lemma diff_ent_le_rdist [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ'] := by
   obtain ⟨ν, X', Y', _, hX', hY', hind, hIdX, hIdY⟩ := independent_copies hX hY μ μ'
   rw [← hIdX.rdist_eq hIdY, hind.rdist_eq hX' hY', ← hIdX.entropy_eq, ← hIdY.entropy_eq, abs_le]
-  have := ent_of_indep_diff_lower hX' hY' hind
+  have := max_entropy_le_entropy_sub hX' hY' hind
   constructor
   · linarith[le_max_right H[X'; ν] H[Y'; ν]]
   · linarith[le_max_left H[X'; ν] H[Y'; ν]]
@@ -297,14 +170,14 @@ lemma diff_ent_le_rdist' [IsProbabilityMeasure μ] {Y : Ω → G}
     (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ):
     H[X - Y ; μ] - H[X ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by
   rw [h.rdist_eq hX hY]
-  linarith[ent_of_indep_diff_lower hX hY h, le_max_right H[X ; μ] H[Y; μ]]
+  linarith[max_entropy_le_entropy_sub hX hY h, le_max_right H[X ; μ] H[Y; μ]]
 
 /-- $$H[X - Y] - H[Y] \leq 2d[X ; Y]$$ -/
 lemma diff_ent_le_rdist'' [IsProbabilityMeasure μ] {Y : Ω → G}
     (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ) :
     H[X - Y ; μ] - H[Y ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by
   rw [h.rdist_eq hX hY]
-  linarith[ent_of_indep_diff_lower hX hY h, le_max_left H[X ; μ] H[Y; μ]]
+  linarith[max_entropy_le_entropy_sub hX hY h, le_max_left H[X ; μ] H[Y; μ]]
 
 /-- $$ d[X ; Y] \geq 0$$ -/
 lemma rdist_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
@@ -712,9 +585,9 @@ lemma condRuzsaDist_of_inj_map {G' : Type*} [Fintype G'] [AddCommGroup G']
     condRuzsaDist_of_indep ((measurable_of_countable _).comp ((h_meas 0).prod_mk (h_meas 2)))
     (h_meas 2) ((measurable_of_countable _).comp ((h_meas 1).prod_mk (h_meas 3))) (h_meas 3) μ
     (h_indep.comp hf'' hf''),
-    ← condEntropy_of_inj_map μ hm1 hm2 f' hf', ← π.comp_sub,
-    ← condEntropy_of_inj_map μ (h_meas 0) (h_meas 2) f hπ,
-    ← condEntropy_of_inj_map μ (h_meas 1) (h_meas 3) f hπ]
+    ← condEntropy_of_injective μ hm1 hm2 f' hf', ← π.comp_sub,
+    ← condEntropy_of_injective μ (h_meas 0) (h_meas 2) f hπ,
+    ← condEntropy_of_injective μ (h_meas 1) (h_meas 3) f hπ]
   rfl
 
 /-- The **Kaimanovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+ Z] - H[Y]$$ -/
@@ -729,11 +602,10 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
     using 2
   . calc
       H[X ; μ] + H[Y ; μ] + H[Z ; μ] = H[⟨X, Y⟩ ; μ] + H[Z ; μ] := by
-        congr 1
-        symm; apply entropy_pair_eq_add' hX hY
+        rw [IndepFun.entropy_pair_eq_add hX hY]
         convert h.indepFun (show 0 ≠ 1 by decide)
       _ = H[⟨⟨X, Y⟩, Z⟩ ; μ] := by
-        symm; apply entropy_pair_eq_add' (hX.prod_mk hY) hZ
+        rw [IndepFun.entropy_pair_eq_add (hX.prod_mk hY) hZ]
         exact h.indepFun_prod this 0 1 2 (by decide) (by decide)
       _ = H[⟨X, ⟨Z , X + (Y + Z)⟩⟩ ; μ] := by
         apply entropy_of_comp_eq_of_comp μ (by measurability) (by measurability)
@@ -741,10 +613,12 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
         all_goals { funext ω; dsimp [prod]; ext <;> dsimp; abel }
   . rw [add_assoc]
   . symm
-    refine (entropy_add_right hX (hY.add hZ) _).trans $ entropy_pair_eq_add' hX (hY.add hZ) ?_
+    refine (entropy_add_right hX (hY.add hZ) _).trans $
+      IndepFun.entropy_pair_eq_add hX (hY.add hZ) ?_
     exact h.add_right this 0 1 2 (by decide) (by decide)
   · rw [eq_comm, ←add_assoc]
-    refine (entropy_add_right' hZ (hX.add hY) _).trans $ entropy_pair_eq_add' hZ (hX.add hY) ?_
+    refine (entropy_add_right' hZ (hX.add hY) _).trans $
+      IndepFun.entropy_pair_eq_add hZ (hX.add hY) ?_
     exact h.add_right this 2 0 1 (by decide) (by decide)
 
 /-- A version of the **Kaimanovich-Vershik inequality** with some variables negated. -/
@@ -888,7 +762,7 @@ end BalogSzemerediGowers
 variable (μ μ') in
 /-- Suppose that $(X, Z)$ and $(Y, W)$ are random variables, where $X, Y$ take values in an abelian
 group. Then $$d[X | Z ; Y | W] \leq d[X ; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W]$$ -/
-lemma condDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
+lemma condRuzsaDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Nonempty S]
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W) :
       d[X | Z ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[X : Z ; μ]/2 + I[Y : W ; μ']/2 := by
@@ -917,12 +791,12 @@ lemma condDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω'
   linarith [h, entropy_nonneg Z' ν, entropy_nonneg W' ν]
 
 variable (μ μ') in
-lemma condDist_le' [Fintype T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
+lemma condRuzsaDist_le' [Fintype T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) :
     d[X ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[Y : W ; μ']/2 := by
   rw [← condRuzsaDist_of_const hX _ _ (0 : Fin 1)]
-  refine' (condDist_le μ μ' hX measurable_const hY hW).trans _
+  refine' (condRuzsaDist_le μ μ' hX measurable_const hY hW).trans _
   simp [mutualInfo_const hX (0 : Fin 1)]
 
 variable (μ) in
@@ -961,46 +835,45 @@ and
 $$d[X ; Y|Y+ Z] - d[X ; Y] \leq \tfrac{1}{2} \bigl(H[Y+ Z] - H[Z]\bigr)$$
 $$= \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z]$$
 -/
-lemma condDist_diff_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma condRuzsaDist_diff_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
     d[X ; μ # Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y + Z; μ'] - H[Y; μ']) / 2 :=
   (comparison_of_ruzsa_distances μ hX hY hZ h).1
 
 variable (μ) [ElementaryAddCommGroup G 2] in
-lemma entropy_sub_entropy_eq_condDist_add [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma entropy_sub_entropy_eq_condRuzsaDist_add [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
     H[Y + Z; μ'] - H[Y; μ'] = d[Y; μ' # Z; μ'] + H[Z; μ'] / 2 - H[Y; μ'] / 2 :=
   (comparison_of_ruzsa_distances μ hX hY hZ h).2 ‹_›
 
 variable (μ) [ElementaryAddCommGroup G 2] in
-lemma condDist_diff_le' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma condRuzsaDist_diff_le' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
     d[X ; μ # Y + Z; μ'] - d[X ; μ # Y; μ'] ≤
     d[Y; μ' # Z; μ'] / 2 + H[Z; μ'] / 4 - H[Y; μ'] / 4 := by
-  linarith [condDist_diff_le μ hX hY hZ h, entropy_sub_entropy_eq_condDist_add μ hX hY hZ h]
+  linarith [condRuzsaDist_diff_le μ hX hY hZ h, entropy_sub_entropy_eq_condRuzsaDist_add μ hX hY hZ h]
 
 variable (μ) in
-lemma condDist_diff_le'' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma condRuzsaDist_diff_le'' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
     d[X ; μ # Y|Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+ Z ; μ'] - H[Z ; μ'])/2 := by
   rw [← mutualInfo_add_right hY hZ h]
-  linarith [condDist_le' μ μ' hX hY (hY.add' hZ)]
+  linarith [condRuzsaDist_le' μ μ' hX hY (hY.add' hZ)]
 
 variable (μ) [ElementaryAddCommGroup G 2] in
-lemma condDist_diff_le''' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma condRuzsaDist_diff_le''' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
     d[X ; μ # Y|Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤
     d[Y ; μ' # Z ; μ']/2 + H[Y ; μ']/4 - H[Z ; μ']/4 := by
-  linarith [condDist_diff_le'' μ hX hY hZ h, entropy_sub_entropy_eq_condDist_add μ hX hY hZ h]
-
+  linarith [condRuzsaDist_diff_le'' μ hX hY hZ h, entropy_sub_entropy_eq_condRuzsaDist_add μ hX hY hZ h]
 
 variable (μ) in
-lemma condDist_diff_ofsum_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma condRuzsaDist_diff_ofsum_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y Z Z' : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (hZ' : Measurable Z')
     (h : iIndepFun (fun _ ↦ hG) ![Y, Z, Z'] μ') :
@@ -1009,6 +882,6 @@ lemma condDist_diff_ofsum_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'
   have hadd : IndepFun (Y + Z) Z' μ' :=
   (h.add (Fin.cases hY <| Fin.cases hZ <| Fin.cases hZ' Fin.rec0) 0 1 2
   (show 0 ≠ 2 by decide) (show 1 ≠ 2 by decide))
-  have h1 := condDist_diff_le'' μ hX (show Measurable (Y + Z) by measurability) hZ' hadd
-  have h2 := condDist_diff_le μ hX hY hZ (h.indepFun (show 0 ≠ 1 by decide))
+  have h1 := condRuzsaDist_diff_le'' μ hX (show Measurable (Y + Z) by measurability) hZ' hadd
+  have h2 := condRuzsaDist_diff_le μ hX hY hZ (h.indepFun (show 0 ≠ 1 by decide))
   linarith [h1, h2]

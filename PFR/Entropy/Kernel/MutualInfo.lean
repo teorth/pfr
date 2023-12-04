@@ -21,10 +21,8 @@ import PFR.Entropy.Kernel.Basic
 
 -/
 
-open Real MeasureTheory
-
+open Function MeasureTheory Real
 open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
-
 
 namespace ProbabilityTheory.kernel
 
@@ -112,7 +110,7 @@ lemma entropy_condKernel_le_entropy_snd (κ : kernel T (S × U)) [IsMarkovKernel
 lemma entropy_snd_sub_mutualInfo_le_entropy_map_of_injective {V : Type*} [Fintype V] [Nonempty V]
     [MeasurableSpace V] [MeasurableSingletonClass V]
     (κ : kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (f : S × U → V) (hfi : ∀ x, Function.Injective (fun y ↦ f (x, y))) :
+    (f : S × U → V) (hfi : ∀ x, Injective (fun y ↦ f (x, y))) :
     Hk[snd κ, μ] - Ik[κ, μ] ≤ Hk[map κ f (measurable_of_finite f), μ] := by
   rw [mutualInfo_eq_snd_sub]
   have hf : Measurable f := measurable_of_finite f
