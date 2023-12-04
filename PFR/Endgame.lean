@@ -51,6 +51,7 @@ lemma hopelessly_specific (hWXYZ : iIndepFun (fun _ ↦ ‹_›) ![W, X, Y, Z] �
       (Fin.cases W <| Fin.cases X <| Fin.cases (⟨Y, Z⟩) Fin.rec0 : ∀ i, Ω → aux _ i) μ := by
   rw [iIndepFun_iff_pi_map_eq_map]
   sorry
+  sorry
 
 end
 
@@ -132,10 +133,10 @@ lemma I₃_eq : I[V : W | S] = I₂ := by
               fin_cases x;
               all_goals aesop
             map_eq := by
-              rw [(ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁, X₂, X₁', X₂'])
+              rw [← (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁, X₂, X₁', X₂'])
               (fun _ ↦ hG) (Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <|
               Fin.cases hX₂' Fin.rec0)).mp h_indep,
-              (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁', X₂, X₁, X₂'])
+              ← (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁', X₂, X₁, X₂'])
               (fun _ ↦ hG) (Fin.cases hX₁' <| Fin.cases hX₂ <| Fin.cases hX₁ <|
               Fin.cases hX₂' Fin.rec0)).mp h_indep2]
               congr
