@@ -281,11 +281,12 @@ lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C
 
 variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
-variable {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
+variable {ι : Type*} {α : ι → Type*} {n : (i : ι) → MeasurableSpace (α i)}
+  {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
 lemma iIndepFun.prod (h : iIndepFun n f μ) :
-    let β := fun k ↦ Π i : ST k, α i
-    iIndepFun (β := β) (fun k ↦ MeasurableSpace.pi)
-      (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
+    let β := fun y ↦ Π i : ST y, α i
+    iIndepFun (β := β) (fun y ↦ MeasurableSpace.pi)
+      (fun (y : ι') (x : Ω) (i : ST y) ↦ f i x) μ := by
   sorry
 
 lemma hU : H[U] = H[X₁' + X₂'] := by
@@ -376,7 +377,62 @@ lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X�
   rw [aux]
   apply iIndepFun.comp (independenceCondition1' h_indep) g measurable_g
 
-lemma hV : H[V] = H[X₁ + X₂'] := sorry
+lemma hV : H[V] = H[X₁ + X₂'] := by
+  apply IdentDistrib.entropy_eq
+  apply ProbabilityTheory.IdentDistrib.add
+  repeat assumption
+  exact h₁.symm
+  exact h₂
+  · apply iIndepFun.indepFun h_indep (show (2 : Fin 4) ≠ 1 by norm_cast)
+  · apply iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 3 by norm_cast)
+
+variable {X₁ X₂ X₁' X₂'} in
+lemma independenceCondition2 : iIndepFun (fun _ ↦ hG) ![X₂, X₁, X₁' + X₂'] := by
+  apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 3) 1)
+  convert (independenceCondition1 h_indep) using 1
+  ext x
+  fin_cases x ; all_goals { aesop }
+
+variable {X₁ X₂ X₁' X₂'} in
+lemma independenceCondition3 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁ + X₂'] := by
+  apply independenceCondition1 (ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 4) 2) _)
+  convert h_indep using 1
+  ext x
+  fin_cases x ; all_goals { aesop }
+
+variable {X₁ X₂ X₁' X₂'} in
+lemma independenceCondition4 : iIndepFun (fun _ ↦ hG) ![X₂, X₁', X₁ + X₂'] := by
+  apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 3) 1)
+  convert (independenceCondition3 h_indep) using 1
+  ext x
+  fin_cases x ; all_goals { aesop }
+
+variable {X₁ X₂ X₁' X₂'} in
+lemma independenceCondition5 : iIndepFun (fun _ ↦ hG) ![X₁, X₁', X₂ + X₂'] := by
+  apply independenceCondition1 (ProbabilityTheory.iIndepFun.reindex (Equiv.swap (1 : Fin 4) 2) _)
+  convert h_indep using 1
+  ext x
+  fin_cases x ; all_goals { aesop }
+--[x2, x2', x1', x1]
+
+set_option maxHeartbeats 1000000
+variable {X₁ X₂ X₁' X₂'} in
+lemma independenceCondition6 : iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X₁] := by
+  apply independenceCondition1
+  let e : Fin 4 ≃ Fin 4 := {
+    toFun := ![(3 : Fin 4), 0, 2, 1]
+    invFun := ![1, 3 , 2, 0]
+    left_inv := fun x => by
+      fin_cases x
+      all_goals  {simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons] ; rfl }
+    right_inv := fun x => by
+      fin_cases x
+      all_goals  {simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons] ; rfl }
+  }
+  apply (ProbabilityTheory.iIndepFun.reindex e)
+  convert h_indep using 1
+  ext x
+  fin_cases x ; all_goals { aesop }
 
 /--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
@@ -393,7 +449,7 @@ lemma sum_dist_diff_le :
     · rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep] ; ring
     have aux2 : d[X₀₁ # U | U + (X₁' + X₂')] - d[X₀₁ # X₁]
             ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₁] - H[X₁' + X₂']) / 2 :=
-      condDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂)
+      condRuzsaDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂)
       (Measurable.add hX₁' hX₂') (independenceCondition1 h_indep)
     rw [← add_assoc, aux1] at aux2
     linarith [aux2]
@@ -403,8 +459,8 @@ lemma sum_dist_diff_le :
     have aux2 : d[X₀₂ # U | U + (X₁' + X₂')] - d[X₀₂ # X₂]
             ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₂] - H[X₁' + X₂']) / 2
     · rw [(show U = X₂ + X₁ from add_comm _ _)]
-      apply condDist_diff_ofsum_le ℙ (p.hmeas2) (hX₂) (hX₁)
-        (Measurable.add hX₁' hX₂') (independenceCondition1 sorry)
+      apply condRuzsaDist_diff_ofsum_le ℙ (p.hmeas2) (hX₂) (hX₁)
+        (Measurable.add hX₁' hX₂') (independenceCondition2 h_indep)
     rw [←add_assoc, aux1] at aux2
     linarith [aux2]
 
@@ -414,9 +470,11 @@ lemma sum_dist_diff_le :
   have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2
   · have aux2 : d[p.X₀₁ # V | V + (X₁ + X₂')] - d[p.X₀₁ # X₁']
             ≤ (H[V + (X₁ + X₂')] + H[V] - H[X₁'] - H[X₁ + X₂']) / 2 :=
-      condDist_diff_ofsum_le ℙ (p.hmeas1) (hX₁') (hX₂) (Measurable.add hX₁ hX₂') (independenceCondition1 sorry)
+      condRuzsaDist_diff_ofsum_le ℙ (p.hmeas1) (hX₁') (hX₂) (Measurable.add hX₁ hX₂')
+      (independenceCondition3 h_indep)
+
     have aux1 : H[S] + H[V] - H[X₁'] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₁ ; ℙ]
-    · rw [hV X₁ X₂ X₁' X₂', h₁.entropy_eq]; ring
+    · rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep, h₁.entropy_eq]; ring
     rw [←ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl p.hmeas1.aemeasurable) h₁,
       V_add_eq, aux1] at aux2
     linarith [aux2]
@@ -425,23 +483,23 @@ lemma sum_dist_diff_le :
   · have aux2 : d[p.X₀₂ # V | V + (X₁ + X₂')] - d[p.X₀₂ # X₂]
             ≤ (H[V + (X₁ + X₂')] + H[V] - H[X₂] - H[X₁ + X₂']) / 2
     · rw [(show V = X₂ + X₁' from add_comm _ _)]
-      apply condDist_diff_ofsum_le ℙ (p.hmeas2) (hX₂) (hX₁') (Measurable.add hX₁ hX₂')
-        (independenceCondition1 sorry)
+      apply condRuzsaDist_diff_ofsum_le ℙ (p.hmeas2) (hX₂) (hX₁') (Measurable.add hX₁ hX₂')
+        (independenceCondition4 h_indep)
     have aux1 : H[S] + H[V] - H[X₂] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₂ ; ℙ]
-    · rw [hV X₁ X₂ X₁' X₂']; ring
+    · rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep]; ring
     rw [V_add_eq, aux1] at aux2
     linarith [aux2]
 
   let W' := X₂ + X₂'
   have ineq5 : d[X₀₁ # W | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2
-  · have := condDist_diff_ofsum_le ℙ p.hmeas1 hX₁ hX₁' (Measurable.add hX₂ hX₂') (independenceCondition1 sorry)
+  · have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas1 hX₁ hX₁' (Measurable.add hX₂ hX₂') (independenceCondition5 h_indep)
     have S_eq : X₁ + X₁' + (fun a ↦ X₂ a + X₂' a) = S
     · rw [(show (fun a ↦ X₂ a + X₂' a) = X₂ + X₂' by rfl), ←add_assoc, add_assoc X₁, add_comm X₁', ←add_assoc]
     rwa [S_eq, add_comm X₁ X₁'] at this
 
 
   have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
-  · have := condDist_diff_ofsum_le ℙ p.hmeas2 hX₂ hX₂' (Measurable.add hX₁' hX₁) (independenceCondition1 sorry)
+  · have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas2 hX₂ hX₂' (Measurable.add hX₁' hX₁) (independenceCondition6 h_indep)
     have S_eq : X₂ + X₂' + (fun a ↦ X₁' a + X₁ a) = S
     · rw [(show (fun a ↦ X₁' a + X₁ a) = X₁' + X₁ by rfl), add_comm, ←add_assoc, add_comm X₁',
       add_assoc X₁, add_comm X₁', ←add_assoc]
