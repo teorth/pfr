@@ -143,8 +143,8 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       have : (m y).map f = (m' y).prod (m' y) := by simp
       rw [← map_map measurable_fst measurable_fst, ← map_map measurable_snd measurable_fst, this]
       simp
-    . exact measurable_fst.comp measurable_fst
-    exact measurable_snd.comp measurable_fst
+    . exact (measurable_fst.comp measurable_fst).aemeasurable
+    exact (measurable_snd.comp measurable_fst).aemeasurable
   . rw [law_of_total_probability hY μ]
     apply identDistrib_of_sum ((measurable_fst.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
     intro y hy
