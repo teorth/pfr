@@ -413,6 +413,7 @@ lemma independenceCondition6 : iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X
   ext x
   fin_cases x ; all_goals { aesop }
 
+set_option maxHeartbeats 400000 in
 /--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
