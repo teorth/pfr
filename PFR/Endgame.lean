@@ -289,18 +289,10 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
       (fun (y : ι') (x : Ω) (i : ST y) ↦ f i x) μ := by
   sorry
 
-lemma hU : H[U] = H[X₁' + X₂'] := by
-  apply IdentDistrib.entropy_eq
-  apply ProbabilityTheory.IdentDistrib.add
-  repeat assumption
-  · have aux : IndepFun (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 0)
-                        (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 1) := by
-      apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 0) (j := 1); simp
-    simp at aux; assumption
-  · have aux : IndepFun (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 2)
-                        (Matrix.vecCons X₁ ![X₂, X₁', X₂'] 3) := by
-      apply ProbabilityTheory.iIndepFun.indepFun h_indep (i := 2) (j := 3); decide
-    simp at aux; assumption
+lemma hU : H[U] = H[X₁' + X₂'] :=
+  IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁ h₂
+    (iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 1 by norm_cast))
+     (iIndepFun.indepFun h_indep (show (2 : Fin 4) ≠ 3 by norm_cast)))
 
 abbrev S1 : Fin 3 → Finset (Fin 4)
   | 0 => {0}
@@ -335,10 +327,8 @@ lemma independenceCondition1' : iIndepFun (fun _ => MeasurableSpace.pi) (f1 X₁
         | { val := 2, property := _ }
         | { val := 3, property := _ } => reduce; decide
       rcases hi with hi2 | hi3
-      · rw [show i = { val := 2, property := by decide } from (by aesop)]
-        rfl
-      · rw [show i = { val := 3, property := by decide } from (by aesop)]
-        rfl
+      · rw [show i = { val := 2, property := by decide } from (by aesop)] ; rfl
+      · rw [show i = { val := 3, property := by decide } from (by aesop)] ; rfl
   rw [aux]
   apply iIndepFun.prod
   exact h_indep
@@ -377,14 +367,10 @@ lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X�
   rw [aux]
   apply iIndepFun.comp (independenceCondition1' h_indep) g measurable_g
 
-lemma hV : H[V] = H[X₁ + X₂'] := by
-  apply IdentDistrib.entropy_eq
-  apply ProbabilityTheory.IdentDistrib.add
-  repeat assumption
-  exact h₁.symm
-  exact h₂
-  · apply iIndepFun.indepFun h_indep (show (2 : Fin 4) ≠ 1 by norm_cast)
-  · apply iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 3 by norm_cast)
+lemma hV : H[V] = H[X₁ + X₂'] :=
+IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁.symm h₂
+  (iIndepFun.indepFun h_indep (show (2 : Fin 4) ≠ 1 by norm_cast))
+  (iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 3 by norm_cast)))
 
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition2 : iIndepFun (fun _ ↦ hG) ![X₂, X₁, X₁' + X₂'] := by
@@ -413,9 +399,7 @@ lemma independenceCondition5 : iIndepFun (fun _ ↦ hG) ![X₁, X₁', X₂ + X�
   convert h_indep using 1
   ext x
   fin_cases x ; all_goals { aesop }
---[x2, x2', x1', x1]
 
-set_option maxHeartbeats 1000000
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition6 : iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X₁] := by
   apply independenceCondition1
@@ -453,6 +437,7 @@ lemma sum_dist_diff_le :
       (Measurable.add hX₁' hX₂') (independenceCondition1 h_indep)
     rw [← add_assoc, aux1] at aux2
     linarith [aux2]
+
   have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by
     have aux1 : H[S] + H[U] - H[X₂] - H[X₁' + X₂'] = H[S] - H[X₂]
     · rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep] ; ring
@@ -496,7 +481,6 @@ lemma sum_dist_diff_le :
     have S_eq : X₁ + X₁' + (fun a ↦ X₂ a + X₂' a) = S
     · rw [(show (fun a ↦ X₂ a + X₂' a) = X₂ + X₂' by rfl), ←add_assoc, add_assoc X₁, add_comm X₁', ←add_assoc]
     rwa [S_eq, add_comm X₁ X₁'] at this
-
 
   have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
   · have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas2 hX₂ hX₂' (Measurable.add hX₁' hX₁) (independenceCondition6 h_indep)
