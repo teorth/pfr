@@ -75,8 +75,8 @@ given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
 local notation3 "I₂" => I[U : W | S]
 
 --(Mantas) this times out in the proof below
-private lemma hmeas2 : Measurable
-    (fun p : Fin 4 → G => ((p 0 + p 1, p 0 + p 2), p 0 + p 1 + p 2 + p 3)) := by
+private lemma hmeas2 :
+    Measurable fun p : Fin 4 → G => ((p 0 + p 1, p 0 + p 2), p 0 + p 1 + p 2 + p 3) := by
   apply Measurable.prod
   · apply Measurable.prod
     · exact (measurable_pi_apply _).add (measurable_pi_apply _)
@@ -110,10 +110,10 @@ lemma I₃_eq : I[V : W | S] = I₂ := by
               fin_cases x;
               all_goals aesop
             map_eq := by
-              rw [(ProbabilityTheory.iIndepFun_iff_map_prod_eq_prod_map_map (![X₁, X₂, X₁', X₂'])
+              rw [(ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁, X₂, X₁', X₂'])
               (fun _ ↦ hG) (Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <|
               Fin.cases hX₂' Fin.rec0)).mp h_indep,
-              (ProbabilityTheory.iIndepFun_iff_map_prod_eq_prod_map_map (![X₁', X₂, X₁, X₂'])
+              (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁', X₂, X₁, X₂'])
               (fun _ ↦ hG) (Fin.cases hX₁' <| Fin.cases hX₂ <| Fin.cases hX₁ <|
               Fin.cases hX₂' Fin.rec0)).mp h_indep2]
               congr
@@ -416,7 +416,7 @@ lemma independenceCondition6 : iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X
   apply (ProbabilityTheory.iIndepFun.reindex e)
   convert h_indep using 1
   ext x
-  fin_cases x ; all_goals { aesop }
+  fin_cases x; all_goals { aesop }
 
 /--
 $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
@@ -438,8 +438,8 @@ lemma sum_dist_diff_le :
     rw [← add_assoc, aux1] at aux2
     linarith [aux2]
 
-  have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by
-    have aux1 : H[S] + H[U] - H[X₂] - H[X₁' + X₂'] = H[S] - H[X₂]
+  have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2
+  · have aux1 : H[S] + H[U] - H[X₂] - H[X₁' + X₂'] = H[S] - H[X₂]
     · rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep] ; ring
     have aux2 : d[X₀₂ # U | U + (X₁' + X₂')] - d[X₀₂ # X₂]
             ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₂] - H[X₁' + X₂']) / 2
@@ -450,7 +450,8 @@ lemma sum_dist_diff_le :
     linarith [aux2]
 
   have V_add_eq : V + (X₁ + X₂') = S
-  · rw [add_assoc, add_comm, add_assoc, add_assoc, add_comm X₂', ←add_assoc, add_comm X₂, ←add_assoc]
+  · rw [add_assoc, add_comm, add_assoc, add_assoc, add_comm X₂', ←add_assoc, add_comm X₂,
+      ←add_assoc]
 
   have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2
   · have aux2 : d[p.X₀₁ # V | V + (X₁ + X₂')] - d[p.X₀₁ # X₁']

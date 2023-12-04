@@ -14,6 +14,7 @@ import PFR.ForMathlib.CompactProb
 import PFR.ForMathlib.Elementary
 import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.ForMathlib.FiniteMeasureProd
+import PFR.ForMathlib.Graph
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.MonoidHom
 import PFR.ForMathlib.Pair
