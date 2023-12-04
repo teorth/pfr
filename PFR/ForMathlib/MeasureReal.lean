@@ -1,5 +1,7 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Basic
-import PFR.ForMathlib.Finiteness
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
+import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
+import PFR.Tactic.Finiteness
 
 /-!
 # Measures as real valued-functions
@@ -56,6 +58,16 @@ lemma sum_toReal_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace 
     [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
     ∑ x : S, (μ {x}).toReal = (μ Set.univ).toReal := by
   simp
+
+variable [MeasurableSpace Ω]
+
+/-- Variant of `sum_measure_preimage_singleton` using real numbers rather than extended nonnegative
+reals. -/
+lemma sum_measure_preimage_singleton' (μ : Measure Ω) [IsProbabilityMeasure μ] {T : Type u}
+    [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y : Ω → T} (hY : Measurable Y) :
+    ∑ y : T, (μ (Y ⁻¹' {y})).toReal = 1 := by
+  rw [← ENNReal.toReal_sum, sum_measure_preimage_singleton] <;>
+    simp [hY $ measurableSet_discrete _, measure_ne_top]
 
 end aux_lemmas
 
@@ -489,3 +501,24 @@ def evalMeasureReal : PositivityExt where eval {_ _} _zα _pα e := do
   pure (.nonnegative p)
 
 end Mathlib.Meta.Positivity
+section aux_lemmas
+
+lemma measureReal_preimage_fst_singleton_eq_sum {S T : Type*} {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] [Fintype T] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (x : S) :
+    μ.real (Prod.fst ⁻¹' {x}) = ∑ y : T, μ.real {(x, y)} := by
+  rw [measureReal_def, measure_preimage_fst_singleton_eq_sum, ENNReal.toReal_sum]
+  · rfl
+  intros
+  finiteness
+
+lemma measureReal_preimage_snd_singleton_eq_sum {S T : Type*} [Fintype S] {_ : MeasurableSpace S}
+    [MeasurableSingletonClass S] {_ : MeasurableSpace T}
+    [MeasurableSingletonClass T] (μ : Measure (S × T)) [IsFiniteMeasure μ] (y : T) :
+    μ.real (Prod.snd ⁻¹' {y}) = ∑ x : S, μ.real {(x, y)} := by
+  rw [measureReal_def, measure_preimage_snd_singleton_eq_sum, ENNReal.toReal_sum]
+  · rfl
+  intros
+  finiteness
+
+end aux_lemmas

@@ -112,7 +112,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{lemma}[Conditional entropy and relabeling]\label{relabeled-entropy-cond}
   \uses{conditional-entropy-def}
-  \lean{ProbabilityTheory.condEntropy_comp_of_injective, ProbabilityTheory.condEntropy_of_inj_map'}\leanok
+  \lean{ProbabilityTheory.condEntropy_comp_of_injective, ProbabilityTheory.condEntropy_of_injective'}\leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$, and $Z: \Omega \to U$ are random variables, and $Y = f(X,Z)$ almost surely for some map $f: S \times U \to T$ that is injective for each fixed $U$, then $\bbH[X|Z] = \bbH[Y|Z]$.
 
   Similarly, if $g: T \to U$ is injective, then $\bbH[X|g(Y)] = \bbH[X|Y]$.
@@ -139,12 +139,12 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 \begin{lemma}[Conditional chain rule]\label{conditional-chain-rule}
   \lean{ProbabilityTheory.cond_chain_rule, ProbabilityTheory.cond_chain_rule'}\leanok
   If $X: \Omega \to S$, $Y: \Omega \to T$, $Z: \Omega \to U$ are random variables, then
-$$ \bbH[X, Y | Z ] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
+$$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{lemma}
 
 \begin{proof}  \uses{chain-rule}\leanok
    For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
-  $$ \bbH[ (X|Z=z),(Y|Z=z) ] = \bbH[Y|Z=z] + \bbH[(X|Z=z)|(Y|Z=z)].$$
+  $$ \bbH[(X|Z=z),(Y|Z=z)] = \bbH[Y|Z=z] + \bbH[(X|Z=z)|(Y|Z=z)].$$
   Now multiply by $\bbP[Z=z]$ and sum.  Some helper lemmas may be needed to get to the form above.  This sort of ``average over conditioning'' argument to get conditional entropy inequalities from unconditional ones is commonly used in this paper.
 \end{proof}
 
@@ -291,8 +291,8 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
 
 \begin{definition}[Conditionally independent random variables]
 \label{conditional-independent-def}
-\lean{ProbabilityTheory.condIndepFun}\leanok
-  Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are conditionally independent relative to another random variable $Z: \Omega \to U$ if $P[ X = s \wedge Y = t| Z=u] = P[X=s|Z=u] P[Y=t|Z=u]$ for all $s \in S, t \in T, u \in U$.  (We won't need conditional independence for more variables than this.)
+\lean{ProbabilityTheory.CondIndepFun}\leanok
+  Two random variables $X: \Omega \to S$ and $Y: \Omega \to T$ are conditionally independent relative to another random variable $Z: \Omega \to U$ if $P[X = s \wedge Y = t| Z=u] = P[X=s|Z=u] P[Y=t|Z=u]$ for all $s \in S, t \in T, u \in U$.  (We won't need conditional independence for more variables than this.)
 \end{definition}
 
 \begin{lemma}[Vanishing conditional mutual information]\label{conditional-vanish}

@@ -41,7 +41,7 @@ A pair $X_1, X_2$ of $\tau$-minimizers exist.
 \begin{proof}\uses{tau-copy}\leanok By Lemma \ref{tau-copy}, $\tau$ only depends on the probability distributions of $X_1, X_2$. This ranges over a compact space, and $\tau$ is continuous.  So $\tau$ has a minimum.
 \end{proof}
 
-\subsection{Basic facts about minimizers}
+\section{Basic facts about minimizers}
 
 In this section we assume that $X_1,X_2$ are $\tau$-minimizers. We also write $k := d[X_1;X_2]$.
 
@@ -59,7 +59,7 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'
 
 \begin{lemma}[Conditional distance lower bound]\label{cond-distance-lower}
   \uses{tau-minimizes, cond-dist-def}
-  \lean{condDistance_ge_of_min}\leanok
+  \lean{condRuzsaDistance_ge_of_min}\leanok
   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
 $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 \end{lemma}
@@ -67,21 +67,21 @@ $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^
 \begin{proof}\uses{distance-lower}\leanok  Apply Lemma \ref{distance-lower} to conditioned random variables and then average.
 \end{proof}
 
-\subsection{First estimate}
+\section{First estimate}
 
 We continue the assumptions from the preceding section.
 
 Let $X_1, X_2, \tilde X_1, \tilde X_2$ be independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.  (This is possible thanks to Lemma \ref{independent-exist}.)
 
 We also define the quantity
-$$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
+$$ I_1 :=  I [X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2].$$
 
 \begin{lemma}[Fibring identity for first estimate]\label{first-fibre}
   \lean{rdist_add_rdist_add_condMutual_eq}\leanok
   We have
   \begin{align*}
     &   d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] \\
-    &\quad + \bbI[ X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2 ] = 2k.
+    &\quad + \bbI[X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2] = 2k.
   \end{align*}
 \end{lemma}
 
@@ -101,7 +101,7 @@ $$ I_1 :=  I [ X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
 \end{proof}
 
 \begin{lemma}[Lower bound on conditional distances]\label{first-cond}
-  \lean{cond_rdist_of_sums_ge}\leanok
+  \lean{condRuzsaDist_of_sums_ge}\leanok
   We have
   \begin{align*}
     & d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]  \\  & \qquad\quad \geq k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) \\
@@ -153,11 +153,11 @@ and the claim follows from Lemma \ref{ruz-indep} and the definition of $k$.
 \end{proof}
 
 
-\subsection{Second estimate}
+\section{Second estimate}
 
 We continue the assumptions from the preceding section.
 We introduce the quantity
-$$ I_2 := \bbI[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ].$$
+$$ I_2 := \bbI[X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2].$$
 
 \begin{lemma}[Distance between sums]\label{dist-sums}
   \lean{rdist_of_sums_ge'}\leanok
@@ -195,7 +195,7 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
   Now Corollary \ref{cor-fibre} can be rewritten as
   \begin{align*}
     &d[X_1+\tilde X_1;X_2+\tilde X_2] + d[X_1|X_1+\tilde X_1; X_2|X_2+\tilde X_2] \\
-    &\quad + \bbI[ X_1+X_2 : X_1 + \tilde X_1 \,|\, X_1+X_2+\tilde X_1+\tilde X_2 ] = 2k,
+    &\quad + \bbI[X_1+X_2 : X_1 + \tilde X_1 \,|\, X_1+X_2+\tilde X_1+\tilde X_2] = 2k,
   \end{align*}
   recalling once again that $k := d[X_1;X_2]$.  From Lemma \ref{cond-distance-lower} one has
   \begin{align*}
@@ -211,28 +211,28 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
     \]
   Combining all these inequalities with Lemma \ref{dist-sums}, we have
   \begin{equation}\label{combined}
-  \bbI[ X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2 ] \leq \eta ( d[X_1; X_1] + d[X_2; X_2] ).
+  \bbI[X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2] \leq \eta ( d[X_1; X_1] + d[X_2; X_2] ).
   \end{equation}
   We may also use Lemma \ref{ruz-indep} to expand
   \begin{align*}
-   & d[X_1+\tilde X_1;X_2+\tilde X_2] \\ &= \bbH[ X_1+\tilde X_1 + X_2 + \tilde X_2 ]  - \tfrac{1}{2} \bbH[X_1+\tilde X_1] - \tfrac{1}{2} \bbH[X_2+\tilde X_2] \\
-    &= \bbH[ X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} \bbH[X_1] - \tfrac{1}{2} \bbH[X_2]  \\ & \qquad\qquad\qquad   - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2; X_2] \right),
+   & d[X_1+\tilde X_1;X_2+\tilde X_2] \\ &= \bbH[X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} \bbH[X_1+\tilde X_1] - \tfrac{1}{2} \bbH[X_2+\tilde X_2] \\
+    &= \bbH[X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} \bbH[X_1] - \tfrac{1}{2} \bbH[X_2]  \\ & \qquad\qquad\qquad   - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2; X_2] \right),
   \end{align*}
   and hence by Lemma \ref{foursum-bound}
   \[
     d[X_1+\tilde X_1; X_2+\tilde X_2] \leq (2+\eta) k - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2;X_2] \right) - I_1.
   \]
   Combining this bound with Lemma \ref{dist-sums} we obtain
-  \[ d[X_1;X_1] + d[X_2;X_2] \leq 2 k + \frac{2(2 \eta k - I_1)}{1-\eta}. \]
+  \[d[X_1;X_1] + d[X_2;X_2] \leq 2 k + \frac{2(2 \eta k - I_1)}{1-\eta}. \]
   Therefore by~\eqref{combined} we have the desired bound.
 \end{proof}
 
 
-\subsection{Endgame}
+\section{Endgame}
 
 Let $X_1,X_2,\tilde X_1,\tilde X_2$ be as before, and introduce the random variables
-\[ U := X_1 + X_2, \qquad V := \tilde X_1 + X_2, \qquad W := X_1 + \tilde X_1\] and
-\[   S := X_1 + X_2 + \tilde X_1 + \tilde X_2.\]
+\[U := X_1 + X_2, \qquad V := \tilde X_1 + X_2, \qquad W := X_1 + \tilde X_1\] and
+\[  S := X_1 + X_2 + \tilde X_1 + \tilde X_2.\]
 
 \begin{lemma}[Symmetry identity]\label{symm-lemma}
   \lean{I₃_eq}\leanok
@@ -260,7 +260,7 @@ From the definitions of $I_1,I_2$ and Lemma \ref{symm-lemma}, we see that
   I_1 = I(U : V \, | \, S), \qquad I_2 = I(W : U \, | \, S), \qquad I_2 = I(V : W \, | \,S).
 \]
 Applying Lemma \ref{first-estimate} and Lemma \ref{second-estimate} we have the inequalities
-\[   I_2 \leq 2 \eta k + \frac{2\eta(2 \eta k - I_1)}{1-\eta} .
+\[  I_2 \leq 2 \eta k + \frac{2\eta(2 \eta k - I_1)}{1-\eta} .
 \]
 We conclude that
 $$
@@ -280,7 +280,7 @@ and the claim follows from some calculation.
 
 \begin{proof}
   \uses{second-useful, foursum-bound}
-  By Lemma \ref{second-useful} (taking $X = X_1^0$, $Y = X_1$, $Z = X_2$ and $Z' = \tilde X_1 + \tilde X_2$, so that $Y + Z = U$ and $Y + Z + Z' = S$) we have, noting that $\bbH[Y+Z] = \bbH[Z']$,
+  By Lemma \ref{second-useful} (taking $X = X_1^0$, $Y = X_1$, $Z = X_2$ and $Z' = \tilde X_1 + \tilde X_2$, so that $Y + Z = U$ and $Y + Z + Z' = S$) we have, noting that $\bbH[Y+ Z] = \bbH[Z']$,
   \[
     d[X^0_1;U|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (\bbH[S] -  \bbH[X_1]).
   \]
@@ -291,9 +291,9 @@ and the claim follows from some calculation.
   d[X^0_2;V|S] - d[X^0_2;X_2] &\leq \tfrac{1}{2} (\bbH[S] -  \bbH[X_2])
   \end{align*}
   and
-  \[ d[X^0_1;W|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (\bbH[S] + \bbH[W] - \bbH[X_1] - \bbH[W']),\] where $W' := X_2 + \tilde X_2$.
+  \[d[X^0_1;W|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (\bbH[S] + \bbH[W] - \bbH[X_1] - \bbH[W']),\] where $W' := X_2 + \tilde X_2$.
   To treat $d[X^0_2;W|S]$, first note that this equals $d[X^0_2;W'|S]$, since for a fixed choice $s$ of $S$ we have $W' = W + s$ (here we need some helper lemma about Ruzsa distance). Now we may apply Lemma \ref{second-useful} to obtain
-  \[ d[X^0_2;W'|S] - d[X^0_2;X_2] \leq \tfrac{1}{2} (\bbH[S] + \bbH[W'] - \bbH[X_2] - \bbH[W]).\]
+  \[d[X^0_2;W'|S] - d[X^0_2;X_2] \leq \tfrac{1}{2} (\bbH[S] + \bbH[W'] - \bbH[X_2] - \bbH[W]).\]
   Summing these six estimates and using Lemma \ref{foursum-bound}, we conclude that
   \begin{align*}
     \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] & - d[X^0_i;X_i]\big) \\
@@ -327,8 +327,8 @@ For the next two lemmas, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable s
 
 (Note: in the paper, this lemma was phrased in a more intuitive formulation that is basically the contrapositive of the one here. Similarly for the next two lemmas.)
 
-\begin{proof}\uses{lem-bsg, cond-dist-fact,distance_lower}\leanok
-  We apply Lemma \ref{lem-bsg} with $(A,B) = (T_1, T_2)$ there.
+\begin{proof}\uses{entropic-bsg, cond-dist-fact,distance_lower}\leanok
+  We apply Lemma \ref{entropic-bsg} with $(A,B) = (T_1, T_2)$ there.
   Since $T_1 + T_2 = T_3$, the conclusion is that
   \begin{align} \nonumber \sum_{t_3} \bbP[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 \bbI[T_1 : T_2] + 2 \bbH[T_3] - \bbH[T_1] - \bbH[T_2].\label{bsg-t1t2}
   \end{align}
@@ -351,7 +351,7 @@ For the next two lemmas, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable s
      + \eta (d[X^0_2;T_2]-d[X^0_2;X_2]) + \tfrac12 \eta \bbI[T_1:T_3] + \tfrac12 \eta \bbI[T_2:T_3]
    \end{align*}
 where we introduce the notation
-\[ \psi[Y_1; Y_2] := d[Y_1;Y_2] +  \eta (d[X_1^0;Y_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;Y_2] - d[X_2^0;X_2]).\]
+\[\psi[Y_1; Y_2] := d[Y_1;Y_2] +  \eta (d[X_1^0;Y_1] - d[X_1^0;X_1]) + \eta(d[X_2^0;Y_2] - d[X_2^0;X_2]).\]
 On the other hand, from Lemma \ref{distance-lower} we have $k \leq \psi[Y_1;Y_2]$, and the claim follows.
   \end{proof}
 
@@ -388,7 +388,7 @@ In particular we may apply this for
   T_1 = (U | S = s),\qquad T_2 = (V | S = s), \qquad T_3 = (W | S = s)
 \]
 for $s$ in the range of $S$ (which is a valid choice by Lemma \ref{key-ident}) and then average over $s$ with weights $p_S(s)$, to obtain
-\[ k \leq \tilde \delta + \frac{\eta}{3} \biggl( \tilde \delta + \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \bigl(  d[X^0_i;A|S] - d[X^0_i;X_i]\bigr) \biggr),\]
+\[k \leq \tilde \delta + \frac{\eta}{3} \biggl( \tilde \delta + \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \bigl(  d[X^0_i;A|S] - d[X^0_i;X_i]\bigr) \biggr),\]
 where
 \[
   \tilde \delta :=  \bbI[U : V | S] + \bbI[V : W | S] + \bbI[W : U | S].
@@ -404,7 +404,7 @@ Moreover, from Definition \ref{eta-def} we have $8 \eta + \eta^2 < 1$. It follow
 \end{proof}
 
 
-\subsection{Conclusion}
+\section{Conclusion}
 
 \begin{theorem}[Entropy version of PFR]\label{entropy-pfr}
   \lean{entropic_PFR_conjecture}\leanok

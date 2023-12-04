@@ -1,6 +1,5 @@
 import PFR.probability_space
 import PFR.neg_xlogx
--- to do: be more specific on which part of Mathlib is being imported
 
 /-- The purpose of this file is to develop the basic theory of Shannon entropy. -/
 
@@ -15,7 +14,7 @@ variable {Ω S : Type*} [ProbabilitySpace Ω] [Fintype S] {X : Ω → S}
 /-- The entropy of a random variable. -/
 noncomputable def entropy (X : Ω → S) : ℝ := ∑ s, h (P[X ⁻¹' {s}])
 
-notation:100 "H[ " X " ]" => entropy X
+notation:100 "H[" X "]" => entropy X
 
 /-- Entropy is non-negative -/
 lemma entropy_nonneg (X : Ω → S) : 0 ≤ H[X] := by
@@ -40,7 +39,7 @@ lemma entropy_le_log (hX : Measurable X): H[X] ≤ log (Fintype.card S) := by
   . set N := Fintype.card S
     have : 0 < N := ProbabilitySpace.range_nonempty' hΩ hX
     unfold entropy
-    have hN : log N = N * h (∑ s : S, N⁻¹ * P[ X ⁻¹' {s} ]) := by
+    have hN : log N = N * h (∑ s : S, N⁻¹ * P[X ⁻¹' {s}]) := by
       rw [← Finset.mul_sum]
       norm_cast
       rw [ProbabilitySpace.totalProb hΩ hX]
@@ -50,16 +49,16 @@ lemma entropy_le_log (hX : Measurable X): H[X] ≤ log (Fintype.card S) := by
       field_simp; ring
     rw [hN, ← inv_mul_le_iff, Finset.mul_sum]
     set w := fun _ : S ↦ N⁻¹
-    set p := fun s : S ↦ (P[ X ⁻¹' {s} ] : ℝ)
+    set p := fun s : S ↦ (P[X ⁻¹' {s}] : ℝ)
 
     conv =>
       congr
       . congr; rfl
         ext s
-        rw [(show N⁻¹ = w s by simp), (show P[ X ⁻¹' {s} ] = p s by simp)]
+        rw [(show N⁻¹ = w s by simp), (show P[X ⁻¹' {s}] = p s by simp)]
       congr; congr; rfl
       ext s
-      rw [(show N⁻¹ = w s by simp), (show P[ X ⁻¹' {s} ] = p s by simp)]
+      rw [(show N⁻¹ = w s by simp), (show P[X ⁻¹' {s}] = p s by simp)]
     apply h_jensen
     . intros; simp
     . simp; apply mul_inv_cancel; positivity

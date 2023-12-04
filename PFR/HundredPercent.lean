@@ -1,4 +1,4 @@
-import PFR.ruzsa_distance
+import PFR.Entropy.RuzsaDist
 
 /-!
 # The 100% version of entropic PFR
@@ -55,7 +55,7 @@ lemma ProbabilityTheory.IdentDistrib.symmGroup_eq {Ω' : Type*} [MeasureSpace Ω
 
 variable [MeasurableSingletonClass G]
 
-/-- If $d[X;X]=0$, and $x,y \in G$ are such that $P[X=x], P[X=y]>0$,
+/-- If $d[X ;X]=0$, and $x,y \in G$ are such that $P[X=x], P[X=y]>0$,
 then $x-y \in \mathrm{Sym}[X]$. -/
 lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
     {x y : G} (hx : ℙ (X⁻¹' {x}) ≠ 0) (hy : ℙ (X⁻¹' {y}) ≠ 0) : x - y ∈ symmGroup X hX := by
@@ -68,14 +68,14 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
     ⟨Ω', mΩ', X', Y', hP, hX', hY', hindep, hidX, hidY⟩
   rw [hidX.symm.symmGroup_eq hX hX']
   have A : H[X' - Y' | Y'] = H[X' - Y'] := calc
-    H[X' - Y' | Y'] = H[X' | Y'] := condEntropy_of_sub_eq hX' hY'
+    H[X' - Y' | Y'] = H[X' | Y'] := condEntropy_sub_right hX' hY'
     _ = H[X'] := hindep.condEntropy_eq_entropy hX' hY'
     _ = H[X' - Y'] := by
       have : d[X' # Y'] = 0 := by rwa [hidX.rdist_eq hidY]
       rw [hindep.rdist_eq hX' hY', ← (hidX.trans hidY.symm).entropy_eq] at this
       linarith
   have I : IndepFun (X' - Y') Y' := by
-    refine (ProbabilityTheory.mutualInfo_eq_zero (hX'.sub' hY') hY').1 ?_
+    refine (mutualInfo_eq_zero (hX'.sub' hY') hY').1 ?_
     rw [mutualInfo_eq_entropy_sub_condEntropy (hX'.sub' hY') hY', A, sub_self]
   have M : ∀ c, ℙ (Y' ⁻¹' {c}) ≠ 0 → IdentDistrib (fun ω ↦ X' ω - c) (X' - Y') := by
     intro c hc
@@ -133,7 +133,7 @@ lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X]
     rw [B] at hx
     simpa using sub_mem_symmGroup hX hdist hx hx₀
 
-/-- If $d[X;X]=0$, then there exists a subgroup $H \leq G$ such that $d[X;U_H] = 0$. -/
+/-- If $d[X ;X]=0$, then there exists a subgroup $H \leq G$ such that $d[X ;U_H] = 0$. -/
 theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X # X] = 0) :
     ∃ H : AddSubgroup G, ∃ U : Ω → G, Measurable U ∧ IsUniform H U ∧ d[X # U] = 0 := by
   -- use for `U` a translate of `X` to make sure that `0` is in its support.

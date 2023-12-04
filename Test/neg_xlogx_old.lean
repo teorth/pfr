@@ -33,7 +33,7 @@ lemma h_nonneg (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ h x := by
 @[simp] lemma h_one : h 1 = 0 := by simp [h]
 
 /-- a sublemma needed to get an upper bound for h. -/
-lemma log_le {x:ℝ} (hx: 0 ≤ x) : log x ≤ x / rexp 1 := by
+lemma log_le {x:ℝ} (hX : 0 ≤ x) : log x ≤ x / rexp 1 := by
   rw [le_iff_lt_or_eq] at hx
   rcases hx with hx | hx
   . rw [← sub_le_sub_iff_right 1]
@@ -118,7 +118,7 @@ lemma h_cont : ContinuousOn h (Set.Icc 0 1) := by
   exact h_le hy.1
 
 /-- The derivative of h. -/
-lemma h_deriv {x : ℝ} (hx: 0 < x) : HasDerivAt h (- log x + (- 1)) x := by
+lemma h_deriv {x : ℝ} (hX : 0 < x) : HasDerivAt h (- log x + (- 1)) x := by
   convert hasDerivAt_id x |>.neg.mul (hasDerivAt_log ?_) using 1
   · field_simp
   · positivity
@@ -128,7 +128,7 @@ example : DifferentiableOn ℝ h (Set.Ioo 0 1) :=
   fun _ hx ↦ (h_deriv hx.1).differentiableAt.differentiableWithinAt
 
 -- how to get the `deriv` from `HasDerivAt`
-example {x : ℝ} (hx: 0 < x) : deriv h x = - log x + (- 1) := (h_deriv hx).deriv
+example {x : ℝ} (hX : 0 < x) : deriv h x = - log x + (- 1) := (h_deriv hx).deriv
 
 /-- The concavity of h. -/
 lemma h_concave : ConcaveOn ℝ (Set.Icc 0 1) h := by
