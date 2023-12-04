@@ -27,14 +27,16 @@ end PFR
 
 
 section RealMeasure
--- some examples to showcase real-valued measures in a self-contained fashion
+-- some examples to showcase real-valued measures in a self-contained fashion.
 
 open MeasureTheory ProbabilityTheory BigOperators
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
-/-- The probability measure ℙ, but taking values in the reals. -/
+/-- The probability measure ℙ, but taking values in the reals. Can be more convenient than ENNReal-valued measures if one wishes to use operations such as subtraction. -/
 local notation3 "ℙᵣ" => (ℙ : Measure Ω).real
+
+example (E : Set Ω) : ℙᵣ E = (ℙ E).toReal := by rfl
 
 example : ℙᵣ Set.univ = 1 := by simp
 
@@ -63,7 +65,7 @@ end RealMeasure
 
 
 section Entropy
--- some examples to showcase Shannon entropy in a self-contained fashion
+-- some examples to showcase Shannon entropy in a self-contained fashion.  For simplicity we only illustrate the notation for probability spaces with a canonical probability measure, but one can also decouple the measure from the space if desired.
 
 open MeasureTheory ProbabilityTheory BigOperators
 
