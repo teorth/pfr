@@ -281,6 +281,13 @@ lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C
 
 variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
+variable {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
+lemma iIndepFun.prod (h : iIndepFun n f μ) :
+    let β := fun k ↦ Π i : ST k, α i
+    iIndepFun (β := β) (fun k ↦ MeasurableSpace.pi)
+      (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
+  sorry
+
 lemma hU : H[U] = H[X₁' + X₂'] := by
   apply IdentDistrib.entropy_eq
   apply ProbabilityTheory.IdentDistrib.add
