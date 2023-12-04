@@ -261,23 +261,18 @@ lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C
           rfl
         · exact hC.prod_mk (hB.add hC)
   rw [h1, h2, ruzsa_helper_lemma' hX₂' hB' hC']
-  rw [indepFun_iff_map_prod_eq_prod_map_map hX₂' (hB'.prod_mk hC'), Measure.volume_eq_prod]
+  rw [indepFun_iff_map_prod_eq_prod_map_map hX₂'.aemeasurable (hB'.prod_mk hC').aemeasurable,
+    Measure.volume_eq_prod]
   have h_prod : (fun ω ↦ (X₂' ω, prod B' C' ω)) = Prod.map p.X₀₂ (⟨B, C⟩) := by ext1; simp
   have h_comp_snd : (fun a ↦ (B' a, C' a)) = (⟨B, C⟩) ∘ Prod.snd := by ext1; simp
   rw [h_prod, h_comp_snd, hX₂'_def, ← Measure.map_map _ measurable_snd,
     ← Measure.map_map _ measurable_fst, Measure.map_prod_map]
   rotate_left
-  · simp only [Measure.map_fst_prod, measure_univ, one_smul]
-    infer_instance
-  · simp only [Measure.map_snd_prod, measure_univ, one_smul]
-    infer_instance
   · exact p.hmeas2
   · exact hB.prod_mk hC
   · exact p.hmeas2
   · exact hB.prod_mk hC
-  congr
-  · simp
-  · simp
+  congr <;> simp
 
 variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 

@@ -139,7 +139,7 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
   rw [rdist_def]
   congr 2
   have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨X, Y⟩) :=
-    ((indepFun_iff_map_prod_eq_prod_map_map hX hY).mp h).symm
+    ((indepFun_iff_map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable).mp h).symm
   rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
   rfl
 
@@ -377,7 +377,7 @@ lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) 
   dsimp; congr; ext x; congr
   rw [condEntropyKernel, kernel.comap_apply, kernel.condKernel_apply_of_ne_zero _ _ _]
   ext s hs
-  rw [Measure.map_apply measurable_snd hs, kernel.const_apply, kernel.const_apply, cond_apply _ hc,
+  rw [Measure.map_apply measurable_snd hs, kernel.const_apply, cond_apply _ hc,
     Measure.map_apply hcX hc, Measure.map_apply hcX (hc.inter (measurable_snd hs)),
     Set.preimage_preimage, Set.preimage_inter, Set.preimage_preimage, Set.preimage_preimage,
     Set.preimage_const_of_mem (by rfl), measure_univ, inv_one, one_mul, Set.univ_inter,
@@ -406,7 +406,7 @@ lemma condRuzsaDist_of_indep
     have h' := IndepFun.comp h measurable_snd measurable_snd
     exact h'
   have hZW_map : μ.map (⟨Z, W⟩) = (μ.map Z).prod (μ.map W) :=
-    (indepFun_iff_map_prod_eq_prod_map_map hZ hW).mp hZW
+    (indepFun_iff_map_prod_eq_prod_map_map hZ.aemeasurable hW.aemeasurable).mp hZW
   rw [← hZW_map]
   refine kernel.entropy_congr ?_
   have : kernel.map (condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2) measurable_sub
