@@ -327,8 +327,6 @@ lemma iIndepFun.pi' {f : ∀ ij : (Σ i, κ i), Ω → α ij.1 ij.2 }
 
 -- The following lemma has a completely inefficient proof; should be done better
 
-/-
-
 lemma exists_indexfn {ι ι': Type*} [hι': Nonempty ι'] {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) : ∃ K : ι → ι', ∀ k : ι', ∀ i ∈ ST k, K i = k := by
   classical
   let inv (i : ι) : Set ι' := { k | i ∈ ST k }
@@ -421,5 +419,3 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
   rw [hK k i hik]
   simp [hk, hik]
   exact (h_sets ⟨ k, hk ⟩).1 i hik
-
--/
