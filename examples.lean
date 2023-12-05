@@ -17,6 +17,8 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
   convert PFR_conjecture h₀A hA
   norm_cast
 
+#print axioms PFR_conjecture
+
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
     ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T :=
