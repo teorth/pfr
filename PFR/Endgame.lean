@@ -303,11 +303,10 @@ def κ_equiv : (Σ i, κ i) ≃ Fin 4 where
   left_inv := by rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> rfl
   right_inv := by intro i; fin_cases i <;> rfl
 
-lemma fintype_kappa (i : Fin 3) : Fintype (κ i) := by
-  match i with
-  | 0 => change (Fintype (Fin 1)); infer_instance
-  | 1 => change (Fintype (Fin 1)); infer_instance
-  | 2 => change (Fintype (Fin 2)); infer_instance
+def fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
+  | 0 => inferInstanceAs (Fintype (Fin 1))
+  | 1 => inferInstanceAs (Fintype (Fin 1))
+  | 2 => inferInstanceAs (Fintype (Fin 2))
 
 variable {X₁ X₂ X₁' X₂'} in
 attribute [local instance] fintype_kappa in
