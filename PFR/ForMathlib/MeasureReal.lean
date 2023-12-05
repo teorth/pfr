@@ -1,6 +1,7 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Basic
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
-import PFR.Tactic.Finiteness.Basic
+import PFR.Tactic.Finiteness
 
 /-!
 # Measures as real valued-functions
@@ -57,6 +58,16 @@ lemma sum_toReal_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace 
     [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
     ∑ x : S, (μ {x}).toReal = (μ Set.univ).toReal := by
   simp
+
+variable [MeasurableSpace Ω]
+
+/-- Variant of `sum_measure_preimage_singleton` using real numbers rather than extended nonnegative
+reals. -/
+lemma sum_measure_preimage_singleton' (μ : Measure Ω) [IsProbabilityMeasure μ] {T : Type u}
+    [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y : Ω → T} (hY : Measurable Y) :
+    ∑ y : T, (μ (Y ⁻¹' {y})).toReal = 1 := by
+  rw [← ENNReal.toReal_sum, sum_measure_preimage_singleton] <;>
+    simp [hY $ measurableSet_discrete _, measure_ne_top]
 
 end aux_lemmas
 

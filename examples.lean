@@ -17,24 +17,29 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
   convert PFR_conjecture h₀A hA
   norm_cast
 
+#print axioms PFR_conjecture
+
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
-    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T :=
-  homomorphism_pfr f S hS
+    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T := by
+  convert homomorphism_pfr f S hS
+  norm_cast
 
 end PFR
 
 
 
 section RealMeasure
--- some examples to showcase real-valued measures in a self-contained fashion
+-- some examples to showcase real-valued measures in a self-contained fashion.
 
 open MeasureTheory ProbabilityTheory BigOperators
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
-/-- The probability measure ℙ, but taking values in the reals. -/
+/-- The probability measure ℙ, but taking values in the reals. Can be more convenient than ENNReal-valued measures if one wishes to use operations such as subtraction. -/
 local notation3 "ℙᵣ" => (ℙ : Measure Ω).real
+
+example (E : Set Ω) : ℙᵣ E = (ℙ E).toReal := by rfl
 
 example : ℙᵣ Set.univ = 1 := by simp
 
@@ -63,7 +68,7 @@ end RealMeasure
 
 
 section Entropy
--- some examples to showcase Shannon entropy in a self-contained fashion
+-- some examples to showcase Shannon entropy in a self-contained fashion.  For simplicity we only illustrate the notation for probability spaces with a canonical probability measure, but one can also decouple the measure from the space if desired.
 
 open MeasureTheory ProbabilityTheory BigOperators
 
@@ -104,7 +109,7 @@ example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInfo_eq hX 
 example : 0 ≤ I[X : Y | Z] := condMutualInfo_nonneg hX hY Z ℙ
 
 /-- Relation between conditional mutual information and conditional independence. -/
-example : I[X : Y | Z] = 0 ↔ condIndepFun X Y Z := condMutualInfo_eq_zero hX hY hZ
+example : I[X : Y | Z] = 0 ↔ CondIndepFun X Y Z := condMutualInfo_eq_zero hX hY hZ
 
 
 end Entropy

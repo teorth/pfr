@@ -59,7 +59,7 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'
 
 \begin{lemma}[Conditional distance lower bound]\label{cond-distance-lower}
   \uses{tau-minimizes, cond-dist-def}
-  \lean{condDistance_ge_of_min}\leanok
+  \lean{condRuzsaDistance_ge_of_min}\leanok
   For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one has
 $$ d[X'_1|Z;X'_2|W] \geq k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 \end{lemma}
@@ -279,7 +279,7 @@ and the claim follows from some calculation.
 \end{lemma}
 
 \begin{proof}
-  \uses{second-useful, foursum-bound}
+  \uses{second-useful, foursum-bound}\leanok
   By Lemma \ref{second-useful} (taking $X = X_1^0$, $Y = X_1$, $Z = X_2$ and $Z' = \tilde X_1 + \tilde X_2$, so that $Y + Z = U$ and $Y + Z + Z' = S$) we have, noting that $\bbH[Y+ Z] = \bbH[Z']$,
   \[
     d[X^0_1;U|S] - d[X^0_1;X_1] \leq \tfrac{1}{2} (\bbH[S] -  \bbH[X_1]).

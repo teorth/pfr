@@ -3,7 +3,12 @@ import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 
 open MeasureTheory
 
-variable {M : Type*} [MeasurableSpace M] [Mul M] [Div M] [Inv M]
+variable {M : Type*} [MeasurableSpace M]
+
+instance MeasurableDiv.toMeasurableInv [Group M] [MeasurableDiv M] : MeasurableInv M where
+  measurable_inv := by simpa using measurable_const_div (1 : M)
+
+variable [Mul M] [Div M] [Inv M]
 
 @[to_additive] -- See note [lower instance priority]
 instance DiscreteMeasurableSpace.toMeasurableMul [DiscreteMeasurableSpace M] :
