@@ -26,70 +26,8 @@ section aux_kernel
 
 namespace ProbabilityTheory.kernel
 
--- These are already PRed to mathlib
-
 variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
-
-@[simp]
-lemma const_zero : kernel.const α (0 : Measure β) = 0 := by ext x s _; simp [kernel.const_apply]
-
-@[simp]
-lemma prodMkLeft_zero : kernel.prodMkLeft α (0 : kernel β γ) = 0 := by
-  ext x s _; simp [kernel.prodMkLeft_apply']
-
-@[simp] lemma fst_zero : fst (0 : kernel α (β × γ)) = 0 := by simp [fst]
-@[simp] lemma snd_zero : snd (0 : kernel α (β × γ)) = 0 := by simp [snd]
-
-@[simp]
-lemma fst_swapRight (κ : kernel α (β × γ)) : fst (swapRight κ) = snd κ := by
-  ext a s hs
-  rw [fst_apply' _ _ hs, swapRight_apply', snd_apply' _ _ hs]
-  · rfl
-  · exact measurable_fst hs
-
-@[simp]
-lemma snd_swapRight (κ : kernel α (β × γ)) : snd (swapRight κ) = fst κ := by
-  ext a s hs
-  rw [snd_apply' _ _ hs, swapRight_apply', fst_apply' _ _ hs]
-  · rfl
-  · exact measurable_snd hs
-
-lemma fst_map_prod (κ : kernel α β) {f : β → γ} {g : β → δ}
-    (hf : Measurable f) (hg : Measurable g) :
-    fst (map κ (fun x ↦ (f x, g x)) (hf.prod_mk hg)) = map κ f hf := by
-  ext x s hs
-  rw [fst_apply' _ _ hs, map_apply', map_apply' _ _ _ hs]
-  · rfl
-  · exact measurable_fst hs
-
-lemma snd_map_prod (κ : kernel α β) {f : β → γ} {g : β → δ}
-    (hf : Measurable f) (hg : Measurable g) :
-    snd (map κ (fun x ↦ (f x, g x)) (hf.prod_mk hg)) = map κ g hg := by
-  ext x s hs
-  rw [snd_apply' _ _ hs, map_apply', map_apply' _ _ _ hs]
-  · rfl
-  · exact measurable_snd hs
-
-@[simp]
-lemma fst_compProd (κ : kernel α β) (η : kernel (α × β) γ) [IsSFiniteKernel κ] [IsMarkovKernel η] :
-    fst (κ ⊗ₖ η) = κ := by
-  ext x s hs
-  rw [fst_apply' _ _ hs, compProd_apply]
-  swap; · exact measurable_fst hs
-  simp only [Set.mem_setOf_eq]
-  classical
-  have : ∀ b : β, η (x, b) {_c | b ∈ s} = s.indicator (fun _ ↦ 1) b := by
-    intro b
-    by_cases hb : b ∈ s <;> simp [hb]
-  simp_rw [this]
-  rw [lintegral_indicator_const hs, one_mul]
-
-@[simp]
-lemma map_const (μ : Measure α) {f : α → β} (hf : Measurable f) :
-    map (const γ μ) f hf = const γ (μ.map f) := by
-  ext x s hs
-  rw [map_apply' _ _ _ hs, const_apply, const_apply, Measure.map_apply hf hs]
 
 -- the following are not PRed to mathlib yet
 

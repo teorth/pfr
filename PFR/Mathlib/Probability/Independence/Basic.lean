@@ -37,12 +37,34 @@ lemma iIndepFun.mul_right [IsProbabilityMeasure μ] {ι : Type*} {β : Type*} {m
 section iIndepFun
 
 variable {Ω ι ι' : Type*} [MeasurableSpace Ω] {α β : ι → Type*}
-  {n : ∀ i, MeasurableSpace (α i)}
-  {m : ∀ i, MeasurableSpace (β i)} {f : ∀ i, Ω → α i}
+  [n : ∀ i, MeasurableSpace (α i)]
+  [m : ∀ i, MeasurableSpace (β i)] {f : ∀ i, Ω → α i}
   {μ : Measure Ω}
 
-variable (g : ι' ≃ ι)
-lemma iIndepFun.reindex (h : iIndepFun (n ∘' g) (f ∘' g) μ) : iIndepFun n f μ := by
+@[nontriviality]
+lemma iIndepFun.of_subsingleton [IsProbabilityMeasure μ] [Subsingleton ι] : iIndepFun n f μ := by
+  simp [iIndepFun_iff]
+  intro s f' hf'
+  rcases Finset.eq_empty_or_nonempty s with rfl|hs
+  · simp
+  · rcases hs with ⟨x, hx⟩
+    have : s = {x} := by ext y; simp [Subsingleton.elim y x, hx]
+    simp [this]
+
+lemma iIndepFun.isProbabilityMeasure (h : iIndepFun n f μ) : IsProbabilityMeasure μ :=
+  ⟨by simpa using h.meas_biInter (S := ∅) (s := fun _ ↦ univ)⟩
+
+lemma iIndepFun.reindex_of_injective (h : iIndepFun n f μ) (g : ι' → ι) (hg : Injective g) :
+    iIndepFun (n ∘' g) (f ∘' g) μ := by
+  have : IsProbabilityMeasure μ := h.isProbabilityMeasure
+  nontriviality ι'
+  have A : ∀ x, invFun g (g x) = x := leftInverse_invFun hg
+  rw [iIndepFun_iff] at h ⊢
+  intro t s' hs'
+  specialize h (t.map ⟨g, hg⟩ ) (f' := fun i ↦ s' (invFun g i)) (by simpa [A ] using hs')
+  simpa [A] using h
+
+lemma iIndepFun.reindex (g : ι' ≃ ι) (h : iIndepFun (n ∘' g) (f ∘' g) μ) : iIndepFun n f μ := by
   rw [iIndepFun_iff] at h ⊢
   intro t s hs
   have : ⋂ i, ⋂ (_ : g i ∈ t), s (g i) = ⋂ i ∈ t, s i
@@ -51,6 +73,12 @@ lemma iIndepFun.reindex (h : iIndepFun (n ∘' g) (f ∘' g) μ) : iIndepFun n f
   simp [this, g.forall_congr_left'] at h
   apply h
   convert hs <;> simp
+
+lemma iIndepFun.reindex_symm (g : ι' ≃ ι) (h : iIndepFun n f μ) : iIndepFun (n ∘' g) (f ∘' g) μ := by
+  apply h.reindex_of_injective _ (Equiv.injective g)
+
+lemma iIndepFun_reindex_iff (g : ι' ≃ ι) : iIndepFun (n ∘' g) (f ∘' g) μ ↔ iIndepFun n f μ :=
+  ⟨fun h ↦ h.reindex g, fun h ↦ h.reindex_symm g⟩
 
 lemma iIndepFun.comp (h : iIndepFun n f μ) (g : ∀ i, α i → β i) (hg : ∀ i, Measurable (g i)) :
     iIndepFun m (fun i ↦ g i ∘ f i) μ := by
@@ -136,7 +164,8 @@ variable {f : Ω → α} {g : Ω → β}
 /-- Composing independent functions with a measurable embedding of conull range gives independent
 functions. -/
 lemma IndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂μ, a ∈ range i)
-    (hf : Measurable f) (hg : Measurable g) (hfg : IndepFun f g μ) : IndepFun (f ∘ i) (g ∘ i) (μ.comap i) := by
+    (hf : Measurable f) (hg : Measurable g) (hfg : IndepFun f g μ) :
+    IndepFun (f ∘ i) (g ∘ i) (μ.comap i) := by
   change μ (range i)ᶜ = 0 at hi'
   rw [IndepFun_iff] at hfg ⊢
   rintro _ _ ⟨s, hs, rfl⟩ ⟨t, ht, rfl⟩
@@ -186,7 +215,7 @@ theorem indepFun_iff_map_prod_eq_prod_map_map' {mβ : MeasurableSpace β} {mβ' 
 
 -- TODO(Mantas): Add this to mathlib & upgrade to work for `AEMeasurable` (currently lemmas missing)
 theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι]
-    (f : ∀ x : ι, Ω → β x) (m : ∀ x : ι, MeasurableSpace (β x))
+    (f : ∀ x : ι, Ω → β x) [m : ∀ x : ι, MeasurableSpace (β x)]
     [IsProbabilityMeasure μ] (hf : ∀ (x : ι), Measurable (f x)) :
     iIndepFun m f μ ↔ Measure.pi (fun i ↦ μ.map (f i)) = μ.map (fun ω i ↦ f i ω) := by
   classical -- might be able to get rid of this
@@ -224,47 +253,77 @@ end ProbabilityTheory
 
 namespace ProbabilityTheory
 variable {ι Ω : Type*} {κ : ι → Type*} {α : ∀ i, κ i → Type*} [MeasurableSpace Ω] {μ : Measure Ω}
-  [IsProbabilityMeasure μ] {m : ∀ i j, MeasurableSpace (α i j)} {f : ∀ i j, Ω → α i j}
+  [IsProbabilityMeasure μ] [m : ∀ i j, MeasurableSpace (α i j)] {f : ∀ i j, Ω → α i j}
   [Fintype ι] [∀ i, Fintype (κ i)]
 
--- Below, two approaches
-
-/-- If a family of functions `i j ↦ f i j` is independent, then the family of functions
-`i ↦ ∀ j, f i j` is independent. -/
-lemma iIndepFun.pi
-    (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) (fun ij : Σ i, κ i ↦ f ij.1 ij.2) μ) :
-    iIndepFun (fun i ↦ MeasurableSpace.pi) (fun i ω j ↦ f i j ω) μ := by
-  rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at hf ⊢
-  rintro s t ht
-  -- Here, we want to WLOG reduce to the case where the `t i` are boxes of the form
-  -- `Set.univ.pi (fun j : κ i → (u i j : Set (α i j)))`
-  sorry
-
 lemma measurable_sigmaCurry :
-    Measurable (Sigma.curry : (∀ ij : Σ i, κ i, α ij.1 ij.2) → ∀ i j, α i j) := sorry
+    Measurable (Sigma.curry : (∀ ij : Σ i, κ i, α ij.1 ij.2) → ∀ i j, α i j) := by
+  measurability
 
-lemma measurable_sigmaUncurry :
-    Measurable (Sigma.uncurry : (∀ i j, α i j) → (∀ ij : Σ i, κ i, α ij.1 ij.2)) := sorry
+@[to_additive]
+lemma _root_.Finset.prod_univ_prod {β : Type*} [CommMonoid β] (f : ∀ i, κ i → β) :
+    (∏ ij : (i : ι) × κ i, f ij.1 ij.2) = (∏ i : ι, ∏ j : κ i, f i j) := by
+  rw [← Finset.univ_sigma_univ, Finset.prod_sigma]
 
-/-- If a family of functions `i j ↦ f i j` is independent, then the family of functions
-`i ↦ ∀ j, f i j` is independent. -/
-lemma iIndepFun.pi'
+@[to_additive]
+lemma _root_.Finset.prod_univ_prod' {β : Type*} [CommMonoid β] (f : ((i : ι) × κ i) → β) :
+    (∏ ij : (i : ι) × κ i, f ij) = (∏ i : ι, ∏ j : κ i, f ⟨i, j⟩) := by
+  rw [← Finset.univ_sigma_univ, Finset.prod_sigma]
+
+/-- If a family of functions `(i, j) ↦ f i j` is independent, then the family of function tuples
+`i ↦ (f i j)ⱼ` is independent. -/
+lemma iIndepFun.pi
+    (f_meas : ∀ i j, Measurable (f i j))
     (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) (fun ij : Σ i, κ i ↦ f ij.1 ij.2) μ) :
-    iIndepFun (fun i ↦ MeasurableSpace.pi) (fun i ω j ↦ f i j ω) μ := by
-  rw [iIndepFun_iff_pi_map_eq_map] at hf ⊢
+    iIndepFun (fun i ↦ MeasurableSpace.pi) (fun i ω ↦ (fun j ↦ f i j ω)) μ := by
+  have I : ∀ i, iIndepFun (fun j ↦ m i j) (fun j ↦ f i j) μ :=
+    fun i₀ ↦ hf.reindex_of_injective (Sigma.mk i₀) sigma_mk_injective
+  rw [iIndepFun_iff_pi_map_eq_map] at hf ⊢; rotate_left
+  · exact fun i ↦ measurable_pi_lambda _ (fun a ↦ f_meas _ _)
+  · exact fun ij ↦ f_meas _ _
   symm
   calc
-    μ.map (fun ω i j ↦ f i j ω)
-      = (μ.map fun ω (ij : Σ i, κ i) ↦ f ij.1 ij.2 ω).map Sigma.curry := by
-        rw [Measure.map_map]; rfl
-        exact measurable_sigmaCurry
-        sorry
-    _ = _ := by rw [←hf]
-    _ = _ := ?_
-  sorry
-  sorry
-  sorry
+  μ.map (fun ω i j ↦ f i j ω)
+    = (μ.map fun ω (ij : Σ i, κ i) ↦ f ij.1 ij.2 ω).map Sigma.curry := by
+      rw [Measure.map_map]
+      · rfl
+      · exact measurable_sigmaCurry
+      · exact measurable_pi_lambda _ (fun a ↦ f_meas _ _)
+  _ = ((Measure.pi fun (ij : Σ i, κ i) ↦ μ.map (f ij.1 ij.2))).map Sigma.curry := by rw [← hf]
+  _ = Measure.pi fun i ↦ μ.map (fun ω j ↦ f i j ω) := by
+    rw [eq_comm]
+    apply Measure.pi_eq_generateFrom (fun i ↦ generateFrom_pi) (fun i ↦ isPiSystem_pi)
+        (fun i ↦ ?_)
+    · intro s hs
+      simp only [mem_image, mem_pi, mem_univ, mem_setOf_eq, forall_true_left] at hs
+      choose! t ht h't using hs
+      simp_rw [← h't]
+      rw [Measure.map_apply measurable_sigmaCurry]; swap
+      · apply MeasurableSet.univ_pi (fun i ↦ ?_)
+        rw [← h't]
+        exact MeasurableSet.pi countable_univ (fun i _hi ↦ ht _ _)
+      have : Sigma.curry ⁻¹' Set.pi univ s = Set.pi univ (fun (ij : Σ i, κ i) ↦ t ij.1 ij.2) := by
+        ext x
+        simp only [mem_preimage, mem_pi, mem_univ, ← h't, forall_true_left, Sigma.forall]
+        rfl
+      simp only [this, pi_pi, Finset.prod_univ_prod (f := fun i j ↦ (μ.map (f i j)) (t i j))]
+      congr 1 with i
+      specialize I i
+      rw [iIndepFun_iff_pi_map_eq_map _ (fun j ↦ f_meas _ _)] at I
+      simp [← I]
+    · refine ⟨fun _ ↦ univ, fun n ↦ ?_, ?_, ?_⟩
+      · simp only [mem_image, mem_pi, mem_univ, mem_setOf_eq, forall_true_left]
+        exact ⟨fun j ↦ univ, by simp⟩
+      · simpa only [forall_const] using IsFiniteMeasure.measure_univ_lt_top
+      · simpa using iUnion_const univ
 
+/-- If a family of functions `(i, j) ↦ f i j` is independent, then the family of function tuples
+`i ↦ (f i j)ⱼ` is independent. -/
+lemma iIndepFun.pi' {f : ∀ ij : (Σ i, κ i), Ω → α ij.1 ij.2 }
+    (f_meas : ∀ i, Measurable (f i))
+    (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) f μ) :
+    iIndepFun (fun _i ↦ MeasurableSpace.pi) (fun i ω ↦ (fun j ↦ f ⟨i, j⟩ ω)) μ :=
+  iIndepFun.pi (fun _ _ ↦ f_meas _) hf
 
 -- The following lemma has a completely inefficient proof; should be done better
 
@@ -287,73 +346,76 @@ lemma exists_indexfn {ι ι': Type*} [hι': Nonempty ι'] {ST : ι' → Finset �
   simp [this, hi]
 
 variable {ι ι' : Type*} {α : ι → Type*} [hι': Nonempty ι']
-  {n : (i : ι) → MeasurableSpace (α i)} {f : (i : ι) → Ω → α i} {hf : (i : ι) → Measurable (f i)}  {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
+    {n : (i : ι) → MeasurableSpace (α i)} {f : (i : ι) → Ω → α i}
+    {hf : ∀ (i : ι), Measurable (f i)}
+    {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST))
 lemma iIndepFun.prod (h : iIndepFun n f μ) :
     let β := fun k ↦ Π i : ST k, α i
     iIndepFun (β := β) (fun k ↦ MeasurableSpace.pi)
       (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
-      set F := fun (k : ι') (x : Ω) (i : ST k) ↦ f i x
-      set M := fun (k : ι') ↦ MeasurableSpace.pi (m := fun (i: ST k) ↦ n i)
-      rw [iIndepFun_iff_iIndep]
-      let πβ (k : ι') := Set.pi (Set.univ : Set (ST k)) ''
+  set F := fun (k : ι') (x : Ω) (i : ST k) ↦ f i x
+  set M := fun (k : ι') ↦ MeasurableSpace.pi (m := fun (i: ST k) ↦ n i)
+  rw [iIndepFun_iff_iIndep]
+  let πβ (k : ι') := Set.pi (Set.univ : Set (ST k)) ''
     Set.pi (Set.univ : Set (ST k)) fun i => { s : Set (α i) | MeasurableSet[n i] s }
-      let π (k : ι') : Set (Set Ω) := { s : Set Ω | ∃ t ∈ (πβ k), (fun a (i : (ST k)) => f i a) ⁻¹' t = s }
-      apply iIndepSets.iIndep (π := π)
-      . intro k
-        rw [<-measurable_iff_comap_le, measurable_pi_iff]
-        intro i
-        exact hf i
-      . intro k
-        apply IsPiSystem.comap
-        apply isPiSystem_pi
-      . intro k
-        have : M k = MeasurableSpace.generateFrom (πβ k) :=  generateFrom_pi.symm
-        rw [this, MeasurableSpace.comap_generateFrom]
-        congr
-      rw [iIndepSets_iff]
-      intro s E hE
-      simp at hE
-      have hE' (k : s) := hE k (Finset.coe_mem k)
-      classical
-      obtain ⟨ sets, h_sets ⟩ := Classical.axiomOfChoice hE'
-      rcases exists_indexfn hS with ⟨ K, hK ⟩
-      let sets' (k : ι') (i : ι) : Set (α i) := if h : k ∈ s then (if h' : i ∈ ST k then sets ⟨k, h⟩ ⟨i, h'⟩ else Set.univ) else Set.univ
-      let sets'' (i : ι) : Set (α i) := sets' (K i) i
-      have box (k : ι') (hk : k ∈ s) : E k = ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) := by
-        rw [<-(h_sets ⟨ k, hk ⟩).2]
-        simp [hk]
-        ext1 ω
-        simp_rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
-        constructor <;> intro h
-        · intro i hi; rw [hK k i hi]; simp [hi, hk]; exact h ⟨ i, hi ⟩
-        · intro i; have := h i; rw [hK k i.1 i.2] at this; simp [hk] at this; exact this
-      suffices : μ (⋂ k ∈ s, ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) ) = ∏ k in s, μ (⋂ i ∈ ST k, (f i)⁻¹' (sets'' i))
-      . convert this with k hk k hk
-        all_goals {
-          exact box k hk
-        }
-      rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at h
-      have hS' : PairwiseDisjoint s ST := by
-        intro k _ k' _ hkk'
-        exact hS hkk'
-      set A : Finset ι := Finset.disjiUnion s ST hS'
-      have big_inter : ⋂ k ∈ s, ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) = ⋂ i ∈ A, (f i)⁻¹' (sets'' i) := by
-        simp
-      rw [big_inter, h A _, Finset.prod_disjiUnion]
-      . apply Finset.prod_congr rfl
-        intro k hk
-        symm
-        apply h (ST k)
-        intro i hi
-        have := (h_sets ⟨k, hk⟩).1 i hi
-        convert this
-        simp
-        rw [hK k i hi]
-        simp [hi, hk]
-      intro i hi
-      simp at hi
-      rcases hi with ⟨ k, hk, hik ⟩
-      simp
-      rw [hK k i hik]
-      simp [hk, hik]
-      exact (h_sets ⟨ k, hk ⟩).1 i hik
+  let π (k : ι') : Set (Set Ω) :=
+    {s : Set Ω | ∃ t ∈ (πβ k), (fun a (i : (ST k)) => f i a) ⁻¹' t = s}
+  apply iIndepSets.iIndep (π := π)
+  . intro k
+    rw [<-measurable_iff_comap_le, measurable_pi_iff]
+    intro i
+    exact hf i
+  . intro k
+    apply IsPiSystem.comap
+    apply isPiSystem_pi
+  . intro k
+    have : M k = MeasurableSpace.generateFrom (πβ k) :=  generateFrom_pi.symm
+    rw [this, MeasurableSpace.comap_generateFrom]
+    congr
+  rw [iIndepSets_iff]
+  intro s E hE
+  simp at hE
+  have hE' (k : s) := hE k (Finset.coe_mem k)
+  classical
+  obtain ⟨ sets, h_sets ⟩ := Classical.axiomOfChoice hE'
+  rcases exists_indexfn hS with ⟨ K, hK ⟩
+  let sets' (k : ι') (i : ι) : Set (α i) := if h : k ∈ s then (if h' : i ∈ ST k then sets ⟨k, h⟩ ⟨i, h'⟩ else Set.univ) else Set.univ
+  let sets'' (i : ι) : Set (α i) := sets' (K i) i
+  have box (k : ι') (hk : k ∈ s) : E k = ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) := by
+    rw [<-(h_sets ⟨ k, hk ⟩).2]
+    simp [hk]
+    ext1 ω
+    simp_rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
+    constructor <;> intro h
+    · intro i hi; rw [hK k i hi]; simp [hi, hk]; exact h ⟨ i, hi ⟩
+    · intro i; have := h i; rw [hK k i.1 i.2] at this; simp [hk] at this; exact this
+  suffices : μ (⋂ k ∈ s, ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) ) = ∏ k in s, μ (⋂ i ∈ ST k, (f i)⁻¹' (sets'' i))
+  . convert this with k hk k hk
+    all_goals {
+      exact box k hk
+    }
+  rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at h
+  have hS' : PairwiseDisjoint s ST := by
+    intro k _ k' _ hkk'
+    exact hS hkk'
+  set A : Finset ι := Finset.disjiUnion s ST hS'
+  have big_inter : ⋂ k ∈ s, ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) = ⋂ i ∈ A, (f i)⁻¹' (sets'' i) := by
+    simp
+  rw [big_inter, h A _, Finset.prod_disjiUnion]
+  . apply Finset.prod_congr rfl
+    intro k hk
+    symm
+    apply h (ST k)
+    intro i hi
+    have := (h_sets ⟨k, hk⟩).1 i hi
+    convert this
+    simp
+    rw [hK k i hi]
+    simp [hi, hk]
+  intro i hi
+  simp at hi
+  rcases hi with ⟨ k, hk, hik ⟩
+  simp
+  rw [hK k i hik]
+  simp [hk, hik]
+  exact (h_sets ⟨ k, hk ⟩).1 i hik
