@@ -21,8 +21,9 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
-    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T :=
-  homomorphism_pfr f S hS
+    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T := by
+  convert homomorphism_pfr f S hS
+  norm_cast
 
 end PFR
 
@@ -108,7 +109,7 @@ example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInfo_eq hX 
 example : 0 ≤ I[X : Y | Z] := condMutualInfo_nonneg hX hY Z ℙ
 
 /-- Relation between conditional mutual information and conditional independence. -/
-example : I[X : Y | Z] = 0 ↔ condIndepFun X Y Z := condMutualInfo_eq_zero hX hY hZ
+example : I[X : Y | Z] = 0 ↔ CondIndepFun X Y Z := condMutualInfo_eq_zero hX hY hZ
 
 
 end Entropy
