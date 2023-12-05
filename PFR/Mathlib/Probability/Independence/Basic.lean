@@ -37,8 +37,8 @@ lemma iIndepFun.mul_right [IsProbabilityMeasure μ] {ι : Type*} {β : Type*} {m
 section iIndepFun
 
 variable {Ω ι ι' : Type*} [MeasurableSpace Ω] {α β : ι → Type*}
-  {n : ∀ i, MeasurableSpace (α i)}
-  {m : ∀ i, MeasurableSpace (β i)} {f : ∀ i, Ω → α i}
+  [n : ∀ i, MeasurableSpace (α i)]
+  [m : ∀ i, MeasurableSpace (β i)] {f : ∀ i, Ω → α i}
   {μ : Measure Ω}
 
 @[nontriviality]
@@ -73,6 +73,12 @@ lemma iIndepFun.reindex (g : ι' ≃ ι) (h : iIndepFun (n ∘' g) (f ∘' g) μ
   simp [this, g.forall_congr_left'] at h
   apply h
   convert hs <;> simp
+
+lemma iIndepFun.reindex_symm (g : ι' ≃ ι) (h : iIndepFun n f μ) : iIndepFun (n ∘' g) (f ∘' g) μ := by
+  apply h.reindex_of_injective _ (Equiv.injective g)
+
+lemma iIndepFun_reindex_iff (g : ι' ≃ ι) : iIndepFun (n ∘' g) (f ∘' g) μ ↔ iIndepFun n f μ :=
+  ⟨fun h ↦ h.reindex g, fun h ↦ h.reindex_symm g⟩
 
 lemma iIndepFun.comp (h : iIndepFun n f μ) (g : ∀ i, α i → β i) (hg : ∀ i, Measurable (g i)) :
     iIndepFun m (fun i ↦ g i ∘ f i) μ := by
@@ -158,7 +164,8 @@ variable {f : Ω → α} {g : Ω → β}
 /-- Composing independent functions with a measurable embedding of conull range gives independent
 functions. -/
 lemma IndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂μ, a ∈ range i)
-    (hf : Measurable f) (hg : Measurable g) (hfg : IndepFun f g μ) : IndepFun (f ∘ i) (g ∘ i) (μ.comap i) := by
+    (hf : Measurable f) (hg : Measurable g) (hfg : IndepFun f g μ) :
+    IndepFun (f ∘ i) (g ∘ i) (μ.comap i) := by
   change μ (range i)ᶜ = 0 at hi'
   rw [IndepFun_iff] at hfg ⊢
   rintro _ _ ⟨s, hs, rfl⟩ ⟨t, ht, rfl⟩
@@ -208,7 +215,7 @@ theorem indepFun_iff_map_prod_eq_prod_map_map' {mβ : MeasurableSpace β} {mβ' 
 
 -- TODO(Mantas): Add this to mathlib & upgrade to work for `AEMeasurable` (currently lemmas missing)
 theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι]
-    (f : ∀ x : ι, Ω → β x) (m : ∀ x : ι, MeasurableSpace (β x))
+    (f : ∀ x : ι, Ω → β x) [m : ∀ x : ι, MeasurableSpace (β x)]
     [IsProbabilityMeasure μ] (hf : ∀ (x : ι), Measurable (f x)) :
     iIndepFun m f μ ↔ Measure.pi (fun i ↦ μ.map (f i)) = μ.map (fun ω i ↦ f i ω) := by
   classical -- might be able to get rid of this
@@ -302,7 +309,7 @@ lemma iIndepFun.pi
       simp only [this, pi_pi, Finset.prod_univ_prod (f := fun i j ↦ (μ.map (f i j)) (t i j))]
       congr 1 with i
       specialize I i
-      rw [iIndepFun_iff_pi_map_eq_map _ _ (fun j ↦ f_meas _ _)] at I
+      rw [iIndepFun_iff_pi_map_eq_map _ (fun j ↦ f_meas _ _)] at I
       simp [← I]
     · refine ⟨fun _ ↦ univ, fun n ↦ ?_, ?_, ?_⟩
       · simp only [mem_image, mem_pi, mem_univ, mem_setOf_eq, forall_true_left]
@@ -310,7 +317,17 @@ lemma iIndepFun.pi
       · simpa only [forall_const] using IsFiniteMeasure.measure_univ_lt_top
       · simpa using iUnion_const univ
 
+/-- If a family of functions `(i, j) ↦ f i j` is independent, then the family of function tuples
+`i ↦ (f i j)ⱼ` is independent. -/
+lemma iIndepFun.pi' {f : ∀ ij : (Σ i, κ i), Ω → α ij.1 ij.2 }
+    (f_meas : ∀ i, Measurable (f i))
+    (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) f μ) :
+    iIndepFun (fun _i ↦ MeasurableSpace.pi) (fun i ω ↦ (fun j ↦ f ⟨i, j⟩ ω)) μ :=
+  iIndepFun.pi (fun _ _ ↦ f_meas _) hf
+
 -- The following lemma has a completely inefficient proof; should be done better
+
+/-
 
 lemma exists_indexfn {ι ι': Type*} [hι': Nonempty ι'] {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) : ∃ K : ι → ι', ∀ k : ι', ∀ i ∈ ST k, K i = k := by
   classical
@@ -404,3 +421,5 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
   rw [hK k i hik]
   simp [hk, hik]
   exact (h_sets ⟨ k, hk ⟩).1 i hik
+
+-/
