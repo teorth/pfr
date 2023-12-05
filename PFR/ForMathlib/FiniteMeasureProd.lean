@@ -77,7 +77,7 @@ lemma map_prod_map {α' : Type*} [MeasurableSpace α'] {β' : Type*} [Measurable
     (μ.map f).prod (ν.map g) = (μ.prod ν).map (Prod.map f g) := by
   apply Subtype.ext
   simp only [val_eq_toMeasure, toMeasure_prod, toMeasure_map]
-  rw [Measure.map_prod_map _ _ f_mble g_mble] <;> exact IsFiniteMeasure.toSigmaFinite _
+  rw [Measure.map_prod_map _ _ f_mble g_mble]
 
 lemma prod_apply_null {s : Set (α × β)} (hs : MeasurableSet s) :
     μ.prod ν s = 0 ↔ (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ] 0 := by
@@ -164,8 +164,7 @@ lemma map_prod_map {α' : Type*} [MeasurableSpace α'] {β' : Type*} [Measurable
       = (μ.prod ν).map (f_mble.prod_map g_mble).aemeasurable := by
   apply Subtype.ext
   simp only [val_eq_to_measure, toMeasure_prod, toMeasure_map]
-  rw [Measure.map_prod_map _ _ f_mble g_mble] <;>
-    exact IsFiniteMeasure.toSigmaFinite (Measure.map _ _)
+  rw [Measure.map_prod_map _ _ f_mble g_mble]
 
 lemma prod_apply_null {s : Set (α × β)} (hs : MeasurableSet s) :
     μ.prod ν s = 0 ↔ (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ] 0 := by

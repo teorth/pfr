@@ -600,7 +600,8 @@ lemma mutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure �
     congr
   rw [h_fst, h_snd]
   convert measureMutualInfo_eq_zero_iff (μ.map (⟨X, Y⟩))
-  rw [indepFun_iff_map_prod_eq_prod_map_map hX hY, ext_iff_measureReal_singleton]
+  rw [indepFun_iff_map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable,
+    ext_iff_measureReal_singleton]
   congr! with p
   convert measureReal_prod_prod (μ := μ.map X) (ν := μ.map Y) {p.1} {p.2}
   · simp
