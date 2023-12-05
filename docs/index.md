@@ -17,6 +17,7 @@ The purpose of this repository is to hold a Lean4 formalization of [the proof of
 * [Documentation of the methods](https://teorth.github.io/pfr/docs)
 * [A quick "tour" of the project](https://terrytao.wordpress.com/2023/11/18/formalizing-the-proof-of-pfr-in-lean4-using-blueprint-a-short-tour)
 * [Some example Lean code to illustrate the results in the project](https://github.com/teorth/pfr/blob/master/examples.lean)
+* [An (automatically generated) list of contributors to the project](https://github.com/teorth/pfr/graphs/contributors)
 
 ## Build the Lean files
 
