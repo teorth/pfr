@@ -32,6 +32,7 @@ Assumptions:
 open MeasureTheory ProbabilityTheory
 open scoped BigOperators
 
+/-
 section
 variable {Ω α β γ δ : Type*} [MeasurableSpace Ω] [MeasurableSpace α] {W X Y Z : Ω → α}
   {μ : Measure Ω} [IsProbabilityMeasure μ]
@@ -53,6 +54,8 @@ lemma hopelessly_specific (hWXYZ : iIndepFun (fun _ ↦ ‹_›) ![W, X, Y, Z] �
   sorry
 
 end
+-/
+
 
 variable {G : Type*} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
@@ -132,10 +135,10 @@ lemma I₃_eq : I[V : W | S] = I₂ := by
               fin_cases x;
               all_goals aesop
             map_eq := by
-              rw [(ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁, X₂, X₁', X₂'])
+              rw [← (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁, X₂, X₁', X₂'])
               (fun _ ↦ hG) (Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <|
               Fin.cases hX₂' Fin.rec0)).mp h_indep,
-              (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁', X₂, X₁, X₂'])
+              ← (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁', X₂, X₁, X₂'])
               (fun _ ↦ hG) (Fin.cases hX₁' <| Fin.cases hX₂ <| Fin.cases hX₁ <|
               Fin.cases hX₂' Fin.rec0)).mp h_indep2]
               congr
@@ -379,6 +382,14 @@ lemma measurable_g (i : Fin 3) : Measurable (g (G := G) i) := by
     Measurable (fun (X : { x // x ∈ S1 1 } → G) ↦ X { val := 1, property := by decide }) := by
       measurability
     exact aux
+
+lemma glouk {α β : Type*} [MeasureSpace α] [hG : MeasurableSpace β] {A B C : α → β}
+    (f : β → β → β) (hf : Measurable f.uncurry) (h : iIndepFun (fun _ ↦ hG) ![A, B, C]) :
+    iIndepFun (fun _ ↦ hG) ![A, (fun ω ↦ f (B ω) (C ω))] := by
+
+
+
+#exit
 
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
