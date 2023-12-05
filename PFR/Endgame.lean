@@ -304,13 +304,6 @@ lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C
 
 variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
-variable {ι : Type*} {α : ι → Type*} {n : (i : ι) → MeasurableSpace (α i)}
-  {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
-lemma iIndepFun.prod (h : iIndepFun n f μ) :
-    let β := fun y ↦ Π i : ST y, α i
-    iIndepFun (β := β) (fun y ↦ MeasurableSpace.pi)
-      (fun (y : ι') (x : Ω) (i : ST y) ↦ f i x) μ := by
-  sorry
 
 lemma hU : H[U] = H[X₁' + X₂'] :=
   IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁ h₂
@@ -354,6 +347,9 @@ lemma independenceCondition1' : iIndepFun (fun _ => MeasurableSpace.pi) (f1 X₁
       · rw [show i = { val := 3, property := by decide } from (by aesop)] ; rfl
   rw [aux]
   apply iIndepFun.prod
+  . intro i; fin_cases i
+    all_goals { simpa }
+  . sorry
   exact h_indep
 
 def g : (i : Fin 3) → ({ x // x ∈ S1 i } → G) → G

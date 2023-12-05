@@ -5,14 +5,10 @@ open MeasureTheory ProbabilityTheory Function Set BigOperators
 
 namespace ProbabilityTheory
 
-variable {Ω ι ι' : Type*} [MeasurableSpace Ω] {α : ι → Type*} [hι': Nonempty ι']
-  {n : (i : ι) → MeasurableSpace (α i)} {f : (i : ι) → Ω → α i}
-  {μ : Measure Ω} [IsProbabilityMeasure μ] {hf : (i : ι) → Measurable (f i)}
 
 -- The following lemma has a completely inefficient proof; should be done better
 
-variable {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
-lemma exists_indexfn : ∃ K : ι → ι', ∀ k : ι', ∀ i ∈ ST k, K i = k := by
+lemma exists_indexfn {ι ι': Type*} [hι': Nonempty ι'] {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) : ∃ K : ι → ι', ∀ k : ι', ∀ i ∈ ST k, K i = k := by
   classical
   let inv (i : ι) : Set ι' := { k | i ∈ ST k }
   let K := fun i => if h : Set.Nonempty (inv i) then   (Classical.choice (Set.Nonempty.to_subtype h)).1 else Classical.choice hι'
@@ -30,8 +26,9 @@ lemma exists_indexfn : ∃ K : ι → ι', ∀ k : ι', ∀ i ∈ ST k, K i = k 
   use {i}
   simp [this, hi]
 
-
-variable {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
+variable {Ω ι ι' : Type*} [MeasurableSpace Ω] {α : ι → Type*} [hι': Nonempty ι']
+  {n : (i : ι) → MeasurableSpace (α i)} {f : (i : ι) → Ω → α i}
+  {μ : Measure Ω} [IsProbabilityMeasure μ] {hf : (i : ι) → Measurable (f i)}  {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) in
 lemma iIndepFun.prod (h : iIndepFun n f μ) :
     let β := fun k ↦ Π i : ST k, α i
     iIndepFun (β := β) (fun k ↦ MeasurableSpace.pi)
