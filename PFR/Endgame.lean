@@ -288,9 +288,8 @@ lemma hU : H[U] = H[X₁' + X₂'] :=
      (iIndepFun.indepFun h_indep (show (2 : Fin 4) ≠ 3 by norm_cast)))
 
 abbrev κ : Fin 3 → Type
-  | 0 => Fin 1
-  | 1 => Fin 1
-  | 2 => Fin 2
+  | 0 | 1 => Fin 1
+  | 2     => Fin 2
 
 def κ_equiv : (Σ i, κ i) ≃ Fin 4 where
   toFun := fun x ↦ match x with
@@ -304,9 +303,7 @@ def κ_equiv : (Σ i, κ i) ≃ Fin 4 where
   right_inv := by intro i; fin_cases i <;> rfl
 
 def fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
-  | 0 => inferInstanceAs (Fintype (Fin 1))
-  | 1 => inferInstanceAs (Fintype (Fin 1))
-  | 2 => inferInstanceAs (Fintype (Fin 2))
+  | 0 | 1 | 2 => inferInstanceAs (Fintype (Fin _))
 
 variable {X₁ X₂ X₁' X₂'} in
 attribute [local instance] fintype_kappa in
@@ -317,16 +314,14 @@ lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X�
   -- apply to this triplet of independent variables the function that adds `X'₁` and `X'₂` and does
   -- not change the other variables. It retains independence, proving the conclusion.
   let add_third : ∀ (i : Fin 3), (κ i → G) → G
-    | 0 => (fun f ↦ f ⟨0, zero_lt_one⟩)
-    | 1 => (fun f ↦ f ⟨0, zero_lt_one⟩)
-    | 2 => (fun f ↦ f ⟨0, zero_lt_two⟩ + f ⟨1, one_lt_two⟩)
+    | 0 | 1 => (fun f ↦ f ⟨0, zero_lt_one⟩)
+    | 2     => (fun f ↦ f ⟨0, zero_lt_two⟩ + f ⟨1, one_lt_two⟩)
   convert T.comp add_third ?_ with i
   · fin_cases i <;> rfl
   · intro i
-    fin_cases i
-    · exact measurable_pi_apply _
-    · exact measurable_pi_apply _
-    · exact (measurable_pi_apply _).add (measurable_pi_apply _)
+    match i with
+      | 0 | 1 => exact measurable_pi_apply _
+      | 2     => exact (measurable_pi_apply _).add (measurable_pi_apply _)
 
 lemma hV : H[V] = H[X₁ + X₂'] :=
 IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁.symm h₂
