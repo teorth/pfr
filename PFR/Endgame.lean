@@ -175,108 +175,6 @@ local notation3:max "c[" A " # " B "]" =>
 
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
-lemma ruzsa_helper_lemma' [IsProbabilityMeasure (ℙ : Measure Ω)] {X B C : Ω → G}
-    (hX : Measurable X) (hB : Measurable B) (hC : Measurable C)
-    (h_indep : IndepFun X (⟨B, C⟩)) :
-    d[X # B | B + C] = d[X # C | B + C] := by
-  let π : G × G →+ G :=
-  { toFun := fun x ↦ x.2 - x.1
-    map_zero' := by simp
-    map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add,
-      ElementaryAddCommGroup.sub_eq_add]; abel }
-  let Y : Fin 4 → Ω → G := ![-X, C, fun _ ↦ 0, B + C]
-  have hY_meas : ∀ i, Measurable (Y i) := by
-    intro i
-    fin_cases i
-    exacts [hX.neg, hC, measurable_const, hB.add hC]
-  calc d[X # B | B + C]
-    = d[X | fun _ : Ω ↦ (0 : G) # B | B + C] := by rw [condRuzsaDist_of_const hX]
-  _ = d[π ∘ ⟨-X, fun _ : Ω ↦ (0 : G)⟩ | fun _ : Ω ↦ (0 : G) # π ∘ ⟨C, B + C⟩ | B + C] := by
-        congr
-        · ext1 ω; simp
-        · ext1 ω
-          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply, Pi.add_apply]
-          abel
-  _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 # π ∘ ⟨Y 1, Y 3⟩ | Y 3] := by congr
-  _ = d[-X | fun _ : Ω ↦ (0 : G) # C | B + C] := by
-        rw [condRuzsaDist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
-        · congr
-        · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp
-          have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
-            ext1 ω;
-            simp only [ElementaryAddCommGroup.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
-              Function.comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
-              Matrix.cons_val_fin_one, true_and]
-            congr
-          rw [h1, h2]
-          refine h_indep.comp ?_ ?_
-          · exact measurable_neg.prod_mk measurable_const
-          · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
-  _ = d[-X # C | B + C] := by rw [condRuzsaDist_of_const]; exact hX.neg
-  _ = d[X # C | B + C] := by -- because ElementaryAddCommGroup G 2
-        congr
-        simp
-
-lemma ruzsa_helper_lemma {B C : Ω → G} (hB : Measurable B) (hC : Measurable C) :
-    d[p.X₀₂ # B | B + C] = d[p.X₀₂ # C | B + C] := by
-  -- we want to apply `ruzsa_helper_lemma'`, but for that all variables need to be in the same
-  -- probability space
-  let Ω' := Ω₀₂ × Ω
-  set X₂' : Ω' → G := p.X₀₂ ∘ Prod.fst with hX₂'_def
-  have hX₂' : Measurable X₂' := p.hmeas2.comp measurable_fst
-  let B' : Ω' → G := B ∘ Prod.snd
-  have hB' : Measurable B' := hB.comp measurable_snd
-  let C' : Ω' → G := C ∘ Prod.snd
-  have hC' : Measurable C' := hC.comp measurable_snd
-  -- h1 and h2 should be applications of a new lemma?
-  have h1 : d[p.X₀₂ # B | B + C] = d[X₂' # B' | B' + C'] := by
-    refine condRuzsaDist'_of_copy p.X₀₂ hB (hB.add hC) X₂' hB' (hB'.add hC') ?_ ?_
-    · constructor
-      · exact p.hmeas2.aemeasurable
-      · exact hX₂'.aemeasurable
-      · rw [Measure.volume_eq_prod, ← Measure.map_map p.hmeas2 measurable_fst]
-        simp
-    · constructor
-      · exact (hB.prod_mk (hB.add hC)).aemeasurable
-      · exact (hB'.prod_mk (hB'.add hC')).aemeasurable
-      · rw [Measure.volume_eq_prod]
-        have : ⟨B', B' + C'⟩ = (⟨B, B + C⟩) ∘ Prod.snd := by ext1 _; simp
-        rw [this, ← Measure.map_map _ measurable_snd]
-        · simp only [Measure.map_snd_prod, measure_univ, one_smul]
-          rfl
-        · exact hB.prod_mk (hB.add hC)
-  have h2 : d[p.X₀₂ # C | B + C] = d[X₂' # C' | B' + C'] := by
-    refine condRuzsaDist'_of_copy p.X₀₂ hC (hB.add hC) X₂' hC' (hB'.add hC') ?_ ?_
-    · constructor
-      · exact p.hmeas2.aemeasurable
-      · exact hX₂'.aemeasurable
-      · rw [Measure.volume_eq_prod, ← Measure.map_map p.hmeas2 measurable_fst]
-        simp
-    · constructor
-      · exact (hC.prod_mk (hB.add hC)).aemeasurable
-      · exact (hC'.prod_mk (hB'.add hC')).aemeasurable
-      · rw [Measure.volume_eq_prod]
-        have : ⟨C', B' + C'⟩ = (⟨C, B + C⟩) ∘ Prod.snd := by ext1 _; simp
-        rw [this, ← Measure.map_map _ measurable_snd]
-        · simp only [Measure.map_snd_prod, measure_univ, one_smul]
-          rfl
-        · exact hC.prod_mk (hB.add hC)
-  rw [h1, h2, ruzsa_helper_lemma' hX₂' hB' hC']
-  rw [indepFun_iff_map_prod_eq_prod_map_map hX₂'.aemeasurable (hB'.prod_mk hC').aemeasurable,
-    Measure.volume_eq_prod]
-  have h_prod : (fun ω ↦ (X₂' ω, prod B' C' ω)) = Prod.map p.X₀₂ (⟨B, C⟩) := by ext1; simp
-  have h_comp_snd : (fun a ↦ (B' a, C' a)) = (⟨B, C⟩) ∘ Prod.snd := by ext1; simp
-  rw [h_prod, h_comp_snd, hX₂'_def, ← Measure.map_map _ measurable_snd,
-    ← Measure.map_map _ measurable_fst, Measure.map_prod_map]
-  rotate_left
-  · exact p.hmeas2
-  · exact hB.prod_mk hC
-  · exact p.hmeas2
-  · exact hB.prod_mk hC
-  congr <;> simp
-
-variable [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-
 lemma hU : H[U] = H[X₁' + X₂'] :=
   IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁ h₂
     (iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 1 by norm_cast))
@@ -450,7 +348,7 @@ lemma sum_dist_diff_le :
   · have S_eq : S = (X₂ + X₂') + (X₁' + X₁)
     · rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ←add_assoc X₂, ←add_assoc X₂, add_comm X₂]
     rw [S_eq]
-    exact ruzsa_helper_lemma p (hX₂.add hX₂') (hX₁'.add hX₁)
+    apply  condRuzsaDist'_of_inj_map' p.hmeas2 (hX₂.add hX₂') (hX₁'.add hX₁)
 
   -- Put everything together to bound the sum of the `c` terms
   have ineq7 : c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ]
