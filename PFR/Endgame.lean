@@ -370,11 +370,6 @@ lemma sum_dist_diff_le :
       (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) + (H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2) :=
         add_le_add (add_le_add step₁ step₂) step₃
     _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
-  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']
-  · apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (2 : Fin 4) 3)
-    convert h_indep using 1
-    ext x
-    fin_cases x ; all_goals { aesop }
 
   have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']
   · apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (2 : Fin 4) 3)
