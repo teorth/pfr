@@ -37,7 +37,7 @@ jobs:
         run: |
           grep -r --files-without-match 'import PFR' PFR | sort > 1.txt
           grep -r --files-with-match 'sorry' PFR | sort > 2.txt
-          comm -23 1.txt 2.txt | sed -e 's/^\(.*\)$/- [`\1`](https:\/\/github.com\/teorth\/PFR\/blob\/main\/\1)/' > docs/_includes/files_to_upstream.md
+          comm -23 1.txt 2.txt | sed -e 's/^\(.*\)$/- [`\1`](https:\/\/github.com\/teorth\/PFR\/blob\/master\/\1)/' > docs/_includes/files_to_upstream.md
           rm 1.txt 2.txt
 
       - name: Install elan
