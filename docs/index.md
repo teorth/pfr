@@ -51,6 +51,14 @@ lake build
 inv all
 ```
 
+## Moving material to mathlib
+
+The project is now over. As such, we are currently working towards stabilising the new results and contributing them to mathlib.
+
+Here is the list of files that do not depend on any other PFR file, indicating they are good candidates for upstreaming to mathlib:
+
+{% include files_to_upstream.md %}
+
 ## Source reference
 
 `[GGMT]`: <https://arxiv.org/abs/2311.05762>
