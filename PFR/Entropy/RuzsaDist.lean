@@ -335,9 +335,8 @@ lemma condRuzsaDist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Me
   rfl
 
 /-- Explicit formula for conditional Ruzsa distance $d[X ; Y|W]$. -/
-lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
-    (hY : Measurable Y) (hW : Measurable W)
-    (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
+    (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
     d[X ; μ # Y | W ; μ']
       = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
   rw [condRuzsaDist'_def, kernel.rdist, integral_eq_sum]
@@ -369,11 +368,11 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
 /-- Conditioning by a constant does not affect Ruzsa distance. -/
 lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
-    d[X|(fun _ => c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
+    d[X|(fun _ ↦ c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
   have hcX : Measurable (fun ω => (c, X ω)) := by simp [measurable_prod, hX]
   have hc : MeasurableSet (Prod.fst ⁻¹' {c} : Set (S × G)) := measurable_fst (by simp)
   rw [condRuzsaDist_def, condRuzsaDist'_def, Measure.map_const,measure_univ,one_smul, kernel.rdist,
-    kernel.rdist, integral_prod,integral_dirac,integral_prod,integral_dirac]
+    kernel.rdist, integral_prod, integral_dirac, integral_prod,integral_dirac]
   dsimp; congr; ext x; congr
   rw [condEntropyKernel, kernel.comap_apply, kernel.condKernel_apply_of_ne_zero _ _ _]
   ext s hs

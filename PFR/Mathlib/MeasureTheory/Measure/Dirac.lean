@@ -1,6 +1,14 @@
 import Mathlib.MeasureTheory.Measure.Dirac
 
 namespace MeasureTheory.Measure
+variable {α : Type*} [MeasurableSpace α] {a : α}
+
+instance dirac.instIsFiniteMeasure : IsFiniteMeasure (dirac a) := inferInstance
+instance dirac.instSigmaFinite : SigmaFinite (dirac a) := inferInstance
+
+end MeasureTheory.Measure
+
+namespace MeasureTheory.Measure
 variable {α : Type*} [Fintype α] [MeasurableSpace α] [MeasurableSingletonClass α] {μ : Measure α}
   {p : α → Prop}
 

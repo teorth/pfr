@@ -298,8 +298,8 @@ lemma Measure.compProd_compProd (μ : Measure T) [IsProbabilityMeasure μ]
     (ξ : kernel T S) [IsMarkovKernel ξ] (κ : kernel (T × S) U) [IsMarkovKernel κ] :
     μ ⊗ₘ (ξ ⊗ₖ κ) = (μ ⊗ₘ ξ ⊗ₘ κ).map assocEquiv.symm := by
   ext s hs
-  rw [Measure.compProd_apply _ _ hs, Measure.map_apply assocEquiv.symm.measurable hs,
-    Measure.compProd_apply _ _ (assocEquiv.symm.measurable hs),
+  rw [Measure.compProd_apply hs, Measure.map_apply assocEquiv.symm.measurable hs,
+    Measure.compProd_apply (assocEquiv.symm.measurable hs),
     Measure.lintegral_compProd]
   swap; · exact measurable_kernel_prod_mk_left (assocEquiv.symm.measurable hs)
   congr with a

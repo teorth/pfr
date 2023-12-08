@@ -1,7 +1,6 @@
 import Mathlib.Probability.IdentDistrib
 import Mathlib.Probability.Notation
 import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 import PFR.Mathlib.SetTheory.Cardinal.Finite
 
 open Function MeasureTheory Set
