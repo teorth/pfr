@@ -1,5 +1,6 @@
 import Mathlib.Probability.Notation
-import PFR.homomorphism
+import PFR.Homomorphism
+import PFR.ImprovedPFR
 import PFR.ForMathlib.MeasureReal
 
 section PFR
@@ -19,11 +20,19 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 
 #print axioms PFR_conjecture
 
+/-- The improved version -/
+example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : AddSubgroup G) (c : Set G),
+      Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  convert PFR_conjecture_improv h₀A hA
+
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
     ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T := by
   convert homomorphism_pfr f S hS
   norm_cast
+
+-- TODO: the approximate homomorphism version of PFR
 
 end PFR
 

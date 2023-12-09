@@ -158,7 +158,7 @@ Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] =
   For any $\eta < 1/8$, we see from Lemma \ref{first-estimate} that the expression $\frac{(1 -5 \eta - \frac{4}{6} \eta)(2 \eta k - I_1)}{(1-\eta)}$ is nonnegative, and hence $k = 0$ as required.
 \end{proof}
 
-\begin{theorem}[Improved entropy version of PFR]\label{entropy-pfr'}\lean{entropic_PFR_conjecture'}\leanok
+\begin{theorem}[Improved entropy version of PFR]\label{entropy-pfr'}\lean{entropic_PFR_conjecture_improv}\leanok
   Let $G = \F_2^n$, and suppose that $X^0_1, X^0_2$ are $G$-valued random variables. Let $0 < \eta < 1/8$.
   Then there is some subgroup $H \leq G$ such that
   \[
@@ -168,12 +168,12 @@ Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] =
   Furthermore, both $d[X^0_1;U_H]$ and $d[X^0_2;U_H]$ are at most $6 d[X^0_1;X^0_2]$.
 \end{theorem}
 
-\begin{proof} \uses{de-prop', tau-min, lem:100pc, ruzsa-triangle} Repeat the proof of Theorem \\leanok  Let $X_1, X_2$ be the $\tau$-minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop}, $d[X_1;X_2]=0$.  From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
+\begin{proof} \uses{de-prop', tau-min, lem:100pc, ruzsa-triangle}   Let $X_1, X_2$ be the $\tau$-minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop'}, $d[X_1;X_2]=0$.  From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}
 
 One can then replace Theorem \ref{pfr} with
 
-\begin{theorem}[Improved PFR]\label{pfr'}\lean{PFR_conjecture'}\leanok
+\begin{theorem}[Improved PFR]\label{pfr'}\lean{PFR_conjecture_improv}\leanok
   If $A \subset {\bf F}_2^n$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $2K^{11}$ translates of a subspace $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$.
 \end{theorem}
 

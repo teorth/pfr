@@ -110,9 +110,9 @@ variable {G : Type uG} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
   [MeasurableSingletonClass G]
 variable (p : refPackage Ω₀₁ Ω₀₂ G) {X₁ : Ω → G} {X₂ : Ω → G} (hX₁ : Measurable X₁) (hX₂ : Measurable X₂)
 
-/-- `entropic_PFR_conjecture'`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
+/-- `entropic_PFR_conjecture_improv`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
     subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le (2+1/η) d[X^0_1;X^0_2]$. -/
-theorem entropic_PFR_conjecture' (hpη: p.η = 1/9):
+theorem entropic_PFR_conjecture_improv (hpη: p.η = 1/9):
     ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
     IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ (2+1/p.η) * d[p.X₀₁ # p.X₀₂] := sorry
@@ -126,12 +126,12 @@ open Pointwise Set MeasureTheory ProbabilityTheory
 
 variable {G Ω : Type*} [AddCommGroup G] [Fintype G]
     [MeasurableSpace G] [MeasurableSingletonClass G] {A B : Set G}
-    [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G}
+    [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G} {K : ℝ}
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
 2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{11}$ cosets of
 a subgroup of cardinality at most $|A|$. -/
-theorem PFR_conjecture' (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
      ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   sorry
