@@ -23,14 +23,18 @@ $$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$ -/
 lemma cauchy_schwarz (A B : Finset G) :
   ((A ×ˢ A).filter (fun (a : G × G) => a.fst + a.snd ∈ B)).card^2 ≤ B.card * E[A] := sorry
 
--- in order to state bsg we may need to temporarily define some placeholder constants C_1, C_2, C_3, C_4
+-- These are provisional values of constants, subject to change.  May also want to localize these definitions to just this file
 
-/-- Let $G$ be an abelian group, and let $A$ be a finite non-empty set with $E(A) \geq |A|^3 / K$ for some $K \geq 1$.  Then there is a subset $A'$ of $A$ with $|A'| \geq |A| / (C_1 K^{C_2})$ and $|A'+A'| \leq C_3 K^{C_4} |A'|$ -/
-proof_wanted bsg : 0 = 1
+def C₁ := 2^4
+def C₂ := 1
+def C₃ := 2^10
+def C₄ := 4
 
+/-- Let $G$ be an abelian group, and let $A$ be a finite non-empty set with $E(A) \geq |A|^3 / K$ for some $K \geq 1$.  Then there is a subset $A'$ of $A$ with $|A'| \geq |A| / (C_1 K^{C_2})$ and $|A'-A'| \leq C_3 K^{C_4} |A'|$ -/
+lemma bsg (A : Finset G) (K : ℝ) (hK: 0 < K) (hE: E[A] ≥ (A.card)^3 / K): ∃ A' : Finset G, A' ⊆ A ∧ A'.card ≥ A.card / (C₁ * K^C₂) ∧ (A' - A').card ≤ C₃ * K^C₄ * A'.card := sorry
 
 /-- Let $G,G'$ be finite abelian $2$-groups.
   Let $f: G \to G'$ be a function, and suppose that there are at least $|G|^2 / K$ pairs $(x,y) \in G^2$ such that
 $$ f(x+y) = f(x) + f(y).$$
-Then there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that $f(x) = \phi(x)+c$ for at least $|G| / 4C_1 C_3^{24} K^{2C_4+48 C_2}$ values of $x \in G$. -/
+Then there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that $f(x) = \phi(x)+c$ for at least $|G| / 4C_1^{25} C_3^{24} K^{50C_4+48 C_2}$ values of $x \in G$. -/
 proof_wanted approx_hom_pfr : 0 = 1
