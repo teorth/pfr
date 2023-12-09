@@ -1,9 +1,9 @@
 \chapter{Approximate homomorphism version of PFR}
 
-\begin{definition}[Additive energy]\label{energy-def}\lean{additive_energy}  If $G$ is a group, and $A$ is a finite subset of $G$, the \emph{additive energy} $E(A)$ of $A$ is the number of quadruples $(a_1,a_2,a_3,a_4) \in A^4$ such that $a_1+a_2 = a_3+a_4$.
+\begin{definition}[Additive energy]\label{energy-def}\lean{Finset.additiveEnergy}\leanok  If $G$ is a group, and $A$ is a finite subset of $G$, the \emph{additive energy} $E(A)$ of $A$ is the number of quadruples $(a_1,a_2,a_3,a_4) \in A^4$ such that $a_1+a_2 = a_3+a_4$.
 \end{definition}
 
-\begin{lemma}[Cauchy--Schwarz bound]\label{cs-bound}\uses{energy-def}\lean{cauchy_schwarz}  If $G$ is a group, $A,B$ are finite subsets of $G$, then
+\begin{lemma}[Cauchy--Schwarz bound]\label{cs-bound}\uses{energy-def}\lean{cauchy_schwarz}\leanok  If $G$ is a group, $A,B$ are finite subsets of $G$, then
 $$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$
 \end{lemma}
 
