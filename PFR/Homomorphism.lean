@@ -3,6 +3,17 @@ import PFR.Main
 import Mathlib.Data.Set.Card
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 
+/-!
+# The homomorphism form of PFR
+
+Here we apply PFR to show that approximate homomorphisms f from a 2-group to a 2-group are close to actual homomorphisms.  Here, approximate is in the sense that f(x+y)-f(x)-f(y) takes few values.
+
+## Main results
+
+* `goursat`: A convenient description of the subspaces of $G \times G'$ when $G, G'$ are elementary abelian 2-groups.
+* `homomorphism_pfr` : If $f: G → G'$ is a map between finite abelian elementary 2-groups such that $f(x+y)-f(x)-f(y)$ takes at most $K$ values, then there is a homomorphism $\phi: G \to G'$ such hat $f(x)-\phi(x)$ takes at most $4K^{24}$ values.
+-/
+
 open Pointwise
 
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
