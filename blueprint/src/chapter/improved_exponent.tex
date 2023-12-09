@@ -13,7 +13,7 @@ For the next two lemmas, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable s
 
 We have the following variant of Lemma \ref{construct-good-prelim}:
 
-\begin{lemma}[Constructing good variables, I']\label{construct-good-prelim'}
+\begin{lemma}[Constructing good variables, I']\label{construct-good-prelim'}\lean{construct_good_prelim'}
   One has
   \begin{align*}  k \leq
     \delta + \eta (& d[X^0_1;T_1|T_3]-d[X^0_1;X_1])
@@ -51,7 +51,7 @@ On the other hand, from Lemma \ref{distance-lower} we have $k \leq \psi[Y_1;Y_2]
 
 (One could in fact refactor Lemma \ref{construct-good-prelim} to follow from Lemma \ref{construct-good-prelim'} and Lemma \ref{cond-dist-fact}).
 
-\begin{lemma}[Constructing good variables, II']\label{construct-good'}
+\begin{lemma}[Constructing good variables, II']\label{construct-good'}\lean{construct_good'}
 One has
 \begin{align*}  k & \leq  \delta + \frac{\eta}{6}  \sum_{i=1}^2 \sum_{1 \leq j,l \leq 3; j \neq l} (d[X^0_i;T_j|T_l] - d[X^0_i; X_i])
   \end{align*}
@@ -71,7 +71,7 @@ $$ k = d[X_1;X_2]$$
 and
 $$ I_1 = I(U : V \, | \, S).$$
 
-\begin{lemma}[Constructing good variables, III']\label{averaged-construct-good}
+\begin{lemma}[Constructing good variables, III']\label{averaged-construct-good}\lean{averaged_construct_good}
   One has
   \begin{align*}  k & \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta}{6}  \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B} (d[X^0_i;A|B,S] - d[X^0_i; X_i]).
     \end{align*}
@@ -82,7 +82,7 @@ $$ I_1 = I(U : V \, | \, S).$$
 
 To control the expressions in the right-hand side of this lemma we need a general entropy inequality.
 
-\begin{lemma}[General inequality]\label{gen-ineq}  Let $X_1, X_2, X_3, X_4$ be independent $G$-valued random variables, and let $Y$ be another $G$-valued random variable.  Set $S := X_1+X_2+X_3+X_4$. Then
+\begin{lemma}[General inequality]\label{gen-ineq}\lean{gen_ineq}  Let $X_1, X_2, X_3, X_4$ be independent $G$-valued random variables, and let $Y$ be another $G$-valued random variable.  Set $S := X_1+X_2+X_3+X_4$. Then
   \begin{align*}
     &  d[Y; X_1+X_2|X_1 + X_3, S] - d[Y; X_1] \\
     &\quad \leq \tfrac{1}{4} (2d[X_1;X_2] + d[X_1;X_3] + d[X_3;X_4])\\
@@ -118,7 +118,7 @@ On the other hand, $(X_1+X_2|X_1 + X_3, S)$ has an identical distribution to the
 
 Returning to our specific situation, we now have
 
-\begin{lemma}[Bound on distance differences]\label{dist-diff-bound} We have
+\begin{lemma}[Bound on distance differences]\label{dist-diff-bound}\label{dist_diff_bound} We have
 \begin{align*}  &\sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B}  d[X_i^0;A|B, S] - d[X_i^0;X_i]\\
 &\qquad \leq 12 k + \frac{4(2 \eta k - I_1)}{1-\eta}.
 \end{align*}
@@ -149,7 +149,7 @@ $$ d[X_1;X_1] + d[X_2;X_2] \leq 2 k + \frac{2(2 \eta k - I_1)}{1-\eta}$$
 (actually this is in the proof of that lemma, so a little refactoring is needed here).  Summing the previous two estimates, we obtain the claim.
 \end{proof}
 
-\begin{theorem}[Improved $\tau$-decrement]\label{de-prop'}
+\begin{theorem}[Improved $\tau$-decrement]\label{de-prop'}\lean{tau_strictly_decreases'}\leanok
 Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] = 0$.
 \end{theorem}
 
@@ -158,7 +158,7 @@ Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] =
   For any $\eta < 1/8$, we see from Lemma \ref{first-estimate} that the expression $\frac{(1 -5 \eta - \frac{4}{6} \eta)(2 \eta k - I_1)}{(1-\eta)}$ is nonnegative, and hence $k = 0$ as required.
 \end{proof}
 
-\begin{theorem}[Improved entropy version of PFR]\label{entropy-pfr'}
+\begin{theorem}[Improved entropy version of PFR]\label{entropy-pfr'}\lean{entropic_PFR_conjecture'}\leanok
   Let $G = \F_2^n$, and suppose that $X^0_1, X^0_2$ are $G$-valued random variables. Let $0 < \eta < 1/8$.
   Then there is some subgroup $H \leq G$ such that
   \[
@@ -171,11 +171,13 @@ Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] =
 \begin{proof} \uses{de-prop', tau-min, lem:100pc, ruzsa-triangle} Repeat the proof of Theorem \\leanok  Let $X_1, X_2$ be the $\tau$-minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop}, $d[X_1;X_2]=0$.  From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}
 
-\begin{theorem}[Improved PFR]\label{pfr'}
-  If $A \subset {\bf F}_2^n$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $2K^{11}$ translates of a subspace $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$.
-  \end{theorem}
+One can then replace Theorem \ref{pfr} with
 
-\begin{proof}\uses{entropy-pfr', unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov} By repeating the proof of Theorme \ref{pfr} and using Theorem \ref{entropy-pfr'} one can obtain the claim with $11$ replaced by $3 +\frac{1}{\eta}$ for any $0 < \eta < 1/8$.  Now send $\eta$ to $1/8$ and use the fact that there are only finitely many possible choices for the subspace $H$ to conclude.
+\begin{theorem}[Improved PFR]\label{pfr'}\lean{PFR_conjecture'}\leanok
+  If $A \subset {\bf F}_2^n$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $2K^{11}$ translates of a subspace $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$.
+\end{theorem}
+
+\begin{proof}\uses{entropy-pfr', unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov} By repeating the proof of Theorem \ref{pfr} and using Theorem \ref{entropy-pfr'} one can obtain the claim with $11$ replaced by $3 +\frac{1}{\eta}$ for any $0 < \eta < 1/8$.  Now send $\eta$ to $1/8$ and use the fact that there are only finitely many possible choices for the subspace $H$ to conclude.
 \end{proof}
 
-Of course, by replaccing Theorem \ref{pfr} with Theorem \ref{pfr'} we may also improve constants in downstream theorems in a straightforward manner.
+Of course, by replacing Theorem \ref{pfr} with Theorem \ref{pfr'} we may also improve constants in downstream theorems in a straightforward manner.
