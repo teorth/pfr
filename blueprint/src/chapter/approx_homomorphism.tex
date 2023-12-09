@@ -30,7 +30,7 @@ $$ f(x+y) = f(x) + f(y).$$
 Then there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that $f(x) = \phi(x)+c$ for at least $|G| / 4C_1 C_3^{24} K^{2C_4+48 C_2}$ values of $x \in G$.
 \end{theorem}
 
-\begin{proof}\uses{goursat, cs-bound, bsg} Consider the graph $A \subset G \times G'$ defined by
+\begin{proof}\uses{goursat, cs-bound, bsg, pfr} Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have $a+a' \in A$ for at least $|A|^2/K$ pairs $(a,a') \in A^2$.  By Lemma \ref{cs-bound}, this implies that $E(A) \geq |A|^3/K^2$.  Applying Lemma \ref{bsg}, we conclude that there exists a subset $A' \subset A$ with $|A'|$ and $|A'+A'| \leq C_3 K^{2C_4} |A'|$.  Applying Theorem \ref{pfr}, we may find a subspace $H \subset G \times G'$ such that $|H| \leq |A'| \leq |A| = |G|$ and $A'$ is covered by at most $2 (C_3 K^{2C_4})^{12}$ translates of $H$.  If we let $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections that the projection of $A'$ to $G$ is covered by at most $2 (C_3 K^{2C_4})^{12}$ translates of $H_0$.  This implies that
 $$ 2 (C_3 K^{2C_4})^{12} |H_0| \geq |A'|;$$
