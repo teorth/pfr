@@ -1,6 +1,5 @@
 import PFR.ForMathlib.Pair
 import PFR.Mathlib.Data.Set.Image
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 import PFR.Mathlib.MeasureTheory.Measure.Dirac
 import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.ConditionalProbability
@@ -69,8 +68,8 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
   have h4 (y : β) : { ω : (α × α) × β| ω.2 = y } ∈ ae (m y) := by
     rw [mem_ae_iff]
     have : { ω : (α × α) × β | ω.2 = y}ᶜ = Prod.snd⁻¹' {t : β | t ≠ y} := by simp; rfl
-    rw [this, ← Measure.map_apply measurable_snd]
-    all_goals {simp}
+    rw [this, ← Measure.map_apply measurable_snd (measurableSet_discrete _)]
+    simp
 
   have h5 {y : β} (hy : μ (Y ⁻¹' {y}) ≠ 0) : IsProbabilityMeasure (m' y) := by
     have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy

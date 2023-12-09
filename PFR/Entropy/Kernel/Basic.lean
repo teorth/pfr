@@ -209,7 +209,7 @@ lemma entropy_compProd' [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKernel �
   rw [entropy_compProd_aux]
   congr
   simp_rw [entropy, integral_eq_sum, measureEntropy_of_isProbabilityMeasure,
-    Measure.compProd_apply _ _ (measurableSet_singleton _), lintegral_eq_sum]
+    Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_sum]
   simp only [smul_eq_mul, Fintype.sum_prod_type]
   congr with x
   have : ∀ (b : S),
@@ -269,7 +269,7 @@ lemma entropy_prodMkRight (κ : kernel T S) (η : kernel T U)
     [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ] :
     Hk[prodMkRight η S, μ ⊗ₘ κ] = Hk[η, μ] := by
   simp_rw [entropy, prodMkRight_apply, integral_eq_sum,
-    Measure.compProd_apply _ _ (measurableSet_singleton _), lintegral_eq_sum, smul_eq_mul]
+    Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_sum, smul_eq_mul]
   rw [Fintype.sum_prod_type]
   simp_rw [← Finset.sum_mul]
   suffices ∀ x, (∑ a : S, (∑ b : T, μ {b} * κ b (Prod.mk b ⁻¹' {(x, a)})).toReal)
@@ -297,7 +297,7 @@ lemma entropy_prodMkRight' (η : kernel T U)
   rw [← entropy_prodMkRight (kernel.const T ν) η μ]
   congr
   ext s hs
-  simp_rw [Measure.prod_apply hs, Measure.compProd_apply _ _ hs, kernel.const_apply]
+  simp_rw [Measure.prod_apply hs, Measure.compProd_apply hs, kernel.const_apply]
 
 lemma _root_.MeasureTheory.Measure.prod_apply_singleton {α β : Type*}
     {_ : MeasurableSpace α} {_ : MeasurableSpace β}

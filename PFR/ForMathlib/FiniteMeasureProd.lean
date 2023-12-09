@@ -11,19 +11,8 @@ open MeasureTheory Topology Metric Filter Set ENNReal NNReal
 open scoped Topology ENNReal NNReal BoundedContinuousFunction BigOperators
 
 namespace MeasureTheory
-
-@[simp] lemma FiniteMeasure.toMeasure_map {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
-    (μ : FiniteMeasure α) (f : α → β) :
-    (μ.map f).toMeasure = μ.toMeasure.map f := rfl
-
-@[simp] lemma ProbabilityMeasure.toMeasure_map {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
-    (μ : ProbabilityMeasure α) {f : α → β} (hf : AEMeasurable f μ) :
-    (μ.map hf).toMeasure = μ.toMeasure.map f := rfl
-
 section FiniteMeasure_product
-
 namespace FiniteMeasure
-
 variable {α : Type*} [MeasurableSpace α] {β : Type*} [MeasurableSpace β]
 
 /-- The binary product of finite measures. -/

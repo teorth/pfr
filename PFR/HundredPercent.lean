@@ -138,7 +138,7 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
     ∃ H : AddSubgroup G, ∃ U : Ω → G, Measurable U ∧ IsUniform H U ∧ d[X # U] = 0 := by
   -- use for `U` a translate of `X` to make sure that `0` is in its support.
   obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X⁻¹' {x₀}) ≠ 0 := by
-    by_contra' h
+    by_contra! h
     have A a : (ℙ : Measure Ω).map X {a} = 0 := by
       rw [Measure.map_apply hX $ measurableSet_discrete _]
       exact h _

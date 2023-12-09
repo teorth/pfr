@@ -22,16 +22,22 @@ In particular, $|H| = |H_0| |H_1|$. -/
 lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : AddSubgroup G') (φ : G →+ G'),
     (∀ x : G × G', x ∈ H ↔ (x.1 ∈ H₀ ∧ x.2 - φ x.1 ∈ H₁)) ∧
     (Nat.card H) = (Nat.card H₀) * (Nat.card H₁) := by
-  obtain ⟨ S₁, S₂, f, φ, ⟨ hf, hf_inv ⟩ ⟩ := (H.toSubmodule (n := 2)).equivProdSubmodule
+  obtain ⟨ S₁, S₂, f, φ, ⟨ hf, hf_inv ⟩ ⟩ := (H.toSubmodule (n := 2)).exists_equiv_fst_sndModFst
   use S₁.toAddSubgroup, S₂.toAddSubgroup, φ
-  constructor
-  · exact fun x ↦ ⟨
-      fun hx ↦ ⟨ Set.mem_of_eq_of_mem (hf ⟨ x, hx ⟩).1.symm (f ⟨ x, hx ⟩).1.property,
-        Set.mem_of_eq_of_mem (hf ⟨ x, hx ⟩).2.symm (f ⟨ x, hx ⟩).2.property ⟩,
-      fun hx ↦ Set.mem_of_eq_of_mem (by rw [hf_inv, sub_add_cancel])
-        (f.symm (⟨ x.1, hx.1 ⟩, ⟨ x.2 - φ x.1, hx.2 ⟩)).property ⟩
-  · have : Nat.card H = Nat.card (H.toSubmodule (n := 2)) := rfl
-    rw [this, Nat.card_eq_of_bijective f f.bijective, Nat.card_prod S₁ S₂] ; rfl
+  constructor ; swap
+  · show Nat.card (H.toSubmodule (n := 2)) = _
+    exact Eq.trans (Nat.card_eq_of_bijective f f.bijective) (Nat.card_prod S₁ S₂)
+  · intro x
+    · constructor
+      · intro hx
+        let x : H := { val := x, property := hx }
+        · constructor
+          · exact Set.mem_of_eq_of_mem (hf x).1.symm (f x).1.property
+          · exact Set.mem_of_eq_of_mem (hf x).2.symm (f x).2.property
+      · intro hx
+        · let x₁ : S₁ := { val := x.1, property := hx.1 }
+          let x₂ : S₂ := { val := x.2 - φ x.1, property := hx.2 }
+          exact Set.mem_of_eq_of_mem (by rw [hf_inv, sub_add_cancel]) (f.symm (x₁, x₂)).property
 
 /- TODO: Find an appropriate home for these lemmas -/
 lemma Nat.card_image_le {α β: Type*} {s : Set α} {f : α → β} (hs : s.Finite) :

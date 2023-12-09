@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Basic
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
 import PFR.Tactic.Finiteness
 

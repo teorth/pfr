@@ -1,4 +1,3 @@
-
 import Mathlib.Probability.Kernel.CondDistrib
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Measure.Dirac
@@ -133,7 +132,7 @@ lemma condKernel_compProd_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
   rw [Filter.EventuallyEq, ae_iff_of_fintype]
   intro x hx
   rw [condKernel_compProd_apply]
-  rw [Measure.compProd_apply _ _ (measurableSet_singleton _), lintegral_eq_sum] at hx
+  rw [Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_sum] at hx
   simp only [Set.mem_singleton_iff, ne_eq, Finset.sum_eq_zero_iff, Finset.mem_univ, mul_eq_zero,
     forall_true_left, not_forall] at hx
   obtain ⟨y, hy⟩ := hx
@@ -213,7 +212,7 @@ lemma condKernel_map_prod_mk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
           (measurable_of_finite _))) := by
   rw [Filter.EventuallyEq, ae_iff_of_fintype]
   intro x hx
-  rw [Measure.compProd_apply _ _ (measurableSet_singleton _), lintegral_eq_sum] at hx
+  rw [Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_sum] at hx
   simp only [ne_eq, Finset.sum_eq_zero_iff, Finset.mem_univ, mul_eq_zero, forall_true_left,
     not_forall] at hx
   obtain ⟨y, hy⟩ := hx
@@ -468,7 +467,7 @@ lemma map_compProd_condEntropyKernel
     μ.map Z ⊗ₘ condEntropyKernel X Z μ = μ.map (fun ω ↦ (Z ω, X ω)) := by
   have := isMarkovKernel_condEntropyKernel hX hZ μ
   ext A hA
-  rw [Measure.map_apply (hZ.prod_mk hX) hA, Measure.compProd_apply _ _ hA, lintegral_eq_sum]
+  rw [Measure.map_apply (hZ.prod_mk hX) hA, Measure.compProd_apply hA, lintegral_eq_sum]
   have : ∑ x : U, μ.map Z {x} * condEntropyKernel X Z μ x (Prod.mk x ⁻¹' A)
       = ∑ x : U, μ (Z ⁻¹' {x} ∩ (fun ω ↦ (x, X ω)) ⁻¹' A) := by
     congr 1 with x
@@ -508,7 +507,6 @@ lemma condEntropyKernel_eq_condDistrib [TopologicalSpace S] [DiscreteTopology S]
   have : IsMarkovKernel (condEntropyKernel X Y μ) := isMarkovKernel_condEntropyKernel hX hY μ
   refine condDistrib_ae_eq_of_measure_eq_compProd hY hX (condEntropyKernel X Y μ) ?_
   rw [← map_compProd_condEntropyKernel hX hY]
-  rfl
 
 section Independence
 

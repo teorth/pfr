@@ -1,5 +1,5 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import PFR.Tactic.Rify
+import Mathlib.Tactic.Rify
 
 namespace Mathlib.Tactic
 open Lean hiding Rat

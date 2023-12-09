@@ -1,6 +1,5 @@
 import PFR.Entropy.Basic
 import PFR.Entropy.Kernel.Group
-import PFR.Mathlib.MeasureTheory.Group.Arithmetic
 
 open Function MeasureTheory Measure Real
 open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators

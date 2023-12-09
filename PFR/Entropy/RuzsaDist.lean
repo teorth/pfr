@@ -335,9 +335,8 @@ lemma condRuzsaDist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Me
   rfl
 
 /-- Explicit formula for conditional Ruzsa distance $d[X ; Y|W]$. -/
-lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
-    (hY : Measurable Y) (hW : Measurable W)
-    (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
+    (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
     d[X ; μ # Y | W ; μ']
       = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
   rw [condRuzsaDist'_def, kernel.rdist, integral_eq_sum]
@@ -369,11 +368,11 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
 /-- Conditioning by a constant does not affect Ruzsa distance. -/
 lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
-    d[X|(fun _ => c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
+    d[X|(fun _ ↦ c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
   have hcX : Measurable (fun ω => (c, X ω)) := by simp [measurable_prod, hX]
   have hc : MeasurableSet (Prod.fst ⁻¹' {c} : Set (S × G)) := measurable_fst (by simp)
   rw [condRuzsaDist_def, condRuzsaDist'_def, Measure.map_const,measure_univ,one_smul, kernel.rdist,
-    kernel.rdist, integral_prod,integral_dirac,integral_prod,integral_dirac]
+    kernel.rdist, integral_prod, integral_dirac, integral_prod,integral_dirac]
   dsimp; congr; ext x; congr
   rw [condEntropyKernel, kernel.comap_apply, kernel.condKernel_apply_of_ne_zero _ _ _]
   ext s hs
@@ -589,6 +588,107 @@ lemma condRuzsaDist_of_inj_map {G' : Type*} [Fintype G'] [AddCommGroup G']
     ← condEntropy_of_injective μ (h_meas 0) (h_meas 2) f hπ,
     ← condEntropy_of_injective μ (h_meas 1) (h_meas 3) f hπ]
   rfl
+
+lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCommGroup G 2]
+  {X B C : Ω → G}
+    (hX : Measurable X) (hB : Measurable B) (hC : Measurable C)
+    (h_indep : IndepFun X (⟨B, C⟩) μ) :
+    d[X ; μ # B | B + C ; μ] = d[X ; μ # C | B + C ; μ] := by
+  let π : G × G →+ G :=
+  { toFun := fun x ↦ x.2 - x.1
+    map_zero' := by simp
+    map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add,
+      ElementaryAddCommGroup.sub_eq_add]; abel }
+  let Y : Fin 4 → Ω → G := ![-X, C, fun _ ↦ 0, B + C]
+  have hY_meas : ∀ i, Measurable (Y i) := by
+    intro i
+    fin_cases i
+    exacts [hX.neg, hC, measurable_const, hB.add hC]
+  calc d[X ; μ # B | B + C ; μ]
+    = d[X | fun _ : Ω ↦ (0 : G) ; μ # B | B + C ; μ] := by rw [condRuzsaDist_of_const hX]
+  _ = d[π ∘ ⟨-X, fun _ : Ω ↦ (0 : G)⟩ | fun _ : Ω ↦ (0 : G) ; μ # π ∘ ⟨C, B + C⟩ | B + C ; μ] := by
+        congr
+        · ext1 ω; simp
+        · ext1 ω
+          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply, Pi.add_apply]
+          abel
+  _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] := by congr
+  _ = d[-X | fun _ : Ω ↦ (0 : G) ; μ # C | B + C ; μ] := by
+        rw [condRuzsaDist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
+        · congr
+        · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp
+          have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
+            ext1 ω;
+            simp only [ElementaryAddCommGroup.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
+              Function.comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
+              Matrix.cons_val_fin_one, true_and]
+            congr
+          rw [h1, h2]
+          refine h_indep.comp ?_ ?_
+          · exact measurable_neg.prod_mk measurable_const
+          · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
+  _ = d[-X ; μ # C | B + C ; μ] := by rw [condRuzsaDist_of_const]; exact hX.neg
+  _ = d[X ; μ # C | B + C ; μ] := by -- because ElementaryAddCommGroup G 2
+        congr
+        simp
+
+lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'']
+  {A : Ω'' → G} {B C : Ω → G} (hA : Measurable A) (hB : Measurable B)
+  (hC : Measurable C) : d[A ; μ'' # B | B + C ; μ] = d[A ; μ'' # C | B + C ; μ] := by
+  -- we want to apply `condRuzsaDist'_of_inj_map'`, but for that all variables need to be in the same
+  -- probability space
+  let Ω' := Ω'' × Ω
+  set X₂' : Ω' → G := A ∘ Prod.fst with hX₂'_def
+  have hX₂' : Measurable X₂' := hA.comp measurable_fst
+  let B' : Ω' → G := B ∘ Prod.snd
+  have hB' : Measurable B' := hB.comp measurable_snd
+  let C' : Ω' → G := C ∘ Prod.snd
+  have hC' : Measurable C' := hC.comp measurable_snd
+  let μ' : Measure Ω' := Measure.prod μ'' μ
+  haveI : IsProbabilityMeasure μ' := by infer_instance
+  -- h1 and h2 should be applications of a new lemma?
+  have h1 : d[A ; μ'' # B | B + C ; μ] = d[X₂' ; μ' # B' | B' + C' ; μ'] := by
+    refine condRuzsaDist'_of_copy A hB (hB.add hC) X₂' hB' (hB'.add hC') ?_ ?_
+    · constructor
+      · exact hA.aemeasurable
+      · exact hX₂'.aemeasurable
+      · rw [← Measure.map_map hA measurable_fst]
+        simp
+    · constructor
+      · exact (hB.prod_mk (hB.add hC)).aemeasurable
+      · exact (hB'.prod_mk (hB'.add hC')).aemeasurable
+      · have : ⟨B', B' + C'⟩ = (⟨B, B + C⟩) ∘ Prod.snd := by ext1 _; simp
+        rw [this, ← Measure.map_map _ measurable_snd]
+        · simp only [Measure.map_snd_prod, measure_univ, one_smul]
+          rfl
+        · exact hB.prod_mk (hB.add hC)
+  have h2 : d[A ; μ'' # C | B + C ; μ] = d[X₂' ; μ' # C' | B' + C' ; μ'] := by
+    apply condRuzsaDist'_of_copy _ hC (hB.add hC) X₂' hC' (hB'.add hC') ?_ ?_
+    · constructor
+      · exact hA.aemeasurable
+      · exact hX₂'.aemeasurable
+      · rw [← Measure.map_map hA measurable_fst]
+        simp
+    · constructor
+      · exact (hC.prod_mk (hB.add hC)).aemeasurable
+      · exact (hC'.prod_mk (hB'.add hC')).aemeasurable
+      · have : ⟨C', B' + C'⟩ = (⟨C, B + C⟩) ∘ Prod.snd := by ext1 _; simp
+        rw [(show (fun a ↦ B' a + C' a) = B' + C' from rfl), this, ← Measure.map_map _ measurable_snd]
+        · simp only [Measure.map_snd_prod, measure_univ, one_smul]
+          rfl
+        · exact hC.prod_mk (hB.add hC)
+  rw [h1, h2, condRuzsaDist'_of_inj_map hX₂' hB' hC']
+  rw [indepFun_iff_map_prod_eq_prod_map_map hX₂'.aemeasurable (hB'.prod_mk hC').aemeasurable]
+  have h_prod : (fun ω ↦ (X₂' ω, prod B' C' ω)) = Prod.map A (⟨B, C⟩) := by ext1; simp
+  have h_comp_snd : (fun a ↦ (B' a, C' a)) = (⟨B, C⟩) ∘ Prod.snd := by ext1; simp
+  rw [h_prod, h_comp_snd, hX₂'_def, ← Measure.map_map _ measurable_snd,
+    ← Measure.map_map _ measurable_fst, Measure.map_prod_map]
+  rotate_left
+  · exact hA
+  · exact hB.prod_mk hC
+  · exact hA
+  · exact hB.prod_mk hC
+  simp
 
 /-- The **Kaimanovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+ Z] - H[Y]$$ -/
 lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
