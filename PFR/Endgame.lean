@@ -154,7 +154,7 @@ $$ 6 \eta k - \frac{1 - 5 \eta}{1-\eta} (2 \eta k - I_1).$$
 -/
 lemma sum_condMutual_le :
     I[U : V | S] + I[V : W | S] + I[W : U | S]
-      ≤ 6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁) := by
+      ≤ 6 * p.η * k - (1 - 5 * p.η) / (1 - p.η) * (2 * p.η * k - I₁) := by
   have : I[W:U|S] = I₂ := by
     rw [condMutualInfo_comm]
     · exact Measurable.add' hX₁' hX₁
@@ -163,7 +163,8 @@ lemma sum_condMutual_le :
   have h₂ := second_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h := add_le_add (add_le_add_left h₂ I₁) h₂
   convert h using 1
-  field_simp [η]
+  have : 1 - p.η > 0 := by linarith [p.hη']
+  field_simp [this]
   ring
   all_goals { simpa }
 
@@ -276,7 +277,7 @@ is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
 lemma sum_dist_diff_le :
-  c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by
+  c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ (6 - 3 * p.η)*k + 3 * (2*p.η*k - I₁) := by
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
 
@@ -377,18 +378,18 @@ lemma sum_dist_diff_le :
     ext x
     fin_cases x ; all_goals { aesop }
 
-  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * (H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁
-  · calc 3 * H[S ; ℙ] ≤ 3 * (H[X₁ ; ℙ] / 2 + H[X₂ ; ℙ] / 2 + (2+η)*k - I₁) := by
+  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * (H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+p.η)*k - 3*I₁
+  · calc 3 * H[S ; ℙ] ≤ 3 * (H[X₁ ; ℙ] / 2 + H[X₂ ; ℙ] / 2 + (2+p.η)*k - I₁) := by
           apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr
             (ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min)
-      _ =  3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁ := by ring
+      _ =  3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+p.η)*k - 3*I₁ := by ring
 
   -- Final computation
   calc c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := ineq7
      _ = 3 * H[S ; ℙ] - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) := by ring
-     _ ≤ (3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+η)*k - 3*I₁) - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) :=
+     _ ≤ (3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+p.η)*k - 3*I₁) - (3/2 *(H[X₁ ; ℙ] + H[X₂ ; ℙ])) :=
         sub_le_sub_right ineq8 _
-     _ = (6 - 3 * η)*k + 3 * (2*η*k - I₁) := by ring
+     _ = (6 - 3 * p.η)*k + 3 * (2*p.η*k - I₁) := by ring
 
 /-- $U+V+W=0$. -/
 lemma sum_uvw_eq_zero : U+V+W = 0 := by
@@ -403,9 +404,9 @@ variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable
 local notation3:max "δ[" μ "]" => I[T₁ : T₂ ; μ] + I[T₂ : T₃ ; μ] + I[T₃ : T₁ ; μ]
 local notation3:max "δ" => I[T₁ : T₂] + I[T₂ : T₃] + I[T₃ : T₁]
 
-local notation3:max "ψ[" A " # " B "]" => d[A # B] + η * (c[A # B])
+local notation3:max "ψ[" A " # " B "]" => d[A # B] + p.η * (c[A # B])
 local notation3:max "ψ[" A "; " μ " # " B " ; " μ' "]" =>
-  d[A ; μ # B ; μ'] + η * c[A ; μ # B ; μ']
+  d[A ; μ # B ; μ'] + p.η * c[A ; μ # B ; μ']
 
 /-- If $T_1, T_2, T_3$ are $G$-valued random variables with $T_1+T_2+T_3=0$ holds identically and
 $$ \delta := \sum_{1 \leq i < j \leq 3} I[T_i;T_j]$$
@@ -416,13 +417,13 @@ $$ \delta + \eta ( d[X^0_1;T_1]-d[X^0_1;X_1]) + \eta (d[X^0_2;T_2]-d[X^0_2;X_2])
 $$ + \tfrac12 \eta I[T_1: T_3] + \tfrac12 \eta I[T_2: T_3].$$
 -/
 lemma construct_good_prelim :
-    k ≤ δ + η * c[T₁ # T₂] + η * (I[T₁: T₃] + I[T₂ : T₃])/2 := by
+    k ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁: T₃] + I[T₂ : T₃])/2 := by
   let sum1 : ℝ := (Measure.map T₃ ℙ)[fun t ↦ d[T₁; ℙ[|T₃ ⁻¹' {t}] # T₂; ℙ[|T₃ ⁻¹' {t}]]]
   let sum2 : ℝ := (Measure.map T₃ ℙ)[fun t ↦ d[p.X₀₁; ℙ # T₁; ℙ[|T₃ ⁻¹' {t}]] - d[p.X₀₁ # X₁]]
   let sum3 : ℝ := (Measure.map T₃ ℙ)[fun t ↦ d[p.X₀₂; ℙ # T₂; ℙ[|T₃ ⁻¹' {t}]] - d[p.X₀₂ # X₂]]
   let sum4 : ℝ := (Measure.map T₃ ℙ)[fun t ↦ ψ[T₁; ℙ[|T₃ ⁻¹' {t}] # T₂; ℙ[|T₃ ⁻¹' {t}]]]
 
-  have hη : 0 ≤ η := by norm_num [η]
+  have hp.η : 0 ≤ p.η := by linarith [p.hη]
   have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
   have h2T₃ : T₃ = T₁ + T₂
   · calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp
@@ -439,7 +440,7 @@ lemma construct_good_prelim :
     · rw [h2T₃, entropy_add_left, entropy_comm] <;> assumption
     simp_rw [mutualInfo_def] at h1 ⊢; linarith
 
-  have h2 : η * sum2 ≤ η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
+  have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
   · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum,
@@ -447,7 +448,7 @@ lemma construct_good_prelim :
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
 
-  have h3 : η * sum3 ≤ η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
+  have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
   · have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum,
@@ -455,8 +456,8 @@ lemma construct_good_prelim :
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
 
-  have h4 : sum4 ≤ δ + η * c[T₁ # T₂] + η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2
-  · have : sum4 = sum1 + η * (sum2 + sum3)
+  have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2
+  · have : sum4 = sum1 + p.η * (sum2 + sum3)
     · simp only [integral_add (integrable_of_fintype _ _) (integrable_of_fintype _ _),
         integral_mul_left]
     linarith
@@ -485,7 +486,7 @@ is at most
 $$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3
     (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).$$
 -/
-lemma construct_good : k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by
+lemma construct_good : k ≤ δ + (p.η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by
   have v2 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₁ hT₃ hT₂
   have v3 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₂ hT₁ hT₃
   have v6 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₃ hT₂ hT₁
@@ -494,7 +495,7 @@ lemma construct_good : k ≤ δ + (η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂]
   linarith
 
 lemma construct_good' (μ : Measure Ω') [IsProbabilityMeasure μ]:
-    k ≤ δ[μ] + (η/3) * (δ[μ] + c[T₁ ; μ # T₁ ; μ] + c[T₂ ; μ # T₂ ; μ] + c[T₃ ; μ # T₃ ; μ]) := by
+    k ≤ δ[μ] + (p.η/3) * (δ[μ] + c[T₁ ; μ # T₁ ; μ] + c[T₂ ; μ # T₂ ; μ] + c[T₃ ; μ # T₃ ; μ]) := by
   letI : MeasureSpace Ω' := ⟨μ⟩
   apply construct_good p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 
@@ -516,7 +517,7 @@ lemma delta'_eq_integral : δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r
     Finset.sum_add_distrib]
 
 lemma cond_construct_good :
-    k ≤ δ' + (η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
+    k ≤ δ' + (p.η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
   simp_rw [integral_eq_sum, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum, mul_smul_comm,
@@ -545,8 +546,7 @@ end construct_good
 
 /-- If $d[X_1;X_2] > 0$ then there are $G$-valued random variables $X'_1, X'_2$ such that
 Phrased in the contrapositive form for convenience of proof. -/
-theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
-  have hη : η = 1/9 := by rw [η, one_div]
+theorem tau_strictly_decreases_aux (hpη: p.η = 1/9): d[X₁ # X₂] = 0 := by
   have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)
     (show Measurable U by measurability) (show Measurable V by measurability)
     (show Measurable W by measurability) (show Measurable S by measurability)
@@ -562,16 +562,16 @@ theorem tau_strictly_decreases_aux : d[X₁ # X₂] = 0 := by
     convert h_indep using 1
     ext i; fin_cases i <;> rfl
   have h3 := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
-  have h : k ≤ (8*η + η^2) * k := calc
-    k ≤ (1+η/3) * (6*η*k - (1-5*η) / (1-η) * (2*η*k - I₁)) + η/3*((6-3*η)*k + 3*(2*η*k-I₁)) := by
-      rw [hη] at *
+  have h : k ≤ (8*p.η + p.η^2) * k := calc
+    k ≤ (1+p.η/3) * (6*p.η*k - (1-5*p.η) / (1-p.η) * (2*p.η*k - I₁)) + p.η/3*((6-3*p.η)*k + 3*(2*p.η*k-I₁)) := by
+      rw [hpη] at *
       linarith
-    _ = (8*η+η^2)*k - ((1-5*η)/(1-η)*(1+η/3)-η)*(2*η*k-I₁) := by
+    _ = (8*p.η+p.η^2)*k - ((1-5*p.η)/(1-p.η)*(1+p.η/3)-p.η)*(2*p.η*k-I₁) := by
       ring
-    _ ≤ (8*η + η^2) * k := by
-      rw [hη] at *
+    _ ≤ (8*p.η + p.η^2) * k := by
+      rw [hpη] at *
       norm_num
       linarith
   have : 0 ≤ k := rdist_nonneg hX₁ hX₂
-  rw [hη] at *
+  rw [hpη] at *
   linarith
