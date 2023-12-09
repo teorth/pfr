@@ -1,4 +1,5 @@
 import PFR.Homomorphism
+import Mathlib.Combinatorics.Additive.Energy
 
 /-!
 # The approximate homomorphism form of PFR
@@ -10,17 +11,17 @@ Here we apply PFR to show that almost homomorphisms f from a 2-group to a 2-grou
 * `approx_hom_pfr` : If $f: G → G'$ is a map between finite abelian elementary 2-groups such that $f(x+y)=f(x)+f(y)$ for at least $|G|/K$ values, then then there is a homomorphism $\phi: G \to G'$ and a constant $c$ such that $f(x)=\phi(x)+c$ for a substantial set of values.
 
 -/
-open Pointwise
+open Pointwise Classical
+
+variable {G : Type*} [AddCommGroup G] (A : Finset G)
 
 /-- If $G$ is a group, and $A$ is a finite subset of $G$, the \emph{additive energy} $E(A)$ of $A$ is the number of quadruples $(a_1,a_2,a_3,a_4) \in A^4$ such that $a_1+a_2 = a_3+a_4$. -/
-def additive_energy := (0:ℕ)
-
--- can also introduce an E[] type notation for this concept, if desired, though we only will use it within this file
-
+notation3:max "E[" A "]" => Finset.additiveEnergy A A
 
 /--  If $G$ is a group, $A,B$ are finite subsets of $G$, then
 $$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$ -/
-proof_wanted cauchy_schwarz : 0 = 1
+lemma cauchy_schwarz (A B : Finset G) :
+  ((A ×ˢ A).filter (fun (a : G × G) => a.fst + a.fst ∈ B)).card^2 ≤ B.card * E[A] := sorry
 
 -- in order to state bsg we may need to temporarily define some placeholder constants C_1, C_2, C_3, C_4
 
