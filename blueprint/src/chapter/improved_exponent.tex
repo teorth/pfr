@@ -49,7 +49,7 @@ where we introduce the notation
 On the other hand, from Lemma \ref{distance-lower} we have $k \leq \psi[Y_1;Y_2]$, and the claim follows.
 \end{proof}
 
-(One could in fact refactor Lemma \ref{construct-good-prelim} to follow from Lemma \reF{construct-good-prelim'} and Lemma \ref{cond-dist-fact}).
+(One could in fact refactor Lemma \ref{construct-good-prelim} to follow from Lemma \ref{construct-good-prelim'} and Lemma \ref{cond-dist-fact}).
 
 \begin{lemma}[Constructing good variables, II']\label{construct-good'}
 One has
@@ -108,7 +108,7 @@ On the other hand, $(X_1+X_2|X_1 + X_3, S)$ has an identical distribution to the
   \begin{align*}
   &  d[Y;X_1+X_2|X_1 + X_3, S] \\
   &\quad \leq d[Y;X_1|X_1+X_3] + \tfrac{1}{2} d[X_1|X_1+X_3; X_2|X_2+X_4] \\
-  &\qquad + \tfrac{1}{4} (\bbH[X_2|X_2+X_4] - \ent[X_1|X_1+X_3]) \\
+  &\qquad + \tfrac{1}{4} (\bbH[X_2|X_2+X_4] - \bbH[X_1|X_1+X_3]) \\
   &\quad  \leq d[Y;X_1] \\
   &\qquad + \tfrac{1}{2} (d[X_1;X_3] + d[X_1|X_1+X_3;X_2|X_2+X_4])\\
   &\qquad + \tfrac{1}{4} (\bbH{X_2|X_2+X_4} - \bbH[X_1|X_1+X_3] + \bbH[X_1] - \bbH[X_3]).
