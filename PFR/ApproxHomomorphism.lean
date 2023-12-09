@@ -21,7 +21,7 @@ notation3:max "E[" A "]" => Finset.additiveEnergy A A
 /--  If $G$ is a group, $A,B$ are finite subsets of $G$, then
 $$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$ -/
 lemma cauchy_schwarz (A B : Finset G) :
-  ((A ×ˢ A).filter (fun (a : G × G) => a.fst + a.fst ∈ B)).card^2 ≤ B.card * E[A] := sorry
+  ((A ×ˢ A).filter (fun (a : G × G) => a.fst + a.snd ∈ B)).card^2 ≤ B.card * E[A] := sorry
 
 -- in order to state bsg we may need to temporarily define some placeholder constants C_1, C_2, C_3, C_4
 
