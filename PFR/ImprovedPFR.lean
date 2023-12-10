@@ -97,12 +97,27 @@ $$ \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta
 proof_wanted averaged_construct_good : 0 = 1
 
 
+section GeneralInequality
+
+variable {Ω₀ : Type*} [MeasureSpace Ω₀]   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)]
+
+variable (Y : Ω₀ → G) (hY : Measurable Y)
+
+variable (Z₁ Z₂ Z₃ Z₄ : Ω → G)
+  (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
+
+variable (h_indep : iIndepFun (fun _i => hG) ![Z₁, Z₂, Z₃, Z₄])
+
+local notation3 "Sum" => Z₁ + Z₂ + Z₃ + Z₄
+
 /-- Let $X_1, X_2, X_3, X_4$ be independent $G$-valued random variables, and let $Y$ be another $G$-valued random variable.  Set $S := X_1+X_2+X_3+X_4$. Then $d[Y; X_1+X_2|X_1 + X_3, S] - d[Y; X_1]$ is at most
 $$ \tfrac{1}{4} (2d[X_1;X_2] + d[X_1;X_3] + d[X_3;X_4])$$
 $$+ \tfrac{1}{8} (\bbH[X_1+X_2] - \bbH[X_1+X_3] + \bbH[X_2] - \bbH[X_3]$$
 $$ + \bbH[X_2|X_2+X_4] - \bbH[X_1|X_1+X_3]).$$
 -/
-proof_wanted gen_ineq: 0 = 1
+lemma gen_ineq: d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩ ] - d[Y # Z₁ ] ≤ (2 * d[Z₁ # Z₂] + d[Z₁ # Z₃] + d[Z₃ # Z₄])/4 + (H[Z₁+Z₂] - H[Z₁+Z₃] + H[Z₂] - H[Z₃]) + H[Z₂|Z₂+Z₄] - H[Z₁|Z₁+Z₃] / 8 := sorry
+
+end GeneralInequality
 
 /-- The quantity
 $$ \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B}  d[X_i^0;A|B, S] - d[X_i^0;X_i]$$
