@@ -21,7 +21,7 @@ We have the following variant of Lemma \ref{construct-good-prelim}:
   \end{align*}
 \end{lemma}
 
-\begin{proof} \uses{entropic-bsg,distance_lower}\leanok
+\begin{proof} \uses{entropic-bsg,distance_lower}
   We apply Lemma \ref{entropic-bsg} with $(A,B) = (T_1, T_2)$ there.
   Since $T_1 + T_2 = T_3$, the conclusion is that
   \begin{align} \nonumber \sum_{t_3} \bbP[T_3 = t_3] & d[(T_1 | T_3 = t_3); (T_2 | T_3 = t_3)] \\ & \leq 3 \bbI[T_1 : T_2] + 2 \bbH[T_3] - \bbH[T_1] - \bbH[T_2].\label{bsg-t1t2'}
