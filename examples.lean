@@ -1,8 +1,5 @@
-import Mathlib.Probability.Notation
-import PFR.Homomorphism
-import PFR.ApproxHomomorphism
+import PFR.ApproxHomPFR
 import PFR.ImprovedPFR
-import PFR.ForMathlib.MeasureReal
 
 section PFR
 

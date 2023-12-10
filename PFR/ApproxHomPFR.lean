@@ -1,4 +1,4 @@
-import PFR.Homomorphism
+import PFR.HomPFR
 import Mathlib.Combinatorics.Additive.Energy
 
 /-!

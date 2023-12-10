@@ -1,4 +1,4 @@
-import PFR.Entropy.Measure
+import PFR.ForMathlib.Entropy.Measure
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.Probability.Kernel.Disintegration
 

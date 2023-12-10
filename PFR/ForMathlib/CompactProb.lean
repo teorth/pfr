@@ -2,7 +2,6 @@ import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.ForMathlib.MeasureReal
 import PFR.Mathlib.Analysis.Convex.Topology
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
-import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import PFR.Tactic.Finiteness
 
 /-!

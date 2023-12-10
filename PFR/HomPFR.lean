@@ -1,7 +1,8 @@
-import PFR.ForMathlib.Graph
-import PFR.Main
 import Mathlib.Data.Set.Card
+import PFR.Main
+import PFR.ForMathlib.Graph
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
+import PFR.Mathlib.SetTheory.Cardinal.Finite
 
 /-!
 # The homomorphism form of PFR
@@ -50,22 +51,6 @@ lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : Ad
           let x₂ : S₂ := { val := x.2 - φ x.1, property := hx.2 }
           exact Set.mem_of_eq_of_mem (by rw [hf_inv, sub_add_cancel]) (f.symm (x₁, x₂)).property
 
-/- TODO: Find an appropriate home for these lemmas -/
-lemma Nat.card_image_le {α β: Type*} {s : Set α} {f : α → β} (hs : s.Finite) :
-    Nat.card (f '' s) ≤ Nat.card s := by
-  simp only [Set.Nat.card_coe_set_eq]
-  exact Set.ncard_image_le hs
-
-lemma Nat.card_singleton_prod {α β : Type*} (a : α) (B : Set β) : Nat.card ({a} ×ˢ B) = Nat.card B := by
-  by_cases hB : Set.Finite B
-  · rw[Set.singleton_prod, Nat.card_image_of_injective (Prod.mk.inj_left a) hB]
-  · rw[Set.Infinite.card_eq_zero hB, Set.Infinite.card_eq_zero <| Set.Infinite.prod_right hB ⟨a,by rfl⟩]
-
-lemma Nat.card_prod_singleton {α β : Type*} (A : Set α) (b : β) : Nat.card (A ×ˢ {b}) = Nat.card A := by
-  by_cases hA : Set.Finite A
-  · rw[Set.prod_singleton, Nat.card_image_of_injective (Prod.mk.inj_right b) hA]
-  · rw[Set.Infinite.card_eq_zero hA, Set.Infinite.card_eq_zero <| Set.Infinite.prod_left hA ⟨b,by rfl⟩]
-
 open Set Fintype in
 
 /-- Let $f: G \to G'$ be a function, and let $S$ denote the set
@@ -92,9 +77,9 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         by rw [← Prod.fst_add, ha, ha', sub_sub, ← Prod.snd_add, haa', sub_sub_self] ⟩
 
   have hB_card : Nat.card B ≤ Nat.card S * Nat.card A
-  · simpa only [mul_comm, Nat.card_singleton_prod] using (Nat.card_sub_le A ({0} ×ˢ S))
+  · exact card_sub_le.trans_eq $ by simp only [mul_comm, Set.card_singleton_prod]
 
-  have hA_le : Nat.card ((A:Set (G×G'))+(A:Set (G×G'))) ≤ (Nat.card S:ℝ) * Nat.card A
+  have hA_le : (Nat.card ↥(A + A) : ℝ) ≤ Nat.card S * Nat.card A
   · norm_cast
     exact (Nat.card_mono (toFinite B) hAB).trans hB_card
 
@@ -126,7 +111,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
     rw [Nat.card_coe_set_eq, Set.ncard_univ] at hG_cover
     rw [hG_cover]
     calc
-      (Nat.card (c'+ (H₀:Set G)):ℝ) ≤ Nat.card c' * Nat.card H₀ := by norm_cast; apply Nat.card_add_le
+      (Nat.card (c'+ (H₀:Set G)):ℝ) ≤ Nat.card c' * Nat.card H₀ := mod_cast card_add_le
       _ ≤  2*(Nat.card S:ℝ)^(12:ℝ) * Nat.card H₀ := by
         gcongr
         exact hc'_card_real.trans hcS.le
@@ -169,9 +154,9 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         norm_cast; apply Nat.card_image_le (toFinite _)
       _ ≤ Nat.card c * Nat.card H₁ := by
         norm_cast
-        apply (Nat.card_add_le _ _).trans
-        rw [Nat.card_singleton_prod] ; rfl
-      _ ≤ (2 * (Nat.card S) ^(12:ℝ)) * (2 * (Nat.card S) ^(12:ℝ)) := by gcongr
+        apply card_add_le.trans
+        rw [Set.card_singleton_prod] ; rfl
+      _ ≤ (2 * Nat.card S ^ (12:ℝ)) * (2 * Nat.card S ^ (12:ℝ)) := by gcongr
       _ ≤ _ := by
         ring_nf
         rw [sq, ← Real.rpow_add]

@@ -1,4 +1,4 @@
-import PFR.Entropy.RuzsaDist
+import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.ForMathlib.CompactProb
 import PFR.Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 

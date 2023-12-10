@@ -1,4 +1,4 @@
-import PFR.Entropy.Kernel.MutualInfo
+import PFR.ForMathlib.Entropy.Kernel.MutualInfo
 import Mathlib.MeasureTheory.Group.Arithmetic
 /-!
 # Kernel entropy and mutual information in a commutative group
