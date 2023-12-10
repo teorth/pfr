@@ -33,8 +33,12 @@ def C₄ := 4
 /-- Let $G$ be an abelian group, and let $A$ be a finite non-empty set with $E(A) \geq |A|^3 / K$ for some $K \geq 1$.  Then there is a subset $A'$ of $A$ with $|A'| \geq |A| / (C_1 K^{C_2})$ and $|A'-A'| \leq C_3 K^{C_4} |A'|$ -/
 lemma bsg (A : Finset G) (K : ℝ) (hK: 0 < K) (hE: E[A] ≥ (A.card)^3 / K): ∃ A' : Finset G, A' ⊆ A ∧ A'.card ≥ A.card / (C₁ * K^C₂) ∧ (A' - A').card ≤ C₃ * K^C₄ * A'.card := sorry
 
+
+variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
+  [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2]
+
 /-- Let $G,G'$ be finite abelian $2$-groups.
   Let $f: G \to G'$ be a function, and suppose that there are at least $|G|^2 / K$ pairs $(x,y) \in G^2$ such that
 $$ f(x+y) = f(x) + f(y).$$
 Then there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that $f(x) = \phi(x)+c$ for at least $|G| / 4C_1^{25} C_3^{24} K^{50C_4+48 C_2}$ values of $x \in G$. -/
-proof_wanted approx_hom_pfr : 0 = 1
+theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (4 * C₁^25 * C₃^24 * K^(50 * C₄ + 48 * C₂)) := sorry
