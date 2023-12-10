@@ -1,3 +1,4 @@
+import PFR.ApproxHomomorphism
 import PFR.Endgame
 import PFR.Entropy.Basic
 import PFR.Entropy.Group
@@ -23,6 +24,7 @@ import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.ForMathlib.Uniform
 import PFR.Homomorphism
 import PFR.HundredPercent
+import PFR.ImprovedPFR
 import PFR.Main
 import PFR.Mathlib.Algebra.Group.Hom.Basic
 import PFR.Mathlib.Algebra.Module.Submodule.Map
