@@ -25,8 +25,8 @@ open scoped ENNReal NNReal Topology BigOperators
 namespace ProbabilityTheory
 variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
   [MeasurableSpace S] [MeasurableSingletonClass S]
-  [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
-  [Fintype U] [MeasurableSpace U] [MeasurableSingletonClass U]
+  [MeasurableSpace T] [MeasurableSingletonClass T]
+  [MeasurableSpace U] [MeasurableSingletonClass U]
 
 section measureEntropy
 variable {μ : Measure S}
@@ -42,14 +42,11 @@ noncomputable
 def measureEntropy (μ : Measure S := by volume_tac) : ℝ :=
   ∑' s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal
 
-lemma measureEntropy_def [Fintype S] (μ : Measure S) :
-    measureEntropy μ = ∑ s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := by
-      apply tsum_eq_sum
-      
-      rfl
+lemma measureEntropy_def (μ : Measure S) :
+    measureEntropy μ = ∑' s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := rfl
 
-lemma measureEntropy_def' (μ : Measure S) :
-    measureEntropy μ = ∑ s, negMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
+lemma measureEntropy_def' [Fintype S] (μ : Measure S) :
+    measureEntropy μ = ∑' s, negMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
   rw [measureEntropy_def]
   congr! with s
   simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul,
@@ -65,22 +62,21 @@ lemma measureEntropy_dirac (x : S) : Hm[Measure.dirac x] = 0 := by
   rw [measureEntropy_def]
   simp only [MeasurableSet.univ, Measure.dirac_apply', Set.mem_univ, Set.indicator_of_mem,
     Pi.one_apply, inv_one, one_smul, MeasurableSet.singleton, Set.mem_singleton_iff]
-  rw [Finset.sum_eq_single x]
+  rw [tsum_eq_single x]
   · simp
   · simp only [Finset.mem_univ, ne_eq, Set.mem_singleton_iff, forall_true_left]
     intro b hb
     simp [Ne.symm hb]
-  · simp
 
 lemma measureEntropy_of_not_isFiniteMeasure (h : ¬ IsFiniteMeasure μ) : Hm[μ] = 0 := by
   simp [measureEntropy, not_isFiniteMeasure_iff.mp h]
 
 lemma measureEntropy_of_isProbabilityMeasure (μ : Measure S) [IsProbabilityMeasure μ] :
-    Hm[μ] = ∑ s, negMulLog (μ {s}).toReal := by
+    Hm[μ] = ∑' s, negMulLog (μ {s}).toReal := by
   simp [measureEntropy]
 
 lemma measureEntropy_of_isProbabilityMeasure' (μ : Measure S) [IsProbabilityMeasure μ] :
-    Hm[μ] = ∑ s, negMulLog (μ.real {s}) :=
+    Hm[μ] = ∑' s, negMulLog (μ.real {s}) :=
   measureEntropy_of_isProbabilityMeasure μ
 
 lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
@@ -104,7 +100,9 @@ lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
 lemma measureEntropy_nonneg (μ : Measure S) : 0 ≤ Hm[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
   swap; · rw [measureEntropy_of_not_isFiniteMeasure hμ_fin]
-  refine Finset.sum_nonneg (fun s _ ↦ negMulLog_nonneg ENNReal.toReal_nonneg ?_)
+  apply tsum_nonneg
+  intro s
+  apply negMulLog_nonneg (by positivity)
   refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
   rw [ENNReal.ofReal_one]
   cases eq_zero_or_neZero μ with
@@ -124,10 +122,10 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
     · simpa using Finset.card_pos.mpr hA
   simp only [measureEntropy_def, measure_univ, inv_one, one_smul]
   calc
-  ∑ x, negMulLog (μ {x}).toReal
+  ∑' x, negMulLog (μ {x}).toReal
     = ∑ x in A, negMulLog (μ {x}).toReal := by
-      apply (Finset.sum_subset A.subset_univ _).symm
-      intro i _ hi
+      apply tsum_eq_sum
+      intro i hi
       have : μ {i} = 0 :=
         le_antisymm ((measure_mono (by simpa using hi)).trans (le_of_eq hμ)) bot_le
       simp [this]
@@ -150,7 +148,7 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
   _ = N * negMulLog ((N : ℝ)⁻¹) := by simp [← Finset.mul_sum, μA]
   _ = log A.card := by simp [negMulLog, ← mul_assoc, mul_inv_cancel N_pos.ne']
 
-lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
+lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S] [Fintype S]
     (μ : Measure S) [IsProbabilityMeasure μ] :
     Hm[μ] = log (Fintype.card S) ↔ (∀ s : S, μ.real {s} = (Fintype.card S : ℝ)⁻¹) := by
   cases isEmpty_or_nonempty S with
@@ -170,13 +168,13 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
     -- use equality case of Jensen
     convert sum_negMulLog_eq_aux2 hw1 hw2 hp using 2
-    · simp [measureEntropy_def', Finset.mul_sum]
+    · simp [measureEntropy_def', tsum_fintype, Finset.mul_sum]
     · simp [negMulLog, ← Finset.mul_sum]
     · rw [← Finset.mul_sum]
       simp
 
 lemma measureEntropy_eq_card_iff_measure_eq_aux
-    (μ : Measure S) [IsProbabilityMeasure μ] :
+    (μ : Measure S) [Fintype S] [IsProbabilityMeasure μ] :
     Hm[μ] = log (Fintype.card S) ↔ (∀ s : S, μ {s} = (Fintype.card S : ℝ≥0)⁻¹) := by
   rw [measureEntropy_eq_card_iff_measureReal_eq_aux]
   congr! with s
@@ -184,29 +182,28 @@ lemma measureEntropy_eq_card_iff_measure_eq_aux
   congr!
   simp
 
-lemma measureEntropy_le_log_card_of_mem {A : Set S} (μ : Measure S) (hμA : μ Aᶜ = 0) :
+lemma measureEntropy_le_log_card_of_mem {A : Finset S} (μ : Measure S) (hμA : μ Aᶜ = 0) :
     Hm[μ] ≤ log (Nat.card A) := by
   have h_log_card_nonneg : 0 ≤ log (Nat.card A) := log_nat_cast_nonneg (Nat.card ↑A)
   rcases eq_zero_or_neZero μ with rfl|hμ
-  · simp [h_log_card_nonneg]
+  · simp [h_log_card_nonneg]; positivity
   · by_cases hμ_fin : IsFiniteMeasure μ
     swap;
     · rw [measureEntropy_of_not_isFiniteMeasure hμ_fin]
       exact h_log_card_nonneg
     rw [← measureEntropy_univ_smul]
-    let A' := A.toFinite.toFinset
-    have AA' : A = (A' : Set S) := by simp
-    have : ((μ Set.univ) ⁻¹ • μ) (A'ᶜ) = 0 := by simp [hμA]
-    convert measureEntropy_le_card_aux A' this using 3
-    rw [AA', Nat.card_eq_fintype_card]
-    exact Fintype.card_coe A'
+    have : ((μ Set.univ) ⁻¹ • μ) (Aᶜ) = 0 := by simp [hμA]
+    convert measureEntropy_le_card_aux A this using 3
+    rw [Nat.card_eq_fintype_card]
+    exact Fintype.card_coe A
 
-lemma measureEntropy_le_log_card (μ : Measure S) : Hm[μ] ≤ log (Fintype.card S) := by
-  convert measureEntropy_le_log_card_of_mem (A := (Set.univ : Set S)) μ (by simp)
-  simpa only [Nat.card_eq_fintype_card] using
-    ((set_fintype_card_eq_univ_iff (Set.univ : Set S)).2 rfl).symm
+lemma measureEntropy_le_log_card [Fintype S] (μ : Measure S) : Hm[μ] ≤ log (Fintype.card S) := by
+  convert measureEntropy_le_log_card_of_mem (A := (Finset.univ : Finset S)) μ (by simp)
+  simp [Nat.card_eq_fintype_card]
+  rw [Fintype.subtype_card]
+  simp; rfl
 
-lemma measureEntropy_eq_card_iff_measureReal_eq [MeasurableSingletonClass S] [IsFiniteMeasure μ]
+lemma measureEntropy_eq_card_iff_measureReal_eq [MeasurableSingletonClass S] [Fintype S] [IsFiniteMeasure μ]
     [NeZero μ] :
     Hm[μ] = log (Fintype.card S) ↔
     (∀ s : S, μ.real {s} = μ.real Set.univ / Fintype.card S) := by
@@ -217,7 +214,7 @@ lemma measureEntropy_eq_card_iff_measureReal_eq [MeasurableSingletonClass S] [Is
     div_eq_mul_inv]
   rfl
 
-lemma measureEntropy_eq_card_iff_measure_eq [MeasurableSingletonClass S] [IsFiniteMeasure μ]
+lemma measureEntropy_eq_card_iff_measure_eq [MeasurableSingletonClass S] [Fintype S] [IsFiniteMeasure μ]
     [NeZero μ] :
     Hm[μ] = log (Fintype.card S) ↔
     (∀ s : S, μ {s} = μ Set.univ / Fintype.card S) := by
@@ -232,9 +229,8 @@ lemma measureEntropy_eq_card_iff_measure_eq [MeasurableSingletonClass S] [IsFini
   · finiteness
 
 lemma measureEntropy_map_of_injective
-    (μ : Measure S) (f : S → T) (hf : Function.Injective f) :
+    (μ : Measure S) (f : S → T) (hf_m : Measurable f) (hf : Function.Injective f) :
     Hm[μ.map f] = Hm[μ] := by
-  have hf_m : Measurable f := measurable_of_finite f
   have : μ.map f Set.univ = μ Set.univ := by
       rw [Measure.map_apply hf_m MeasurableSet.univ]
       simp
@@ -242,24 +238,20 @@ lemma measureEntropy_map_of_injective
     Measure.map_apply hf_m (measurableSet_singleton _)]
   rw [this]
   classical
-  have : ∑ x : T, negMulLog ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})).toReal
-      = ∑ x in Finset.univ.image f,
-        negMulLog ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})).toReal := by
-    rw [← Finset.sum_subset]
-    · exact Finset.subset_univ _
-    · intro y _ hy
-      simp only [Finset.mem_image, Finset.mem_univ, true_and, not_exists] at hy
-      suffices f ⁻¹' {y} = ∅ by simp [this]
-      rw [Set.preimage_eq_empty_iff]
-      simp [hy]
-  rw [this, Finset.sum_image]
-  · simp only [smul_eq_mul, ENNReal.toReal_mul]
-    congr with x
-    congr with x'
-    simp only [Set.mem_preimage, Set.mem_singleton_iff]
-    exact ⟨fun h ↦ hf h, fun h ↦ by rw [h]⟩
-  · simp only [Finset.mem_univ, forall_true_left]
-    exact hf
+  let F : T → ℝ := fun x ↦ negMulLog ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})).toReal
+  have : ∑' x : T, F x
+      = ∑' x : (f '' Set.univ), F x := by
+    apply (tsum_subtype_eq_of_support_subset _).symm
+    intro x hx
+    contrapose hx
+    suffices f ⁻¹' {x} = ∅ by simp [this]
+    contrapose! hx
+    rw [Set.image_univ]
+    exact hx
+  rw [this, tsum_image _ (Set.injective_iff_injOn_univ.mp hf), tsum_univ (fun x ↦ F (f x))]
+  congr! with s
+  ext s'; simp
+  exact hf.eq_iff
 
 lemma measureEntropy_comap (μ : Measure S) (f : T → S) (hf : MeasurableEmbedding f)
     (hf_range : Set.range f =ᵐ[μ] Set.univ) :
@@ -269,22 +261,23 @@ lemma measureEntropy_comap (μ : Measure S) (f : T → S) (hf : MeasurableEmbedd
     Measure.comap_apply f hf.injective hf.measurableSet_image' _ MeasurableSet.univ]
   simp only [Set.image_univ, Set.image_singleton, smul_eq_mul, ENNReal.toReal_mul]
   classical
-  rw [← Finset.sum_image
-    (f := fun x ↦ negMulLog (((μ (Set.range f))⁻¹).toReal * (μ {x}).toReal)) (g := f)]
-  rw [measure_congr hf_range]
-  rw [Finset.sum_subset]
-  · exact Finset.subset_univ _
-  · intro y _ hy
-    simp only [Finset.mem_image, Finset.mem_univ, true_and, not_exists] at hy
-    simp only [ae_eq_univ] at hf_range
-    suffices μ {y} = 0 by simp [this]
+  rw [← tsum_range
+    (f := fun x ↦ negMulLog (((μ (Set.range f))⁻¹).toReal * (μ {x}).toReal)) (g := f),measure_congr hf_range]
+  let F : S → ℝ := fun x ↦ negMulLog (((μ (Set.univ))⁻¹).toReal * (μ {x}).toReal)
+  show ∑' x : (Set.range f), F x = ∑' x : S, F x
+  apply tsum_subtype_eq_of_support_subset
+  . intro x hx
+    contrapose hx
+    suffices μ {x} = 0 by simp [this]
     refine measure_mono_null ?_ hf_range
     intro y'
     simp only [Set.mem_singleton_iff, Set.mem_compl_iff, Set.mem_range, not_exists]
     intro h
-    rwa [h]
-  · simp only [Finset.mem_univ, forall_true_left]
-    exact hf.injective
+    simp [h]
+    contrapose! hx
+    have : Set.univ x := by exact trivial
+    rwa [<-hx] at this
+  exact hf.injective
 
 lemma measureEntropy_comap_equiv (μ : Measure S) (f : T ≃ᵐ S) :
     Hm[μ.comap f] = Hm[μ] := by
