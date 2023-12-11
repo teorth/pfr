@@ -33,6 +33,19 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
   This completes the proof.
 \end{proof}
 
+
+\begin{corollary}\label{fibring-ineq}
+If $\pi:G\to H$ is a homomorphism of additive groups and $X,Y$ are $G$-valued random variables then
+\[d[X;Y]\geq d[\pi(X);\pi(Y)].\]
+\end{corollary}
+\begin{proof}
+\uses{fibring-ident, ruzsa-nonneg}
+By Proposition \ref{fibring-ident} we have
+\[d[X;Y]\geq d[\pi(X);\pi(Y)]+d[X\mid \pi(X);Y\mid \pi(Y)].\]
+The inequality follows from $d[X\mid \pi(X);Y\mid \pi(Y)]\geq 0$ (Lemma \ref{ruzsa-nonneg}).
+\end{proof}
+
+
 \begin{corollary}[Specific fibring identity]\label{cor-fibre}
   \lean{sum_of_rdist_eq}\leanok
   Let $Y_1,Y_2,Y_3$ and $Y_4$ be independent $G$-valued random variables.
