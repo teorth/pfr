@@ -54,3 +54,4 @@ proof_wanted weak_PFR : 0 = 1
 
 /-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-48}\lvert A\rvert$ and $\dim A' \leq 60\log K$.-/
 proof_wanted weak_PFR_int : 0 = 1
+  
