@@ -1,4 +1,5 @@
 import PFR.ForMathlib.MeasureReal
+import PFR.ForMathlib.FiniteRange
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Fintype.Card
 
@@ -23,7 +24,7 @@ open scoped ENNReal NNReal Topology BigOperators
 
 namespace ProbabilityTheory
 variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
-  [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+  [MeasurableSpace S] [MeasurableSingletonClass S]
   [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
   [Fintype U] [MeasurableSpace U] [MeasurableSingletonClass U]
 
@@ -39,10 +40,13 @@ The added complexity in the expression is not an issue because if `μ` is a prob
 a call to `simp` will simplify `(μ Set.univ)⁻¹ • μ` to `μ`. -/
 noncomputable
 def measureEntropy (μ : Measure S := by volume_tac) : ℝ :=
-  ∑ s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal
+  ∑' s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal
 
-lemma measureEntropy_def (μ : Measure S) :
-    measureEntropy μ = ∑ s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := rfl
+lemma measureEntropy_def [Fintype S] (μ : Measure S) :
+    measureEntropy μ = ∑ s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := by
+      apply tsum_eq_sum
+      
+      rfl
 
 lemma measureEntropy_def' (μ : Measure S) :
     measureEntropy μ = ∑ s, negMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
