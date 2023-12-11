@@ -85,6 +85,15 @@ $$ d[X ;Y] := \bbH[X' - Y'] - \bbH[X']/2 - \bbH[Y']/2$$
 where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{independent-exist}.
 \end{definition}
 
+
+\begin{lemma}[Distance from zero]\label{dist-zero}
+If $X$ is a $G$-valued random variable and $0$ is the random variable taking the value $0$ everywhere then
+\[d[X;0]=\mathbb{H}(X)/2.\]
+\end{lemma}
+\begin{proof}
+This is an immediate consequence of the definitions and $X-0\equiv X$ and $\mathbb{H}(0)=0$. 
+\end{proof}
+
 \begin{lemma}[Copy preserves Ruzsa distance]\label{ruz-copy}
   \uses{ruz-dist-def}
   \lean{ProbabilityTheory.IdentDistrib.rdist_eq}\leanok
@@ -144,6 +153,22 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X ;Y].$$
   \uses{ruzsa-diff}
   \leanok
   Immediate from Lemma \ref{ruzsa-diff}.
+\end{proof}
+
+
+\begin{lemma}[Projection entropy and distance]\label{dist-projection}
+If $G$ is an additive group and $X$ is a $G$-valued random variable and $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphism we have (if $U_H$ is the  uniform distribution on $H$, independent of $X$)
+\[\mathbb{H}(\pi(X))\leq 2d[X;U_H].\]
+\end{lemma}
+\begin{proof}
+\uses{ruzsa-diff}
+We have
+\[\mathbb{H}(X+U_H)=\mathbb{H}(\pi(X))+\mathbb{H}(U_H)\]
+and therefore
+\[d[X;U_H]=\mathbb{H}(\pi(X))+\frac{\mathbb{H}(U_H)-\mathbb{H}(X)}{2}.\]
+Furthermore by Lemma \ref{ruzsa-diff}
+\[d[X;U_H]\geq \frac{\lvert \mathbb{H}(X)-\mathbb{H}(U_H)\rvert}{2}.\]
+Adding these inequalities gives the result.
 \end{proof}
 
 \begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Y)$ independent of $Z$, then
