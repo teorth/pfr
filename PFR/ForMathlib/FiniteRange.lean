@@ -46,6 +46,11 @@ instance {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [AddGroup G] [hX: FiniteRa
   show FiniteRange ((fun p ↦ p.1 - p.2) ∘ ⟨ X, Y ⟩)
   infer_instance
 
+/-- The negation of a function of finite range, has finite range.-/
+instance {Ω G : Type*} (X : Ω → G) [AddGroup G] [hX: FiniteRange X] : FiniteRange (-X) := by
+  show FiniteRange ((fun p ↦ -p) ∘ X)
+  infer_instance
+
 /-- The multiple of a function of finite range by a constant, has finite range. -/
 instance {Ω G : Type*} (X : Ω → G) [AddGroup G] [hX: FiniteRange X] (c : ℤ) : FiniteRange (c • X) := by
   show FiniteRange ((fun x ↦ c • x) ∘ X)
