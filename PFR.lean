@@ -28,7 +28,6 @@ import PFR.Mathlib.Algebra.Group.Hom.Basic
 import PFR.Mathlib.Algebra.Module.Submodule.Map
 import PFR.Mathlib.Algebra.Order.Archimedean
 import PFR.Mathlib.Analysis.Convex.Jensen
-import PFR.Mathlib.Analysis.Convex.Topology
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Combinatorics.Additive.RuzsaCovering
 import PFR.Mathlib.Data.Fin.Basic
@@ -42,7 +41,6 @@ import PFR.Mathlib.Data.Set.Pointwise.Basic
 import PFR.Mathlib.Data.Set.Pointwise.Finite
 import PFR.Mathlib.Data.Set.Sigma
 import PFR.Mathlib.GroupTheory.Sylow
-import PFR.Mathlib.Init.Core
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import PFR.Mathlib.MeasureTheory.Constructions.Pi

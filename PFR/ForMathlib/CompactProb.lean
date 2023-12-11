@@ -1,8 +1,4 @@
 import PFR.ForMathlib.FiniteMeasureComponent
-import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.Analysis.Convex.Topology
-import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
-import PFR.Tactic.Finiteness
 
 /-!
 # Compactness of the space of probability measures
