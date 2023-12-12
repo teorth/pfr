@@ -45,11 +45,31 @@ $$ + \bbH[Z_2|Z_2+Z_4] - \bbH[Z_1|Z_1+Z_3]).$$
 lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
     (2 * d[Z₁ # Z₂] + d[Z₁ # Z₃] + d[Z₃ # Z₄]) / 4
     + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8 := by
-  have hS : Measurable Sum := sorry
+  have hS : Measurable Sum := ((hZ₁.add' hZ₂).add' hZ₃).add' hZ₄
+  /-
+  have C : d[Z₁ # Z₃] + d[Z₂ # Z₄] = d[Z₁ + Z₂ # Z₃ + Z₄]
+           + d[Z₁|Z₁ + Z₂ # Z₃|Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Z₁ + Z₂ + Z₃ + Z₄] := by
+    have M : d[Z₃ # Z₁] + d[Z₄ # Z₂] = d[Z₃ + Z₄ # Z₁ + Z₂]
+           + d[Z₃|Z₃ + Z₄ # Z₁|Z₁ + Z₂] + I[Z₃ + Z₁ : Z₁ + Z₂ | Z₃ + Z₁ + Z₄ + Z₂] := by
+      have hY_indep : iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₄, Z₂] := by
+        let σ : Fin 4 ≃ Fin 4 :=
+          { toFun := ![2, 0, 3, 1],
+            invFun := ![1, 3, 0, 2],
+            left_inv := by intro i; fin_cases i <;> rfl,
+            right_inv := by intro i; fin_cases i <;> rfl }
+        refine' iIndepFun.reindex σ _; convert h_indep using 1; ext i; fin_cases i <;> rfl
+      apply sum_of_rdist_eq_char_2 ![Z₃, Z₁, Z₄, Z₂] hY_indep (fun i ↦ ?_)
+      fin_cases i <;> assumption
+    have J1 : Z₃ + Z₁ + Z₄ + Z₂ = Z₁ + Z₂ + Z₃ + Z₄ := by abel
+    have J2 : Z₃ + Z₁ = Z₁ + Z₃ := by abel
+    rw [J1, J2] at M
+    simpa only [rdist_symm (Y := Z₁), rdist_symm (X := Z₄), rdist_symm (X := Z₃ + Z₄),
+      condRuzsaDist_symm hZ₃ (hZ₃.add' hZ₄) hZ₁ (hZ₁.add' hZ₂),
+      condMutualInfo_comm (hZ₁.add' hZ₃) (hZ₁.add' hZ₂)] using M
   have A : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] ≤ d[Y # Z₁] +
-      (d[Z₁ # Z₂] + d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
-      + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by sorry
-    /- calc
+      (2 * d[Z₁ # Z₂] + d[Z₃ # Z₄] + d[Z₁ + Z₂ # Z₃ + Z₄] - d[Z₁ + Z₃ # Z₂ + Z₄]
+        - d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
+      + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by calc
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
       ≤ d[Y # Z₁ + Z₂ | Sum] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]/2 :=
         condRuzsaDist_le'_prod (ℙ : Measure Ω₀) (ℙ : Measure Ω) hY (hZ₁.add hZ₂) (hZ₁.add hZ₃) hS
@@ -69,7 +89,8 @@ lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
           + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by
         have I : IndepFun Z₁ Z₂ := by exact h_indep.indepFun (show 0 ≠ 1 by decide)
         have A := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₂ I
-        linarith -/
+        linarith
+    _ = _ := by linarith -/
   have B : d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃,Sum⟩] ≤ d[Y # Z₁] +
       (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
       + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := by
@@ -79,18 +100,23 @@ lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
       rw [condRuzsaDist'_eq_sum (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)]
     _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]]
         + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]] / 2
-        + H[Z₂ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4) := by
-      apply Finset.sum_le_sum (fun w h'w ↦ ?_)
+        + H[Z₂ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4) := by sorry
+      /- apply Finset.sum_le_sum (fun w h'w ↦ ?_)
       rcases eq_bot_or_bot_lt (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})) with hw|hw
       · simp [hw]
       gcongr
       have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]) := cond_isProbabilityMeasure ℙ hw.ne'
       have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]) := sorry
       have := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]) hY hZ₁ hZ₂ this
-      linarith
+      linarith -/
     _ = d[Y # Z₁ | Z₁ + Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
         + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
-      sorry
+      simp only [mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib, Finset.sum_div]
+      congr
+      · rw [← condRuzsaDist'_eq_sum]
+        have : d[Y # Z₁ | ⟨Z₁ + Z₃, Sum⟩] = d[Y # Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := by
+
+
     _ ≤ (d[Y # Z₁] + d[Z₁ # Z₃]/2 + H[Z₁]/4 - H[Z₃]/4) + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
         + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
       gcongr
@@ -103,17 +129,7 @@ lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
 
 condRuzsaDist_diff_le
 
-  have C : d[Z₁ # Z₂] + d[Z₃ # Z₄] = d[Z₁ + Z₃ # Z₂ + Z₄]
-        + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum] := by
-    have M : d[Z₂ # Z₁] + d[Z₄ # Z₃] = d[Z₂ + Z₄ # Z₁ + Z₃] + d[Z₂ | Z₂ + Z₄ # Z₁ | Z₁ + Z₃]
-        + I[Z₂ + Z₁ : Z₁ + Z₃ | Z₂ + Z₁ + Z₄ + Z₃] := by
-      apply sum_of_rdist_eq_char_2 ![Z₂, Z₁, Z₄, Z₃] sorry (fun i ↦ ?_)
-      fin_cases i <;> assumption
-    have J1 : Z₂ + Z₁ + Z₄ + Z₃ = Z₁ + Z₂ + Z₃ + Z₄ := by abel
-    have J2 : Z₂ + Z₁ = Z₁ + Z₂ := by abel
-    rw [J1, J2, condRuzsaDist_symm hZ₂ (hZ₂.add' hZ₄) hZ₁ (hZ₁.add' hZ₃)] at M
-    simpa only [rdist_symm (X := Z₂) (Y := Z₁), rdist_symm (X := Z₄), rdist_symm (X := Z₂ + Z₄)]
-      using M
+
   sorry
 
 end GeneralInequality
