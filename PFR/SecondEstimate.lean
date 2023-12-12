@@ -52,10 +52,10 @@ local notation3 "I₂" => I[X₁ + X₂ : X₁' + X₁ | X₁ + X₂ + X₁' + X
 
 /-- $$ d[X_1+\tilde X_1; X_2+\tilde X_2] \geq k - \frac{\eta}{2} ( d[X_1; X_1] + d[X_2;X_2] ).$$
 -/
-lemma rdist_of_sums_ge' : d[X₁ + X₁' # X₂ + X₂'] ≥ k - η * (d[X₁ # X₁] + d[X₂ # X₂]) / 2 := by
+lemma rdist_of_sums_ge' : d[X₁ + X₁' # X₂ + X₂'] ≥ k - p.η * (d[X₁ # X₁] + d[X₂ # X₂]) / 2 := by
   refine' LE.le.ge (LE.le.trans _ (distance_ge_of_min p h_min (hX₁.add hX₁') (hX₂.add hX₂')))
   rw [sub_sub, sub_le_sub_iff_left k, ← mul_add,mul_div_assoc]
-  refine' mul_le_mul_of_nonneg_left _ (by rw [η]; positivity)
+  refine' mul_le_mul_of_nonneg_left _ (by linarith [p.hη])
   have h₁' := condRuzsaDist_diff_le' ℙ p.hmeas1 hX₁ hX₁' (h_indep.indepFun (show 0 ≠ 2 by decide))
   have h₂' := condRuzsaDist_diff_le' ℙ p.hmeas2 hX₂ hX₂' (h_indep.indepFun (show 1 ≠ 3 by decide))
   rw [h₁.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁] at h₁'
@@ -63,7 +63,7 @@ lemma rdist_of_sums_ge' : d[X₁ + X₁' # X₂ + X₂'] ≥ k - η * (d[X₁ # 
   linarith
 
 /-- $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$ -/
-lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (1 - η) := by
+lemma second_estimate : I₂ ≤ 2 * p.η * k + (2 * p.η * (2 * p.η * k - I₁)) / (1 - p.η) := by
   have hX₁_indep : IndepFun X₁ X₁' (μ := ℙ) := h_indep.indepFun (show 0 ≠ 2 by decide)
   have hX₂_indep : IndepFun X₂ X₂' (μ := ℙ) := h_indep.indepFun (show 1 ≠ 3 by decide)
   have hX_indep : IndepFun (X₁ + X₁') (X₂ + X₂') := by
@@ -84,15 +84,15 @@ lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (
   have h₂' := condRuzsaDist_diff_le''' ℙ p.hmeas2 hX₂ hX₂' hX₂_indep
   rw [h₁.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁] at h₁'
   rw [h₂.entropy_eq, add_sub_cancel, ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂] at h₂'
-  have h'' : I₂ ≤ η * (d[X₁ # X₁] + d[X₂ # X₂]) := by
+  have h'' : I₂ ≤ p.η * (d[X₁ # X₁] + d[X₂ # X₂]) := by
     rw [← add_comm X₁ X₁']
-    have h₁'' := mul_le_mul_of_nonneg_left h₁' (show 0 ≤ η by rw [η]; positivity)
-    have h₂'' := mul_le_mul_of_nonneg_left h₂' (show 0 ≤ η by rw [η]; positivity)
+    have h₁'' := mul_le_mul_of_nonneg_left h₁' (show 0 ≤ p.η by linarith [p.hη])
+    have h₂'' := mul_le_mul_of_nonneg_left h₂' (show 0 ≤ p.η by linarith [p.hη])
     have := rdist_of_sums_ge' p _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
     linarith
   nth_rewrite 1 [mul_div_assoc, ← mul_add, mul_assoc, mul_left_comm]
-  refine' h''.trans (mul_le_mul_of_nonneg_left _ (show 0 ≤ η by rw [η]; positivity))
-  have h : d[X₁ + X₁' # X₂+ X₂'] ≤ (2 + η) * k - (d[X₁# X₁] + d[X₂ # X₂]) / 2 - I₁ := by
+  refine' h''.trans (mul_le_mul_of_nonneg_left _ (show 0 ≤ p.η by linarith [p.hη]))
+  have h : d[X₁ + X₁' # X₂+ X₂'] ≤ (2 + p.η) * k - (d[X₁# X₁] + d[X₂ # X₂]) / 2 - I₁ := by
     have h := hX_indep.rdist_eq (hX₁.add hX₁') (hX₂.add hX₂')
     rw [sub_eq_add (X₁ + X₁') (X₂ + X₂'), ← sub_eq_add X₁ X₁', ← sub_eq_add X₂ X₂',
       sub_eq_iff_eq_add.mp (sub_eq_iff_eq_add.mp (hX₁_indep.rdist_eq hX₁ hX₁').symm),
@@ -107,5 +107,5 @@ lemma second_estimate : I₂ ≤ 2 * η * k + (2 * η * (2 * η * k - I₁)) / (
     have h' := ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
     convert (h.symm ▸ (sub_le_sub_right (sub_le_sub_right h' _) _)) using 1; ring
   have h' := (rdist_of_sums_ge' p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min).le.trans h
-  rw [← div_le_iff' two_pos, ← sub_le_iff_le_add', le_div_iff (by rw [η]; positivity)]
+  rw [← div_le_iff' two_pos, ← sub_le_iff_le_add', le_div_iff (by linarith [p.hη'])]
   linarith

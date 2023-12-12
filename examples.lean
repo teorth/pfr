@@ -1,6 +1,5 @@
-import Mathlib.Probability.Notation
-import PFR.homomorphism
-import PFR.ForMathlib.MeasureReal
+import PFR.ApproxHomPFR
+import PFR.ImprovedPFR
 
 section PFR
 
@@ -19,11 +18,25 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 
 #print axioms PFR_conjecture
 
+/-- The improved version -/
+example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : AddSubgroup G) (c : Set G),
+      Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  convert PFR_conjecture_improv h₀A hA
+
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
     ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T := by
   convert homomorphism_pfr f S hS
   norm_cast
+
+-- Todo: replace the constants C₁, C₂, C₃, C₄ below with actual values
+
+/-- The approximate homomorphism version of PFR -/
+example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (4 * C₁^25 * C₃^24 * K^(50 * C₄ + 48 * C₂)) := by
+  convert approx_hom_pfr f K hK hf
+
+
 
 end PFR
 

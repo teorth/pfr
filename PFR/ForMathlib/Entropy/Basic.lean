@@ -1,4 +1,4 @@
-import PFR.Entropy.Kernel.MutualInfo
+import PFR.ForMathlib.Entropy.Kernel.MutualInfo
 import PFR.ForMathlib.Uniform
 import PFR.Mathlib.Probability.Independence.Conditional
 

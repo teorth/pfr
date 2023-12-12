@@ -1,4 +1,4 @@
-import PFR.Entropy.Kernel.Basic
+import PFR.ForMathlib.Entropy.Kernel.Basic
 
 /-!
 # Mutual Information of kernels

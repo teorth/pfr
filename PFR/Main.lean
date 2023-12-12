@@ -1,13 +1,11 @@
-import Mathlib.Data.Finset.Pointwise
 import Mathlib.Data.Real.Basic
+import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
 import PFR.EntropyPFR
-import PFR.ForMathlib.MonoidHom
-import PFR.ForMathlib.Pointwise
+import PFR.Mathlib.Data.Finset.Pointwise
 import PFR.Mathlib.Combinatorics.Additive.RuzsaCovering
-import PFR.Mathlib.GroupTheory.Complement
+import PFR.Mathlib.Data.Set.Pointwise.Basic
 import PFR.Tactic.RPowSimp
-
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
@@ -87,7 +85,8 @@ lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measur
     abel_nf
   rw [this, Uunif.measureReal_preimage_sub_zero Umeas Wunif Wmeas UWindep]
   congr 3
-  exact Nat.card_add_singleton _ _
+  rw [add_singleton]
+  exact card_vadd_set (AddOpposite.op x) B
 
 end ProbabilityTheory
 
@@ -147,9 +146,9 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     PFR_conjecture_pos_aux h₀A hA
   rcases exists_isUniform_measureSpace A h₀A with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
-  let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas⟩
+  let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/9, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
-  rcases entropic_PFR_conjecture p with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
+  rcases entropic_PFR_conjecture p (by norm_num) with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm $ measurableSet_discrete _
@@ -264,13 +263,11 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
       rw [div_lt_iff zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
       have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity
-    obtain ⟨u, HH'u, hu⟩ : ∃ (u : Set G), u + (H' : Set G) = H
-        ∧ Nat.card u * Nat.card (H' : Set G) = Nat.card (H : Set G) :=
-      AddSubgroup.exists_add_eq_addSubgroup_of_le H'H
+    obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
-      ≤ Nat.card c * Nat.card u := by norm_cast; exact Nat.card_add_le _ _
+      ≤ Nat.card c * Nat.card u := mod_cast card_add_le
     _ ≤ (K ^ (13/2) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
           * (Nat.card (H : Set G) / Nat.card (H' : Set G)) := by
         gcongr
@@ -306,17 +303,14 @@ theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2
   have ι_inj : Injective ι := AddSubgroup.subtype_injective G'
   let A' : Set G' := ι ⁻¹' A
   have A_rg : A ⊆ range ι := by simpa using AddSubgroup.subset_closure
-  have cardA' : Nat.card A' = Nat.card A := ι_inj.nat_card_preimage Afin A_rg
+  have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
   have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
     rwa [cardA', preimage_add_preimage ι_inj A_rg A_rg,
-         ι_inj.nat_card_preimage (Afin.add Afin) (add_subset_range A_rg A_rg)]
+         Nat.card_preimage_of_injective ι_inj (add_subset_range A_rg A_rg)]
   rcases PFR_conjecture (h₀A.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
-  use AddSubgroup.map ι H', ι '' c', ?_, ?_, ?_, ?_
-  · intro x hx
-    erw [← image_add]
-    exact ⟨⟨x, AddSubgroup.subset_closure hx⟩, hH'₂ hx, rfl⟩
-  · exact toFinite (ι '' c')
-  · exact toFinite (ι '' H')
-  · rwa [Nat.card_image_of_injective ι_inj (toFinite c')]
+  refine ⟨AddSubgroup.map ι H', ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
+  · rwa [Nat.card_image_of_injective ι_inj]
   · erw [Nat.card_image_of_injective ι_inj, ← cardA']
-    exacts [hH', toFinite (H' : Set G')]
+    exact hH'
+  · erw [← image_add]
+    exact ⟨⟨x, AddSubgroup.subset_closure hx⟩, hH'₂ hx, rfl⟩

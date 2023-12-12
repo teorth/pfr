@@ -1,4 +1,4 @@
-import PFR.Entropy.RuzsaDist
+import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
 # The fibring identity

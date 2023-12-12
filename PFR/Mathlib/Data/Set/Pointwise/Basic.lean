@@ -1,10 +1,9 @@
-import Mathlib.Algebra.Group.Hom.Defs
 import Mathlib.Data.Set.Pointwise.Basic
 
 open Set Pointwise Function
 
 @[to_additive]
-lemma mul_subset_range {F α β : Type*} [Mul α] [Mul β] [MulHomClass F α β]
+lemma Set.mul_subset_range {F α β : Type*} [Mul α] [Mul β] [MulHomClass F α β]
     {f : F} {s t : Set β} (hs : s ⊆ range f) (ht : t ⊆ range f) : s * t ⊆ range f := by
   rintro _ ⟨x, y, hx, hy, rfl⟩
   rcases hs hx with ⟨z, rfl⟩

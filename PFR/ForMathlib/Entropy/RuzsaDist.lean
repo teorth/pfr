@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
-import PFR.Entropy.Group
-import PFR.Entropy.Kernel.RuzsaDist
+import PFR.ForMathlib.Entropy.Group
+import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.Elementary
 import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.Mathlib.Algebra.Group.Hom.Basic

@@ -1,0 +1,41 @@
+\chapter{Approximate homomorphism version of PFR}
+
+\begin{definition}[Additive energy]\label{energy-def}\lean{Finset.additiveEnergy}\leanok  If $G$ is a group, and $A$ is a finite subset of $G$, the \emph{additive energy} $E(A)$ of $A$ is the number of quadruples $(a_1,a_2,a_3,a_4) \in A^4$ such that $a_1+a_2 = a_3+a_4$.
+\end{definition}
+
+\begin{lemma}[Cauchy--Schwarz bound]\label{cs-bound}\uses{energy-def}\lean{cauchy_schwarz}\leanok  If $G$ is a group, $A,B$ are finite subsets of $G$, then
+$$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$
+\end{lemma}
+
+\begin{proof}  If $B$ is empty then the claim is trivial (with the Lean convention $0/0$), so without loss of generality $B$ is non-empty.  We can rewrite
+$$ |\{ (a,a') \in A \times A: a+a' \in B \}| = \sum_{b \in B} r(b)$$
+where $r: G \to \N$ is the counting function
+$$ r(b) := |\{ (a,a') \in A \times A: a+a' = b \}|.$$
+From double counting we have
+$$ \sum_{b \in G} r(b)^2 = E(A).$$
+The claim now follows from the Cauchy--Schwarz inequality
+$$ (\sum_{b \in B} r(b))^2 \leq |B| \sum_{b \in B} r(b)^2.$$
+\end{proof}
+
+\begin{lemma}[Balog--Szemer\'edi--Gowers lemma]\label{bsg}\uses{energy-def}\lean{bsg}\leanok Let $G$ be an abelian group, and let $A$ be a finite non-empty set with $E(A) \geq |A|^3 / K$ for some $K \geq 1$.  Then there is a subset $A'$ of $A$ with $|A'| \geq |A| / (C_1 K^{C_2})$ and $|A'-A'| \leq C_3 K^{C_4} |A|$, where (provisionally)
+$$ C_1 = 2^4, C_2 = 1, C_3 = 2^{10}, C_4 = 4.$$
+\end{lemma}
+
+\begin{proof} See \url{https://leanprover.zulipchat.com/user_uploads/3121/D5wRxEww9_Qlmvj8QvdJO7FQ/SimpleBSG.pdf}
+\end{proof}
+
+\begin{theorem}[Approximate homomorphism form of PFR]\label{approx-hom-pfr}\lean{approx_hom_pfr}\leanok Let $G,G'$ be finite abelian $2$-groups.
+  Let $f: G \to G'$ be a function, and suppose that there are at least $|G|^2 / K$ pairs $(x,y) \in G^2$ such that
+$$ f(x+y) = f(x) + f(y).$$
+Then there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that $f(x) = \phi(x)+c$ for at least $|G| / 4C_1^{25} C_3^{24} K^{50C_4+48 C_2}$ values of $x \in G$.
+\end{theorem}
+
+\begin{proof}\uses{goursat, cs-bound, bsg, pfr} Consider the graph $A \subset G \times G'$ defined by
+$$ A := \{ (x,f(x)): x \in G \}.$$
+Clearly, $|A| = |G|$.  By hypothesis, we have $a+a' \in A$ for at least $|A|^2/K$ pairs $(a,a') \in A^2$.  By Lemma \ref{cs-bound}, this implies that $E(A) \geq |A|^3/K^2$.  Applying Lemma \ref{bsg}, we conclude that there exists a subset $A' \subset A$ with $|A'| \geq |A|/C_1 K^{2C_2}$ and $|A'+A'| \leq C_1C_3 K^{2(C_2+C_4)} |A'|$.  Applying Theorem \ref{pfr}, we may find a subspace $H \subset G \times G'$ such that $|H| \leq |A'| \leq |A| = |G|$ and $A'$ is covered by at most $2 (C_1C_3 K^{2(C_2+C_4)})^{12}$ translates of $H$.  If we let $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections that the projection of $A'$ to $G$ is covered by at most $2 (C_1C_3 K^{2(C_2+C_4)})^{12}$ translates of $H_0$.  This implies that
+$$ 2 (C_1C_3 K^{2(C_2+C_4)})^{12} |H_0| \geq |A'|;$$
+since $|H_0| |H_1| \leq |H| \leq |A'|$, we conclude that
+$$ |H_1| \leq 2(C_1C_3 K^{2(C_2+C_4)})^{12}.$$
+By hypothesis, $A'$ is covered by at most $2(C_1C_3 K^{2(C_2+C_4)})^{12}$ translates of $H$, and hence by at most $4(C_1C_3 K^{2(C_2+C_4)})^{24}$ translates of $\{ (x,\phi(x)): x \in G \}$.  As $\phi$ is a homomorphism, each such translate can be written in the form $\{ (x,\phi(x)+c): x \in G \}$ for some $c \in G'$.  By the pigeonhole principle, one of these translates must then contain at least
+$|A'|/4(C_1C_3 K^{2(C_2+C_4)})^{24} \geq |G| / 4 (C_1C_3 K^{2(C_2+C_4)})^{24} (C_1 K^{2C_2})$ elements of $A'$ (and hence of $A$), and the claim follows.
+\end{proof}

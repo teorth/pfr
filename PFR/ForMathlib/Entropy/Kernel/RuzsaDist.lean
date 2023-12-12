@@ -1,4 +1,4 @@
-import PFR.Entropy.Kernel.Group
+import PFR.ForMathlib.Entropy.Kernel.Group
 
 /-!
 # Ruzsa distance between kernels
