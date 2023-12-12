@@ -1,13 +1,13 @@
 \chapter{Weak PFR over the integers}
 
-\begin{lemma}\label{torsion-free-doubling}
-If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$. 
+\begin{lemma}\label{torsion-free-doubling}\lean{torsion_free_doubling}
+If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.
 \end{lemma}
 \begin{proof}
 \uses{alt-submodularity,ruzsa-triangle,ruzsa-diff}
 Let $Y_1,Y_2$ be independent copies of $Y$ (also independent of $X$). Since $G$ is torsion-free we know $X,Y_1-Y_2,X-2Y_1$ uniquely determine $X,Y_1,Y_2$ and so
 \[\mathbb{H}(X,Y_1,Y_2,X-2Y_1)=\mathbb{H}(X,Y_1,Y_2)=\mathbb{H}(X)+2\mathbb{H}(Y).\]
-Similarly 
+Similarly
 \[\mathbb{H}(X,X-2Y_1)=\mathbb{H}(X)+\mathbb{H}(2Y_1)=\mathbb{H}(X)+\mathbb{H}(Y).\]
 Furthermore
 \[\mathbb{H}(Y_1-Y_2,X-2Y_1)=\mathbb{H}(Y_1-Y_2,X-Y_1-Y_2)\leq \mathbb{H}(Y_1-Y_2)+\mathbb{H}(X-Y_1-Y_2).\]
@@ -20,12 +20,12 @@ Similarly we have
 \[\mathbb{H}(Y_1,X-Y_1-Y_2)=\mathbb{H}(Y)+\mathbb{H}(X-Y_2),\]
 and
 \[\mathbb{H}(Y_2,X-Y_1-Y_2)=\mathbb{H}(Y)+\mathbb{H}(X-Y_1)\]
-and by submodularity (Corollary \ref{alt-submodularity}) again 
+and by submodularity (Corollary \ref{alt-submodularity}) again
 \[\mathbb{H}(Y_1,Y_2,X-Y_1-Y_2)+ \mathbb{H}(X-Y_1-Y_2)\leq \mathbb{H}(Y_1,X-Y_1-Y_2)+\mathbb{H}(Y_2,X-Y_1-Y_2).\]
 Combining these inequalities (and recalling the definition of Ruzsa distance) gives
 \[\mathbb{H}(X-Y_1-Y_2)\leq \mathbb{H}(X-Y_1)+\mathbb{H}(X-Y_2)-\mathbb{H}(X)=2d[X;Y]+\mathbb{H}(Y).\]
 It follows that
-\[\mathbb{H}(X-2Y_1)\leq \mathbb{H}(Y_1-Y_2)+2d[X;Y]\] 
+\[\mathbb{H}(X-2Y_1)\leq \mathbb{H}(Y_1-Y_2)+2d[X;Y]\]
 and so (using $\mathbb{H}(2Y)=\mathbb{H}(Y)$)
 \begin{align*}
 d[X;2Y]
@@ -38,7 +38,7 @@ Finally note that by the triangle inequality (Lemma \ref{ruzsa-triangle}) we hav
 The result follows from $(\mathbb{H}(Y)-\mathbb{H}(X))/2\leq d[X;Y]$ (Lemma \ref{ruzsa-diff}).
 \end{proof}
 
-\begin{lemma}\label{torsion-dist-shrinking}
+\begin{lemma}\label{torsion-dist-shrinking}\lean{torsion_dist_shrinking}
 If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\]
 \end{lemma}
@@ -49,7 +49,7 @@ By Corollary \ref{fibring-ineq} and Lemma \ref{torsion-free-doubling} we have
 and $\phi(2Y)=2\phi(Y)\equiv 0$ so the left-hand side is equal to $d[\phi(X);0]=\mathbb{H}(\phi(X))/2$ (using Lemma \ref{dist-zero}).
 \end{proof}
 
-\begin{lemma}\label{app-ent-pfr}
+\begin{lemma}\label{app-ent-pfr}\lean{app_ent_PFR}
 Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> 48d[X;Y].\]
 There is a non-trivial subgroup $H\leq G$ such that
@@ -59,7 +59,7 @@ where $\psi:G\to G/H$ is the natural projection homomorphism.
 \end{lemma}
 \begin{proof}
 \uses{entropy-pfr, ruzsa-diff, dist-projection, ruzsa-nonneg}
-By Theorem \ref{entropy-pfr} there exists a subgroup $H$ such that $d[X;U_H]\leq 6d[X;Y]$ and $d[Y;U_H]\leq 6d[X;Y]$. Using Lemma \ref{dist-projection} we deduce that $\mathbb{H}(\psi(X))\leq 12 d[X;Y]$ and $\mathbb{H}(\psi(Y))\leq 12d[X;Y]$. The second claim follows adding these inequalities and using the assumption on $\mathbb{H}(X)+\mathbb{H}(Y)$. 
+By Theorem \ref{entropy-pfr} there exists a subgroup $H$ such that $d[X;U_H]\leq 6d[X;Y]$ and $d[Y;U_H]\leq 6d[X;Y]$. Using Lemma \ref{dist-projection} we deduce that $\mathbb{H}(\psi(X))\leq 12 d[X;Y]$ and $\mathbb{H}(\psi(Y))\leq 12d[X;Y]$. The second claim follows adding these inequalities and using the assumption on $\mathbb{H}(X)+\mathbb{H}(Y)$.
 
 Furthermore we have by Lemma \ref{ruzsa-diff}
 \[\log \lvert H \rvert-\mathbb{H}(X)\leq 2d[X;U_H]\leq 12d[X;Y]\]
@@ -69,7 +69,7 @@ Finally note that if $H$ were trivial then $\psi(X)=X$ and $\psi(Y)=Y$ and hence
 \end{proof}
 
 
-\begin{lemma}\label{pfr-projection}
+\begin{lemma}\label{pfr-projection}\lean{PFR_projection}
 If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
@@ -86,10 +86,10 @@ and
 Note that this exists since $H=\{0\}$ is an example of such a subgroup or we are done with this choice of $H$.
 
 We know that $G/H$ has the shape $\mathbb{F}_2^{d'}$ for some $d'$ [exactly how to see this/set up the hypotheses of Lemma \ref{app-ent-pfr} to make this an easy deduction I'll leave to those who know Lean better] and so by Lemma \ref{app-ent-pfr} there exists some non-trivial subgroup $H'\leq G/H$ such that
-\[\log \lvert H'\rvert < \mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\] 
+\[\log \lvert H'\rvert < \mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\]
 and
 \[2(\mathbb{H}(\psi'(X))+\mathbb{H}(\psi'(Y)))< \mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\]
-where $\psi':G/H\to (G/H)/H'$. By group isomorphism theorems we know that there exists some $H''$ with $H\leq H''\leq G$ such that $H'\cong H''/H$ and $\psi'(X)=\psi''(X)$ where $\psi'':G\to G/H''$ is the projection homomorphism. 
+where $\psi':G/H\to (G/H)/H'$. By group isomorphism theorems we know that there exists some $H''$ with $H\leq H''\leq G$ such that $H'\cong H''/H$ and $\psi'(X)=\psi''(X)$ where $\psi'':G\to G/H''$ is the projection homomorphism.
 
 Since $H'$ is non-trivial we know that $H$ is a proper subgroup of $H''$. On the other hand we know that
 \[\log \lvert H''\rvert=\log \lvert H'\rvert+\log \lvert H\rvert< (2-2^{1-\lvert H\rvert})(\mathbb{H}(X)+\mathbb{H}(Y)).\]
@@ -100,7 +100,7 @@ Therefore (using the maximality of $H$) it must be the first condition that fail
 \end{proof}
 
 
-\begin{lemma}\label{single-fibres}
+\begin{lemma}\label{single-fibres}\lean{single_fibres}
 Let $\phi:G\to H$ be a homomorphism and $A,B\subseteq G$ be finite subsets. If $x,y\in H$ then let $A_x=A\cap \phi^{-1}(x)$ and $B_y=B\cap \phi^{-1}(y)$. There exist $x,y\in H$ such that $A_x,B_y$ are both non-empty and
 \[d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq (\mathbb{H}(\phi(U_A))+\mathbb{H}(\phi(U_B)))(d(U_A,U_B)-d(U_{A_x},U_{B_y}).\]
 \end{lemma}
@@ -118,17 +118,17 @@ Since
 \[M=\sum_{x,y\in H}\frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A\rvert\lvert B\rvert}\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\]
 we have
 \[\sum_{x,y\in H} \frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A\rvert\lvert B\rvert}\left(Md[U_{A_x};U_{B_y}]+d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A\rvert\lvert B\rvert}\right)\leq  Md[U_A;U_B].\]
-It follows that there exists some $x,y\in H$ such that $\lvert A_x\rvert,\lvert B_y\rvert\neq 0$ and 
+It follows that there exists some $x,y\in H$ such that $\lvert A_x\rvert,\lvert B_y\rvert\neq 0$ and
 \[Md[U_{A_x};U_{B_y}]+d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A\rvert\lvert B\rvert}\leq  Md[U_A;U_B].\]
 \end{proof}
 
 
-\begin{definition}\label{dimension-def}
+\begin{definition}\label{dimension-def}\lean{dimension}
 If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the span of $A-A$ over the reals -- equivalently, the smallest $d'$ such that $A$ lies in a coset of a subgroup isomorphic to $\mathbb{Z}^{d'}$.
 \end{definition}
 
 
-\begin{theorem}\label{weak-pfr-asymm}
+\begin{theorem}\label{weak-pfr-asymm}\lean{weak_PFR_asymm}
 If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 48d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$.
@@ -148,30 +148,30 @@ where $\tilde{\phi}:\mathbb{Z}^d\to \mathbb{F}_2^d/H$ is $\phi$ composed with th
 
 By Lemma \ref{single-fibres} there exist $x,y\in \mathbb{F}_2^d/H$ such that, with $A_x=A\cap \tilde{\phi}^{-1}(x)$ and similarly for $B_y$,
 \[\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq 48(d[U_A;U_B]-d[U_{A_x};U_{B_y}]).\]
-Suppose first that $\lvert A_x\rvert+\lvert B_y\rvert=\lvert A\rvert+\lvert B\rvert$. This means that $\tilde{\phi}(A)=\{x\}$ and $\tilde{\phi}(B)=\{y\}$, and hence both $A$ and $B$ are in cosets of $\ker \tilde{\phi}$. Since by assumption $A,B$ are not in cosets of a proper subgroup of $\mathbb{Z}^d$ this means $\ker\tilde{\phi}=\mathbb{Z}^d$, and so (examining the definition of $\tilde{\phi}$) we must have $H=\mathbb{F}_2^d$. Then our bound on $\log\lvert H\rvert$ forces $d\leq \frac{40}{\log 2}d[U_A;U_B]$ and we are done with $A'=A$ and $B'=B$. 
+Suppose first that $\lvert A_x\rvert+\lvert B_y\rvert=\lvert A\rvert+\lvert B\rvert$. This means that $\tilde{\phi}(A)=\{x\}$ and $\tilde{\phi}(B)=\{y\}$, and hence both $A$ and $B$ are in cosets of $\ker \tilde{\phi}$. Since by assumption $A,B$ are not in cosets of a proper subgroup of $\mathbb{Z}^d$ this means $\ker\tilde{\phi}=\mathbb{Z}^d$, and so (examining the definition of $\tilde{\phi}$) we must have $H=\mathbb{F}_2^d$. Then our bound on $\log\lvert H\rvert$ forces $d\leq \frac{40}{\log 2}d[U_A;U_B]$ and we are done with $A'=A$ and $B'=B$.
 
 Otherwise,
 \[\lvert A_x\rvert+\lvert B_y\rvert <\lvert A\rvert+\lvert B\rvert\]
-and $\mathbb{H}(\tilde{\phi}(U_A))+\mathbb{H}(\tilde{\phi}(U_B))>0$, whence $d[\tilde{\phi}(U_A);\tilde{\phi}(U_B)]>0$. By induction we can find some $A'\subseteq A_x$ and $B'\subseteq B_y$ such that $\dim A',\dim B'\leq \frac{40}{\log 2} d[U_{A_x};U_{B_y}]\leq \frac{40}{\log 2}d[U_A;U_B]$ and 
+and $\mathbb{H}(\tilde{\phi}(U_A))+\mathbb{H}(\tilde{\phi}(U_B))>0$, whence $d[\tilde{\phi}(U_A);\tilde{\phi}(U_B)]>0$. By induction we can find some $A'\subseteq A_x$ and $B'\subseteq B_y$ such that $\dim A',\dim B'\leq \frac{40}{\log 2} d[U_{A_x};U_{B_y}]\leq \frac{40}{\log 2}d[U_A;U_B]$ and
 
 \[\log \frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 48d[U_{A_x};U_{B_y}].\]
-Adding these inequalities implies 
+Adding these inequalities implies
 
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 48d[U_A;U_B]\]
 as required.
 \end{proof}
 
-\begin{theorem}\label{weak-pfr-symm}
-If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that 
+\begin{theorem}\label{weak-pfr-symm}\lean{weak_PFR_symm}
+If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
 \[\lvert A'\rvert\geq K^{-48}\lvert A\rvert\]
 and $\dim A'\leq 60\log K$.
 \end{theorem}
 \begin{proof}
 \uses{weak-pfr-asymm,dimension-def}
-Immediate from Theorem \ref{weak-pfr-asymm} and rearranging. 
+Immediate from Theorem \ref{weak-pfr-asymm} and rearranging.
 \end{proof}
 
-\begin{theorem}\label{weak-pfr-int}
+\begin{theorem}\label{weak-pfr-int}\lean{weak_PFR_int}
 Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-48}\lvert A\rvert$ and $\dim A' \leq 60\log K$.
 \end{theorem}
 \begin{proof}
