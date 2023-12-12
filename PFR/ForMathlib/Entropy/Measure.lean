@@ -394,8 +394,12 @@ lemma measureMutualInfo_prod {μ : Measure S} {ν : Measure T} (hμ: FiniteSuppo
   rw [measureMutualInfo_def, measureEntropy_prod hμ hν]
   simp
 
-set_option trace.profiler true in
-/-- An ambitious goal would be to replace FiniteSupport with finite entropy. -/
+/-- An improved version of inv_mul_eq_one₀ that does not require a vanishing hypothesis. -/
+lemma inv_mul_eq_one₀' {x y : ℝ} (h: x⁻¹ * y = 1) : y = x := by
+  have : x ≠ 0 := by contrapose! h; simp [h]
+  rw [inv_mul_eq_one₀ this] at h; exact h.symm
+
+/-- An ambitious goal would be to replace FiniteSupport with finite entropy.  Proof is long and slow; needs to be optimized -/
 lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport μ) [IsProbabilityMeasure μ] :
     0 ≤ Im[μ] ∧
     (Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}) := by
@@ -529,11 +533,11 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
           rfl
         have H1 : Hm[μ.map Prod.fst] = -∑ p in (E1 ×ˢ E2), (μ.real {p} * log ((μ.map Prod.fst).real {p.1})) := by
           simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE1, negMulLog, neg_mul, Finset.sum_neg_distrib, Finset.sum_product, <-Finset.sum_mul]
-          congr! with s hs
+          congr! with s _
           exact h1 s
         have H2 : Hm[μ.map Prod.snd] = -∑ p in (E1 ×ˢ E2), (μ.real {p} * log ((μ.map Prod.snd).real {p.2})) := by
           simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE2, negMulLog, neg_mul, Finset.sum_neg_distrib, Finset.sum_product_right, <-Finset.sum_mul]
-          congr! with s hs
+          congr! with s _
           exact h2 s
         simp_rw [measureMutualInfo_def, H0, H1, H2]
         simp [Finset.sum_add_distrib]
@@ -555,12 +559,22 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
   · rw [← neg_nonpos, H1, <-Finset.sum_coe_sort]
     convert sum_negMulLog_le hw1 hw2 hf
   rw [← neg_eq_zero, H1, <-Finset.sum_coe_sort, H2, sum_negMulLog_eq_aux3 hw1 hw2 hf]
+  have w0 (p : S × U) (hp: w p = 0) : μ.real {p} = 0 := by
+    simp at hp
+    rcases hp with hp | hp
+    . contrapose! hp; exact (h_fst_ne_zero p) hp
+    contrapose! hp; exact (h_snd_ne_zero p) hp
   constructor
   . intro hyp p
     by_cases hp1 : p.1 ∈ E1
     . by_cases hp2 : p.2 ∈ E2
       . have hp : p ∈ E1 ×ˢ E2 := Finset.mem_product.mpr ⟨ hp1, hp2 ⟩
-        sorry
+        replace hyp := hyp ⟨ p, hp ⟩
+        rcases hyp with hyp | hyp
+        . simp [w0 p hyp] at hyp ⊢ ; exact hyp
+        rw [H] at hyp
+        have := inv_mul_eq_one₀' hyp
+        convert this
       have : {p.2} ⊆ (E2 : Set U)ᶜ := by simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp2
       replace : (Measure.map Prod.snd μ).real {p.2} = 0 := by rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE2
       have hp : μ.real {p} = 0 := by contrapose! this; exact (h_snd_ne_zero p) this
@@ -570,22 +584,14 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
     have hp : μ.real {p} = 0 := by contrapose! this; exact (h_fst_ne_zero p) this
     simp [hp, this]
   intro hyp ⟨ p, hp ⟩
-  rw [H]
-  sorry
-/- convert sum_negMulLog_eq_aux3 hw1 hw2 hf with p
-  · have hp1 := h_fst_ne_zero p
-    have hp2 := h_snd_ne_zero p
-    rw [not_imp_not] at hp1 hp2
-    by_cases hp1' : (μ.map Prod.fst).real {p.1} = 0
-    · simp [hp1', hp1 hp1']
-    by_cases hp2' : (μ.map Prod.snd).real {p.2} = 0
-    · simp [hp2', hp2 hp2']
-    have hw : (w p)⁻¹ ≠ 0 := by positivity
-    rw [← mul_right_inj' hw]
-    simp (config := {zeta := false}) [H, -mul_eq_mul_left_iff, -Fintype.sum_prod_type]
-    congr!
-    field_simp
--/
+  rw [H, or_iff_not_imp_left]
+  intro hw
+  show (w p)⁻¹ * (μ.real {p}) = 1
+  have : w p ≠ 0 := by exact hw
+  field_simp [this]
+  rw [hyp p]
+
+
 
 lemma measureMutualInfo_of_not_isFiniteMeasure {μ : Measure (S × U)} (h : ¬ IsFiniteMeasure μ) :
     Im[μ] = 0 := by
