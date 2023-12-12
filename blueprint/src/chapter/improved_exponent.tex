@@ -85,8 +85,9 @@ To control the expressions in the right-hand side of this lemma we need a genera
 \begin{lemma}[General inequality]\label{gen-ineq}\lean{gen_ineq} \leanok Let $X_1, X_2, X_3, X_4$ be independent $G$-valued random variables, and let $Y$ be another $G$-valued random variable.  Set $S := X_1+X_2+X_3+X_4$. Then
   \begin{align*}
     &  d[Y; X_1+X_2|X_1 + X_3, S] - d[Y; X_1] \\
-    &\quad \leq \tfrac{1}{4} (2d[X_1;X_2] + d[X_1;X_3] + d[X_3;X_4])\\
-    &\qquad \qquad + \tfrac{1}{8} (\bbH[X_1+X_2] - \bbH[X_1+X_3] + \bbH[X_2] - \bbH[X_3]\\
+    &\quad \leq \tfrac{1}{4} (d[X_1;X_2] + 2d[X_1;X_3] + d[X_2;X_4])\\
+    &\qquad \qquad + \tfrac{1}{4} (d[X_1|X_1+X_3;X_2|X_2+X_4] - d[X_3|X_3+X_4; X_1|X_1+X_2])\\
+    &\qquad \qquad + \tfrac{1}{8} (\bbH[X_1+X_2] - \bbH[X_3+X_4] + \bbH[X_2] - \bbH[X_3]\\
     &\qquad \qquad \qquad + \bbH[X_2|X_2+X_4] - \bbH[X_1|X_1+X_3]).
 \end{align*}
 \end{lemma}
@@ -98,12 +99,25 @@ To control the expressions in the right-hand side of this lemma we need a genera
   &\quad \leq d[Y;X_1+X_2|S] + \tfrac{1}{2} \bbI[X_1 + X_2 : X_1 + X_3|S] \\
   &\quad \leq d[Y;X_1+X_2]\\
   &\qquad + \tfrac{1}{2} (d[X_1+X_2;X_3+X_4] + \bbI[X_1 + X_2 : X_1 + X_3|S])\\
-  &\qquad + \tfrac{1}{4} (\bbH[X_1+X_2] - \bbH[X_1+X_3])\\
+  &\qquad + \tfrac{1}{4} (\bbH[X_1+X_2] - \bbH[X_3+X_4])\\
   &\quad \leq d[Y;X_1] \\
   &\qquad + \tfrac{1}{2} (d[X_1;X_2] + d[X_1+X_2;X_3+X_4] + \bbI[X_1 + X_2 : X_1 + X_3|S])\\
-  &\qquad + \tfrac{1}{4} (\bbH[X_1+X_2] - \bbH[X_1+X_3] + \bbH[X_2] - \bbH[X_1]).
+  &\qquad + \tfrac{1}{4} (\bbH[X_1+X_2] - \bbH[X_3+X_4] + \bbH[X_2] - \bbH[X_1]).
   \end{align*}
-On the other hand, $(X_1+X_2|X_1 + X_3, S)$ has an identical distribution to the independent sum of $(X_1|X_1+X_3)$ and $(X_2|X_2+X_4)$.  We may therefore apply Lemma \ref{first-useful} to conditioned variables $(X_1|X_1+X_3=s)$ and $(X_2|X_2+X_4=t)$ and average in $s,t$ to
+  From Corollary \ref{cor-fibre} (with $Y_1,Y_2,Y_3,Y_4$ set equal to $X_3, X_1, X_4, X_2$ respectively) one has
+  $$ d[X_3+X_4; X_1+X_2] + d[X_3|X_3+X_4; X_1|X_1+X_2] $$
+  $$ + \bbI[X_3 + X_1 : X_1 + X_2|S] = d[X_3;X_1] + d[X_4;X_2].$$
+Rearranging the mutual information and Ruzsa distances slightly, we conclude that
+\begin{align*}
+  &d[Y;X_1+X_2|X_1 + X_3, S] \\
+  &\quad \leq d[Y;X_1] \\
+  &\qquad + \tfrac{1}{2} (d[X_1;X_2] + d[X_1;X_3] + d[X_2;X_4] - d[X_3|X_3+X_4; X_1|X_1+X_2])\\
+  &\qquad + \tfrac{1}{4} (\bbH[X_1+X_2] - \bbH[X_3+X_4] + \bbH[X_2] - \bbH[X_1]).
+  \end{align*}
+
+
+
+  On the other hand, $(X_1+X_2|X_1 + X_3, S)$ has an identical distribution to the independent sum of $(X_1|X_1+X_3)$ and $(X_2|X_2+X_4)$.  We may therefore apply Lemma \ref{first-useful} to conditioned variables $(X_1|X_1+X_3=s)$ and $(X_2|X_2+X_4=t)$ and average in $s,t$ to
   obtain the alternative bound
   \begin{align*}
   &  d[Y;X_1+X_2|X_1 + X_3, S] \\
@@ -111,9 +125,9 @@ On the other hand, $(X_1+X_2|X_1 + X_3, S)$ has an identical distribution to the
   &\qquad + \tfrac{1}{4} (\bbH[X_2|X_2+X_4] - \bbH[X_1|X_1+X_3]) \\
   &\quad  \leq d[Y;X_1] \\
   &\qquad + \tfrac{1}{2} (d[X_1;X_3] + d[X_1|X_1+X_3;X_2|X_2+X_4])\\
-  &\qquad + \tfrac{1}{4} (\bbH{X_2|X_2+X_4} - \bbH[X_1|X_1+X_3] + \bbH[X_1] - \bbH[X_3]).
+  &\qquad + \tfrac{1}{4} (\bbH[X_2|X_2+X_4] - \bbH[X_1|X_1+X_3] + \bbH[X_1] - \bbH[X_3]).
   \end{align*}
-  If one takes the arithmetic mean of these two bounds and simplifies using Lemma \ref{cor-fibre}, one obtains the claim.
+  If one takes the arithmetic mean of these two bounds and simplifies using Corollary \ref{cor-fibre}, one obtains the claim.
 \end{proof}
 
 Returning to our specific situation, we now have
