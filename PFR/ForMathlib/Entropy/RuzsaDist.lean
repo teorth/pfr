@@ -289,6 +289,15 @@ lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' 
   have : IsProbabilityMeasure (μ'.map W) := isProbabilityMeasure_map hW.aemeasurable
   rw [condRuzsaDist_def, condRuzsaDist_def, kernel.rdist_symm]
 
+@[simp] lemma condRuszaDist_zero_right (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
+    (μ : Measure Ω) : d[X | Z ; μ # Y | W ; 0] = 0 := by
+  simp only [condRuzsaDist, aemeasurable_zero_measure, not_true_eq_false, Measure.map_zero,
+    kernel.rdist_zero_right]
+
+@[simp] lemma condRuszaDist_zero_left (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
+    (μ' : Measure Ω') : d[X | Z ; 0 # Y | W ; μ'] = 0 := by
+  simp [condRuzsaDist]
+
 /-- Ruzsa distance of random variables equals Ruzsa distance of the kernels. -/
 lemma rdist_eq_rdistm : d[X ; μ # Y ; μ'] = kernel.rdistm (μ.map X) (μ'.map Y) := rfl
 
@@ -334,6 +343,11 @@ lemma condRuzsaDist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Me
       dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] :=
   rfl
 
+@[simp] lemma condRuzsaDist'_zero_right (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) :
+    d[X ; μ # Y | W ; 0] = 0 := by
+  simp only [condRuzsaDist'_def, aemeasurable_zero_measure, not_true_eq_false, Measure.map_zero,
+    kernel.rdist_zero_right]
+
 /-- Explicit formula for conditional Ruzsa distance $d[X ; Y|W]$. -/
 lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
     (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
@@ -353,6 +367,48 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
   congr 1
   rw [rdist_eq_rdistm, condEntropyKernel_apply hY hW _ _ hw]
   congr
+
+open scoped ENNReal
+
+/-- Replace `cond_cond_eq_cond_inter'` with this version, which removes a nonzero measure
+assumption-/
+theorem cond_cond_eq_cond_inter'' (hms : MeasurableSet s) (hmt : MeasurableSet t)
+    (hcs : μ s ≠ ∞ := by finiteness) :
+    μ[|s][|t] = μ[|s ∩ t] := by
+  ext u
+  rw [cond_apply _ hmt, cond_apply _ hms, cond_apply _ hms, cond_apply _ (hms.inter hmt)]
+  rcases eq_or_ne (μ (s ∩ t)) 0 with hst|hst
+  · have : μ (s ∩ t ∩ u) = 0 :=
+      le_antisymm (le_trans (measure_mono (Set.inter_subset_left _ _)) hst.le) bot_le
+    simp [this, ← Set.inter_assoc]
+  · have hcs' : μ s ≠ 0 :=
+      (μ.toOuterMeasure.pos_of_subset_ne_zero (Set.inter_subset_left _ _) hst).ne'
+    simp [*, hms.inter hmt, cond_apply, ← mul_assoc, ← Set.inter_assoc, ENNReal.mul_inv, mul_comm, ←
+      mul_assoc, ENNReal.mul_inv_cancel]
+
+lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → T} (hY : Measurable Y)
+    (hW : Measurable W) (hW' : Measurable W') (μ : Measure Ω) (μ' : Measure Ω')
+    [IsFiniteMeasure μ'] :
+    d[X ; μ # Y | ⟨W', W⟩; μ']
+      = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
+  rw [condRuzsaDist'_eq_sum hY (hW'.prod_mk hW), Fintype.sum_prod_type_right]
+  congr 1 with w
+  rw [condRuzsaDist'_eq_sum hY hW', Finset.mul_sum]
+  congr 1 with w'
+  rw [← mul_assoc]
+  have A : (fun a ↦ (W' a, W a)) ⁻¹' {(w', w)} = W' ⁻¹' {w'} ∩ W⁻¹' {w} := by ext; simp
+  congr 1
+  · simp only [ProbabilityTheory.cond, smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply,
+      smul_eq_mul, ENNReal.toReal_mul, A, restrict_apply (hW' (MeasurableSet.singleton w'))]
+    rcases eq_bot_or_bot_lt (μ' (W ⁻¹' {w})) with hw|hw
+    · have : μ' (W' ⁻¹' {w'} ∩ W ⁻¹' {w}) = 0 :=
+        le_antisymm (le_trans (measure_mono (Set.inter_subset_right _ _)) hw.le) bot_le
+      simp [hw, this]
+    · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.one_toReal, one_mul]
+      exacts [hw.ne', by finiteness]
+  · congr 1
+    rw [A, cond_cond_eq_cond_inter'' (hW (MeasurableSet.singleton w))
+      (hW' (MeasurableSet.singleton w')), Set.inter_comm]
 
 /-- Explicit formula for conditional Ruzsa distance $d[X ; Y|W]$, in integral form. -/
 lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
@@ -898,6 +954,21 @@ lemma condRuzsaDist_le' [Fintype T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → 
   rw [← condRuzsaDist_of_const hX _ _ (0 : Fin 1)]
   refine' (condRuzsaDist_le μ μ' hX measurable_const hY hW).trans _
   simp [mutualInfo_const hX (0 : Fin 1)]
+
+variable (μ μ') in
+lemma condRuzsaDist_le'_prod [Fintype T] {X : Ω → G} {Y : Ω' → G} {W Z : Ω' → T}
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+    (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) (hZ : Measurable Z) :
+    d[X ; μ # Y|⟨W, Z⟩ ; μ'] ≤ d[X ; μ # Y|Z ; μ'] + I[Y : W | Z ; μ']/2 := by
+  rw [condRuzsaDist'_prod_eq_sum hY hZ hW, condRuzsaDist'_eq_sum hY hZ, condMutualInfo_eq_sum hZ,
+    Finset.sum_div, ← Finset.sum_add_distrib]
+  gcongr with z
+  rw [mul_div_assoc, ← mul_add]
+  rcases eq_or_ne (μ' (Z ⁻¹' {z})) 0 with hz | hz
+  · simp [hz]
+  · have : IsProbabilityMeasure (μ'[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ' hz
+    gcongr
+    exact condRuzsaDist_le' _ _ hX hY hW
 
 variable (μ) in
 lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']

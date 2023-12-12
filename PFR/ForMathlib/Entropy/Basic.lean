@@ -676,6 +676,13 @@ lemma condMutualInfo_eq_kernel_mutualInfo
 lemma condMutualInfo_eq_integral_mutualInfo :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[| Z ⁻¹' {z}]]] := rfl
 
+lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) :
+    I[X : Y | Z ; μ] = ∑ z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
+  rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum]
+  congr 1 with z
+  rw [map_apply hZ (MeasurableSet.singleton z)]
+  rfl
+
 /-- $I[X : Y | Z] = I[Y : X | Z]$. -/
 lemma condMutualInfo_comm
     (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) :

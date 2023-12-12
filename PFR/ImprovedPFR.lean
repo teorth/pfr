@@ -48,7 +48,7 @@ lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
       (d[Z₁ # Z₂] + d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
       + (H[Z₁ + Z₂] - H[Z₁ + Z₃] + H[Z₂] - H[Z₁]) / 4 := by
     calc
-    d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] ≤ d[Y # Z₁ + Z₂ | Sum] +
+    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁ + Z₂ | Sum] +
       I[Z₁ + Z₂ : Z₁ + Z₃ | Sum] := by
         have Z := condRuzsaDist_le' (ℙ : Measure Ω₀) (ℙ : Measure Ω) hY (hZ₁.add hZ₂) hS
         sorry
