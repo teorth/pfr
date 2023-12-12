@@ -60,6 +60,12 @@ lemma finite_support_of_fintype {μ : Measure S} [Fintype S] : FiniteSupport μ 
   use Finset.univ
   simp
 
+lemma finite_support_of_mul {μ : Measure S} (hμ : FiniteSupport μ) (c : ENNReal) :
+    FiniteSupport (c • μ) := by
+  rcases hμ with ⟨ A, hA ⟩
+  use A
+  simp [hA]
+
 lemma measureEntropy_def_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0) :
    Hm[ μ ] = ∑ s in A, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := by
   unfold measureEntropy
@@ -591,8 +597,6 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
   field_simp [this]
   rw [hyp p]
 
-
-
 lemma measureMutualInfo_of_not_isFiniteMeasure {μ : Measure (S × U)} (h : ¬ IsFiniteMeasure μ) :
     Im[μ] = 0 := by
   rw [measureMutualInfo_def]
@@ -626,18 +630,19 @@ lemma measureMutualInfo_univ_smul (μ : Measure (S × U)) : Im[(μ Set.univ)⁻�
     convert Measure.map_apply measurable_snd MeasurableSet.univ
   convert measureEntropy_univ_smul
 
-lemma measureMutualInfo_nonneg (μ : Measure (S × U)):
+lemma measureMutualInfo_nonneg {μ : Measure (S × U)} (hsupp : FiniteSupport μ):
     0 ≤ Im[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
   . rcases eq_zero_or_neZero μ with hμ|hμ
     . simp [hμ]
     rw [← measureMutualInfo_univ_smul μ]
-    exact (measureMutualInfo_nonneg_aux ((μ Set.univ)⁻¹ • μ)).1
+    apply (measureMutualInfo_nonneg_aux _).1
+    exact finite_support_of_mul hsupp _
   rw [measureMutualInfo_of_not_isFiniteMeasure hμ_fin]
 
-lemma measureMutualInfo_eq_zero_iff (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
+lemma measureMutualInfo_eq_zero_iff {μ : Measure (S × U)} (hsupp : FiniteSupport μ) [IsProbabilityMeasure μ] :
     Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2} :=
-  (measureMutualInfo_nonneg_aux μ).2
+  (measureMutualInfo_nonneg_aux hsupp).2
 
 end measureMutualInfo
 
