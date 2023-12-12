@@ -66,8 +66,8 @@ lemma measureEntropy_def_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 
   rw [tsum_eq_sum]
   intro s hs
   suffices μ { s } = 0 by simp [this]
-  have : { s } ⊆ (A:Set S)ᶜ := by simpa
-  exact measure_mono_null this hA
+  apply measure_mono_null _ hA
+  simpa
 
 lemma measureEntropy_def_finite' {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0):
     Hm[ μ ] = ∑ s in A, negMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
@@ -378,26 +378,65 @@ lemma measureMutualInfo_swap (μ : Measure (S × T)) :
   simp only [Set.preimage_univ, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply,
     smul_eq_mul, ENNReal.toReal_mul, Fintype.sum_prod_type]
   simp_rw [Measure.map_apply measurable_swap (measurableSet_singleton _)]
-  rw [Finset.sum_comm]
-  congr with x
-  congr with y
-  congr
-  rw [← Set.singleton_prod_singleton, Set.preimage_swap_prod, Set.singleton_prod_singleton]
+  have : Set.range (Prod.swap : S × T → T × S) = Set.univ := Set.range_iff_surjective.mpr Prod.swap_surjective
+  rw [<-tsum_univ, <-this, tsum_range (fun x ↦ negMulLog (((μ Set.univ)⁻¹).toReal * (μ (Prod.swap⁻¹' {x}) ).toReal))]
+  congr! with ⟨ s, t ⟩
+  simp
+  convert Function.Injective.preimage_image _ _
+  simp
+  all_goals exact Prod.swap_injective
 
 @[simp]
-lemma measureMutualInfo_prod (μ : Measure S) (ν : Measure T)
+lemma measureMutualInfo_prod {μ : Measure S} {ν : Measure T} (hμ: FiniteMeasureSupport μ) (hν: FiniteMeasureSupport ν)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     Im[μ.prod ν] = 0 := by
-  rw [measureMutualInfo_def, measureEntropy_prod]
+  rw [measureMutualInfo_def, measureEntropy_prod hμ hν]
   simp
 
-lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure μ] :
+lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteMeasureSupport μ) [IsProbabilityMeasure μ] :
     0 ≤ Im[μ] ∧
     (Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}) := by
   have : IsProbabilityMeasure (μ.map Prod.fst) :=
     isProbabilityMeasure_map measurable_fst.aemeasurable
   have : IsProbabilityMeasure (μ.map Prod.snd) :=
     isProbabilityMeasure_map measurable_snd.aemeasurable
+  rcases hμ with ⟨ E, hE ⟩
+  classical
+  set E1 : Finset S := Finset.image Prod.fst E
+  set E2 : Finset U := Finset.image Prod.snd E
+  have hE' : μ (E1 ×ˢ E2 : Finset (S × U))ᶜ = 0 := by
+    apply measure_mono_null _ hE
+    intro ⟨ s, u ⟩
+    contrapose!
+    intro h
+    simp at h ⊢
+    exact ⟨ ⟨ u, h ⟩, ⟨ s, h ⟩ ⟩
+  have hE1 : (μ.map Prod.fst) E1ᶜ = 0 := by
+    rw [Measure.map_apply measurable_fst (MeasurableSet.compl (Finset.measurableSet E1))]
+    apply measure_mono_null _ hE
+    intro ⟨ s, u ⟩
+    simp
+    contrapose!
+    intro h; use u
+  have hE1' : (μ.map Prod.fst).real E1 = 1 := by
+    suffices : (μ.map Prod.fst) E1 = 1
+    . unfold Measure.real; rw [this]; norm_num
+    rw [measure_compl (Finset.measurableSet E1)] at hE1
+    . simp at hE1; convert hE1; simp
+    exact measure_ne_top _ _
+  have hE2 : (μ.map Prod.snd) E2ᶜ = 0 := by
+    rw [Measure.map_apply measurable_snd (MeasurableSet.compl (Finset.measurableSet E2))]
+    apply measure_mono_null _ hE
+    intro ⟨ s, u ⟩
+    simp
+    contrapose!
+    intro h; use s
+  have hE2' : (μ.map Prod.snd).real E2 = 1 := by
+    suffices : (μ.map Prod.snd) E2 = 1
+    . unfold Measure.real; rw [this]; norm_num
+    rw [measure_compl (Finset.measurableSet E2)] at hE2
+    . simp at hE2; convert hE2; simp
+    exact measure_ne_top _ _
   have h_fst_ne_zero : ∀ p, μ.real {p} ≠ 0 → (μ.map Prod.fst).real {p.1} ≠ 0 := by
     intro p hp
     rw [map_measureReal_apply measurable_fst (measurableSet_singleton _)]
@@ -414,39 +453,89 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
     refine fun h_eq_zero ↦ hp ?_
     refine measureReal_mono_null ?_ h_eq_zero
     simp
-  have h1 y : (μ.map Prod.fst).real {y} = ∑ z : U, μ.real {(y, z)} := by
-    rw [map_measureReal_apply measurable_fst (measurableSet_singleton _),
-      measureReal_preimage_fst_singleton_eq_sum]
-  have h2 z : (μ.map Prod.snd).real {z} = ∑ y : S, μ.real {(y, z)} := by
-    rw [map_measureReal_apply measurable_snd (measurableSet_singleton _),
-      measureReal_preimage_snd_singleton_eq_sum]
+  have h1 y : (μ.map Prod.fst).real {y} = ∑ z in E2, μ.real {(y, z)} := by
+    rw [map_measureReal_apply measurable_fst (measurableSet_singleton _), <- measureReal_biUnion_finset]
+    . apply measureReal_congr
+      rw [MeasureTheory.ae_eq_set]
+      constructor
+      . refine measure_mono_null ?_ hE
+        intro ⟨ s, u ⟩ ⟨ h1, h2 ⟩
+        contrapose! h2
+        simp at h1 h2 ⊢
+        exact ⟨ h1, ⟨ s, h2 ⟩ ⟩
+      convert measure_empty
+      rw [Set.diff_eq_empty]
+      intro ⟨ s, u ⟩ h
+      simp at h ⊢
+      exact h.1
+    . intro s1 _ s2 _ h; simp [h]
+    intros; exact measurableSet_singleton _
+  have h2 z : (μ.map Prod.snd).real {z} = ∑ y in E1, μ.real {(y, z)} := by
+    rw [map_measureReal_apply measurable_snd (measurableSet_singleton _), <- measureReal_biUnion_finset]
+    . apply measureReal_congr
+      rw [MeasureTheory.ae_eq_set]
+      constructor
+      . refine measure_mono_null ?_ hE
+        intro ⟨ s, u ⟩ ⟨ h1, h2 ⟩
+        contrapose! h2
+        simp at h1 h2 ⊢
+        exact ⟨ ⟨ u, h2 ⟩, h1 ⟩
+      convert measure_empty
+      rw [Set.diff_eq_empty]
+      intro ⟨ s, u ⟩ h
+      simp at h ⊢
+      exact h.2
+    . intro s1 _ s2 _ h; simp [h]
+    intros; exact measurableSet_singleton _
   let w (p : S × U) := (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}
   let f (p : S × U) := ((μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2})⁻¹ * μ.real {p}
-  have hw1 : ∀ p, 0 ≤ w p := fun _ ↦ by positivity
-  have hw2 : ∑ p, w p = 1 := by
-    rw [Fintype.sum_prod_type]
+  have hw1 : ∀ p : { x // x ∈ E1 ×ˢ E2 }, 0 ≤ w p := by intros; positivity
+  have hw2 : ∑ p in (E1 ×ˢ E2), w p = 1 := by
+    rw [Finset.sum_product]
     simp [← Finset.mul_sum, ← Finset.sum_mul]
-  have hf : ∀ p, 0 ≤ f p := fun _ ↦ by positivity
+    rw [show (1:ℝ) = 1 * 1 by norm_num]
+    congr
+    . convert hE1'; simp
+    convert hE2'; simp
+  have hf : ∀ p : { x // x ∈ E1 ×ˢ E2 }, 0 ≤ f p := by intros; positivity
   have H :=
   calc
-    ∑ p : S × U, w p * f p
-        = ∑ p : S × U, μ.real {p} := by
+    ∑ p in (E1 ×ˢ E2), w p * f p
+        = ∑ p in (E1 ×ˢ E2), μ.real {p} := by
           congr with p
           by_cases hp : μ.real {p} = 0
           · simp [hp]
           field_simp [h_fst_ne_zero p hp, h_snd_ne_zero p hp]
           ring
-      _ = 1 := by simp [-Fintype.sum_prod_type]
-  have H1 : -measureMutualInfo (μ := μ) = ∑ p : S × U, w p * negMulLog (f p) :=
+      _ = 1 := by
+        simp
+        rw [show 1 = μ.real Set.univ by simp]
+        apply measureReal_congr
+        simp
+        convert hE'
+        simp
+  have H1 : -measureMutualInfo (μ := μ) = ∑ p in (E1 ×ˢ E2), w p * negMulLog (f p) :=
   calc
-    _ = ∑ p : S × U,
+    _ = ∑ p in (E1 ×ˢ E2),
           (-(μ.real {p} * log (μ.real {p}))
           + (μ.real {p} * log ((μ.map Prod.snd).real {p.2})
             + μ.real {p} * log ((μ.map Prod.fst).real {p.1}))) := by
-        simp_rw [measureMutualInfo_def, measureEntropy_of_isProbabilityMeasure', negMulLog]
-        simp [Finset.sum_add_distrib, Finset.sum_comm (γ := U), Finset.sum_mul, h1, h2]
-    _ = ∑ p : S × U, w p * negMulLog (f p) := by
-        congr! 1 with p
+        have H0 : Hm[μ] = -∑ p in (E1 ×ˢ E2), (μ.real {p} * log (μ.real {p})) := by
+          simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE', negMulLog, neg_mul, Finset.sum_neg_distrib]
+          rfl
+        have H1 : Hm[μ.map Prod.fst] = -∑ p in (E1 ×ˢ E2), (μ.real {p} * log ((μ.map Prod.fst).real {p.1})) := by
+          simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE1, negMulLog, neg_mul, Finset.sum_neg_distrib, Finset.sum_product, <-Finset.sum_mul]
+          congr! with s hs
+          exact h1 s
+        have H2 : Hm[μ.map Prod.snd] = -∑ p in (E1 ×ˢ E2), (μ.real {p} * log ((μ.map Prod.snd).real {p.2})) := by
+          simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE2, negMulLog, neg_mul, Finset.sum_neg_distrib, Finset.sum_product_right, <-Finset.sum_mul]
+          congr! with s hs
+          exact h2 s
+        simp_rw [measureMutualInfo_def, H0, H1, H2]
+        simp [Finset.sum_add_distrib]
+    _ = ∑ p in (E1 ×ˢ E2), w p * negMulLog (f p)
+    := by
+        congr! 1 with p _
         by_cases hp : μ.real {p} = 0
         · simp [hp]
         have := h_fst_ne_zero p hp
@@ -455,11 +544,20 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
         · field_simp
           ring
         all_goals positivity
-  have H2 : 0 = negMulLog (∑ s : S × U, w s * f s) := by simpa using congr_arg negMulLog H.symm
+  have H2 : 0 = negMulLog (∑ s in (E1 ×ˢ E2), w s * f s) := by
+    rw [H, negMulLog_one]
+  rw [<-Finset.sum_coe_sort] at H H2 hw2
   constructor
-  · rw [← neg_nonpos]
+  · rw [← neg_nonpos, H1, <-Finset.sum_coe_sort]
     convert sum_negMulLog_le hw1 hw2 hf
-  rw [← neg_eq_zero]
+  rw [← neg_eq_zero, H1, <-Finset.sum_coe_sort, H2, sum_negMulLog_eq_aux3 hw1 hw2 hf]
+  constructor
+  . intro hyp p
+    sorry
+  intro hyp ⟨ p, hp ⟩
+  rw [H]
+  sorry
+  /-
   convert sum_negMulLog_eq_aux3 hw1 hw2 hf with p
   · have hp1 := h_fst_ne_zero p
     have hp2 := h_snd_ne_zero p
@@ -473,6 +571,8 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
     simp (config := {zeta := false}) [H, -mul_eq_mul_left_iff, -Fintype.sum_prod_type]
     congr!
     field_simp
+-/
+
 
 lemma measureMutualInfo_of_not_isFiniteMeasure {μ : Measure (S × U)} (h : ¬ IsFiniteMeasure μ) :
     Im[μ] = 0 := by
