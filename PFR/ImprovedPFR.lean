@@ -42,25 +42,46 @@ $$ + \bbH[Z_2|Z_2+Z_4] - \bbH[Z_1|Z_1+Z_3]).$$
 -/
 lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
     (2 * d[Z₁ # Z₂] + d[Z₁ # Z₃] + d[Z₃ # Z₄]) / 4
-    + (H[Z₁ + Z₂] - H[Z₁ + Z₃] + H[Z₂] - H[Z₃]) + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] / 8 := by
+    + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8 := by
   have hS : Measurable Sum := sorry
   have A : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] ≤ d[Y # Z₁] +
       (d[Z₁ # Z₂] + d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
-      + (H[Z₁ + Z₂] - H[Z₁ + Z₃] + H[Z₂] - H[Z₁]) / 4 := by
+      + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by
     calc
-    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁ + Z₂ | Sum] +
-      I[Z₁ + Z₂ : Z₁ + Z₃ | Sum] := by
-        have Z := condRuzsaDist_le' (ℙ : Measure Ω₀) (ℙ : Measure Ω) hY (hZ₁.add hZ₂) hS
-        sorry
-    _ ≤ _ := sorry
+    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
+      ≤ d[Y # Z₁ + Z₂ | Sum] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]/2 :=
+        condRuzsaDist_le'_prod (ℙ : Measure Ω₀) (ℙ : Measure Ω) hY (hZ₁.add hZ₂) (hZ₁.add hZ₃) hS
+    _ ≤ d[Y # Z₁ + Z₂] + (d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
+          + (H[Z₁ + Z₂] - H[Z₃ + Z₄]) / 4 := by
+        have I : IndepFun (Z₁ + Z₂) (Z₃ + Z₄) := by
+          exact h_indep.indepFun_add_add (ι := Fin 4) (by intro i; fin_cases i <;> assumption)
+            0 1 2 3 (by decide) (by decide) (by decide) (by decide)
+        have J1 : (fun a ↦ Z₁ a + Z₂ a) + (fun a ↦ Z₃ a + Z₄ a) = Sum := by ext; simp; abel
+        have J2 : (fun a ↦ Z₁ a + Z₂ a) = Z₁ + Z₂ := rfl
+        have J3 : (fun a ↦ Z₃ a + Z₄ a) = Z₃ + Z₄ := rfl
+        have A := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY (hZ₁.add hZ₂)
+          (hZ₃.add hZ₄) I
+        rw [J1, J2, J3] at A
+        linarith
+    _ ≤ d[Y # Z₁] + (d[Z₁ # Z₂] + d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
+          + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by
+        have I : IndepFun Z₁ Z₂ := by exact h_indep.indepFun (show 0 ≠ 1 by decide)
+        have A := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₂ I
+        linarith
   have B : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] ≤ d[Y # Z₁] +
     (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
     + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := sorry
-  have : d[Z₁ # Z₂] + d[Z₃ # Z₄] = d[Z₁ + Z₃ # Z₂ + Z₄]
-        + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]
-        + I[Z₁ + Z₂ : Z₂ + Z₄ | Z₁ + Z₂ + Z₃ + Z₄]  := by
-    apply sum_of_rdist_eq_char_2 ![Z₁, Z₂, Z₃, Z₄] h_indep (fun i ↦ ?_)
-    fin_cases i <;> assumption
+  have C : d[Z₁ # Z₂] + d[Z₃ # Z₄] = d[Z₁ + Z₃ # Z₂ + Z₄]
+        + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum] := by
+    have M : d[Z₂ # Z₁] + d[Z₄ # Z₃] = d[Z₂ + Z₄ # Z₁ + Z₃] + d[Z₂ | Z₂ + Z₄ # Z₁ | Z₁ + Z₃]
+        + I[Z₂ + Z₁ : Z₁ + Z₃ | Z₂ + Z₁ + Z₄ + Z₃] := by
+      apply sum_of_rdist_eq_char_2 ![Z₂, Z₁, Z₄, Z₃] sorry (fun i ↦ ?_)
+      fin_cases i <;> assumption
+    have J1 : Z₂ + Z₁ + Z₄ + Z₃ = Z₁ + Z₂ + Z₃ + Z₄ := by abel
+    have J2 : Z₂ + Z₁ = Z₁ + Z₂ := by abel
+    rw [J1, J2, condRuzsaDist_symm hZ₂ (hZ₂.add' hZ₄) hZ₁ (hZ₁.add' hZ₃)] at M
+    simpa only [rdist_symm (X := Z₂) (Y := Z₁), rdist_symm (X := Z₄), rdist_symm (X := Z₂ + Z₄)]
+      using M
   sorry
 
 end GeneralInequality
