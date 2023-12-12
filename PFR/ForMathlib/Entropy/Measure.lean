@@ -45,7 +45,7 @@ def measureEntropy (μ : Measure S := by volume_tac) : ℝ :=
 lemma measureEntropy_def (μ : Measure S) :
     measureEntropy μ = ∑' s, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := rfl
 
-lemma measureEntropy_def' [Fintype S] (μ : Measure S) :
+lemma measureEntropy_def' (μ : Measure S) :
     measureEntropy μ = ∑' s, negMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
   rw [measureEntropy_def]
   congr! with s
@@ -53,6 +53,28 @@ lemma measureEntropy_def' [Fintype S] (μ : Measure S) :
     ENNReal.toReal_mul, measureReal_def, ENNReal.toReal_inv]
 
 @[inherit_doc measureEntropy] notation:100 "Hm[" μ "]" => measureEntropy μ
+
+noncomputable def FiniteMeasureSupport (μ : Measure S := by volume_tac) : Prop := ∃ A : Finset S, μ Aᶜ  = 0
+
+lemma finite_support_of_fintype {μ : Measure S} [Fintype S] : FiniteMeasureSupport μ := by
+  use Finset.univ
+  simp
+
+lemma measureEntropy_def_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0) :
+   Hm[ μ ] = ∑ s in A, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := by
+  unfold measureEntropy
+  rw [tsum_eq_sum]
+  intro s hs
+  suffices μ { s } = 0 by simp [this]
+  have : { s } ⊆ (A:Set S)ᶜ := by simpa
+  exact measure_mono_null this hA
+
+lemma measureEntropy_def_finite' {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0):
+    Hm[ μ ] = ∑ s in A, negMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
+    rw [measureEntropy_def_finite hA]
+    congr! with s
+    simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul,
+    ENNReal.toReal_mul, measureReal_def, ENNReal.toReal_inv]
 
 @[simp]
 lemma measureEntropy_zero : Hm[(0 : Measure S)] = 0 := by simp [measureEntropy]
@@ -78,6 +100,14 @@ lemma measureEntropy_of_isProbabilityMeasure (μ : Measure S) [IsProbabilityMeas
 lemma measureEntropy_of_isProbabilityMeasure' (μ : Measure S) [IsProbabilityMeasure μ] :
     Hm[μ] = ∑' s, negMulLog (μ.real {s}) :=
   measureEntropy_of_isProbabilityMeasure μ
+
+lemma measureEntropy_of_isProbabilityMeasure_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0) [IsProbabilityMeasure μ]:
+    Hm[ μ ] = ∑ s in A, negMulLog (μ {s}).toReal := by
+    rw [measureEntropy_def_finite hA]
+    simp
+
+lemma measureEntropy_of_isProbabilityMeasure_finite' {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0)[IsProbabilityMeasure μ]:
+    Hm[ μ ] = ∑ s in A, negMulLog (μ.real {s}) := measureEntropy_of_isProbabilityMeasure_finite hA
 
 lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
@@ -286,14 +316,36 @@ lemma measureEntropy_comap_equiv (μ : Measure S) (f : T ≃ᵐ S) :
   have : Set.range f = Set.univ := Equiv.range_eq_univ _
   simp [this]
 
+
+
 @[simp]
-lemma measureEntropy_prod (μ : Measure S) (ν : Measure T)
+lemma measureEntropy_prod {μ : Measure S} {ν : Measure T} (hμ: FiniteMeasureSupport μ) (hν: FiniteMeasureSupport ν)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     Hm[μ.prod ν] = Hm[μ] + Hm[ν] := by
-  simp_rw [measureEntropy_of_isProbabilityMeasure, Fintype.sum_prod_type,
-    ← Set.singleton_prod_singleton, Measure.prod_prod, ENNReal.toReal_mul, negMulLog_mul',
-    Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.sum_mul, sum_toReal_measure_singleton]
-  simp only [measure_univ, ENNReal.one_toReal, one_mul]
+  rcases hμ with ⟨A, hA⟩
+  rcases hν with ⟨B, hB⟩
+  have hC : (μ.prod ν) (A ×ˢ B : Finset (S × T))ᶜ = 0 := by
+    have : ((A ×ˢ B : Finset (S × T)) : Set (S × T))ᶜ = ((A : Set S)ᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ (B : Set T)ᶜ) := by ext ⟨a, b⟩; simp; tauto
+    rw [this]
+    simp [hA, hB]
+  have h1 : Hm[μ] = ∑ p in (A ×ˢ B), (negMulLog (μ.real {p.1})) * (ν.real {p.2}) := by
+    rw [measureEntropy_of_isProbabilityMeasure_finite' hA, Finset.sum_product]
+    congr with s
+    simp; rw [<-Finset.mul_sum]; simp
+    suffices ν.real B = ν.real Set.univ by simp at this; simp [this]
+    apply measureReal_congr
+    simp [hB]
+  have h2 : Hm[ν] = ∑ p in (A ×ˢ B), (negMulLog (ν.real {p.2})) * (μ.real {p.1}) := by
+    rw [measureEntropy_of_isProbabilityMeasure_finite' hB, Finset.sum_product_right]
+    congr with t
+    simp; rw [<-Finset.mul_sum]; simp
+    suffices μ.real A = μ.real Set.univ by simp at this; simp [this]
+    apply measureReal_congr
+    simp [hA]
+  rw [measureEntropy_of_isProbabilityMeasure_finite' hC, h1, h2, <-Finset.sum_add_distrib]
+  congr with ⟨ s, t ⟩
+  simp_rw [← Set.singleton_prod_singleton, measureReal_prod_prod, negMulLog_mul']
+  ring
 
 end measureEntropy
 
