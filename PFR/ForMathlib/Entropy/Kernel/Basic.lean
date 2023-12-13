@@ -29,9 +29,9 @@ open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 namespace ProbabilityTheory.kernel
 
 variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
- [MeasurableSpace S] [MeasurableSingletonClass S]
- [MeasurableSpace T] [MeasurableSingletonClass T]
- [MeasurableSpace U] [MeasurableSingletonClass U]
+ [Countable S] [Nonempty S] [MeasurableSpace S] [MeasurableSingletonClass S]
+ [Countable T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
+ [Countable U] [Nonempty U] [MeasurableSpace U] [MeasurableSingletonClass U]
   {κ : kernel T S} {μ : Measure T} {X : Ω → S} {Y : Ω → U}
 
 /-- Entropy of a kernel with respect to a measure. -/
@@ -158,7 +158,7 @@ lemma entropy_comap_equiv {T' : Type*}  [MeasurableSpace T'] [MeasurableSingleto
   simp
 
 lemma entropy_comap_swap
-    {T' : Type*} [MeasurableSpace T'] [MeasurableSingletonClass T']
+    {T' : Type*} [MeasurableSpace T'] [MeasurableSingletonClass T'] [Nonempty T']
     (κ : kernel (T' × T) S) {μ : Measure (T' × T)} [IsFiniteMeasure μ] (hμ: FiniteSupport μ) :
     Hk[comap κ Prod.swap measurable_swap, μ.comap Prod.swap] = Hk[κ, μ] := by
   have : IsFiniteMeasure (Measure.comap (↑MeasurableEquiv.prodComm) μ) := by
@@ -195,7 +195,7 @@ lemma entropy_compProd_aux [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKerne
     rw [integral_eq_sum_finset' _ _ hA]
     congr with t ht
   simp_rw [entropy, hsum, <-Finset.sum_add_distrib]
-  congr with t _
+  congr with t
   rw [<-mul_add]
   congr
   rcases hκ with ⟨B, hB⟩
@@ -235,7 +235,7 @@ lemma entropy_compProd_aux [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKerne
   have : ((κ ⊗ₖ η) t).real {(s, u)} = ((κ t).real {s}) * ((η (t, s)).real {u}) := by
     rw [measureReal_def, compProd_apply κ η _ (measurableSet_singleton _), lintegral_eq_sum_finset' _ _ (hB t), Finset.sum_eq_single_of_mem s hs]
     . simp [measureReal_def]; ring
-    intro b hb hbs
+    intro b _ hbs
     simp [hbs]
   rw [this, kernel.comap_apply, negMulLog_mul, negMulLog, negMulLog, <-measureReal_def]
   ring
@@ -280,14 +280,14 @@ lemma entropy_compProd [IsFiniteMeasure μ] (κ : kernel T S) [IsMarkovKernel κ
 
 @[simp]
 lemma entropy_deterministic (f : T → S) (μ : Measure T) [IsFiniteMeasure μ] :
-    Hk[deterministic f (measurable_of_finite f), μ] = 0 := by
+    Hk[deterministic f (measurable_of_countable f), μ] = 0 := by
   simp_rw [entropy, integral_eq_sum, smul_eq_mul, deterministic_apply, measureEntropy_dirac,
     mul_zero, Finset.sum_const_zero]
 
 @[simp]
 lemma entropy_compProd_deterministic
     (κ : kernel T S) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ] (f : T × S → U) :
-    Hk[κ ⊗ₖ (deterministic f (measurable_of_finite f)), μ] = Hk[κ, μ] := by
+    Hk[κ ⊗ₖ (deterministic f (measurable_of_countable f)), μ] = Hk[κ, μ] := by
   simp [entropy_compProd]
 
 lemma chain_rule (κ : kernel T (S × U)) [IsMarkovKernel κ]
@@ -362,8 +362,8 @@ lemma entropy_prod (κ : kernel T S) (η : kernel T U) [IsMarkovKernel κ] [IsMa
 /-- Data-processing inequality for the kernel entropy. -/
 lemma entropy_map_le
     (κ : kernel T S) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ] (f : S → U) :
-    Hk[map κ f (measurable_of_finite f), μ] ≤ Hk[κ, μ] := by
-  have : Hk[κ, μ] = Hk[map κ (fun x ↦ (x, f x)) (measurable_of_finite _), μ] := by
+    Hk[map κ f (measurable_of_countable f), μ] ≤ Hk[κ, μ] := by
+  have : Hk[κ, μ] = Hk[map κ (fun x ↦ (x, f x)) (measurable_of_countable _), μ] := by
     refine (entropy_map_of_injective κ μ (fun x ↦ (x, f x)) ?_).symm
     intro x y hxy
     simp only [Prod.mk.injEq] at hxy
@@ -374,7 +374,7 @@ lemma entropy_map_le
 lemma entropy_of_map_eq_of_map (κ : kernel T S) (η : kernel T U)
     [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) [IsProbabilityMeasure μ] (f : S → U) (g : U → S)
-    (h1 : η = map κ f (measurable_of_finite _)) (h2 : κ = map η g (measurable_of_finite _)) :
+    (h1 : η = map κ f (measurable_of_countable _)) (h2 : κ = map η g (measurable_of_countable _)) :
     Hk[κ, μ] = Hk[η, μ] := by
   refine le_antisymm ?_ ?_
   · rw [h2]; exact entropy_map_le η μ g

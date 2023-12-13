@@ -2,6 +2,8 @@ import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.FiniteRange
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Fintype.Card
+import PFR.Mathlib.Algebra.GroupWithZero.Units.Lemmas
+
 
 /-!
 # Entropy of a measure
@@ -403,11 +405,6 @@ lemma measureMutualInfo_prod {μ : Measure S} {ν : Measure T} (hμ: FiniteSuppo
   rw [measureMutualInfo_def, measureEntropy_prod hμ hν]
   simp
 
-/-- An improved version of inv_mul_eq_one₀ that does not require a vanishing hypothesis. -/
-lemma inv_mul_eq_one₀' {x y : ℝ} (h: x⁻¹ * y = 1) : y = x := by
-  have : x ≠ 0 := by contrapose! h; simp [h]
-  rw [inv_mul_eq_one₀ this] at h; exact h.symm
-
 /-- An ambitious goal would be to replace FiniteSupport with finite entropy.  Proof is long and slow; needs to be optimized -/
 lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport μ) [IsProbabilityMeasure μ] :
     0 ≤ Im[μ] ∧
@@ -583,7 +580,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
         . simp [w0 p hyp] at hyp ⊢ ; exact hyp
         rw [H] at hyp
         have := inv_mul_eq_one₀' hyp
-        convert this
+        convert this.symm
       have : {p.2} ⊆ (E2 : Set U)ᶜ := by simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp2
       replace : (Measure.map Prod.snd μ).real {p.2} = 0 := by rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE2
       have hp : μ.real {p} = 0 := by contrapose! this; exact (h_snd_ne_zero p) this

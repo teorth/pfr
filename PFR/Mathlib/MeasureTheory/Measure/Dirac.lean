@@ -18,4 +18,5 @@ lemma ae_iff_of_countable [Countable α] : (∀ᵐ x ∂μ, p x) ↔ ∀ x, μ {
   rw [Measure.sum_apply_of_countable, tsum_eq_zero_iff ENNReal.summable]
   simp [or_iff_not_imp_left, imp_false]
 
+/-- This method is now redundant thanks to `ae_iff_of_countable`.  Consider deleting? -/
 lemma ae_iff_of_fintype [Fintype α] : (∀ᵐ x ∂μ, p x) ↔ ∀ x, μ {x} ≠ 0 → p x := ae_iff_of_countable
