@@ -1,7 +1,5 @@
-import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.ForMathlib.CompactProb
-import PFR.Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-
+import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
 # The tau functional
@@ -125,13 +123,13 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
     fun ⟨μ₁, μ₂⟩ ↦ τ[id ; μ₁ # id ; μ₂ | p]
   have T_cont : Continuous T := by apply continuous_tau_restrict_probabilityMeasure
   haveI : Inhabited G := ⟨0⟩ -- Need to record this for Lean to know that proba measures exist.
-  obtain ⟨μ, ⟨_, hμ⟩⟩ := @IsCompact.exists_isMinOn ℝ (ProbabilityMeasure G × ProbabilityMeasure G)
+  obtain ⟨μ, _, hμ⟩ := @IsCompact.exists_isMinOn ℝ (ProbabilityMeasure G × ProbabilityMeasure G)
                           _ _ _ _ Set.univ isCompact_univ ⟨default, trivial⟩ T T_cont.continuousOn
   use ⟨μ.1.toMeasure, μ.2.toMeasure⟩
   refine ⟨μ.1.prop, μ.2.prop, ?_⟩
   intro ν₁ ν₂ Pν₁ Pν₂
   rw [isMinOn_univ_iff] at hμ
-  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ⟨ν₂, Pν₂⟩⟩
+  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ν₂, Pν₂⟩
   exact hμ ν
 
 /-- A pair of random variables minimizing $τ$ exists. -/
