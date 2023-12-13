@@ -143,6 +143,18 @@ lemma ProbabilityTheory.iIndepFun.reindex_four_adcb :
   ext i
   fin_cases i <;> rfl
 
+lemma ProbabilityTheory.iIndepFun.reindex_four_dbca :
+    iIndepFun (fun _ => hG) ![Z₄, Z₂, Z₃, Z₁] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![3, 1, 2, 0],
+    invFun := ![3, 1, 2, 0],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
 lemma gen_ineq_aux1 :
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
       + (d[Z₁ # Z₂] + d[Z₁ # Z₃] + d[Z₂ # Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 2
@@ -267,6 +279,21 @@ lemma gen_ineq'' : d[Y # Z₂ + Z₃ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] ≤
   congr 1
   have : Z₁ + Z₃ = (Z₁ + Z₂) + (Z₂ + Z₃) := by simp [add_assoc Z₁, ← add_assoc Z₂]
   rw [this, condRuzsaDist'_of_inj_map' hY (hZ₁.add' hZ₂) (hZ₂.add' hZ₃)]
+
+lemma gen_ineq''' : d[Y # Z₂ + Z₃ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] ≤
+    (d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4
+    + (d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 4
+    + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8 := by
+  convert gen_ineq'' Y hY Z₁ Z₂ Z₃ Z₄ hZ₁ hZ₂ hZ₃ hZ₄ h_indep using 2
+  let e : G × G ≃ G × G :=
+  { toFun := fun p ↦ ⟨p.2 - p.1, p.2⟩
+    invFun := fun p ↦ ⟨- p.1 + p.2, p.2⟩
+    left_inv := by intro ⟨a, b⟩; simp [add_comm b a, add_assoc]
+    right_inv := by intro ⟨a, b⟩; simp [add_comm a b, ← add_assoc] }
+  convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₂ + Z₃) (⟨Z₁ + Z₃, Sum⟩) e
+    e.injective) with p
+  simp only [Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
+  abel
 
 end GeneralInequality
 
@@ -480,18 +507,39 @@ lemma glouk1 :
     ≤ 4 * k-/ True  := by
   have I1 := gen_ineq' p.X₀₁ p.hmeas1 X₁ X₂ X₂' X₁' hX₁ hX₂ hX₂' hX₁' h_indep
   have I2 := gen_ineq p.X₀₁ p.hmeas1 X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h_indep.reindex_four_abdc
-  have I3 := gen_ineq'' p.X₀₁ p.hmeas1 X₁ X₁' X₂ X₂' hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_adbc
+  have I3 := gen_ineq' p.X₀₁ p.hmeas1 X₁' X₂ X₂' X₁ hX₁' hX₂ hX₂' hX₁ h_indep.reindex_four_dbca
   have I4 := gen_ineq'' p.X₀₁ p.hmeas1 X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h_indep.reindex_four_abdc
   have I5 := gen_ineq p.X₀₁ p.hmeas1 X₁ X₁' X₂ X₂' hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_adbc
   have I6 := gen_ineq' p.X₀₁ p.hmeas1 X₁ X₁' X₂' X₂ hX₁ hX₁' hX₂' hX₂  h_indep.reindex_four_adcb
   have C1 : U + X₂' + X₁' = S := by abel
   have C2 : W + X₂ + X₂' = S := by abel
+  have C3 : V + X₂' + X₁ = S := by abel
   have C4 : W + X₂ + X₂' = S := by abel
   have C5 : W + X₂' + X₂ = S := by abel
   have C6 : X₂ + X₁ = U := by abel
   have C7 : X₂ + X₁' = V := by abel
   have C8 : X₁ + X₁' = W := by abel
-  simp only [C1, C2, C4, C5, C6, C7, C8] at I1 I2 I3 I4 I5 I6
+  have C9 : d[X₁ # X₂'] = d[X₁ # X₂] := sorry
+  have C10 : d[X₂ # X₁'] = d[X₁ # X₂] := sorry
+  have C11 : d[X₁ # X₁'] = d[X₁ # X₁] := sorry
+  have C12 : d[X₁' # X₂'] = d[X₁ # X₂] := sorry
+  have C13 : d[X₂ # X₂'] = d[X₂ # X₂] := sorry
+  have C14 : d[X₁' # X₂] = d[X₁ # X₂] := sorry
+  have C15 : H[X₂' + X₁'] = H[U] := sorry
+  have C16 : H[X₂'] = H[X₂] := sorry
+  have C17 : H[X₁'] = H[X₁] := sorry
+  have C18 : d[p.X₀₁ # X₁'] = d[p.X₀₁ # X₁] := sorry
+  simp only [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18]
+    at I1 I2 I3 I4 I5 I6
+
+
+
+
+
+
+
+
+
 
 
 
