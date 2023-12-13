@@ -41,20 +41,17 @@ proof_wanted single_fibres : 0 = 1
 
 section dim
 
-open Classical
+open Classical TensorProduct
 
-def inc {d : ℕ} : (Fin d → ℤ) → (Fin d → ℝ) := fun f x => f x
+variable {G : Type*} [AddCommGroup G] [Module ℤ G] [Module.Free ℤ G]
 
-lemma inc_inj {d : ℕ} : Function.Injective (@inc d) := fun x y h => by
-  ext i
-  rify ; rw [←inc, ← inc, h ]
+/-- If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the span of $A-A$
+  over the reals -- equivalently, the smallest $d'$ such that $A$ lies in a coset of a subgroup
+  isomorphic to $\mathbb{Z}^{d'}$. -/
+noncomputable def dimension (A : Set G) : ℕ := Set.finrank ℝ
+  ((fun (n : G) => (1 : ℝ) ⊗ₜ n) '' A : Set (ℝ ⊗[ℤ] G))
 
-/-- If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the span of $A-A$ over the reals -- equivalently, the smallest $d'$ such that $A$ lies in a coset of a subgroup isomorphic to $\mathbb{Z}^{d'}$. -/
-noncomputable def dimension {d : ℕ} (A : Set (Fin d → ℤ)) : ℕ :=
-  Set.finrank ℝ (inc '' A)
-
-lemma dimension_le_nat_card_of_finite (A : Finset (Fin d → ℤ)) :
-  dimension (A : Set (Fin d → ℤ)) ≤ A.card := by
+lemma dimension_le_finset_card (A : Finset G) : dimension (A : Set G) ≤ A.card := by
   rw [dimension, Finset.coe_image.symm]
   apply le_trans (finrank_span_finset_le_card _) Finset.card_image_le
 
