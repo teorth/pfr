@@ -132,23 +132,15 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
       congr with x
       rw [← mul_assoc, mul_inv_cancel, one_mul]
       exact N_pos.ne'
-  _ ≤ N * negMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
-      refine mul_le_mul le_rfl ?_ ?_ ?_
-      · exact sum_negMulLog_finset_le (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)
-      · refine Finset.sum_nonneg (fun x _ ↦ ?_)
-        refine mul_nonneg ?_ ?_
-        · simp
-        · refine negMulLog_nonneg (by simp) ?_
-          refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
-          rw [ENNReal.ofReal_one]
-          exact prob_le_one
-      · positivity
+  _ ≤ N * negMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) :=
+       mul_le_mul_of_nonneg_left
+         (sum_negMulLog_le (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)) (by positivity)
   _ = N * negMulLog ((N : ℝ)⁻¹) := by simp [← Finset.mul_sum, μA]
   _ = log A.card := by simp [negMulLog, ← mul_assoc, mul_inv_cancel N_pos.ne']
 
 lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     (μ : Measure S) [IsProbabilityMeasure μ] :
-    Hm[μ] = log (Fintype.card S) ↔ (∀ s : S, μ.real {s} = (Fintype.card S : ℝ)⁻¹) := by
+    Hm[μ] = log (Fintype.card S) ↔∀ s : S, μ.real {s} = (Fintype.card S : ℝ)⁻¹ := by
   cases isEmpty_or_nonempty S with
   | inl h =>
     have : μ = 0 := Subsingleton.elim _ _
@@ -165,7 +157,7 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     let p (s : S) := μ.real {s}
     have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
     -- use equality case of Jensen
-    convert sum_negMulLog_eq_aux2 hw1 hw2 hp using 2
+    convert sum_negMulLog_eq_iff hw1 hw2 hp using 2
     · simp [measureEntropy_def', Finset.mul_sum]
     · simp [negMulLog, ← Finset.mul_sum]
     · rw [← Finset.mul_sum]
@@ -407,11 +399,10 @@ lemma measureMutualInfo_nonneg_aux (μ : Measure (S × U)) [IsProbabilityMeasure
           ring
         all_goals positivity
   have H2 : 0 = negMulLog (∑ s : S × U, w s * f s) := by simpa using congr_arg negMulLog H.symm
-  constructor
-  · rw [← neg_nonpos]
-    convert sum_negMulLog_le hw1 hw2 hf
-  rw [← neg_eq_zero]
-  convert sum_negMulLog_eq_aux3 hw1 hw2 hf with p
+  rw [← neg_eq_zero, ← neg_nonpos, H1, H2]
+  refine ⟨sum_negMulLog_le (fun _ _ ↦ hw1 ‹_›) hw2 fun _ _ ↦ hf ‹_›, ?_⟩
+  refine (sum_negMulLog_eq_iff' (fun _ _ ↦ hw1 ‹_›) hw2 fun _ _ ↦ hf ‹_›).trans $
+    forall_congr' fun p ↦ ?_
   · have hp1 := h_fst_ne_zero p
     have hp2 := h_snd_ne_zero p
     rw [not_imp_not] at hp1 hp2

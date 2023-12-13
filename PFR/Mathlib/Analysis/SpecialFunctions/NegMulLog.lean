@@ -1,6 +1,6 @@
+import Mathlib.Analysis.Convex.Jensen
 import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
-import PFR.Mathlib.Analysis.Convex.Jensen
 
 /-!
 # Entropy function
@@ -145,45 +145,32 @@ lemma strictConcaveOn_negMulLog : StrictConcaveOn ℝ (Set.Ici (0 : ℝ)) negMul
   rw [negMulLog_eq_neg]
   exact strictConvexOn_id_mul_log.neg
 
-lemma sum_negMulLog_finset_le {S : Type*} {A : Finset S} {w : S → ℝ} {p : S → ℝ}
-    (h0 : ∀ s ∈ A, 0 ≤ w s) (h1 : ∑ s in A, w s = 1) (hmem : ∀ s ∈ A, 0 ≤ p s) :
-    ∑ s in A, w s * negMulLog (p s) ≤ negMulLog (∑ s in A, w s * p s) :=
-  ConcaveOn.le_map_sum concaveOn_negMulLog h0 h1 hmem
+variable {ι : Type*} {s : Finset ι} {w : ι → ℝ} {p : ι → ℝ}
 
-lemma sum_negMulLog_le {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
-    (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
-    ∑ s, w s * negMulLog (p s) ≤ negMulLog (∑ s, w s * p s) :=
-  sum_negMulLog_finset_le (fun s _hs ↦ h0 s) h1 (fun s _hs ↦ hmem s)
+/-- Jensen's inequality for the entropy function. -/
+lemma sum_negMulLog_le (h₀ : ∀ i ∈ s, 0 ≤ w i) (h₁ : ∑ i in s, w i = 1) (hmem : ∀ i ∈ s, 0 ≤ p i) :
+    ∑ i in s, w i * negMulLog (p i) ≤ negMulLog (∑ i in s, w i * p i) :=
+  concaveOn_negMulLog.le_map_sum h₀ h₁ hmem
 
--- a form of equality case of Jensen
-lemma sum_negMulLog_eq_aux {w : S → ℝ} {p : S → ℝ} {U : Finset S}
-    (h0 : ∀ s ∈ U, 0 < w s) (h₁ : ∑ s in U, w s = 1) (hmem : ∀ s ∈ U, 0 ≤ p s) :
-    negMulLog (∑ s in U, w s • p s) = ∑ s in U, w s • negMulLog (p s)
-    ↔ ∀ j ∈ U, p j = ∑ s in U, w s * p s :=
-  strictConcaveOn_negMulLog.map_sum_eq_iff h0 h₁ hmem
+/-- The strict Jensen inequality for the entropy function. -/
+lemma sum_negMulLog_lt (h₀ : ∀ i ∈ s, 0 < w i) (h₁ : ∑ i in s, w i = 1) (hmem : ∀ i ∈ s, 0 ≤ p i)
+    (hp : ∃ j ∈ s, ∃ k ∈ s, p j ≠ p k) :
+    ∑ i in s, w i * negMulLog (p i) < negMulLog (∑ i in s, w i * p i) :=
+  strictConcaveOn_negMulLog.lt_map_sum h₀ h₁ hmem hp
 
--- a form of equality case of Jensen
-lemma sum_negMulLog_eq_aux2 {w : S → ℝ} {p : S → ℝ} {U : Finset S}
-    (h0 : ∀ s ∈ U, 0 < w s) (h1 : ∑ s in U, w s = 1) (hmem : ∀ s ∈ U, 0 ≤ p s) :
-    ∑ s in U, w s * negMulLog (p s) = negMulLog (∑ s in U, w s * p s)
-    ↔ ∀ j ∈ U, p j = ∑ s in U, w s * p s := by
-  rw [eq_comm]
-  exact strictConcaveOn_negMulLog.map_sum_eq_iff h0 h1 hmem
+/-- The equality case of Jensen's inequality for the entropy function. -/
+lemma sum_negMulLog_eq_iff (h₀ : ∀ i ∈ s, 0 < w i) (h₁ : ∑ i in s, w i = 1)
+    (hmem : ∀ i ∈ s, 0 ≤ p i) :
+    ∑ i in s, w i * negMulLog (p i) = negMulLog (∑ i in s, w i * p i) ↔
+      ∀ j ∈ s, p j = ∑ i in s, w i * p i :=
+  eq_comm.trans $ strictConcaveOn_negMulLog.map_sum_eq_iff h₀ h₁ hmem
 
--- a form of equality case of Jensen
-lemma sum_negMulLog_eq_aux3 {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
-    (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s) :
-    ∑ s, w s * negMulLog (p s) = negMulLog (∑ s, w s * p s)
-      ↔ ∀ s, w s = 0 ∨ p s = ∑ s', w s' * p s' := by
-  rw [eq_comm]
-  exact strictConcaveOn_negMulLog.map_sum_eq_iff' h0 h1 hmem
-
-/-- The equality case of Jensen's inequality -/
-lemma sum_negMulLog_eq {S : Type*} [Fintype S] {w : S → ℝ} {p : S → ℝ} (h0 : ∀ s, 0 ≤ w s)
-    (h1 : ∑ s, w s = 1) (hmem : ∀ s, 0 ≤ p s)
-    (heq : ∑ s, w s * negMulLog (p s) = negMulLog (∑ s, w s * p s))
-    (s : S) (hs : 0 < w s) : p s = ∑ s', (w s') * (p s') :=
-  ((sum_negMulLog_eq_aux3 h0 h1 hmem).1 heq s).resolve_left hs.ne'
+/-- The equality case of Jensen's inequality for the entropy function. -/
+lemma sum_negMulLog_eq_iff' (h₀ : ∀ i ∈ s, 0 ≤ w i) (h₁ : ∑ i in s, w i = 1)
+    (hmem : ∀ i ∈ s, 0 ≤ p i) :
+    ∑ i in s, w i * negMulLog (p i) = negMulLog (∑ i in s, w i * p i) ↔
+      ∀ j ∈ s, w j ≠ 0 → p j = ∑ i in s, w i * p i :=
+  eq_comm.trans $ strictConcaveOn_negMulLog.map_sum_eq_iff' h₀ h₁ hmem
 
 lemma continuous_negMulLog : Continuous negMulLog := by
   change Continuous fun x ↦ - x * Real.log x

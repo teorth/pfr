@@ -15,6 +15,7 @@ import PFR.ForMathlib.Entropy.Measure
 import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.ForMathlib.FiniteMeasureProd
+import PFR.ForMathlib.FiniteRange
 import PFR.ForMathlib.Graph
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.Pair
@@ -25,16 +26,16 @@ import PFR.HundredPercent
 import PFR.ImprovedPFR
 import PFR.Main
 import PFR.Mathlib.Algebra.Group.Hom.Basic
-import PFR.Mathlib.Algebra.Module.Submodule.Map
 import PFR.Mathlib.Algebra.Order.Archimedean
-import PFR.Mathlib.Analysis.Convex.Jensen
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Combinatorics.Additive.RuzsaCovering
 import PFR.Mathlib.Data.Fin.Basic
 import PFR.Mathlib.Data.Finset.Pointwise
 import PFR.Mathlib.Data.Finset.Sigma
 import PFR.Mathlib.Data.Fintype.Card
+import PFR.Mathlib.Data.Fintype.Lattice
 import PFR.Mathlib.Data.Fintype.Sigma
+import PFR.Mathlib.Data.Real.Ennreal
 import PFR.Mathlib.Data.Set.Finite
 import PFR.Mathlib.Data.Set.Image
 import PFR.Mathlib.Data.Set.Pointwise.Basic
@@ -42,7 +43,6 @@ import PFR.Mathlib.Data.Set.Pointwise.Finite
 import PFR.Mathlib.Data.Set.Sigma
 import PFR.Mathlib.GroupTheory.Sylow
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
-import PFR.Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
@@ -68,3 +68,4 @@ import PFR.Tactic.Finiteness
 import PFR.Tactic.Finiteness.Attr
 import PFR.Tactic.RPowSimp
 import PFR.TauFunctional
+import PFR.WeakPFR

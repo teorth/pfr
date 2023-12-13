@@ -300,14 +300,14 @@ lemma iIndepFun.pi
       exists_exists_and_eq_and] at hE
   have hE' (k : s) := hE k (Finset.coe_mem k)
   classical
-  obtain ⟨ sets, h_sets ⟩ := Classical.axiomOfChoice hE'
+  obtain ⟨sets, h_sets⟩ := Classical.axiomOfChoice hE'
   let sets' (i : ι) (j : κ i) : Set (α i j) := if h : i ∈ s then sets ⟨i, h⟩ j else Set.univ
   have box (i : ι) (hi : i ∈ s) : E i = ⋂ j : κ i, (f i j)⁻¹' (sets' i j) := by
-    rw [← (h_sets ⟨ i, hi ⟩).right]
+    rw [← (h_sets ⟨i, hi⟩).right]
     simp_rw [hi]
     ext : 1
     rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
-    exact ⟨ fun hj j ↦ mem_preimage.mpr (hj j), fun hj j ↦ mem_preimage.mp (hj j) ⟩
+    exact ⟨fun hj j ↦ mem_preimage.mpr (hj j), fun hj j ↦ mem_preimage.mp (hj j)⟩
 
   let set (i : ι) (j : κ i) := f i j ⁻¹' sets' i j
   set set_σ := fun (ij : (i : ι) × κ i) ↦ set ij.fst ij.snd with set_σ_def
@@ -332,12 +332,12 @@ lemma iIndepFun.pi
     apply hf (κ_σ i) (sets := fun ij ↦ sets' ij.fst ij.snd)
     intro ij hij
     rw [← Finset.mem_singleton.mp (Finset.mem_sigma.mp hij).left] at hi
-    convert (h_sets ⟨ ij.fst, hi ⟩).left ij.snd
+    convert (h_sets ⟨ij.fst, hi⟩).left ij.snd
     simp? [hi] says simp only [hi, dite_true]
   intros ij hij
-  obtain ⟨ hi, _ ⟩ := Finset.mem_sigma.mp hij
+  obtain ⟨hi, _⟩ := Finset.mem_sigma.mp hij
   simp_rw [hi]
-  exact (h_sets ⟨ ij.fst, hi ⟩).1 ij.snd
+  exact (h_sets ⟨ij.fst, hi⟩).1 ij.snd
 
 
 /-- If a family of functions `(i, j) ↦ f i j` is independent, then the family of function tuples
@@ -358,7 +358,7 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
   have hg : Injective g := by
     intro x y hxy
     have : ¬(Disjoint on ST) x.fst y.fst := by
-      refine not_forall.mpr ⟨ {g y}, ?_ ⟩
+      refine not_forall.mpr ⟨{g y}, ?_⟩
       rewrite [not_imp, not_imp]
       repeat' apply And.intro
       · exact Finset.singleton_subset_iff.mpr (by rewrite [← hxy] ; exact Finset.coe_mem x.snd)

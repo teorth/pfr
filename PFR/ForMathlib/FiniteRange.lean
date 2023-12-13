@@ -26,24 +26,24 @@ instance {Ω G H : Type*} (X : Ω → G) (f : G → H) [hX: FiniteRange X] : Fin
     rw [Set.range_comp f X]
     exact Set.Finite.image f hX.finite
 
-/-- If X, Y have finite range, then so does the pair ⟨ X, Y ⟩. -/
-instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY: FiniteRange Y]: FiniteRange (⟨ X, Y ⟩) where
+/-- If X, Y have finite range, then so does the pair ⟨X, Y⟩. -/
+instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY: FiniteRange Y]: FiniteRange (⟨X, Y⟩) where
   finite := by
-    have : Set.range (⟨ X, Y⟩) ⊆ (Set.range X) ×ˢ (Set.range Y) := by
-      intro ⟨ x, y ⟩ hz
+    have : Set.range (⟨X, Y⟩) ⊆ (Set.range X) ×ˢ (Set.range Y) := by
+      intro ⟨x, y⟩ hz
       simp [Set.mem_range] at hz ⊢
       rcases hz with ⟨ω, hω⟩
-      exact ⟨ ⟨ ω, hω.1 ⟩, ⟨ ω, hω.2 ⟩ ⟩
+      exact ⟨⟨ω, hω.1⟩, ω, hω.2⟩
     exact Set.Finite.subset (Set.Finite.prod hX.finite hY.finite) this
 
 /-- The sum of two functions with finite range, has finite range. -/
 instance {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [AddGroup G] [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X+Y) := by
-  show FiniteRange ((fun p ↦ p.1 + p.2) ∘ ⟨ X, Y ⟩)
+  show FiniteRange ((fun p ↦ p.1 + p.2) ∘ ⟨X, Y⟩)
   infer_instance
 
 /-- The difference of two functions with finite range, has finite range. -/
 instance {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [AddGroup G] [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X-Y) := by
-  show FiniteRange ((fun p ↦ p.1 - p.2) ∘ ⟨ X, Y ⟩)
+  show FiniteRange ((fun p ↦ p.1 - p.2) ∘ ⟨X, Y⟩)
   infer_instance
 
 /-- The negation of a function of finite range, has finite range.-/
