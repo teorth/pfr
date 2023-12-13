@@ -386,8 +386,8 @@ theorem cond_cond_eq_cond_inter'' (hms : MeasurableSet s) (hmt : MeasurableSet t
     simp [*, hms.inter hmt, cond_apply, ← mul_assoc, ← Set.inter_assoc, ENNReal.mul_inv, mul_comm, ←
       mul_assoc, ENNReal.mul_inv_cancel]
 
-lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → T} (hY : Measurable Y)
-    (hW : Measurable W) (hW' : Measurable W') (μ : Measure Ω) (μ' : Measure Ω')
+lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → T}
+    (μ : Measure Ω) (μ' : Measure Ω') (hY : Measurable Y) (hW' : Measurable W') (hW : Measurable W)
     [IsFiniteMeasure μ'] :
     d[X ; μ # Y | ⟨W', W⟩; μ']
       = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
@@ -623,15 +623,13 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
+variable (μ μ') in
 lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T'] [MeasurableSpace T']
     [MeasurableSingletonClass T'] [IsFiniteMeasure μ']
-    (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T') (he : Function.Injective e)
-    (μ : Measure Ω) (μ' : Measure Ω') :
+    (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T') (he : Function.Injective e) :
     d[X ; μ # Y | (e ∘ W) ; μ'] = d[X ; μ # Y | W ; μ'] := by
-  rw [condRuzsaDist'_eq_sum]
-
-
-#exit
+  -- rw [condRuzsaDist'_eq_sum]
+  sorry
 
 lemma condRuzsaDist_of_inj_map {G' : Type*} [Fintype G'] [AddCommGroup G']
   [MeasurableSpace G'] [MeasurableSingletonClass G'] [IsProbabilityMeasure μ]
@@ -970,8 +968,8 @@ lemma condRuzsaDist_le'_prod [Fintype T] {X : Ω → G} {Y : Ω' → G} {W Z : �
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) (hZ : Measurable Z) :
     d[X ; μ # Y|⟨W, Z⟩ ; μ'] ≤ d[X ; μ # Y|Z ; μ'] + I[Y : W | Z ; μ']/2 := by
-  rw [condRuzsaDist'_prod_eq_sum hY hZ hW, condRuzsaDist'_eq_sum hY hZ, condMutualInfo_eq_sum hZ,
-    Finset.sum_div, ← Finset.sum_add_distrib]
+  rw [condRuzsaDist'_prod_eq_sum _ _ hY hW hZ, condRuzsaDist'_eq_sum hY hZ,
+    condMutualInfo_eq_sum hZ, Finset.sum_div, ← Finset.sum_add_distrib]
   gcongr with z
   rw [mul_div_assoc, ← mul_add]
   rcases eq_or_ne (μ' (Z ⁻¹' {z})) 0 with hz | hz

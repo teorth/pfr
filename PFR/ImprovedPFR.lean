@@ -35,10 +35,107 @@ local notation3 "Sum" => Z₁ + Z₂ + Z₃ + Z₄
 
 open scoped BigOperators
 
-lemma ProbabilityTheory.iIndepFun.reindex_four_cadb : iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₄, Z₂] := by
+lemma ProbabilityTheory.iIndepFun.reindex_four_cadb :
+    iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₄, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![2, 0, 3, 1],
     invFun := ![1, 3, 0, 2],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma ProbabilityTheory.iIndepFun.reindex_four_abdc :
+    iIndepFun (fun _ => hG) ![Z₁, Z₂, Z₄, Z₃] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![0, 1, 3, 2],
+    invFun := ![0, 1, 3, 2],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma ProbabilityTheory.iIndepFun.reindex_four_badc :
+    iIndepFun (fun _ => hG) ![Z₂, Z₁, Z₄, Z₃] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![1, 0, 3, 2],
+    invFun := ![1, 0, 3, 2],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma ProbabilityTheory.iIndepFun.reindex_four_bdac :
+    iIndepFun (fun _ => hG) ![Z₂, Z₄, Z₁, Z₃] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![1, 3, 0, 2],
+    invFun := ![2, 0, 3, 1],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma ProbabilityTheory.iIndepFun.reindex_four_dbac :
+    iIndepFun (fun _ => hG) ![Z₄, Z₂, Z₁, Z₃] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![3, 1, 0, 2],
+    invFun := ![2, 1, 3, 0],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma ProbabilityTheory.iIndepFun.reindex_four_adbc :
+    iIndepFun (fun _ => hG) ![Z₁, Z₄, Z₂, Z₃] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![0, 3, 1, 2],
+    invFun := ![0, 2, 3, 1],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma ProbabilityTheory.iIndepFun.reindex_four_dabc :
+    iIndepFun (fun _ => hG) ![Z₄, Z₁, Z₂, Z₃] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![3, 0, 1, 2],
+    invFun := ![1, 2, 3, 0],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma ProbabilityTheory.iIndepFun.reindex_four_acbd :
+    iIndepFun (fun _ => hG) ![Z₁, Z₃, Z₂, Z₄] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![0, 2, 1, 3],
+    invFun := ![0, 2, 1, 3],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma ProbabilityTheory.iIndepFun.reindex_four_adcb :
+    iIndepFun (fun _ => hG) ![Z₁, Z₄, Z₃, Z₂] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![0, 3, 2, 1],
+    invFun := ![0, 3, 2, 1],
     left_inv := by intro i; fin_cases i <;> rfl,
     right_inv := by intro i; fin_cases i <;> rfl }
   refine iIndepFun.reindex σ.symm ?_
@@ -140,8 +237,38 @@ lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] ≤
   have I2 := gen_ineq_aux2 Y hY Z₁ Z₂ Z₃ Z₄ hZ₁ hZ₂ hZ₃ hZ₄ h_indep
   linarith
 
-end GeneralInequality
+lemma gen_ineq' : d[Y # Z₁ + Z₂ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] ≤
+    (d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4
+    + (d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 4
+    + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8 := by
+  convert gen_ineq Y hY Z₁ Z₂ Z₃ Z₄ hZ₁ hZ₂ hZ₃ hZ₄ h_indep using 2
+  let e : G × G ≃ G × G :=
+  { toFun := fun p ↦ ⟨p.2 - p.1, p.2⟩
+    invFun := fun p ↦ ⟨- p.1 + p.2, p.2⟩
+    left_inv := by intro ⟨a, b⟩; simp [add_comm b a, add_assoc]
+    right_inv := by intro ⟨a, b⟩; simp [add_comm a b, ← add_assoc] }
+  convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂) (⟨Z₁ + Z₃, Sum⟩) e
+    e.injective) with p
+  simp only [Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
+  abel
 
+lemma gen_ineq'' : d[Y # Z₂ + Z₃ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] ≤
+    (d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4
+    + (d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 4
+    + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8 := by
+  convert gen_ineq Y hY Z₁ Z₂ Z₃ Z₄ hZ₁ hZ₂ hZ₃ hZ₄ h_indep using 2
+  have hS : Measurable Sum := ((hZ₁.add' hZ₂).add' hZ₃).add' hZ₄
+  rw [condRuzsaDist'_prod_eq_sum _ _ (hZ₂.add' hZ₃) (hZ₁.add' hZ₃) hS,
+    condRuzsaDist'_prod_eq_sum _ _ (hZ₁.add' hZ₂) (hZ₁.add' hZ₃) hS]
+  congr with w
+  rcases eq_or_ne (ℙ (Sum ⁻¹' {w})) 0 with h|h
+  · simp [h]
+  have : IsProbabilityMeasure (ℙ[|Sum ⁻¹' {w}]) := cond_isProbabilityMeasure ℙ h
+  congr 1
+  have : Z₁ + Z₃ = (Z₁ + Z₂) + (Z₂ + Z₃) := by simp [add_assoc Z₁, ← add_assoc Z₂]
+  rw [this, condRuzsaDist'_of_inj_map' hY (hZ₁.add' hZ₂) (hZ₂.add' hZ₃)]
+
+end GeneralInequality
 
 section MainEstimates
 
@@ -294,6 +421,23 @@ lemma construct_good_improved' : k ≤ δ
   simp only [I1, I2, I3] at Z123 Z132 Z213 Z231 Z312 Z321
   linarith
 
+/-- Rephrase `construct_good_improved'` with an explicit probability measure, as we will
+apply it to (varying) conditional measures. -/
+lemma construct_good_improved'' {Ω' : Type*} [MeasurableSpace Ω'] (μ : Measure Ω')
+    [IsProbabilityMeasure μ] {T₁ T₂ T₃ : Ω' → G}
+    (hT : T₁ + T₂ + T₃ = 0) (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃) :
+    k ≤ I[T₁ : T₂ ; μ] + I[T₂ : T₃ ; μ] + I[T₃ : T₁ ; μ] + (p.η / 6) *
+    ((d[p.X₀₁ ; ℙ # T₁ | T₂ ; μ] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ ; ℙ # T₁ | T₃ ; μ] - d[p.X₀₁ # X₁])
+      + (d[p.X₀₁ ; ℙ # T₂ | T₁ ; μ] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ ; ℙ # T₂ | T₃ ; μ] - d[p.X₀₁ # X₁])
+      + (d[p.X₀₁ ; ℙ # T₃ | T₁ ; μ] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ ; ℙ # T₃ | T₂ ; μ] - d[p.X₀₁ # X₁]))
+    + (p.η / 6) *
+    ((d[p.X₀₂ ; ℙ # T₁ | T₂ ; μ] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ ; ℙ # T₁ | T₃ ; μ] - d[p.X₀₂ # X₂])
+      + (d[p.X₀₂ ; ℙ # T₂ | T₁ ; μ] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ ; ℙ # T₂ | T₃ ; μ] - d[p.X₀₂ # X₂])
+      + (d[p.X₀₂ ; ℙ # T₃ | T₁ ; μ] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ ; ℙ # T₃ | T₂ ; μ] - d[p.X₀₂ # X₂]))
+    := by
+  let M : MeasureSpace Ω' := ⟨μ⟩
+  exact construct_good_improved' h_min hT hT₁ hT₂ hT₃
+
 end aux
 
 open scoped BigOperators
@@ -307,25 +451,48 @@ lemma averaged_construct_good : k ≤ I[U : V | S] + I[V : W | S] + I[W : U | S]
                  + (d[p.X₀₁ # W | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # W | ⟨V, S⟩] - d[p.X₀₁ # X₁]))
     + (p.η / 6) * ((d[p.X₀₂ # U | ⟨V, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # U | ⟨W, S⟩] - d[p.X₀₂ # X₂])
                  + (d[p.X₀₂ # V | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # V | ⟨W, S⟩] - d[p.X₀₂ # X₂])
-                 + (d[p.X₀₂ # W | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # W | ⟨V, S⟩] - d[p.X₀₂ # X₂])) :=
-    by
+                 + (d[p.X₀₂ # W | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # W | ⟨V, S⟩] - d[p.X₀₂ # X₂]))
+    := by
   have hS : Measurable S := ((hX₁.add' hX₂).add' hX₁').add' hX₂'
-  have hU : Measurable U := sorry
-  have hV : Measurable V := sorry
-  have hW : Measurable W := sorry
-  have : ∑ x : G, (ℙ (S ⁻¹' {x})).toReal = 1 := sorry
-  have Lk : k = ∑ x : G, (ℙ (S ⁻¹' {x})).toReal * k := sorry
-  have L1 : d[p.X₀₁ # X₁] = ∑ x : G, (ℙ (S ⁻¹' {x})).toReal * d[p.X₀₁ # X₁] := sorry
-  have L2 : d[p.X₀₂ # X₂] = ∑ x : G, (ℙ (S ⁻¹' {x})).toReal * d[p.X₀₂ # X₂] := sorry
-  rw [L1, L2, Lk]
-  have : U + V + W = 0 := sum_uvw_eq_zero X₁ X₂ X₁'
+  have hU : Measurable U := hX₁.add' hX₂
+  have hV : Measurable V := hX₁'.add hX₂
+  have hW : Measurable W := hX₁'.add hX₁
+  have hUVW : U + V + W = 0 := sum_uvw_eq_zero X₁ X₂ X₁'
+  have hz (a : ℝ) : a = ∑ z, (ℙ (S ⁻¹' {z})).toReal * a := by
+    rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hS, one_mul]
+  rw [hz k, hz (d[p.X₀₁ # X₁]), hz (d[p.X₀₂ # X₂])]
   simp only [condMutualInfo_eq_sum hS, ← Finset.sum_add_distrib, ← mul_add,
     condRuzsaDist'_prod_eq_sum, hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
     ← mul_assoc (p.η/6), mul_comm (p.η/6), mul_assoc _ _ (p.η/6)]
-  apply Finset.sum_le_sum (fun i hi ↦ ?_)
+  apply Finset.sum_le_sum (fun i _hi ↦ ?_)
   rcases eq_or_ne (ℙ (S ⁻¹' {i})) 0 with h'i|h'i
   · simp [h'i]
   gcongr
+  have : IsProbabilityMeasure (ℙ[|S ⁻¹' {i}]) := cond_isProbabilityMeasure ℙ h'i
+  linarith [construct_good_improved'' h_min (ℙ[|S ⁻¹' {i}]) hUVW hU hV hW]
+
+end ConstructGood
+
+lemma glouk1 :
+    /-(d[p.X₀₁ # U | ⟨V, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # U | ⟨W, S⟩] - d[p.X₀₁ # X₁])
+    + (d[p.X₀₁ # V | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # V | ⟨W, S⟩] - d[p.X₀₁ # X₁])
+    + (d[p.X₀₁ # W | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # W | ⟨V, S⟩] - d[p.X₀₁ # X₁])
+    ≤ 4 * k-/ True  := by
+  have I1 := gen_ineq' p.X₀₁ p.hmeas1 X₁ X₂ X₂' X₁' hX₁ hX₂ hX₂' hX₁' h_indep
+  have I2 := gen_ineq p.X₀₁ p.hmeas1 X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h_indep.reindex_four_abdc
+  have I3 := gen_ineq'' p.X₀₁ p.hmeas1 X₁ X₁' X₂ X₂' hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_adbc
+  have I4 := gen_ineq'' p.X₀₁ p.hmeas1 X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h_indep.reindex_four_abdc
+  have I5 := gen_ineq p.X₀₁ p.hmeas1 X₁ X₁' X₂ X₂' hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_adbc
+  have I6 := gen_ineq' p.X₀₁ p.hmeas1 X₁ X₁' X₂' X₂ hX₁ hX₁' hX₂' hX₂  h_indep.reindex_four_adcb
+  have C1 : U + X₂' + X₁' = S := by abel
+  have C2 : W + X₂ + X₂' = S := by abel
+  have C4 : W + X₂ + X₂' = S := by abel
+  have C5 : W + X₂' + X₂ = S := by abel
+  have C6 : X₂ + X₁ = U := by abel
+  have C7 : X₂ + X₁' = V := by abel
+  have C8 : X₁ + X₁' = W := by abel
+  simp only [C1, C2, C4, C5, C6, C7, C8] at I1 I2 I3 I4 I5 I6
+
 
 
 
@@ -333,13 +500,51 @@ lemma averaged_construct_good : k ≤ I[U : V | S] + I[V : W | S] + I[W : U | S]
 
 #exit
 
-end ConstructGood
-
 /-- The quantity
 $$ \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B}  d[X_i^0;A|B, S] - d[X_i^0;X_i]$$
 is at most $12 k + \frac{4(2 \eta k - I_1)}{1-\eta}$.
 -/
-proof_wanted dist_diff_bound : 0 = 1
+lemma dist_diff_bound :
+      (d[p.X₀₁ # U | ⟨V, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # U | ⟨W, S⟩] - d[p.X₀₁ # X₁])
+    + (d[p.X₀₁ # V | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # V | ⟨W, S⟩] - d[p.X₀₁ # X₁])
+    + (d[p.X₀₁ # W | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # W | ⟨V, S⟩] - d[p.X₀₁ # X₁])
+    + (d[p.X₀₂ # U | ⟨V, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # U | ⟨W, S⟩] - d[p.X₀₂ # X₂])
+    + (d[p.X₀₂ # V | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # V | ⟨W, S⟩] - d[p.X₀₂ # X₂])
+    + (d[p.X₀₂ # W | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # W | ⟨V, S⟩] - d[p.X₀₂ # X₂])
+      ≤ 12 * k + 4 * (2 * p.η * k - I₁) / (1 - p.η) := by
+  have I1 := gen_ineq p.X₀₁ p.hmeas1 X₂ X₁ X₁' X₂' hX₂ hX₁ hX₁' hX₂' h_indep.reindex_four_badc
+  have I2 := gen_ineq p.X₀₁ p.hmeas1 X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h_indep.reindex_four_abdc
+  have I3 := gen_ineq p.X₀₁ p.hmeas1 X₂ X₁' X₁ X₂' hX₂ hX₁' hX₁ hX₂' h_indep.reindex_four_bdac
+  have I4 := gen_ineq p.X₀₁ p.hmeas1 X₁' X₂ X₁ X₂' hX₁' hX₂ hX₁ hX₂' h_indep.reindex_four_dbac
+  have I5 := gen_ineq p.X₀₁ p.hmeas1 X₁ X₁' X₂ X₂' hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_adbc
+  have I6 := gen_ineq p.X₀₁ p.hmeas1 X₁' X₁ X₂ X₂' hX₁' hX₁ hX₂ hX₂' h_indep.reindex_four_dabc
+  have C1 : X₂ + X₁ + X₁' + X₂' = X₁ + X₂ + X₁' + X₂' := by abel
+  have C2 : X₂ + X₁' + X₁ + X₂' = S := by abel
+  have C3 : V + X₁ + X₂' = S := by abel
+  have C4 : X₁ + X₁' + X₂ + X₂' = S := by abel
+  have C5 : W + X₂ + X₂' = S := by abel
+  have C6 : X₂ + X₁ = U := by abel
+  have C7 : X₂ + X₁' = V := by abel
+  have C8 : X₁ + X₁' = W := by abel
+  simp only [C1, C2, C3, C4, C5, C6, C7, C8] at I1 I2 I3 I4 I5 I6
+
+
+
+
+
+
+#exit
+
+gen_ineq.{u_3, u_2, u_1} {G : Type u_1} [inst✝ : AddCommGroup G] [inst✝¹ : Fintype G] [hG : MeasurableSpace G]
+  [inst✝² : MeasurableSingletonClass G] [inst✝³ : ElementaryAddCommGroup G 2] [inst✝⁴ : MeasurableAdd₂ G] {Ω : Type u_2}
+  [inst✝⁵ : MeasureSpace Ω] [inst✝⁶ : IsProbabilityMeasure ℙ] {Ω₀ : Type u_3} [inst✝⁷ : MeasureSpace Ω₀]
+  [inst✝⁸ : IsProbabilityMeasure ℙ] (Y : Ω₀ → G) (hY : Measurable Y) (Z₁ Z₂ Z₃ Z₄ : Ω → G) (hZ₁ : Measurable Z₁)
+  (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
+  (h_indep : iIndepFun (fun _i ↦ hG) ![Z₁, Z₂, Z₃, Z₄]) :
+  d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Z₁ + Z₂ + Z₃ + Z₄⟩] - d[Y # Z₁] ≤
+    (d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4 +
+        (d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 4 +
+      (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8
 
 /-- Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] = 0$.
 -/
