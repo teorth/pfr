@@ -40,20 +40,20 @@ $$ \tfrac{1}{4} (2d[Z_1;Z_2] + d[Z_1;Z_3] + d[Z_3;Z_4])$$
 $$+ \tfrac{1}{8} (\bbH[Z_1+Z_2] - \bbH[Z_1+Z_3] + \bbH[Z_2] - \bbH[Z_3]$$
 $$ + \bbH[Z_2|Z_2+Z_4] - \bbH[Z_1|Z_1+Z_3]).$$
 -/
-lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
+lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] ≤
     (2 * d[Z₁ # Z₂] + d[Z₁ # Z₃] + d[Z₃ # Z₄]) / 4
     + (H[Z₁ + Z₂] - H[Z₁ + Z₃] + H[Z₂] - H[Z₃]) + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] / 8 := by
   have hS : Measurable Sum := sorry
-  have A : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] ≤ d[Y # Z₁] +
+  have A : d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁] +
       (d[Z₁ # Z₂] + d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
       + (H[Z₁ + Z₂] - H[Z₁ + Z₃] + H[Z₂] - H[Z₁]) / 4 := by
     calc
-    d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] ≤ d[Y # Z₁ + Z₂ | Sum] +
+    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁ + Z₂ | Sum] +
       I[Z₁ + Z₂ : Z₁ + Z₃ | Sum] := by
         have Z := condRuzsaDist_le' (ℙ : Measure Ω₀) (ℙ : Measure Ω) hY (hZ₁.add hZ₂) hS
         sorry
     _ ≤ _ := sorry
-  have B : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] ≤ d[Y # Z₁] +
+  have B : d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁] +
     (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
     + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := sorry
   have : d[Z₁ # Z₂] + d[Z₃ # Z₄] = d[Z₁ + Z₃ # Z₂ + Z₄]

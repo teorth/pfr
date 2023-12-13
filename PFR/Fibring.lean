@@ -31,7 +31,7 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2)) | \pi(Z_1 - Z_2) ).$$
 -/
 lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
     (h1 : Measurable Z_1) (h2 : Measurable Z_2) :
-    d[Z_1; μ # Z_2; μ] = d[π ∘ Z_1; μ # π ∘ Z_2; μ] + d[Z_1|π∘Z_1; μ # Z_2|π∘Z_2; μ] + I[Z_1-Z_2 : ⟨ π∘Z_1, π∘Z_2⟩ | π∘(Z_1 - Z_2); μ] := by
+    d[Z_1; μ # Z_2; μ] = d[π ∘ Z_1; μ # π ∘ Z_2; μ] + d[Z_1|π∘Z_1; μ # Z_2|π∘Z_2; μ] + I[Z_1-Z_2 : ⟨π∘Z_1, π∘Z_2⟩ | π∘(Z_1 - Z_2); μ] := by
   have hπ : Measurable π := measurable_of_countable _
   have step1 : d[Z_1; μ # Z_2; μ] = d[π ∘ Z_1; μ # π ∘ Z_2; μ] +
       H[(Z_1 - Z_2)| π ∘ (Z_1 - Z_2); μ] - H[Z_1 | π ∘ Z_1; μ] / 2 - H[Z_2 | π ∘ Z_2; μ] / 2 := by
@@ -146,7 +146,7 @@ lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 
         + d[Y 0 | (Y 0) - (Y 2); μ # Y 1 | (Y 1) - (Y 3); μ]
         + I[(Y 0) - (Y 1) : (Y 1) - (Y 3) | (Y 0) - (Y 1) - (Y 2) + (Y 3); μ] := by
   let π : G × G →+ G := (AddMonoidHom.fst G G) - (AddMonoidHom.snd G G)
-  have hπ {W_1 W_2 : Ω → G} : π ∘ ⟨ W_1, W_2 ⟩ = W_1 - W_2 := rfl
+  have hπ {W_1 W_2 : Ω → G} : π ∘ ⟨W_1, W_2⟩ = W_1 - W_2 := rfl
   let Z_1 : Ω → G × G := ⟨Y 0, Y 2⟩
   let Z_2 : Ω → G × G := ⟨Y 1, Y 3⟩
   have hZ : Z_1 - Z_2 = ⟨Y 0 - Y 1, Y 2 - Y 3⟩ := rfl
