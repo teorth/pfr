@@ -623,6 +623,16 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
+lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T'] [MeasurableSpace T']
+    [MeasurableSingletonClass T'] [IsFiniteMeasure μ']
+    (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T') (he : Function.Injective e)
+    (μ : Measure Ω) (μ' : Measure Ω') :
+    d[X ; μ # Y | (e ∘ W) ; μ'] = d[X ; μ # Y | W ; μ'] := by
+  rw [condRuzsaDist'_eq_sum]
+
+
+#exit
+
 lemma condRuzsaDist_of_inj_map {G' : Type*} [Fintype G'] [AddCommGroup G']
   [MeasurableSpace G'] [MeasurableSingletonClass G'] [IsProbabilityMeasure μ]
   (Y : Fin 4 → Ω → G) (h_indep : IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) μ)

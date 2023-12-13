@@ -35,30 +35,27 @@ local notation3 "Sum" => Z₁ + Z₂ + Z₃ + Z₄
 
 open scoped BigOperators
 
-/-- Let $Z_1, Z_2, Z_3, Z_4$ be independent $G$-valued random variables, and let $Y$ be another
-$G$-valued random variable.  Set $S := Z_1+Z_2+Z_3+Z_4$. Then
-$d[Y; Z_1+Z_2|Z_1 + Z_3, S] - d[Y; Z_1]$ is at most
-$$ \tfrac{1}{4} (2d[Z_1;Z_2] + d[Z_1;Z_3] + d[Z_3;Z_4])$$
-$$+ \tfrac{1}{8} (\bbH[Z_1+Z_2] - \bbH[Z_1+Z_3] + \bbH[Z_2] - \bbH[Z_3]$$
-$$ + \bbH[Z_2|Z_2+Z_4] - \bbH[Z_1|Z_1+Z_3]).$$
--/
-lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
-    (2 * d[Z₁ # Z₂] + d[Z₁ # Z₃] + d[Z₃ # Z₄]) / 4
-    + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8 := by
+lemma ProbabilityTheory.iIndepFun.reindex_four_cadb : iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₄, Z₂] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![2, 0, 3, 1],
+    invFun := ![1, 3, 0, 2],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
+lemma gen_ineq_aux1 :
+    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
+      + (d[Z₁ # Z₂] + d[Z₁ # Z₃] + d[Z₂ # Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 2
+      + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by
   have hS : Measurable Sum := ((hZ₁.add' hZ₂).add' hZ₃).add' hZ₄
-  /-
   have C : d[Z₁ # Z₃] + d[Z₂ # Z₄] = d[Z₁ + Z₂ # Z₃ + Z₄]
-           + d[Z₁|Z₁ + Z₂ # Z₃|Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Z₁ + Z₂ + Z₃ + Z₄] := by
+           + d[Z₁|Z₁ + Z₂ # Z₃|Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum] := by
     have M : d[Z₃ # Z₁] + d[Z₄ # Z₂] = d[Z₃ + Z₄ # Z₁ + Z₂]
            + d[Z₃|Z₃ + Z₄ # Z₁|Z₁ + Z₂] + I[Z₃ + Z₁ : Z₁ + Z₂ | Z₃ + Z₁ + Z₄ + Z₂] := by
-      have hY_indep : iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₄, Z₂] := by
-        let σ : Fin 4 ≃ Fin 4 :=
-          { toFun := ![2, 0, 3, 1],
-            invFun := ![1, 3, 0, 2],
-            left_inv := by intro i; fin_cases i <;> rfl,
-            right_inv := by intro i; fin_cases i <;> rfl }
-        refine' iIndepFun.reindex σ _; convert h_indep using 1; ext i; fin_cases i <;> rfl
-      apply sum_of_rdist_eq_char_2 ![Z₃, Z₁, Z₄, Z₂] hY_indep (fun i ↦ ?_)
+      apply sum_of_rdist_eq_char_2 ![Z₃, Z₁, Z₄, Z₂] h_indep.reindex_four_cadb (fun i ↦ ?_)
       fin_cases i <;> assumption
     have J1 : Z₃ + Z₁ + Z₄ + Z₂ = Z₁ + Z₂ + Z₃ + Z₄ := by abel
     have J2 : Z₃ + Z₁ = Z₁ + Z₃ := by abel
@@ -66,71 +63,82 @@ lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] - d[Y # Z₁] ≤
     simpa only [rdist_symm (Y := Z₁), rdist_symm (X := Z₄), rdist_symm (X := Z₃ + Z₄),
       condRuzsaDist_symm hZ₃ (hZ₃.add' hZ₄) hZ₁ (hZ₁.add' hZ₂),
       condMutualInfo_comm (hZ₁.add' hZ₃) (hZ₁.add' hZ₂)] using M
-  have A : d[Y # Z₁ + Z₂ | ⟨ Z₁ + Z₃, Sum ⟩] ≤ d[Y # Z₁] +
-      (2 * d[Z₁ # Z₂] + d[Z₃ # Z₄] + d[Z₁ + Z₂ # Z₃ + Z₄] - d[Z₁ + Z₃ # Z₂ + Z₄]
-        - d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
-      + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by calc
-    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
-      ≤ d[Y # Z₁ + Z₂ | Sum] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]/2 :=
-        condRuzsaDist_le'_prod (ℙ : Measure Ω₀) (ℙ : Measure Ω) hY (hZ₁.add hZ₂) (hZ₁.add hZ₃) hS
-    _ ≤ d[Y # Z₁ + Z₂] + (d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
-          + (H[Z₁ + Z₂] - H[Z₃ + Z₄]) / 4 := by
-        have I : IndepFun (Z₁ + Z₂) (Z₃ + Z₄) := by
-          exact h_indep.indepFun_add_add (ι := Fin 4) (by intro i; fin_cases i <;> assumption)
-            0 1 2 3 (by decide) (by decide) (by decide) (by decide)
-        have J1 : (fun a ↦ Z₁ a + Z₂ a) + (fun a ↦ Z₃ a + Z₄ a) = Sum := by ext; simp; abel
-        have J2 : (fun a ↦ Z₁ a + Z₂ a) = Z₁ + Z₂ := rfl
-        have J3 : (fun a ↦ Z₃ a + Z₄ a) = Z₃ + Z₄ := rfl
-        have A := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY (hZ₁.add hZ₂)
-          (hZ₃.add hZ₄) I
-        rw [J1, J2, J3] at A
-        linarith
-    _ ≤ d[Y # Z₁] + (d[Z₁ # Z₂] + d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
-          + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by
-        have I : IndepFun Z₁ Z₂ := by exact h_indep.indepFun (show 0 ≠ 1 by decide)
-        have A := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₂ I
-        linarith
-    _ = _ := by linarith -/
-  have B : d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃,Sum⟩] ≤ d[Y # Z₁] +
-      (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
-      + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := by
-    calc
-    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
-    = ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]] := by
-      rw [condRuzsaDist'_eq_sum (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)]
-    _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]]
-        + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]] / 2
-        + H[Z₂ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4) := by sorry
-      /- apply Finset.sum_le_sum (fun w h'w ↦ ?_)
-      rcases eq_bot_or_bot_lt (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})) with hw|hw
-      · simp [hw]
-      gcongr
-      have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]) := cond_isProbabilityMeasure ℙ hw.ne'
-      have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]) := sorry
-      have := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]) hY hZ₁ hZ₂ this
-      linarith -/
-    _ = d[Y # Z₁ | Z₁ + Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
-        + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
-      simp only [mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib, Finset.sum_div]
-      congr
-      · rw [← condRuzsaDist'_eq_sum]
-        have : d[Y # Z₁ | ⟨Z₁ + Z₃, Sum⟩] = d[Y # Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := by
-
-
-    _ ≤ (d[Y # Z₁] + d[Z₁ # Z₃]/2 + H[Z₁]/4 - H[Z₃]/4) + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
-        + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
-      gcongr
-      have := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₃ sorry
+  calc
+  d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
+    ≤ d[Y # Z₁ + Z₂ | Sum] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]/2 :=
+      condRuzsaDist_le'_prod (ℙ : Measure Ω₀) (ℙ : Measure Ω) hY (hZ₁.add hZ₂) (hZ₁.add hZ₃) hS
+  _ ≤ d[Y # Z₁ + Z₂] + (d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
+        + (H[Z₁ + Z₂] - H[Z₃ + Z₄]) / 4 := by
+      have I : IndepFun (Z₁ + Z₂) (Z₃ + Z₄) := by
+        exact h_indep.indepFun_add_add (ι := Fin 4) (by intro i; fin_cases i <;> assumption)
+          0 1 2 3 (by decide) (by decide) (by decide) (by decide)
+      have J1 : (fun a ↦ Z₁ a + Z₂ a) + (fun a ↦ Z₃ a + Z₄ a) = Sum := by ext; simp; abel
+      have J2 : (fun a ↦ Z₁ a + Z₂ a) = Z₁ + Z₂ := rfl
+      have J3 : (fun a ↦ Z₃ a + Z₄ a) = Z₃ + Z₄ := rfl
+      have A := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY (hZ₁.add hZ₂)
+        (hZ₃.add hZ₄) I
+      rw [J1, J2, J3] at A
       linarith
-    _ = _ := by ring
+  _ ≤ d[Y # Z₁] + (d[Z₁ # Z₂] + d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
+        + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by
+      have I : IndepFun Z₁ Z₂ := by exact h_indep.indepFun (show 0 ≠ 1 by decide)
+      have A := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₂ I
+      linarith
+  _ = _ := by linarith
 
+lemma gen_ineq_aux2 :
+    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃,Sum⟩] ≤ d[Y # Z₁]
+      + (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
+      + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := by
+  have hS : Measurable Sum := ((hZ₁.add' hZ₂).add' hZ₃).add' hZ₄
+  calc
+  d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
+  = ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]] := by
+    rw [condRuzsaDist'_eq_sum (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)]
+  _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]]
+      + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]] / 2
+      + H[Z₂ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4) := by sorry
+    /- apply Finset.sum_le_sum (fun w h'w ↦ ?_)
+    rcases eq_bot_or_bot_lt (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})) with hw|hw
+    · simp [hw]
+    gcongr
+    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]) := cond_isProbabilityMeasure ℙ hw.ne'
+    have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]) := sorry
+    have := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]) hY hZ₁ hZ₂ this
+    linarith -/
+  _ = d[Y # Z₁ | Z₁ + Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
+      + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
+    simp only [mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib, Finset.sum_div]
+    congr
+    · rw [← condRuzsaDist'_eq_sum hZ₁ ((hZ₁.add' hZ₃).prod_mk hS)]
+      have : d[Y # Z₁ | ⟨Z₁ + Z₃, Sum⟩] = d[Y # Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := by sorry
+      sorry
+    · sorry
+    · sorry
+    · sorry
+  _ ≤ (d[Y # Z₁] + d[Z₁ # Z₃]/2 + H[Z₁]/4 - H[Z₃]/4) + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
+      + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
+    gcongr
+    have I : IndepFun Z₁ Z₃ := by exact h_indep.indepFun (show 0 ≠ 2 by decide)
+    have := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₃ I
+    linarith
+  _ = _ := by ring
 
-#exit
-
-condRuzsaDist_diff_le
-
-
-  sorry
+/-- Let $Z_1, Z_2, Z_3, Z_4$ be independent $G$-valued random variables, and let $Y$ be another
+$G$-valued random variable.  Set $S := Z_1+Z_2+Z_3+Z_4$. Then
+$d[Y; Z_1+Z_2|Z_1 + Z_3, S] - d[Y; Z_1]$ is at most
+$$ \tfrac{1}{4} (d[Z_1;Z_2] + 2d[Z_1;Z_3] + d[Z_2;Z_4])$$
+$$+ \tfrac{1}{4}(d[Z_1|Z_1 + Z_3 ; Z_2|Z_2+Z_4] - d[Z_1|Z_1+Z_2 ; Z_3|Z_3+Z_4]])$$
+$$+ \tfrac{1}{8} (\bbH[Z_1+Z_2] - \bbH[Z_3+Z_4] + \bbH[Z_2] - \bbH[Z_3]$$
+$$ + \bbH[Z_2|Z_2+Z_4] - \bbH[Z_1|Z_1+Z_3]).$$
+-/
+lemma gen_ineq : d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] ≤
+    (d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4
+    + (d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 4
+    + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8 := by
+  have I1 := gen_ineq_aux1 Y hY Z₁ Z₂ Z₃ Z₄ hZ₁ hZ₂ hZ₃ hZ₄ h_indep
+  have I2 := gen_ineq_aux2 Y hY Z₁ Z₂ Z₃ Z₄ hZ₁ hZ₂ hZ₃ hZ₄ h_indep
+  linarith
 
 end GeneralInequality
 
@@ -190,6 +198,8 @@ local notation3:max "c[" A " # " B "]" =>
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
 section ConstructGood
+
+section aux
 
 variable {Ω' : Type*} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
 variable {T₁ T₂ T₃ : Ω' → G} (hT : T₁ + T₂ + T₃ = 0)
@@ -284,6 +294,10 @@ lemma construct_good_improved' : k ≤ δ
   simp only [I1, I2, I3] at Z123 Z132 Z213 Z231 Z312 Z321
   linarith
 
+end aux
+
+open scoped BigOperators
+
 /--   $k$ is at most
 $$ \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta}{6}  \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B} (d[X^0_i;A|B,S] - d[X^0_i; X_i]).$$
 -/
@@ -295,10 +309,29 @@ lemma averaged_construct_good : k ≤ I[U : V | S] + I[V : W | S] + I[W : U | S]
                  + (d[p.X₀₂ # V | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # V | ⟨W, S⟩] - d[p.X₀₂ # X₂])
                  + (d[p.X₀₂ # W | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # W | ⟨V, S⟩] - d[p.X₀₂ # X₂])) :=
     by
+  have hS : Measurable S := ((hX₁.add' hX₂).add' hX₁').add' hX₂'
+  have hU : Measurable U := sorry
+  have hV : Measurable V := sorry
+  have hW : Measurable W := sorry
+  have : ∑ x : G, (ℙ (S ⁻¹' {x})).toReal = 1 := sorry
+  have Lk : k = ∑ x : G, (ℙ (S ⁻¹' {x})).toReal * k := sorry
+  have L1 : d[p.X₀₁ # X₁] = ∑ x : G, (ℙ (S ⁻¹' {x})).toReal * d[p.X₀₁ # X₁] := sorry
+  have L2 : d[p.X₀₂ # X₂] = ∑ x : G, (ℙ (S ⁻¹' {x})).toReal * d[p.X₀₂ # X₂] := sorry
+  rw [L1, L2, Lk]
   have : U + V + W = 0 := sum_uvw_eq_zero X₁ X₂ X₁'
-  have Z := construct_good_improved' h_min this (hX₁.add hX₂) (hX₁'.add hX₂) (hX₁'.add hX₁)
-  sorry
+  simp only [condMutualInfo_eq_sum hS, ← Finset.sum_add_distrib, ← mul_add,
+    condRuzsaDist'_prod_eq_sum, hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
+    ← mul_assoc (p.η/6), mul_comm (p.η/6), mul_assoc _ _ (p.η/6)]
+  apply Finset.sum_le_sum (fun i hi ↦ ?_)
+  rcases eq_or_ne (ℙ (S ⁻¹' {i})) 0 with h'i|h'i
+  · simp [h'i]
+  gcongr
 
+
+
+
+
+#exit
 
 end ConstructGood
 
