@@ -1,4 +1,5 @@
 import Mathlib.Probability.Kernel.CondDistrib
+import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Measure.Dirac
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
@@ -25,9 +26,9 @@ open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 namespace ProbabilityTheory
 
 variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
-  [Fintype S] [Nonempty S] [MeasurableSpace S] [MeasurableSingletonClass S]
-  [Fintype T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
-  [Fintype U] [Nonempty U] [MeasurableSpace U] [MeasurableSingletonClass U]
+  [Countable S] [Nonempty S] [MeasurableSpace S] [MeasurableSingletonClass S]
+  [Countable T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
+  [Countable U] [Nonempty U] [MeasurableSpace U] [MeasurableSingletonClass U]
 
 variable {κ : kernel T S} {μ : Measure T} {X : Ω → S} {Y : Ω → U}
 
@@ -101,30 +102,26 @@ lemma condKernel_compProd_apply' (κ : kernel T S) [IsFiniteKernel κ]
     rwa [compProd_preimage_fst _ _ (measurableSet_singleton _)]
   rw [condKernel_apply' _ _ hx' hs,
     compProd_apply _ _ _ (measurable_fst (measurableSet_singleton _))]
-  simp only [Set.mem_preimage, Set.mem_singleton_iff, lintegral_eq_sum]
-  rw [Finset.sum_eq_single x.2 _ (by simp)]
+  simp only [Set.mem_preimage, Set.mem_singleton_iff]
+  rw [kernel.compProd_apply, lintegral_eq_single _ x.2, lintegral_eq_single _ x.2]
   swap
-  · simp only [Finset.mem_univ, ne_eq, mul_eq_zero, forall_true_left]
-    intro b hb
-    simp [hb]
-  rw [compProd_apply _ _ _
-    (((measurable_fst (measurableSet_singleton _))).inter (measurable_snd hs)), lintegral_eq_sum]
-  simp only [Prod.mk.eta, Set.setOf_true, measure_univ, mul_one, Set.mem_inter_iff,
-    Set.mem_preimage, Set.mem_singleton_iff]
-  rw [Finset.sum_eq_single x.2 _ (by simp)]
-  swap
-  · simp only [Finset.mem_univ, ne_eq, mul_eq_zero, forall_true_left]
-    intro b hb
-    simp [hb]
-  rw [← mul_assoc, ENNReal.inv_mul_cancel hx (measure_ne_top _ _), one_mul]
-  simp
+  . intro b hb; simp [hb]
+  . simp
+    rw [mul_comm, mul_assoc]
+    set a := (κ x.1) {x.2}
+    suffices a * a⁻¹ = 1 by simp [this]
+    refine ENNReal.mul_inv_cancel hx ?_
+    exact measure_ne_top (κ x.1) {x.2}
+  . intro b hb; simp [hb]
+  measurability
 
 lemma condKernel_compProd_apply (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η]
     (x : T × S) (hx : κ x.1 {x.2} ≠ 0) :
     condKernel (κ ⊗ₖ η) x = η x := by
   ext s hs
-  exact condKernel_compProd_apply' κ η x hx hs
+  convert condKernel_compProd_apply' κ η x hx hs
+  exact κ  -- why is this necessary?
 
 lemma condKernel_compProd_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η] (μ : Measure T) [IsFiniteMeasure μ] :

@@ -56,6 +56,9 @@ lemma measureEntropy_def' (μ : Measure S) :
 
 noncomputable def FiniteSupport (μ : Measure S := by volume_tac) : Prop := ∃ A : Finset S, μ Aᶜ  = 0
 
+/-- TODO: replace FiniteSupport hypotheses in these files with FiniteEntropy hypotheses. -/
+noncomputable def FiniteEntropy (μ : Measure S := by volume_tac) : Prop := Summable (fun s ↦ negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal) ∧ ∃ A : Set S, Countable A ∧ μ Aᶜ  = 0
+
 lemma finite_support_of_fintype {μ : Measure S} [Fintype S] : FiniteSupport μ := by
   use Finset.univ
   simp
