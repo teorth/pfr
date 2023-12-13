@@ -120,7 +120,7 @@ lemma I₃_eq : I[V : W | S] = I₂ := by
               congr
               ext i
               fin_cases i
-              all_goals simp[h₁.map_eq] }
+              all_goals simp [h₁.map_eq] }
   have hmeas1 : Measurable (fun p : Fin 4 → G => (p 0 + p 1, p 0 + p 1 + p 2 + p 3)) := by
     simp_all only [Matrix.cons_val', Matrix.empty_val', Matrix.cons_val_fin_one]
     apply Measurable.prod

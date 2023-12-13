@@ -110,13 +110,13 @@ example :
 example (ω : Ω) : (⟨X, Y⟩) ω = (X ω, Y ω) := rfl
 
 /-- $H[X|Y]$ is the conditional entropy of $X$ relative to $Y$. -/
-example : H[X|Y] = H[⟨ X,Y ⟩] - H[Y] := chain_rule'' ℙ hX hY
+example : H[X|Y] = H[⟨X,Y⟩] - H[Y] := chain_rule'' ℙ hX hY
 
 /-- $I[X:Y]$ is the mutual information between $X$ and $Y$. -/
-example : I[X:Y] = H[X] + H[Y] - H[⟨ X,Y ⟩] := rfl
+example : I[X:Y] = H[X] + H[Y] - H[⟨X,Y⟩] := rfl
 
 /-- $I[X:Y|Z]$ is the conditional mutual information between $X$ and $Y$ relative to $Z$. -/
-example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInfo_eq hX hY hZ ℙ
+example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨X,Y⟩|Z] := condMutualInfo_eq hX hY hZ ℙ
 
 /-- Submodularity: conditional information is nonnegative. -/
 example : 0 ≤ I[X : Y | Z] := condMutualInfo_nonneg hX hY Z ℙ
