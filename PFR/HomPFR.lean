@@ -25,7 +25,7 @@ lemma hahn_banach (H₀ : AddSubgroup G) (φ : H₀ →+ G') : ∃ (φ' : G →+
   let H₀ : Submodule (ZMod 2) G := H₀
   let φ : H₀ →+ G' := φ
   let φ : H₀ →ₗ[ZMod 2] G' := φ
-  obtain ⟨ φ', hφ' ⟩ := φ.exists_extend
+  obtain ⟨φ', hφ'⟩ := φ.exists_extend
   use φ'; intro x; show φ x = φ'.comp H₀.subtype x; rw [hφ']
 
 /-- Let $H$ be a subgroup of $G \times G'$.  Then there exists a subgroup $H_0$ of $G$, a subgroup $H_1$ of $G'$, and a homomorphism $\phi: G \to G'$ such that
@@ -34,7 +34,7 @@ In particular, $|H| = |H_0| |H_1|$. -/
 lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : AddSubgroup G') (φ : G →+ G'),
     (∀ x : G × G', x ∈ H ↔ (x.1 ∈ H₀ ∧ x.2 - φ x.1 ∈ H₁)) ∧
     (Nat.card H) = (Nat.card H₀) * (Nat.card H₁) := by
-  obtain ⟨ S₁, S₂, f, φ, ⟨ hf, hf_inv ⟩ ⟩ := (H.toSubmodule (n := 2)).exists_equiv_fst_sndModFst
+  obtain ⟨S₁, S₂, f, φ, hf, hf_inv⟩ := (H.toSubmodule (n := 2)).exists_equiv_fst_sndModFst
   use S₁.toAddSubgroup, S₂.toAddSubgroup, φ
   constructor ; swap
   · show Nat.card (H.toSubmodule (n := 2)) = _
@@ -73,8 +73,8 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
     · simp
     · simp only [singleton_prod, mem_image, Prod.mk.injEq, true_and,
         exists_eq_right, Prod.mk_sub_mk, sub_zero]
-      exact ⟨ hS a.1 a'.1,
-        by rw [← Prod.fst_add, ha, ha', sub_sub, ← Prod.snd_add, haa', sub_sub_self] ⟩
+      exact ⟨hS a.1 a'.1,
+        by rw [← Prod.fst_add, ha, ha', sub_sub, ← Prod.snd_add, haa', sub_sub_self]⟩
 
   have hB_card : Nat.card B ≤ Nat.card S * Nat.card A
   · exact card_sub_le.trans_eq $ by simp only [mul_comm, Set.card_singleton_prod]
@@ -94,7 +94,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
   · ext x
     simp only [mem_image, SetLike.mem_coe, hH₀₁, Prod.exists,
       exists_and_right, exists_and_left, exists_eq_right, and_iff_left_iff_imp]
-    exact fun _ ↦ ⟨ φ x, by simp only [sub_self, AddSubgroup.zero_mem] ⟩
+    exact fun _ ↦ ⟨φ x, by simp only [sub_self, AddSubgroup.zero_mem]⟩
 
   have hG_cover : (univ : Set G) = c' + (H₀:Set G)
   · ext g
@@ -130,7 +130,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
   have : (H:Set (G×G')) ⊆ ({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G}
   · rintro ⟨g, g'⟩ hg
     simp only [SetLike.mem_coe, hH₀₁] at hg
-    refine Set.mem_add.mpr ⟨ (0, g' - φ g), (g, φ g), ⟨?_,?_⟩ ⟩
+    refine ⟨(0, g' - φ g), (g, φ g), ?_,?_⟩
     · simp only [singleton_prod, mem_image, SetLike.mem_coe,
         Prod.mk.injEq, true_and, exists_eq_right, hg.2]
     · simp only [mem_setOf_eq, Prod.mk.injEq, exists_eq_left, Prod.mk_add_mk, zero_add, true_and,

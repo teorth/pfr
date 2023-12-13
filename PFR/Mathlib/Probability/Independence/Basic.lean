@@ -1,5 +1,7 @@
 import Mathlib.Probability.Independence.Basic
 import PFR.ForMathlib.MeasureReal
+import PFR.Mathlib.Data.Fintype.Lattice
+import PFR.Mathlib.Data.Finset.Sigma
 import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.Mathlib.Probability.Independence.Kernel
@@ -280,64 +282,62 @@ lemma iIndepFun.pi
     (f_meas : ∀ i j, Measurable (f i j))
     (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) (fun ij : Σ i, κ i ↦ f ij.1 ij.2) μ) :
     iIndepFun (fun i ↦ MeasurableSpace.pi) (fun i ω ↦ (fun j ↦ f i j ω)) μ := by
-  let F := fun i ω j ↦ f i j ω
-  let M := fun (i : ι) ↦ MeasurableSpace.pi (m := fun (j : κ i) ↦ m i j)
-  let πβ (i : ι) := Set.pi (Set.univ : Set (κ i)) ''
-    Set.pi (Set.univ : Set (κ i)) fun j => { s : Set (α i j) | MeasurableSet[m i j] s }
+  let F i ω j := f i j ω
+  let M (i : ι):= MeasurableSpace.pi (m := m i)
+  let πβ (i : ι) := Set.pi Set.univ '' Set.pi Set.univ fun j => { s | MeasurableSet[m i j] s }
   apply iIndepSets.iIndep
-  . exact fun i ↦ measurable_iff_comap_le.mp (measurable_pi_iff.mpr (f_meas i))
-  . exact fun i ↦ IsPiSystem.comap isPiSystem_pi (F i)
-  . intro k
+  · exact fun i ↦ measurable_iff_comap_le.mp (measurable_pi_iff.mpr (f_meas i))
+  · exact fun i ↦ IsPiSystem.comap isPiSystem_pi (F i)
+  · intro k
     show MeasurableSpace.comap _ (M k) = _
     have : M k = MeasurableSpace.generateFrom (πβ k) := generateFrom_pi.symm
     rewrite [this, MeasurableSpace.comap_generateFrom] ; rfl
 
   rw [iIndepSets_iff]
   intro s E hE
-  simp at hE
+  simp? at hE
+    says simp only [mem_image, mem_pi, mem_univ, mem_setOf_eq, forall_true_left,
+      exists_exists_and_eq_and] at hE
   have hE' (k : s) := hE k (Finset.coe_mem k)
   classical
-  obtain ⟨ sets, h_sets ⟩ := Classical.axiomOfChoice hE'
+  obtain ⟨sets, h_sets⟩ := Classical.axiomOfChoice hE'
   let sets' (i : ι) (j : κ i) : Set (α i j) := if h : i ∈ s then sets ⟨i, h⟩ j else Set.univ
   have box (i : ι) (hi : i ∈ s) : E i = ⋂ j : κ i, (f i j)⁻¹' (sets' i j) := by
-    rw [← (h_sets ⟨ i, hi ⟩).right]
-    simp only [hi]
-    ext1
-    simp_rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
-    exact ⟨ fun hj j ↦ mem_preimage.mpr (hj j), fun hj j ↦ mem_preimage.mp (hj j) ⟩
-  suffices : μ (⋂ i ∈ s, ⋂ j : κ i, (f i j)⁻¹' (sets' i j) ) =
-    ∏ i in s, μ (⋂ j : κ i, (f i j)⁻¹' (sets' i j))
-  . convert this with k hk k hk ; all_goals { exact box k hk }
+    rw [← (h_sets ⟨i, hi⟩).right]
+    simp_rw [hi]
+    ext : 1
+    rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
+    exact ⟨fun hj j ↦ mem_preimage.mpr (hj j), fun hj j ↦ mem_preimage.mp (hj j)⟩
 
-  let inner_term_ij (i : ι) (j : κ i) := f i j ⁻¹' sets' i j
-  let inner_term (ij : (i : ι) × κ i) := inner_term_ij ij.fst ij.snd
-  let summand_ij i j := μ (inner_term_ij i j)
-  let summand ij := μ (inner_term ij)
-  have ext_prod : ∀ i ∈ s,
-      ∏ j : κ i, summand_ij i j =
-      ∏ ij : Fintype.sigma_singleton i κ, summand ij :=
-    fun i _ ↦ (Fintype.sigma_singleton_bijective i).prod_comp (summand ∘ Subtype.val)
-  have ext_inter : ∀ i ∈ s,
-      ⋂ j : κ i, inner_term_ij i j =
-      ⋂ ij : Fintype.sigma_singleton i κ, inner_term ij :=
-    fun i _ ↦ (Fintype.sigma_singleton_surjective i).iInter_comp (inner_term ∘ Subtype.val)
+  let set (i : ι) (j : κ i) := f i j ⁻¹' sets' i j
+  set set_σ := fun (ij : (i : ι) × κ i) ↦ set ij.fst ij.snd with set_σ_def
+  let meas i j := μ (set i j)
+  let meas_σ ij := μ (set_σ ij)
+  suffices : μ (⋂ i ∈ s, ⋂ j : κ i, set i j) = ∏ i in s, μ (⋂ j : κ i, set i j)
+  · convert this with k hk k hk ; all_goals { exact box k hk }
+
+  let κ_σ (i : ι) := Finset.sigma {i} fun i ↦ Finset.univ (α := κ i)
+  have reindex_prod (i : ι) : ∏ j : κ i, meas i j = ∏ ij : κ_σ i, meas_σ ij := by
+    rw [Finset.prod_coe_sort, Finset.prod_sigma, Finset.prod_singleton]
+  have reindex_inter (i : ι) : ⋂ j : κ i, set i j = ⋂ ij : κ_σ i, set_σ ij := by
+    rw [iInter_subtype, set_σ_def, ← Finset.iInter_sigma, Finset.set_biInter_singleton]
+    exact Finset.set_biInter_univ
 
   rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at hf
-  rw [Fintype.iInter_sigma s inner_term_ij, hf (Finset.sigma s (fun _ => Finset.univ)),
-    Finset.prod_sigma s (fun _ ↦ Finset.univ) summand]
+  rw [Fintype.iInter_sigma, hf, Finset.prod_sigma]
   · apply Finset.prod_congr rfl
     intro i hi
     symm
-    rw [ext_prod, ext_inter, Finset.prod_coe_sort, iInter_subtype]
-    apply hf (Fintype.sigma_singleton i κ) (sets := fun ij ↦ sets' ij.fst ij.snd)
-    intro j hj
-    rw [← Finset.mem_singleton.mp (Finset.mem_sigma.mp hj).left] at hi
-    convert (h_sets { val := j.fst, property := hi }).left j.snd
-    simp only [hi, dite_true] ; exact hi ; exact hi
+    rw [reindex_prod, reindex_inter, Finset.prod_coe_sort, iInter_subtype]
+    apply hf (κ_σ i) (sets := fun ij ↦ sets' ij.fst ij.snd)
+    intro ij hij
+    rw [← Finset.mem_singleton.mp (Finset.mem_sigma.mp hij).left] at hi
+    convert (h_sets ⟨ij.fst, hi⟩).left ij.snd
+    simp? [hi] says simp only [hi, dite_true]
   intros ij hij
-  obtain ⟨ hi, _ ⟩ := Finset.mem_sigma.mp hij
-  simp only [hi]
-  exact (h_sets ⟨ ij.fst, hi ⟩).1 ij.snd
+  obtain ⟨hi, _⟩ := Finset.mem_sigma.mp hij
+  simp_rw [hi]
+  exact (h_sets ⟨ij.fst, hi⟩).1 ij.snd
 
 
 /-- If a family of functions `(i, j) ↦ f i j` is independent, then the family of function tuples
@@ -358,12 +358,12 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
   have hg : Injective g := by
     intro x y hxy
     have : ¬(Disjoint on ST) x.fst y.fst := by
-      apply not_forall.mpr
-      use {g y}
+      refine not_forall.mpr ⟨{g y}, ?_⟩
       rewrite [not_imp, not_imp]
-      exact ⟨ Finset.singleton_subset_iff.mpr (by rewrite [← hxy] ; exact Finset.coe_mem x.snd),
-        Finset.singleton_subset_iff.mpr (Finset.coe_mem y.snd),
-        by rewrite [le_bot_iff] ; exact Finset.singleton_ne_empty (g y) ⟩
+      repeat' apply And.intro
+      · exact Finset.singleton_subset_iff.mpr (by rewrite [← hxy] ; exact Finset.coe_mem x.snd)
+      · exact Finset.singleton_subset_iff.mpr (Finset.coe_mem y.snd)
+      · rewrite [le_bot_iff] ; exact Finset.singleton_ne_empty (g y)
     exact Sigma.subtype_ext (not_ne_iff.mp ((@hS x.fst y.fst).mt this)) hxy
-  let m : (i : ι') → (j : ST i) → MeasurableSpace (α j) := fun i j => n j
+  let m (i : ι') (j : ST i) : MeasurableSpace (α j) := n j
   exact iIndepFun.pi' (m := m) (hf ∘' g) (h.reindex_of_injective g hg)

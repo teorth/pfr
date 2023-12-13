@@ -175,23 +175,15 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
       congr with x
       rw [← mul_assoc, mul_inv_cancel, one_mul]
       exact N_pos.ne'
-  _ ≤ N * negMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
-      refine mul_le_mul le_rfl ?_ ?_ ?_
-      · exact sum_negMulLog_finset_le (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)
-      · refine Finset.sum_nonneg (fun x _ ↦ ?_)
-        refine mul_nonneg ?_ ?_
-        · simp
-        · refine negMulLog_nonneg (by simp) ?_
-          refine ENNReal.toReal_le_of_le_ofReal zero_le_one ?_
-          rw [ENNReal.ofReal_one]
-          exact prob_le_one
-      · positivity
+  _ ≤ N * negMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) :=
+       mul_le_mul_of_nonneg_left
+         (sum_negMulLog_le (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)) (by positivity)
   _ = N * negMulLog ((N : ℝ)⁻¹) := by simp [← Finset.mul_sum, μA]
   _ = log A.card := by simp [negMulLog, ← mul_assoc, mul_inv_cancel N_pos.ne']
 
 lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S] [Fintype S]
     (μ : Measure S) [IsProbabilityMeasure μ] :
-    Hm[μ] = log (Fintype.card S) ↔ (∀ s : S, μ.real {s} = (Fintype.card S : ℝ)⁻¹) := by
+    Hm[μ] = log (Fintype.card S) ↔∀ s : S, μ.real {s} = (Fintype.card S : ℝ)⁻¹ := by
   cases isEmpty_or_nonempty S with
   | inl h =>
     have : μ = 0 := Subsingleton.elim _ _
@@ -208,8 +200,8 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     let p (s : S) := μ.real {s}
     have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
     -- use equality case of Jensen
-    convert sum_negMulLog_eq_aux2 hw1 hw2 hp using 2
-    · simp [measureEntropy_def', tsum_fintype, Finset.mul_sum]
+    convert sum_negMulLog_eq_iff hw1 hw2 hp using 2
+    · simp [measureEntropy_def', Finset.mul_sum]
     · simp [negMulLog, ← Finset.mul_sum]
     · rw [← Finset.mul_sum]
       simp
@@ -596,6 +588,23 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
   have : w p ≠ 0 := by exact hw
   field_simp [this]
   rw [hyp p]
+  have H2 : 0 = negMulLog (∑ s : S × U, w s * f s) := by simpa using congr_arg negMulLog H.symm
+  rw [← neg_eq_zero, ← neg_nonpos, H1, H2]
+  refine ⟨sum_negMulLog_le (fun _ _ ↦ hw1 ‹_›) hw2 fun _ _ ↦ hf ‹_›, ?_⟩
+  refine (sum_negMulLog_eq_iff' (fun _ _ ↦ hw1 ‹_›) hw2 fun _ _ ↦ hf ‹_›).trans $
+    forall_congr' fun p ↦ ?_
+  · have hp1 := h_fst_ne_zero p
+    have hp2 := h_snd_ne_zero p
+    rw [not_imp_not] at hp1 hp2
+    by_cases hp1' : (μ.map Prod.fst).real {p.1} = 0
+    · simp [hp1', hp1 hp1']
+    by_cases hp2' : (μ.map Prod.snd).real {p.2} = 0
+    · simp [hp2', hp2 hp2']
+    have hw : (w p)⁻¹ ≠ 0 := by positivity
+    rw [← mul_right_inj' hw]
+    simp (config := {zeta := false}) [H, -mul_eq_mul_left_iff, -Fintype.sum_prod_type]
+    congr!
+    field_simp
 
 lemma measureMutualInfo_of_not_isFiniteMeasure {μ : Measure (S × U)} (h : ¬ IsFiniteMeasure μ) :
     Im[μ] = 0 := by

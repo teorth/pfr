@@ -7,7 +7,7 @@
 $$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$
 \end{lemma}
 
-\begin{proof}  If $B$ is empty then the claim is trivial (with the Lean convention $0/0$), so without loss of generality $B$ is non-empty.  We can rewrite
+\begin{proof}\leanok  If $B$ is empty then the claim is trivial (with the Lean convention $0/0$), so without loss of generality $B$ is non-empty.  We can rewrite
 $$ |\{ (a,a') \in A \times A: a+a' \in B \}| = \sum_{b \in B} r(b)$$
 where $r: G \to \N$ is the counting function
 $$ r(b) := |\{ (a,a') \in A \times A: a+a' = b \}|.$$
