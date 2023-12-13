@@ -201,7 +201,8 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
     have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
     -- use equality case of Jensen
     convert sum_negMulLog_eq_iff hw1 hw2 hp using 2
-    · simp [measureEntropy_def', Finset.mul_sum]
+    · rw [measureEntropy_def', tsum_fintype, Finset.mul_sum]
+      simp
     · simp [negMulLog, ← Finset.mul_sum]
     · rw [← Finset.mul_sum]
       simp
@@ -494,7 +495,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
     intros; exact measurableSet_singleton _
   let w (p : S × U) := (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}
   let f (p : S × U) := ((μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2})⁻¹ * μ.real {p}
-  have hw1 : ∀ p : { x // x ∈ E1 ×ˢ E2 }, 0 ≤ w p := by intros; positivity
+  have hw1 : ∀ p ∈ (E1 ×ˢ E2), 0 ≤ w p := by intros; positivity
   have hw2 : ∑ p in (E1 ×ˢ E2), w p = 1 := by
     rw [Finset.sum_product]
     simp [← Finset.mul_sum]
@@ -503,7 +504,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
     congr
     . convert hE1'; simp
     convert hE2'; simp
-  have hf : ∀ p : { x // x ∈ E1 ×ˢ E2 }, 0 ≤ f p := by intros; positivity
+  have hf : ∀ p ∈ E1 ×ˢ E2, 0 ≤ f p := by intros; positivity
   have H :=
   calc
     ∑ p in (E1 ×ˢ E2), w p * f p
@@ -552,11 +553,10 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
         all_goals positivity
   have H2 : 0 = negMulLog (∑ s in (E1 ×ˢ E2), w s * f s) := by
     rw [H, negMulLog_one]
-  rw [<-Finset.sum_coe_sort] at H H2 hw2
   constructor
-  · rw [← neg_nonpos, H1, <-Finset.sum_coe_sort]
-    convert sum_negMulLog_le hw1 hw2 hf
-  rw [← neg_eq_zero, H1, <-Finset.sum_coe_sort, H2, sum_negMulLog_eq_aux3 hw1 hw2 hf]
+  · rw [← neg_nonpos, H1]
+    convert sum_negMulLog_le (s := E1 ×ˢ E2) hw1 hw2 hf
+  rw [← neg_eq_zero, H1, H2, sum_negMulLog_eq_iff' hw1 hw2 hf]
   have w0 (p : S × U) (hp: w p = 0) : μ.real {p} = 0 := by
     simp at hp
     rcases hp with hp | hp
@@ -567,9 +567,10 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
     by_cases hp1 : p.1 ∈ E1
     . by_cases hp2 : p.2 ∈ E2
       . have hp : p ∈ E1 ×ˢ E2 := Finset.mem_product.mpr ⟨ hp1, hp2 ⟩
-        replace hyp := hyp ⟨ p, hp ⟩
-        rcases hyp with hyp | hyp
-        . simp [w0 p hyp] at hyp ⊢ ; exact hyp
+        by_cases hw : w p = 0
+        . rw [w0 p hw]
+          exact hw.symm
+        replace hyp := hyp p hp hw
         rw [H] at hyp
         have := inv_mul_eq_one₀' hyp
         convert this.symm
@@ -581,30 +582,12 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport �
     replace : (Measure.map Prod.fst μ).real {p.1} = 0 := by rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE1
     have hp : μ.real {p} = 0 := by contrapose! this; exact (h_fst_ne_zero p) this
     simp [hp, this]
-  intro hyp ⟨ p, hp ⟩
-  rw [H, or_iff_not_imp_left]
-  intro hw
-  show (w p)⁻¹ * (μ.real {p}) = 1
-  have : w p ≠ 0 := by exact hw
+  intro hyp ⟨ s, u ⟩ _ hw
+  rw [H]
+  show (w (s,u))⁻¹ * (μ.real {(s,u)}) = 1
+  have : w (s,u) ≠ 0 := by exact hw
   field_simp [this]
-  rw [hyp p]
-  have H2 : 0 = negMulLog (∑ s : S × U, w s * f s) := by simpa using congr_arg negMulLog H.symm
-  rw [← neg_eq_zero, ← neg_nonpos, H1, H2]
-  refine ⟨sum_negMulLog_le (fun _ _ ↦ hw1 ‹_›) hw2 fun _ _ ↦ hf ‹_›, ?_⟩
-  refine (sum_negMulLog_eq_iff' (fun _ _ ↦ hw1 ‹_›) hw2 fun _ _ ↦ hf ‹_›).trans $
-    forall_congr' fun p ↦ ?_
-  · have hp1 := h_fst_ne_zero p
-    have hp2 := h_snd_ne_zero p
-    rw [not_imp_not] at hp1 hp2
-    by_cases hp1' : (μ.map Prod.fst).real {p.1} = 0
-    · simp [hp1', hp1 hp1']
-    by_cases hp2' : (μ.map Prod.snd).real {p.2} = 0
-    · simp [hp2', hp2 hp2']
-    have hw : (w p)⁻¹ ≠ 0 := by positivity
-    rw [← mul_right_inj' hw]
-    simp (config := {zeta := false}) [H, -mul_eq_mul_left_iff, -Fintype.sum_prod_type]
-    congr!
-    field_simp
+  rw [hyp (s,u)]
 
 lemma measureMutualInfo_of_not_isFiniteMeasure {μ : Measure (S × U)} (h : ¬ IsFiniteMeasure μ) :
     Im[μ] = 0 := by
