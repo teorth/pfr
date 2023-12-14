@@ -112,7 +112,7 @@ lemma entropy_condKernel_le_entropy_snd {κ : kernel T (S × U)} [IsMarkovKernel
   exact mutualInfo_nonneg hμ hκ
 
 -- TODO: extract lemma(s) from this:
-lemma entropy_snd_sub_mutualInfo_le_entropy_map_of_injective {V : Type*} [Fintype V] [Nonempty V]
+lemma entropy_snd_sub_mutualInfo_le_entropy_map_of_injective {V : Type*} [Nonempty V] [Countable V]
     [MeasurableSpace V] [MeasurableSingletonClass V]
     (κ : kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
     (f : S × U → V) (hfi : ∀ x, Injective (fun y ↦ f (x, y))) (hμ : FiniteSupport μ) (hκ: FiniteKernelSupport κ) :
