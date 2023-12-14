@@ -30,8 +30,6 @@ variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
   [Countable T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
   [Countable U] [Nonempty U] [MeasurableSpace U] [MeasurableSingletonClass U]
 
-variable {κ : kernel T S} {μ : Measure T} {X : Ω → S} {Y : Ω → U}
-
 namespace kernel
 
 section condKernel
@@ -121,7 +119,6 @@ lemma condKernel_compProd_apply (κ : kernel T S) [IsFiniteKernel κ]
     condKernel (κ ⊗ₖ η) x = η x := by
   ext s hs
   convert condKernel_compProd_apply' κ η x hx hs
-  exact κ  -- why is this necessary?
 
 lemma condKernel_compProd_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η] (μ : Measure T) [IsFiniteMeasure μ]:
