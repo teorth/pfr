@@ -43,7 +43,7 @@ section dim
 
 open Classical TensorProduct
 
-variable {G : Type*} [AddCommGroup G] [Module ℤ G] [Module.Free ℤ G]
+variable {G : Type*} [AddCommGroup G] [Module ℤ G]
 
 /-- If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the span of $A-A$
   over the reals -- equivalently, the smallest $d'$ such that $A$ lies in a coset of a subgroup
@@ -54,6 +54,29 @@ noncomputable def dimension (A : Set G) : ℕ := Set.finrank ℝ
 lemma dimension_le_finset_card (A : Finset G) : dimension (A : Set G) ≤ A.card := by
   rw [dimension, Finset.coe_image.symm]
   apply le_trans (finrank_span_finset_le_card _) Finset.card_image_le
+
+proof_wanted dimension_ne_zero [Module.Free ℤ G] (A : Set G) (hA : A ≠ ⊥) : dimension A ≠ 0
+
+/- If G ≅ ℤᵈ then there is a subgroup H of G such that A lies in a coset of H. This is helpful to
+  give the equivalent definition of `dimension`. Here this is stated in greated generality since the
+  proof carries over automatically-/
+lemma exists_coset_cover (A : Set G) :
+  ∃ (d : ℕ), ∃ (S : Submodule ℤ G) (v : G), FiniteDimensional.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S := by
+  existsi FiniteDimensional.finrank ℤ (⊤ : Submodule ℤ G), ⊤, 0
+  refine ⟨rfl, fun a _ ↦ trivial⟩
+
+noncomputable def dimension' (A : Set G) : ℕ := Nat.find (exists_coset_cover A)
+
+lemma dimension'_le_of_coset_cover (A : Set G) (S : Submodule ℤ G) (v : G)
+  (hA : ∀ a ∈ A, a - v ∈ S) : dimension' A ≤ FiniteDimensional.finrank ℤ S := by
+  apply Nat.find_le
+  existsi S , v
+  exact ⟨rfl, hA⟩
+
+proof_wanted dimension_eq_dimension' [Module.Free ℤ G] [Module.Finite ℤ G] (A : Set G) : dimension A = dimension' A
+
+proof_wanted dimension_le_rank [Module.Finite ℤ G] (A : Set G) :
+  dimension A ≤ FiniteDimensional.finrank ℤ G
 
 end dim
 /-- If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
