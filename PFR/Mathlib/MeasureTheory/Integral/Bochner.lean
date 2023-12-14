@@ -39,7 +39,7 @@ lemma lintegral_eq_sum_finset' (μ : Measure α) [IsFiniteMeasure μ] [Measurabl
 lemma lintegral_eq_single  (μ : Measure α) [IsFiniteMeasure μ] [MeasurableSingletonClass α] (a : α) (f : α → ENNReal) (ha : ∀ b : α, b ≠ a → f b = 0) : ∫⁻ x, f x ∂μ = f a * μ {a} := by
   rw [<- lintegral_add_compl f (A := {a}) (MeasurableSet.singleton a), lintegral_singleton]
   convert add_zero _
-  rw [set_lintegral_congr_fun (g := fun x ↦ 0) (MeasurableSet.compl (MeasurableSet.singleton a))]
+  rw [set_lintegral_congr_fun (g := fun _ ↦ 0) (MeasurableSet.compl (MeasurableSet.singleton a))]
   . exact lintegral_zero
   apply ae_of_all
   intro b hb
