@@ -20,6 +20,20 @@ instance {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X where
 
 example {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X := by infer_instance
 
+/-- Functions ranging in a Finset have finite range -/
+lemma finiteRange_of_finset {Ω G : Type*} (f: Ω → G) (A : Finset G) (h : ∀ ω, f ω ∈ A) : FiniteRange f := by
+  constructor
+  apply Set.Finite.subset (Finset.finite_toSet A)
+  intro y hy
+  simp at hy
+  rcases hy with ⟨ω, rfl⟩
+  exact h ω
+
+/-- Constants have finite range -/
+instance {Ω G : Type*} (c : G) : FiniteRange (fun _ : Ω ↦ c) := by
+  apply finiteRange_of_finset _ { c }
+  simp
+
 /-- If X has finite range, then any function of X has finite range.  -/
 instance {Ω G H : Type*} (X : Ω → G) (f : G → H) [hX: FiniteRange X] : FiniteRange (f ∘ X) where
   finite := by

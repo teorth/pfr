@@ -203,6 +203,13 @@ lemma finiteSupport_of_compProd {μ : Measure T} [IsProbabilityMeasure μ] {κ :
   intro s
   simp; tauto
 
+lemma finiteKernelSupport_of_condEntropy (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) (hX: Measurable X) (hY: Measurable Y) [FiniteRange X] [FiniteRange Y] : FiniteKernelSupport (condEntropyKernel X Y μ):= by
+  apply finiteKernelSupport_of_comap _ (by measurability)
+  apply finiteKernelSupport_of_cond
+  apply finiteKernelSupport_of_const
+  apply finiteSupport_of_finiteRange
+  measurability
+
 lemma entropy_le_log_card (κ : kernel T S) (μ : Measure T) [Fintype S] [IsProbabilityMeasure μ] :
     Hk[κ, μ] ≤ log (Fintype.card S) := by
   refine (integral_mono_of_nonneg ?_ (integrable_const (log (Fintype.card S))) ?_).trans ?_
