@@ -850,6 +850,7 @@ lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measu
       simp
     exact mutualInfo_nonneg hX hY _
   simp
+  exact integrable_of_finiteSupport (finiteSupport_of_finiteRange hZ)
 
 /-- If $X, Y$ are conditionally independent over $Z$, then $H[X, Y, Z] = H[X, Z] + H[Y, Z] - H[Z]$. -/
 lemma ent_of_cond_indep (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)

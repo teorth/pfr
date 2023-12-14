@@ -106,6 +106,35 @@ lemma finiteSupport_of_prod  {μ : Measure S} (hμ : FiniteSupport μ) {ν: Meas
   rw [this]
   simp; tauto
 
+/-- The countability hypothesis can probably be dropped here. Proof is unwieldy and can probably be golfed. -/
+lemma integrable_of_finiteSupport {μ : Measure S} (hμ : FiniteSupport μ) {β : Type*} [NormedAddCommGroup β] [MeasurableSpace β] [IsFiniteMeasure μ] [Countable S] {f: S → β} : Integrable f μ := by
+  rcases hμ with ⟨ A, hA ⟩
+  by_cases hA' : A = ∅
+  . simp [hA'] at hA
+    rw [hA]
+    exact integrable_zero_measure
+  have : ∃ s₀, s₀ ∈ A := by
+    contrapose! hA'
+    ext s
+    simp
+    exact hA' s
+  rcases this with ⟨ s₀, hs₀ ⟩
+  let f' : A → β := fun a ↦ f a
+  classical
+  let g : S → A := fun s ↦ if h : s ∈ A then ⟨ s, h ⟩ else ⟨ s₀, hs₀ ⟩
+  have : (f' ∘ g) =ᶠ[MeasureTheory.Measure.ae μ] f := by
+    apply Filter.eventuallyEq_of_mem (s := A)
+    . unfold Measure.ae
+      simp [hA]
+    intro a ha
+    simp
+    congr
+    simp at ha
+    simp [ha]
+  apply Integrable.congr _ this
+  apply Integrable.comp_measurable (integrable_of_fintype _ _)
+  apply measurable_of_countable
+
 lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*} [MeasurableSingletonClass Ω] [NormedAddCommGroup G] [NormedSpace ℝ G] [CompleteSpace G] {f g : Ω → G} (hμ : FiniteSupport μ) [IsFiniteMeasure μ] (hfg : ∀ x, μ {x} ≠ 0 → f x = g x) : ∫ x, f x ∂μ = ∫ x, g x ∂μ := by
   rcases hμ with ⟨ A, hA ⟩
   rw [integral_eq_sum_finset' μ _ hA, integral_eq_sum_finset' μ _ hA]
