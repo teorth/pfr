@@ -189,6 +189,14 @@ lemma finiteKernelSupport_of_compProd {κ : kernel T S} [IsMarkovKernel κ] {η 
   refine measure_mono_null ?_ (hB (t, s) (by simp [hs]))
   intro u; simp; tauto
 
+/-- prodMkRight preserves finite kernel support. -/
+lemma finiteKernelSupport_of_prodMkRight {κ : kernel T S} [IsMarkovKernel κ] (hκ : FiniteKernelSupport κ) : FiniteKernelSupport (prodMkRight κ U) := by
+  exact finiteKernelSupport_of_comap hκ _
+
+/-- prodMkLeft preserves finite kernel support. -/
+lemma finiteKernelSupport_of_prodMkLeft {κ : kernel T S} [IsMarkovKernel κ] (hκ : FiniteKernelSupport κ) : FiniteKernelSupport (prodMkLeft U κ) := by
+  exact finiteKernelSupport_of_comap hκ _
+
 
 /-- Composing a finitely supported measure with a finitely supported kernel gives a finitely supported kernel. -/
 lemma finiteSupport_of_compProd {μ : Measure T} [IsProbabilityMeasure μ] {κ : kernel T S} [IsMarkovKernel κ] (hμ: FiniteSupport μ) (hκ: FiniteKernelSupport κ) : FiniteSupport (μ ⊗ₘ κ) := by

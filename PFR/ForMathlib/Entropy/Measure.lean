@@ -96,15 +96,23 @@ lemma finiteSupport_of_finiteRange {μ : Measure Ω}  {X : Ω → S} (hX: Measur
   use hX'.toFinset
   exact full_measure_of_finiteRange hX
 
-lemma finiteSupport_of_prod  {μ : Measure S} (hμ : FiniteSupport μ) {ν: Measure T} [SigmaFinite ν] (hν: FiniteSupport ν) : FiniteSupport (μ.prod ν) := by
-  rcases hμ with ⟨ A, hA ⟩
-  rcases hν with ⟨ B, hB ⟩
-  use A ×ˢ B
+lemma prod_of_full_measure_finSet {μ : Measure S} {ν: Measure T} [SigmaFinite ν] {A : Finset S} {B: Finset T} (hA: μ Aᶜ = 0) (hB: ν Bᶜ = 0) : (μ.prod ν) (A ×ˢ B : Finset (S × T))ᶜ = 0 := by
   have : ((A ×ˢ B : Finset (S × T)) : Set (S × T))ᶜ = ((A : Set S)ᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ (B : Set T)ᶜ) := by
     ext ⟨ s, t ⟩
     simp; tauto
   rw [this]
-  simp; tauto
+  simp [hA, hB]
+
+lemma full_measure_of_null_compl {μ : Measure S} {A : Finset S} (hA: μ Aᶜ = 0) : μ A = μ Set.univ := by
+  have := measure_add_measure_compl (μ := μ) (s := A) (by measurability)
+  simp [hA] at this
+  exact this
+
+lemma finiteSupport_of_prod  {μ : Measure S} (hμ : FiniteSupport μ) {ν: Measure T} [SigmaFinite ν] (hν: FiniteSupport ν) : FiniteSupport (μ.prod ν) := by
+  rcases hμ with ⟨ A, hA ⟩
+  rcases hν with ⟨ B, hB ⟩
+  use A ×ˢ B
+  exact prod_of_full_measure_finSet hA hB
 
 /-- The countability hypothesis can probably be dropped here. Proof is unwieldy and can probably be golfed. -/
 lemma integrable_of_finiteSupport {μ : Measure S} (hμ : FiniteSupport μ) {β : Type*} [NormedAddCommGroup β] [MeasurableSpace β] [IsFiniteMeasure μ] [Countable S] {f: S → β} : Integrable f μ := by
