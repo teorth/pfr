@@ -377,3 +377,49 @@ variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
   refine kernel.IndepFun.ae_eq' hfg ?_ ?_ <;>
     simp only [ae_dirac_eq, Filter.eventually_pure, kernel.const_apply]
   exacts [hf, hg]
+
+/-- The new Mathlib tool `Finset.eventuallyEq_iInter` will supersede this result. -/
+theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} (s: Finset ι) {E : ι → Set α} {F : ι → Set α}
+(h : ∀ i ∈ s, E i =ᶠ[l] F i) : ⋂ i ∈ s, E i =ᶠ[l] ⋂ i ∈ s, F i := by
+  unfold Filter.EventuallyEq Filter.Eventually at h ⊢
+  simp at h ⊢
+  rw [<-Filter.biInter_finset_mem] at h
+  apply Filter.mem_of_superset h
+  intro a ha
+  simp at ha ⊢
+  change a ∈ ⋂ i ∈ s, E i ↔ a ∈ ⋂ i ∈ s, F i
+  simp
+  change ∀ i ∈ s, a ∈ E i ↔ a ∈ F i at ha
+  exact ball_congr ha
+
+/-- TODO: a kernel version of this theorem-/
+theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}
+    {m : ∀ i, MeasurableSpace (β i)} {f g : ∀ i, Ω → β i}
+    (hf_Indep : iIndepFun m f μ) (hfg : ∀ i, f i =ᵐ[μ] g i) : iIndepFun m g μ := by
+  rw [iIndepFun_iff_iIndep, iIndep_iff] at hf_Indep ⊢
+  intro s E H
+  have (i : ι) : ∃ E' : Set Ω, i ∈ s → MeasurableSet[MeasurableSpace.comap (f i) (m i)] E' ∧ E' =ᵐ[μ] E i := by
+    by_cases hi: i ∈ s
+    . rcases H i hi with ⟨ F, mF, hFE ⟩
+      use (f i)⁻¹' F
+      simp [hi]
+      constructor
+      . use F
+      rw [<-hFE]
+      exact Filter.EventuallyEq.preimage (hfg i) F
+    use ∅
+    tauto
+  classical
+  rcases Classical.axiomOfChoice this with ⟨E', hE'⟩
+  have hE'' : ∀ i ∈ s, MeasurableSet[MeasurableSpace.comap (f i) (m i)] (E' i) := by
+    intro i hi; exact (hE' i hi).1
+  have hE''' : ∀ i ∈ s, E' i =ᵐ[μ] E i := by
+    intro i hi; exact (hE' i hi).2
+  convert hf_Indep s hE'' using 1 with i
+  . apply measure_congr
+    apply EventuallyEq.finite_iInter
+    intro i hi
+    exact (hE''' i hi).symm
+  apply Finset.prod_congr rfl
+  intro i hi
+  exact measure_congr (hE''' i hi).symm

@@ -500,7 +500,7 @@ lemma condEntropyKernel_eq_condDistrib [TopologicalSpace S] [DiscreteTopology S]
 
 section Independence
 
-variable {V : Type*} [Fintype V] [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V]
+variable {V : Type*} [Countable V] [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V]
   {W : Ω → V}
 
 lemma condEntropyKernel_eq_prod_of_indepFun

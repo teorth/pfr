@@ -49,6 +49,12 @@ instance {Ω G H : Type*} (X : Ω → G) (f : G → H) [hX: FiniteRange X] : Fin
     rw [Set.range_comp f X]
     exact Set.Finite.image f hX.finite
 
+/-- If X has finite range, then X of any function has finite range.  -/
+instance {Ω Ω' G : Type*} (X : Ω → G) (f : Ω' → Ω) [hX: FiniteRange X] : FiniteRange (X ∘ f) := by
+  apply finiteRange_of_finset _ (FiniteRange.toFinset X)
+  intro ω
+  exact FiniteRange.mem X (f ω)
+
 /-- If X, Y have finite range, then so does the pair ⟨X, Y⟩. -/
 instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY: FiniteRange Y]: FiniteRange (⟨X, Y⟩) where
   finite := by

@@ -18,7 +18,7 @@ section entropy
 
 @[to_additive (attr := simp)]
 lemma entropy_mul_const (hX : Measurable X) (c : G) :
-    H[(X · * c) ; μ] = H[X ; μ] := by
+    H[X * fun _ ↦ c; μ] = H[X ; μ] := by
   apply entropy_comp_of_injective μ hX _ $ mul_left_injective c
 
 /-- $H[X, X * Y] = H[X, Y]$ -/
