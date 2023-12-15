@@ -5,6 +5,7 @@ import PFR.ForMathlib.Elementary
 import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.Mathlib.Algebra.Group.Hom.Basic
 import PFR.Mathlib.Probability.IdentDistrib
+import PFR.Mathlib.Algebra.BigOperators.Basic
 
 /-!
 # Ruzsa distance
