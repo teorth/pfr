@@ -29,6 +29,15 @@ lemma finiteRange_of_finset {Ω G : Type*} (f: Ω → G) (A : Finset G) (h : ∀
   rcases hy with ⟨ω, rfl⟩
   exact h ω
 
+lemma FiniteRange.range {Ω G : Type*} (X : Ω → G) [hX: FiniteRange X] : Set.range X = FiniteRange.toFinset X := by
+  simp [FiniteRange.toFinset]
+  have := hX.fintype
+  convert (Set.coe_toFinset _).symm
+
+lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) : X ω ∈ FiniteRange.toFinset X := by
+  rw [<-Finset.mem_coe, <-FiniteRange.range X]
+  simp
+
 /-- Constants have finite range -/
 instance {Ω G : Type*} (c : G) : FiniteRange (fun _ : Ω ↦ c) := by
   apply finiteRange_of_finset _ { c }

@@ -36,11 +36,11 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
   [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
   [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
-  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G]
-  [Fintype S] [Nonempty S] [MeasurableSpace S]
-  [Fintype T] [Nonempty T] [MeasurableSpace T]
+  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G]
+  [Countable S] [Nonempty S] [MeasurableSpace S]
+  [Countable T] [Nonempty T] [MeasurableSpace T]
 
-variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
+variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
 /-- The Ruzsa distance `rdist X Y` or $d[X ;Y]$ between two random variables is defined as
 $H[X'- Y'] - H[X']/2 - H[Y']/2$, where $X', Y'$ are independent copies of $X, Y$. -/
@@ -55,7 +55,7 @@ def rdist (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
 @[inherit_doc rdist] notation3:max "d[" X " # " Y "]" => rdist X Y volume volume
 
 /-- Explicit formula for the Ruzsa distance. -/
-lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') :
+lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure Ω') [FiniteRange X] [FiniteRange Y] :
     d[X ; μ # Y ; μ']
       = H[fun x ↦ x.1 - x.2 ; (μ.map X).prod (μ'.map Y)] - H[X ; μ]/2 - H[Y ; μ']/2 := rfl
 
@@ -64,20 +64,22 @@ lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure 
 lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Fintype Ω]
     [TopologicalSpace Ω] [DiscreteTopology Ω] [MeasurableSpace Ω] [OpensMeasurableSpace Ω] :
     Continuous (fun (μ : ProbabilityMeasure Ω) ↦ measureEntropy (S := Ω) μ) := by
+  unfold measureEntropy
+  simp_rw [tsum_fintype]
   apply continuous_finset_sum
   intro ω _
   apply Real.continuous_negMulLog.comp
   simp only [measure_univ, inv_one, one_smul]
   exact continuous_probabilityMeasure_apply_of_isClopen (s := {ω}) ⟨isOpen_discrete _, T1Space.t1 _⟩
 
-lemma continuous_entropy_restrict_probabilityMeasure
+lemma continuous_entropy_restrict_probabilityMeasure [Fintype G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
     Continuous (fun (μ : ProbabilityMeasure G) ↦ H[id ; μ.toMeasure]) := by
   simp only [entropy_def, Measure.map_id]
   exact continuous_measureEntropy_probabilityMeasure
 
 /-- Ruzsa distance depends continuously on the measure. -/
-lemma continuous_rdist_restrict_probabilityMeasure
+lemma continuous_rdist_restrict_probabilityMeasure [Fintype G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
     Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦
@@ -100,7 +102,7 @@ lemma continuous_rdist_restrict_probabilityMeasure
     simp [entropy_def]
   continuity
 
-lemma continuous_rdist_restrict_probabilityMeasure₁
+lemma continuous_rdist_restrict_probabilityMeasure₁ [Fintype G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
     (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
     Continuous
@@ -113,13 +115,13 @@ lemma continuous_rdist_restrict_probabilityMeasure₁
   convert continuous_rdist_restrict_probabilityMeasure.comp ι_cont
 
 /-- Ruzsa distance between random variables equals Ruzsa distance between their distributions.-/
-lemma rdist_eq_rdist_id_map : d[X ; μ # Y ; μ'] = d[id ; μ.map X # id ; μ'.map Y] := by
+lemma rdist_eq_rdist_id_map [Fintype G] : d[X ; μ # Y ; μ'] = d[id ; μ.map X # id ; μ'.map Y] := by
   simp only [rdist_def, entropy_def, Measure.map_id]
 
 /-- Ruzsa distance depends continuously on the second measure. -/
-lemma continuous_rdist_restrict_probabilityMeasure₁'
+lemma continuous_rdist_restrict_probabilityMeasure₁' [Fintype G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
-    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
+    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) [FiniteRange X]:
     Continuous
       (fun (μ : ProbabilityMeasure G) ↦ d[X ; P # id ; μ.toMeasure]) := by
   simp only [@rdist_eq_rdist_id_map Ω G G mΩ P hG, Measure.map_id]
@@ -127,14 +129,14 @@ lemma continuous_rdist_restrict_probabilityMeasure₁'
 
 /-- If $X', Y'$ are copies of $X, Y$ respectively then $d[X' ; Y']=d[X ; Y]$. -/
 lemma ProbabilityTheory.IdentDistrib.rdist_eq {X' : Ω'' → G} {Y' : Ω''' →G}
-    (hX : IdentDistrib X X' μ μ'') (hY : IdentDistrib Y Y' μ' μ''') :
+    (hX : IdentDistrib X X' μ μ'') (hY : IdentDistrib Y Y' μ' μ''') [FiniteRange X'] [FiniteRange Y']:
     d[X ; μ # Y ; μ'] = d[X' ; μ'' # Y' ; μ'''] := by
   simp [rdist, hX.map_eq, hY.map_eq, hX.entropy_eq, hY.entropy_eq]
 
 /-- If $X, Y$ are independent $G$-random variables then
 $$ d[X ; Y] := H[X - Y] - H[X]/2 - H[Y]/2$$-/
 lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
-    {Y : Ω → G} (h : IndepFun X Y μ) (hX : Measurable X) (hY : Measurable Y) :
+    {Y : Ω → G} (h : IndepFun X Y μ) (hX : Measurable X) (hY : Measurable Y) [FiniteRange Y]:
     d[X ; μ # Y ; μ] = H[X - Y ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
   rw [rdist_def]
   congr 2
@@ -167,14 +169,14 @@ lemma diff_ent_le_rdist [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- $$H[X - Y] - H[X] \leq 2d[X ; Y]$$ -/
 lemma diff_ent_le_rdist' [IsProbabilityMeasure μ] {Y : Ω → G}
-    (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ):
+    (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ) [FiniteRange Y]:
     H[X - Y ; μ] - H[X ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by
   rw [h.rdist_eq hX hY]
   linarith[max_entropy_le_entropy_sub hX hY h, le_max_right H[X ; μ] H[Y; μ]]
 
 /-- $$H[X - Y] - H[Y] \leq 2d[X ; Y]$$ -/
 lemma diff_ent_le_rdist'' [IsProbabilityMeasure μ] {Y : Ω → G}
-    (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ) :
+    (hX : Measurable X) (hY : Measurable Y) (h : IndepFun X Y μ) [FiniteRange Y]:
     H[X - Y ; μ] - H[Y ; μ] ≤ 2 * d[X ; μ # Y ; μ] := by
   rw [h.rdist_eq hX hY]
   linarith[max_entropy_le_entropy_sub hX hY h, le_max_left H[X ; μ] H[Y; μ]]
@@ -202,7 +204,7 @@ lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 /-- The **improved entropic Ruzsa triangle inequality**. -/
 lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    (h : IndepFun (⟨X, Y⟩) Z μ) [IsProbabilityMeasure μ] :
+    (h : IndepFun (⟨X, Y⟩) Z μ) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z]:
     H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ] := by
   have h1 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] + H[X - Y; μ] ≤ H[⟨X - Z, X - Y⟩; μ] + H[⟨Y, X - Y⟩; μ] :=
     entropy_triple_add_entropy_le μ (hX.sub hZ) hY (hX.sub hY)
@@ -238,7 +240,7 @@ lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
 /-- The **entropic Ruzsa triangle inequality** -/
 lemma rdist_triangle {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
   (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-  [hμ : IsProbabilityMeasure μ] [hμ' : IsProbabilityMeasure μ'] [hμ'' : IsProbabilityMeasure μ''] :
+  [hμ : IsProbabilityMeasure μ] [hμ' : IsProbabilityMeasure μ'] [hμ'' : IsProbabilityMeasure μ''] [FiniteRange X] [FiniteRange Y] [FiniteRange Z]:
     d[X ; μ # Z ; μ''] ≤ d[X ; μ # Y ; μ'] + d[Y ; μ' # Z ; μ''] := by
   obtain ⟨A, mA, μA, X', Y', Z', hμA, hInd, hX', hY', hZ', H⟩ :=
     independent_copies3_nondep hX hY hZ μ μ' μ''
@@ -274,14 +276,14 @@ notation3:max "d[" X " | " Z " ; " μ " # " Y " | " W " ; " μ'"]" => condRuzsaD
 notation3:max "d[" X " | " Z " # " Y " | " W "]" => condRuzsaDist X Z Y W volume volume
 
 lemma condRuzsaDist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
-    (μ : Measure Ω) (μ' : Measure Ω') :
+    (μ : Measure Ω) (μ' : Measure Ω') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange W]:
     d[X | Z ; μ # Y | W ; μ']
       = dk[condEntropyKernel X Z μ ; μ.map Z # condEntropyKernel Y W μ' ; μ'.map W] := rfl
 
 /-- $$ d[X|Z; Y|W] = d[Y|W; X|Z]$$-/
 lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange W]:
     d[X | Z ; μ # Y | W ; μ'] = d[Y | W ; μ' # X | Z ; μ] := by
   have := isMarkovKernel_condEntropyKernel hX hZ μ
   have := isMarkovKernel_condEntropyKernel hY hW μ'
@@ -295,7 +297,7 @@ lemma rdist_eq_rdistm : d[X ; μ # Y ; μ'] = kernel.rdistm (μ.map X) (μ'.map 
 /-- Explicit formula for conditional Ruzsa distance $d[X|Z; Y|W]$. -/
 lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
-    (μ : Measure Ω) [IsFiniteMeasure μ] (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+    (μ : Measure Ω) [IsFiniteMeasure μ] (μ' : Measure Ω') [IsFiniteMeasure μ'] [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange W] :
     d[X | Z ; μ # Y | W ; μ']
       = ∑ z, ∑ w, (μ (Z ⁻¹' {z})).toReal * (μ' (W ⁻¹' {w})).toReal
         * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
@@ -329,14 +331,14 @@ notation3:max "d[" X " ; " μ " # " Y " | " W " ; " μ' "]" => condRuzsaDist' X 
 notation3:max "d[" X " # " Y " | " W "]" => condRuzsaDist' X Y W volume volume
 
 /-- Conditional Ruzsa distance equals Ruzsa distance of associated kernels. -/
-lemma condRuzsaDist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) (μ' : Measure Ω') :
+lemma condRuzsaDist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) (μ' : Measure Ω') [FiniteRange X] [FiniteRange Y] [FiniteRange W]:
     d[X ; μ # Y | W ; μ'] =
       dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] :=
   rfl
 
 /-- Explicit formula for conditional Ruzsa distance $d[X ; Y|W]$. -/
 lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
-    (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+    (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] [FiniteRange X] [FiniteRange Y] [FiniteRange W] :
     d[X ; μ # Y | W ; μ']
       = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
   rw [condRuzsaDist'_def, kernel.rdist, integral_eq_sum]
@@ -357,7 +359,7 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
 /-- Explicit formula for conditional Ruzsa distance $d[X ; Y|W]$, in integral form. -/
 lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
     (hY : Measurable Y) (hW : Measurable W)
-    (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+    (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] [FiniteRange X] [FiniteRange Y] [FiniteRange W] :
     d[X ; μ # Y | W ; μ']
       = (μ'.map W)[fun w ↦ d[X ; μ # Y ; (μ'[|W ← w])]] := by
   rw [condRuzsaDist'_eq_sum hY hW]
@@ -367,7 +369,7 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
 
 /-- Conditioning by a constant does not affect Ruzsa distance. -/
 lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) (W : Ω' → T) (c : S)
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [FiniteRange X] [FiniteRange Y] [FiniteRange W] :
     d[X|(fun _ ↦ c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
   have hcX : Measurable (fun ω => (c, X ω)) := by simp [measurable_prod, hX]
   have hc : MeasurableSet (Prod.fst ⁻¹' {c} : Set (S × G)) := measurable_fst (by simp)
@@ -391,7 +393,7 @@ lemma condRuzsaDist_of_indep
     {X : Ω → G} {Z : Ω → S} {Y : Ω → G} {W : Ω → T}
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
     (μ : Measure Ω) [IsProbabilityMeasure μ]
-    (h : IndepFun (⟨X, Z⟩) (⟨Y, W⟩) μ) :
+    (h : IndepFun (⟨X, Z⟩) (⟨Y, W⟩) μ) [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange W] :
     d[X | Z ; μ # Y | W ; μ] = H[X - Y | ⟨Z, W⟩ ; μ] - H[X | Z ; μ]/2 - H[Y | W ; μ]/2 := by
   have : IsMarkovKernel (condEntropyKernel X Z μ) := isMarkovKernel_condEntropyKernel hX hZ μ
   have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
@@ -423,7 +425,7 @@ lemma condRuzsaDist_of_indep
 lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W)
     (μ : Measure Ω) [IsProbabilityMeasure μ]
-    (h : IndepFun X (⟨Y, W⟩) μ) :
+    (h : IndepFun X (⟨Y, W⟩) μ) [FiniteRange X] [FiniteRange Y] [FiniteRange W] :
     d[X ; μ # Y | W ; μ] = H[X - Y | W ; μ] - H[X ; μ]/2 - H[Y | W ; μ]/2 := by
   have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
   have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
@@ -489,7 +491,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
     {X' : Ω'' → G} (hX' : Measurable X') {Z' : Ω'' → S} (hZ' : Measurable Z')
     {Y' : Ω''' → G} (hY' : Measurable Y') {W' : Ω''' → T} (hW' : Measurable W')
     [IsFiniteMeasure μ] [IsFiniteMeasure μ'] [IsFiniteMeasure μ''] [IsFiniteMeasure μ''']
-    (h1 : IdentDistrib (⟨X, Z⟩) (⟨X', Z'⟩) μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
+    (h1 : IdentDistrib (⟨X, Z⟩) (⟨X', Z'⟩) μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange W] [FiniteRange X'] [FiniteRange Z'] [FiniteRange Y'] [FiniteRange W'] :
     d[X | Z ; μ # Y | W ; μ'] = d[X' | Z' ; μ'' # Y' | W' ; μ'''] := by
   rw [condRuzsaDist_def, condRuzsaDist_def, kernel.rdist, kernel.rdist, integral_eq_sum,
     integral_eq_sum]
@@ -539,7 +541,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     {W : Ω' → T} (hW : Measurable W)
     (X' : Ω'' → G) {Y' : Ω''' → G} (hY' : Measurable Y') {W' : Ω''' → T} (hW' : Measurable W')
     [IsFiniteMeasure μ'] [IsFiniteMeasure μ''']
-    (h1 : IdentDistrib X X' μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') :
+    (h1 : IdentDistrib X X' μ μ'') (h2 : IdentDistrib (⟨Y, W⟩) (⟨Y', W'⟩) μ' μ''') [FiniteRange X] [FiniteRange Y] [FiniteRange W] [FiniteRange X'] [FiniteRange Y'] [FiniteRange W'] :
     d[X ; μ # Y | W ; μ'] = d[X' ; μ'' # Y' | W' ; μ'''] := by
   rw [condRuzsaDist'_def, condRuzsaDist'_def, kernel.rdist, kernel.rdist, integral_eq_sum,
     integral_eq_sum]
@@ -567,11 +569,11 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
-lemma condRuzsaDist_of_inj_map {G' : Type*} [Fintype G'] [AddCommGroup G']
+lemma condRuzsaDist_of_inj_map {G' : Type*} [Countable G'] [AddCommGroup G']
   [MeasurableSpace G'] [MeasurableSingletonClass G'] [IsProbabilityMeasure μ]
   (Y : Fin 4 → Ω → G) (h_indep : IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) μ)
   (h_meas : ∀ i, Measurable (Y i)) (π : G × G →+ G')
-  (hπ : ∀ (h : G), Function.Injective (fun g ↦ π (g, h))) :
+  (hπ : ∀ (h : G), Function.Injective (fun g ↦ π (g, h))) [FiniteRange (Y 0)] [FiniteRange (Y 1)] [FiniteRange (Y 2)] [FiniteRange (Y 3)] :
     d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] = d[Y 0 | Y 2 ; μ # Y 1 | Y 3 ; μ] := by
   let f (h : G) (g : G) : G' := π (g, h)
   let f' : G × G → G → G' := fun (h1, h2) ↦ fun g ↦ π (g, h1 - h2)
@@ -592,7 +594,7 @@ lemma condRuzsaDist_of_inj_map {G' : Type*} [Fintype G'] [AddCommGroup G']
 lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCommGroup G 2]
   {X B C : Ω → G}
     (hX : Measurable X) (hB : Measurable B) (hC : Measurable C)
-    (h_indep : IndepFun X (⟨B, C⟩) μ) :
+    (h_indep : IndepFun X (⟨B, C⟩) μ) [FiniteRange X] [FiniteRange B] [FiniteRange C] :
     d[X ; μ # B | B + C ; μ] = d[X ; μ # C | B + C ; μ] := by
   let π : G × G →+ G :=
   { toFun := fun x ↦ x.2 - x.1
@@ -634,7 +636,7 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
 
 lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'']
   {A : Ω'' → G} {B C : Ω → G} (hA : Measurable A) (hB : Measurable B)
-  (hC : Measurable C) : d[A ; μ'' # B | B + C ; μ] = d[A ; μ'' # C | B + C ; μ] := by
+  (hC : Measurable C) [FiniteRange A] [FiniteRange B] [FiniteRange C]  : d[A ; μ'' # B | B + C ; μ] = d[A ; μ'' # C | B + C ; μ] := by
   -- we want to apply `condRuzsaDist'_of_inj_map'`, but for that all variables need to be in the same
   -- probability space
   let Ω' := Ω'' × Ω
@@ -692,7 +694,7 @@ lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabili
 
 /-- The **Kaimanovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+ Z] - H[Y]$$ -/
 lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ] :
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     H[X + Y + Z ; μ] - H[X + Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
   suffices : (H[X ; μ] + H[Y ; μ] + H[Z ; μ]) + H[X + Y + Z ; μ]
     ≤ (H[X ; μ] + H[Y + Z ; μ]) + (H[Z ; μ] + H[X + Y ; μ])
@@ -723,7 +725,7 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
 
 /-- A version of the **Kaimanovich-Vershik inequality** with some variables negated. -/
 lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ] :
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     H[X - (Y + Z) ; μ] - H[X - Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
   rw [← entropy_neg (hY.add' hZ), ← entropy_neg hY]
   simp_rw [sub_eq_add_neg, neg_add, ← add_assoc]
@@ -740,7 +742,7 @@ section BalogSzemerediGowers
 /-- The **entropic Balog-Szemerédi-Gowers inequality**. Let $A, B$ be $G$-valued random variables on
 $\Omega$, and set $Z := A+B$. Then
 $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]. $$ -/
-lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB : Measurable B) :
+lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB : Measurable B) [FiniteRange A] [FiniteRange B] :
     (μ.map (A + B))[fun z ↦ d[A ; μ[|(A + B) ⁻¹' {z}] # B ; μ[|(A + B) ⁻¹' {z}]]]
       ≤ 3 * I[A : B; μ] + 2 * H[A + B ; μ] - H[A ; μ] - H[B ; μ] := by
   let Z := A + B
@@ -864,7 +866,7 @@ variable (μ μ') in
 group. Then $$d[X | Z ; Y | W] \leq d[X ; Y] + \tfrac{1}{2} I[X : Z] + \tfrac{1}{2} I[Y : W]$$ -/
 lemma condRuzsaDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Nonempty S]
-    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W) :
+    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W) [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange W] :
       d[X | Z ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[X : Z ; μ]/2 + I[Y : W ; μ']/2 := by
   have hXZ : Measurable (⟨X, Z⟩ : Ω → G × S):= Measurable.prod_mk hX hZ
   have hYW : Measurable (⟨Y, W⟩ : Ω' → G × T):= Measurable.prod_mk hY hW
@@ -891,9 +893,9 @@ lemma condRuzsaDist_le [Fintype S] [Fintype T] {X : Ω → G} {Z : Ω → S} {Y 
   linarith [h, entropy_nonneg Z' ν, entropy_nonneg W' ν]
 
 variable (μ μ') in
-lemma condRuzsaDist_le' [Fintype T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
+lemma condRuzsaDist_le' {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
-    (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) :
+    (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) [FiniteRange X] [FiniteRange Y] [FiniteRange W] :
     d[X ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[Y : W ; μ']/2 := by
   rw [← condRuzsaDist_of_const hX _ _ (0 : Fin 1)]
   refine' (condRuzsaDist_le μ μ' hX measurable_const hY hW).trans _
@@ -902,7 +904,7 @@ lemma condRuzsaDist_le' [Fintype T] {X : Ω → G} {Y : Ω' → G} {W : Ω' → 
 variable (μ) in
 lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     d[X ; μ # Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y + Z; μ'] - H[Y; μ']) / 2 ∧
     (ElementaryAddCommGroup G 2 →
       H[Y + Z; μ'] - H[Y; μ'] = d[Y; μ' # Z; μ'] + H[Z; μ'] / 2 - H[Y; μ'] / 2) := by
@@ -937,21 +939,21 @@ $$= \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Y] - \tfrac{1}{4} H[Z]$$
 -/
 lemma condRuzsaDist_diff_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     d[X ; μ # Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y + Z; μ'] - H[Y; μ']) / 2 :=
   (comparison_of_ruzsa_distances μ hX hY hZ h).1
 
 variable (μ) [ElementaryAddCommGroup G 2] in
 lemma entropy_sub_entropy_eq_condRuzsaDist_add [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     H[Y + Z; μ'] - H[Y; μ'] = d[Y; μ' # Z; μ'] + H[Z; μ'] / 2 - H[Y; μ'] / 2 :=
   (comparison_of_ruzsa_distances μ hX hY hZ h).2 ‹_›
 
 variable (μ) [ElementaryAddCommGroup G 2] in
 lemma condRuzsaDist_diff_le' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     d[X ; μ # Y + Z; μ'] - d[X ; μ # Y; μ'] ≤
     d[Y; μ' # Z; μ'] / 2 + H[Z; μ'] / 4 - H[Y; μ'] / 4 := by
   linarith [condRuzsaDist_diff_le μ hX hY hZ h, entropy_sub_entropy_eq_condRuzsaDist_add μ hX hY hZ h]
@@ -959,7 +961,7 @@ lemma condRuzsaDist_diff_le' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'
 variable (μ) in
 lemma condRuzsaDist_diff_le'' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     d[X ; μ # Y|Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y+ Z ; μ'] - H[Z ; μ'])/2 := by
   rw [← mutualInfo_add_right hY hZ h]
   linarith [condRuzsaDist_le' μ μ' hX hY (hY.add' hZ)]
@@ -967,7 +969,7 @@ lemma condRuzsaDist_diff_le'' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ
 variable (μ) [ElementaryAddCommGroup G 2] in
 lemma condRuzsaDist_diff_le''' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') :
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     d[X ; μ # Y|Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤
     d[Y ; μ' # Z ; μ']/2 + H[Y ; μ']/4 - H[Z ; μ']/4 := by
   linarith [condRuzsaDist_diff_le'' μ hX hY hZ h, entropy_sub_entropy_eq_condRuzsaDist_add μ hX hY hZ h]
@@ -976,7 +978,7 @@ variable (μ) in
 lemma condRuzsaDist_diff_ofsum_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y Z Z' : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (hZ' : Measurable Z')
-    (h : iIndepFun (fun _ ↦ hG) ![Y, Z, Z'] μ') :
+    (h : iIndepFun (fun _ ↦ hG) ![Y, Z, Z'] μ') [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange Z']:
     d[X ; μ # Y+ Z | Y + Z + Z'; μ'] - d[X ; μ # Y; μ'] ≤
     (H[Y + Z + Z'; μ'] + H[Y + Z; μ'] - H[Y ; μ'] - H[Z' ; μ'])/2 := by
   have hadd : IndepFun (Y + Z) Z' μ' :=

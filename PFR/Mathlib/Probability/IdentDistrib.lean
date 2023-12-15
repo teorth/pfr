@@ -5,6 +5,7 @@ import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
 import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.Independence.Basic
+import PFR.ForMathlib.FiniteRange
 
 -- TODO: Change `ae_snd` to assume `Measurable p`
 
@@ -315,6 +316,50 @@ lemma independent_copies4_nondep {α : Type u}
     (hX' 2).2.trans ((identDistrib_ulift_self hX₃).symm),
     (hX' 3).2.trans ((identDistrib_ulift_self hX₄).symm)⟩
   convert hi; ext i; fin_cases i <;> rfl
+
+/-- If `X` has identical distribution to `X₀`, and `X₀` has finite range, then `X` is almost everywhere equivalent to a random variable of finite range. -/
+lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω₀] [MeasurableSingletonClass Ω] [MeasurableSingletonClass Ω₀] [MeasurableSpace S] [MeasurableSingletonClass S] [hS: Nonempty S] {μ: Measure Ω} {μ₀: Measure Ω₀} {X₀: Ω₀ → S} [FiniteRange X₀] {X : Ω → S} (hX: Measurable X) (hi : IdentDistrib X₀ X μ₀ μ) : ∃ X' : Ω → S, Measurable X' ∧ FiniteRange X' ∧ X' =ᵐ[μ] X := by
+  set A := FiniteRange.toFinset X₀
+  classical
+  let X' (ω : Ω) : S := if (X ω ∈ A) then X ω else hS.some
+  use X'
+  constructor
+  . exact Measurable.ite (MeasurableSet.preimage (Finset.measurableSet A) hX) hX measurable_const
+  constructor
+  . apply finiteRange_of_finset X' (A ∪ {hS.some})
+    intro ω
+    simp
+    by_cases h: X ω ∈ A
+    . left; simp [h]
+    right; simp [h]
+  apply Filter.eventuallyEq_of_mem (s := X ⁻¹' A)
+  . simp [ae]
+    rw [<- Set.preimage_compl, <- IdentDistrib.measure_preimage_eq hi]
+    . convert measure_empty
+      ext ω
+      simp
+      apply FiniteRange.mem
+    measurability
+  intro ω
+  simp; tauto
+
+/-- A version of `independent_copies` that guarantees that the copies have `FiniteRange` if the origina variables do. -/
+lemma independent_copies_finiteRange {X : Ω → α} {Y : Ω' → β} (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y] [MeasurableSingletonClass Ω] [MeasurableSingletonClass Ω']  [MeasurableSingletonClass α] [Nonempty α] [MeasurableSingletonClass β] [Nonempty β]
+    (μ : Measure Ω) (μ' : Measure Ω') [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    ∃ ν : Measure (α × β), ∃ X' : α × β → α, ∃
+    Y' : α × β → β, IsProbabilityMeasure ν
+      ∧ Measurable X' ∧ Measurable Y' ∧ IndepFun X' Y' ν
+      ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' ∧ FiniteRange X' ∧ FiniteRange Y'  := by
+  obtain ⟨ν, X', Y', hν, hX', hY', hind, hIdX, hIdY⟩ := independent_copies hX hY μ μ'
+  rcases identDistrib_of_finiteRange hX' hIdX.symm with ⟨X'', hX'', hX''_finite, hX''_eq⟩
+  rcases identDistrib_of_finiteRange hY' hIdY.symm with ⟨Y'', hY'', hY''_finite, hY''_eq⟩
+  use ν, X'', Y''
+  refine ⟨ hν, hX'', hY'', ?_, ?_, ?_, hX''_finite, hY''_finite ⟩
+  . exact IndepFun.ae_eq' hind hX''_eq.symm hY''_eq.symm
+  . convert IdentDistrib.trans _ hIdX
+    exact IdentDistrib.of_ae_eq (Measurable.aemeasurable hX'') hX''_eq
+  . convert IdentDistrib.trans _ hIdY
+    exact IdentDistrib.of_ae_eq (Measurable.aemeasurable hY'') hY''_eq
 
 end IdentDistrib
 end ProbabilityTheory

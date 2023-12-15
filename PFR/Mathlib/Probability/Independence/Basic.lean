@@ -367,3 +367,13 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
     exact Sigma.subtype_ext (not_ne_iff.mp ((@hS x.fst y.fst).mt this)) hxy
   let m (i : ι') (j : ST i) : MeasurableSpace (α j) := n j
   exact iIndepFun.pi' (m := m) (hf ∘' g) (h.reindex_of_injective g hg)
+
+
+variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
+
+/-- Improved version of `IndepFun.ae_eq` in which the ranges are allowed to be distinct. Perhaps can serve as a replacement of that method? -/
+  theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}  {g g' : Ω → β'} (hfg : IndepFun f g μ)
+    (hf : f =ᵐ[μ] f') (hg : g =ᵐ[μ] g') : IndepFun f' g' μ := by
+  refine kernel.IndepFun.ae_eq' hfg ?_ ?_ <;>
+    simp only [ae_dirac_eq, Filter.eventually_pure, kernel.const_apply]
+  exacts [hf, hg]
