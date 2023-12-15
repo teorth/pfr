@@ -448,6 +448,15 @@ lemma chain_rule'' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable 
     H[X | Y ; μ] = H[⟨X, Y⟩ ; μ] - H[Y ; μ] := by
   rw [chain_rule μ hX hY, add_sub_cancel']
 
+/-- Two pairs of variables that have the same joint distribution, have the same
+conditional entropy. -/
+lemma IdentDistrib.condEntropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {X Y : Ω → S}
+    {μ' : Measure Ω'} {X' Y' : Ω' → S} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+    (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y')
+    (h : IdentDistrib (⟨X, Y⟩) (⟨X', Y'⟩) μ μ') : H[X | Y ; μ] = H[X' | Y' ; μ'] := by
+  have : IdentDistrib Y Y' μ μ' := h.comp measurable_snd
+  rw [chain_rule'' _ hX hY, chain_rule'' _ hX' hY', h.entropy_eq, this.entropy_eq]
+
 /-- If $X : \Omega \to S$ and $Y : \Omega \to T$ are random variables, and $f : T \to U$ is an injection then $H[X|f(Y)] = H[X|Y]$.
  -/
 lemma condEntropy_of_injective' [MeasurableSingletonClass S] (μ : Measure Ω) [IsProbabilityMeasure μ]
@@ -675,6 +684,13 @@ lemma condMutualInfo_eq_kernel_mutualInfo
 
 lemma condMutualInfo_eq_integral_mutualInfo :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[| Z ⁻¹' {z}]]] := rfl
+
+lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) :
+    I[X : Y | Z ; μ] = ∑ z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
+  rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum]
+  congr 1 with z
+  rw [map_apply hZ (MeasurableSet.singleton z)]
+  rfl
 
 /-- $I[X : Y | Z] = I[Y : X | Z]$. -/
 lemma condMutualInfo_comm

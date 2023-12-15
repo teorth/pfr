@@ -180,6 +180,25 @@ $$
 and the claim follows.
 \end{proof}
 
+\begin{lemma}\label{second-estimate-aux}\lean{second_estimate_aux}\leanok
+We have
+\[d[X_1;X_1] + d[X_2;X_2] \leq 2 k + \frac{2(2 \eta k - I_1)}{1-\eta}. \]
+\end{lemma}
+\begin{proof}
+\uses{ruz-indep, foursum-bound, dist-sums}\leanok
+We may use Lemma \ref{ruz-indep} to expand
+  \begin{align*}
+   & d[X_1+\tilde X_1;X_2+\tilde X_2] \\ &= \bbH[X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} \bbH[X_1+\tilde X_1] - \tfrac{1}{2} \bbH[X_2+\tilde X_2] \\
+    &= \bbH[X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} \bbH[X_1] - \tfrac{1}{2} \bbH[X_2]  \\ & \qquad\qquad\qquad   - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2; X_2] \right),
+  \end{align*}
+  and hence by Lemma \ref{foursum-bound}
+  \[
+    d[X_1+\tilde X_1; X_2+\tilde X_2] \leq (2+\eta) k - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2;X_2] \right) - I_1.
+  \]
+  Combining this bound with Lemma \ref{dist-sums} we obtain
+  the result.
+\end{proof}
+
 \begin{lemma}[Second estimate]\label{second-estimate}
   \lean{second_estimate}\leanok
 We have
@@ -187,7 +206,7 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
 \end{lemma}
 
 \begin{proof}
-  \uses{cor-fibre,distance-lower,first-useful,ruz-indep,dist-sums,foursum-bound}\leanok
+  \uses{cor-fibre,distance-lower,first-useful,second-estimate-aux}\leanok
   We apply Corollary \ref{cor-fibre}, but now with the choice
   \[
     (Y_1,Y_2,Y_3,Y_4) := (X_2, X_1, \tilde X_2, \tilde X_1).
@@ -213,18 +232,7 @@ $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
   \begin{equation}\label{combined}
   \bbI[X_1+X_2 : X_1 + \tilde X_1 | X_1+X_2+\tilde X_1+\tilde X_2] \leq \eta ( d[X_1; X_1] + d[X_2; X_2] ).
   \end{equation}
-  We may also use Lemma \ref{ruz-indep} to expand
-  \begin{align*}
-   & d[X_1+\tilde X_1;X_2+\tilde X_2] \\ &= \bbH[X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} \bbH[X_1+\tilde X_1] - \tfrac{1}{2} \bbH[X_2+\tilde X_2] \\
-    &= \bbH[X_1+\tilde X_1 + X_2 + \tilde X_2]  - \tfrac{1}{2} \bbH[X_1] - \tfrac{1}{2} \bbH[X_2]  \\ & \qquad\qquad\qquad   - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2; X_2] \right),
-  \end{align*}
-  and hence by Lemma \ref{foursum-bound}
-  \[
-    d[X_1+\tilde X_1; X_2+\tilde X_2] \leq (2+\eta) k - \tfrac{1}{2} \left( d[X_1;X_1] + d[X_2;X_2] \right) - I_1.
-  \]
-  Combining this bound with Lemma \ref{dist-sums} we obtain
-  \[d[X_1;X_1] + d[X_2;X_2] \leq 2 k + \frac{2(2 \eta k - I_1)}{1-\eta}. \]
-  Therefore by~\eqref{combined} we have the desired bound.
+  Together with Lemma~\ref{second-estimate-aux}, this gives the conclusion.
 \end{proof}
 
 
