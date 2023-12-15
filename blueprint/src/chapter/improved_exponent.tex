@@ -5,7 +5,10 @@ The arguments here are due to Jyun-Jie Liao.
 \begin{definition}[New definition of $\eta$]\label{eta-def-new}\leanok  $\eta$ is a real parameter with $\eta > 0$.
 \end{definition}
 
-Previously in Definition \ref{eta-def} we had set $\eta=1/9$.  To implement this chapter, one should refactor the previous argumetns so that $\eta$ is now free to be a positive number, though the specific hypothesis $\eta=1/9$ would now need to be added to Theorem \ref{de-prop}.
+Previously in Definition \ref{eta-def} we had set $\eta=1/9$.  To implement
+this chapter, one should refactor the previous arguments so that $\eta$ is
+now free to be a positive number, though the specific hypothesis $\eta=1/9$
+would now need to be added to Theorem \ref{de-prop}.
 
 Let $X^0_1, X^0_2$ be $G$-valued random variables, and let $X_1, X_2$ be $\tau$-minimizers as defined in Definition \ref{tau-min-def}.
 
@@ -49,7 +52,7 @@ where we introduce the notation
 On the other hand, from Lemma \ref{distance-lower} we have $k \leq \psi[Y_1;Y_2]$, and the claim follows.
 \end{proof}
 
-(One could in fact refactor Lemma \ref{construct-good-prelim} to follow from Lemma \ref{construct-good-prelim'} and Lemma \ref{cond-dist-fact}).
+(One could in fact refactor Lemma \ref{construct-good-prelim} to follow from Lemma \ref{construct-good-prelim-improv} and Lemma \ref{cond-dist-fact}).
 
 \begin{lemma}[Constructing good variables, II']\label{construct-good-improv}\lean{construct_good_improved'}\leanok
 One has
@@ -82,7 +85,8 @@ $$ I_1 = I(U : V \, | \, S).$$
 
 To control the expressions in the right-hand side of this lemma we need a general entropy inequality.
 
-\begin{lemma}[General inequality]\label{gen-ineq}\lean{gen_ineq} \leanok Let $X_1, X_2, X_3, X_4$ be independent $G$-valued random variables, and let $Y$ be another $G$-valued random variable.  Set $S := X_1+X_2+X_3+X_4$. Then
+\begin{lemma}[General inequality]\label{gen-ineq}\lean{gen_ineq_00} \leanok
+Let $X_1, X_2, X_3, X_4$ be independent $G$-valued random variables, and let $Y$ be another $G$-valued random variable.  Set $S := X_1+X_2+X_3+X_4$. Then
   \begin{align*}
     &  d[Y; X_1+X_2|X_1 + X_3, S] - d[Y; X_1] \\
     &\quad \leq \tfrac{1}{4} (d[X_1;X_2] + 2d[X_1;X_3] + d[X_2;X_4])\\
@@ -132,13 +136,14 @@ Rearranging the mutual information and Ruzsa distances slightly, we conclude tha
 
 Returning to our specific situation, we now have
 
-\begin{lemma}[Bound on distance differences]\label{dist-diff-bound}\label{dist_diff_bound} We have
+\begin{lemma}[Bound on distance differences]\label{dist-diff-bound}\lean{dist_diff_bound_1, dist_diff_bound_2}\leanok We have
 \begin{align*}  &\sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B}  d[X_i^0;A|B, S] - d[X_i^0;X_i]\\
 &\qquad \leq 12 k + \frac{4(2 \eta k - I_1)}{1-\eta}.
 \end{align*}
 \end{lemma}
 
-\begin{proof}\uses{gen-ineq, relabeled-entropy-cond,second-estimate}  If we apply Lemma \ref{gen-ineq} with $X_1:=X_1$, $Y:=X_1^0$ and $(X_2,X_3,X_4)$ equal to the $3!$ permutations of $(X_2,\tilde X_1,\tilde X_2)$, and sums (using the symmetry $\bbH[X|X+Y] = \bbH[Y|X+Y]$, which follows from Lemma \ref{relabeled-entropy-cond}), we can bound
+\begin{proof}\uses{gen-ineq, relabeled-entropy-cond,second-estimate-aux}
+If we apply Lemma \ref{gen-ineq} with $X_1:=X_1$, $Y:=X_1^0$ and $(X_2,X_3,X_4)$ equal to the $3!$ permutations of $(X_2,\tilde X_1,\tilde X_2)$, and sums (using the symmetry $\bbH[X|X+Y] = \bbH[Y|X+Y]$, which follows from Lemma \ref{relabeled-entropy-cond}), we can bound
 $$ \sum_{A,B \in \{U,V,W\}: A \neq B}  d[X_1^0;A|B, S] - d[X_1^0;X_1]$$
 by
 \begin{align*}
@@ -149,20 +154,21 @@ by
   &\qquad \qquad + \tfrac{1}{4} (\bbH[X_2|X_2+\tilde X_2] + \bbH[\tilde X_1|\tilde X_1+\tilde X_2] + \bbH[\tilde X_1|X_1+\tilde X_2] \\
   &\qquad \qquad \qquad - \bbH[X_1|X_1+\tilde X_1] - \bbH[X_1|X_1+X_2] - \bbH[X_1|X_1+\tilde X_2]),
 \end{align*}
+which simplifies to
 \begin{align*}
   &\quad \tfrac{1}{4} (16k + 6d[X_1;X_1] + 2d[X_2;X_2])\\
-  &\qquad \qquad + \tfrac{1}{4} (d[X_2|X_2+\tilde X_2] - d[X_1|X_1+\tilde X_1]).
+  &\qquad \qquad + \tfrac{1}{4} (H[X_1+\tilde X_1] - H[X_2+\tilde X_2] + d[X_2|X_2+\tilde X_2] - d[X_1|X_1+\tilde X_1]).
 \end{align*}
 A symmetric argument also bounds
 $$ \sum_{A,B \in \{U,V,W\}: A \neq B}  d[X_2^0;A|B, S] - d[X_2^0;X_2]$$
 by
 \begin{align*}
   &\quad \tfrac{1}{4} (16k + 6d[X_2;X_2] + 2d[X_1;X_1])\\
-  &\qquad \qquad + \tfrac{1}{4} (d[X_1|X_1+\tilde X_1] - d[X_2|X_2+\tilde X_2]).
+  &\qquad \qquad + \tfrac{1}{4} (H[X_2+\tilde X_2] - H[X_1+\tilde X_1] + d[X_1|X_1+\tilde X_1] - d[X_2|X_2+\tilde X_2]).
 \end{align*}
-On the other hand, from Lemma \ref{second-estimate} one has
-$$ d[X_1;X_1] + d[X_2;X_2] \leq 2 k + \frac{2(2 \eta k - I_1)}{1-\eta}$$
-(actually this is in the proof of that lemma, so a little refactoring is needed here).  Summing the previous two estimates, we obtain the claim.
+On the other hand, from Lemma \ref{second-estimate-aux} one has
+$$ d[X_1;X_1] + d[X_2;X_2] \leq 2 k + \frac{2(2 \eta k - I_1)}{1-\eta}.$$
+Summing the previous three estimates, we obtain the claim.
 \end{proof}
 
 \begin{theorem}[Improved $\tau$-decrement]\label{de-prop-improv}\lean{tau_strictly_decreases'}\leanok
