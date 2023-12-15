@@ -142,7 +142,7 @@ Returning to our specific situation, we now have
 \end{align*}
 \end{lemma}
 
-\begin{proof}\uses{gen-ineq, relabeled-entropy-cond,second-estimate-aux}
+\begin{proof}\uses{gen-ineq, relabeled-entropy-cond,second-estimate-aux}\leanok
 If we apply Lemma \ref{gen-ineq} with $X_1:=X_1$, $Y:=X_1^0$ and $(X_2,X_3,X_4)$ equal to the $3!$ permutations of $(X_2,\tilde X_1,\tilde X_2)$, and sums (using the symmetry $\bbH[X|X+Y] = \bbH[Y|X+Y]$, which follows from Lemma \ref{relabeled-entropy-cond}), we can bound
 $$ \sum_{A,B \in \{U,V,W\}: A \neq B}  d[X_1^0;A|B, S] - d[X_1^0;X_1]$$
 by
@@ -175,7 +175,8 @@ Summing the previous three estimates, we obtain the claim.
 Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] = 0$.
 \end{theorem}
 
-\begin{proof}\uses{averaged-construct-good, dist-diff-bound, uvw-s}  From Lemma \ref{averaged-construct-good}, Lemma \ref{dist-diff-bound}, and Lemma \ref{uvw-s} one has
+\begin{proof}\uses{averaged-construct-good, dist-diff-bound, uvw-s}\leanok
+From Lemma \ref{averaged-construct-good}, Lemma \ref{dist-diff-bound}, and Lemma \ref{uvw-s} one has
   \[ k \leq 8\eta k - \frac{(1 -5 \eta - \frac{4}{6} \eta)(2 \eta k - I_1)}{(1-\eta)}.\]
   For any $\eta < 1/8$, we see from Lemma \ref{first-estimate} that the expression $\frac{(1 -5 \eta - \frac{4}{6} \eta)(2 \eta k - I_1)}{(1-\eta)}$ is nonnegative, and hence $k = 0$ as required.
 \end{proof}
