@@ -32,6 +32,22 @@ lemma identDistrib_id_right {X : α → β} (hX : AEMeasurable X μ) : IdentDist
 @[simp] lemma identDistrib_id {μ ν : Measure α} : IdentDistrib id id μ ν ↔ μ = ν := by
   simp [IdentDistrib_iff id id μ ν, aemeasurable_id]
 
+/-- The first projection in a product space with measure `μ.prod ν` is distributed like `μ`. -/
+lemma IdentDistrib.fst_id
+    {μ : Measure α} {ν : Measure β} [IsProbabilityMeasure ν] :
+    IdentDistrib Prod.fst id (μ.prod ν) μ := by
+  have : μ = (μ.prod ν).map Prod.fst := by simp
+  nth_rewrite 2 [this]
+  exact identDistrib_id_right measurable_fst.aemeasurable
+
+/-- The second projection in a product space with measure `μ.prod ν` is distributed like `ν`. -/
+lemma IdentDistrib.snd_id
+    {μ : Measure α} {ν : Measure β} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    IdentDistrib Prod.snd id (μ.prod ν) ν := by
+  have : ν = (μ.prod ν).map Prod.snd := by simp
+  nth_rewrite 2 [this]
+  exact identDistrib_id_right measurable_snd.aemeasurable
+
 protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (hg' : Measurable g')
     (hfg : IdentDistrib (fun a ↦ (f a, f' a)) (fun b ↦ (g b, g' b)) μ ν) :
     IdentDistrib f g (μ[|f' ⁻¹' s]) (ν[|g' ⁻¹' s]) where

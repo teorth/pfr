@@ -1,6 +1,8 @@
 import PFR.Fibring
 import PFR.TauFunctional
 import PFR.Endgame
+import PFR.EntropyPFR
+import PFR.Main
 
 /-!
 # Improved PFR
@@ -590,11 +592,12 @@ lemma averaged_final : k ≤ (6 * p.η * k - (1 - 5 * p.η) / (1 - p.η) * (2 * 
   linarith [dist_diff_bound_1 p hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep,
     dist_diff_bound_2 p hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep]
 
-/-- Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] = 0$.
+/-- Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] = 0$. The proof
+of this lemma uses copies `X₁', X₂'` already in the context. For a version that does not assume
+these are given and constructs them instead, use `tau_strictly_decreases'`.
 -/
-theorem tau_strictly_decreases' : d[X₁ # X₂] = 0 := by
+theorem tau_strictly_decreases_aux' (hp : 8 * p.η < 1) : d[X₁ # X₂] = 0 := by
   have : 0 < p.η := p.hη
-  have : 8 * p.η < 1 := p.hη'
   have : k ≤ 8 * p.η * k := by calc
     k ≤ (6 * p.η * k - (1 - 5 * p.η) / (1 - p.η) * (2 * p.η * k - I₁))
         + p.η / 6 * (8 * k + 2 * (d[X₁ # X₁] + d[X₂ # X₂])) :=
@@ -613,6 +616,16 @@ theorem tau_strictly_decreases' : d[X₁ # X₂] = 0 := by
   apply le_antisymm _ (rdist_nonneg hX₁ hX₂)
   nlinarith
 
+theorem tau_strictly_decreases' (hp : 8 * p.η < 1) : d[X₁ # X₂] = 0 := by
+  let ⟨A, mA, μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
+    := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
+  rw [← h_id1.rdist_eq h_id2]
+  letI : MeasureSpace A := ⟨μ⟩
+  have : IsProbabilityMeasure (ℙ : Measure A) := hμ
+  rw [← h_id1.tau_minimizes p h_id2] at h_min
+  exact tau_strictly_decreases_aux' p hY₁ hY₂ hY₁' hY₂' (h_id1.trans h_id1'.symm)
+    (h_id2.trans h_id2'.symm) h_indep.reindex_four_abdc h_min hp
+
 end MainEstimates
 
 section EntropicPFR
@@ -620,39 +633,308 @@ section EntropicPFR
 open MeasureTheory ProbabilityTheory
 universe uG
 
-variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
+open scoped Topology
+open Filter Set
 
-variable {Ω Ω' : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
 variable {G : Type uG} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
   [MeasurableSingletonClass G]
-variable (p : refPackage Ω₀₁ Ω₀₂ G) {X₁ : Ω → G} {X₂ : Ω → G} (hX₁ : Measurable X₁) (hX₂ : Measurable X₂)
+variable (p : refPackage Ω₀₁ Ω₀₂ G)
+
+/-- For `p.η ≤ 1/8`, there exist τ-minimizers `X₁, X₂` at zero Rusza distance. For `p.η < 1/8`,
+all minimizers are fine, by `tau_strictly_decreases'`. For `p.η = 1/8`, we use a limit of
+minimizers for `η < 1/8`, which exists by compactness. -/
+lemma tau_minimizer_exists_rdist_eq_zero :
+    ∃ (Ω : Type uG) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+      Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧ tau_minimizes p X₁ X₂
+      ∧ d[X₁ # X₂] = 0 := by
+  -- let `uₙ` be a sequence converging from below to `η`. In particular, `uₙ < 1/8`.
+  obtain ⟨u, -, u_mem, u_lim⟩ :
+      ∃ u, StrictMono u ∧ (∀ (n : ℕ), u n ∈ Set.Ioo 0 p.η) ∧ Tendsto u atTop (𝓝 p.η) :=
+    exists_seq_strictMono_tendsto' p.hη
+  -- For each `n`, consider a minimizer associated to `η = uₙ`.
+  let q : ℕ → refPackage Ω₀₁ Ω₀₂ G := fun n ↦
+    ⟨p.X₀₁, p.X₀₂, p.hmeas1, p.hmeas2, u n, (u_mem n).1, by linarith [(u_mem n).2, p.hη']⟩
+  have : ∀ n, ∃ (μ : Measure G × Measure G),
+    IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
+      ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
+      τ[id ; μ.1 # id ; μ.2 | q n] ≤ τ[id ; ν₁ # id ; ν₂ | q n] :=
+    fun n ↦ tau_min_exists_measure (q n)
+  choose μ μ1_prob μ2_prob hμ using this
+  -- The minimizer associated to `uₙ` is at zero Rusza distance of itself, by
+  -- lemma `tau_strictly_decreases'`.
+  have I n : d[id ; (μ n).1 # id ; (μ n).2] = 0 := by
+    let M : MeasureSpace (G × G) := ⟨(μ n).1.prod (μ n).2⟩
+    have : IsProbabilityMeasure ((μ n).1.prod (μ n).2) := by infer_instance
+    have : d[@Prod.fst G G # @Prod.snd G G] = d[id ; (μ n).1 # id ; (μ n).2] :=
+      IdentDistrib.rdist_eq IdentDistrib.fst_id IdentDistrib.snd_id
+    rw [← this]
+    apply tau_strictly_decreases' (q n) measurable_fst measurable_snd ?_
+      (by linarith [(u_mem n).2, p.hη'])
+    intro ν₁ ν₂ h₁ h₂
+    have A : τ[@Prod.fst G G # @Prod.snd G G | q n] = τ[id ; (μ n).1 # id ; (μ n).2 | q n] :=
+      ProbabilityTheory.IdentDistrib.tau_eq (q n) IdentDistrib.fst_id IdentDistrib.snd_id
+    rw [A]
+    exact hμ n _ _ h₁ h₂
+  -- extract a converging subsequence of the sequence of minimizers, seen as pairs of probability
+  -- measures on `G` (which is a compact space).
+  let μ' : ℕ → ProbabilityMeasure G × ProbabilityMeasure G :=
+    fun n ↦ (⟨(μ n).1, μ1_prob n⟩, ⟨(μ n).2, μ2_prob n⟩)
+  let _i : TopologicalSpace G := (⊥ : TopologicalSpace G)
+  have : DiscreteTopology G := ⟨rfl⟩
+  -- The limiting pair of measures will be the desired minimizer.
+  rcases IsCompact.tendsto_subseq (x := μ') isCompact_univ (fun n ↦ mem_univ _)
+    with ⟨ν, -, φ, φmono, hν⟩
+  have φlim : Tendsto φ atTop atTop := φmono.tendsto_atTop
+  let M : MeasureSpace (G × G) := ⟨(ν.1 : Measure G).prod ν.2⟩
+  have P : IsProbabilityMeasure ((ν.1 : Measure G).prod (ν.2 : Measure G)) := by infer_instance
+  refine ⟨G × G, M, Prod.fst, Prod.snd, measurable_fst, measurable_snd, P, ?_, ?_⟩
+  -- check that it is indeed a minimizer, as a limit of minimizers.
+  · intro ν₁ ν₂ h₁ h₂
+    have A : τ[@Prod.fst G G # @Prod.snd G G | p] = τ[id ; ν.1 # id ; ν.2 | p] :=
+      ProbabilityTheory.IdentDistrib.tau_eq p IdentDistrib.fst_id IdentDistrib.snd_id
+    rw [A]
+    have L1 : Tendsto (fun n ↦ τ[id ; (μ (φ n)).1 # id ; (μ (φ n)).2 | q (φ n)]) atTop
+        (𝓝 (τ[id ; ν.1 # id ; ν.2 | p])) := by
+      apply Tendsto.add (Tendsto.add ?_ (Tendsto.mul (u_lim.comp φlim) ?_))
+          (Tendsto.mul (u_lim.comp φlim) ?_)
+      · apply Tendsto.comp (continuous_rdist_restrict_probabilityMeasure.tendsto _) hν
+      · have : Continuous
+          (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ d[p.X₀₁ ; ℙ # id ; μ.1]) :=
+        Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _ p.hmeas1) continuous_fst
+        apply Tendsto.comp (this.tendsto _) hν
+      · have : Continuous
+          (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ d[p.X₀₂ ; ℙ # id ; μ.2]) :=
+        Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _ p.hmeas2) continuous_snd
+        apply Tendsto.comp (this.tendsto _) hν
+    have L2 : Tendsto (fun n ↦ τ[id ; ν₁ # id ; ν₂ | q (φ n)]) atTop
+        (𝓝 (τ[id ; ν₁ # id ; ν₂ | p])) :=
+      Tendsto.add (Tendsto.add tendsto_const_nhds (Tendsto.mul (u_lim.comp φlim)
+        tendsto_const_nhds)) (Tendsto.mul (u_lim.comp φlim) tendsto_const_nhds)
+    exact le_of_tendsto_of_tendsto' L1 L2 (fun n ↦ hμ (φ n) _ _ h₁ h₂)
+  -- check that it has zero Rusza distance, as a limit of a sequence at zero Rusza distance.
+  · have : d[@Prod.fst G G # @Prod.snd G G] = d[id ; ν.1 # id ; ν.2] :=
+      IdentDistrib.rdist_eq IdentDistrib.fst_id IdentDistrib.snd_id
+    rw [this]
+    have L1 : Tendsto (fun n ↦ d[id ; (μ (φ n)).1 # id ; (μ (φ n)).2]) atTop
+      (𝓝 (d[id ; ν.1 # id ; (ν.2 : Measure G)])) := by
+        apply Tendsto.comp (continuous_rdist_restrict_probabilityMeasure.tendsto _) hν
+    have L2 : Tendsto (fun n ↦ d[id ; (μ (φ n)).1 # id ; (μ (φ n)).2]) atTop (𝓝 0) := by simp [I]
+    exact tendsto_nhds_unique L1 L2
 
 /-- `entropic_PFR_conjecture_improv`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
-    subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le (2+1/η) d[X^0_1;X^0_2]$. -/
-theorem entropic_PFR_conjecture_improv (hpη: p.η = 1/9):
+    subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$. -/
+theorem entropic_PFR_conjecture_improv (hpη : p.η = 1/8) :
     ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
-    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ (2+1/p.η) * d[p.X₀₁ # p.X₀₂] := sorry
+    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] := by
+  obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, hP, htau_min, hdist⟩ := tau_minimizer_exists_rdist_eq_zero p
+  obtain ⟨H, U, hU, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
+  refine ⟨H, Ω', inferInstance, U, inferInstance, hU, hH_unif , ?_⟩
+  have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
+  rw [tau, tau, hpη] at h
+  norm_num at h
+  have : d[p.X₀₁ # p.X₀₂] = d[p.X₀₂ # p.X₀₁] := rdist_symm
+  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle p.hmeas1 hX₁ hU
+  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
+  linarith
 
 end EntropicPFR
 
-
 section PFR
 
-open Pointwise Set MeasureTheory ProbabilityTheory
+/- In this file the power notation will always mean the base and exponent are real numbers. -/
+local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
-variable {G Ω : Type*} [AddCommGroup G] [Fintype G]
-    [MeasurableSpace G] [MeasurableSingletonClass G] {A B : Set G}
-    [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G} {K : ℝ}
+open Pointwise Set MeasureTheory ProbabilityTheory Real Fintype Function
+
+variable {G Ω : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
+    {A B : Set G} {K : ℝ}
+
+/-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
+an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
+such that $A$ can be covered by at most $K^6 |A|^{1/2} / |H|^{1/2}$ cosets of $H$, and $H$ has
+the same cardinality as $A$ up to a multiplicative factor $K^10$. -/
+lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : AddSubgroup G) (c : Set G),
+    Nat.card c ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
+      ∧ Nat.card H ≤ K ^ 10 * Nat.card A ∧ Nat.card A ≤ K ^ 10 * Nat.card H ∧ A ⊆ c + H := by
+  classical
+  let mG : MeasurableSpace G := ⊤
+  have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+    PFR_conjecture_pos_aux h₀A hA
+  rcases exists_isUniform_measureSpace A h₀A with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
+  have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
+  let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/8, (by norm_num), (by norm_num)⟩
+  -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
+  rcases entropic_PFR_conjecture_improv p (by norm_num)
+    with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
+  rcases independent_copies_two UAmeas UHmeas
+    with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
+  have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm $ measurableSet_discrete _
+  have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
+  have : d[VA # VH] ≤ 10/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
+  have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
+    have : 0 < Nat.card (H : Set G) := Nat.card_pos
+    positivity
+  have Icard : |log (Nat.card A) - log (Nat.card (H : Set G))| ≤ 10 * log K := by
+    rw [← VAunif.entropy_eq VAmeas, ← VHunif.entropy_eq VHmeas]
+    apply (diff_ent_le_rdist VAmeas VHmeas).trans
+    linarith
+  have IAH : Nat.card A ≤ K ^ 10 * Nat.card (H : Set G) := by
+    have : log (Nat.card A) ≤ log K * 10 + log (Nat.card (H : Set G)) := by
+      linarith [(le_abs_self _).trans Icard]
+    convert exp_monotone this using 1
+    · exact (exp_log A_pos).symm
+    · rw [exp_add, exp_log H_pos, ← rpow_def_of_pos K_pos]
+  have IHA : Nat.card (H : Set G) ≤ K ^ 10 * Nat.card A := by
+    have : log (Nat.card (H : Set G)) ≤ log K * 10 + log (Nat.card A) := by
+      linarith [(neg_le_abs_self _).trans Icard]
+    convert exp_monotone this using 1
+    · exact (exp_log H_pos).symm
+    · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos]
+  -- entropic PFR shows that the entropy of `VA - VH` is small
+  have I : log K * (-10/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
+      ≤ - H[VA - VH] := by
+    rw [Vindep.rdist_eq VAmeas VHmeas] at this
+    have : H[VA] = log (Nat.card A) := VAunif.entropy_eq VAmeas
+    have : H[VH] = log (Nat.card (H : Set G)) := VHunif.entropy_eq VHmeas
+    linarith
+  -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
+  obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
+    prob_ge_exp_neg_entropy' _ ((VAmeas.sub VHmeas).comp measurable_id')
+  -- massage the previous inequality to get that `A ∩ (H + {x₀})` is large
+  have J : K ^ (-10/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (1/2) ≤
+      Nat.card (A ∩ (H + {x₀}) : Set G) := by
+    rw [VAunif.measureReal_preimage_sub VAmeas VHunif VHmeas Vindep] at h₀
+    have := (Real.exp_monotone I).trans h₀
+    rw [le_div_iff (by positivity)] at this
+    convert this using 1
+    rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos, ← rpow_def_of_pos H_pos]
+    rpow_ring
+    norm_num
+  have Hne : Set.Nonempty (A ∩ (H + {x₀} : Set G)) := by
+    by_contra h'
+    have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
+    simp only [Nat.card_eq_fintype_card, card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
+      not_nonempty_iff_eq_empty.1 h'] at this
+  /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
+  (which is contained in `H`). The number of translates is at most
+  `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
+  a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
+  rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
+    ⟨u, hu, Au, -⟩
+  have Iu : Nat.card u ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
+    have : (0 : ℝ) ≤ Nat.card u := by simp
+    have Z1 := mul_le_mul_of_nonneg_left J this
+    have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
+      ≤ Nat.card (A + A ∩ (↑H + {x₀})) := by norm_cast
+    have Z3 : (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ K * Nat.card A := by
+      apply le_trans _ hA
+      simp only [Nat.cast_le]
+      apply Nat.card_mono (toFinite _)
+      apply add_subset_add_left (inter_subset_left _ _)
+    have : 0 ≤ K ^ (10/2) * Nat.card A ^ (-1/2) * Nat.card (H : Set G) ^ (-1/2) := by positivity
+    have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
+    convert T using 1 <;> rpow_ring <;> norm_num
+  have A_subset_uH : A ⊆ u + H := by
+    apply Au.trans
+    rw [add_sub_assoc]
+    apply add_subset_add_left
+    apply (sub_subset_sub (inter_subset_right _ _) (inter_subset_right _ _)).trans
+    rintro - ⟨-, -, ⟨y, xy, hy, hxy, rfl⟩, ⟨z, xz, hz, hxz, rfl⟩, rfl⟩
+    simp only [mem_singleton_iff] at hxy hxz
+    simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
+  exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
-2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{11}$ cosets of
+2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^11$ cosets of
 a subgroup of cardinality at most $|A|$. -/
 theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
      ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  sorry
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+    PFR_conjecture_pos_aux h₀A hA
+  -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
+  obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
+    Nat.card c ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
+      ∧ Nat.card (H : Set G) ≤ K ^ 10 * Nat.card A ∧ Nat.card A ≤ K ^ 10 * Nat.card (H : Set G)
+      ∧ A ⊆ c + H :=
+    PFR_conjecture_improv_aux h₀A hA
+  have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
+    have : 0 < Nat.card (H : Set G) := Nat.card_pos; positivity
+  rcases le_or_lt (Nat.card (H : Set G)) (Nat.card A) with h|h
+  -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
+  · refine ⟨H, c, ?_, h, A_subs_cH⟩
+    calc
+    Nat.card c ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := hc
+    _ ≤ K ^ 6 * (K ^ 10 * Nat.card (H : Set G)) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
+      gcongr
+    _ = K ^ 11 := by rpow_ring; norm_num
+    _ < 2 * K ^ 11 := by linarith [show 0 < K ^ 11 by positivity]
+  -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
+  -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
+  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card (H' : Set G) ≤ Nat.card A
+          ∧ Nat.card A < 2 * Nat.card (H' : Set G) ∧ H' ≤ H := by
+      have A_pos' : 0 < Nat.card A := by exact_mod_cast A_pos
+      exact ElementaryAddCommGroup.exists_subgroup_subset_card_le H h.le A_pos'.ne'
+    have : (Nat.card A / 2 : ℝ) < Nat.card (H' : Set G) := by
+      rw [div_lt_iff zero_lt_two, mul_comm]; norm_cast
+    have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
+      have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity
+    obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H
+    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
+    calc
+    (Nat.card (c + u) : ℝ)
+      ≤ Nat.card c * Nat.card u := mod_cast card_add_le
+    _ ≤ (K ^ 6 * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
+          * (Nat.card (H : Set G) / Nat.card (H' : Set G)) := by
+        gcongr
+        apply le_of_eq
+        rw [eq_div_iff H'_pos.ne']
+        norm_cast
+    _ < (K ^ 6 * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
+          * (Nat.card (H : Set G) / (Nat.card A / 2)) := by
+        gcongr
+    _ = 2 * K ^ 6 * (Nat.card A) ^ (-1/2) * (Nat.card (H : Set G)) ^ (1/2) := by
+        have : (0 : ℝ) < Nat.card H := H_pos
+        field_simp
+        rpow_ring
+        norm_num
+    _ ≤ 2 * K ^ 6 * (Nat.card A) ^ (-1/2) * (K ^ 10 * Nat.card A) ^ (1/2) := by
+        gcongr
+    _ = 2 * K ^ 11 := by
+        rpow_ring
+        norm_num
+
+/-- Corollary of `PFR_conjecture_improv` in which the ambient group is not required to be finite
+(but) then $H$ and $c$ are finite. -/
+theorem PFR_conjecture_improv' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
+    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
+    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+      Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  let G' := AddSubgroup.closure A
+  let G'fin : Fintype G' := by
+    exact Finite.fintype (ElementaryAddCommGroup.finite_closure Afin)
+  have G'Elem : ElementaryAddCommGroup G' 2 := ElementaryAddCommGroup.subgroup _
+  let ι : G'→+ G := G'.subtype
+  have ι_inj : Injective ι := AddSubgroup.subtype_injective G'
+  let A' : Set G' := ι ⁻¹' A
+  have A_rg : A ⊆ range ι := by simpa using AddSubgroup.subset_closure
+  have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
+  have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
+    rwa [cardA', preimage_add_preimage ι_inj A_rg A_rg,
+         Nat.card_preimage_of_injective ι_inj (add_subset_range A_rg A_rg)]
+  rcases PFR_conjecture_improv (h₀A.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
+  refine ⟨AddSubgroup.map ι H', ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
+  · rwa [Nat.card_image_of_injective ι_inj]
+  · erw [Nat.card_image_of_injective ι_inj, ← cardA']
+    exact hH'
+  · erw [← image_add]
+    exact ⟨⟨x, AddSubgroup.subset_closure hx⟩, hH'₂ hx, rfl⟩
 
 end PFR
