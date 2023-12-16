@@ -330,15 +330,15 @@ lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*} [MeasurableSpace Ω] [Mea
     intro ω
     simp
     by_cases h: X ω ∈ A
-    . left; simp [h]
-    right; simp [h]
+    . left; simp at h; simp [h]
+    right; intro ω₀ hω₀; rw [<-hω₀] at h
+    simp at h
   apply Filter.eventuallyEq_of_mem (s := X ⁻¹' A)
   . simp [ae]
     rw [<- Set.preimage_compl, <- IdentDistrib.measure_preimage_eq hi]
     . convert measure_empty
       ext ω
       simp
-      apply FiniteRange.mem
     measurability
   intro ω
   simp; tauto
