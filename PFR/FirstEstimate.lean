@@ -169,7 +169,7 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
     exact IndepFun.comp (φ := fun gg ↦ gg.1 + gg.2) (ψ := fun gg ↦ gg.1 + gg.2) pairs_indep
               measurable_add measurable_add
   have ind : D = H[X₁ + X₂' - (X₂ + X₁')] - H[X₁ + X₂'] / 2 - H[X₂ + X₁'] / 2 :=
-    @IndepFun.rdist_eq Ω G _ ℙ _ _ _ _ (X₁ + X₂') _ (X₂ + X₁') ind_aux (by measurability) (by measurability)
+    @IndepFun.rdist_eq Ω G _ ℙ _ _ _ (X₁ + X₂') _ _ (X₂ + X₁') ind_aux (by measurability) (by measurability) _
   rw [ind, ent_sub_eq_ent_add, rw₁] at aux
   have obs : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + p.η) * k - I₁ := by
     linarith

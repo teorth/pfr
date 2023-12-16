@@ -3,6 +3,7 @@ import Mathlib.Data.Set.Finite
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Algebra.Group.Defs
 import Mathlib.Algebra.GroupPower.Basic
+import Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.ForMathlib.Pair
 
 
@@ -88,3 +89,20 @@ instance {Ω G : Type*} (X : Ω → G) [Group G] [hX: FiniteRange X] : FiniteRan
 instance {Ω G : Type*} (X : Ω → G) [Group G] [hX: FiniteRange X] (c : ℤ) : FiniteRange (X^c) := by
   show FiniteRange ((fun x ↦ x^c) ∘ X)
   infer_instance
+
+
+open MeasureTheory
+
+lemma FiniteRange.full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G] [MeasurableSingletonClass G] {X : Ω → G} (hX: Measurable X) [FiniteRange X] (μ: Measure Ω) : (μ.map X) (FiniteRange.toFinset X) = μ Set.univ := by
+  rw [Measure.map_apply hX]
+  congr
+  ext ω; simp
+  exact mem X ω
+  measurability
+
+lemma FiniteRange.null_of_compl {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G] [MeasurableSingletonClass G] {X : Ω → G} (hX: Measurable X) [FiniteRange X] (μ: Measure Ω) : (μ.map X) (FiniteRange.toFinset X: Set G)ᶜ  = 0 := by
+  rw [Measure.map_apply hX]
+  convert measure_empty
+  ext ω; simp
+  exact mem X ω
+  measurability

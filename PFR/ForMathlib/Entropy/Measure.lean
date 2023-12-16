@@ -84,6 +84,7 @@ lemma finiteSupport_of_dirac (x : S) : FiniteSupport (Measure.dirac x) := by
   use {x}
   simp [Measure.dirac_apply', Set.mem_singleton_iff, Set.indicator_of_mem, MeasurableSet.singleton]
 
+/-- duplicate of `FiniteRange.null_of_compl` -/
 lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S} (hX: Measurable X) [hX': FiniteRange X] : (μ.map X) (hX'.toFinset)ᶜ = 0 := by
   rw [Measure.map_apply hX (MeasurableSet.compl (Finset.measurableSet _))]
   convert measure_empty

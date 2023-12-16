@@ -183,6 +183,14 @@ lemma IsUniform.entropy_eq (H : Finset S) (X : Ω → S) {μ : Measure Ω} [IsPr
   exact hX.measure_preimage_compl
 
 
+/-- Variant of `IsUniform.entropy_eq` where `H` is a finite `Set` rather than `Finset`. -/
+lemma IsUniform.entropy_eq' {H : Set S} [Finite H] {X : Ω → S} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (hX : IsUniform H X μ) (hX' : Measurable X) : H[X ; μ] = log (Nat.card H) := by
+  convert IsUniform.entropy_eq H.toFinite.toFinset X ?_ hX' with x
+  . simp; exact Iff.rfl
+  . infer_instance
+  convert hX
+  simp
 
 /-- If $X$ is $S$-valued random variable, then $H[X] = \log |S|$ if and only if $X$ is uniformly
 distributed. -/
@@ -519,7 +527,7 @@ lemma condEntropy_of_injective' [MeasurableSingletonClass S] (μ : Measure Ω) [
 
 /-- $H[X|f(X)] = H[X] - H[f(X)]$. -/
 lemma condEntropy_comp_self [IsProbabilityMeasure μ] (hX : Measurable X) {f : S → U}
-    (hf : Measurable f) [FiniteRange X] [FiniteRange Y] : H[X | f ∘ X ; μ] = H[X ; μ] - H[f ∘ X ; μ] := by
+    (hf : Measurable f) [FiniteRange X] : H[X | f ∘ X ; μ] = H[X ; μ] - H[f ∘ X ; μ] := by
   rw [chain_rule'' μ hX (hf.comp hX), entropy_prod_comp hX _ f]
 
 /-- If $X : \Omega \to S$, $Y : \Omega \to T$,$Z : \Omega \to U$ are random variables, then
