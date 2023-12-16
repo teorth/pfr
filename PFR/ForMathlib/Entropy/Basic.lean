@@ -449,7 +449,7 @@ theorem cond_cond_eq_cond_inter'' (hms : MeasurableSet s) (hmt : MeasurableSet t
 lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [MeasurableSpace T']
     [MeasurableSingletonClass T']
     (μ : Measure Ω) (hY : Measurable Y) (hZ : Measurable Z)
-    [IsFiniteMeasure μ] [FiniteRange X] [FiniteRange Y] [Fintype T] [Fintype T'] :
+    [IsFiniteMeasure μ] [Fintype T] [Fintype T'] :
     H[X | ⟨Y, Z⟩ ; μ]
       = ∑ z, (μ (Z ⁻¹' {z})).toReal * H[X | Y ; μ[|Z ⁻¹' {z}]] := by
   simp_rw [condEntropy_eq_sum_fintype _ _ _ (hY.prod_mk hZ), condEntropy_eq_sum_fintype _ _ _ hY,
@@ -478,17 +478,19 @@ lemma condEntropy_eq_sum_sum [MeasurableSingletonClass T] (hX : Measurable X) {Y
   rw [entropy_cond_eq_sum_finiteRange hX, Finset.mul_sum]
 
 /-- Same as previous lemma, but with a sum over a product space rather than a double sum. -/
-lemma condEntropy_eq_sum_prod [MeasurableSingletonClass T] (hX : Measurable X) {Y : Ω → T} (hY : Measurable Y)
+lemma condEntropy_eq_sum_prod [MeasurableSingletonClass T] (hX : Measurable X) {Y : Ω → T}
+    (hY : Measurable Y)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
     H[X | Y ; μ] = ∑ p in (FiniteRange.toFinset X) ×ˢ (FiniteRange.toFinset Y),
       (μ.map Y {p.2}).toReal * negMulLog ((μ[|Y ⁻¹' {p.2}]).map X {p.1}).toReal := by
   rw [condEntropy_eq_sum_sum hX hY, Finset.sum_product_right]
 
-/-- If $X : \Omega \to S$, $Y : \Omega \to T$ are random variables, and $f : T \times S → U$ is injective
-  for each fixed $t \in T$, then $H[f(Y, X)|Y] = H[X|Y]$. Thus for instance $H[X-Y|Y]=H[X|Y]$.-/
+/-- If $X : \Omega \to S$, $Y : \Omega \to T$ are random variables, and $f : T \times S → U$ is
+  injective for each fixed $t \in T$, then $H[f(Y, X)|Y] = H[X|Y]$.
+  Thus for instance $H[X-Y|Y] = H[X|Y]$. -/
 lemma condEntropy_of_injective
     [MeasurableSingletonClass U] (μ : Measure Ω) [IsFiniteMeasure μ] (hX : Measurable X)
-    (hY : Measurable Y) (f : T → S → U) (hf : ∀ t, Injective (f t)) [FiniteRange X] [FiniteRange Y] :
+    (hY : Measurable Y) (f : T → S → U) (hf : ∀ t, Injective (f t)) [FiniteRange Y] :
     H[(fun ω ↦ f (Y ω) (X ω)) | Y ; μ] = H[X | Y ; μ] := by
   rw [condEntropy_eq_sum _ _ _ hY, condEntropy_eq_sum _ _ _ hY]
   have : ∀ y, H[fun ω ↦ f (Y ω) (X ω)|Y←y; μ] = H[(f y ∘ X) | Y ← y ; μ] := by
@@ -646,7 +648,7 @@ def mutualInfo (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac) 
 @[inherit_doc mutualInfo] notation3:max "I[" X " : " Y " ; " μ "]" => mutualInfo X Y μ
 @[inherit_doc mutualInfo] notation3:max "I[" X " : " Y "]" => mutualInfo X Y volume
 
-lemma mutualInfo_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) [FiniteRange X] [FiniteRange Y]:
+lemma mutualInfo_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
   I[X : Y ; μ] = H[X ; μ] + H[Y ; μ] - H[⟨X, Y⟩ ; μ] := rfl
 
 /-- $I[X : Y] = I[Y : X]$. -/
@@ -698,7 +700,7 @@ lemma mutualInfo_nonneg (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω
 
 /-- Substituting variables for ones with the same distributions doesn't change the mutual information. -/
 lemma IdentDistrib.mutualInfo_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
-    {X' : Ω' → S} {Y' : Ω' → T} (hXY : IdentDistrib (⟨X, Y⟩) (⟨X', Y'⟩) μ μ') [FiniteRange X] [FiniteRange Y] [FiniteRange X'] [FiniteRange Y']:
+    {X' : Ω' → S} {Y' : Ω' → T} (hXY : IdentDistrib (⟨X, Y⟩) (⟨X', Y'⟩) μ μ') :
       I[X : Y ; μ] = I[X' : Y' ; μ'] := by
   have hX : IdentDistrib X X' μ μ' := hXY.comp measurable_fst
   have hY : IdentDistrib Y Y' μ μ' := hXY.comp measurable_snd
@@ -762,10 +764,10 @@ protected alias ⟨_, IndepFun.entropy_pair_eq_add⟩ := entropy_pair_eq_add
 /-- The conditional mutual information $I[X : Y| Z]$ is the mutual information of $X| Z=z$ and
 $Y| Z=z$, integrated over $z$. -/
 noncomputable
-def condMutualInfo (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+def condMutualInfo (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω := by volume_tac) :
     ℝ := (μ.map Z)[fun z ↦ H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨X, Y⟩ | Z ← z ; μ]]
 
-lemma condMutualInfo_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+lemma condMutualInfo_def (X : Ω → S) (Y : Ω → T) (Z : Ω → U) (μ : Measure Ω) :
     condMutualInfo X Y Z μ = (μ.map Z)[fun z ↦
       H[X | Z ← z ; μ] + H[Y | Z ← z ; μ] - H[⟨X, Y⟩ | Z ← z ; μ]] := rfl
 
@@ -778,7 +780,7 @@ notation3:max "I[" X " : " Y "|" Z "]" => condMutualInfo X Y Z volume
 -/
 lemma condMutualInfo_eq_kernel_mutualInfo
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+    (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange Z] :
     I[X : Y | Z ; μ] = Ik[condEntropyKernel (⟨X, Y⟩) Z μ, μ.map Z] := by
   rcases finiteSupport_of_finiteRange (μ:= μ) hZ with ⟨A, hA⟩
   simp_rw [condMutualInfo_def, entropy_def, kernel.mutualInfo, kernel.entropy,
@@ -803,10 +805,10 @@ lemma condMutualInfo_eq_kernel_mutualInfo
     rw [condEntropyKernel_apply (hX.prod_mk hY) hZ]
     rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
 
-lemma condMutualInfo_eq_integral_mutualInfo [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+lemma condMutualInfo_eq_integral_mutualInfo :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[| Z ⁻¹' {z}]]] := rfl
 
-lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRange Z] :
     I[X : Y | Z ; μ] = ∑ z in FiniteRange.toFinset Z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
   rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hZ _)]
   congr 1 with z
@@ -814,7 +816,7 @@ lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRang
   rfl
 
 /-- A variant of `condMutualInfo_eq_sum` when `Z` has finite codomain. -/
-lemma condMutualInfo_eq_sum' [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [Fintype U] :
+lemma condMutualInfo_eq_sum' [IsFiniteMeasure μ] (hZ : Measurable Z) [Fintype U] :
     I[X : Y | Z ; μ] = ∑ z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
   rw [condMutualInfo_eq_sum hZ]
   apply Finset.sum_subset
@@ -826,23 +828,23 @@ lemma condMutualInfo_eq_sum' [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRan
     simp [hz]
   simp [this]
 
-
 /-- $I[X : Y | Z] = I[Y : X | Z]$. -/
 lemma condMutualInfo_comm
-    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) :
     I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
   simp_rw [condMutualInfo_def, add_comm, entropy_comm hX hY]
 
 /-- Conditional information is non-nonegative. -/
 lemma condMutualInfo_nonneg
-    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+    (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω)
+    [FiniteRange X] [FiniteRange Y] :
     0 ≤ I[X : Y | Z ; μ] := by
   refine integral_nonneg (fun z ↦ ?_)
   exact mutualInfo_nonneg hX hY _
 
 /-- $$ I[X : Y| Z] = H[X| Z] + H[Y| Z] - H[X, Y| Z].$$ -/
 lemma condMutualInfo_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+    (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange Z] :
     I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by
   rw [condMutualInfo_eq_kernel_mutualInfo hX hY hZ, kernel.mutualInfo,
     kernel.entropy_congr (condEntropyKernel_fst_ae_eq hX hY hZ _),
@@ -860,8 +862,8 @@ lemma condMutualInfo_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
 /-- If $f(Z, X)$ is injective for each fixed $Z$, then $I[f(Z, X) : Y| Z] = I[X : Y| Z]$.-/
 lemma condMutualInfo_of_inj_map [IsProbabilityMeasure μ]
   (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-  {V : Type*} [Nonempty V] [Fintype V] [MeasurableSpace V] [MeasurableSingletonClass V]
-  (f : U → S → V) (hf : ∀ t, Function.Injective (f t)) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+  {V : Type*} [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V]
+  (f : U → S → V) (hf : ∀ t, Function.Injective (f t)) [FiniteRange Z] :
     I[fun ω ↦ f (Z ω) (X ω) : Y | Z ; μ] =
     I[X : Y | Z ; μ] := by
   have hM : Measurable (Function.uncurry f ∘ ⟨Z, X⟩) :=
@@ -963,5 +965,3 @@ example (hX : Measurable X) (hY : Measurable Y) :
   H[⟨X, Y⟩] = H[Y] + H[X | Y] := chain_rule _ hX hY
 
 end MeasureSpace_example
-
-#lint

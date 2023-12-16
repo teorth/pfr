@@ -92,7 +92,7 @@ lemma ProbabilityTheory.IndepFun.identDistrib_cond {Ω : Type*} [MeasurableSpace
     ENNReal.mul_inv_cancel h (by finiteness), mul_one]
 
 lemma condRuszaDist_prod_eq_of_indepFun
-    (A : Ω₀ → G) (B C D : Ω → G) (hA : Measurable A) (hB : Measurable B) (hC : Measurable C)
+    {A : Ω₀ → G} {B C D : Ω → G} (hA : Measurable A) (hB : Measurable B) (hC : Measurable C)
     (hD : Measurable D) (h : IndepFun (⟨B, C⟩) D) :
     d[A # B | ⟨C, D⟩] = d[A # B | C] := by
   rw [condRuzsaDist'_prod_eq_sum' _ _ hB hC hD]
@@ -106,17 +106,23 @@ lemma condRuszaDist_prod_eq_of_indepFun
   apply condRuzsaDist'_of_copy _ hB hC _ hB hC (IdentDistrib.refl hA.aemeasurable)
   exact (h.identDistrib_cond (MeasurableSet.singleton w) (hB.prod_mk hC) hD hw).symm
 
-lemma condEntropy_prod_eq_of_indepFun'
-    (A : Ω₀ → G) (B C D : Ω → G) (hA : Measurable A) (hB : Measurable B) (hC : Measurable C)
+lemma condEntropy_prod_eq_of_indepFun
+    {B C D : Ω → G} (hB : Measurable B) (hC : Measurable C)
     (hD : Measurable D) (h : IndepFun (⟨B, C⟩) D) :
     H[B | ⟨C, D⟩] = H[B | C] := by
-  rw [condEntropy_prod]
+  rw [condEntropy_prod_eq_sum _ hC hD]
+  have : H[B | C] = ∑ z, (ℙ (D ⁻¹' {z})).toReal * H[B | C] := by
+    rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hD, one_mul]
+  rw [this]
+  congr with w
+  rcases eq_or_ne (ℙ (D ⁻¹' {w})) 0 with hw|hw
+  · simp [hw]
+  congr 1
+  have : IsProbabilityMeasure (ℙ[|D ⁻¹' {w}]) := cond_isProbabilityMeasure ℙ hw
+  apply IdentDistrib.condEntropy_eq hB hC hB hC
+  exact (h.identDistrib_cond (MeasurableSet.singleton w) (hB.prod_mk hC) hD hw).symm
 
-
-#exit
-
-
-
+def foo : S × T ≃ T × S := by exact Equiv.prodComm S T
 
 lemma gen_ineq_aux2 :
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
@@ -159,11 +165,11 @@ lemma gen_ineq_aux2 :
       + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
     simp only [mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib, Finset.sum_div]
     congr
-    · sorry /-rw [← condRuzsaDist'_eq_sum' hZ₁ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
-      apply condRuszaDist_prod_eq_of_indepFun Y Z₁ (Z₁ + Z₃) (Z₂ + Z₄) hY hZ₁ (hZ₁.add' hZ₃)
+    · rw [← condRuzsaDist'_eq_sum' hZ₁ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
+      apply condRuszaDist_prod_eq_of_indepFun hY hZ₁ (hZ₁.add' hZ₃)
         (hZ₂.add' hZ₄)
-      exact I.comp (measurable_fst.prod_mk measurable_add) measurable_add -/
-    · sorry /-simp_rw [← mul_div_assoc, ← Finset.sum_div]
+      exact I.comp (measurable_fst.prod_mk measurable_add) measurable_add
+    · simp_rw [← mul_div_assoc, ← Finset.sum_div]
       rw [condRuzsaDist_eq_sum' hZ₁ (hZ₁.add' hZ₃) hZ₂ (hZ₂.add' hZ₄), Fintype.sum_prod_type]
       congr with x
       congr with y
@@ -182,11 +188,18 @@ lemma gen_ineq_aux2 :
         (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := sorry
       have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
         (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := sorry
-      exact IdentDistrib.rdist_eq A B -/
-    · have : H[Z₂ | Z₂ + Z₄] = H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := sorry
-      rw [this, condEntropy_eq_sum_fintype _ _ _ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
+      exact IdentDistrib.rdist_eq A B
+    · have I1 : H[Z₂ | Z₂ + Z₄] = H[Z₂ | ⟨Z₂ + Z₄, Z₁ + Z₃⟩] := by
+        apply (condEntropy_prod_eq_of_indepFun hZ₂ (hZ₂.add' hZ₄) (hZ₁.add' hZ₃) _).symm
+        exact I.symm.comp (measurable_fst.prod_mk measurable_add) measurable_add
+      have I2 : H[Z₂ | ⟨Z₂ + Z₄, Z₁ + Z₃⟩] = H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] :=
+        condEntropy_of_injective' _ hZ₂ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))
+          _ (Equiv.prodComm G G).injective ((hZ₂.add' hZ₄).prod_mk (hZ₁.add' hZ₃))
+      rw [I1, I2, condEntropy_eq_sum_fintype _ _ _ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
       simp_rw [← mul_div_assoc, Finset.sum_div]
-    · have : H[Z₁ | Z₁ + Z₃] = H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := sorry
+    · have : H[Z₁ | Z₁ + Z₃] = H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := by
+        apply (condEntropy_prod_eq_of_indepFun hZ₁ (hZ₁.add' hZ₃) (hZ₂.add' hZ₄) _).symm
+        exact I.comp (measurable_fst.prod_mk measurable_add) measurable_add
       rw [this, condEntropy_eq_sum_fintype _ _ _ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
       simp_rw [← mul_div_assoc, Finset.sum_div]
   _ ≤ (d[Y # Z₁] + d[Z₁ # Z₃]/2 + H[Z₁]/4 - H[Z₃]/4) + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
