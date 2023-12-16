@@ -26,10 +26,12 @@ import PFR.HundredPercent
 import PFR.ImprovedPFR
 import PFR.Main
 import PFR.Mathlib.Algebra.Group.Hom.Basic
+import PFR.Mathlib.Algebra.GroupWithZero.Units.Lemmas
 import PFR.Mathlib.Algebra.Order.Archimedean
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Combinatorics.Additive.RuzsaCovering
 import PFR.Mathlib.Data.Fin.Basic
+import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Data.Finset.Pointwise
 import PFR.Mathlib.Data.Finset.Sigma
 import PFR.Mathlib.Data.Fintype.Card
