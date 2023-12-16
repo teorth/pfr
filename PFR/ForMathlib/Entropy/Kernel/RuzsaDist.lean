@@ -84,6 +84,14 @@ lemma rdist_symm {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFin
   congr
   exact finiteSupport_of_prod hμ hν
 
+@[simp] lemma rdist_zero_right (κ : kernel T G) (η : kernel T' G) (μ : Measure T) :
+    dk[κ ; μ # η ; 0] = 0 := by
+  simp [rdist]
+
+@[simp] lemma rdist_zero_left (κ : kernel T G) (η : kernel T' G) (ν' : Measure T') :
+    dk[κ ; 0 # η ; ν'] = 0 := by
+  simp [rdist]
+
 lemma ruzsa_triangle_aux (κ : kernel T (G × G)) (η : kernel T G)
     [IsMarkovKernel κ] [IsMarkovKernel η] :
     map (κ ×ₖ η) (fun p ↦ p.2 - p.1.2) (measurable_of_countable _)

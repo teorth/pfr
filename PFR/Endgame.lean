@@ -91,11 +91,7 @@ private lemma hmeas2 :
 /-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
 lemma I₃_eq : I[V : W | S] = I₂ := by
   have h_indep2 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁, X₂'] := by
-    apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 4) 2)
-    convert h_indep using 1
-    ext x
-    fin_cases x
-    all_goals aesop
+    exact h_indep.reindex_four_cbad
   have hident : IdentDistrib (fun a (i : Fin 4) => ![X₁, X₂, X₁', X₂'] i a)
     (fun a (j : Fin 4) => ![X₁', X₂, X₁, X₂'] j a) := by
     exact { aemeasurable_fst := by
@@ -181,41 +177,9 @@ lemma hU : H[U] = H[X₁' + X₂'] :=
     (iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 1 by norm_cast))
      (iIndepFun.indepFun h_indep (show (2 : Fin 4) ≠ 3 by norm_cast)))
 
-abbrev κ : Fin 3 → Type
-  | 0 | 1 => Fin 1
-  | 2     => Fin 2
-
-def κ_equiv : (Σ i, κ i) ≃ Fin 4 where
-  toFun := fun x ↦ match x with
-    | Sigma.mk 0 _ => 0
-    | Sigma.mk 1 _ => 1
-    | Sigma.mk 2 ⟨0, _⟩ => 2
-    | Sigma.mk 2 ⟨1, _⟩ => 3
-  invFun := ![Sigma.mk 0 ⟨0, zero_lt_one⟩, Sigma.mk 1 ⟨0, zero_lt_one⟩,
-    Sigma.mk 2 ⟨0, zero_lt_two⟩, Sigma.mk 2 ⟨1, one_lt_two⟩]
-  left_inv := by rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> rfl
-  right_inv := by intro i; fin_cases i <;> rfl
-
-def fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
-  | 0 | 1 | 2 => inferInstanceAs (Fintype (Fin _))
-
 variable {X₁ X₂ X₁' X₂'} in
-attribute [local instance] fintype_kappa in
-lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] := by
-  -- deduce from the assumption the independence of `X₁`, `X₂` and `(X'₁, X'₂)`.
-  have T := iIndepFun.pi' (m := fun  _ _ ↦ hG) ?_ (h_indep.reindex_symm κ_equiv); swap
-  · rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> assumption
-  -- apply to this triplet of independent variables the function that adds `X'₁` and `X'₂` and does
-  -- not change the other variables. It retains independence, proving the conclusion.
-  let add_third : ∀ (i : Fin 3), (κ i → G) → G
-    | 0 | 1 => (fun f ↦ f ⟨0, zero_lt_one⟩)
-    | 2     => (fun f ↦ f ⟨0, zero_lt_two⟩ + f ⟨1, one_lt_two⟩)
-  convert T.comp add_third ?_ with i
-  · fin_cases i <;> rfl
-  · intro i
-    match i with
-      | 0 | 1 => exact measurable_pi_apply _
-      | 2     => exact (measurable_pi_apply _).add (measurable_pi_apply _)
+lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] :=
+  h_indep.apply_two_last hX₁ hX₂ hX₁' hX₂' measurable_add
 
 lemma hV : H[V] = H[X₁ + X₂'] :=
 IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁.symm h₂
@@ -223,52 +187,24 @@ IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁.symm h₂
   (iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 3 by norm_cast)))
 
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition2 : iIndepFun (fun _ ↦ hG) ![X₂, X₁, X₁' + X₂'] := by
-  apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 3) 1)
-  convert (independenceCondition1 hX₁ hX₂ hX₁' hX₂' h_indep) using 1
-  ext x
-  fin_cases x ; all_goals { aesop }
+lemma independenceCondition2 : iIndepFun (fun _ ↦ hG) ![X₂, X₁, X₁' + X₂'] :=
+  independenceCondition1 hX₂ hX₁ hX₁' hX₂' h_indep.reindex_four_bacd
 
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition3 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁ + X₂'] := by
-  apply independenceCondition1 hX₁' hX₂ hX₁ hX₂'
-    (ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 4) 2) _)
-  convert h_indep using 1
-  ext x
-  fin_cases x ; all_goals { aesop }
+lemma independenceCondition3 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁ + X₂'] :=
+  independenceCondition1 hX₁' hX₂ hX₁ hX₂' h_indep.reindex_four_cbad
 
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition4 : iIndepFun (fun _ ↦ hG) ![X₂, X₁', X₁ + X₂'] := by
-  apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (0 : Fin 3) 1)
-  convert (independenceCondition3 hX₁ hX₂ hX₁' hX₂' h_indep) using 1
-  ext x
-  fin_cases x ; all_goals { aesop }
+lemma independenceCondition4 : iIndepFun (fun _ ↦ hG) ![X₂, X₁', X₁ + X₂'] :=
+  independenceCondition1 hX₂ hX₁' hX₁ hX₂' h_indep.reindex_four_bcad
 
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition5 : iIndepFun (fun _ ↦ hG) ![X₁, X₁', X₂ + X₂'] := by
-  apply independenceCondition1 hX₁ hX₁' hX₂ hX₂'
-    (ProbabilityTheory.iIndepFun.reindex (Equiv.swap (1 : Fin 4) 2) _)
-  convert h_indep using 1
-  ext x
-  fin_cases x ; all_goals { aesop }
+lemma independenceCondition5 : iIndepFun (fun _ ↦ hG) ![X₁, X₁', X₂ + X₂'] :=
+  independenceCondition1 hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_acbd
 
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition6 : iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X₁] := by
-  apply independenceCondition1 hX₂ hX₂' hX₁' hX₁
-  let e : Fin 4 ≃ Fin 4 := {
-    toFun := ![(3 : Fin 4), 0, 2, 1]
-    invFun := ![1, 3 , 2, 0]
-    left_inv := fun x => by
-      fin_cases x
-      all_goals  {simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons] ; rfl }
-    right_inv := fun x => by
-      fin_cases x
-      all_goals  {simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons] ; rfl }
-  }
-  apply (ProbabilityTheory.iIndepFun.reindex e)
-  convert h_indep using 1
-  ext x
-  fin_cases x; all_goals { aesop }
+lemma independenceCondition6 : iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X₁] :=
+  independenceCondition1 hX₂ hX₂' hX₁' hX₁ h_indep.reindex_four_bdca
 
 set_option maxHeartbeats 400000 in
 /--
@@ -302,9 +238,7 @@ lemma sum_dist_diff_le :
     rw [←add_assoc, aux1] at aux2
     linarith [aux2]
 
-  have V_add_eq : V + (X₁ + X₂') = S
-  · rw [add_assoc, add_comm, add_assoc, add_assoc, add_comm X₂', ←add_assoc, add_comm X₂,
-      ←add_assoc]
+  have V_add_eq : V + (X₁ + X₂') = S := by abel
 
   have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2
   · have aux2 : d[p.X₀₁ # V | V + (X₁ + X₂')] - d[p.X₀₁ # X₁']
