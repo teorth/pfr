@@ -358,10 +358,9 @@ lemma condRuzsaDist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Me
       dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] :=
   rfl
 
-@[simp] lemma condRuzsaDist'_zero_right (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) :
+@[simp] lemma condRuzsaDist'_zero_right (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) [FiniteRange X] [FiniteRange Y] [FiniteRange W]:
     d[X ; μ # Y | W ; 0] = 0 := by
-  simp only [condRuzsaDist'_def, aemeasurable_zero_measure, not_true_eq_false, Measure.map_zero,
-    kernel.rdist_zero_right]
+  simp only [condRuzsaDist'_def, aemeasurable_zero_measure, not_true_eq_false, Measure.map_zero,  kernel.rdist_zero_right]
 
 /-- Explicit formula for conditional Ruzsa distance $d[X ; Y|W]$. -/
 lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
@@ -390,6 +389,20 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
   rw [rdist_eq_rdistm, condEntropyKernel_apply hY hW _ _ hw]
   congr
 
+/-- Alternate formula for conditional Ruzsa distance $d[X ; Y|W]$ when T is a Finset. -/
+lemma condRuzsaDist'_eq_sum' {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
+    (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] [Fintype T] [FiniteRange X] [FiniteRange Y]:
+    d[X ; μ # Y | W ; μ']
+      = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
+  rw [condRuzsaDist'_eq_sum hY hW μ μ']
+  apply Finset.sum_subset
+  . simp
+  intro w _ hw
+  simp at hw
+  have : W⁻¹' {w} = ∅ := by
+    ext ω; simp [hw ω]
+  simp [this]
+
 open scoped ENNReal
 
 /-- Replace `cond_cond_eq_cond_inter'` with this version, which removes a nonzero measure
@@ -410,10 +423,24 @@ theorem cond_cond_eq_cond_inter'' (hms : MeasurableSet s) (hmt : MeasurableSet t
 
 lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → T}
     (μ : Measure Ω) (μ' : Measure Ω') (hY : Measurable Y) (hW' : Measurable W') (hW : Measurable W)
-    [IsFiniteMeasure μ'] :
+    [IsFiniteMeasure μ'] [FiniteRange X] [FiniteRange Y] [FiniteRange W] [FiniteRange W']:
     d[X ; μ # Y | ⟨W', W⟩; μ']
-      = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
-  rw [condRuzsaDist'_eq_sum hY (hW'.prod_mk hW), Fintype.sum_prod_type_right]
+      = ∑ w in FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
+  have : d[X ; μ # Y | ⟨W', W⟩; μ'] = ∑ w in ((FiniteRange.toFinset W') ×ˢ FiniteRange.toFinset W), (μ' ((fun a => (W' a, W a)) ⁻¹' {w})).toReal * d[X ; μ # Y ; μ'[|(fun a => (W' a, W a)) ⁻¹' {w}]] := by
+    rw [condRuzsaDist'_eq_sum hY (hW'.prod_mk hW)]
+    apply Finset.sum_subset
+    . intro (t, t')
+      simp
+      intro ω h1 h2
+      exact ⟨ ⟨ ω, h1 ⟩, ⟨ ω, h2 ⟩ ⟩
+    intro (t, t') _ ht
+    simp at ht
+    have : (fun a => (W' a, W a)) ⁻¹' {(t, t')} = ∅ := by
+      ext ω
+      simp
+      exact ht ω
+    simp [this]
+  rw [this, Finset.sum_product_right]
   congr 1 with w
   rw [condRuzsaDist'_eq_sum hY hW', Finset.mul_sum]
   congr 1 with w'
@@ -431,6 +458,21 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
   · congr 1
     rw [A, cond_cond_eq_cond_inter'' (hW (MeasurableSet.singleton w))
       (hW' (MeasurableSet.singleton w')), Set.inter_comm]
+
+/-- Version of `condRuzsaDist'_prod_eq_sum` when `W` has finite codomain. -/
+lemma condRuzsaDist'_prod_eq_sum' {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → T}
+    (μ : Measure Ω) (μ' : Measure Ω') (hY : Measurable Y) (hW' : Measurable W') (hW : Measurable W)
+    [IsFiniteMeasure μ'] [FiniteRange X] [FiniteRange Y] [Fintype T]:
+    d[X ; μ # Y | ⟨W', W⟩; μ']
+      = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
+  rw [condRuzsaDist'_prod_eq_sum μ μ' hY hW' hW]
+  apply Finset.sum_subset
+  . simp
+  intro w _ hw
+  simp at hw
+  have : W⁻¹' {w} = ∅ := by
+    ext ω; simp [hw ω]
+  simp [this]
 
 /-- Explicit formula for conditional Ruzsa distance $d[X ; Y|W]$, in integral form. -/
 lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
@@ -697,9 +739,9 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
 variable (μ μ') in
 lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T'] [MeasurableSpace T']
     [MeasurableSingletonClass T'] [IsFiniteMeasure μ']
-    (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T') (he : Function.Injective e) :
+    (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T') (he : Function.Injective e) [FiniteRange X] [FiniteRange Y] [FiniteRange W] (hX: Measurable X) (hY: Measurable Y) (hW: Measurable W) (he: Measurable e):
     d[X ; μ # Y | (e ∘ W) ; μ'] = d[X ; μ # Y | W ; μ'] := by
-  -- rw [condRuzsaDist'_eq_sum]
+  rw [condRuzsaDist'_eq_sum ‹_› (by measurability), condRuzsaDist'_eq_sum ‹_› ‹_›]
   sorry
 
 lemma condRuzsaDist_of_inj_map {G' : Type*} [Countable G'] [AddCommGroup G']
@@ -1043,7 +1085,7 @@ lemma condRuzsaDist_le' {X : Ω → G} {Y : Ω' → G} {W : Ω' → T}
 variable (μ μ') in
 lemma condRuzsaDist_le'_prod [Fintype T] {X : Ω → G} {Y : Ω' → G} {W Z : Ω' → T}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
-    (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) (hZ : Measurable Z) :
+    (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange W] [FiniteRange Z]:
     d[X ; μ # Y|⟨W, Z⟩ ; μ'] ≤ d[X ; μ # Y|Z ; μ'] + I[Y : W | Z ; μ']/2 := by
   rw [condRuzsaDist'_prod_eq_sum _ _ hY hW hZ, condRuzsaDist'_eq_sum hY hZ,
     condMutualInfo_eq_sum hZ, Finset.sum_div, ← Finset.sum_add_distrib]

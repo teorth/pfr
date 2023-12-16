@@ -48,7 +48,7 @@ lemma gen_ineq_aux1 :
       fin_cases i <;> assumption
     have J1 : Z₃ + Z₁ + Z₄ + Z₂ = Z₁ + Z₂ + Z₃ + Z₄ := by abel
     have J2 : Z₃ + Z₁ = Z₁ + Z₃ := by abel
-    rw [J1, J2] at M
+    simp_rw [J1, J2] at M
     simpa only [rdist_symm (Y := Z₁), rdist_symm (X := Z₄), rdist_symm (X := Z₃ + Z₄),
       condRuzsaDist_symm hZ₃ (hZ₃.add' hZ₄) hZ₁ (hZ₁.add' hZ₂),
       condMutualInfo_comm (hZ₁.add' hZ₃) (hZ₁.add' hZ₂)] using M
@@ -83,7 +83,7 @@ lemma gen_ineq_aux2 :
   calc
   d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
   = ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]] := by
-    rw [condRuzsaDist'_eq_sum (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)]
+    rw [condRuzsaDist'_eq_sum' (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)]
   _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]]
       + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]] / 2
       + H[Z₂ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4) := by
@@ -99,7 +99,7 @@ lemma gen_ineq_aux2 :
       + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
     simp only [mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib, Finset.sum_div]
     congr
-    · rw [← condRuzsaDist'_eq_sum hZ₁ ((hZ₁.add' hZ₃).prod_mk hS)]
+    · rw [← condRuzsaDist'_eq_sum' hZ₁ ((hZ₁.add' hZ₃).prod_mk hS)]
       have : d[Y # Z₁ | ⟨Z₁ + Z₃, Sum⟩] = d[Y # Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := by sorry
       sorry
     · sorry
@@ -112,6 +112,7 @@ lemma gen_ineq_aux2 :
     have := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₃ I
     linarith
   _ = _ := by ring
+
 
 /-- Let $Z_1, Z_2, Z_3, Z_4$ be independent $G$-valued random variables, and let $Y$ be another
 $G$-valued random variable.  Set $S := Z_1+Z_2+Z_3+Z_4$. Then
@@ -141,9 +142,10 @@ lemma gen_ineq_01 : d[Y # Z₁ + Z₂ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] �
     left_inv := by intro ⟨a, b⟩; simp [add_comm b a, add_assoc]
     right_inv := by intro ⟨a, b⟩; simp [add_comm a b, ← add_assoc] }
   convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂) (⟨Z₁ + Z₃, Sum⟩) e
-    e.injective) with p
+    e.injective hY (by measurability) (by measurability) (by measurability)) with p
   simp only [Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
   abel
+
 
 /-- Other version of `gen_ineq_00`, in which we switch to the complement in the first term. -/
 lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] ≤
@@ -155,8 +157,8 @@ lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] �
   let e : G × G ≃ G × G := Equiv.prodComm G G
   have A : e ∘ ⟨Z₁ + Z₃, Sum⟩ = ⟨Sum, Z₁ + Z₃⟩ := by ext p <;> rfl
   rw [← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₃ + Z₄) (⟨Z₁ + Z₃, Sum⟩)
-      e e.injective, ← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
-      (⟨Z₁ + Z₃, Sum⟩) e e.injective, A,
+      e e.injective (by measurability) (by measurability) (by measurability) (by measurability), ← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
+      (⟨Z₁ + Z₃, Sum⟩) e e.injective (by measurability) (by measurability) (by measurability) (by measurability), A,
       condRuzsaDist'_prod_eq_sum _ _ (hZ₃.add' hZ₄) hS (hZ₁.add' hZ₃),
       condRuzsaDist'_prod_eq_sum _ _ (hZ₁.add' hZ₂) hS (hZ₁.add' hZ₃)]
   congr with w
@@ -359,8 +361,8 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
   have hz (a : ℝ) : a = ∑ z, (ℙ (S ⁻¹' {z})).toReal * a := by
     rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hS, one_mul]
   rw [hz k, hz (d[p.X₀₁ # X₁]), hz (d[p.X₀₂ # X₂])]
-  simp only [condMutualInfo_eq_sum hS, ← Finset.sum_add_distrib, ← mul_add,
-    condRuzsaDist'_prod_eq_sum, hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
+  simp only [condMutualInfo_eq_sum' hS, ← Finset.sum_add_distrib, ← mul_add,
+    condRuzsaDist'_prod_eq_sum', hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
     ← mul_assoc (p.η/6), mul_comm (p.η/6), mul_assoc _ _ (p.η/6)]
   apply Finset.sum_le_sum (fun i _hi ↦ ?_)
   rcases eq_or_ne (ℙ (S ⁻¹' {i})) 0 with h'i|h'i

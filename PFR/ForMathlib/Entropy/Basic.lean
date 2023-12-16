@@ -519,7 +519,7 @@ conditional entropy. -/
 lemma IdentDistrib.condEntropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {X Y : Ω → S}
     {μ' : Measure Ω'} {X' Y' : Ω' → S} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y')
-    (h : IdentDistrib (⟨X, Y⟩) (⟨X', Y'⟩) μ μ') : H[X | Y ; μ] = H[X' | Y' ; μ'] := by
+    (h : IdentDistrib (⟨X, Y⟩) (⟨X', Y'⟩) μ μ') [FiniteRange X] [FiniteRange Y] [FiniteRange X'] [FiniteRange Y']: H[X | Y ; μ] = H[X' | Y' ; μ'] := by
   have : IdentDistrib Y Y' μ μ' := h.comp measurable_snd
   rw [chain_rule'' _ hX hY, chain_rule'' _ hX' hY', h.entropy_eq, this.entropy_eq]
 
@@ -760,12 +760,26 @@ lemma condMutualInfo_eq_kernel_mutualInfo
 lemma condMutualInfo_eq_integral_mutualInfo [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
     I[X : Y | Z ; μ] = (μ.map Z)[fun z ↦ I[X : Y ; μ[| Z ⁻¹' {z}]]] := rfl
 
-lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) :
-    I[X : Y | Z ; μ] = ∑ z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
-  rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum]
+lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
+    I[X : Y | Z ; μ] = ∑ z in FiniteRange.toFinset Z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
+  rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hZ _)]
   congr 1 with z
   rw [map_apply hZ (MeasurableSet.singleton z)]
   rfl
+
+/-- A variant of `condMutualInfo_eq_sum` when `Z` has finite codomain. -/
+lemma condMutualInfo_eq_sum' [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [Fintype U] :
+    I[X : Y | Z ; μ] = ∑ z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
+  rw [condMutualInfo_eq_sum hZ]
+  apply Finset.sum_subset
+  . simp
+  intro z _ hz
+  have : Z ⁻¹' {z} = ∅ := by
+    ext ω
+    simp at hz
+    simp [hz]
+  simp [this]
+
 
 /-- $I[X : Y | Z] = I[Y : X | Z]$. -/
 lemma condMutualInfo_comm

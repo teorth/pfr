@@ -39,6 +39,11 @@ lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) : 
   rw [<-Finset.mem_coe, <-FiniteRange.range X]
   simp
 
+@[simp]
+lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) : x ∈ FiniteRange.toFinset X ↔ ∃ ω, X ω = x := by
+  rw [<-Finset.mem_coe, <-FiniteRange.range X]
+  simp
+
 /-- Constants have finite range -/
 instance {Ω G : Type*} (c : G) : FiniteRange (fun _ : Ω ↦ c) := by
   apply finiteRange_of_finset _ { c }
@@ -97,12 +102,10 @@ lemma FiniteRange.full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G] [
   rw [Measure.map_apply hX]
   congr
   ext ω; simp
-  exact mem X ω
   measurability
 
 lemma FiniteRange.null_of_compl {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G] [MeasurableSingletonClass G] {X : Ω → G} (hX: Measurable X) [FiniteRange X] (μ: Measure Ω) : (μ.map X) (FiniteRange.toFinset X: Set G)ᶜ  = 0 := by
   rw [Measure.map_apply hX]
   convert measure_empty
   ext ω; simp
-  exact mem X ω
   measurability
