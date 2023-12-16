@@ -627,10 +627,16 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
 variable (μ μ') in
 lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T'] [MeasurableSpace T']
     [MeasurableSingletonClass T'] [IsFiniteMeasure μ']
-    (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T') (he : Function.Injective e) :
+    (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T')
+    (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W) (he : Measurable e)
+    (h'e : Function.Injective e) :
     d[X ; μ # Y | (e ∘ W) ; μ'] = d[X ; μ # Y | W ; μ'] := by
-  -- rw [condRuzsaDist'_eq_sum]
+  rw [condRuzsaDist'_eq_sum hY (he.comp hW), condRuzsaDist'_eq_sum hY hW]
+  simp [Set.preimage_comp]
+  apply sum_eq_of_injective
   sorry
+
+#exit
 
 lemma condRuzsaDist_of_inj_map {G' : Type*} [Fintype G'] [AddCommGroup G']
   [MeasurableSpace G'] [MeasurableSingletonClass G'] [IsProbabilityMeasure μ]
