@@ -6,23 +6,24 @@ open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
 
 universe uΩ uS uT uU
 variable {Ω : Type uΩ} {G : Type uS} {T : Type uT} {U : Type uU} [mΩ : MeasurableSpace Ω]
-  [Fintype G] [Fintype T] [Fintype U]
+  [Countable G] [Countable T] [Countable U]
   [Nonempty G] [Nonempty T] [Nonempty U]
   [MeasurableSpace G] [MeasurableSpace T] [MeasurableSpace U]
   [MeasurableSingletonClass G] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
   [Group G] {X Y : Ω → G} {μ : Measure Ω}
+  [FiniteRange X] [FiniteRange Y]
 
 namespace ProbabilityTheory
 section entropy
 
 @[to_additive (attr := simp)]
-lemma entropy_mul_const (μ : Measure Ω) (X : Ω → G) (hX : Measurable X) (c : G) :
-    H[(X · * c) ; μ] = H[X ; μ] := by
+lemma entropy_mul_const (hX : Measurable X) (c : G) :
+    H[X * fun _ ↦ c; μ] = H[X ; μ] := by
   apply entropy_comp_of_injective μ hX _ $ mul_left_injective c
 
 /-- $H[X, X * Y] = H[X, Y]$ -/
 @[to_additive "$H[X, X + Y] = H[X, Y]$"]
-lemma entropy_mul_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
+lemma entropy_mul_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [FiniteRange X] [FiniteRange Y] :
     H[⟨X, X * Y⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.mulLeft ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk hY) _ $ Equiv.injective _
@@ -140,7 +141,7 @@ lemma mutualInfo_mul_right (hX : Measurable X) (hY : Measurable Y) {μ : Measure
 end mutualInfo
 
 section IsProbabilityMeasure
-variable [IsProbabilityMeasure μ] {Y : Ω → G}
+variable [IsProbabilityMeasure μ] {Y : Ω → G} [FiniteRange Y]
 
 /-- $$H[X] - I[X : Y] \leq H[X * Y]$$ -/
 @[to_additive "$$H[X] - I[X : Y] \\leq H[X + Y]$$"]
@@ -187,7 +188,7 @@ lemma max_entropy_sub_mutualInfo_le_entropy_div (hX : Measurable X) (hY : Measur
 
 /-- $$\max(H[X | Z], H[Y | Z]) - I[X : Y | Z] \leq H[X * Y | Z]$$ -/
 @[to_additive "$$\\max(H[X | Z], H[Y | Z]) - I[X : Y | Z] \\leq H[X + Y | Z]$$"]
-lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T}
+lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T} [FiniteRange Z]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
     max H[X | Z ; μ] H[Y | Z ; μ] - I[X : Y | Z ; μ] ≤ H[X * Y | Z ; μ] := by
   have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
@@ -199,7 +200,9 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T}
   rw [kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ μ).symm,
     kernel.entropy_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ).symm,
     max_comm]
-  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _).trans_eq ?_
+  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _ ?_ ?_).trans_eq ?_
+  . exact finiteSupport_of_finiteRange hZ
+  . exact kernel.finiteKernelSupport_of_condEntropy _ _ _ (hY.prod_mk hX) hZ
   have h := condEntropyKernel_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 * x.1)
   rw [kernel.entropy_congr h.symm]
   rfl
@@ -208,7 +211,7 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T}
 @[to_additive "$$\\max(H[X | Z], H[Y | Z]) - I[X : Y | Z] \\leq H[X - Y | Z]$$"]
 lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div {Z : Ω → T}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    [IsProbabilityMeasure μ] :
+    [IsProbabilityMeasure μ] [FiniteRange Z] :
     (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X / Y | Z ; μ] := by
   have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
     isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
@@ -219,7 +222,9 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div {Z : Ω → T}
   swap ; · exact hX.div hY
   rw [kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ μ).symm,
     kernel.entropy_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ).symm, max_comm]
-  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _).trans_eq ?_
+  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _ ?_ ?_).trans_eq ?_
+  . exact finiteSupport_of_finiteRange hZ
+  . exact kernel.finiteKernelSupport_of_condEntropy _ _ _ (hY.prod_mk hX) hZ
   rw [kernel.entropy_div_comm]
   have h := condEntropyKernel_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 / x.1)
   rw [kernel.entropy_congr h.symm]

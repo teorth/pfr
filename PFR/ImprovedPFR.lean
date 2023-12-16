@@ -259,14 +259,16 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp_rw [mutualInfo_def] at h1 ⊢; linarith
   -- rewrite sum2 and sum3 as Rusza distances
   have h2 : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
+
     simp only [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum,
+    simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
+
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum,
+    simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
