@@ -50,7 +50,7 @@ lemma gen_ineq_aux1 :
       fin_cases i <;> assumption
     have J1 : Z₃ + Z₁ + Z₄ + Z₂ = Z₁ + Z₂ + Z₃ + Z₄ := by abel
     have J2 : Z₃ + Z₁ = Z₁ + Z₃ := by abel
-    rw [J1, J2] at M
+    simp_rw [J1, J2] at M
     simpa only [rdist_symm (Y := Z₁), rdist_symm (X := Z₄), rdist_symm (X := Z₃ + Z₄),
       condRuzsaDist_symm hZ₃ (hZ₃.add' hZ₄) hZ₁ (hZ₁.add' hZ₂),
       condMutualInfo_comm (hZ₁.add' hZ₃) (hZ₁.add' hZ₂)] using M
@@ -77,36 +77,118 @@ lemma gen_ineq_aux1 :
       linarith
   _ = _ := by linarith
 
+/-- If `B` is independent from `C`, then conditioning on an event given by `C` does not change
+the distribution of `B`. -/
+lemma ProbabilityTheory.IndepFun.identDistrib_cond {Ω : Type*} [MeasurableSpace Ω]
+    {μ : Measure Ω} [IsProbabilityMeasure μ]
+    {B : Ω → G} {C : Ω → S} [MeasurableSpace S] (hi : IndepFun B C μ) {s : Set S}
+    (hs : MeasurableSet s) (hB : Measurable B) (hC : Measurable C)
+    (h : μ (C ⁻¹' s) ≠ 0) :
+    IdentDistrib B B μ (μ[|C ⁻¹' s]) := by
+  refine ⟨hB.aemeasurable, hB.aemeasurable, ?_⟩
+  ext t ht
+  rw [Measure.map_apply hB ht, Measure.map_apply hB ht, cond_apply _ (hC hs), Set.inter_comm,
+    hi.measure_inter_preimage_eq_mul ht hs, mul_comm, mul_assoc,
+    ENNReal.mul_inv_cancel h (by finiteness), mul_one]
+
+lemma condRuszaDist_prod_eq_of_indepFun
+    (A : Ω₀ → G) (B C D : Ω → G) (hA : Measurable A) (hB : Measurable B) (hC : Measurable C)
+    (hD : Measurable D) (h : IndepFun (⟨B, C⟩) D) :
+    d[A # B | ⟨C, D⟩] = d[A # B | C] := by
+  rw [condRuzsaDist'_prod_eq_sum' _ _ hB hC hD]
+  have : d[A # B | C] = ∑ z, (ℙ (D ⁻¹' {z})).toReal * d[A # B | C] := by
+    rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hD, one_mul]
+  rw [this]
+  congr with w
+  rcases eq_or_ne (ℙ (D ⁻¹' {w})) 0 with hw|hw
+  · simp [hw]
+  congr 1
+  apply condRuzsaDist'_of_copy _ hB hC _ hB hC (IdentDistrib.refl hA.aemeasurable)
+  exact (h.identDistrib_cond (MeasurableSet.singleton w) (hB.prod_mk hC) hD hw).symm
+
+lemma condEntropy_prod_eq_of_indepFun'
+    (A : Ω₀ → G) (B C D : Ω → G) (hA : Measurable A) (hB : Measurable B) (hC : Measurable C)
+    (hD : Measurable D) (h : IndepFun (⟨B, C⟩) D) :
+    H[B | ⟨C, D⟩] = H[B | C] := by
+  rw [condEntropy_prod]
+
+
+#exit
+
+
+
+
 lemma gen_ineq_aux2 :
-    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃,Sum⟩] ≤ d[Y # Z₁]
+    d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
       + (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
       + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := by
   have hS : Measurable Sum := ((hZ₁.add' hZ₂).add' hZ₃).add' hZ₄
+  have I : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) := by
+    apply (h_indep.indepFun_prod_prod ?_ 0 2 1 3
+      (by decide) (by decide) (by decide) (by decide))
+    intro i; fin_cases i <;> assumption
   calc
   d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
-  = ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]] := by
-    rw [condRuzsaDist'_eq_sum (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)]
-  _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]]
-      + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]] / 2
-      + H[Z₂ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Sum⟩ ← w] / 4) := by
-    apply Finset.sum_le_sum (fun w h'w ↦ ?_)
-    rcases eq_bot_or_bot_lt (ℙ (⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w})) with hw|hw
+    = d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := sorry
+      /- let e : G × G ≃ G × G :=
+        { toFun := fun p ↦ ⟨p.1, p.2 - p.1⟩
+          invFun := fun p ↦ ⟨p.1, p.2 + p.1⟩
+          left_inv := by intro ⟨a, b⟩; simp [add_assoc]
+          right_inv := by intro ⟨a, b⟩; simp [add_assoc] }
+      convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
+        (⟨Z₁ + Z₃, Sum⟩) e (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)
+        (measurable_discrete e) e.injective).symm
+      simp only [Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
+      abel -/
+  _ = ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal *
+        d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]] := by
+    rw [condRuzsaDist'_eq_sum' (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
+  _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]]
+      + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]] / 2
+      + H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4) := by
+    sorry /-apply Finset.sum_le_sum (fun w h'w ↦ ?_)
+    rcases eq_bot_or_bot_lt (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) with hw|hw
     · simp [hw]
     gcongr
-    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]) := cond_isProbabilityMeasure ℙ hw.ne'
-    have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Sum⟩ ⁻¹' {w}]) := sorry
-    have := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := ℙ[|⟨Z₁ + Z₃, Sum⟩ ← w]) hY hZ₁ hZ₂ this
-    linarith
+    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure ℙ hw.ne'
+    have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]) := sorry
+    have := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w])
+      hY hZ₁ hZ₂ this
+    linarith -/
   _ = d[Y # Z₁ | Z₁ + Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
       + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
     simp only [mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib, Finset.sum_div]
     congr
-    · rw [← condRuzsaDist'_eq_sum hZ₁ ((hZ₁.add' hZ₃).prod_mk hS)]
-      have : d[Y # Z₁ | ⟨Z₁ + Z₃, Sum⟩] = d[Y # Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := by sorry
-      sorry
-    · sorry
-    · sorry
-    · sorry
+    · sorry /-rw [← condRuzsaDist'_eq_sum' hZ₁ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
+      apply condRuszaDist_prod_eq_of_indepFun Y Z₁ (Z₁ + Z₃) (Z₂ + Z₄) hY hZ₁ (hZ₁.add' hZ₃)
+        (hZ₂.add' hZ₄)
+      exact I.comp (measurable_fst.prod_mk measurable_add) measurable_add -/
+    · sorry /-simp_rw [← mul_div_assoc, ← Finset.sum_div]
+      rw [condRuzsaDist_eq_sum' hZ₁ (hZ₁.add' hZ₃) hZ₂ (hZ₂.add' hZ₄), Fintype.sum_prod_type]
+      congr with x
+      congr with y
+      have : (⟨Z₁ + Z₃, Z₂ + Z₄⟩) ⁻¹' {(x, y)} = (Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y} := by
+        ext p; simp
+      rw [this]
+      have J : IndepFun (Z₁ + Z₃) (Z₂ + Z₄) := by exact I.comp measurable_add measurable_add
+      rw [J.measure_inter_preimage_eq_mul (measurableSet_singleton x) (measurableSet_singleton y),
+        ENNReal.toReal_mul]
+      rcases eq_or_ne (ℙ ((Z₁ + Z₃) ⁻¹' {x})) 0 with h1|h1
+      · simp [h1]
+      rcases eq_or_ne (ℙ ((Z₂ + Z₄) ⁻¹' {y})) 0 with h2|h2
+      · simp [h2]
+      congr 1
+      have A : IdentDistrib Z₁ Z₁ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
+        (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := sorry
+      have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
+        (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := sorry
+      exact IdentDistrib.rdist_eq A B -/
+    · have : H[Z₂ | Z₂ + Z₄] = H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := sorry
+      rw [this, condEntropy_eq_sum_fintype _ _ _ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
+      simp_rw [← mul_div_assoc, Finset.sum_div]
+    · have : H[Z₁ | Z₁ + Z₃] = H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := sorry
+      rw [this, condEntropy_eq_sum_fintype _ _ _ ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
+      simp_rw [← mul_div_assoc, Finset.sum_div]
   _ ≤ (d[Y # Z₁] + d[Z₁ # Z₃]/2 + H[Z₁]/4 - H[Z₃]/4) + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
       + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
     gcongr
@@ -114,6 +196,8 @@ lemma gen_ineq_aux2 :
     have := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₃ I
     linarith
   _ = _ := by ring
+
+#exit
 
 /-- Let $Z_1, Z_2, Z_3, Z_4$ be independent $G$-valued random variables, and let $Y$ be another
 $G$-valued random variable.  Set $S := Z_1+Z_2+Z_3+Z_4$. Then
@@ -143,7 +227,7 @@ lemma gen_ineq_01 : d[Y # Z₁ + Z₂ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] �
     left_inv := by intro ⟨a, b⟩; simp [add_comm b a, add_assoc]
     right_inv := by intro ⟨a, b⟩; simp [add_comm a b, ← add_assoc] }
   convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂) (⟨Z₁ + Z₃, Sum⟩) e
-    e.injective) with p
+    (by measurability) (by measurability) (by measurability) e.injective) with p
   simp only [Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
   abel
 
@@ -157,8 +241,9 @@ lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] �
   let e : G × G ≃ G × G := Equiv.prodComm G G
   have A : e ∘ ⟨Z₁ + Z₃, Sum⟩ = ⟨Sum, Z₁ + Z₃⟩ := by ext p <;> rfl
   rw [← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₃ + Z₄) (⟨Z₁ + Z₃, Sum⟩)
-      e e.injective, ← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
-      (⟨Z₁ + Z₃, Sum⟩) e e.injective, A,
+      e (by measurability) (by measurability) (by measurability) e.injective ,
+      ← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
+        (⟨Z₁ + Z₃, Sum⟩) e (by measurability) (by measurability) (by measurability)  e.injective, A,
       condRuzsaDist'_prod_eq_sum _ _ (hZ₃.add' hZ₄) hS (hZ₁.add' hZ₃),
       condRuzsaDist'_prod_eq_sum _ _ (hZ₁.add' hZ₂) hS (hZ₁.add' hZ₃)]
   congr with w
@@ -261,14 +346,16 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp_rw [mutualInfo_def] at h1 ⊢; linarith
   -- rewrite sum2 and sum3 as Rusza distances
   have h2 : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
+
     simp only [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum,
+    simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
+
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum,
+    simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
@@ -359,8 +446,8 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
   have hz (a : ℝ) : a = ∑ z, (ℙ (S ⁻¹' {z})).toReal * a := by
     rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hS, one_mul]
   rw [hz k, hz (d[p.X₀₁ # X₁]), hz (d[p.X₀₂ # X₂])]
-  simp only [condMutualInfo_eq_sum hS, ← Finset.sum_add_distrib, ← mul_add,
-    condRuzsaDist'_prod_eq_sum, hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
+  simp only [condMutualInfo_eq_sum' hS, ← Finset.sum_add_distrib, ← mul_add,
+    condRuzsaDist'_prod_eq_sum', hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
     ← mul_assoc (p.η/6), mul_comm (p.η/6), mul_assoc _ _ (p.η/6)]
   apply Finset.sum_le_sum (fun i _hi ↦ ?_)
   rcases eq_or_ne (ℙ (S ⁻¹' {i})) 0 with h'i|h'i

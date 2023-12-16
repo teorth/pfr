@@ -377,15 +377,16 @@ lemma construct_good_prelim :
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
   · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
-      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum,
+      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
+
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
 
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
   · have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
-      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum,
+      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]

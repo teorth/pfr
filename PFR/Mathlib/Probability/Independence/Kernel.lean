@@ -29,3 +29,13 @@ lemma iIndepFun.mul_right [IsMarkovKernel κ] {ι : Type*} {β : Type*} {m : Mea
     (hf_meas : ∀ i, Measurable (f i)) (i j k : ι) (hij : i ≠ j) (hik : i ≠ k) :
     IndepFun (f i) (f j * f k) κ μ :=
   (hf_Indep.mul_left hf_meas _ _ _ hij.symm hik.symm).symm
+
+/-- Improved version of `IndepFun.ae_eq` in which the ranges are allowed to be distinct. Perhaps can serve as a replacement of that method? -/
+theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'}  {f f' : Ω → β} {g g' : Ω → β'} (hfg : IndepFun f g κ μ)
+    (hf : ∀ᵐ a ∂μ, f =ᵐ[κ a] f') (hg : ∀ᵐ a ∂μ, g =ᵐ[κ a] g') :
+    IndepFun f' g' κ μ := by
+  rintro _ _ ⟨A, hA, rfl⟩ ⟨B, hB, rfl⟩
+  filter_upwards [hf, hg, hfg _ _ ⟨_, hA, rfl⟩ ⟨_, hB, rfl⟩] with a hf' hg' hfg'
+  have h1 : f ⁻¹' A =ᵐ[κ a] f' ⁻¹' A := hf'.fun_comp A
+  have h2 : g ⁻¹' B =ᵐ[κ a] g' ⁻¹' B := hg'.fun_comp B
+  rwa [← measure_congr h1, ← measure_congr h2, ← measure_congr (h1.inter h2)]
