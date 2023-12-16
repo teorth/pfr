@@ -122,7 +122,19 @@ lemma condEntropy_prod_eq_of_indepFun
   apply IdentDistrib.condEntropy_eq hB hC hB hC
   exact (h.identDistrib_cond (MeasurableSet.singleton w) (hB.prod_mk hC) hD hw).symm
 
-def foo : S × T ≃ T × S := by exact Equiv.prodComm S T
+/-- If `Z₁` is independent of `Z₂`, then they remain independent when conditioning on an event
+of the form `Z₁ ∈ s` of positive probability. -/
+lemma indepFun_cond_left (μ : Measure Ω) {Z₁ : Ω → G} {Z₂ : Ω → S}
+    [MeasurableSpace S] [IsFiniteMeasure μ]
+    (h : IndepFun Z₁ Z₂ μ) {s : Set G} (hne : μ (Z₁ ⁻¹' s) ≠ 0)
+    (hs : MeasurableSet s) (hZ₁ : Measurable Z₁) :
+    IndepFun Z₁ Z₂ (μ[| Z₁⁻¹' s]) := by
+  apply indepFun_iff_measure_inter_preimage_eq_mul.2 (fun u v hu hv ↦ ?_)
+  have : Z₁ ⁻¹' s ∩ (Z₁ ⁻¹' u ∩ Z₂ ⁻¹' v) = Z₁ ⁻¹' (s ∩ u) ∩ Z₂ ⁻¹' v := by aesop
+  simp only [cond_apply _ (hZ₁ hs), this]
+  rw [h.measure_inter_preimage_eq_mul (hs.inter hu) hv, Set.preimage_inter,
+    h.measure_inter_preimage_eq_mul hs hv, ← mul_assoc (μ (Z₁ ⁻¹' s))⁻¹,
+    ← mul_assoc (μ (Z₁ ⁻¹' s))⁻¹, ENNReal.inv_mul_cancel hne (by finiteness), one_mul]
 
 lemma gen_ineq_aux2 :
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
@@ -152,7 +164,7 @@ lemma gen_ineq_aux2 :
   _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]]
       + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]] / 2
       + H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4) := by
-    sorry /-apply Finset.sum_le_sum (fun w h'w ↦ ?_)
+    apply Finset.sum_le_sum (fun w h'w ↦ ?_)
     rcases eq_bot_or_bot_lt (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) with hw|hw
     · simp [hw]
     gcongr
@@ -160,7 +172,10 @@ lemma gen_ineq_aux2 :
     have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]) := sorry
     have := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w])
       hY hZ₁ hZ₂ this
-    linarith -/
+    linarith
+  _ ≤ _ := sorry
+
+#exit
   _ = d[Y # Z₁ | Z₁ + Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
       + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
     simp only [mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib, Finset.sum_div]
@@ -185,9 +200,34 @@ lemma gen_ineq_aux2 :
       · simp [h2]
       congr 1
       have A : IdentDistrib Z₁ Z₁ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
-        (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := sorry
+          (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := by
+        rw [← cond_cond_eq_cond_inter'' ((hZ₁.add' hZ₃) (measurableSet_singleton _))
+          ((hZ₂.add' hZ₄) (measurableSet_singleton _))]
+        have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure _ h1
+        apply (IndepFun.identDistrib_cond _ (measurableSet_singleton _) hZ₁ (hZ₂.add' hZ₄) _).symm
+        · have : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
+            indepFun_cond ℙ I (by exact h1) (measurable_add (measurableSet_singleton x))
+              (hZ₁.prod_mk hZ₃)
+          exact this.comp measurable_fst measurable_add
+        · rw [cond_apply _ ((hZ₁.add' hZ₃) (measurableSet_singleton x)),
+            J.measure_inter_preimage_eq_mul (measurableSet_singleton x) (measurableSet_singleton y)]
+          simp [h1, h2]
+          finiteness
       have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
-        (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := sorry
+          (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := by
+        rw [Set.inter_comm, ← cond_cond_eq_cond_inter'' ((hZ₂.add' hZ₄) (measurableSet_singleton _))
+          ((hZ₁.add' hZ₃) (measurableSet_singleton _))]
+        have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure _ h2
+        apply (IndepFun.identDistrib_cond _ (measurableSet_singleton _) hZ₂ (hZ₁.add' hZ₃) _).symm
+        · have : IndepFun (⟨Z₂, Z₄⟩) (⟨Z₁, Z₃⟩) (ℙ[|(⟨Z₂, Z₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
+            indepFun_cond ℙ I.symm (by exact h2) (measurable_add (measurableSet_singleton y))
+              (hZ₂.prod_mk hZ₄)
+          exact this.comp measurable_fst measurable_add
+        · rw [cond_apply _ ((hZ₂.add' hZ₄) (measurableSet_singleton y)),
+            J.symm.measure_inter_preimage_eq_mul (measurableSet_singleton y)
+              (measurableSet_singleton x)]
+          simp [h1, h2]
+          finiteness
       exact IdentDistrib.rdist_eq A B
     · have I1 : H[Z₂ | Z₂ + Z₄] = H[Z₂ | ⟨Z₂ + Z₄, Z₁ + Z₃⟩] := by
         apply (condEntropy_prod_eq_of_indepFun hZ₂ (hZ₂.add' hZ₄) (hZ₁.add' hZ₃) _).symm
