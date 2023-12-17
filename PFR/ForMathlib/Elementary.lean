@@ -101,7 +101,8 @@ namespace ElementaryAddCommGroup
 
 /-- A vector space over Z/p is an elementary abelian p-group. -/
 -- We can't make this an instance as `p` is not determined.
-def ofModule [AddCommGroup G] [Module (ZMod p) G] [Fact p.Prime] : ElementaryAddCommGroup G p where
+lemma ofModule [AddCommGroup G] [Module (ZMod p) G] [Fact p.Prime] :
+    ElementaryAddCommGroup G p where
   orderOf_of_ne := addOrderOf_eq_prime (Basis.ext_elem (.ofVectorSpace (ZMod p) G) (by simp))
 
 -- We add the special case instance for `p = 2`.
