@@ -149,7 +149,7 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
 
 /-- $$ d[X ; 0] = H[X] / 2 -/
 lemma rdist_zero_eq_half_ent [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
-    d[X ; μ # fun _ → 0 ; μ'] = d[X ; μ]/2 := by
+    d[X ; μ # fun _ ↦ 0 ; μ'] = H[X ; μ]/2 := by
   sorry
 
 /-- $$ d[X ; Y] = d[Y ; X]$$ -/
