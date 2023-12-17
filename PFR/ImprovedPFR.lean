@@ -124,9 +124,9 @@ lemma condEntropy_prod_eq_of_indepFun
 
 /-- If `Z₁` is independent of `Z₂`, then they remain independent when conditioning on an event
 of the form `Z₁ ∈ s` of positive probability. -/
-lemma indepFun_cond_left (μ : Measure Ω) {Z₁ : Ω → G} {Z₂ : Ω → S}
-    [MeasurableSpace S] [IsFiniteMeasure μ]
-    (h : IndepFun Z₁ Z₂ μ) {s : Set G} (hne : μ (Z₁ ⁻¹' s) ≠ 0)
+lemma ProbabilityTheory.IndepFun.cond_left {Ω : Type*} {_ : MeasurableSpace Ω} {μ : Measure Ω} {Z₁ : Ω → G} {Z₂ : Ω → S}
+    [MeasurableSpace S]
+    (h : IndepFun Z₁ Z₂ μ) [IsFiniteMeasure μ] {s : Set G} (hne : μ (Z₁ ⁻¹' s) ≠ 0)
     (hs : MeasurableSet s) (hZ₁ : Measurable Z₁) :
     IndepFun Z₁ Z₂ (μ[| Z₁⁻¹' s]) := by
   apply indepFun_iff_measure_inter_preimage_eq_mul.2 (fun u v hu hv ↦ ?_)
@@ -135,6 +135,45 @@ lemma indepFun_cond_left (μ : Measure Ω) {Z₁ : Ω → G} {Z₂ : Ω → S}
   rw [h.measure_inter_preimage_eq_mul (hs.inter hu) hv, Set.preimage_inter,
     h.measure_inter_preimage_eq_mul hs hv, ← mul_assoc (μ (Z₁ ⁻¹' s))⁻¹,
     ← mul_assoc (μ (Z₁ ⁻¹' s))⁻¹, ENNReal.inv_mul_cancel hne (by finiteness), one_mul]
+
+theorem kernelIndepsymm {Ω α β γ : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace α}
+    {_ : MeasurableSpace β} {_ : MeasurableSpace γ} {κ : kernel α Ω} {f : Ω → β} {g : Ω → γ}
+    {μ : Measure α}
+    (hfg : kernel.IndepFun f g κ μ) : kernel.IndepFun g f κ μ :=
+  kernel.Indep.symm hfg
+
+theorem ProbabilityTheory.IndepFun.symm' {γ β Ω : Type*} {_ : MeasurableSpace γ}
+    {_ : MeasurableSpace β} {_ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → γ}
+    (hfg : IndepFun f g μ) :
+    IndepFun g f μ := kernelIndepsymm hfg
+
+/-- If `Z₁` is independent of `Z₂`, then they remain independent when conditioning on an event
+of the form `Z₂ ∈ t` of positive probability. -/
+lemma ProbabilityTheory.IndepFun.cond_right {Ω : Type*} {_ : MeasurableSpace Ω}
+    {μ : Measure Ω} {Z₁ : Ω → G} {Z₂ : Ω → S}
+    [MeasurableSpace S]
+    (h : IndepFun Z₁ Z₂ μ) [IsFiniteMeasure μ] {t : Set S} (hne : μ (Z₂ ⁻¹' t) ≠ 0)
+    (ht : MeasurableSet t) (hZ₂ : Measurable Z₂) :
+    IndepFun Z₁ Z₂ (μ[| Z₂⁻¹' t]) :=
+  (h.symm'.cond_left hne ht hZ₂).symm'
+
+/-- If `Z₁` is independent of `Z₂`, then they remain independent when conditioning on an event
+of the form `Z₁ ∈ s ∩ Z₂ ∈ t` of positive probability. -/
+lemma ProbabilityTheory.IndepFun.cond
+    {Ω : Type*} {_ : MeasurableSpace Ω} {μ : Measure Ω} {Z₁ : Ω → G} {Z₂ : Ω → S}
+    [MeasurableSpace S] [IsFiniteMeasure μ] (h : IndepFun Z₁ Z₂ μ)
+    {s : Set G} {t : Set S} (hne : μ (Z₁ ⁻¹' s) ≠ 0) (hne' : μ (Z₂ ⁻¹' t) ≠ 0)
+    (hs : MeasurableSet s) (ht : MeasurableSet t) (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) :
+    IndepFun Z₁ Z₂ (μ[| Z₁ ⁻¹' s ∩ Z₂⁻¹' t]) := by
+  have A : μ (Z₁ ⁻¹' s ∩ Z₂ ⁻¹' t) ≠ 0 := by
+    rw [h.measure_inter_preimage_eq_mul hs ht]
+    simp [hne, hne']
+  have B : (μ[| Z₁ ⁻¹' s]) (Z₂ ⁻¹' t) ≠ 0 := by
+    rw [cond_apply _ (hZ₁ hs)]
+    simp [A]
+    finiteness
+  convert (h.cond_left hne hs hZ₁).cond_right B ht hZ₂ using 1
+  rw [cond_cond_eq_cond_inter' _ (hZ₁ hs) (hZ₂ ht) (by finiteness) A]
 
 lemma gen_ineq_aux2 :
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
@@ -147,8 +186,8 @@ lemma gen_ineq_aux2 :
     intro i; fin_cases i <;> assumption
   calc
   d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
-    = d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := sorry
-      /- let e : G × G ≃ G × G :=
+    = d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := by
+      let e : G × G ≃ G × G :=
         { toFun := fun p ↦ ⟨p.1, p.2 - p.1⟩
           invFun := fun p ↦ ⟨p.1, p.2 + p.1⟩
           left_inv := by intro ⟨a, b⟩; simp [add_assoc]
@@ -157,7 +196,7 @@ lemma gen_ineq_aux2 :
         (⟨Z₁ + Z₃, Sum⟩) e (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)
         (measurable_discrete e) e.injective).symm
       simp only [Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
-      abel -/
+      abel
   _ = ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal *
         d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]] := by
     rw [condRuzsaDist'_eq_sum' (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk (hZ₂.add' hZ₄))]
@@ -165,17 +204,26 @@ lemma gen_ineq_aux2 :
       + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]] / 2
       + H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4) := by
     apply Finset.sum_le_sum (fun w h'w ↦ ?_)
-    rcases eq_bot_or_bot_lt (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) with hw|hw
+    rcases eq_or_ne (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) 0 with hw|hw
     · simp [hw]
     gcongr
-    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure ℙ hw.ne'
-    have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]) := sorry
+    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure ℙ hw
+    have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]) := by
+      have E : (⟨Z₁, Z₃⟩)⁻¹' {p | p.1 + p.2 = w.1} ∩ (⟨Z₂, Z₄⟩)⁻¹' {p | p.1 + p.2 = w.2}
+        = ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w} := by aesop
+      rw [← E, I.measure_inter_preimage_eq_mul] at hw
+      swap; exact measurable_add (measurableSet_singleton _)
+      swap; exact measurable_add (measurableSet_singleton _)
+      simp only [ne_eq, mul_eq_zero, not_or] at hw
+      have I : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩)⁻¹' {p | p.1 + p.2 = w.1}
+          ∩ (⟨Z₂, Z₄⟩)⁻¹' {p | p.1 + p.2 = w.2}]) :=
+        I.cond hw.1 hw.2 (measurable_add (measurableSet_singleton w.1))
+          (measurable_add (measurableSet_singleton w.2)) (hZ₁.prod_mk hZ₃) (hZ₂.prod_mk hZ₄)
+      rw [E] at I
+      exact I.comp measurable_fst measurable_fst
     have := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w])
       hY hZ₁ hZ₂ this
     linarith
-  _ ≤ _ := sorry
-
-#exit
   _ = d[Y # Z₁ | Z₁ + Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
       + H[Z₂ | Z₂ + Z₄] / 4 - H[Z₁ | Z₁ + Z₃] / 4 := by
     simp only [mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib, Finset.sum_div]
@@ -206,7 +254,7 @@ lemma gen_ineq_aux2 :
         have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure _ h1
         apply (IndepFun.identDistrib_cond _ (measurableSet_singleton _) hZ₁ (hZ₂.add' hZ₄) _).symm
         · have : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
-            indepFun_cond ℙ I (by exact h1) (measurable_add (measurableSet_singleton x))
+            I.cond_left (by exact h1) (measurable_add (measurableSet_singleton x))
               (hZ₁.prod_mk hZ₃)
           exact this.comp measurable_fst measurable_add
         · rw [cond_apply _ ((hZ₁.add' hZ₃) (measurableSet_singleton x)),
@@ -220,7 +268,7 @@ lemma gen_ineq_aux2 :
         have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure _ h2
         apply (IndepFun.identDistrib_cond _ (measurableSet_singleton _) hZ₂ (hZ₁.add' hZ₃) _).symm
         · have : IndepFun (⟨Z₂, Z₄⟩) (⟨Z₁, Z₃⟩) (ℙ[|(⟨Z₂, Z₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
-            indepFun_cond ℙ I.symm (by exact h2) (measurable_add (measurableSet_singleton y))
+            I.symm.cond_left (by exact h2) (measurable_add (measurableSet_singleton y))
               (hZ₂.prod_mk hZ₄)
           exact this.comp measurable_fst measurable_add
         · rw [cond_apply _ ((hZ₂.add' hZ₄) (measurableSet_singleton y)),
@@ -249,8 +297,6 @@ lemma gen_ineq_aux2 :
     have := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY hZ₁ hZ₃ I
     linarith
   _ = _ := by ring
-
-#exit
 
 /-- Let $Z_1, Z_2, Z_3, Z_4$ be independent $G$-valued random variables, and let $Y$ be another
 $G$-valued random variable.  Set $S := Z_1+Z_2+Z_3+Z_4$. Then
