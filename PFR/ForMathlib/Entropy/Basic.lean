@@ -430,22 +430,6 @@ lemma condEntropy_eq_sum_fintype
   rw [condEntropy_def, integral_eq_sum]
   simp_rw [smul_eq_mul, Measure.map_apply hY (measurableSet_singleton _)]
 
-/-- Replace `cond_cond_eq_cond_inter'` with this version, which removes a nonzero measure
-assumption-/
-theorem cond_cond_eq_cond_inter'' (hms : MeasurableSet s) (hmt : MeasurableSet t)
-    (hcs : μ s ≠ ∞ := by finiteness) :
-    μ[|s][|t] = μ[|s ∩ t] := by
-  ext u
-  rw [cond_apply _ hmt, cond_apply _ hms, cond_apply _ hms, cond_apply _ (hms.inter hmt)]
-  rcases eq_or_ne (μ (s ∩ t)) 0 with hst|hst
-  · have : μ (s ∩ t ∩ u) = 0 :=
-      le_antisymm (le_trans (measure_mono (Set.inter_subset_left _ _)) hst.le) bot_le
-    simp [this, ← Set.inter_assoc]
-  · have hcs' : μ s ≠ 0 :=
-      (μ.toOuterMeasure.pos_of_subset_ne_zero (Set.inter_subset_left _ _) hst).ne'
-    simp [*, hms.inter hmt, cond_apply, ← mul_assoc, ← Set.inter_assoc, ENNReal.mul_inv, mul_comm, ←
-      mul_assoc, ENNReal.mul_inv_cancel]
-
 lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [MeasurableSpace T']
     [MeasurableSingletonClass T']
     (μ : Measure Ω) (hY : Measurable Y) (hZ : Measurable Z)
