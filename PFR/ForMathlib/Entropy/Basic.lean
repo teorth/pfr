@@ -553,29 +553,35 @@ lemma chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X
 
 
 /-- Another form of the chain rule : $H[X, Y] = H[Y] + H[X|Y]$. -/
-lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y]:
+lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
+   [FiniteRange X] [FiniteRange Y] :
     H[⟨X, Y⟩ ; μ] = H[Y ; μ] + H[X | Y ; μ] := by
   rw [entropy_comm hX hY, chain_rule' μ hY hX]
 
 /-- Another form of the chain rule : $H[X|Y] = H[X, Y] - H[Y]$. -/
-lemma chain_rule'' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y]:
+lemma chain_rule'' (μ : Measure Ω) [IsProbabilityMeasure μ]
+    (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y] :
     H[X | Y ; μ] = H[⟨X, Y⟩ ; μ] - H[Y ; μ] := by
   rw [chain_rule μ hX hY, add_sub_cancel']
 
 /-- Two pairs of variables that have the same joint distribution, have the same
 conditional entropy. -/
-lemma IdentDistrib.condEntropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {X Y : Ω → S}
-    {μ' : Measure Ω'} {X' Y' : Ω' → S} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma IdentDistrib.condEntropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {X : Ω → S} {Y : Ω → T}
+    {μ' : Measure Ω'} {X' : Ω' → S} {Y' : Ω' → T} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y')
-    (h : IdentDistrib (⟨X, Y⟩) (⟨X', Y'⟩) μ μ') [FiniteRange X] [FiniteRange Y] [FiniteRange X'] [FiniteRange Y']: H[X | Y ; μ] = H[X' | Y' ; μ'] := by
+    (h : IdentDistrib (⟨X, Y⟩) (⟨X', Y'⟩) μ μ') [FiniteRange X] [FiniteRange Y] [FiniteRange X']
+    [FiniteRange Y'] :
+    H[X | Y ; μ] = H[X' | Y' ; μ'] := by
   have : IdentDistrib Y Y' μ μ' := h.comp measurable_snd
   rw [chain_rule'' _ hX hY, chain_rule'' _ hX' hY', h.entropy_eq, this.entropy_eq]
 
-/-- If $X : \Omega \to S$ and $Y : \Omega \to T$ are random variables, and $f : T \to U$ is an injection then $H[X|f(Y)] = H[X|Y]$.
+/-- If $X : \Omega \to S$ and $Y : \Omega \to T$ are random variables, and $f : T \to U$ is an
+injection then $H[X|f(Y)] = H[X|Y]$.
  -/
-lemma condEntropy_of_injective' [MeasurableSingletonClass S] (μ : Measure Ω) [IsProbabilityMeasure μ]
-    (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Injective f)
-    (hfY : Measurable (f ∘ Y)) [FiniteRange X] [FiniteRange Y] : H[X | f ∘ Y ; μ] = H[X | Y ; μ] := by
+lemma condEntropy_of_injective' [MeasurableSingletonClass S] (μ : Measure Ω)
+    [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Injective f)
+    (hfY : Measurable (f ∘ Y)) [FiniteRange X] [FiniteRange Y] :
+    H[X | f ∘ Y ; μ] = H[X | Y ; μ] := by
   rw [chain_rule'' μ hX hY, chain_rule'' μ hX hfY, chain_rule' μ hX hY, chain_rule' μ hX hfY]
   congr 1
   . congr 1
@@ -874,6 +880,22 @@ lemma condMutualInfo_of_inj_map [IsProbabilityMeasure μ]
   have hg : ∀ t, Function.Injective (g t) :=
     fun _ _ _ h ↦ Prod.ext_iff.2 ⟨hf _ (Prod.ext_iff.1 h).1, (Prod.ext_iff.1 h).2⟩
   rw [← condEntropy_of_injective μ (hX.prod_mk hY) hZ g hg, ← condEntropy_of_injective μ hX hZ _ hf]
+
+lemma condEntropy_prod_eq_of_indepFun [Fintype T] [Fintype U] [IsProbabilityMeasure μ]
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X]
+    (h : IndepFun (⟨X, Y⟩) Z μ) :
+    H[X | ⟨Y, Z⟩ ; μ] = H[X | Y ; μ] := by
+  rw [condEntropy_prod_eq_sum _ hY hZ]
+  have : H[X | Y ; μ] = ∑ z, (μ (Z ⁻¹' {z})).toReal * H[X | Y ; μ] := by
+    rw [← Finset.sum_mul, sum_measure_preimage_singleton' μ hZ, one_mul]
+  rw [this]
+  congr with w
+  rcases eq_or_ne (μ (Z ⁻¹' {w})) 0 with hw|hw
+  · simp [hw]
+  congr 1
+  have : IsProbabilityMeasure (μ[|Z ⁻¹' {w}]) := cond_isProbabilityMeasure μ hw
+  apply IdentDistrib.condEntropy_eq hX hY hX hY
+  exact (h.identDistrib_cond (MeasurableSet.singleton w) (hX.prod_mk hY) hZ hw).symm
 
 section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]

@@ -77,104 +77,6 @@ lemma gen_ineq_aux1 :
       linarith
   _ = _ := by linarith
 
-/-- If `B` is independent from `C`, then conditioning on an event given by `C` does not change
-the distribution of `B`. -/
-lemma ProbabilityTheory.IndepFun.identDistrib_cond {Ω : Type*} [MeasurableSpace Ω]
-    {μ : Measure Ω} [IsProbabilityMeasure μ]
-    {B : Ω → G} {C : Ω → S} [MeasurableSpace S] (hi : IndepFun B C μ) {s : Set S}
-    (hs : MeasurableSet s) (hB : Measurable B) (hC : Measurable C)
-    (h : μ (C ⁻¹' s) ≠ 0) :
-    IdentDistrib B B μ (μ[|C ⁻¹' s]) := by
-  refine ⟨hB.aemeasurable, hB.aemeasurable, ?_⟩
-  ext t ht
-  rw [Measure.map_apply hB ht, Measure.map_apply hB ht, cond_apply _ (hC hs), Set.inter_comm,
-    hi.measure_inter_preimage_eq_mul ht hs, mul_comm, mul_assoc,
-    ENNReal.mul_inv_cancel h (by finiteness), mul_one]
-
-lemma condRuszaDist_prod_eq_of_indepFun
-    {A : Ω₀ → G} {B C D : Ω → G} (hA : Measurable A) (hB : Measurable B) (hC : Measurable C)
-    (hD : Measurable D) (h : IndepFun (⟨B, C⟩) D) :
-    d[A # B | ⟨C, D⟩] = d[A # B | C] := by
-  rw [condRuzsaDist'_prod_eq_sum' _ _ hB hC hD]
-  have : d[A # B | C] = ∑ z, (ℙ (D ⁻¹' {z})).toReal * d[A # B | C] := by
-    rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hD, one_mul]
-  rw [this]
-  congr with w
-  rcases eq_or_ne (ℙ (D ⁻¹' {w})) 0 with hw|hw
-  · simp [hw]
-  congr 1
-  apply condRuzsaDist'_of_copy _ hB hC _ hB hC (IdentDistrib.refl hA.aemeasurable)
-  exact (h.identDistrib_cond (MeasurableSet.singleton w) (hB.prod_mk hC) hD hw).symm
-
-lemma condEntropy_prod_eq_of_indepFun
-    {B C D : Ω → G} (hB : Measurable B) (hC : Measurable C)
-    (hD : Measurable D) (h : IndepFun (⟨B, C⟩) D) :
-    H[B | ⟨C, D⟩] = H[B | C] := by
-  rw [condEntropy_prod_eq_sum _ hC hD]
-  have : H[B | C] = ∑ z, (ℙ (D ⁻¹' {z})).toReal * H[B | C] := by
-    rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hD, one_mul]
-  rw [this]
-  congr with w
-  rcases eq_or_ne (ℙ (D ⁻¹' {w})) 0 with hw|hw
-  · simp [hw]
-  congr 1
-  have : IsProbabilityMeasure (ℙ[|D ⁻¹' {w}]) := cond_isProbabilityMeasure ℙ hw
-  apply IdentDistrib.condEntropy_eq hB hC hB hC
-  exact (h.identDistrib_cond (MeasurableSet.singleton w) (hB.prod_mk hC) hD hw).symm
-
-/-- If `Z₁` is independent of `Z₂`, then they remain independent when conditioning on an event
-of the form `Z₁ ∈ s` of positive probability. -/
-lemma ProbabilityTheory.IndepFun.cond_left {Ω : Type*} {_ : MeasurableSpace Ω} {μ : Measure Ω} {Z₁ : Ω → G} {Z₂ : Ω → S}
-    [MeasurableSpace S]
-    (h : IndepFun Z₁ Z₂ μ) [IsFiniteMeasure μ] {s : Set G} (hne : μ (Z₁ ⁻¹' s) ≠ 0)
-    (hs : MeasurableSet s) (hZ₁ : Measurable Z₁) :
-    IndepFun Z₁ Z₂ (μ[| Z₁⁻¹' s]) := by
-  apply indepFun_iff_measure_inter_preimage_eq_mul.2 (fun u v hu hv ↦ ?_)
-  have : Z₁ ⁻¹' s ∩ (Z₁ ⁻¹' u ∩ Z₂ ⁻¹' v) = Z₁ ⁻¹' (s ∩ u) ∩ Z₂ ⁻¹' v := by aesop
-  simp only [cond_apply _ (hZ₁ hs), this]
-  rw [h.measure_inter_preimage_eq_mul (hs.inter hu) hv, Set.preimage_inter,
-    h.measure_inter_preimage_eq_mul hs hv, ← mul_assoc (μ (Z₁ ⁻¹' s))⁻¹,
-    ← mul_assoc (μ (Z₁ ⁻¹' s))⁻¹, ENNReal.inv_mul_cancel hne (by finiteness), one_mul]
-
-theorem kernelIndepsymm {Ω α β γ : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace α}
-    {_ : MeasurableSpace β} {_ : MeasurableSpace γ} {κ : kernel α Ω} {f : Ω → β} {g : Ω → γ}
-    {μ : Measure α}
-    (hfg : kernel.IndepFun f g κ μ) : kernel.IndepFun g f κ μ :=
-  kernel.Indep.symm hfg
-
-theorem ProbabilityTheory.IndepFun.symm' {γ β Ω : Type*} {_ : MeasurableSpace γ}
-    {_ : MeasurableSpace β} {_ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → γ}
-    (hfg : IndepFun f g μ) :
-    IndepFun g f μ := kernelIndepsymm hfg
-
-/-- If `Z₁` is independent of `Z₂`, then they remain independent when conditioning on an event
-of the form `Z₂ ∈ t` of positive probability. -/
-lemma ProbabilityTheory.IndepFun.cond_right {Ω : Type*} {_ : MeasurableSpace Ω}
-    {μ : Measure Ω} {Z₁ : Ω → G} {Z₂ : Ω → S}
-    [MeasurableSpace S]
-    (h : IndepFun Z₁ Z₂ μ) [IsFiniteMeasure μ] {t : Set S} (hne : μ (Z₂ ⁻¹' t) ≠ 0)
-    (ht : MeasurableSet t) (hZ₂ : Measurable Z₂) :
-    IndepFun Z₁ Z₂ (μ[| Z₂⁻¹' t]) :=
-  (h.symm'.cond_left hne ht hZ₂).symm'
-
-/-- If `Z₁` is independent of `Z₂`, then they remain independent when conditioning on an event
-of the form `Z₁ ∈ s ∩ Z₂ ∈ t` of positive probability. -/
-lemma ProbabilityTheory.IndepFun.cond
-    {Ω : Type*} {_ : MeasurableSpace Ω} {μ : Measure Ω} {Z₁ : Ω → G} {Z₂ : Ω → S}
-    [MeasurableSpace S] [IsFiniteMeasure μ] (h : IndepFun Z₁ Z₂ μ)
-    {s : Set G} {t : Set S} (hne : μ (Z₁ ⁻¹' s) ≠ 0) (hne' : μ (Z₂ ⁻¹' t) ≠ 0)
-    (hs : MeasurableSet s) (ht : MeasurableSet t) (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) :
-    IndepFun Z₁ Z₂ (μ[| Z₁ ⁻¹' s ∩ Z₂⁻¹' t]) := by
-  have A : μ (Z₁ ⁻¹' s ∩ Z₂ ⁻¹' t) ≠ 0 := by
-    rw [h.measure_inter_preimage_eq_mul hs ht]
-    simp [hne, hne']
-  have B : (μ[| Z₁ ⁻¹' s]) (Z₂ ⁻¹' t) ≠ 0 := by
-    rw [cond_apply _ (hZ₁ hs)]
-    simp [A]
-    finiteness
-  convert (h.cond_left hne hs hZ₁).cond_right B ht hZ₂ using 1
-  rw [cond_cond_eq_cond_inter' _ (hZ₁ hs) (hZ₂ ht) (by finiteness) A]
-
 lemma gen_ineq_aux2 :
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
       + (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
@@ -203,7 +105,7 @@ lemma gen_ineq_aux2 :
   _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]]
       + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]] / 2
       + H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4) := by
-    apply Finset.sum_le_sum (fun w h'w ↦ ?_)
+    apply Finset.sum_le_sum (fun w _h'w ↦ ?_)
     rcases eq_or_ne (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) 0 with hw|hw
     · simp [hw]
     gcongr
@@ -211,13 +113,9 @@ lemma gen_ineq_aux2 :
     have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]) := by
       have E : (⟨Z₁, Z₃⟩)⁻¹' {p | p.1 + p.2 = w.1} ∩ (⟨Z₂, Z₄⟩)⁻¹' {p | p.1 + p.2 = w.2}
         = ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w} := by aesop
-      rw [← E, I.measure_inter_preimage_eq_mul] at hw
-      swap; exact measurable_add (measurableSet_singleton _)
-      swap; exact measurable_add (measurableSet_singleton _)
-      simp only [ne_eq, mul_eq_zero, not_or] at hw
       have I : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩)⁻¹' {p | p.1 + p.2 = w.1}
           ∩ (⟨Z₂, Z₄⟩)⁻¹' {p | p.1 + p.2 = w.2}]) :=
-        I.cond hw.1 hw.2 (measurable_add (measurableSet_singleton w.1))
+        I.cond (measurable_add (measurableSet_singleton w.1))
           (measurable_add (measurableSet_singleton w.2)) (hZ₁.prod_mk hZ₃) (hZ₂.prod_mk hZ₄)
       rw [E] at I
       exact I.comp measurable_fst measurable_fst
@@ -254,7 +152,7 @@ lemma gen_ineq_aux2 :
         have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure _ h1
         apply (IndepFun.identDistrib_cond _ (measurableSet_singleton _) hZ₁ (hZ₂.add' hZ₄) _).symm
         · have : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
-            I.cond_left (by exact h1) (measurable_add (measurableSet_singleton x))
+            I.cond_left (measurable_add (measurableSet_singleton x))
               (hZ₁.prod_mk hZ₃)
           exact this.comp measurable_fst measurable_add
         · rw [cond_apply _ ((hZ₁.add' hZ₃) (measurableSet_singleton x)),
@@ -268,7 +166,7 @@ lemma gen_ineq_aux2 :
         have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure _ h2
         apply (IndepFun.identDistrib_cond _ (measurableSet_singleton _) hZ₂ (hZ₁.add' hZ₃) _).symm
         · have : IndepFun (⟨Z₂, Z₄⟩) (⟨Z₁, Z₃⟩) (ℙ[|(⟨Z₂, Z₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
-            I.symm.cond_left (by exact h2) (measurable_add (measurableSet_singleton y))
+            I.symm.cond_left (measurable_add (measurableSet_singleton y))
               (hZ₂.prod_mk hZ₄)
           exact this.comp measurable_fst measurable_add
         · rw [cond_apply _ ((hZ₂.add' hZ₄) (measurableSet_singleton y)),
@@ -952,7 +850,13 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
-  rcases exists_isUniform_measureSpace A h₀A with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
+  let A' := A.toFinite.toFinset
+  have h₀A' : Finset.Nonempty A' := by
+    simp [Finset.Nonempty]
+    exact h₀A
+  have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
+  rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
+  rw [hAA'] at UAunif
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/8, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
@@ -961,13 +865,22 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm $ measurableSet_discrete _
+  have VA'unif := VAunif
+  rw [<-hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
+  let H' := (H:Set G).toFinite.toFinset
+  have hHH' : H' = (H:Set G) := Finite.coe_toFinset (toFinite (H:Set G))
+  have VH'unif := VHunif
+  rw [<-hHH'] at VH'unif
+
   have : d[VA # VH] ≤ 10/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
     have : 0 < Nat.card (H : Set G) := Nat.card_pos
     positivity
+  have VA_ent : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' VAunif VAmeas
+  have VH_ent : H[VH] = log (Nat.card (H : Set G)) := IsUniform.entropy_eq' VHunif VHmeas
   have Icard : |log (Nat.card A) - log (Nat.card (H : Set G))| ≤ 10 * log K := by
-    rw [← VAunif.entropy_eq VAmeas, ← VHunif.entropy_eq VHmeas]
+    rw [← VA_ent, ← VH_ent]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
     linarith
   have IAH : Nat.card A ≤ K ^ 10 * Nat.card (H : Set G) := by
@@ -986,8 +899,8 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have I : log K * (-10/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
       ≤ - H[VA - VH] := by
     rw [Vindep.rdist_eq VAmeas VHmeas] at this
-    have : H[VA] = log (Nat.card A) := VAunif.entropy_eq VAmeas
-    have : H[VH] = log (Nat.card (H : Set G)) := VHunif.entropy_eq VHmeas
+    have : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' VAunif VAmeas
+    have : H[VH] = log (Nat.card (H : Set G)) := IsUniform.entropy_eq' VHunif VHmeas
     linarith
   -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
@@ -995,13 +908,18 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   -- massage the previous inequality to get that `A ∩ (H + {x₀})` is large
   have J : K ^ (-10/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (1/2) ≤
       Nat.card (A ∩ (H + {x₀}) : Set G) := by
-    rw [VAunif.measureReal_preimage_sub VAmeas VHunif VHmeas Vindep] at h₀
+    rw [VA'unif.measureReal_preimage_sub VAmeas VH'unif VHmeas Vindep] at h₀
     have := (Real.exp_monotone I).trans h₀
-    rw [le_div_iff (by positivity)] at this
+    have hAA'_card : Nat.card A' = Nat.card A := congrArg Nat.card (congrArg Subtype hAA')
+    have hHH'_card : Nat.card H' = Nat.card (H : Set G) := congrArg Nat.card (congrArg Subtype hHH')
+    rw [hAA'_card, hHH'_card, le_div_iff] at this
     convert this using 1
-    rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos, ← rpow_def_of_pos H_pos]
-    rpow_ring
-    norm_num
+    . rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos, ← rpow_def_of_pos H_pos]
+      rpow_ring
+      norm_num
+    . rw [hAA', hHH']
+    positivity
+
   have Hne : Set.Nonempty (A ∩ (H + {x₀} : Set G)) := by
     by_contra h'
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J

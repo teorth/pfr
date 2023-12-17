@@ -757,6 +757,22 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
+lemma condRuszaDist_prod_eq_of_indepFun {μ : Measure Ω} {μ' : Measure Ω'} {X : Ω → G} {Y : Ω' → G}
+    {W W' : Ω' → T} (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W)
+    (hW' : Measurable W') (h : IndepFun (⟨Y, W⟩) W' μ')
+    [IsProbabilityMeasure μ'] [FiniteRange X] [FiniteRange Y] [Fintype T] :
+    d[X ; μ # Y | ⟨W, W'⟩ ; μ'] = d[X ; μ # Y | W ; μ'] := by
+  rw [condRuzsaDist'_prod_eq_sum' _ _ hY hW hW']
+  have : d[X ; μ # Y | W ; μ'] = ∑ z, (μ' (W' ⁻¹' {z})).toReal * d[X ; μ # Y | W ; μ'] := by
+    rw [← Finset.sum_mul, sum_measure_preimage_singleton' μ' hW', one_mul]
+  rw [this]
+  congr with w
+  rcases eq_or_ne (μ' (W' ⁻¹' {w})) 0 with hw|hw
+  · simp [hw]
+  congr 1
+  apply condRuzsaDist'_of_copy _ hY hW _ hY hW (IdentDistrib.refl hX.aemeasurable)
+  exact (h.identDistrib_cond (MeasurableSet.singleton w) (hY.prod_mk hW) hW' hw).symm
+
 variable (μ μ') in
 lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T] [Fintype T'] [MeasurableSpace T']
     [MeasurableSingletonClass T'] [IsFiniteMeasure μ']
