@@ -11,9 +11,13 @@ import PFR.ForMathlib.Pair
 class FiniteRange {Ω G : Type*} (X : Ω → G) : Prop where
   finite : (Set.range X).Finite
 
-noncomputable def FiniteRange.fintype {Ω G : Type*} (X : Ω → G) [hX: FiniteRange X] : Fintype (Set.range X) := hX.finite.fintype
+/-- fintype structure on the range of a finite range map. -/
+noncomputable def FiniteRange.fintype {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] :
+    Fintype (Set.range X) := hX.finite.fintype
 
-noncomputable def FiniteRange.toFinset {Ω G : Type*} (X : Ω → G) [hX: FiniteRange X] : Finset G := @Set.toFinset _ _ hX.fintype
+/-- The range of a finite range map, as a finset. -/
+noncomputable def FiniteRange.toFinset {Ω G : Type*} (X : Ω → G) [hX: FiniteRange X] : Finset G :=
+    @Set.toFinset _ _ hX.fintype
 
 /-- If the codomain of X is finite, then X has finite range.  -/
 instance {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X where
@@ -30,12 +34,13 @@ lemma finiteRange_of_finset {Ω G : Type*} (f: Ω → G) (A : Finset G) (h : ∀
   rcases hy with ⟨ω, rfl⟩
   exact h ω
 
-lemma FiniteRange.range {Ω G : Type*} (X : Ω → G) [hX: FiniteRange X] : Set.range X = FiniteRange.toFinset X := by
+lemma FiniteRange.range {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] :
+    Set.range X = FiniteRange.toFinset X := by
   simp [FiniteRange.toFinset]
-  have := hX.fintype
   convert (Set.coe_toFinset _).symm
 
-lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) : X ω ∈ FiniteRange.toFinset X := by
+lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) :
+    X ω ∈ FiniteRange.toFinset X := by
   rw [<-Finset.mem_coe, <-FiniteRange.range X]
   simp
 

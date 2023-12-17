@@ -5,7 +5,7 @@ open scoped BigOperators
 open Function Set
 
 @[to_additive]
-lemma prod_eq_of_injOn {α β R : Type*} [CommMonoid R] [Fintype β] {s : Finset α} {t : Finset β}
+lemma prod_eq_of_injOn {α β R : Type*} [CommMonoid R] {s : Finset α} {t : Finset β}
     (e : α → β) (he : InjOn e s) (h'e : MapsTo e s t)
     {f : α → R} {g : β → R} (h : ∀ i ∈ s, f i = g (e i))
     (h' : ∀ i ∈ (t : Set β) \ e '' s, g i = 1) :

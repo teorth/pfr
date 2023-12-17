@@ -253,11 +253,10 @@ def reverse (κ : kernel α (β × γ × δ)) : kernel α (δ × γ × β) :=
     ((measurable_snd.comp measurable_snd).prod_mk
       ((measurable_fst.comp measurable_snd).prod_mk measurable_fst))
 
-
 /-- Reversing preserves finite kernel support -/
-lemma finiteKernelSupport_of_reverse {κ : kernel T (S × U × V)} [IsMarkovKernel κ] (hκ : FiniteKernelSupport κ) : FiniteKernelSupport (reverse κ) := by
-  apply finiteKernelSupport_of_map hκ
-
+lemma finiteKernelSupport_of_reverse {κ : kernel T (S × U × V)} (hκ : FiniteKernelSupport κ) :
+    FiniteKernelSupport (reverse κ) :=
+  finiteKernelSupport_of_map hκ _
 
 @[simp]
 lemma reverse_reverse (κ : kernel α (β × γ × δ)) :
@@ -344,11 +343,7 @@ lemma entropy_submodular_compProd {ξ : kernel T S} [IsMarkovKernel ξ]
       =ᵐ[μ ⊗ₘ ξ ⊗ₘ κ] comap η ↑assocEquiv.symm h_meas := by
     exact condKernel_compProd_ae_eq κ (comap η ↑assocEquiv.symm assocEquiv.symm.measurable)
       (μ ⊗ₘ ξ)
-  rw [entropy_congr this, Measure.compProd_compProd''] at h
-  have : IsFiniteMeasure (Measure.comap (↑assocEquiv.symm) (μ ⊗ₘ (ξ ⊗ₖ κ))) := by
-    rw [MeasurableEquiv.comap_symm]
-    infer_instance
-  rw [entropy_comap_equiv] at h
+  rw [entropy_congr this, Measure.compProd_compProd'', entropy_comap_equiv] at h
   . exact h
   . exact finiteSupport_of_compProd hμ (finiteKernelSupport_of_compProd hξ hκ)
   . exact finiteSupport_of_compProd hμ hξ
