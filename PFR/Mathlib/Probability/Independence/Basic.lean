@@ -106,7 +106,7 @@ lemma iIndepFun.inv (h : iIndepFun n f μ) : iIndepFun n (update f i (f i)⁻¹)
 variable [IsProbabilityMeasure μ]
 
 open Finset in
-lemma iIndepFun.indepFun_prod_prod (h_indep: iIndepFun n f μ) (hf: ∀ i, Measurable (f i))
+lemma iIndepFun.indepFun_prod_prod (h_indep: iIndepFun n f μ) (hf : ∀ i, Measurable (f i))
     (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
     IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
   classical
@@ -371,16 +371,35 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
 
 variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
 
-/-- Improved version of `IndepFun.ae_eq` in which the ranges are allowed to be distinct. Perhaps can serve as a replacement of that method? -/
-  theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}  {g g' : Ω → β'} (hfg : IndepFun f g μ)
+/-- Improved version of `IndepFun.ae_eq` in which the ranges are allowed to be distinct.
+TODO: replace `IndepFun.ae_eq` with this one. -/
+theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}
+    {g g' : Ω → β'} (hfg : IndepFun f g μ)
     (hf : f =ᵐ[μ] f') (hg : g =ᵐ[μ] g') : IndepFun f' g' μ := by
   refine kernel.IndepFun.ae_eq' hfg ?_ ?_ <;>
     simp only [ae_dirac_eq, Filter.eventually_pure, kernel.const_apply]
   exacts [hf, hg]
 
+/-- Improved version of `kernel.IndepFun.symm` in which the ranges are allowed to be distinct.
+TODO: replace `kernel.IndepFun.symm` with this one. -/
+theorem kernel.IndepFun.symm' {Ω α β γ : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace α}
+    {_ : MeasurableSpace β} {_ : MeasurableSpace γ} {κ : kernel α Ω} {f : Ω → β} {g : Ω → γ}
+    {μ : Measure α}
+    (hfg : kernel.IndepFun f g κ μ) : kernel.IndepFun g f κ μ :=
+  kernel.Indep.symm hfg
+
+/-- Improved version of `IndepFun.symm` in which the ranges are allowed to be distinct.
+TODO: replace `IndepFun.symm` with this one. -/
+theorem IndepFun.symm' {γ β Ω : Type*} {_ : MeasurableSpace γ}
+    {_ : MeasurableSpace β} {_ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → γ}
+    (hfg : IndepFun f g μ) :
+    IndepFun g f μ := kernel.IndepFun.symm' hfg
+
 /-- The new Mathlib tool `Finset.eventuallyEq_iInter` will supersede this result. -/
-theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} (s: Finset ι) {E : ι → Set α} {F : ι → Set α}
-(h : ∀ i ∈ s, E i =ᶠ[l] F i) : ⋂ i ∈ s, E i =ᶠ[l] ⋂ i ∈ s, F i := by
+theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} (s: Finset ι)
+    {E : ι → Set α} {F : ι → Set α}
+    (h : ∀ i ∈ s, E i =ᶠ[l] F i) :
+    ⋂ i ∈ s, E i =ᶠ[l] ⋂ i ∈ s, F i := by
   unfold Filter.EventuallyEq Filter.Eventually at h ⊢
   simp at h ⊢
   rw [<-Filter.biInter_finset_mem] at h

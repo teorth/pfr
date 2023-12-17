@@ -57,22 +57,27 @@ lemma measureEntropy_def' (μ : Measure S) :
 
 @[inherit_doc measureEntropy] notation:100 "Hm[" μ "]" => measureEntropy μ
 
-noncomputable def FiniteSupport (μ : Measure S := by volume_tac) : Prop := ∃ A : Finset S, μ Aᶜ  = 0
+/-- A measure has finite support if there exsists a finite set whose complement has zero measure. -/
+noncomputable def FiniteSupport (μ : Measure S := by volume_tac) : Prop :=
+  ∃ A : Finset S, μ Aᶜ  = 0
 
 /-- TODO: replace FiniteSupport hypotheses in these files with FiniteEntropy hypotheses. -/
-noncomputable def FiniteEntropy (μ : Measure S := by volume_tac) : Prop := Summable (fun s ↦ negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal) ∧ ∃ A : Set S, Countable A ∧ μ Aᶜ  = 0
+noncomputable def FiniteEntropy (μ : Measure S := by volume_tac) : Prop :=
+  Summable (fun s ↦ negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal) ∧
+  ∃ A : Set S, Countable A ∧ μ Aᶜ  = 0
 
 lemma finiteSupport_of_fintype {μ : Measure S} [Fintype S] : FiniteSupport μ := by
   use Finset.univ
   simp
 
-lemma finiteSupport_of_mul {μ : Measure S} (hμ : FiniteSupport μ) (c : ENNReal) :
+lemma finiteSupport_of_mul {μ : Measure S} (hμ : FiniteSupport μ) (c : ℝ≥0∞) :
     FiniteSupport (c • μ) := by
   rcases hμ with ⟨ A, hA ⟩
   use A
   simp [hA]
 
-lemma finiteSupport_of_comp  {μ : Measure Ω} (hμ : FiniteSupport μ) {X : Ω → S} (hX: Measurable X)  : FiniteSupport (μ.map X) := by
+lemma finiteSupport_of_comp  {μ : Measure Ω} (hμ : FiniteSupport μ) {X : Ω → S} (hX: Measurable X) :
+    FiniteSupport (μ.map X) := by
   rcases hμ with ⟨ A, hA ⟩
   classical
   use Finset.image X A
@@ -115,8 +120,11 @@ lemma finiteSupport_of_prod  {μ : Measure S} (hμ : FiniteSupport μ) {ν: Meas
   use A ×ˢ B
   exact prod_of_full_measure_finSet hA hB
 
-/-- The countability hypothesis can probably be dropped here. Proof is unwieldy and can probably be golfed. -/
-lemma integrable_of_finiteSupport {μ : Measure S} (hμ : FiniteSupport μ) {β : Type*} [NormedAddCommGroup β] [MeasurableSpace β] [IsFiniteMeasure μ] [Countable S] {f: S → β} : Integrable f μ := by
+/-- The countability hypothesis can probably be dropped here. Proof is unwieldy and can probably
+be golfed. -/
+lemma integrable_of_finiteSupport {μ : Measure S} (hμ : FiniteSupport μ)
+    {β : Type*} [NormedAddCommGroup β] [IsFiniteMeasure μ] [Countable S] {f : S → β} :
+    Integrable f μ := by
   rcases hμ with ⟨ A, hA ⟩
   by_cases hA' : A = ∅
   . simp [hA'] at hA
@@ -750,7 +758,8 @@ lemma measureMutualInfo_nonneg {μ : Measure (S × U)} (hsupp : FiniteSupport μ
     exact finiteSupport_of_mul hsupp _
   rw [measureMutualInfo_of_not_isFiniteMeasure hμ_fin]
 
-lemma measureMutualInfo_eq_zero_iff {μ : Measure (S × U)} (hsupp : FiniteSupport μ) [IsProbabilityMeasure μ] :
+lemma measureMutualInfo_eq_zero_iff {μ : Measure (S × U)} (hsupp : FiniteSupport μ)
+    [IsProbabilityMeasure μ] :
     Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2} :=
   (measureMutualInfo_nonneg_aux hsupp).2
 

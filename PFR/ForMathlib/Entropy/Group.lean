@@ -23,7 +23,7 @@ lemma entropy_mul_const (hX : Measurable X) (c : G) :
 
 /-- $H[X, X * Y] = H[X, Y]$ -/
 @[to_additive "$H[X, X + Y] = H[X, Y]$"]
-lemma entropy_mul_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [FiniteRange X] [FiniteRange Y] :
+lemma entropy_mul_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, X * Y⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.mulLeft ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk hY) _ $ Equiv.injective _

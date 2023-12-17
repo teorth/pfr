@@ -126,3 +126,7 @@ representation theorem.
 TODO: remove once the general version is proved. -/
 instance : CompactSpace (ProbabilityMeasure X) := by
   cases nonempty_fintype X; exact probabilityMeasureHomeoStdSimplex.symm.compactSpace
+
+instance : SecondCountableTopology (ProbabilityMeasure X) := by
+  cases nonempty_fintype X
+  exact (probabilityMeasureHomeoStdSimplex (X := X)).secondCountableTopology

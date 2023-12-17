@@ -181,17 +181,32 @@ From Lemma \ref{averaged-construct-good}, Lemma \ref{dist-diff-bound}, and Lemma
   For any $\eta < 1/8$, we see from Lemma \ref{first-estimate} that the expression $\frac{(1 -5 \eta - \frac{4}{6} \eta)(2 \eta k - I_1)}{(1-\eta)}$ is nonnegative, and hence $k = 0$ as required.
 \end{proof}
 
+
+\begin{theorem}[Limiting improved $\tau$-decrement]\label{de-prop-lim-improv}\lean{tau_minimizer_exists_rdist_eq_zero}\leanok
+For $\eta = 1/8$, there exist tau-minimizers $X_1, X_2$ satisfying $d[X_1;X_2] = 0$.
+\end{theorem}
+\begin{proof}\uses{de-prop-improv, tau-min}\leanok
+For each $\eta<1/8$, consider minimizers $X_1^\eta$ and $X_2^\eta$ from Lemma \ref{tau-min}.
+By Theorem~\ref{de-prop-improv},
+they satisfy $d[X_1^\eta; X_2^\eta]=0$. By compactness of the space of probability measures
+on $G$, one may extract a converging subsequence of the distributions of $X_1^\eta$ and $X_2^\eta$
+as $\eta \to 1/8$. By continuity of all the involved quantities, the limit is a pair of
+tau-minimizers for $1/8$ satisfying additionally $d[X_1;X_2] = 0$.
+\end{proof}
+
 \begin{theorem}[Improved entropy version of PFR]\label{entropy-pfr-improv}\lean{entropic_PFR_conjecture_improv}\leanok
-  Let $G = \F_2^n$, and suppose that $X^0_1, X^0_2$ are $G$-valued random variables. Let $0 < \eta < 1/8$.
+  Let $G = \F_2^n$, and suppose that $X^0_1, X^0_2$ are $G$-valued random variables.
   Then there is some subgroup $H \leq G$ such that
   \[
-    d[X^0_1;U_H] + d[X^0_2;U_H] \le (2+\frac{1}{\eta}) d[X^0_1;X^0_2],
+    d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2],
   \]
   where $U_H$ is uniformly distributed on $H$.
   Furthermore, both $d[X^0_1;U_H]$ and $d[X^0_2;U_H]$ are at most $6 d[X^0_1;X^0_2]$.
 \end{theorem}
 
-\begin{proof} \uses{de-prop-improv, tau-min, lem:100pc, ruzsa-triangle}\leanok   Let $X_1, X_2$ be the $\tau$-minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop-improv}, $d[X_1;X_2]=0$.  From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
+\begin{proof} \uses{de-prop-lim-improv, lem:100pc, ruzsa-triangle}\leanok
+Let $X_1, X_2$ be the good $\tau$-minimizer from Theorem \ref{de-prop-lim-improv}. By construction, $d[X_1;X_2]=0$.
+From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}
 
 One can then replace Theorem \ref{pfr} with
@@ -200,7 +215,8 @@ One can then replace Theorem \ref{pfr} with
   If $A \subset {\bf F}_2^n$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $2K^{11}$ translates of a subspace $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$.
 \end{theorem}
 
-\begin{proof}\uses{entropy-pfr-improv, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}\leanok By repeating the proof of Theorem \ref{pfr} and using Theorem \ref{entropy-pfr-improv} one can obtain the claim with $11$ replaced by $3 +\frac{1}{\eta}$ for any $0 < \eta < 1/8$.  Now send $\eta$ to $1/8$ and use the fact that there are only finitely many possible choices for the subspace $H$ to conclude.
+\begin{proof}\uses{entropy-pfr-improv, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}
+By repeating the proof of Theorem \ref{pfr} and using Theorem \ref{entropy-pfr-improv} one can obtain the claim with $11$ replaced by $10$.
 \end{proof}
 
 Of course, by replacing Theorem \ref{pfr} with Theorem \ref{pfr-improv} we may also improve constants in downstream theorems in a straightforward manner.

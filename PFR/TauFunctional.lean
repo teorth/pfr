@@ -31,7 +31,8 @@ defining the τ functional, we will only only need to refer to the package once 
 instead of stating the reference spaces, the reference measures and the reference random
 variables.
 
-The η parameter has now been incorporated into the package, in preparation for being able to manipulate the package. -/
+The η parameter has now been incorporated into the package, in preparation for being able to
+manipulate the package. -/
 structure refPackage :=
   /-- The first variable in a package. -/
   X₀₁ : Ω₀₁ → G
@@ -40,8 +41,8 @@ structure refPackage :=
   hmeas1 : Measurable X₀₁
   hmeas2 : Measurable X₀₂
   η : ℝ
-  hη: 0 < η
-  hη': 8 * η < 1
+  hη : 0 < η
+  hη' : 8 * η ≤ 1
 
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 variable {Ω₀₁ Ω₀₂ G}
@@ -144,14 +145,8 @@ lemma tau_minimizer_exists [MeasurableSingletonClass G] :
   let M : MeasureSpace (G × G) := ⟨μ.1.prod μ.2⟩
   refine ⟨G × G, M, Prod.fst, Prod.snd, measurable_fst, measurable_snd, P, ?_⟩
   intro ν₁ ν₂ h₁ h₂
-  have A : τ[@Prod.fst G G # @Prod.snd G G | p] = τ[id ; μ.1 # id ; μ.2 | p] := by
-    apply ProbabilityTheory.IdentDistrib.tau_eq
-    · have : μ.1 = (μ.1.prod μ.2).map Prod.fst := by simp
-      rw [this]
-      exact identDistrib_id_right measurable_fst.aemeasurable
-    · have : μ.2 = (μ.1.prod μ.2).map Prod.snd := by simp
-      rw [this]
-      exact identDistrib_id_right measurable_snd.aemeasurable
+  have A : τ[@Prod.fst G G # @Prod.snd G G | p] = τ[id ; μ.1 # id ; μ.2 | p] :=
+    ProbabilityTheory.IdentDistrib.tau_eq p IdentDistrib.fst_id IdentDistrib.snd_id
   convert (tau_min_exists_measure p).choose_spec.2.2 ν₁ ν₂ h₁ h₂
 
 

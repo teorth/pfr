@@ -41,7 +41,7 @@ theorem tau_strictly_decreases (h_min : tau_minimizes p X₁ X₂) (hpη: p.η =
 
 /-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
     subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$. -/
-theorem entropic_PFR_conjecture (hpη: p.η = 1/9):
+theorem entropic_PFR_conjecture (hpη : p.η = 1/9):
     ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
     IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 11 * d[p.X₀₁ # p.X₀₂] := by
@@ -57,7 +57,7 @@ theorem entropic_PFR_conjecture (hpη: p.η = 1/9):
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
   linarith
 
-theorem entropic_PFR_conjecture' (hpη: p.η = 1/9):
+theorem entropic_PFR_conjecture' (hpη : p.η = 1/9):
     ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsUniform H U ∧ d[p.X₀₁ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] ∧
       d[p.X₀₂ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] := by
