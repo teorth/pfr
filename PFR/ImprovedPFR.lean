@@ -955,7 +955,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
-2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^11$ cosets of
+2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{11$} cosets of
 a subgroup of cardinality at most $|A|$. -/
 theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
      ∃ (H : AddSubgroup G) (c : Set G),
