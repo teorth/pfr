@@ -35,12 +35,15 @@ $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2))  |  \pi(Z_1 - Z_2) ).$$
 
 
 \begin{corollary}\label{fibring-ineq}
+ \lean{rdist_of_hom_le} \leanok
 If $\pi:G\to H$ is a homomorphism of additive groups and $X,Y$ are $G$-valued random variables then
 \[d[X;Y]\geq d[\pi(X);\pi(Y)].\]
 \end{corollary}
+
 \begin{proof}
-\uses{fibring-ident, ruzsa-nonneg}
-By Proposition \ref{fibring-ident} we have
+\uses{fibring-ident, ruzsa-nonneg, independent-exist, ruz-copy, conditional-mutual-nonneg}
+By Lemma \ref{independent-exist}, Lemma \ref{ruz-copy} we may assume $X,Y$ to be independent.
+By Proposition \ref{fibring-ident} and Lemma \ref{conditional-mutual-nonneg} we have
 \[d[X;Y]\geq d[\pi(X);\pi(Y)]+d[X\mid \pi(X);Y\mid \pi(Y)].\]
 The inequality follows from $d[X\mid \pi(X);Y\mid \pi(Y)]\geq 0$ (Lemma \ref{ruzsa-nonneg}).
 \end{proof}
