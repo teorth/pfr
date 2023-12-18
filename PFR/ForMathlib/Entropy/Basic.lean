@@ -350,7 +350,7 @@ lemma condEntropy_eq_zero
   convert entropy_zero_measure X
   apply cond_eq_zero_of_measure_eq_zero
   rw [Measure.map_apply hY (MeasurableSet.singleton t)] at ht
-  rw [<-measureReal_eq_zero_iff]
+  rw [← measureReal_eq_zero_iff]
   exact ht
 
 /-- Conditional entropy of a random variable is equal to the entropy of its conditional kernel. -/
@@ -418,7 +418,7 @@ lemma condEntropy_le_log_card [MeasurableSingletonClass S] [Fintype S]
 lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
     [IsFiniteMeasure μ] (hY: Measurable Y) [FiniteRange Y]:
     H[X | Y ; μ] = ∑ y in FiniteRange.toFinset Y, (μ.map Y {y}).toReal * H[X | Y ← y ; μ] := by
-  rw [condEntropy_def, integral_eq_sum_finset' (A := FiniteRange.toFinset Y) _ _]
+  rw [condEntropy_def, integral_eq_sum' (s := FiniteRange.toFinset Y) _ _]
   simp_rw [smul_eq_mul]
   exact full_measure_of_finiteRange hY
 
@@ -774,7 +774,7 @@ lemma condMutualInfo_eq_kernel_mutualInfo
     I[X : Y | Z ; μ] = Ik[condEntropyKernel (⟨X, Y⟩) Z μ, μ.map Z] := by
   rcases finiteSupport_of_finiteRange (μ:= μ) hZ with ⟨A, hA⟩
   simp_rw [condMutualInfo_def, entropy_def, kernel.mutualInfo, kernel.entropy,
-    integral_eq_sum_finset' _ _ hA, smul_eq_mul, mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib]
+    integral_eq_sum' _ hA, smul_eq_mul, mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib]
   congr with x
   · have h := condEntropyKernel_fst_ae_eq hX hY hZ μ
     rw [Filter.EventuallyEq, ae_iff_of_countable] at h
@@ -800,7 +800,7 @@ lemma condMutualInfo_eq_integral_mutualInfo :
 
 lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRange Z] :
     I[X : Y | Z ; μ] = ∑ z in FiniteRange.toFinset Z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
-  rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hZ _)]
+  rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum' _ (FiniteRange.null_of_compl hZ _)]
   congr 1 with z
   rw [map_apply hZ (MeasurableSet.singleton z)]
   rfl

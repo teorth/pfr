@@ -53,16 +53,16 @@ lemma rdist_eq {κ : kernel T G} {η : kernel T' G} {μ : Measure T} {ν : Measu
   rcases hν with ⟨B, hB⟩
   have : (μ.prod ν) ((A ×ˢ B : Finset (T × T')) : Set (T × T'))ᶜ = 0 := by exact prod_of_full_measure_finSet hA hB
 
-  simp_rw [rdist, rdistm, integral_eq_sum_finset' _ _ this, smul_sub, Finset.sum_sub_distrib, smul_eq_mul]
+  simp_rw [rdist, rdistm, integral_eq_sum' _ this, smul_sub, Finset.sum_sub_distrib, smul_eq_mul]
   congr
   · simp_rw [Finset.sum_product, ← Finset.sum_mul,
       ← Set.singleton_prod_singleton, Measure.prod_prod, ENNReal.toReal_mul,
       ← Finset.mul_sum, Finset.sum_toReal_measure_singleton, full_measure_of_null_compl hB, IsProbabilityMeasure.measure_univ,
-      ENNReal.one_toReal, mul_one, mul_div, ← Finset.sum_div, entropy, integral_eq_sum_finset' _ _ hA, smul_eq_mul]
+      ENNReal.one_toReal, mul_one, mul_div, ← Finset.sum_div, entropy, integral_eq_sum' _ hA, smul_eq_mul]
   · simp_rw [Finset.sum_product_right, ← Finset.sum_mul, ← Set.singleton_prod_singleton,
       Measure.prod_prod, ENNReal.toReal_mul, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
       full_measure_of_null_compl hA, IsProbabilityMeasure.measure_univ, ENNReal.one_toReal, one_mul,
-      mul_div, ← Finset.sum_div, entropy, integral_eq_sum_finset' _ _ hB, smul_eq_mul]
+      mul_div, ← Finset.sum_div, entropy, integral_eq_sum' _ hB, smul_eq_mul]
 
 lemma rdist_eq' {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFiniteKernel η]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] (hμ: FiniteSupport μ) (hν: FiniteSupport ν) :
@@ -214,7 +214,7 @@ lemma rdist_triangle_aux1 (κ : kernel T G) (η : kernel T' G)
   have hAC: (μ.prod μ'') ((A ×ˢ C: Finset (T × T'')):Set (T × T''))ᶜ = 0 := by exact prod_of_full_measure_finSet hA hC
   have hACB: ((μ.prod μ'').prod μ') (((A ×ˢ C) ×ˢ B: Finset ((T × T'') × T')):Set ((T × T'') × T'))ᶜ = 0 := by exact prod_of_full_measure_finSet hAC hB
 
-  simp_rw [entropy, integral_eq_sum_finset' _ _ hAB, integral_eq_sum_finset' _ _ hACB, smul_eq_mul, Measure.prod_apply_singleton,
+  simp_rw [entropy, integral_eq_sum' _ hAB, integral_eq_sum' _ hACB, smul_eq_mul, Measure.prod_apply_singleton,
     Finset.sum_product, ENNReal.toReal_mul, mul_assoc, ← Finset.mul_sum]
   congr with x
   have : ∀ z y, map (prodMkRight (prodMkRight κ T'') T' ×ₖ prodMkLeft (T × T'') η)
@@ -246,7 +246,7 @@ lemma rdist_triangle_aux2 (η : kernel T' G) (ξ : kernel T'' G)
   have hAC: (μ.prod μ'') ((A ×ˢ C: Finset (T × T'')):Set (T × T''))ᶜ = 0 := by exact prod_of_full_measure_finSet hA hC
   have hACB: ((μ.prod μ'').prod μ') (((A ×ˢ C) ×ˢ B: Finset ((T × T'') × T')):Set ((T × T'') × T'))ᶜ = 0 := by exact prod_of_full_measure_finSet hAC hB
 
-  simp_rw [entropy, integral_eq_sum_finset' _ _ hACB, integral_eq_sum_finset' _ _ hBC, smul_eq_mul, Measure.prod_apply_singleton]
+  simp_rw [entropy, integral_eq_sum' _ hACB, integral_eq_sum' _ hBC, smul_eq_mul, Measure.prod_apply_singleton]
   conv_rhs => rw [Finset.sum_product_right]
   conv_lhs => rw [Finset.sum_product, Finset.sum_product_right]
   simp_rw [ENNReal.toReal_mul, mul_assoc, ← Finset.mul_sum]

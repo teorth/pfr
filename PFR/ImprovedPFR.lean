@@ -1,7 +1,3 @@
-import PFR.Fibring
-import PFR.TauFunctional
-import PFR.Endgame
-import PFR.EntropyPFR
 import PFR.Main
 
 /-!
@@ -16,9 +12,7 @@ An improvement to PFR that lowers the exponent from 12 to 11.
 
 open MeasureTheory ProbabilityTheory
 
-
 section GeneralInequality
-
 variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
@@ -346,13 +340,13 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
 
     simp only [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
+    simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl hT₃ _),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
+    simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl hT₃ _),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
@@ -364,9 +358,8 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     linarith
   have hk : k ≤ sum4 := by
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
-    apply integral_mono_ae (integrable_of_fintype _ _) (integrable_of_fintype _ _)
-    apply Countable.ae_of_singleton
-    intros t ht
+    refine integral_mono_ae (integrable_of_fintype _ _) (integrable_of_fintype _ _) $
+      ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
       cond_isProbabilityMeasure ℙ (by simpa [hT₃] using ht)
     dsimp only
@@ -866,12 +859,12 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm $ measurableSet_discrete _
   have VA'unif := VAunif
-  rw [<-hAA'] at VA'unif
+  rw [← hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
   let H' := (H:Set G).toFinite.toFinset
   have hHH' : H' = (H:Set G) := Finite.coe_toFinset (toFinite (H:Set G))
   have VH'unif := VHunif
-  rw [<-hHH'] at VH'unif
+  rw [← hHH'] at VH'unif
 
   have : d[VA # VH] ≤ 10/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by

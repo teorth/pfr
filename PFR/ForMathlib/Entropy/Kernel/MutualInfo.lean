@@ -85,7 +85,7 @@ lemma mutualInfo_swapRight (κ : kernel T (S × U)) (μ : Measure T) :
 lemma mutualInfo_nonneg {κ : kernel T (S × U)} {μ : Measure T} [IsFiniteMeasure μ] (hμ : FiniteSupport μ) (hκ: FiniteKernelSupport κ) :
     0 ≤ Ik[κ, μ] := by
   rcases hμ with ⟨A, hA⟩
-  simp_rw [mutualInfo, entropy, integral_eq_sum_finset' _ _ hA,
+  simp_rw [mutualInfo, entropy, integral_eq_sum' _ hA,
     smul_eq_mul]
   rw [← Finset.sum_add_distrib, ← Finset.sum_sub_distrib]
   refine Finset.sum_nonneg (fun x _ ↦ ?_)

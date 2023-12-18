@@ -1,6 +1,5 @@
 import PFR.ForMathlib.Pair
 import PFR.Mathlib.Data.Set.Image
-import PFR.Mathlib.MeasureTheory.Measure.Dirac
 import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
@@ -175,7 +174,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     congr 1
     have : IsProbabilityMeasure (m' y) := h5 hy
     simp
-  . rw [condIndepFun_iff, ae_iff_of_fintype]
+  . rw [condIndepFun_iff, ae_iff_of_countable ]
     have h1 : ν.map Prod.snd = μ.map Y := by
       rw [law_of_total_probability hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
       simp

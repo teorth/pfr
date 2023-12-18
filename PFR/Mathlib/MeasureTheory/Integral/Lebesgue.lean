@@ -16,8 +16,21 @@ lemma lintegral_eq_sum_countable (μ : Measure α) (f : α → ℝ≥0∞) [Coun
   simp_rw [lintegral_countable', mul_comm]
 
 lemma lintegral_eq_zero_of_ae_zero {μ : Measure α} {f : α → ℝ≥0∞} {E : Set α} (hE: μ Eᶜ = 0) (hf: ∀ x ∈ E, f x = 0) (hmes: MeasurableSet E) : ∫⁻ x, f x ∂μ = 0 := by
-  rw [<- lintegral_add_compl f hmes, set_lintegral_measure_zero Eᶜ f hE, set_lintegral_congr_fun (f := f) (g := (fun _ ↦ 0)) hmes]
+  rw [← lintegral_add_compl f hmes, set_lintegral_measure_zero Eᶜ f hE, set_lintegral_congr_fun (f := f) (g := (fun _ ↦ 0)) hmes]
   . simp
   exact ae_of_all μ hf
+
+lemma lintegral_eq_sum' (μ : Measure α) {s : Finset α} (hA : μ sᶜ = 0) (f : α → ℝ≥0∞) :
+    ∫⁻ x, f x ∂μ = ∑ x in s, (f x) * (μ {x}) := by
+  have hA' : (s : Set α) =ᵐ[μ] Set.univ := by rwa [MeasureTheory.ae_eq_univ]
+  rw [← MeasureTheory.set_lintegral_univ, ← MeasureTheory.set_lintegral_congr hA']
+  apply lintegral_finset
+
+lemma lintegral_eq_single (μ : Measure α) (a : α) (f : α → ℝ≥0∞) (ha : ∀ b ≠ a, f b = 0) :
+    ∫⁻ x, f x ∂μ = f a * μ {a} := by
+  rw [← lintegral_add_compl f (A := {a}) (MeasurableSet.singleton a), lintegral_singleton,
+    set_lintegral_congr_fun (g := fun _ ↦ 0) (MeasurableSet.compl (MeasurableSet.singleton a)),
+    lintegral_zero, add_zero]
+  simp (config := { contextual := true}) [ha]
 
 end MeasureTheory

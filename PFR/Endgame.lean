@@ -377,7 +377,7 @@ lemma construct_good_prelim :
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
   · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
-      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
+      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl hT₃ _),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
     gcongr
@@ -386,7 +386,7 @@ lemma construct_good_prelim :
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
   · have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂]
     · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
-      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum_finset' _ _ (FiniteRange.null_of_compl hT₃ _),
+      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl hT₃ _),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
@@ -399,9 +399,8 @@ lemma construct_good_prelim :
 
   have hk : k ≤ sum4
   · suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
-    apply integral_mono_ae (integrable_of_fintype _ _) (integrable_of_fintype _ _)
-    apply Countable.ae_of_singleton
-    intros t ht
+    refine integral_mono_ae (integrable_of_fintype _ _) (integrable_of_fintype _ _) $
+      ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
       cond_isProbabilityMeasure ℙ (by simpa [hT₃] using ht)
     dsimp only

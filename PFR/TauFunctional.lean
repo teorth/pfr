@@ -202,11 +202,11 @@ lemma condRuzsaDistance_ge_of_min
     d[X₁ # X₂] - p.η * (d[p.X₀₁ # X'₁ | Z] - d[p.X₀₁ # X₁])
       - p.η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂]) ≤ d[X'₁ | Z # X'₂ | W] := by
   have hz (a : ℝ) : a = ∑ z in FiniteRange.toFinset Z, (ℙ (Z ⁻¹' {z})).toReal * a := by
-    simp_rw [← Finset.sum_mul,<-Measure.map_apply hZ (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
+    simp_rw [← Finset.sum_mul,← Measure.map_apply hZ (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
     rw [FiniteRange.full hZ]
     simp
   have hw (a : ℝ) : a = ∑ w in FiniteRange.toFinset W, (ℙ (W ⁻¹' {w})).toReal * a := by
-    simp_rw [← Finset.sum_mul,<-Measure.map_apply hW (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
+    simp_rw [← Finset.sum_mul,← Measure.map_apply hW (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
     rw [FiniteRange.full hW]
     simp
   rw [condRuzsaDist_eq_sum h1 hZ h2 hW, condRuzsaDist'_eq_sum h1 hZ, hz d[X₁ # X₂],

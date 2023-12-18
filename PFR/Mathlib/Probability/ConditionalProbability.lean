@@ -1,6 +1,5 @@
 import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
-import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.Tactic.Finiteness
 
 open ENNReal MeasureTheory MeasurableSpace Measure Set

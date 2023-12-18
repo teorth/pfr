@@ -347,11 +347,11 @@ lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*} [MeasurableSpace Ω] [Mea
     simp
     by_cases h: X ω ∈ A
     . left; simp at h; simp [h]
-    right; intro ω₀ hω₀; rw [<-hω₀] at h
+    right; intro ω₀ hω₀; rw [← hω₀] at h
     simp at h
   apply Filter.eventuallyEq_of_mem (s := X ⁻¹' A)
   . simp [ae]
-    rw [<- Set.preimage_compl, <- IdentDistrib.measure_preimage_eq hi]
+    rw [← Set.preimage_compl, ← IdentDistrib.measure_preimage_eq hi]
     . convert measure_empty
       ext ω
       simp
@@ -370,7 +370,7 @@ lemma independent_copies_finiteRange {X : Ω → α} {Y : Ω' → β} (hX : Meas
   rcases identDistrib_of_finiteRange hX' hIdX.symm with ⟨X'', hX'', hX''_finite, hX''_eq⟩
   rcases identDistrib_of_finiteRange hY' hIdY.symm with ⟨Y'', hY'', hY''_finite, hY''_eq⟩
   use ν, X'', Y''
-  refine ⟨ hν, hX'', hY'', ?_, ?_, ?_, hX''_finite, hY''_finite ⟩
+  refine ⟨hν, hX'', hY'', ?_, ?_, ?_, hX''_finite, hY''_finite⟩
   . exact IndepFun.ae_eq' hind hX''_eq.symm hY''_eq.symm
   . convert IdentDistrib.trans _ hIdX
     exact IdentDistrib.of_ae_eq (Measurable.aemeasurable hX'') hX''_eq

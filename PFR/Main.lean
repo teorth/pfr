@@ -64,7 +64,7 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
     _ = (W.card : ℝ) / (Nat.card A * Nat.card B) := by simp [div_eq_inv_mul]; ring
     _ = Nat.card (A ∩ B : Set G) / (Nat.card A * Nat.card B) := by
         congr
-        rw [<-Finset.coe_inter, Nat.card_eq_fintype_card, Fintype.card_ofFinset]
+        rw [← Finset.coe_inter, Nat.card_eq_fintype_card, Fintype.card_ofFinset]
         simp
 
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
@@ -171,12 +171,12 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm $ measurableSet_discrete _
   have VA'unif := VAunif
-  rw [<-hAA'] at VA'unif
+  rw [← hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
   let H' := (H:Set G).toFinite.toFinset
   have hHH' : H' = (H:Set G) := Finite.coe_toFinset (toFinite (H:Set G))
   have VH'unif := VHunif
-  rw [<-hHH'] at VH'unif
+  rw [← hHH'] at VH'unif
 
   have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by

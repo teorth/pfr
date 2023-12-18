@@ -1,11 +1,8 @@
 import Mathlib.Probability.Kernel.CondDistrib
-import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
-import PFR.Mathlib.MeasureTheory.Measure.Dirac
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.Kernel.MeasureCompProd
-
 
 /-!
 # Disintegration of kernels in finite spaces

@@ -3,7 +3,6 @@ import PFR.ForMathlib.MeasureReal
 import PFR.Mathlib.Data.Fintype.Lattice
 import PFR.Mathlib.Data.Finset.Sigma
 import PFR.Mathlib.Data.Fintype.Sigma
-import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.Mathlib.Probability.Independence.Kernel
 
 open Function MeasureTheory MeasurableSpace Measure Set
@@ -402,7 +401,7 @@ theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} 
     ⋂ i ∈ s, E i =ᶠ[l] ⋂ i ∈ s, F i := by
   unfold Filter.EventuallyEq Filter.Eventually at h ⊢
   simp at h ⊢
-  rw [<-Filter.biInter_finset_mem] at h
+  rw [← Filter.biInter_finset_mem] at h
   apply Filter.mem_of_superset h
   intro a ha
   simp at ha ⊢
@@ -419,12 +418,12 @@ theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}
   intro s E H
   have (i : ι) : ∃ E' : Set Ω, i ∈ s → MeasurableSet[MeasurableSpace.comap (f i) (m i)] E' ∧ E' =ᵐ[μ] E i := by
     by_cases hi: i ∈ s
-    . rcases H i hi with ⟨ F, mF, hFE ⟩
+    . rcases H i hi with ⟨F, mF, hFE⟩
       use (f i)⁻¹' F
       simp [hi]
       constructor
       . use F
-      rw [<-hFE]
+      rw [← hFE]
       exact Filter.EventuallyEq.preimage (hfg i) F
     use ∅
     tauto

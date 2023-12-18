@@ -66,7 +66,7 @@ example {A : Type*} [Fintype A] (E : A → Set Ω)   (hn : Pairwise (Disjoint on
 /-- A simple example of applying real-valued subtraction. -/
 example (E F : Set Ω) (h : NullMeasurableSet F ℙ)
  : ℙᵣ (E ∩ F) = ℙᵣ E - ℙᵣ (E \ F) := by
-  rw [<-measureReal_inter_add_diff₀ E h]
+  rw [← measureReal_inter_add_diff₀ E h]
   ring
 
 example (E : Set Ω) : 0 ≤ ℙᵣ E ∧ ℙᵣ E ≤ 1 := by
@@ -100,7 +100,7 @@ variable (X : Ω → S) (hX : Measurable X) (Y : Ω → T) (hY : Measurable Y) (
 example :
     H[X] =
       -∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
-  rw [entropy_eq_sum hX ℙ, <-Finset.sum_neg_distrib]
+  rw [entropy_eq_sum hX ℙ, ← Finset.sum_neg_distrib]
   congr with x
   unfold Real.negMulLog
   ring

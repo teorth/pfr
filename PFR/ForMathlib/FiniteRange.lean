@@ -41,12 +41,12 @@ lemma FiniteRange.range {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] :
 
 lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) :
     X ω ∈ FiniteRange.toFinset X := by
-  rw [<-Finset.mem_coe, <-FiniteRange.range X]
+  rw [← Finset.mem_coe, ← FiniteRange.range X]
   simp
 
 @[simp]
 lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) : x ∈ FiniteRange.toFinset X ↔ ∃ ω, X ω = x := by
-  rw [<-Finset.mem_coe, <-FiniteRange.range X]
+  rw [← Finset.mem_coe, ← FiniteRange.range X]
   simp
 
 /-- Constants have finite range -/
