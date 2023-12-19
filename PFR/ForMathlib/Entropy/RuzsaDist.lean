@@ -193,6 +193,13 @@ lemma rdist_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) : 0 ≤ d[X ; μ # Y ; μ'] := by
   linarith [ge_trans (diff_ent_le_rdist hX hY) (abs_nonneg (H[X ; μ] - H[Y ; μ']))]
 
+/-- If $G$ is an additive group and $X$ is a $G$-valued random variable and $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphism we have (if $U_H$ is the  uniform distribution on $H$, independent of $X$)
+\[\mathbb{H}(\pi(X))\leq 2d[X;U_H].\] -/
+lemma ent_of_proj_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (UH: Ω' → G) (hX : Measurable X) (hU: Measurable UH) (hunif: IsUniform H UH μ') [FiniteRange X] (H: AddSubgroup G) : H[ (QuotientAddGroup.mk' H) ∘ X; μ] ≤ 2 * d[ X; μ # UH ; μ' ] := by sorry
+
+
+
+
 /-- Adding a constant to a random variable does not change the Rusza distance. -/
 lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) :
