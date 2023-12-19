@@ -20,6 +20,13 @@ proof_wanted torsion_free_doubling : 0 = 1
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
 proof_wanted torsion_dist_shrinking : 0 = 1
 
+section F2_projection
+
+open Real ProbabilityTheory MeasureTheory
+
+variable {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]  [MeasurableSingletonClass G]
+ {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {X : Ω → G} {Y : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+
 /-- Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> 48d[X;Y].\]
 There is a non-trivial subgroup $H\leq G$ such that
@@ -27,13 +34,15 @@ There is a non-trivial subgroup $H\leq G$ such that
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))< \frac{\mathbb{H}(X)+\mathbb{H}(Y)}{2}\]
 where $\psi:G\to G/H$ is the natural projection homomorphism.
 -/
-proof_wanted app_ent_PFR : 0 = 1
+proof_wanted app_ent_PFR (hent: H[ X; μ] + H[Y; μ'] > 48 * d[X;μ # Y;μ']): ∃ H : AddSubgroup G, log (Nat.card H) < H[X; μ] + H[Y;μ'] ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] < (H[ X; μ] + H[Y; μ'])/2
 
 /-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 48 d[\psi(X);\psi(Y)].\] -/
-proof_wanted PFR_projection : 0 = 1
+proof_wanted PFR_projection :  ∃ H : AddSubgroup G, log (Nat.card H) < 2 * (H[X; μ] + H[Y;μ']) ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] < 48 * d[X;μ # Y;μ']
+
+end F2_projection
 
 /-- Let $\phi:G\to H$ be a homomorphism and $A,B\subseteq G$ be finite subsets. If $x,y\in H$ then let $A_x=A\cap \phi^{-1}(x)$ and $B_y=B\cap \phi^{-1}(y)$. There exist $x,y\in H$ such that $A_x,B_y$ are both non-empty and
 \[d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq (\mathbb{H}(\phi(U_A))+\mathbb{H}(\phi(U_B)))(d(U_A,U_B)-d(U_{A_x},U_{B_y}).\] -/
