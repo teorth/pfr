@@ -53,7 +53,8 @@ lemma mutualInfo_zero_kernel (μ : Measure T) : Ik[(0 : kernel T (S × U)), μ] 
   simp [mutualInfo]
 
 lemma mutualInfo_compProd {κ : kernel T S}[IsMarkovKernel κ]
-    {η : kernel (T × S) U} [IsMarkovKernel η] {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ: FiniteKernelSupport κ) (hη: FiniteKernelSupport η):
+    {η : kernel (T × S) U} [IsMarkovKernel η] {μ : Measure T} [IsProbabilityMeasure μ]
+    (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) (hη : AEFiniteKernelSupport η (μ ⊗ₘ κ)):
     Ik[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[snd (κ ⊗ₖ η), μ] - Hk[κ ⊗ₖ η, μ] := by
   rw [mutualInfo, entropy_compProd hμ hκ hη, fst_compProd]
 
@@ -359,7 +360,8 @@ lemma entropy_condKernel_compProd_triple (ξ : kernel T S) [IsMarkovKernel ξ]
 /- $$ H[X,Y,Z] + H[X] \leq H[Z,X] + H[Y,X].$$ -/
 lemma entropy_compProd_triple_add_entropy_le {ξ : kernel T S} [IsMarkovKernel ξ]
     {κ : kernel (T × S) U} [IsMarkovKernel κ] {η : kernel (T × S × U) V} [IsMarkovKernel η]
-    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ: FiniteKernelSupport κ) (hη: FiniteKernelSupport η) (hξ: FiniteKernelSupport ξ) :
+    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
+    (hκ: FiniteKernelSupport κ) (hη: FiniteKernelSupport η) (hξ: FiniteKernelSupport ξ) :
     Hk[(ξ ⊗ₖ κ) ⊗ₖ η, μ] + Hk[ξ, μ]
       ≤ Hk[ξ ⊗ₖ snd (κ ⊗ₖ comap η assocEquiv.symm assocEquiv.symm.measurable), μ]
        + Hk[ξ ⊗ₖ κ, μ] := by
@@ -404,6 +406,15 @@ lemma entropy_triple_add_entropy_le' {κ : kernel T (S × U × V)} [IsMarkovKern
     rw [← compProd_assoc, h_compProd_triple_eq,hκ'_def, map_map]
     simp
   have h := entropy_compProd_triple_add_entropy_le (ξ := ξ) (κ := κ'') (η := η) hμ ?_ ?_ ?_
+  rotate_left
+  . apply finiteKernelSupport_of_cond
+    apply finiteKernelSupport_of_fst
+    exact finiteKernelSupport_of_map hκ _
+  . apply finiteKernelSupport_of_cond
+    exact finiteKernelSupport_of_map hκ _
+  · apply finiteKernelSupport_of_fst
+    apply finiteKernelSupport_of_fst
+    exact finiteKernelSupport_of_map hκ _
   rw [← hξ_eq]
   have h_right : deleteRight κ = fst κ' := by
     simp only [κ', deleteRight, fst, map_map]
@@ -416,14 +427,6 @@ lemma entropy_triple_add_entropy_le' {κ : kernel T (S × U × V)} [IsMarkovKern
     exact assocEquiv.injective
   rw [h_right, h_middle, hκ, ← h_compProd_triple_eq, fst_compProd]
   . exact h
-  . apply finiteKernelSupport_of_cond
-    apply finiteKernelSupport_of_fst
-    exact finiteKernelSupport_of_map hκ _
-  . apply finiteKernelSupport_of_cond
-    exact finiteKernelSupport_of_map hκ _
-  apply finiteKernelSupport_of_fst
-  apply finiteKernelSupport_of_fst
-  exact finiteKernelSupport_of_map hκ _
 
 lemma entropy_reverse {κ : kernel T (S × U × V)} [IsMarkovKernel κ]
     {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ: FiniteKernelSupport κ) :

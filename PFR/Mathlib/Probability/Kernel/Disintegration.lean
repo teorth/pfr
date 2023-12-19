@@ -10,85 +10,90 @@ import PFR.Mathlib.Probability.Kernel.MeasureCompProd
 We can write `κ : kernel S (T × U)` as a composition-product `(fst κ) ⊗ₖ (condKernel κ)` where
 `fst κ : kernel S T` and `condKernel : kernel (S × T) U` is defined in this file.
 
-## TODO
-
-Most of the results in this file should be changed to reuse Mathlib results about the
-kernels `Measure.condKernel` and `condDistrib`. See for example the lemma
-`condEntropyKernel_eq_condDistrib`, which states that the new `condEntropyKernel X Y μ` introduced
-here is the same as `condDistrib X Y μ` (almost surely with respect to the law of `Y`).
 -/
 
-open Real MeasureTheory Measure
+open Real MeasureTheory Measure ProbabilityTheory
 open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
+
+lemma _root_.MeasureTheory.lintegral_piecewise {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}
+    {s : Set α} (hs : MeasurableSet s) (f g : α → ℝ≥0∞) [∀ j, Decidable (j ∈ s)] :
+    ∫⁻ a, s.piecewise f g a ∂μ = ∫⁻ a in s, f a ∂μ + ∫⁻ a in sᶜ, g a ∂μ := by
+  rw [← lintegral_add_compl _ hs]
+  congr 1
+  · refine set_lintegral_congr_fun hs ?_
+    exact ae_of_all μ (fun a ha ↦ Set.piecewise_eq_of_mem _ _ _ ha)
+  · refine set_lintegral_congr_fun hs.compl ?_
+    exact ae_of_all μ (fun a ha ↦ Set.piecewise_eq_of_not_mem _ _ _ ha)
+
+lemma MeasureTheory.Measure.condKernel_apply {α β : Type*} {mα : MeasurableSpace α}
+    {mβ : MeasurableSpace β} [MeasurableSingletonClass α] [StandardBorelSpace β] [Nonempty β]
+    (μ : Measure (α × β)) [IsFiniteMeasure μ] {x : α} (hx : μ.fst {x} ≠ 0)
+    {s : Set β} (hs : MeasurableSet s) :
+    μ.condKernel x s = (μ.fst {x})⁻¹ * μ ({x} ×ˢ s) := by
+  nth_rewrite 3 [measure_eq_compProd μ]
+  rw [Measure.compProd_apply]
+  swap; · refine measurableSet_prod.mpr (Or.inl ⟨measurableSet_singleton x, hs⟩)
+  classical
+  have : ∀ a, μ.condKernel a (Prod.mk a ⁻¹' {x} ×ˢ s)
+      = ({x} : Set α).indicator (fun a ↦ μ.condKernel a s) a := by
+    intro a
+    by_cases hax : a = x
+    · simp only [hax, Set.singleton_prod, Set.mem_singleton_iff, Set.indicator_of_mem]
+      congr
+      ext y : 1
+      simp
+    · simp only [Set.singleton_prod, Set.mem_singleton_iff, hax, not_false_eq_true,
+        Set.indicator_of_not_mem]
+      have : Prod.mk a ⁻¹' (Prod.mk x '' s) = ∅ := by
+        ext y
+        simp [Ne.symm hax]
+      simp only [this, OuterMeasure.empty']
+  simp_rw [this]
+  rw [MeasureTheory.lintegral_indicator _ (measurableSet_singleton x)]
+  simp only [restrict_singleton, lintegral_smul_measure, lintegral_dirac]
+  rw [← mul_assoc, ENNReal.inv_mul_cancel hx (measure_ne_top μ.fst _), one_mul]
+
+instance instStandardBorelSpace_discreteMeasurableSpace {α : Type*} [MeasurableSpace α]
+    [DiscreteMeasurableSpace α] [Countable α] :
+    StandardBorelSpace α := by
+  let bot : TopologicalSpace α := ⊥
+  have : DiscreteTopology α := ⟨rfl⟩
+  infer_instance
 
 namespace ProbabilityTheory
 
 variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
-  [Countable S] [Nonempty S] [MeasurableSpace S] [MeasurableSingletonClass S]
-  [Countable T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
-  [Countable U] [Nonempty U] [MeasurableSpace U] [MeasurableSingletonClass U]
+  [Countable S] [Nonempty S] [MeasurableSpace S] [DiscreteMeasurableSpace S]
+  [Countable T] [Nonempty T] [MeasurableSpace T] [DiscreteMeasurableSpace T]
+  [Countable U] [Nonempty U] [MeasurableSpace U] [DiscreteMeasurableSpace U]
 
 namespace kernel
 
 section condKernel
 
-/-- An auxiliary definition for `condKernel`. -/
+/-- Kernel such that `κ : kernel T (S × U)` is equal to `(fst κ) ⊗ₖ (condKernel κ)`. -/
 noncomputable
-def condKernelAux (κ : kernel T (S × U)) : kernel (T × S) (S × U) where
-  val := fun x : T × S ↦ (κ x.1)[|Prod.fst ⁻¹' {x.2}]
+def condKernel (κ : kernel T (S × U)) [IsFiniteKernel κ] :
+    kernel (T × S) U where
+  val := fun ts ↦ (κ ts.1).condKernel ts.2
   property := measurable_of_countable _
 
-lemma condKernelAux_apply (κ : kernel T (S × U)) (x : T × S) :
-    condKernelAux κ x = (κ x.1)[|Prod.fst ⁻¹' {x.2}] := rfl
+lemma condKernel_apply (κ : kernel T (S × U)) [IsFiniteKernel κ] (x : T × S) :
+    condKernel κ x = (κ x.1).condKernel x.2 := rfl
 
-lemma condKernelAux_apply' (κ : kernel T (S × U)) (x : T × S) (s : Set (S × U)) :
-    condKernelAux κ x s
-      = ((κ x.1) (Prod.fst ⁻¹' {x.2}))⁻¹ * (κ x.1) (Prod.fst ⁻¹' {x.2} ∩ s) := by
-  rw [condKernelAux_apply, cond_apply _ (measurable_fst (measurableSet_singleton _))]
-
-instance (κ : kernel T (S × U)) : IsFiniteKernel (condKernelAux κ) := by
+instance (κ : kernel T (S × U)) [IsFiniteKernel κ] : IsMarkovKernel (condKernel κ) := by
   constructor
-  refine ⟨1, ENNReal.one_lt_top, fun x ↦ ?_⟩
-  rw [condKernelAux_apply']
-  simp
-  by_cases hx : (κ x.1) (Prod.fst ⁻¹' {x.2}) = 0
-  · simp [hx]
-  by_cases hx' : (κ x.1) (Prod.fst ⁻¹' {x.2}) = ∞
-  · simp [hx']
-  rw [ENNReal.inv_mul_cancel hx hx']
+  intro a
+  rw [condKernel_apply]
+  infer_instance
 
-/-- Kernel such that `κ : kernel T (S × U)` is equal to `(fst κ) ⊗ₖ (condKernel κ)`.
-We define it using `kernel.piecewise` to ensure it is always a Markov kernel, which would otherwise
-not be the case for `x : T × S` such that `κ x.1 (Prod.fst ⁻¹' {x.2}) = 0`. -/
-noncomputable
-def condKernel [hU : Nonempty U] (κ : kernel T (S × U)) : kernel (T × S) U :=
-  kernel.piecewise (s := {x | κ x.1 (Prod.fst ⁻¹' {x.2}) = 0})
-    (measurable_of_countable _ (measurableSet_singleton _))
-    (kernel.deterministic (fun _ ↦ hU.some) measurable_const)
-    (kernel.map (condKernelAux κ) Prod.snd measurable_snd)
-
-variable [hU : Nonempty U]
-
-lemma condKernel_apply (κ : kernel T (S × U)) (x : T × S) :
-  condKernel κ x = if (κ x.1 (Prod.fst ⁻¹' {x.2}) = 0)
-    then Measure.dirac hU.some else ((κ x.1)[|Prod.fst ⁻¹' {x.2}]).map Prod.snd := rfl
-
-lemma condKernel_apply_of_eq_zero (κ : kernel T (S × U)) (x : T × S)
-    (hx : κ x.1 (Prod.fst ⁻¹' {x.2}) = 0) :
-    condKernel κ x = Measure.dirac hU.some :=
-  if_pos hx
-
-lemma condKernel_apply_of_ne_zero (κ : kernel T (S × U)) (x : T × S)
-    (hx : κ x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0) :
-    condKernel κ x = ((κ x.1)[|Prod.fst ⁻¹' {x.2}]).map Prod.snd :=
-  if_neg hx
-
-lemma condKernel_apply' (κ : kernel T (S × U)) (x : T × S) (hx : κ x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0)
-    {s : Set U} (hs : MeasurableSet s) :
+lemma condKernel_apply' (κ : kernel T (S × U)) [IsFiniteKernel κ]
+    (x : T × S) (hx : κ x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0) {s : Set U} (hs : MeasurableSet s) :
     condKernel κ x s
-      = ((κ x.1) (Prod.fst ⁻¹' {x.2}))⁻¹ * (κ x.1) (Prod.fst ⁻¹' {x.2} ∩ Prod.snd ⁻¹' s) := by
-  rw [condKernel_apply_of_ne_zero _ _ hx, Measure.map_apply measurable_snd hs,
-    cond_apply _ (measurable_fst (measurableSet_singleton _))]
+      = (κ x.1 (Prod.fst ⁻¹' {x.2}))⁻¹ * (κ x.1) ({x.2} ×ˢ s) := by
+  rw [condKernel_apply, Measure.condKernel_apply _ _ hs,
+    Measure.fst_apply (measurableSet_singleton _)]
+  rwa [Measure.fst_apply (measurableSet_singleton _)]
 
 lemma condKernel_compProd_apply' (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η]
@@ -96,20 +101,17 @@ lemma condKernel_compProd_apply' (κ : kernel T S) [IsFiniteKernel κ]
     condKernel (κ ⊗ₖ η) x s = η x s := by
   have hx' : (κ ⊗ₖ η) x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0 := by
     rwa [compProd_preimage_fst _ _ (measurableSet_singleton _)]
-  rw [condKernel_apply' _ _ hx' hs,
-    compProd_apply _ _ _ (measurable_fst (measurableSet_singleton _))]
-  simp only [Set.mem_preimage, Set.mem_singleton_iff]
-  rw [kernel.compProd_apply, lintegral_eq_single _ x.2, lintegral_eq_single _ x.2]
-  swap
-  . intro b hb; simp [hb]
+  rw [condKernel_apply' _ _ hx' hs, compProd_apply _ _ _ ((measurableSet_singleton _).prod hs),
+    kernel.compProd_apply, lintegral_eq_single _ x.2, lintegral_eq_single _ x.2]
   . simp
     rw [mul_comm, mul_assoc]
     set a := (κ x.1) {x.2}
     suffices a * a⁻¹ = 1 by simp [this]
     refine ENNReal.mul_inv_cancel hx ?_
     exact measure_ne_top (κ x.1) {x.2}
+  . intro b hb; simp [hb.symm]
   . intro b hb; simp [hb]
-  measurability
+  · measurability
 
 lemma condKernel_compProd_apply (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η]
@@ -140,21 +142,6 @@ lemma condKernel_compProd_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
 lemma condKernel_prod_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel T U) [IsMarkovKernel η] [IsFiniteMeasure μ] :
     condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight η S := condKernel_compProd_ae_eq _ _ _
-
-instance (κ : kernel T (S × U)) : IsFiniteKernel (condKernel κ) := by
-  rw [condKernel]; infer_instance
-
-instance (κ : kernel T (S × U)) [IsMarkovKernel κ] : IsMarkovKernel (condKernel κ) := by
-  constructor
-  intro a
-  rw [condKernel_apply]
-  split_ifs with h
-  · infer_instance
-  · constructor
-    rw [Measure.map_apply measurable_snd MeasurableSet.univ,
-      cond_apply _ (measurable_fst (measurableSet_singleton _))]
-    simp only [Set.preimage_univ, Set.inter_univ]
-    rw [ENNReal.inv_mul_cancel h (measure_ne_top _ _)]
 
 lemma disintegration (κ : kernel T (S × U)) [IsFiniteKernel κ] :
     κ = (kernel.fst κ) ⊗ₖ (condKernel κ) := by
@@ -190,11 +177,12 @@ lemma disintegration (κ : kernel T (S × U)) [IsFiniteKernel κ] :
 lemma ae_eq_condKernel_of_compProd_eq (κ : kernel T (S × U)) [IsFiniteKernel κ]
     (η : kernel (T × S) U) [IsMarkovKernel η] [IsFiniteMeasure μ] (h : (fst κ) ⊗ₖ η = κ) :
     η =ᵐ[μ ⊗ₘ fst κ] condKernel κ := by
-  conv_rhs => rw [← h]
+  have : condKernel κ = condKernel ((fst κ) ⊗ₖ η) := by congr; exact h.symm
+  rw [this]
   exact (condKernel_compProd_ae_eq _ _ _).symm
 
 lemma condKernel_map_prod_mk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
-    [MeasurableSingletonClass V]
+    [DiscreteMeasurableSpace V] [Countable V]
     (κ : kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ]
     (f : (S × U) → V) :
     condKernel (map κ (fun p ↦ (p.1, f p)) (measurable_of_countable _))
@@ -236,183 +224,107 @@ lemma condKernel_map_prod_mk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
     exact h_ne_zero
   rw [map_apply' _ _ _ (measurable_fst (measurableSet_singleton _)), h_preimage]
   congr
-  rw [map_apply' _ _ _ (((measurable_fst (measurableSet_singleton _))).inter (measurable_snd hs))]
+  rw [map_apply' _ _ _ ((measurableSet_singleton _).prod hs)]
   congr
   ext p
-  simp only [Set.preimage_inter, Set.mem_inter_iff, Set.mem_preimage, Set.mem_singleton_iff,
-    Set.preimage_setOf_eq, Set.mem_setOf_eq, and_congr_right_iff]
-  intro h_eq
-  simp [h_eq.symm]
+  simp only [Set.singleton_prod, Set.mem_preimage, Set.mem_image, Prod.mk.injEq,
+    exists_eq_right_right, Set.mem_setOf_eq]
+  refine ⟨fun h ↦ ⟨p.2, ?_, ?_⟩, fun ⟨p2, h_mem, h_eq⟩ ↦ ?_⟩
+  · rw [h.2, Prod.mk.eta]
+    exact h.1
+  · rw [h.2, Prod.mk.eta]
+  · rw [← h_eq]
+    simp [h_mem]
 
 end condKernel
 
-/-- This is an alternative definition of `condKernel` defined above, using `Measure.condKernel`
-from Mathlib. -/
-noncomputable
-def condKernel' [TopologicalSpace U] [PolishSpace U] [BorelSpace U]
-    (κ : kernel T (S × U)) [IsFiniteKernel κ] :
-    kernel (T × S) U where
-  val := fun ts ↦ (κ ts.1).condKernel ts.2
-  property := measurable_of_countable _
-
-lemma condKernel'_apply [TopologicalSpace U] [PolishSpace U] [BorelSpace U]
-    (κ : kernel T (S × U)) [IsFiniteKernel κ] (x : T × S) :
-    condKernel' κ x = (κ x.1).condKernel x.2 := rfl
-
-/-- The two definitions of `condKernel κ` are equal `(κ x).fst`-almost-everywhere for all `x`. -/
-lemma condKernel_eq_condKernel' [TopologicalSpace U] [PolishSpace U] [BorelSpace U]
-    (κ : kernel T (S × U)) [IsFiniteKernel κ] (x : T) :
-    ∀ᵐ y ∂(κ x).fst, condKernel κ (x, y) = condKernel' κ (x, y) := by
-  simp_rw [condKernel'_apply]
-  let η : kernel S U :=
-  { val := fun y ↦ condKernel κ (x, y)
-    property := measurable_of_countable _ }
-  have hη : ∀ y, η y = condKernel κ (x, y) := fun y ↦ rfl
-  have : IsFiniteKernel η := by
-    constructor
-    have h : IsFiniteKernel (condKernel κ) := inferInstance
-    refine ⟨h.bound, h.bound_lt_top, fun y ↦ ?_⟩
-    exact kernel.measure_le_bound _ _ _
-  suffices κ x = (κ x).fst ⊗ₘ η by
-    filter_upwards [eq_condKernel_of_measure_eq_compProd (κ x) η this] with y hy
-    rw [← hy]
-    rfl
-  ext s hs
-  rw [Measure.compProd_apply hs]
-  simp_rw [hη, lintegral_eq_sum_countable, Measure.fst_apply (measurableSet_singleton _)]
-  have : ∑' y : S, κ x (Prod.fst ⁻¹' {y}) * condKernel κ (x, y) (Prod.mk y ⁻¹' s)
-      = ∑' y : S, κ x (Prod.fst ⁻¹' {y} ∩ s) := by
-    congr with y
-    by_cases hy : κ x (Prod.fst ⁻¹' {y}) = 0
-    · simp only [hy, zero_mul]
-      exact (measure_mono_null (Set.inter_subset_left _ _) hy).symm
-    rw [condKernel_apply' _ _ hy (measurable_prod_mk_left hs)]
-    simp only
-    rw [← mul_assoc, ENNReal.mul_inv_cancel hy (measure_ne_top _ _), one_mul]
-    congr 1
-    ext z
-    simp only [Set.mem_inter_iff, Set.mem_preimage, Set.mem_singleton_iff, and_congr_right_iff]
-    intro hzy
-    rw [← hzy]
-  rw [this]
-  -- I am sure I proved something like that somewhere else. todo: extract lemma, of find it.
-  have hs_eq : s = ⋃ y, (Prod.fst ⁻¹' {y} ∩ s) := by ext z; simp
-  conv_lhs => rw [hs_eq]
-  rw [measure_iUnion]
-  · intro a a' haa'
-    rw [Function.onFun, Set.disjoint_iff]
-    intro su
-    simp only [Set.mem_inter_iff, Set.mem_preimage, Set.mem_singleton_iff, Set.mem_setOf_eq,
-      Set.mem_empty_iff_false, and_imp]
-    intro h1 _ h1' _
-    exact haa' (h1.symm.trans h1')
-  · refine fun _ ↦ (measurable_fst (measurableSet_singleton _)).inter hs
-
 end kernel
 
-section condEntropyKernel
+section condDistrib
 
 variable {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
 
-/-- Given two random variables `X : Ω → S` and `Y : Ω → T` defined on a common space, the kernel
-`condEntropyKernel X Y μ` is the kernel from `T` to `S` registering the distribution of `X` on fibers
-of `Y`. -/
-noncomputable
-def condEntropyKernel (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
-    kernel T S :=
-  kernel.comap
-    (kernel.condKernel (kernel.const Unit (μ.map (fun ω ↦ (Y ω, X ω)))))
-    (Prod.mk ()) measurable_prod_mk_left
-
-lemma isMarkovKernel_condEntropyKernel (hX : Measurable X) (hY : Measurable Y)
-    (μ : Measure Ω) [IsProbabilityMeasure μ] :
-    IsMarkovKernel (condEntropyKernel X Y μ) := by
-  rw [condEntropyKernel]
-  have : IsProbabilityMeasure (μ.map (fun ω ↦ (Y ω, X ω))) :=
-    isProbabilityMeasure_map (hY.prod_mk hX).aemeasurable
-  infer_instance
-
-lemma condEntropyKernel_apply' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
+lemma condDistrib_apply' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ]
     (x : T) (hYx : μ (Y ⁻¹' {x}) ≠ 0) {s : Set S} (hs : MeasurableSet s) :
-    condEntropyKernel X Y μ x s = (μ (Y ⁻¹' {x}))⁻¹ * μ (Y ⁻¹' {x} ∩ X ⁻¹' s) := by
-  rw [condEntropyKernel, kernel.comap_apply', kernel.condKernel_apply' _ _ _ hs]
-  · rw [kernel.const_apply,
-      Measure.map_apply (hY.prod_mk hX) (measurable_fst (measurableSet_singleton _)),
-      Measure.map_apply (hY.prod_mk hX)
-        ((measurable_fst (measurableSet_singleton _)).inter (measurable_snd hs))]
-    have : (fun a ↦ (Y a, X a)) ⁻¹' (Prod.fst ⁻¹' {x}) = Y ⁻¹' {x} := rfl
-    rw [this]
-    have : (fun a ↦ (Y a, X a)) ⁻¹' (Prod.fst ⁻¹' {x} ∩ Prod.snd ⁻¹' s) = Y ⁻¹' {x} ∩ X ⁻¹' s := by
-      ext a
-      simp
-    rw [this]
-  · rw [kernel.const_apply,
-      Measure.map_apply (hY.prod_mk hX) (measurable_fst (measurableSet_singleton _))]
-    exact hYx
+    condDistrib X Y μ x s = (μ (Y ⁻¹' {x}))⁻¹ * μ (Y ⁻¹' {x} ∩ X ⁻¹' s) := by
+  rw [condDistrib, Measure.condKernel_apply _ _ hs]
+  · rw [fst_map_prod_mk hX, Measure.map_apply hY (measurableSet_singleton _),
+      Measure.map_apply (hY.prod_mk hX) ((measurableSet_singleton _).prod hs)]
+    congr
+  · rwa [fst_map_prod_mk hX, Measure.map_apply hY (measurableSet_singleton _)]
 
-lemma condEntropyKernel_apply (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
+lemma condDistrib_apply (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
+    [IsFiniteMeasure μ]
     (x : T) (hYx : μ (Y ⁻¹' {x}) ≠ 0) :
-    condEntropyKernel X Y μ x = (μ[|Y ⁻¹' {x}]).map X := by
+    condDistrib X Y μ x = (μ[|Y ⁻¹' {x}]).map X := by
   ext s hs
-  rw [condEntropyKernel_apply' hX hY μ x hYx hs, Measure.map_apply hX hs,
+  rw [condDistrib_apply' hX hY μ x hYx hs, Measure.map_apply hX hs,
     cond_apply _ (hY (measurableSet_singleton _))]
 
-lemma condEntropyKernel_comp (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) (f : S → U) :
-    condEntropyKernel (f ∘ X) Y μ
-      =ᵐ[μ.map Y] kernel.map (condEntropyKernel X Y μ) f (measurable_of_countable _) := by
+lemma condDistrib_ae_eq (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
+    [IsFiniteMeasure μ] :
+    condDistrib X Y μ =ᵐ[μ.map Y] fun x ↦ (μ[|Y ⁻¹' {x}]).map X := by
+  rw [Filter.EventuallyEq, ae_iff_of_countable]
+  intro x hx
+  rw [Measure.map_apply hY (measurableSet_singleton _)] at hx
+  exact condDistrib_apply hX hY μ x hx
+
+lemma condDistrib_comp (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ]
+    (f : S → U) :
+    condDistrib (f ∘ X) Y μ
+      =ᵐ[μ.map Y] kernel.map (condDistrib X Y μ) f (measurable_of_countable _) := by
   have hf : Measurable f := measurable_of_countable _
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [Measure.map_apply hY (measurableSet_singleton _)] at hx
   ext s hs
-  rw [condEntropyKernel_apply' (hf.comp hX) hY _ _ hx hs, kernel.map_apply' _ _ _ hs,
-    condEntropyKernel_apply' hX hY _ _ hx (hf hs), Set.preimage_comp]
+  rw [condDistrib_apply' (hf.comp hX) hY _ _ hx hs, kernel.map_apply' _ _ _ hs,
+    condDistrib_apply' hX hY _ _ hx (hf hs), Set.preimage_comp]
 
-lemma condEntropyKernel_fst_of_ne_zero
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) (u : U)
-    (hu : μ (Z ⁻¹' {u}) ≠ 0) :
-    kernel.fst (condEntropyKernel (fun a ↦ (X a, Y a)) Z μ) u
-      = condEntropyKernel X Z μ u := by
+lemma condDistrib_fst_of_ne_zero
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) [IsFiniteMeasure μ]
+    (u : U) (hu : μ (Z ⁻¹' {u}) ≠ 0) :
+    kernel.fst (condDistrib (fun a ↦ (X a, Y a)) Z μ) u
+      = condDistrib X Z μ u := by
   ext A hA
-  rw [kernel.fst_apply' _ _ hA, condEntropyKernel_apply' (hX.prod_mk hY) hZ _ _ hu]
+  rw [kernel.fst_apply' _ _ hA, condDistrib_apply' (hX.prod_mk hY) hZ _ _ hu]
   swap; · exact measurable_fst hA
-  rw [condEntropyKernel_apply' hX hZ _ _ hu hA]
+  rw [condDistrib_apply' hX hZ _ _ hu hA]
   rfl
 
-lemma condEntropyKernel_fst_ae_eq
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
-    kernel.fst (condEntropyKernel (fun a ↦ (X a, Y a)) Z μ)
-      =ᵐ[μ.map Z] condEntropyKernel X Z μ := by
+lemma condDistrib_fst_ae_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsFiniteMeasure μ] :
+    kernel.fst (condDistrib (fun a ↦ (X a, Y a)) Z μ)
+      =ᵐ[μ.map Z] condDistrib X Z μ := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
-  rw [condEntropyKernel_fst_of_ne_zero hX hY hZ]
+  rw [condDistrib_fst_of_ne_zero hX hY hZ]
   rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
 
-lemma condEntropyKernel_snd_of_ne_zero
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) (u : U)
-    (hu : μ (Z ⁻¹' {u}) ≠ 0) :
-    kernel.snd (condEntropyKernel (fun a ↦ (X a, Y a)) Z μ) u
-      = condEntropyKernel Y Z μ u := by
+lemma condDistrib_snd_of_ne_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsFiniteMeasure μ] (u : U) (hu : μ (Z ⁻¹' {u}) ≠ 0) :
+    kernel.snd (condDistrib (fun a ↦ (X a, Y a)) Z μ) u
+      = condDistrib Y Z μ u := by
   ext A hA
-  rw [kernel.snd_apply' _ _ hA, condEntropyKernel_apply' (hX.prod_mk hY) hZ _ _ hu]
+  rw [kernel.snd_apply' _ _ hA, condDistrib_apply' (hX.prod_mk hY) hZ _ _ hu]
   swap; · exact measurable_snd hA
-  rw [condEntropyKernel_apply' hY hZ _ _ hu hA]
+  rw [condDistrib_apply' hY hZ _ _ hu hA]
   rfl
 
-lemma condEntropyKernel_snd_ae_eq
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
-    kernel.snd (condEntropyKernel (fun a ↦ (X a, Y a)) Z μ)
-      =ᵐ[μ.map Z] condEntropyKernel Y Z μ := by
+lemma condDistrib_snd_ae_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsFiniteMeasure μ] :
+    kernel.snd (condDistrib (fun a ↦ (X a, Y a)) Z μ)
+      =ᵐ[μ.map Z] condDistrib Y Z μ := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
-  rw [condEntropyKernel_snd_of_ne_zero hX hY hZ]
+  rw [condDistrib_snd_of_ne_zero hX hY hZ]
   rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
 
-lemma condKernel_condEntropyKernel_ae_eq
+lemma condKernel_condDistrib_ae_eq
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω)
     [IsFiniteMeasure μ] :
-  kernel.condKernel (condEntropyKernel (fun a ↦ (X a, Y a)) Z μ) =ᵐ[μ.map (fun ω ↦ (Z ω, X ω))]
-    condEntropyKernel Y (fun ω ↦ (Z ω, X ω)) μ := by
+  kernel.condKernel (condDistrib (fun a ↦ (X a, Y a)) Z μ) =ᵐ[μ.map (fun ω ↦ (Z ω, X ω))]
+    condDistrib Y (fun ω ↦ (Z ω, X ω)) μ := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [Measure.map_apply (hZ.prod_mk hX) (measurableSet_singleton _)] at hx
@@ -425,7 +337,7 @@ lemma condKernel_condEntropyKernel_ae_eq
     exact hω.1
   rw [kernel.condKernel_apply' _ _ _ hA]
   swap
-  · rw [condEntropyKernel_apply' (hX.prod_mk hY) hZ _ _ hx1]
+  · rw [condDistrib_apply' (hX.prod_mk hY) hZ _ _ hx1]
     swap
     · exact measurable_fst (measurableSet_singleton _)
     simp only [ne_eq, mul_eq_zero, ENNReal.inv_eq_zero, measure_ne_top μ, false_or]
@@ -434,18 +346,20 @@ lemma condKernel_condEntropyKernel_ae_eq
     simp only [Set.mem_inter_iff, Set.mem_preimage, Set.mem_singleton_iff]
     conv_rhs => rw [← Prod.eta x]
     exact Prod.mk.inj_iff.symm
-  rw [condEntropyKernel_apply' (hX.prod_mk hY) hZ _ _ hx1]
+  rw [condDistrib_apply' (hX.prod_mk hY) hZ _ _ hx1]
   swap
   · exact measurable_fst (measurableSet_singleton _)
-  rw [condEntropyKernel_apply' (hX.prod_mk hY) hZ _ _ hx1]
+  rw [condDistrib_apply' (hX.prod_mk hY) hZ _ _ hx1]
   swap
   · exact (measurable_fst (measurableSet_singleton _)).inter (measurable_snd hA)
-  rw [condEntropyKernel_apply' hY (hZ.prod_mk hX) _ _ hx hA]
-  simp only [Set.preimage_inter]
-  have : (fun a ↦ (X a, Y a)) ⁻¹' (Prod.fst ⁻¹' {x.2}) = X ⁻¹' {x.2} := by
-    rfl
+  rw [condDistrib_apply' hY (hZ.prod_mk hX) _ _ hx hA]
+  have : (fun a ↦ (X a, Y a)) ⁻¹' (Prod.fst ⁻¹' {x.2}) = X ⁻¹' {x.2} := by rfl
   simp_rw [this]
-  have : (fun a ↦ (X a, Y a)) ⁻¹' (Prod.snd ⁻¹' A) = Y ⁻¹' A := rfl
+  have : (fun a ↦ (X a, Y a)) ⁻¹' ({x.2} ×ˢ A) = X ⁻¹' {x.2} ∩ Y ⁻¹' A := by
+    ext y;
+    simp only [Set.singleton_prod, Set.mem_preimage, Set.mem_image, Prod.mk.injEq,
+      exists_eq_right_right, Set.mem_inter_iff, Set.mem_singleton_iff]
+    tauto
   simp_rw [this]
   have : (fun a ↦ (Z a, X a)) ⁻¹' {x} = Z ⁻¹' {x.1} ∩ X ⁻¹' {x.2} := by
     ext y
@@ -461,10 +375,10 @@ lemma condKernel_condEntropyKernel_ae_eq
   _ = (μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {x.2}))⁻¹ * μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {x.2} ∩ Y ⁻¹' A) := by
         rw [ENNReal.mul_inv_cancel hx1 (measure_ne_top _ _), one_mul, Set.inter_assoc]
 
-lemma swap_condEntropyKernel_ae_eq
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
-    kernel.comap (condEntropyKernel Y (fun a ↦ (X a, Z a)) μ) Prod.swap measurable_swap
-      =ᵐ[μ.map (fun ω ↦ (Z ω, X ω))] condEntropyKernel Y (fun ω ↦ (Z ω, X ω)) μ := by
+lemma swap_condDistrib_ae_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsFiniteMeasure μ] :
+    kernel.comap (condDistrib Y (fun a ↦ (X a, Z a)) μ) Prod.swap measurable_swap
+      =ᵐ[μ.map (fun ω ↦ (Z ω, X ω))] condDistrib Y (fun ω ↦ (Z ω, X ω)) μ := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   ext A hA
@@ -473,16 +387,16 @@ lemma swap_condEntropyKernel_ae_eq
     ext ω
     simp only [Set.mem_preimage, Set.mem_singleton_iff]
     rw [← Prod.eta x, Prod.swap_prod_mk, Prod.mk.inj_iff, Prod.mk.inj_iff, and_comm]
-  rw [condEntropyKernel_apply' hY (hX.prod_mk hZ) _ _ _ hA]
+  rw [condDistrib_apply' hY (hX.prod_mk hZ) _ _ _ hA]
   swap; · rwa [Measure.map_apply (hZ.prod_mk hX) (measurableSet_singleton _), ← h_swap] at hx
-  rw [condEntropyKernel_apply' hY (hZ.prod_mk hX) _ _ _ hA]
+  rw [condDistrib_apply' hY (hZ.prod_mk hX) _ _ _ hA]
   swap; · rwa [Measure.map_apply (hZ.prod_mk hX) (measurableSet_singleton _)] at hx
   rw [h_swap]
 
-lemma condEntropyKernel_const_unit
-    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
+lemma condDistrib_const_unit (hX : Measurable X) (hY : Measurable Y)
+    (μ : Measure Ω) [IsFiniteMeasure μ] :
     kernel.condKernel (kernel.const Unit (μ.map (fun ω ↦ (X ω, Y ω))))
-      =ᵐ[μ.map (fun ω ↦ ((), X ω))] kernel.prodMkLeft Unit (condEntropyKernel Y X μ) := by
+      =ᵐ[μ.map (fun ω ↦ ((), X ω))] kernel.prodMkLeft Unit (condDistrib Y X μ) := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   have : (fun a ↦ ((), X a)) ⁻¹' {x} = X ⁻¹' {x.2} := by
@@ -499,35 +413,32 @@ lemma condEntropyKernel_const_unit
     exact hx
   simp_rw [kernel.const_apply,
     Measure.map_apply (hX.prod_mk hY) (measurable_fst (measurableSet_singleton _)),
-    Measure.map_apply (hX.prod_mk hY)
-      ((measurable_fst (measurableSet_singleton _)).inter (measurable_snd hs))]
-  rw [kernel.prodMkLeft_apply', condEntropyKernel_apply' hY hX _ _ hx hs]
+    Measure.map_apply (hX.prod_mk hY) ((measurableSet_singleton _).prod hs)]
+  rw [kernel.prodMkLeft_apply', condDistrib_apply' hY hX _ _ hx hs]
   rfl
 
-lemma condEntropyKernel_unit_right
-    (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] :
-    condEntropyKernel X (fun _ ↦ ()) μ = kernel.const Unit (μ.map X) := by
+lemma condDistrib_unit_right (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    condDistrib X (fun _ ↦ ()) μ = kernel.const Unit (μ.map X) := by
   ext x s hs
-  rw [condEntropyKernel_apply' hX measurable_const _ _ _ hs]
+  rw [condDistrib_apply' hX measurable_const _ _ _ hs]
   · simp only [Set.mem_singleton_iff, Set.preimage_const_of_mem, measure_univ, inv_one,
       Set.univ_inter, one_mul]
     rw [kernel.const_apply, Measure.map_apply hX hs]
   · simp
 
-lemma map_compProd_condEntropyKernel
-    (hX : Measurable X) (hZ : Measurable Z) (μ : Measure Ω) [IsProbabilityMeasure μ] :
-    μ.map Z ⊗ₘ condEntropyKernel X Z μ = μ.map (fun ω ↦ (Z ω, X ω)) := by
-  have := isMarkovKernel_condEntropyKernel hX hZ μ
+lemma map_compProd_condDistrib (hX : Measurable X) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    μ.map Z ⊗ₘ condDistrib X Z μ = μ.map (fun ω ↦ (Z ω, X ω)) := by
   ext A hA
   rw [Measure.map_apply (hZ.prod_mk hX) hA, Measure.compProd_apply hA, lintegral_eq_sum_countable]
-  have : ∑' x : U, μ.map Z {x} * condEntropyKernel X Z μ x (Prod.mk x ⁻¹' A)
+  have : ∑' x : U, μ.map Z {x} * condDistrib X Z μ x (Prod.mk x ⁻¹' A)
       = ∑' x : U, μ (Z ⁻¹' {x} ∩ (fun ω ↦ (x, X ω)) ⁻¹' A) := by
     congr 1 with x
     rw [Measure.map_apply hZ (measurableSet_singleton _)]
     by_cases hx : μ (Z ⁻¹' {x}) = 0
     · simp only [hx, zero_mul, Set.mem_setOf_eq, Set.preimage_setOf_eq]
       exact (measure_mono_null (Set.inter_subset_left _ _) hx).symm
-    rw [condEntropyKernel_apply' hX hZ _ _ hx]
+    rw [condDistrib_apply' hX hZ _ _ hx]
     swap; · exact (measurable_prod_mk_left hA)
     rw [← mul_assoc, ENNReal.mul_inv_cancel hx (measure_ne_top _ _), one_mul]
     congr
@@ -547,41 +458,29 @@ lemma map_compProd_condEntropyKernel
   intro u
   exact (hZ (measurableSet_singleton _)).inter (measurable_const.prod_mk hX hA)
 
-/-- `condEntropyKernel X Y μ` is equal to `condDistrib X Y μ`, almost surely with respect to the
-law of `Y`. -/
-lemma condEntropyKernel_eq_condDistrib [TopologicalSpace S] [DiscreteTopology S] [BorelSpace S]
-    (hX : Measurable X) (hY : Measurable Y)
-    {μ : Measure Ω} [IsProbabilityMeasure μ] :
-    condEntropyKernel X Y μ =ᵐ[μ.map Y] condDistrib X Y μ := by
-  have : IsMarkovKernel (condEntropyKernel X Y μ) := isMarkovKernel_condEntropyKernel hX hY μ
-  refine condDistrib_ae_eq_of_measure_eq_compProd hY hX (condEntropyKernel X Y μ) ?_
-  rw [← map_compProd_condEntropyKernel hX hY]
-
 section Independence
 
 variable {V : Type*} [Countable V] [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V]
   {W : Ω → V}
 
-lemma condEntropyKernel_eq_prod_of_indepFun
+lemma condDistrib_eq_prod_of_indepFun
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
     (μ : Measure Ω) [IsProbabilityMeasure μ]
     (h : IndepFun (fun ω ↦ (X ω, Z ω)) (fun ω ↦ (Y ω, W ω)) μ) :
-    condEntropyKernel (fun ω ↦ (X ω, Y ω)) (fun ω ↦ (Z ω, W ω)) μ
-      =ᵐ[μ.map (fun ω ↦ (Z ω, W ω))] kernel.prodMkRight (condEntropyKernel X Z μ) V
-        ×ₖ kernel.prodMkLeft U (condEntropyKernel Y W μ) := by
-  have : IsMarkovKernel (condEntropyKernel X Z μ) := isMarkovKernel_condEntropyKernel hX hZ μ
-  have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
+    condDistrib (fun ω ↦ (X ω, Y ω)) (fun ω ↦ (Z ω, W ω)) μ
+      =ᵐ[μ.map (fun ω ↦ (Z ω, W ω))] kernel.prodMkRight (condDistrib X Z μ) V
+        ×ₖ kernel.prodMkLeft U (condDistrib Y W μ) := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [Measure.map_apply (hZ.prod_mk hW) (measurableSet_singleton _)] at hx
   ext s hs
-  rw [condEntropyKernel_apply (hX.prod_mk hY) (hZ.prod_mk hW) _ _ hx, kernel.prod_apply _ _ _ hs]
+  rw [condDistrib_apply (hX.prod_mk hY) (hZ.prod_mk hW) _ _ hx, kernel.prod_apply _ _ _ hs]
   simp_rw [kernel.prodMkLeft_apply, kernel.prodMkRight_apply]
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod] at hx
   have hxZ : μ (Z ⁻¹' {x.1}) ≠ 0 := fun h0 ↦ hx (measure_mono_null (Set.inter_subset_left _ _) h0)
   have hxW : μ (W ⁻¹' {x.2}) ≠ 0 := fun h0 ↦ hx (measure_mono_null (Set.inter_subset_right _ _) h0)
-  simp_rw [lintegral_eq_sum_countable, condEntropyKernel_apply hX hZ μ _ hxZ,
-    condEntropyKernel_apply hY hW μ _ hxW, Measure.map_apply (hX.prod_mk hY) hs]
+  simp_rw [lintegral_eq_sum_countable, condDistrib_apply hX hZ μ _ hxZ,
+    condDistrib_apply hY hW μ _ hxW, Measure.map_apply (hX.prod_mk hY) hs]
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod,
     cond_apply _ ((hZ (measurableSet_singleton _)).inter (hW (measurableSet_singleton _)))]
   simp_rw [Measure.map_apply hX (measurableSet_singleton _),
@@ -636,6 +535,6 @@ lemma condEntropyKernel_eq_prod_of_indepFun
 
 end Independence
 
-end condEntropyKernel
+end condDistrib
 
 end ProbabilityTheory

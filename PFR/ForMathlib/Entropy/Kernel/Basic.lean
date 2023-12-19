@@ -57,10 +57,20 @@ lemma entropy_nonneg (κ : kernel T S) (μ : Measure T) :
     0 ≤ Hk[κ, μ] := integral_nonneg (fun _ ↦ measureEntropy_nonneg _)
 
 /-- The analogue of FiniteSupport for probability kernels. -/
-noncomputable def FiniteKernelSupport (κ : kernel T S) : Prop := ∀ t : T, ∃ A : Finset S, (κ t) Aᶜ  = 0
+noncomputable def FiniteKernelSupport (κ : kernel T S) : Prop :=
+  ∀ t, ∃ A : Finset S, κ t Aᶜ = 0
+
+noncomputable def AEFiniteKernelSupport (κ : kernel T S) (μ : Measure T) : Prop :=
+  ∀ᵐ t ∂μ, ∃ A : Finset S, κ t Aᶜ = 0
+
+lemma FiniteKernelSupport.aefiniteKernelSupport {κ : kernel T S} (hκ : FiniteKernelSupport κ)
+    (μ : Measure T) :
+    AEFiniteKernelSupport κ μ :=
+  ae_of_all μ hκ
 
 /-- Finite kernel support locally implies uniform finite kernel support. -/
-lemma local_support_of_finiteKernelSupport {κ : kernel T S} (h : FiniteKernelSupport κ) (A : Finset T) : ∃ B : Finset S, ∀ t ∈ A, (κ t) Bᶜ = 0 := by
+lemma local_support_of_finiteKernelSupport {κ : kernel T S} (h : FiniteKernelSupport κ) (A : Finset T) :
+    ∃ B : Finset S, ∀ t ∈ A, (κ t) Bᶜ = 0 := by
   classical
   use Finset.biUnion A (fun t ↦ (h t).choose)
   intro t ht
@@ -77,14 +87,16 @@ lemma finiteKernelSupport_of_finite_range [Fintype S] (κ : kernel T S) : Finite
   simp
 
 /-- Deterministic kernels have finite kernel support.-/
-lemma finiteKernelSupport_of_deterministic (f : T × S → U) :  FiniteKernelSupport (deterministic f (measurable_of_countable f)) := by
-    intro (t,s)
-    use { f (t,s) }
-    rw [kernel.deterministic_apply' (by measurability) _ (by measurability)]
-    simp
+lemma finiteKernelSupport_of_deterministic (f : T × S → U) :
+    FiniteKernelSupport (deterministic f (measurable_of_countable f)) := by
+  intro (t,s)
+  use { f (t,s) }
+  rw [kernel.deterministic_apply' (by measurability) _ (by measurability)]
+  simp
 
 /-- Projecting a kernel to first coordinate preserves finite kernel support. -/
-lemma finiteKernelSupport_of_fst {κ : kernel T (S × U)} (hκ : FiniteKernelSupport κ) : FiniteKernelSupport (fst κ) := by
+lemma finiteKernelSupport_of_fst {κ : kernel T (S × U)} (hκ : FiniteKernelSupport κ) :
+    FiniteKernelSupport (fst κ) := by
   intro t
   rcases hκ t with ⟨A, hA⟩
   classical
@@ -94,7 +106,8 @@ lemma finiteKernelSupport_of_fst {κ : kernel T (S × U)} (hκ : FiniteKernelSup
   intro p; simp; contrapose!; intro hp; use p.2
 
 /-- Projecting a kernel to second coordinate preserves finite kernel support. -/
-lemma finiteKernelSupport_of_snd {κ : kernel T (S × U)} (hκ : FiniteKernelSupport κ) : FiniteKernelSupport (snd κ) := by
+lemma finiteKernelSupport_of_snd {κ : kernel T (S × U)} (hκ : FiniteKernelSupport κ) :
+    FiniteKernelSupport (snd κ) := by
   intro t
   rcases hκ t with ⟨A, hA⟩
   classical
@@ -103,32 +116,50 @@ lemma finiteKernelSupport_of_snd {κ : kernel T (S × U)} (hκ : FiniteKernelSup
   refine measure_mono_null ?_ hA
   intro p; simp; contrapose!; intro hp; use p.1
 
-/-- Conditioning a kernel preserves finite kernel support. -/
-lemma finiteKernelSupport_of_cond {κ : kernel T (S × U)} [hU: Nonempty U] (hκ : FiniteKernelSupport κ) : FiniteKernelSupport (condKernel κ) := by
-  intro (t, s)
-  rcases hκ t with ⟨A, hA⟩
-  classical
-  set B := (Finset.image Prod.snd A) ∪ { hU.some }
-  use B
-  unfold condKernel
-  rw [kernel.piecewise_apply]
+lemma Measure.compProd_apply_singleton (μ : Measure T) [SFinite μ]
+    (κ : kernel T S) [IsSFiniteKernel κ] (t : T) (s : S) :
+    (μ ⊗ₘ κ) {(t, s)} = κ t {s} * μ {t} := by
+  rw [Measure.compProd_apply (measurableSet_singleton _)]
+  have : ∀ a, κ a (Prod.mk a ⁻¹' {(t, s)}) = ({t} : Set T).indicator (fun _ ↦ κ t {s}) a := by
+    intro a
+    by_cases ha : a = t
+    · simp only [ha, Set.mem_singleton_iff, Set.indicator_of_mem]
+      congr
+      ext y
+      simp
+    · simp only [Set.mem_singleton_iff, ha, not_false_eq_true, Set.indicator_of_not_mem]
+      suffices Prod.mk a ⁻¹' {(t, s)} = ∅ by simp [this]
+      ext y
+      simp [ha]
+  simp_rw [this]
+  rw [lintegral_indicator _ (measurableSet_singleton _)]
   simp
-  by_cases h : (κ t) (Prod.fst ⁻¹' {s}) = 0
-  . simp [h]
-    rw [kernel.deterministic_apply' (by measurability) _ (by measurability)]
-    simp
-  simp [h]
-  rw [kernel.map_apply' _ (by measurability) _ (by measurability)]
-  unfold condKernelAux
-  suffices : ((κ t)[|Prod.fst ⁻¹' {s}]) (Prod.snd ⁻¹' (B : Set U)ᶜ) = 0
-  . convert this; simp
-  rw [cond_apply _ (by measurability)]
-  simp; right
+
+/-- Conditioning a kernel preserves finite kernel support. -/
+lemma aefiniteKernelSupport_of_cond {κ : kernel T (S × U)} [hU: Nonempty U]
+    (μ : Measure T) [IsFiniteMeasure μ] (hκ : AEFiniteKernelSupport κ μ) [IsFiniteKernel κ] :
+    AEFiniteKernelSupport (condKernel κ) (μ ⊗ₘ (kernel.fst κ)) := by
+  rw [AEFiniteKernelSupport, ae_iff_of_countable] at hκ ⊢
+  intro (t, s) hts
+  simp only [Measure.compProd_apply_singleton, ne_eq, mul_eq_zero] at hts
+  push_neg at hts
+  rcases hκ t hts.2 with ⟨A, hA⟩
+  classical
+  use Finset.image Prod.snd A
+  rw [condKernel_apply']
+  rotate_left
+  · rw [kernel.fst_apply' _ _ (measurableSet_singleton _)] at hts
+    exact hts.1
+  · measurability
+  simp only [Finset.coe_image, Set.singleton_prod, mul_eq_zero, ENNReal.inv_eq_zero]
+  right
   refine measure_mono_null ?_ hA
-  intro p hp
-  contrapose! hp
-  simp at hp ⊢
-  intro _; right; use p.1
+  intro x
+  simp only [Set.mem_image, Set.mem_compl_iff, Finset.mem_coe, Prod.exists, exists_eq_right,
+    not_exists, forall_exists_index, and_imp]
+  intro y h hsyx
+  rw [← hsyx]
+  exact h s
 
 /-- Swapping a kernel right preserves finite kernel support. -/
 lemma finiteKernelSupport_of_swapRight {κ : kernel T (S × U)} (hκ : FiniteKernelSupport κ) : FiniteKernelSupport (swapRight κ) := by
@@ -214,14 +245,12 @@ lemma finiteSupport_of_compProd {μ : Measure T} [IsProbabilityMeasure μ] {κ :
   intro s
   simp; tauto
 
-lemma finiteKernelSupport_of_condEntropy (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) (hX: Measurable X)
-    (hY: Measurable Y) [FiniteRange X] [FiniteRange Y] :
-    FiniteKernelSupport (condEntropyKernel X Y μ):= by
-  apply finiteKernelSupport_of_comap _ (by measurability)
-  apply finiteKernelSupport_of_cond
-  apply finiteKernelSupport_of_const
-  apply finiteSupport_of_finiteRange
-  measurability
+lemma aefiniteKernelSupport_condDistrib (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) [IsFiniteMeasure μ]
+    (hX: Measurable X) (hY: Measurable Y) [FiniteRange X] [FiniteRange Y] :
+    AEFiniteKernelSupport (condDistrib X Y μ) (μ.map Y) := by
+  filter_upwards [condDistrib_ae_eq hX hY μ] with a ha
+  rw [ha]
+  exact finiteSupport_of_finiteRange hX
 
 lemma entropy_le_log_card (κ : kernel T S) (μ : Measure T) [Fintype S] [IsProbabilityMeasure μ] :
     Hk[κ, μ] ≤ log (Fintype.card S) := by
@@ -402,9 +431,9 @@ lemma entropy_compProd_aux [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKerne
   rw [this, kernel.comap_apply, negMulLog_mul, negMulLog, negMulLog, ← measureReal_def]
   ring
 
-
-lemma entropy_compProd' [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKernel κ]
-    {η : kernel (T × S) U} [IsMarkovKernel η] (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) :
+lemma entropy_compProd'' [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKernel κ]
+    {η : kernel (T × S) U} [IsMarkovKernel η] (hμ : FiniteSupport μ)
+    (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[condKernel (κ ⊗ₖ η), μ ⊗ₘ κ] := by
   rw [entropy_compProd_aux hμ hκ hη]
   congr
@@ -442,7 +471,33 @@ lemma entropy_compProd' [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKernel �
   rw [condKernel_compProd_apply]
   exact hκt
 
-lemma entropy_compProd [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKernel κ] {η : kernel (T × S) U} [IsMarkovKernel η] (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) (hη: FiniteKernelSupport η) :
+lemma entropy_compProd' [hU : Nonempty U] [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKernel κ]
+    {η : kernel (T × S) U} [IsMarkovKernel η] (hμ : FiniteSupport μ)
+    (hκ : FiniteKernelSupport κ) (hη : AEFiniteKernelSupport η (μ ⊗ₘ κ)) :
+    Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[condKernel (κ ⊗ₖ η), μ ⊗ₘ κ] := by
+  obtain ⟨η', hη', h_eq⟩ : ∃ η' : kernel (T × S) U, FiniteKernelSupport η' ∧ η' =ᵐ[μ ⊗ₘ κ] η := by
+    classical
+    let B := {t | ∃ A : Finset U, η t Aᶜ = 0}
+    have hB : MeasurableSet B := by measurability
+    let η'' := kernel.piecewise hB η (kernel.const _ (Measure.dirac hU.some))
+    refine ⟨η'', ?_, ?_⟩
+    · sorry
+    · filter_upwards [hη] with t ht
+      unfold_let η''
+      have htB : t ∈ B := ht
+      rw [kernel.piecewise_apply, if_pos htB]
+  have : IsMarkovKernel η' := sorry
+  have h_ent1 : Hk[κ ⊗ₖ η', μ] = Hk[κ ⊗ₖ η, μ] := by
+    refine entropy_congr ?_
+    sorry
+  have h_ent2 : Hk[condKernel (κ ⊗ₖ η'), μ ⊗ₘ κ] = Hk[condKernel (κ ⊗ₖ η), μ ⊗ₘ κ] := by
+    refine entropy_congr ?_
+    sorry
+  rw [← h_ent1, ← h_ent2, entropy_compProd'' hμ hκ hη']
+
+lemma entropy_compProd [IsFiniteMeasure μ]
+    {κ : kernel T S} [IsMarkovKernel κ] {η : kernel (T × S) U} [IsMarkovKernel η]
+    (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) (hη: AEFiniteKernelSupport η (μ ⊗ₘ κ)) :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[η, μ ⊗ₘ κ] := by
   rw [entropy_compProd' hμ hκ hη, entropy_congr (condKernel_compProd_ae_eq κ η _)]
 
@@ -453,18 +508,22 @@ lemma entropy_deterministic (f : T → S) (μ : Measure T) :
   convert integral_zero T ℝ
   apply measureEntropy_dirac
 
-
 @[simp]
 lemma entropy_compProd_deterministic
-    (κ : kernel T S) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ] (f : T × S → U)  (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) :
+    (κ : kernel T S) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ] (f : T × S → U)
+    (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) :
     Hk[κ ⊗ₖ (deterministic f (measurable_of_countable f)), μ] = Hk[κ, μ] := by
-  simp [entropy_compProd hμ hκ (finiteKernelSupport_of_deterministic f)]
+  simp [entropy_compProd hμ hκ ((finiteKernelSupport_of_deterministic f).aefiniteKernelSupport _)]
 
 lemma chain_rule {κ : kernel T (S × U)} [IsMarkovKernel κ] [hU: Nonempty U]
-    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) :
+    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
+    (hκ : AEFiniteKernelSupport κ μ) :
     Hk[κ, μ] = Hk[fst κ, μ] + Hk[condKernel κ, μ ⊗ₘ (fst κ)] := by
   conv_lhs => rw [disintegration κ]
-  rw [entropy_compProd' hμ (finiteKernelSupport_of_fst hκ) (finiteKernelSupport_of_cond hκ), ← disintegration κ]
+  rw [entropy_compProd' hμ (finiteKernelSupport_of_fst hκ)
+    (aefiniteKernelSupport_of_cond _ hκ)]
+  congr
+  rw [← disintegration κ]
 
 lemma chain_rule' {κ : kernel T (S × U)} [IsMarkovKernel κ]
    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) :
@@ -474,7 +533,8 @@ lemma chain_rule' {κ : kernel T (S × U)} [IsMarkovKernel κ]
 
 @[simp]
 lemma entropy_prodMkRight {κ : kernel T S} {η : kernel T U}
-    [IsMarkovKernel κ] {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) :
+    [IsMarkovKernel κ] {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
+    (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) :
     Hk[prodMkRight η S, μ ⊗ₘ κ] = Hk[η, μ] := by
   rcases hμ with ⟨A, hA⟩
   rcases (local_support_of_finiteKernelSupport hκ A) with ⟨B, hB⟩
@@ -553,7 +613,8 @@ lemma entropy_prodMkLeft {η : kernel T U}
 
 @[simp]
 lemma entropy_prod {κ : kernel T S} {η : kernel T U} [IsMarkovKernel κ] [IsMarkovKernel η]
-    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η):
+    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
+    (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) :
     Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by
   rw [chain_rule hμ (finiteKernelSupport_of_prod hκ hη), fst_prod, entropy_congr (condKernel_prod_ae_eq _ _), entropy_prodMkRight hμ hκ hη]
 
