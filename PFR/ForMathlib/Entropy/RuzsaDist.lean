@@ -148,9 +148,22 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
   rfl
 
 /-- $$ d[X ; 0] = H[X] / 2 -/
-lemma rdist_zero_eq_half_ent [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
+lemma rdist_zero_eq_half_ent [IsFiniteMeasure μ] [IsProbabilityMeasure μ'] :
     d[X ; μ # fun _ ↦ 0 ; μ'] = H[X ; μ]/2 := by
-  sorry
+  have aux : H[fun x => x.1 - x.2 ; Measure.prod (Measure.map X μ) (Measure.map (fun x => 0) μ')]
+            = H[X ; μ] := by 
+    have h: Measure.map (fun x => x.1 - x.2) 
+                        (Measure.prod (Measure.map X μ) (Measure.map (fun x => 0) μ'))
+            = Measure.map X μ := by 
+              simp [MeasureTheory.Measure.map_const, MeasureTheory.Measure.prod_dirac]
+              rw [Measure.map_map]
+              have helper : ((fun (x : G × G) => x.1 - x.2) ∘ fun x => (x, (0 : G))) = id := by 
+                funext; simp
+              rw [helper, Measure.map_id]
+              measurability
+              measurability
+    simp [entropy_def, h]
+  simp [rdist_def, entropy_const (0 : G), aux]
 
 /-- $$ d[X ; Y] = d[Y ; X]$$ -/
 lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
