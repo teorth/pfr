@@ -1,8 +1,5 @@
-import Mathlib.MeasureTheory.Constructions.Prod.Basic
-import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
-import PFR.ForMathlib.FiniteMeasureProd
 import PFR.ForMathlib.CompactProb
-import PFR.Mathlib.Topology.Bases
+import PFR.ForMathlib.FiniteMeasureProd
 
 /-!
 # Continuity of products of probability measures on finite types

@@ -1,7 +1,5 @@
-import PFR.Entropy.RuzsaDist
 import PFR.ForMathlib.CompactProb
-import PFR.Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-
+import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
 # The tau functional
@@ -31,7 +29,10 @@ variable (G : Type uG) [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
 instead of stating the reference spaces, the reference measures and the reference random
-variables. -/
+variables.
+
+The η parameter has now been incorporated into the package, in preparation for being able to
+manipulate the package. -/
 structure refPackage :=
   /-- The first variable in a package. -/
   X₀₁ : Ω₀₁ → G
@@ -39,16 +40,15 @@ structure refPackage :=
   X₀₂ : Ω₀₂ → G
   hmeas1 : Measurable X₀₁
   hmeas2 : Measurable X₀₂
-
+  η : ℝ
+  hη : 0 < η
+  hη' : 8 * η ≤ 1
 
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 variable {Ω₀₁ Ω₀₂ G}
 
 variable {Ω₁ Ω₂ Ω'₁ Ω'₂ : Type*}
 
-/-- The constant eta that will be fixed once and for all in the rest of the argument.
-Taking `η = 1/9` works fine for the final computations. -/
-noncomputable def η := (9:ℝ)⁻¹
 
 /-- If $X_1,X_2$ are two $G$-valued random variables, then
 $$ \tau[X_1; X_2] := d[X_1; X_2] + \eta d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
@@ -61,7 +61,7 @@ can use `τ[X₁ # X₂ | p]`
 --/
 @[pp_dot] noncomputable def tau {Ω₁ Ω₂ : Type*} [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     (X₁ : Ω₁ → G) (X₂ : Ω₂ → G) (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) : ℝ :=
-  d[X₁ ; μ₁ # X₂ ; μ₂] + η * d[p.X₀₁ ; ℙ # X₁ ; μ₁] + η * d[p.X₀₂ ; ℙ # X₂ ; μ₂]
+  d[X₁ ; μ₁ # X₂ ; μ₂] + p.η * d[p.X₀₁ ; ℙ # X₁ ; μ₁] + p.η * d[p.X₀₂ ; ℙ # X₂ ; μ₂]
 
 @[inherit_doc tau]
 notation3:max "τ[" X₁ " ; " μ₁ " # " X₂ " ; " μ₂ " | " p"]" => tau p X₁ X₂ μ₁ μ₂
@@ -124,13 +124,13 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
     fun ⟨μ₁, μ₂⟩ ↦ τ[id ; μ₁ # id ; μ₂ | p]
   have T_cont : Continuous T := by apply continuous_tau_restrict_probabilityMeasure
   haveI : Inhabited G := ⟨0⟩ -- Need to record this for Lean to know that proba measures exist.
-  obtain ⟨μ, ⟨_, hμ⟩⟩ := @IsCompact.exists_isMinOn ℝ (ProbabilityMeasure G × ProbabilityMeasure G)
+  obtain ⟨μ, _, hμ⟩ := @IsCompact.exists_isMinOn ℝ (ProbabilityMeasure G × ProbabilityMeasure G)
                           _ _ _ _ Set.univ isCompact_univ ⟨default, trivial⟩ T T_cont.continuousOn
   use ⟨μ.1.toMeasure, μ.2.toMeasure⟩
   refine ⟨μ.1.prop, μ.2.prop, ?_⟩
   intro ν₁ ν₂ Pν₁ Pν₂
   rw [isMinOn_univ_iff] at hμ
-  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ⟨ν₂, Pν₂⟩⟩
+  let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ν₂, Pν₂⟩
   exact hμ ν
 
 /-- A pair of random variables minimizing $τ$ exists. -/
@@ -145,14 +145,8 @@ lemma tau_minimizer_exists [MeasurableSingletonClass G] :
   let M : MeasureSpace (G × G) := ⟨μ.1.prod μ.2⟩
   refine ⟨G × G, M, Prod.fst, Prod.snd, measurable_fst, measurable_snd, P, ?_⟩
   intro ν₁ ν₂ h₁ h₂
-  have A : τ[@Prod.fst G G # @Prod.snd G G | p] = τ[id ; μ.1 # id ; μ.2 | p] := by
-    apply ProbabilityTheory.IdentDistrib.tau_eq
-    · have : μ.1 = (μ.1.prod μ.2).map Prod.fst := by simp
-      rw [this]
-      exact identDistrib_id_right measurable_fst.aemeasurable
-    · have : μ.2 = (μ.1.prod μ.2).map Prod.snd := by simp
-      rw [this]
-      exact identDistrib_id_right measurable_snd.aemeasurable
+  have A : τ[@Prod.fst G G # @Prod.snd G G | p] = τ[id ; μ.1 # id ; μ.2 | p] :=
+    ProbabilityTheory.IdentDistrib.tau_eq p IdentDistrib.fst_id IdentDistrib.snd_id
   convert (tau_min_exists_measure p).choose_spec.2.2 ν₁ ν₂ h₁ h₂
 
 
@@ -176,7 +170,7 @@ $$ d[X'_1;X'_2] \geq
 for any $G$-valued random variables $X'_1,X'_2$.
 -/
 lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
-    d[X₁ # X₂] - η * (d[p.X₀₁ # X'₁] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂ # X'₂] - d[p.X₀₂ # X₂])
+    d[X₁ # X₂] - p.η * (d[p.X₀₁ # X'₁] - d[p.X₀₁ # X₁]) - p.η * (d[p.X₀₂ # X'₂] - d[p.X₀₂ # X₂])
       ≤ d[X'₁ # X'₂] := by
   have Z := is_tau_min p h h1 h2
   simp [tau] at Z
@@ -187,8 +181,8 @@ lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X'₁: Ω'₁ → G} {X'₂: Ω'₂ → G}
     (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
-    d[X₁ # X₂] - η * (d[p.X₀₁; ℙ # X'₁; μ] - d[p.X₀₁ # X₁])
-      - η * (d[p.X₀₂; ℙ # X'₂; μ'] - d[p.X₀₂ # X₂]) ≤ d[X'₁; μ # X'₂; μ'] := by
+    d[X₁ # X₂] - p.η * (d[p.X₀₁; ℙ # X'₁; μ] - d[p.X₀₁ # X₁])
+      - p.η * (d[p.X₀₂; ℙ # X'₂; μ'] - d[p.X₀₂ # X₂]) ≤ d[X'₁; μ # X'₂; μ'] := by
   set M1 : MeasureSpace Ω'₁ := { volume := μ }
   set M2 : MeasureSpace Ω'₂ := { volume := μ' }
   exact distance_ge_of_min p h h1 h2
@@ -205,19 +199,23 @@ lemma condRuzsaDistance_ge_of_min
     [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
     (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂)
     (Z : Ω'₁ → S) (W : Ω'₂ → T) (hZ : Measurable Z) (hW : Measurable W) :
-    d[X₁ # X₂] - η * (d[p.X₀₁ # X'₁ | Z] - d[p.X₀₁ # X₁])
-      - η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂]) ≤ d[X'₁ | Z # X'₂ | W] := by
-  have hz (a : ℝ) : a = ∑ z : S, (ℙ (Z ⁻¹' {z})).toReal * a := by
-    rw [← Finset.sum_mul,sum_measure_preimage_singleton' ℙ hZ, one_mul]
-  have hw (a : ℝ) : a = ∑ w : T, (ℙ (W ⁻¹' {w})).toReal * a := by
-    rw [← Finset.sum_mul,sum_measure_preimage_singleton' ℙ hW, one_mul]
+    d[X₁ # X₂] - p.η * (d[p.X₀₁ # X'₁ | Z] - d[p.X₀₁ # X₁])
+      - p.η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂]) ≤ d[X'₁ | Z # X'₂ | W] := by
+  have hz (a : ℝ) : a = ∑ z in FiniteRange.toFinset Z, (ℙ (Z ⁻¹' {z})).toReal * a := by
+    simp_rw [← Finset.sum_mul,← Measure.map_apply hZ (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
+    rw [FiniteRange.full hZ]
+    simp
+  have hw (a : ℝ) : a = ∑ w in FiniteRange.toFinset W, (ℙ (W ⁻¹' {w})).toReal * a := by
+    simp_rw [← Finset.sum_mul,← Measure.map_apply hW (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
+    rw [FiniteRange.full hW]
+    simp
   rw [condRuzsaDist_eq_sum h1 hZ h2 hW, condRuzsaDist'_eq_sum h1 hZ, hz d[X₁ # X₂],
-    hz d[p.X₀₁ # X₁], hz (η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])),
+    hz d[p.X₀₁ # X₁], hz (p.η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro z _
   rw [condRuzsaDist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂],
-    hw ((ℙ (Z ⁻¹' {z})).toReal * d[X₁ # X₂] - η * ((ℙ (Z ⁻¹' {z})).toReal *
+    hw ((ℙ (Z ⁻¹' {z})).toReal * d[X₁ # X₂] - p.η * ((ℙ (Z ⁻¹' {z})).toReal *
       d[p.X₀₁ ; ℙ # X'₁ ; ℙ[|Z ← z]] - (ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ # X₁])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
@@ -230,7 +228,7 @@ lemma condRuzsaDistance_ge_of_min
   have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure ℙ hpz
   set μ' := ℙ[|W ← w]
   have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure ℙ hpw
-  suffices : d[X₁ # X₂] - η * (d[p.X₀₁; volume # X'₁; μ] - d[p.X₀₁ # X₁]) - η * (d[p.X₀₂; volume # X'₂; μ'] - d[p.X₀₂ # X₂])
+  suffices : d[X₁ # X₂] - p.η * (d[p.X₀₁; volume # X'₁; μ] - d[p.X₀₁ # X₁]) - p.η * (d[p.X₀₂; volume # X'₂; μ'] - d[p.X₀₂ # X₂])
   ≤ d[X'₁ ; μ # X'₂; μ']
   . replace this := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)
     convert this using 1

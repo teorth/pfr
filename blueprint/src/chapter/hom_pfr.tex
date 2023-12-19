@@ -1,0 +1,34 @@
+\chapter{Homomorphism version of PFR}
+
+In this section, $G, G'$ are finite abelian $2$-groups.
+
+\begin{lemma}[Hahn-Banach type theorem]\label{hb-thm}\lean{hahn_banach}\leanok  Let $H_0$ be a subgroup of $G$.  Then every homomorphism $\phi: H_0 \to G'$ can be extended to a homomorphism $\tilde \phi: G \to G'$.
+\end{lemma}
+
+\begin{proof}\leanok  By induction it suffices to treat the case where $H_0$ has index $2$ in $G$, but then the extension can be constructed by hand.
+\end{proof}
+
+\begin{lemma}[Goursat type theorem]\label{goursat}\lean{goursat}\leanok  Let $H$ be a subgroup of $G \times G'$.  Then there exists a subgroup $H_0$ of $G$, a subgroup $H_1$ of $G'$, and a homomorphism $\phi: G \to G'$ such that
+$$ H := \{ (x, \phi(x) + y): x \in H_0, y \in H_1 \}.$$
+In particular, $|H| = |H_0| |H_1|$.
+\end{lemma}
+
+\begin{proof}\uses{hb-thm}\leanok We can take $H_0$ to be the projection of $H$ to $G$, and $H_1$ to be the slice $H_1 := \{ y: (0,y) \in H \}$.  One can construct $\phi$ on $H_0$ one generator at a time by the greedy algorithm, and then extend to $G$ by Lemma \ref{hb-thm}.  The cardinality bound is clear from direct counting.
+\end{proof}
+
+\begin{theorem}[Homomorphism form of PFR]\label{hom-pfr}\lean{homomorphism_pfr}\leanok  Let $f: G \to G'$ be a function, and let $S$ denote the set
+$$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
+Then there exists a homomorphism $\phi: G \to G'$ such that
+$$ |\{ f(x) - \phi(x): x \in G \}| \leq 4 |S|^{24}.$$
+\end{theorem}
+
+\begin{proof}\uses{goursat, pfr} \leanok Consider the graph $A \subset G \times G'$ defined by
+$$ A := \{ (x,f(x)): x \in G \}.$$
+Clearly, $|A| = |G|$.  By hypothesis, we have
+$$ A+A \subset \{ (x,f(x)+s): x \in G, s \in S\}$$
+and hence $|A+A| \leq |S| |A|$.  Applying Theorem \ref{pfr}, we may find a subspace $H \subset G \times G'$ such that $|H| \leq |A|=|G|$ and $A$ is covered by at most $2|S|^{12}$ translates of $H$.  If we let $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections that $G$ is covered by at most $2|S|^{12}$ translates of $H_0$.  This implies that
+$$ 2|S|^{12} |H_0| \geq |G|;$$
+since $|H_0| |H_1| \leq |H| \leq |G|$, we conclude that
+$$ |H_1| \leq 2|S|^{12}.$$
+By hypothesis, $A$ is covered by at most $2|S|^{12}$ translates of $H$, and hence by at most $4|S|^{24}$ translates of $\{ (x,\phi(x)): x \in G \}$.  As $\phi$ is a homomorphism, each such translate can be written in the form $\{ (x,\phi(x)+c): x \in G \}$ for some $c \in G'$, and the claim follows.
+\end{proof}

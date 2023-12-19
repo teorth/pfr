@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Basic
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
 import PFR.Tactic.Finiteness
 
@@ -464,6 +463,7 @@ theorem measureReal_prod_prod {μ : Measure α} {ν : Measure β} [SigmaFinite �
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
 -- find this in library?  generalize?
+/-- Generalized in Measure.ext_iff_singleton_finiteSupport at Entropy.Measure -/
 theorem Measure.ext_iff_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     {μ1 μ2 : Measure S} :
     μ1 = μ2 ↔ ∀ x, μ1 {x} = μ2 {x} := by

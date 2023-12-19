@@ -1,9 +1,4 @@
 import PFR.ForMathlib.FiniteMeasureComponent
-import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.Analysis.Convex.Topology
-import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
-import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
-import PFR.Tactic.Finiteness
 
 /-!
 # Compactness of the space of probability measures
@@ -131,3 +126,7 @@ representation theorem.
 TODO: remove once the general version is proved. -/
 instance : CompactSpace (ProbabilityMeasure X) := by
   cases nonempty_fintype X; exact probabilityMeasureHomeoStdSimplex.symm.compactSpace
+
+instance : SecondCountableTopology (ProbabilityMeasure X) := by
+  cases nonempty_fintype X
+  exact (probabilityMeasureHomeoStdSimplex (X := X)).secondCountableTopology

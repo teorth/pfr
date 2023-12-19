@@ -1,6 +1,8 @@
 import Mathlib.Probability.Independence.Basic
 import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
+import PFR.Mathlib.Data.Fintype.Lattice
+import PFR.Mathlib.Data.Finset.Sigma
+import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.Probability.Independence.Kernel
 
 open Function MeasureTheory MeasurableSpace Measure Set
@@ -103,7 +105,7 @@ lemma iIndepFun.inv (h : iIndepFun n f μ) : iIndepFun n (update f i (f i)⁻¹)
 variable [IsProbabilityMeasure μ]
 
 open Finset in
-lemma iIndepFun.indepFun_prod_prod (h_indep: iIndepFun n f μ) (hf: ∀ i, Measurable (f i))
+lemma iIndepFun.indepFun_prod_prod (h_indep: iIndepFun n f μ) (hf : ∀ i, Measurable (f i))
     (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
     IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
   classical
@@ -270,52 +272,72 @@ lemma _root_.Finset.prod_univ_prod' {β : Type*} [CommMonoid β] (f : ((i : ι) 
     (∏ ij : (i : ι) × κ i, f ij) = (∏ i : ι, ∏ j : κ i, f ⟨i, j⟩) := by
   rw [← Finset.univ_sigma_univ, Finset.prod_sigma]
 
+variable {ι : Type*} {κ : ι → Type*} [∀ i, Fintype (κ i)]
+  {α : ∀ i, κ i → Type*} {f : ∀ i j, Ω → α i j} [m : ∀ i j, MeasurableSpace (α i j)]
+
 /-- If a family of functions `(i, j) ↦ f i j` is independent, then the family of function tuples
 `i ↦ (f i j)ⱼ` is independent. -/
 lemma iIndepFun.pi
     (f_meas : ∀ i j, Measurable (f i j))
     (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) (fun ij : Σ i, κ i ↦ f ij.1 ij.2) μ) :
     iIndepFun (fun i ↦ MeasurableSpace.pi) (fun i ω ↦ (fun j ↦ f i j ω)) μ := by
-  have I : ∀ i, iIndepFun (fun j ↦ m i j) (fun j ↦ f i j) μ :=
-    fun i₀ ↦ hf.reindex_of_injective (Sigma.mk i₀) sigma_mk_injective
-  rw [iIndepFun_iff_pi_map_eq_map] at hf ⊢; rotate_left
-  · exact fun i ↦ measurable_pi_lambda _ (fun a ↦ f_meas _ _)
-  · exact fun ij ↦ f_meas _ _
-  symm
-  calc
-  μ.map (fun ω i j ↦ f i j ω)
-    = (μ.map fun ω (ij : Σ i, κ i) ↦ f ij.1 ij.2 ω).map Sigma.curry := by
-      rw [Measure.map_map]
-      · rfl
-      · exact measurable_sigmaCurry
-      · exact measurable_pi_lambda _ (fun a ↦ f_meas _ _)
-  _ = ((Measure.pi fun (ij : Σ i, κ i) ↦ μ.map (f ij.1 ij.2))).map Sigma.curry := by rw [← hf]
-  _ = Measure.pi fun i ↦ μ.map (fun ω j ↦ f i j ω) := by
-    rw [eq_comm]
-    apply Measure.pi_eq_generateFrom (fun i ↦ generateFrom_pi) (fun i ↦ isPiSystem_pi)
-        (fun i ↦ ?_)
-    · intro s hs
-      simp only [mem_image, mem_pi, mem_univ, mem_setOf_eq, forall_true_left] at hs
-      choose! t ht h't using hs
-      simp_rw [← h't]
-      rw [Measure.map_apply measurable_sigmaCurry]; swap
-      · apply MeasurableSet.univ_pi (fun i ↦ ?_)
-        rw [← h't]
-        exact MeasurableSet.pi countable_univ (fun i _hi ↦ ht _ _)
-      have : Sigma.curry ⁻¹' Set.pi univ s = Set.pi univ (fun (ij : Σ i, κ i) ↦ t ij.1 ij.2) := by
-        ext x
-        simp only [mem_preimage, mem_pi, mem_univ, ← h't, forall_true_left, Sigma.forall]
-        rfl
-      simp only [this, pi_pi, Finset.prod_univ_prod (f := fun i j ↦ (μ.map (f i j)) (t i j))]
-      congr 1 with i
-      specialize I i
-      rw [iIndepFun_iff_pi_map_eq_map _ (fun j ↦ f_meas _ _)] at I
-      simp [← I]
-    · refine ⟨fun _ ↦ univ, fun n ↦ ?_, ?_, ?_⟩
-      · simp only [mem_image, mem_pi, mem_univ, mem_setOf_eq, forall_true_left]
-        exact ⟨fun j ↦ univ, by simp⟩
-      · simpa only [forall_const] using IsFiniteMeasure.measure_univ_lt_top
-      · simpa using iUnion_const univ
+  let F i ω j := f i j ω
+  let M (i : ι):= MeasurableSpace.pi (m := m i)
+  let πβ (i : ι) := Set.pi Set.univ '' Set.pi Set.univ fun j => { s | MeasurableSet[m i j] s }
+  apply iIndepSets.iIndep
+  · exact fun i ↦ measurable_iff_comap_le.mp (measurable_pi_iff.mpr (f_meas i))
+  · exact fun i ↦ IsPiSystem.comap isPiSystem_pi (F i)
+  · intro k
+    show MeasurableSpace.comap _ (M k) = _
+    have : M k = MeasurableSpace.generateFrom (πβ k) := generateFrom_pi.symm
+    rewrite [this, MeasurableSpace.comap_generateFrom] ; rfl
+
+  rw [iIndepSets_iff]
+  intro s E hE
+  simp? at hE
+    says simp only [mem_image, mem_pi, mem_univ, mem_setOf_eq, forall_true_left,
+      exists_exists_and_eq_and] at hE
+  have hE' (k : s) := hE k (Finset.coe_mem k)
+  classical
+  obtain ⟨sets, h_sets⟩ := Classical.axiomOfChoice hE'
+  let sets' (i : ι) (j : κ i) : Set (α i j) := if h : i ∈ s then sets ⟨i, h⟩ j else Set.univ
+  have box (i : ι) (hi : i ∈ s) : E i = ⋂ j : κ i, (f i j)⁻¹' (sets' i j) := by
+    rw [← (h_sets ⟨i, hi⟩).right]
+    simp_rw [hi]
+    ext : 1
+    rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
+    exact ⟨fun hj j ↦ mem_preimage.mpr (hj j), fun hj j ↦ mem_preimage.mp (hj j)⟩
+
+  let set (i : ι) (j : κ i) := f i j ⁻¹' sets' i j
+  set set_σ := fun (ij : (i : ι) × κ i) ↦ set ij.fst ij.snd with set_σ_def
+  let meas i j := μ (set i j)
+  let meas_σ ij := μ (set_σ ij)
+  suffices : μ (⋂ i ∈ s, ⋂ j : κ i, set i j) = ∏ i in s, μ (⋂ j : κ i, set i j)
+  · convert this with k hk k hk ; all_goals { exact box k hk }
+
+  let κ_σ (i : ι) := Finset.sigma {i} fun i ↦ Finset.univ (α := κ i)
+  have reindex_prod (i : ι) : ∏ j : κ i, meas i j = ∏ ij : κ_σ i, meas_σ ij := by
+    rw [Finset.prod_coe_sort, Finset.prod_sigma, Finset.prod_singleton]
+  have reindex_inter (i : ι) : ⋂ j : κ i, set i j = ⋂ ij : κ_σ i, set_σ ij := by
+    rw [iInter_subtype, set_σ_def, ← Finset.iInter_sigma, Finset.set_biInter_singleton]
+    exact Finset.set_biInter_univ
+
+  rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at hf
+  rw [Fintype.iInter_sigma, hf, Finset.prod_sigma]
+  · apply Finset.prod_congr rfl
+    intro i hi
+    symm
+    rw [reindex_prod, reindex_inter, Finset.prod_coe_sort, iInter_subtype]
+    apply hf (κ_σ i) (sets := fun ij ↦ sets' ij.fst ij.snd)
+    intro ij hij
+    rw [← Finset.mem_singleton.mp (Finset.mem_sigma.mp hij).left] at hi
+    convert (h_sets ⟨ij.fst, hi⟩).left ij.snd
+    simp? [hi] says simp only [hi, dite_true]
+  intros ij hij
+  obtain ⟨hi, _⟩ := Finset.mem_sigma.mp hij
+  simp_rw [hi]
+  exact (h_sets ⟨ij.fst, hi⟩).1 ij.snd
+
 
 /-- If a family of functions `(i, j) ↦ f i j` is independent, then the family of function tuples
 `i ↦ (f i j)ⱼ` is independent. -/
@@ -325,97 +347,97 @@ lemma iIndepFun.pi' {f : ∀ ij : (Σ i, κ i), Ω → α ij.1 ij.2 }
     iIndepFun (fun _i ↦ MeasurableSpace.pi) (fun i ω ↦ (fun j ↦ f ⟨i, j⟩ ω)) μ :=
   iIndepFun.pi (fun _ _ ↦ f_meas _) hf
 
--- The following lemma has a completely inefficient proof; should be done better
-
-lemma exists_indexfn {ι ι': Type*} [hι': Nonempty ι'] {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST)) : ∃ K : ι → ι', ∀ k : ι', ∀ i ∈ ST k, K i = k := by
-  classical
-  let inv (i : ι) : Set ι' := { k | i ∈ ST k }
-  let K := fun i => if h : Set.Nonempty (inv i) then   (Classical.choice (Set.Nonempty.to_subtype h)).1 else Classical.choice hι'
-  use K
-  intro k i hi
-  have : Set.Nonempty (inv i) :=  nonempty_of_mem hi
-  simp [this]
-  set k' := (Classical.choice (Set.Nonempty.to_subtype this)).1
-  have : k' ∈ inv i := by
-    exact Subtype.mem (Classical.choice (Nonempty.to_subtype this))
-  have : i ∈ ST k' := by
-    simp at this; assumption
-  apply Pairwise.eq hS
-  unfold Disjoint; simp
-  use {i}
-  simp [this, hi]
-
-variable {ι ι' : Type*} {α : ι → Type*} [hι': Nonempty ι']
+variable {ι ι' : Type*} {α : ι → Type*}
     {n : (i : ι) → MeasurableSpace (α i)} {f : (i : ι) → Ω → α i}
-    {hf : ∀ (i : ι), Measurable (f i)}
-    {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST))
+    {hf : ∀ (i : ι), Measurable (f i)} {ST : ι' → Finset ι} (hS : Pairwise (Disjoint on ST))
 lemma iIndepFun.prod (h : iIndepFun n f μ) :
     let β := fun k ↦ Π i : ST k, α i
-    iIndepFun (β := β) (fun k ↦ MeasurableSpace.pi)
-      (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
-  set F := fun (k : ι') (x : Ω) (i : ST k) ↦ f i x
-  set M := fun (k : ι') ↦ MeasurableSpace.pi (m := fun (i: ST k) ↦ n i)
-  rw [iIndepFun_iff_iIndep]
-  let πβ (k : ι') := Set.pi (Set.univ : Set (ST k)) ''
-    Set.pi (Set.univ : Set (ST k)) fun i => { s : Set (α i) | MeasurableSet[n i] s }
-  let π (k : ι') : Set (Set Ω) :=
-    {s : Set Ω | ∃ t ∈ (πβ k), (fun a (i : (ST k)) => f i a) ⁻¹' t = s}
-  apply iIndepSets.iIndep (π := π)
-  . intro k
-    rw [<-measurable_iff_comap_le, measurable_pi_iff]
-    intro i
-    exact hf i
-  . intro k
-    apply IsPiSystem.comap
-    apply isPiSystem_pi
-  . intro k
-    have : M k = MeasurableSpace.generateFrom (πβ k) :=  generateFrom_pi.symm
-    rw [this, MeasurableSpace.comap_generateFrom]
-    congr
-  rw [iIndepSets_iff]
-  intro s E hE
-  simp at hE
-  have hE' (k : s) := hE k (Finset.coe_mem k)
-  classical
-  obtain ⟨ sets, h_sets ⟩ := Classical.axiomOfChoice hE'
-  rcases exists_indexfn hS with ⟨ K, hK ⟩
-  let sets' (k : ι') (i : ι) : Set (α i) := if h : k ∈ s then (if h' : i ∈ ST k then sets ⟨k, h⟩ ⟨i, h'⟩ else Set.univ) else Set.univ
-  let sets'' (i : ι) : Set (α i) := sets' (K i) i
-  have box (k : ι') (hk : k ∈ s) : E k = ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) := by
-    rw [<-(h_sets ⟨ k, hk ⟩).2]
-    simp [hk]
-    ext1 ω
-    simp_rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
-    constructor <;> intro h
-    · intro i hi; rw [hK k i hi]; simp [hi, hk]; exact h ⟨ i, hi ⟩
-    · intro i; have := h i; rw [hK k i.1 i.2] at this; simp [hk] at this; exact this
-  suffices : μ (⋂ k ∈ s, ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) ) = ∏ k in s, μ (⋂ i ∈ ST k, (f i)⁻¹' (sets'' i))
-  . convert this with k hk k hk
-    all_goals {
-      exact box k hk
-    }
-  rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at h
-  have hS' : PairwiseDisjoint s ST := by
-    intro k _ k' _ hkk'
-    exact hS hkk'
-  set A : Finset ι := Finset.disjiUnion s ST hS'
-  have big_inter : ⋂ k ∈ s, ⋂ i ∈ ST k, (f i)⁻¹' (sets'' i) = ⋂ i ∈ A, (f i)⁻¹' (sets'' i) := by
-    simp
-  rw [big_inter, h A _, Finset.prod_disjiUnion]
-  . apply Finset.prod_congr rfl
-    intro k hk
-    symm
-    apply h (ST k)
-    intro i hi
-    have := (h_sets ⟨k, hk⟩).1 i hi
-    convert this
-    simp
-    rw [hK k i hi]
-    simp [hi, hk]
-  intro i hi
-  simp at hi
-  rcases hi with ⟨ k, hk, hik ⟩
+    iIndepFun (β := β) (fun k ↦ MeasurableSpace.pi) (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
+  let g : (i : ι') × ST i → ι := Subtype.val ∘' (Sigma.snd (α := ι'))
+  have hg : Injective g := by
+    intro x y hxy
+    have : ¬(Disjoint on ST) x.fst y.fst := by
+      refine not_forall.mpr ⟨{g y}, ?_⟩
+      rewrite [not_imp, not_imp]
+      repeat' apply And.intro
+      · exact Finset.singleton_subset_iff.mpr (by rewrite [← hxy] ; exact Finset.coe_mem x.snd)
+      · exact Finset.singleton_subset_iff.mpr (Finset.coe_mem y.snd)
+      · rewrite [le_bot_iff] ; exact Finset.singleton_ne_empty (g y)
+    exact Sigma.subtype_ext (not_ne_iff.mp ((@hS x.fst y.fst).mt this)) hxy
+  let m (i : ι') (j : ST i) : MeasurableSpace (α j) := n j
+  exact iIndepFun.pi' (m := m) (hf ∘' g) (h.reindex_of_injective g hg)
+
+
+variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
+
+/-- Improved version of `IndepFun.ae_eq` in which the ranges are allowed to be distinct.
+TODO: replace `IndepFun.ae_eq` with this one. -/
+theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}
+    {g g' : Ω → β'} (hfg : IndepFun f g μ)
+    (hf : f =ᵐ[μ] f') (hg : g =ᵐ[μ] g') : IndepFun f' g' μ := by
+  refine kernel.IndepFun.ae_eq' hfg ?_ ?_ <;>
+    simp only [ae_dirac_eq, Filter.eventually_pure, kernel.const_apply]
+  exacts [hf, hg]
+
+/-- Improved version of `kernel.IndepFun.symm` in which the ranges are allowed to be distinct.
+TODO: replace `kernel.IndepFun.symm` with this one. -/
+theorem kernel.IndepFun.symm' {Ω α β γ : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace α}
+    {_ : MeasurableSpace β} {_ : MeasurableSpace γ} {κ : kernel α Ω} {f : Ω → β} {g : Ω → γ}
+    {μ : Measure α}
+    (hfg : kernel.IndepFun f g κ μ) : kernel.IndepFun g f κ μ :=
+  kernel.Indep.symm hfg
+
+/-- Improved version of `IndepFun.symm` in which the ranges are allowed to be distinct.
+TODO: replace `IndepFun.symm` with this one. -/
+theorem IndepFun.symm' {γ β Ω : Type*} {_ : MeasurableSpace γ}
+    {_ : MeasurableSpace β} {_ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → γ}
+    (hfg : IndepFun f g μ) :
+    IndepFun g f μ := kernel.IndepFun.symm' hfg
+
+/-- The new Mathlib tool `Finset.eventuallyEq_iInter` will supersede this result. -/
+theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} (s: Finset ι)
+    {E : ι → Set α} {F : ι → Set α}
+    (h : ∀ i ∈ s, E i =ᶠ[l] F i) :
+    ⋂ i ∈ s, E i =ᶠ[l] ⋂ i ∈ s, F i := by
+  unfold Filter.EventuallyEq Filter.Eventually at h ⊢
+  simp at h ⊢
+  rw [← Filter.biInter_finset_mem] at h
+  apply Filter.mem_of_superset h
+  intro a ha
+  simp at ha ⊢
+  change a ∈ ⋂ i ∈ s, E i ↔ a ∈ ⋂ i ∈ s, F i
   simp
-  rw [hK k i hik]
-  simp [hk, hik]
-  exact (h_sets ⟨ k, hk ⟩).1 i hik
+  change ∀ i ∈ s, a ∈ E i ↔ a ∈ F i at ha
+  exact ball_congr ha
+
+/-- TODO: a kernel version of this theorem-/
+theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}
+    {m : ∀ i, MeasurableSpace (β i)} {f g : ∀ i, Ω → β i}
+    (hf_Indep : iIndepFun m f μ) (hfg : ∀ i, f i =ᵐ[μ] g i) : iIndepFun m g μ := by
+  rw [iIndepFun_iff_iIndep, iIndep_iff] at hf_Indep ⊢
+  intro s E H
+  have (i : ι) : ∃ E' : Set Ω, i ∈ s → MeasurableSet[MeasurableSpace.comap (f i) (m i)] E' ∧ E' =ᵐ[μ] E i := by
+    by_cases hi: i ∈ s
+    . rcases H i hi with ⟨F, mF, hFE⟩
+      use (f i)⁻¹' F
+      simp [hi]
+      constructor
+      . use F
+      rw [← hFE]
+      exact Filter.EventuallyEq.preimage (hfg i) F
+    use ∅
+    tauto
+  classical
+  rcases Classical.axiomOfChoice this with ⟨E', hE'⟩
+  have hE'' : ∀ i ∈ s, MeasurableSet[MeasurableSpace.comap (f i) (m i)] (E' i) := by
+    intro i hi; exact (hE' i hi).1
+  have hE''' : ∀ i ∈ s, E' i =ᵐ[μ] E i := by
+    intro i hi; exact (hE' i hi).2
+  convert hf_Indep s hE'' using 1 with i
+  . apply measure_congr
+    apply EventuallyEq.finite_iInter
+    intro i hi
+    exact (hE''' i hi).symm
+  apply Finset.prod_congr rfl
+  intro i hi
+  exact measure_congr (hE''' i hi).symm

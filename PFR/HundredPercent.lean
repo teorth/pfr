@@ -1,4 +1,4 @@
-import PFR.Entropy.RuzsaDist
+import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
 # The 100% version of entropic PFR
@@ -138,7 +138,7 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
     ∃ H : AddSubgroup G, ∃ U : Ω → G, Measurable U ∧ IsUniform H U ∧ d[X # U] = 0 := by
   -- use for `U` a translate of `X` to make sure that `0` is in its support.
   obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X⁻¹' {x₀}) ≠ 0 := by
-    by_contra' h
+    by_contra! h
     have A a : (ℙ : Measure Ω).map X {a} = 0 := by
       rw [Measure.map_apply hX $ measurableSet_discrete _]
       exact h _
@@ -151,6 +151,8 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
   refine ⟨symmGroup X hX, fun ω ↦ X ω - x₀, hX.sub_const _,
     isUniform_sub_const_of_rdist_eq_zero hX hdist h₀, ?_⟩
   simp_rw [sub_eq_add_neg]
+  suffices : d[X # X + fun _ ↦ -x₀] = 0
+  . convert this
   rw [rdist_add_const hX hX]
   exact hdist
 

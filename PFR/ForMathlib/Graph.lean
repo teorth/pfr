@@ -12,8 +12,8 @@ def graph (f : G → G') : Set (G×G') := {(x, f x) | x : G}
 lemma graph_def (f : G → G') : graph f = {(x, f x) | x : G} := rfl
 
 lemma card_graph (f : G → G') : Nat.card (graph f) = Nat.card G := by
-  apply Nat.card_congr ⟨fun p => p.1.1, fun x => ⟨⟨x, f x⟩, ⟨x, rfl⟩⟩,
-      by rintro ⟨p, ⟨h, hh⟩⟩; simp[←hh],
+  apply Nat.card_congr ⟨fun p => p.1.1, fun x => ⟨⟨x, f x⟩, x, rfl⟩,
+      by rintro ⟨p, h, hh⟩; simp [←hh],
       by intro x; simp⟩
 
 @[simp]
@@ -21,7 +21,7 @@ lemma mem_graph {f : G → G'} (x : G × G') : x ∈ graph f ↔ f x.1 = x.2 := 
   constructor
   · rintro ⟨_, rfl⟩; rfl
   · refine fun h ↦ ⟨x.1, ?_⟩
-    rw[h]
+    rw [h]
 
 @[simp]
 lemma image_fst_graph {f : G → G'} : Prod.fst '' (graph f) = Set.univ := by
@@ -50,7 +50,7 @@ lemma graph_add [AddGroup G] [AddCommGroup G'] {f : G →+ G'} {c : G × G'} :
   constructor
   · intro h
     use x.1
-    rw[add_comm, sub_eq_add_neg, add_assoc, h]
+    rw [add_comm, sub_eq_add_neg, add_assoc, h]
     convert show (x.1, x.2) = x from rfl
     abel
   · rintro ⟨g, rfl⟩;

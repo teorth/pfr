@@ -1,4 +1,4 @@
-
+import Mathlib.Probability.Kernel.MeasureCompProd
 import Mathlib.Probability.Kernel.Composition
 
 /-!
@@ -19,10 +19,7 @@ It is defined as `((kernel.const Unit μ) ⊗ₖ (kernel.prodMkLeft Unit κ)) ()
 -/
 
 open Real MeasureTheory
-
 open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
-
-section aux_kernel
 
 namespace ProbabilityTheory.kernel
 
@@ -202,68 +199,3 @@ lemma map_prod_swap (κ : kernel α β) (η : kernel α γ) [IsMarkovKernel κ] 
   exact hf.aemeasurable
 
 end ProbabilityTheory.kernel
-
-end aux_kernel
-
-
-section measure_compProd
-
-namespace MeasureTheory.Measure
-
-open ProbabilityTheory
-
-attribute [local simp] kernel.const_apply kernel.prodMkLeft_apply kernel.prodMkLeft_apply'
-
-variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
-
-/-- The composition product of a measure and a kernel. -/
-noncomputable
-def compProd (μ : Measure α) (κ : kernel α β) : Measure (α × β) :=
-  (kernel.const Unit μ ⊗ₖ kernel.prodMkLeft Unit κ) ()
-
-/-- The composition product of a measure and a kernel. -/
-scoped[ProbabilityTheory] infixl:100 " ⊗ₘ " => MeasureTheory.Measure.compProd
-
-@[simp] lemma compProd_zero_left (κ : kernel α β) : (0 : Measure α) ⊗ₘ κ = 0 := by simp [compProd]
-@[simp] lemma compProd_zero_right (μ : Measure α) : μ ⊗ₘ (0 : kernel α β) = 0 := by simp [compProd]
-
-lemma compProd_apply (μ : Measure α) [IsFiniteMeasure μ] (κ : kernel α β) [IsSFiniteKernel κ]
-    {s : Set (α × β)} (hs : MeasurableSet s) :
-    (μ ⊗ₘ κ) s = ∫⁻ a, κ a (Prod.mk a ⁻¹' s) ∂μ := by
-  simp_rw [compProd, kernel.compProd_apply _ _ _ hs, kernel.const_apply, kernel.prodMkLeft_apply']
-  rfl
-
-lemma lintegral_compProd (μ : Measure α) [IsFiniteMeasure μ] (κ : kernel α β) [IsSFiniteKernel κ]
-    {f : α × β → ℝ≥0∞} (hf : Measurable f) :
-    ∫⁻ x, f x ∂(μ ⊗ₘ κ) = ∫⁻ a, ∫⁻ b, f (a, b) ∂(κ a) ∂μ := by
-  rw [compProd, kernel.lintegral_compProd _ _ _ hf]
-  simp
-
-lemma compProd_congr {κ η : kernel α β} [IsFiniteMeasure μ] [IsSFiniteKernel κ] [IsSFiniteKernel η]
-    (h : κ =ᵐ[μ] η) : μ ⊗ₘ κ = μ ⊗ₘ η := by
-  ext s hs
-  have : (fun a ↦ κ a (Prod.mk a ⁻¹' s)) =ᵐ[μ] fun a ↦ η a (Prod.mk a ⁻¹' s) := by
-    filter_upwards [h] with a ha using by rw [ha]
-  rw [compProd_apply μ _ hs, lintegral_congr_ae this, compProd_apply μ _ hs]
-
-lemma dirac_compProd_apply [MeasurableSingletonClass α] (a : α) (κ : kernel α β) [IsSFiniteKernel κ]
-    {s : Set (α × β)} (hs : MeasurableSet s) :
-    (Measure.dirac a ⊗ₘ κ) s = κ a (Prod.mk a ⁻¹' s) := by
-  rw [compProd_apply _ _ hs, lintegral_dirac]
-
-lemma dirac_unit_compProd (κ : kernel Unit β) [IsSFiniteKernel κ] :
-    Measure.dirac () ⊗ₘ κ = (κ ()).map (Prod.mk ()) := by
-  ext s hs; rw [dirac_compProd_apply _ _ hs, Measure.map_apply measurable_prod_mk_left hs]
-
-lemma dirac_unit_compProd_const (μ : Measure β) [IsFiniteMeasure μ] :
-    Measure.dirac () ⊗ₘ kernel.const Unit μ = μ.map (Prod.mk ()) := by
-  rw [dirac_unit_compProd, kernel.const_apply]
-
-instance [IsFiniteMeasure μ] [IsFiniteKernel κ] : IsFiniteMeasure (μ ⊗ₘ κ) := by
-  rw [compProd]; infer_instance
-
-instance [IsProbabilityMeasure μ] [IsMarkovKernel κ] : IsProbabilityMeasure (μ ⊗ₘ κ) := by
-  rw [compProd]; infer_instance
-
-end MeasureTheory.Measure
-end measure_compProd

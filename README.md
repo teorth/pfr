@@ -46,6 +46,10 @@ Note: If you have something wrong in your LaTeX file, and the LaTeX compilation 
 LaTeX will stuck and ask for commands, you'll need to type `X` then return to exit LaTeX,
 then fix the LaTeX error, and run `inv dev` again.
 
+## Moving material to mathlib
+
+The project is now over. As such, we are currently working towards stabilising the new results and contributing them to mathlib.
+
 ## Source reference
 
 `[GGMT]`: <https://arxiv.org/abs/2311.05762>

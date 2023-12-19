@@ -1,4 +1,4 @@
-import PFR.Entropy.RuzsaDist
+import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
 # The fibring identity
@@ -19,8 +19,8 @@ open MeasureTheory ProbabilityTheory
 section GeneralFibring
 
 -- $\pi : H \to H'$ is a homomorphism between additive groups.
-variable {H : Type*} [AddCommGroup H] [Fintype H] [hH : MeasurableSpace H] [MeasurableSingletonClass H]
-  {H' : Type*} [AddCommGroup H'] [Fintype H'] [hH' : MeasurableSpace H'] [MeasurableSingletonClass H']
+variable {H : Type*} [AddCommGroup H] [Countable H] [hH : MeasurableSpace H] [MeasurableSingletonClass H]
+  {H' : Type*} [AddCommGroup H'] [Countable H'] [hH' : MeasurableSpace H'] [MeasurableSingletonClass H']
   (π : H →+ H')
 variable {Ω Ω' : Type*} [mΩ : MeasurableSpace Ω] [mΩ' : MeasurableSpace Ω'] {μ : Measure Ω} {μ' : Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
@@ -30,13 +30,13 @@ plus
 $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2)) | \pi(Z_1 - Z_2) ).$$
 -/
 lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
-    (h1 : Measurable Z_1) (h2 : Measurable Z_2) :
-    d[Z_1; μ # Z_2; μ] = d[π ∘ Z_1; μ # π ∘ Z_2; μ] + d[Z_1|π∘Z_1; μ # Z_2|π∘Z_2; μ] + I[Z_1-Z_2 : ⟨ π∘Z_1, π∘Z_2⟩ | π∘(Z_1 - Z_2); μ] := by
+    (h1 : Measurable Z_1) (h2 : Measurable Z_2) [FiniteRange Z_1] [FiniteRange Z_2]:
+    d[Z_1; μ # Z_2; μ] = d[π ∘ Z_1; μ # π ∘ Z_2; μ] + d[Z_1|π∘Z_1; μ # Z_2|π∘Z_2; μ] + I[Z_1-Z_2 : ⟨π∘Z_1, π∘Z_2⟩ | π∘(Z_1 - Z_2); μ] := by
   have hπ : Measurable π := measurable_of_countable _
   have step1 : d[Z_1; μ # Z_2; μ] = d[π ∘ Z_1; μ # π ∘ Z_2; μ] +
       H[(Z_1 - Z_2)| π ∘ (Z_1 - Z_2); μ] - H[Z_1 | π ∘ Z_1; μ] / 2 - H[Z_2 | π ∘ Z_2; μ] / 2 := by
-    have hsub : H[(Z_1 - Z_2)| π ∘ (Z_1 - Z_2); μ] = H[(Z_1 - Z_2); μ] - H[π ∘ (Z_1 - Z_2); μ] :=
-      condEntropy_comp_self (h1.sub h2) hπ
+    have hsub : H[(Z_1 - Z_2)| π ∘ (Z_1 - Z_2); μ] = H[(Z_1 - Z_2); μ] - H[π ∘ (Z_1 - Z_2); μ] := condEntropy_comp_self (by measurability) hπ
+
     rw [h.rdist_eq h1 h2, (h.comp hπ hπ).rdist_eq (hπ.comp h1) (hπ.comp h2),
       condEntropy_comp_self h1 hπ, condEntropy_comp_self h2 hπ, hsub, π.comp_sub]
     ring_nf
@@ -56,9 +56,9 @@ lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
     condRuzsaDist_of_indep h1 (hπ.comp h1) h2 (hπ.comp h2) μ h']
   ring_nf
 
-lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H} (h1 : Measurable Z_1) (h2 : Measurable Z_2) :
+lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H} (h1 : Measurable Z_1) (h2 : Measurable Z_2) [FiniteRange Z_1] [FiniteRange Z_2]:
     d[Z_1; μ # Z_2; μ'] ≥ d[π ∘ Z_1; μ # π ∘ Z_2; μ'] + d[Z_1|π∘Z_1; μ # Z_2|π∘Z_2; μ'] := by
-  obtain ⟨ν, W_1, W_2, hν, m1, m2, hi, hi1, hi2⟩ := ProbabilityTheory.independent_copies h1 h2 μ μ'
+  obtain ⟨ν, W_1, W_2, hν, m1, m2, hi, hi1, hi2, _, _⟩ := ProbabilityTheory.independent_copies_finiteRange h1 h2 μ μ'
   have hπ : Measurable π := measurable_of_countable _
   have hφ : Measurable (fun x ↦ (x, π x)) := measurable_of_countable _
   have hπ1 : IdentDistrib (⟨Z_1, π ∘ Z_1⟩) (⟨W_1, π ∘ W_1⟩) μ ν := hi1.symm.comp hφ
@@ -66,7 +66,11 @@ lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H} (h1 : Measurable Z_1) 
   rw [← hi1.rdist_eq hi2, ← (hi1.comp hπ).rdist_eq (hi2.comp hπ),
     rdist_of_indep_eq_sum_fibre π hi m1 m2,
     condRuzsaDist_of_copy h1 (hπ.comp h1) h2 (hπ.comp h2) m1 (hπ.comp m1) m2 (hπ.comp m2) hπ1 hπ2]
-  exact le_add_of_nonneg_right (condMutualInfo_nonneg (m1.sub m2) (Measurable.prod_mk (hπ.comp m1) (hπ.comp m2)) _ _)
+  exact le_add_of_nonneg_right (condMutualInfo_nonneg (by measurability) (Measurable.prod_mk (hπ.comp m1) (hπ.comp m2)) _ _)
+
+/-- \[d[X;Y]\geq d[\pi(X);\pi(Y)].\] -/
+lemma rdist_of_hom_le {Z_1 Z_2: Ω → H}  (h1 : Measurable Z_1) (h2 : Measurable Z_2) [FiniteRange Z_1] [FiniteRange Z_2] : d[π ∘ Z_1; μ # π ∘ Z_2; μ] ≤d[Z_1; μ # Z_2; μ]  := sorry
+
 
 end GeneralFibring
 
@@ -104,7 +108,10 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
   (h_meas : ∀ i, Measurable (Y i)) :
     I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
     I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - Y 2 + Y 3;μ] := by
-  rw [sub_add (Y 0 - Y 1)]
+  suffices : I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
+    I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - (Y 2 - Y 3) ;μ]
+  . convert this using 2
+    abel
   symm
   have hm (f : G → G → G × G) {a b i j k l : Fin 4} :
     Measurable (Function.uncurry f ∘ ⟨Y i - Y j - (Y k - Y l), Y a - Y b⟩) :=
@@ -122,16 +129,16 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
     condMutualInfo_comm hmf hmij,
     ← condMutualInfo_of_inj_map hmij hmf hm0123 (fun z x ↦ (x + z, x)),
     condMutualInfo_comm hmg hmf]
-  congr 1
-  { ext ω
-    { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] }
-    { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
-  { rw [sub_sub, add_sub_left_comm, ← sub_sub]
-    ext ω
-    { simp only [Function.comp_apply, Pi.sub_apply, add_sub_cancel'_right] }
-    { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
-  { exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).2 }
-  { exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).1 }
+  . congr 1
+    { ext ω
+      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] }
+      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
+    { rw [sub_sub, add_sub_left_comm, ← sub_sub]
+      ext ω
+      { simp only [Function.comp_apply, Pi.sub_apply, add_sub_cancel'_right] }
+      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
+  . exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).2
+  exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).1
 
 
 /-- Let $Y_1,Y_2,Y_3$ and $Y_4$ be independent $G$-valued random variables.
@@ -146,7 +153,7 @@ lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 
         + d[Y 0 | (Y 0) - (Y 2); μ # Y 1 | (Y 1) - (Y 3); μ]
         + I[(Y 0) - (Y 1) : (Y 1) - (Y 3) | (Y 0) - (Y 1) - (Y 2) + (Y 3); μ] := by
   let π : G × G →+ G := (AddMonoidHom.fst G G) - (AddMonoidHom.snd G G)
-  have hπ {W_1 W_2 : Ω → G} : π ∘ ⟨ W_1, W_2 ⟩ = W_1 - W_2 := rfl
+  have hπ {W_1 W_2 : Ω → G} : π ∘ ⟨W_1, W_2⟩ = W_1 - W_2 := rfl
   let Z_1 : Ω → G × G := ⟨Y 0, Y 2⟩
   let Z_2 : Ω → G × G := ⟨Y 1, Y 3⟩
   have hZ : Z_1 - Z_2 = ⟨Y 0 - Y 1, Y 2 - Y 3⟩ := rfl

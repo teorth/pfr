@@ -1,16 +1,100 @@
 import PFR.ForMathlib.Pair
 import PFR.Mathlib.Data.Set.Image
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
-import PFR.Mathlib.MeasureTheory.Measure.Dirac
 import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Tactic.Finiteness
 
 open MeasureTheory Measure Set
-open scoped BigOperators
+open scoped BigOperators ENNReal
 
 namespace ProbabilityTheory
+
+section
+
+variable {Ω α β : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
+  {μ : Measure Ω} {A : Ω → α} {B : Ω → β}
+
+/-- If `A` is independent from `B`, then conditioning on an event given by `B` does not change
+the distribution of `A`. -/
+theorem IndepFun.identDistrib_cond [IsProbabilityMeasure μ]
+    (hi : IndepFun A B μ) {s : Set β}
+    (hs : MeasurableSet s) (hA : Measurable A) (hB : Measurable B)
+    (h : μ (B ⁻¹' s) ≠ 0) :
+    IdentDistrib A A μ (μ[|B ⁻¹' s]) := by
+  refine ⟨hA.aemeasurable, hA.aemeasurable, ?_⟩
+  ext t ht
+  rw [Measure.map_apply hA ht, Measure.map_apply hA ht, cond_apply _ (hB hs), Set.inter_comm,
+    hi.measure_inter_preimage_eq_mul ht hs, mul_comm, mul_assoc,
+    ENNReal.mul_inv_cancel h (by finiteness), mul_one]
+
+/-- If `A` is independent of `B`, then they remain independent when conditioning on an event
+of the form `A ∈ s` of positive probability. -/
+lemma IndepFun.cond_left (hi : IndepFun A B μ) {s : Set α}
+    (hs : MeasurableSet s) (hA : Measurable A) :
+    IndepFun A B (μ[| A⁻¹' s]) := by
+  apply indepFun_iff_measure_inter_preimage_eq_mul.2 (fun u v hu hv ↦ ?_)
+  have : A ⁻¹' s ∩ (A ⁻¹' u ∩ B ⁻¹' v) = A ⁻¹' (s ∩ u) ∩ B ⁻¹' v := by aesop
+  simp only [cond_apply _ (hA hs), this]
+  rcases eq_or_ne (μ (A ⁻¹' s)) ∞ with h|h
+  · simp [h]
+  rcases eq_or_ne (μ (A ⁻¹' s)) 0 with h'|h'
+  · have I : μ (A ⁻¹' (s ∩ u) ∩ B ⁻¹' v) = 0 := by
+      apply le_antisymm ((measure_mono _).trans h'.le) bot_le
+      exact (inter_subset_left _ _).trans (preimage_mono (inter_subset_left _ _))
+    have J : μ (A ⁻¹' s ∩ B ⁻¹' v) = 0 :=
+      le_antisymm ((measure_mono (inter_subset_left _ _)).trans h'.le) bot_le
+    simp only [I, J, mul_zero]
+  · rw [hi.measure_inter_preimage_eq_mul (hs.inter hu) hv, Set.preimage_inter,
+      hi.measure_inter_preimage_eq_mul hs hv, ← mul_assoc (μ (A ⁻¹' s))⁻¹,
+      ← mul_assoc (μ (A ⁻¹' s))⁻¹, ENNReal.inv_mul_cancel h' h, one_mul]
+
+/-- If `A` is independent of `B`, then they remain independent when conditioning on an event
+of the form `B ∈ t` of positive probability. -/
+lemma IndepFun.cond_right (h : IndepFun A B μ) {t : Set β}
+    (ht : MeasurableSet t) (hB : Measurable B) :
+    IndepFun A B (μ[| B⁻¹' t]) :=
+  (h.symm'.cond_left ht hB).symm'
+
+/-- If `A` is independent of `B`, then they remain independent when conditioning on an event
+of the form `A ∈ s ∩ B ∈ t` of positive probability. -/
+lemma IndepFun.cond (hi : IndepFun A B μ) {s : Set α} {t : Set β}
+    (hs : MeasurableSet s) (ht : MeasurableSet t) (hA : Measurable A) (hB : Measurable B) :
+    IndepFun A B (μ[| A ⁻¹' s ∩ B ⁻¹' t]) := by
+  apply indepFun_iff_measure_inter_preimage_eq_mul.2 (fun u v hu hv ↦ ?_)
+  have I1 : A ⁻¹' s ∩ B ⁻¹' t ∩ (A ⁻¹' u ∩ B ⁻¹' v) = A ⁻¹' (s ∩ u) ∩ B ⁻¹' (t ∩ v) := by aesop
+  have I2 : A ⁻¹' s ∩ B ⁻¹' t ∩ A ⁻¹' u = A ⁻¹' (s ∩ u) ∩ B ⁻¹' t := by aesop
+  have I3 : A ⁻¹' s ∩ B ⁻¹' t ∩ B ⁻¹' v = A ⁻¹' s ∩ B ⁻¹' (t ∩ v) := by aesop
+  simp only [cond_apply _ ((hA hs).inter (hB ht)), I1, I2, I3]
+  rcases eq_or_ne (μ (A ⁻¹' s ∩ B⁻¹' t)) ∞ with h|h
+  · simp [h]
+  rcases eq_or_ne (μ (A ⁻¹' s ∩ B⁻¹' t)) 0 with h'|h'
+  · have I : μ (A ⁻¹' (s ∩ u) ∩ B ⁻¹' (t ∩ v)) = 0 := by
+      apply le_antisymm ((measure_mono _).trans h'.le) bot_le
+      exact inter_subset_inter (preimage_mono (inter_subset_left _ _))
+        (preimage_mono (inter_subset_left _ _))
+    have J : μ (A ⁻¹' (s ∩ u) ∩ B ⁻¹' t) = 0 := by
+      apply le_antisymm ((measure_mono _).trans h'.le) bot_le
+      exact inter_subset_inter_left _ (preimage_mono (inter_subset_left _ _))
+    simp only [I, J, mul_zero, zero_mul]
+  · simp only [hi.measure_inter_preimage_eq_mul hs ht, ne_eq, mul_eq_zero, not_or] at h'
+    simp only [hi.measure_inter_preimage_eq_mul hs ht, ne_eq, ENNReal.mul_eq_top, h'.1,
+      not_false_eq_true, true_and, h'.2, and_true, not_or] at h
+    rw [mul_assoc]
+    congr 1
+    rw [hi.measure_inter_preimage_eq_mul (hs.inter hu) (ht.inter hv),
+      hi.measure_inter_preimage_eq_mul (hs.inter hu) ht,
+      hi.measure_inter_preimage_eq_mul hs ht,
+      hi.measure_inter_preimage_eq_mul hs (ht.inter hv),
+      ENNReal.mul_inv (Or.inl h'.1) (Or.inr h'.2), mul_assoc]
+    congr 1
+    have : μ (B ⁻¹' t) * ((μ (A ⁻¹' s))⁻¹ * (μ (B ⁻¹' t))⁻¹ * (μ (A ⁻¹' s) * μ (B ⁻¹' (t ∩ v))))
+      = (μ (B ⁻¹' t) * (μ (B ⁻¹' t))⁻¹) * ((μ (A ⁻¹' s))⁻¹ * μ (A ⁻¹' s)) * μ (B ⁻¹' (t ∩ v)) := by
+        ring
+    rw [this, ENNReal.inv_mul_cancel h'.1 h.2, ENNReal.mul_inv_cancel h'.2 h.1, one_mul, one_mul]
+
+end
+
 section defs
 variable {Ω Ω' α β γ : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] [MeasurableSpace α]
   [MeasurableSpace β] [MeasurableSpace γ] {μ : Measure Ω} {f : Ω → α} {g : Ω → β} {h : Ω → γ}
@@ -69,8 +153,8 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
   have h4 (y : β) : { ω : (α × α) × β| ω.2 = y } ∈ ae (m y) := by
     rw [mem_ae_iff]
     have : { ω : (α × α) × β | ω.2 = y}ᶜ = Prod.snd⁻¹' {t : β | t ≠ y} := by simp; rfl
-    rw [this, ← Measure.map_apply measurable_snd]
-    all_goals {simp}
+    rw [this, ← Measure.map_apply measurable_snd (measurableSet_discrete _)]
+    simp
 
   have h5 {y : β} (hy : μ (Y ⁻¹' {y}) ≠ 0) : IsProbabilityMeasure (m' y) := by
     have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy
@@ -90,7 +174,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     congr 1
     have : IsProbabilityMeasure (m' y) := h5 hy
     simp
-  . rw [condIndepFun_iff, ae_iff_of_fintype]
+  . rw [condIndepFun_iff, ae_iff_of_countable ]
     have h1 : ν.map Prod.snd = μ.map Y := by
       rw [law_of_total_probability hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
       simp

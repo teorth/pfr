@@ -1,6 +1,5 @@
-import Mathlib.Probability.Notation
-import PFR.homomorphism
-import PFR.ForMathlib.MeasureReal
+import PFR.ApproxHomPFR
+import PFR.ImprovedPFR
 
 section PFR
 
@@ -19,11 +18,25 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 
 #print axioms PFR_conjecture
 
+/-- The improved version -/
+example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : AddSubgroup G) (c : Set G),
+      Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  convert PFR_conjecture_improv h₀A hA
+
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
     ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T := by
   convert homomorphism_pfr f S hS
   norm_cast
+
+-- Todo: replace the constants C₁, C₂, C₃, C₄ below with actual values
+
+/-- The approximate homomorphism version of PFR -/
+example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (4 * C₁^25 * C₃^24 * K^(50 * C₄ + 48 * C₂)) := by
+  convert approx_hom_pfr f K hK hf
+
+
 
 end PFR
 
@@ -53,7 +66,7 @@ example {A : Type*} [Fintype A] (E : A → Set Ω)   (hn : Pairwise (Disjoint on
 /-- A simple example of applying real-valued subtraction. -/
 example (E F : Set Ω) (h : NullMeasurableSet F ℙ)
  : ℙᵣ (E ∩ F) = ℙᵣ E - ℙᵣ (E \ F) := by
-  rw [<-measureReal_inter_add_diff₀ E h]
+  rw [← measureReal_inter_add_diff₀ E h]
   ring
 
 example (E : Set Ω) : 0 ≤ ℙᵣ E ∧ ℙᵣ E ≤ 1 := by
@@ -87,7 +100,7 @@ variable (X : Ω → S) (hX : Measurable X) (Y : Ω → T) (hY : Measurable Y) (
 example :
     H[X] =
       -∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
-  rw [entropy_eq_sum hX ℙ, <-Finset.sum_neg_distrib]
+  rw [entropy_eq_sum hX ℙ, ← Finset.sum_neg_distrib]
   congr with x
   unfold Real.negMulLog
   ring
@@ -97,13 +110,13 @@ example :
 example (ω : Ω) : (⟨X, Y⟩) ω = (X ω, Y ω) := rfl
 
 /-- $H[X|Y]$ is the conditional entropy of $X$ relative to $Y$. -/
-example : H[X|Y] = H[⟨ X,Y ⟩] - H[Y] := chain_rule'' ℙ hX hY
+example : H[X|Y] = H[⟨X,Y⟩] - H[Y] := chain_rule'' ℙ hX hY
 
 /-- $I[X:Y]$ is the mutual information between $X$ and $Y$. -/
-example : I[X:Y] = H[X] + H[Y] - H[⟨ X,Y ⟩] := rfl
+example : I[X:Y] = H[X] + H[Y] - H[⟨X,Y⟩] := rfl
 
 /-- $I[X:Y|Z]$ is the conditional mutual information between $X$ and $Y$ relative to $Z$. -/
-example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨ X,Y ⟩|Z] := condMutualInfo_eq hX hY hZ ℙ
+example : I[X:Y|Z] = H[X|Z] + H[Y|Z] - H[⟨X,Y⟩|Z] := condMutualInfo_eq hX hY hZ ℙ
 
 /-- Submodularity: conditional information is nonnegative. -/
 example : 0 ≤ I[X : Y | Z] := condMutualInfo_nonneg hX hY Z ℙ
