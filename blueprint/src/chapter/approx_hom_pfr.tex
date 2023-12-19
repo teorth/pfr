@@ -27,15 +27,15 @@ $$ C_1 = 2^4, C_2 = 1, C_3 = 2^{10}, C_4 = 4.$$
 \begin{theorem}[Approximate homomorphism form of PFR]\label{approx-hom-pfr}\lean{approx_hom_pfr}\leanok Let $G,G'$ be finite abelian $2$-groups.
   Let $f: G \to G'$ be a function, and suppose that there are at least $|G|^2 / K$ pairs $(x,y) \in G^2$ such that
 $$ f(x+y) = f(x) + f(y).$$
-Then there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that $f(x) = \phi(x)+c$ for at least $|G| / 4C_1^{25} C_3^{24} K^{50C_4+48 C_2}$ values of $x \in G$.
+Then there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that $f(x) = \phi(x)+c$ for at least $|G| / 4C_1^{21} C_3^{20} K^{46C_4+44 C_2}$ values of $x \in G$.
 \end{theorem}
 
-\begin{proof}\uses{goursat, cs-bound, bsg, pfr} Consider the graph $A \subset G \times G'$ defined by
+\begin{proof}\uses{goursat, cs-bound, bsg, pfr-improv} Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
-Clearly, $|A| = |G|$.  By hypothesis, we have $a+a' \in A$ for at least $|A|^2/K$ pairs $(a,a') \in A^2$.  By Lemma \ref{cs-bound}, this implies that $E(A) \geq |A|^3/K^2$.  Applying Lemma \ref{bsg}, we conclude that there exists a subset $A' \subset A$ with $|A'| \geq |A|/C_1 K^{2C_2}$ and $|A'+A'| \leq C_1C_3 K^{2(C_2+C_4)} |A'|$.  Applying Theorem \ref{pfr}, we may find a subspace $H \subset G \times G'$ such that $|H| \leq |A'| \leq |A| = |G|$ and $A'$ is covered by at most $2 (C_1C_3 K^{2(C_2+C_4)})^{12}$ translates of $H$.  If we let $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections that the projection of $A'$ to $G$ is covered by at most $2 (C_1C_3 K^{2(C_2+C_4)})^{12}$ translates of $H_0$.  This implies that
-$$ 2 (C_1C_3 K^{2(C_2+C_4)})^{12} |H_0| \geq |A'|;$$
+Clearly, $|A| = |G|$.  By hypothesis, we have $a+a' \in A$ for at least $|A|^2/K$ pairs $(a,a') \in A^2$.  By Lemma \ref{cs-bound}, this implies that $E(A) \geq |A|^3/K^2$.  Applying Lemma \ref{bsg}, we conclude that there exists a subset $A' \subset A$ with $|A'| \geq |A|/C_1 K^{2C_2}$ and $|A'+A'| \leq C_1C_3 K^{2(C_2+C_4)} |A'|$.  Applying Theorem \ref{pfr-improv}, we may find a subspace $H \subset G \times G'$ such that $|H| \leq |A'| \leq |A| = |G|$ and $A'$ is covered by at most $2 (C_1C_3 K^{2(C_2+C_4)})^{11}$ translates of $H$.  If we let $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections that the projection of $A'$ to $G$ is covered by at most $2 (C_1C_3 K^{2(C_2+C_4)})^{11}$ translates of $H_0$.  This implies that
+$$ 2 (C_1C_3 K^{2(C_2+C_4)})^{11} |H_0| \geq |A'|;$$
 since $|H_0| |H_1| \leq |H| \leq |A'|$, we conclude that
-$$ |H_1| \leq 2(C_1C_3 K^{2(C_2+C_4)})^{12}.$$
-By hypothesis, $A'$ is covered by at most $2(C_1C_3 K^{2(C_2+C_4)})^{12}$ translates of $H$, and hence by at most $4(C_1C_3 K^{2(C_2+C_4)})^{24}$ translates of $\{ (x,\phi(x)): x \in G \}$.  As $\phi$ is a homomorphism, each such translate can be written in the form $\{ (x,\phi(x)+c): x \in G \}$ for some $c \in G'$.  By the pigeonhole principle, one of these translates must then contain at least
-$|A'|/4(C_1C_3 K^{2(C_2+C_4)})^{24} \geq |G| / 4 (C_1C_3 K^{2(C_2+C_4)})^{24} (C_1 K^{2C_2})$ elements of $A'$ (and hence of $A$), and the claim follows.
+$$ |H_1| \leq 2(C_1C_3 K^{2(C_2+C_4)})^{11}.$$
+By hypothesis, $A'$ is covered by at most $2(C_1C_3 K^{2(C_2+C_4)})^{11}$ translates of $H$, and hence by at most $4(C_1C_3 K^{2(C_2+C_4)})^{22}$ translates of $\{ (x,\phi(x)): x \in G \}$.  As $\phi$ is a homomorphism, each such translate can be written in the form $\{ (x,\phi(x)+c): x \in G \}$ for some $c \in G'$.  By the pigeonhole principle, one of these translates must then contain at least
+$|A'|/4(C_1C_3 K^{2(C_2+C_4)})^{22} \geq |G| / 4 (C_1C_3 K^{2(C_2+C_4)})^{22} (C_1 K^{2C_2})$ elements of $A'$ (and hence of $A$), and the claim follows.
 \end{proof}
