@@ -164,6 +164,7 @@ lemma rdist_zero_eq_half_ent [IsFiniteMeasure μ] [IsProbabilityMeasure μ'] :
               measurability
     simp [entropy_def, h]
   simp [rdist_def, entropy_const (0 : G), aux]
+  ring
 
 /-- $$ d[X ; Y] = d[Y ; X]$$ -/
 lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
