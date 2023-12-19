@@ -332,6 +332,10 @@ lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' 
     (μ' : Measure Ω') : d[X | Z ; 0 # Y | W ; μ'] = 0 := by
   simp [condRuzsaDist]
 
+lemma condRuzsaDist_nonneg (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) 
+  [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] : 
+  0 ≤ d[X | Z ; μ # Y | W ; μ'] := by sorry
+
 /-- Ruzsa distance of random variables equals Ruzsa distance of the kernels. -/
 lemma rdist_eq_rdistm : d[X ; μ # Y ; μ'] = kernel.rdistm (μ.map X) (μ'.map Y) := rfl
 
