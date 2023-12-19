@@ -253,7 +253,7 @@ def condKernel' [TopologicalSpace U] [PolishSpace U] [BorelSpace U]
     (κ : kernel T (S × U)) [IsFiniteKernel κ] :
     kernel (T × S) U where
   val := fun ts ↦ (κ ts.1).condKernel ts.2
-  property := measurable_of_finite _
+  property := measurable_of_countable _
 
 lemma condKernel'_apply [TopologicalSpace U] [PolishSpace U] [BorelSpace U]
     (κ : kernel T (S × U)) [IsFiniteKernel κ] (x : T × S) :
@@ -266,7 +266,7 @@ lemma condKernel_eq_condKernel' [TopologicalSpace U] [PolishSpace U] [BorelSpace
   simp_rw [condKernel'_apply]
   let η : kernel S U :=
   { val := fun y ↦ condKernel κ (x, y)
-    property := measurable_of_finite _ }
+    property := measurable_of_countable _ }
   have hη : ∀ y, η y = condKernel κ (x, y) := fun y ↦ rfl
   have : IsFiniteKernel η := by
     constructor
@@ -278,10 +278,10 @@ lemma condKernel_eq_condKernel' [TopologicalSpace U] [PolishSpace U] [BorelSpace
     rw [← hy]
     rfl
   ext s hs
-  rw [Measure.compProd_apply _ _ hs]
-  simp_rw [hη, lintegral_eq_sum, Measure.fst_apply (measurableSet_singleton _)]
-  have : ∑ y : S, κ x (Prod.fst ⁻¹' {y}) * condKernel κ (x, y) (Prod.mk y ⁻¹' s)
-      = ∑ y : S, κ x (Prod.fst ⁻¹' {y} ∩ s) := by
+  rw [Measure.compProd_apply hs]
+  simp_rw [hη, lintegral_eq_sum_countable, Measure.fst_apply (measurableSet_singleton _)]
+  have : ∑' y : S, κ x (Prod.fst ⁻¹' {y}) * condKernel κ (x, y) (Prod.mk y ⁻¹' s)
+      = ∑' y : S, κ x (Prod.fst ⁻¹' {y} ∩ s) := by
     congr with y
     by_cases hy : κ x (Prod.fst ⁻¹' {y}) = 0
     · simp only [hy, zero_mul]
@@ -299,8 +299,6 @@ lemma condKernel_eq_condKernel' [TopologicalSpace U] [PolishSpace U] [BorelSpace
   have hs_eq : s = ⋃ y, (Prod.fst ⁻¹' {y} ∩ s) := by ext z; simp
   conv_lhs => rw [hs_eq]
   rw [measure_iUnion]
-  · rw [tsum_eq_sum]
-    simp
   · intro a a' haa'
     rw [Function.onFun, Set.disjoint_iff]
     intro su
