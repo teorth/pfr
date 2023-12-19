@@ -44,9 +44,13 @@ proof_wanted PFR_projection :  ∃ H : AddSubgroup G, log (Nat.card H) < 2 * (H[
 
 end F2_projection
 
+open MeasureTheory ProbabilityTheory Real
+
 /-- Let $\phi:G\to H$ be a homomorphism and $A,B\subseteq G$ be finite subsets. If $x,y\in H$ then let $A_x=A\cap \phi^{-1}(x)$ and $B_y=B\cap \phi^{-1}(y)$. There exist $x,y\in H$ such that $A_x,B_y$ are both non-empty and
 \[d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq (\mathbb{H}(\phi(U_A))+\mathbb{H}(\phi(U_B)))(d(U_A,U_B)-d(U_{A_x},U_{B_y}).\] -/
-proof_wanted single_fibres : 0 = 1
+proof_wanted single_fibres {G H Ω Ω': Type*} [AddCommGroup G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
+[AddCommGroup H] [Countable H] [MeasurableSpace H] [MeasurableSingletonClass H]
+  (φ : G →+ H) {A B: Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] [MeasurableSpace Ω] [MeasurableSpace Ω'] {μ: Measure Ω} {μ': Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {UA : Ω → G} {UB: Ω' → G} (hUA': Measurable UA) (hUB': Measurable UB) (hUA: IsUniform A UA μ) (hUB: IsUniform B UB μ') : ∃ (x y : H) (Ax By: Set G) (Ωx Ωy : Type*) (hΩx:MeasurableSpace Ωx) (hΩy:MeasurableSpace Ωy) (μx:Measure Ωx) (μy:Measure Ωy) (UAx: Ωx → G) (UBy: Ωy → G), Ax = A ∩ φ⁻¹' {x} ∧ By = B ∩ φ⁻¹' {y} ∧ Nonempty Ax ∧ Nonempty By ∧ IsProbabilityMeasure μx ∧ IsProbabilityMeasure μy ∧ Measurable UAx ∧ Measurable UBy ∧ IsUniform Ax UAx μx ∧ IsUniform By UBy μy ∧ d[ φ ∘ UA; μ # φ ∘ UB; μ' ] * log ((Nat.card A) * (Nat.card B) / ( (Nat.card Ax) * (Nat.card By)) ) ≤ (H[ φ ∘ UA; μ ] + H[ φ ∘ UB; μ' ]) * (d[ UA; μ # UB; μ' ] - d[ UAx; μx # UBy; μy ])
 
 section dim
 

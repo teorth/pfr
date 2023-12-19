@@ -147,17 +147,17 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
   rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
   rfl
 
-/-- $$ d[X ; 0] = H[X] / 2 -/
+/-- $$ d[X ; 0] = H[X] / 2 $$ -/
 lemma rdist_zero_eq_half_ent [IsFiniteMeasure μ] [IsProbabilityMeasure μ'] :
     d[X ; μ # fun _ ↦ 0 ; μ'] = H[X ; μ]/2 := by
   have aux : H[fun x => x.1 - x.2 ; Measure.prod (Measure.map X μ) (Measure.map (fun x => 0) μ')]
-            = H[X ; μ] := by 
-    have h: Measure.map (fun x => x.1 - x.2) 
+            = H[X ; μ] := by
+    have h: Measure.map (fun x => x.1 - x.2)
                         (Measure.prod (Measure.map X μ) (Measure.map (fun x => 0) μ'))
-            = Measure.map X μ := by 
+            = Measure.map X μ := by
               simp [MeasureTheory.Measure.map_const, MeasureTheory.Measure.prod_dirac]
               rw [Measure.map_map]
-              have helper : ((fun (x : G × G) => x.1 - x.2) ∘ fun x => (x, (0 : G))) = id := by 
+              have helper : ((fun (x : G × G) => x.1 - x.2) ∘ fun x => (x, (0 : G))) = id := by
                 funext; simp
               rw [helper, Measure.map_id]
               measurability
