@@ -135,10 +135,16 @@ def AEFiniteKernelSupport.mk [hS : Nonempty S] {κ : kernel T S} (hκ : AEFinite
   exact kernel.piecewise (s := {t | ∃ A : Finset S, κ t Aᶜ = 0}) (by measurability)
     κ (kernel.const _ (Measure.dirac hS.some))
 
-lemma AEFiniteKernelSupport.finiteKernelSupport_mk {κ : kernel T S}
+lemma AEFiniteKernelSupport.finiteKernelSupport_mk [hS : Nonempty S] {κ : kernel T S}
     (hκ : AEFiniteKernelSupport κ μ) :
     FiniteKernelSupport hκ.mk := by
-  sorry
+  intro t
+  classical
+  rw [AEFiniteKernelSupport.mk, piecewise_apply]
+  split_ifs with ht
+  · exact ht
+  · refine ⟨{hS.some}, ?_⟩
+    simp
 
 lemma AEFiniteKernelSupport.ae_eq_mk {κ : kernel T S} (hκ : AEFiniteKernelSupport κ μ) :
     κ =ᵐ[μ] hκ.mk := by
