@@ -1,5 +1,5 @@
-import Mathlib.Tactic.Rify
 import PFR.EntropyPFR
+import Mathlib.GroupTheory.Torsion
 
 /-!
 # Weak PFR over the integers
@@ -12,19 +12,31 @@ Here we use the entropic form of PFR to deduce a weak form of PFR over the integ
 
 -/
 
+section Torsion
+
+open Real ProbabilityTheory MeasureTheory
+
+variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonClass G]
+ {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {X : Ω → G} {Y : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'}
+[IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.  -/
-proof_wanted torsion_free_doubling : 0 = 1
+proof_wanted torsion_free_doubling (hG : AddMonoid.IsTorsionFree G) : d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X; μ # Y ; μ']
 
-/-- If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
+/-- If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and
+$\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
-proof_wanted torsion_dist_shrinking : 0 = 1
+proof_wanted torsion_dist_shrinking {H : Type*} [AddCommGroup H] [ElementaryAddCommGroup H 2]
+  [Fintype H] [MeasurableSpace H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) {μ'' : Measure G} :
+  H[φ; μ''] ≤ 10 * d[X; μ # Y ; μ']
+
+end Torsion
 
 section F2_projection
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]  [MeasurableSingletonClass G]
+variable {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G]
  {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {X : Ω → G} {Y : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
