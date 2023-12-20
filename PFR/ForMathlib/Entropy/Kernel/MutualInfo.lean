@@ -283,6 +283,11 @@ lemma finiteKernelSupport_of_reverse {κ : kernel T (S × U × V)} (hκ : Finite
     FiniteKernelSupport (reverse κ) :=
   finiteKernelSupport_of_map hκ _
 
+lemma AEFiniteKernelSupport.reverse {κ : kernel T (S × U × V)} {μ : Measure T}
+    (hκ : AEFiniteKernelSupport κ μ) :
+    AEFiniteKernelSupport (reverse κ) μ :=
+  hκ.map _
+
 @[simp]
 lemma reverse_reverse (κ : kernel α (β × γ × δ)) :
     reverse (reverse κ) = κ := by
@@ -358,7 +363,8 @@ lemma Measure.compProd_compProd'' (μ : Measure T) [IsProbabilityMeasure μ]
 lemma entropy_submodular_compProd {ξ : kernel T S} [IsMarkovKernel ξ]
     {κ : kernel (T × S) U} [IsMarkovKernel κ] {η : kernel (T × S × U) V} [IsMarkovKernel η]
     {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
-    (hκ: FiniteKernelSupport κ) (hη: FiniteKernelSupport η) (hξ: FiniteKernelSupport ξ) :
+    (hκ : AEFiniteKernelSupport κ (μ ⊗ₘ ξ))
+    (hη : AEFiniteKernelSupport η (μ ⊗ₘ (ξ ⊗ₖ κ))) (hξ : AEFiniteKernelSupport ξ μ) :
     Hk[η, μ ⊗ₘ (ξ ⊗ₖ κ)]
       ≤ Hk[snd (κ ⊗ₖ (comap η assocEquiv.symm assocEquiv.symm.measurable)), μ ⊗ₘ ξ] := by
   have h_meas := (assocEquiv : T × S × U ≃ᵐ (T × S) × U).symm.measurable
@@ -371,9 +377,10 @@ lemma entropy_submodular_compProd {ξ : kernel T S} [IsMarkovKernel ξ]
       (μ ⊗ₘ ξ)
   rw [entropy_congr this, Measure.compProd_compProd'', entropy_comap_equiv] at h
   . exact h
-  . exact finiteSupport_of_compProd hμ (finiteKernelSupport_of_compProd hξ hκ)
+  . exact finiteSupport_of_compProd hμ (hξ.compProd hκ)
   . exact finiteSupport_of_compProd hμ hξ
-  exact finiteKernelSupport_of_compProd hκ (finiteKernelSupport_of_comap hη _)
+  · refine (hκ.compProd ?_)
+    sorry -- hη.comap _
 
 lemma entropy_condKernel_compProd_triple (ξ : kernel T S) [IsMarkovKernel ξ]
     (κ : kernel (T × S) U) [IsMarkovKernel κ] (η : kernel (T × S × U) V) [IsMarkovKernel η]
@@ -385,7 +392,8 @@ lemma entropy_condKernel_compProd_triple (ξ : kernel T S) [IsMarkovKernel ξ]
 lemma entropy_compProd_triple_add_entropy_le {ξ : kernel T S} [IsMarkovKernel ξ]
     {κ : kernel (T × S) U} [IsMarkovKernel κ] {η : kernel (T × S × U) V} [IsMarkovKernel η]
     {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
-    (hκ: FiniteKernelSupport κ) (hη: FiniteKernelSupport η) (hξ: FiniteKernelSupport ξ) :
+    (hκ : AEFiniteKernelSupport κ (μ ⊗ₘ ξ))
+    (hη : AEFiniteKernelSupport η (μ ⊗ₘ (ξ ⊗ₖ κ))) (hξ : AEFiniteKernelSupport ξ μ) :
     Hk[(ξ ⊗ₖ κ) ⊗ₖ η, μ] + Hk[ξ, μ]
       ≤ Hk[ξ ⊗ₖ snd (κ ⊗ₖ comap η assocEquiv.symm assocEquiv.symm.measurable), μ]
        + Hk[ξ ⊗ₖ κ, μ] := by
@@ -401,18 +409,17 @@ lemma entropy_compProd_triple_add_entropy_le {ξ : kernel T S} [IsMarkovKernel �
         refine entropy_congr ?_
         exact (condKernel_compProd_ae_eq _ _ _).symm
     _ = Hk[ξ , μ] + Hk[condKernel (ξ ⊗ₖ snd (κ ⊗ₖ comap η assocEquiv.symm _)) , μ ⊗ₘ ξ] + Hk[ξ ⊗ₖ κ , μ] := by abel
-  . apply finiteKernelSupport_of_compProd hξ
-    apply finiteKernelSupport_of_snd
-    apply finiteKernelSupport_of_compProd hκ
-    exact finiteKernelSupport_of_comap hη _
-  apply finiteKernelSupport_of_compProd _ hη
-  exact finiteKernelSupport_of_compProd hξ hκ
-
+  . refine hξ.compProd ?_
+    refine AEFiniteKernelSupport.snd ?_
+    refine hκ.compProd ?_
+    sorry -- hη.comap _
+  · exact (hξ.compProd hκ).compProd hη
 
 /-- The submodularity inequality:
 $$ H[X,Y,Z] + H[X] \leq H[X,Z] + H[X,Y].$$ -/
 lemma entropy_triple_add_entropy_le' {κ : kernel T (S × U × V)} [IsMarkovKernel κ]
-    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ: FiniteKernelSupport κ) :
+    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
+    (hκ : AEFiniteKernelSupport κ μ) :
     Hk[κ, μ] + Hk[fst κ, μ] ≤ Hk[deleteMiddle κ, μ] + Hk[deleteRight κ, μ] := by
   set κ' := map κ assocEquiv assocEquiv.measurable with hκ'_def
   let ξ := fst (fst κ')
@@ -431,14 +438,11 @@ lemma entropy_triple_add_entropy_le' {κ : kernel T (S × U × V)} [IsMarkovKern
     simp
   have h := entropy_compProd_triple_add_entropy_le (ξ := ξ) (κ := κ'') (η := η) hμ ?_ ?_ ?_
   rotate_left
-  . apply finiteKernelSupport_of_cond
-    apply finiteKernelSupport_of_fst
-    exact finiteKernelSupport_of_map hκ _
-  . apply finiteKernelSupport_of_cond
-    exact finiteKernelSupport_of_map hκ _
-  · apply finiteKernelSupport_of_fst
-    apply finiteKernelSupport_of_fst
-    exact finiteKernelSupport_of_map hκ _
+  . exact aefiniteKernelSupport_of_cond _ (hκ.map _).fst
+  . rw [h_compProd_eq]
+    apply aefiniteKernelSupport_of_cond
+    exact hκ.map _
+  · exact (hκ.map _).fst.fst
   rw [← hξ_eq]
   have h_right : deleteRight κ = fst κ' := by
     simp only [κ', deleteRight, fst, map_map]
@@ -453,30 +457,29 @@ lemma entropy_triple_add_entropy_le' {κ : kernel T (S × U × V)} [IsMarkovKern
   . exact h
 
 lemma entropy_reverse {κ : kernel T (S × U × V)} [IsMarkovKernel κ]
-    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ: FiniteKernelSupport κ) :
+    {μ : Measure T} [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
+    (hκ : AEFiniteKernelSupport κ μ) :
     Hk[reverse κ, μ] = Hk[κ, μ] := by
   refine le_antisymm ?_ ?_
   · convert entropy_map_le (fun p ↦ (p.2.2, p.2.1, p.1)) hμ hκ
   · conv_lhs => rw [← reverse_reverse κ]
-    convert entropy_map_le (κ := reverse κ) (fun p ↦ (p.2.2, p.2.1, p.1)) hμ ?_
-    apply finiteKernelSupport_of_reverse hκ
+    convert entropy_map_le (κ := reverse κ) (fun p ↦ (p.2.2, p.2.1, p.1)) hμ hκ.reverse
 
 /-- The submodularity inequality:
 $$ H[X,Y,Z] + H[Z] \leq H[X,Z] + H[Y,Z].$$ -/
 lemma entropy_triple_add_entropy_le (κ : kernel T (S × U × V)) [IsMarkovKernel κ]
-    (μ : Measure T) [IsProbabilityMeasure μ] (hμ : FiniteSupport μ) (hκ: FiniteKernelSupport κ) :
+    (μ : Measure T) [IsProbabilityMeasure μ] (hμ : FiniteSupport μ)
+    (hκ : AEFiniteKernelSupport κ μ) :
     Hk[κ, μ] + Hk[snd (snd κ), μ] ≤ Hk[deleteMiddle κ, μ] + Hk[snd κ, μ] := by
   have h2 : fst (reverse κ) = snd (snd κ) := by
     simp only [fst, reverse, snd, map_map]
     congr
   rw [← entropy_reverse hμ hκ, ← h2]
-  refine (entropy_triple_add_entropy_le' (κ := reverse κ) (μ:= μ) hμ ?_).trans ?_
-  . exact finiteKernelSupport_of_reverse hκ
+  refine (entropy_triple_add_entropy_le' (κ := reverse κ) (μ:= μ) hμ hκ.reverse).trans ?_
   refine add_le_add ?_ ?_
   · rw [← entropy_swapRight]
     simp
   · rw [← entropy_swapRight]
     simp
-
 
 end ProbabilityTheory.kernel
