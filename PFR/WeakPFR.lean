@@ -21,14 +21,15 @@ variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonCl
 [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.  -/
-proof_wanted torsion_free_doubling (hG : AddMonoid.IsTorsionFree G) : d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X; μ # Y ; μ']
+proof_wanted torsion_free_doubling (hG : AddMonoid.IsTorsionFree G) :
+  d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X; μ # Y ; μ']
 
 /-- If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and
 $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
 proof_wanted torsion_dist_shrinking {H : Type*} [AddCommGroup H] [ElementaryAddCommGroup H 2]
-  [Fintype H] [MeasurableSpace H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) {μ'' : Measure G} :
-  H[φ; μ''] ≤ 10 * d[X; μ # Y ; μ']
+  [Fintype H] [MeasurableSpace H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
+  H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ']
 
 end Torsion
 
