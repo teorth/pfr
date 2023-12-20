@@ -380,7 +380,8 @@ lemma entropy_submodular_compProd {ξ : kernel T S} [IsMarkovKernel ξ]
   . exact finiteSupport_of_compProd hμ (hξ.compProd hκ)
   . exact finiteSupport_of_compProd hμ hξ
   · refine (hκ.compProd ?_)
-    sorry -- hη.comap _
+    convert hη.comap_equiv assocEquiv.symm
+    exact Measure.compProd_compProd'' _ _ _
 
 lemma entropy_condKernel_compProd_triple (ξ : kernel T S) [IsMarkovKernel ξ]
     (κ : kernel (T × S) U) [IsMarkovKernel κ] (η : kernel (T × S × U) V) [IsMarkovKernel η]
@@ -412,7 +413,8 @@ lemma entropy_compProd_triple_add_entropy_le {ξ : kernel T S} [IsMarkovKernel �
   . refine hξ.compProd ?_
     refine AEFiniteKernelSupport.snd ?_
     refine hκ.compProd ?_
-    sorry -- hη.comap _
+    convert hη.comap_equiv assocEquiv.symm
+    exact Measure.compProd_compProd'' _ _ _
   · exact (hξ.compProd hκ).compProd hη
 
 /-- The submodularity inequality:

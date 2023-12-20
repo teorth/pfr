@@ -197,15 +197,6 @@ lemma finiteKernelSupport_of_map {κ : kernel T S} (hκ : FiniteKernelSupport κ
   refine measure_mono_null ?_ hA
   intro s; simp; contrapose!; intro hs; use s
 
-/-- comaps preserve finite kernel support. -/
-lemma finiteKernelSupport_of_comap {κ : kernel T S}  (hκ : FiniteKernelSupport κ)
-    {f : U → T} (hf : Measurable f) :
-    FiniteKernelSupport (comap κ f hf) := by
-  intro u
-  rcases hκ (f u) with ⟨A, hA⟩
-  use A
-  rwa [kernel.comap_apply]
-
 lemma AEFiniteKernelSupport.map {κ : kernel T S} {μ : Measure T}
     (hκ : AEFiniteKernelSupport κ μ) {f : S → U} (hf : Measurable f) :
     AEFiniteKernelSupport (kernel.map κ f hf) μ := by
@@ -215,6 +206,26 @@ lemma AEFiniteKernelSupport.map {κ : kernel T S} {μ : Measure T}
   rw [kernel.map_apply' _ _ _ (by measurability)]
   refine measure_mono_null ?_ hA
   intro s; simp; contrapose!; intro hs; use s
+
+/-- comaps preserve finite kernel support. -/
+lemma finiteKernelSupport_of_comap {κ : kernel T S} (hκ : FiniteKernelSupport κ)
+    {f : U → T} (hf : Measurable f) :
+    FiniteKernelSupport (comap κ f hf) := by
+  intro u
+  rcases hκ (f u) with ⟨A, hA⟩
+  use A
+  rwa [kernel.comap_apply]
+
+lemma AEFiniteKernelSupport.comap_equiv {κ : kernel T S} {μ : Measure T}
+    (hκ : AEFiniteKernelSupport κ μ) (f : U ≃ᵐ T) :
+    AEFiniteKernelSupport (kernel.comap κ f f.measurable) (μ.comap f) := by
+  rw [← @MeasurableEquiv.map_symm]
+  rw [AEFiniteKernelSupport]
+  simp_rw [kernel.comap_apply]
+  rw [ae_map_iff f.symm.measurable.aemeasurable]
+  swap; · measurability
+  simp only [MeasurableEquiv.apply_symm_apply]
+  exact hκ
 
 /-- Projecting a kernel to first coordinate preserves finite kernel support. -/
 lemma finiteKernelSupport_of_fst {κ : kernel T (S × U)} (hκ : FiniteKernelSupport κ) :
