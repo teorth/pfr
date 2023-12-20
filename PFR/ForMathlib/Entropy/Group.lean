@@ -191,19 +191,17 @@ lemma max_entropy_sub_mutualInfo_le_entropy_div (hX : Measurable X) (hY : Measur
 lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T} [FiniteRange Z]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
     max H[X | Z ; μ] H[Y | Z ; μ] - I[X : Y | Z ; μ] ≤ H[X * Y | Z ; μ] := by
-  have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
-    isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
     condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
     condEntropy_eq_kernel_entropy (show Measurable (X * Y) from hX.mul hY) hZ]
-  rw [kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ μ).symm,
-    kernel.entropy_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ).symm,
+  rw [kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
+    kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm,
     max_comm]
   refine (kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _ ?_ ?_).trans_eq ?_
   . exact finiteSupport_of_finiteRange hZ
-  . exact kernel.finiteKernelSupport_of_condEntropy _ _ _ (hY.prod_mk hX) hZ
-  have h := condEntropyKernel_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 * x.1)
+  . exact kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
+  have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 * x.1)
   rw [kernel.entropy_congr h.symm]
   rfl
 
@@ -213,20 +211,18 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div {Z : Ω → T}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [IsProbabilityMeasure μ] [FiniteRange Z] :
     (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X / Y | Z ; μ] := by
-  have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
-    isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
     condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
     condEntropy_eq_kernel_entropy ?_ hZ]
   swap ; · exact hX.div hY
-  rw [kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ μ).symm,
-    kernel.entropy_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ).symm, max_comm]
+  rw [kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
+    kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm, max_comm]
   refine (kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _ ?_ ?_).trans_eq ?_
   . exact finiteSupport_of_finiteRange hZ
-  . exact kernel.finiteKernelSupport_of_condEntropy _ _ _ (hY.prod_mk hX) hZ
+  . exact kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
   rw [kernel.entropy_div_comm]
-  have h := condEntropyKernel_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 / x.1)
+  have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 / x.1)
   rw [kernel.entropy_congr h.symm]
   rfl
 
