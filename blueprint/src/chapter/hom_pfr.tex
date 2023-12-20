@@ -19,16 +19,16 @@ In particular, $|H| = |H_0| |H_1|$.
 \begin{theorem}[Homomorphism form of PFR]\label{hom-pfr}\lean{homomorphism_pfr}\leanok  Let $f: G \to G'$ be a function, and let $S$ denote the set
 $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
-$$ |\{ f(x) - \phi(x): x \in G \}| \leq 4 |S|^{24}.$$
+$$ |\{ f(x) - \phi(x): x \in G \}| \leq 4 |S|^{22}.$$
 \end{theorem}
 
-\begin{proof}\uses{goursat, pfr} \leanok Consider the graph $A \subset G \times G'$ defined by
+\begin{proof}\uses{goursat, pfr-improv} \leanok Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have
 $$ A+A \subset \{ (x,f(x)+s): x \in G, s \in S\}$$
-and hence $|A+A| \leq |S| |A|$.  Applying Theorem \ref{pfr}, we may find a subspace $H \subset G \times G'$ such that $|H| \leq |A|=|G|$ and $A$ is covered by at most $2|S|^{12}$ translates of $H$.  If we let $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections that $G$ is covered by at most $2|S|^{12}$ translates of $H_0$.  This implies that
-$$ 2|S|^{12} |H_0| \geq |G|;$$
+and hence $|A+A| \leq |S| |A|$.  Applying Theorem \ref{pfr-improv}, we may find a subspace $H \subset G \times G'$ such that $|H| \leq |A|=|G|$ and $A$ is covered by at most $2|S|^{11}$ translates of $H$.  If we let $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections that $G$ is covered by at most $2|S|^{11}$ translates of $H_0$.  This implies that
+$$ 2|S|^{11} |H_0| \geq |G|;$$
 since $|H_0| |H_1| \leq |H| \leq |G|$, we conclude that
-$$ |H_1| \leq 2|S|^{12}.$$
-By hypothesis, $A$ is covered by at most $2|S|^{12}$ translates of $H$, and hence by at most $4|S|^{24}$ translates of $\{ (x,\phi(x)): x \in G \}$.  As $\phi$ is a homomorphism, each such translate can be written in the form $\{ (x,\phi(x)+c): x \in G \}$ for some $c \in G'$, and the claim follows.
+$$ |H_1| \leq 2|S|^{11}.$$
+By hypothesis, $A$ is covered by at most $2|S|^{11}$ translates of $H$, and hence by at most $4|S|^{22}$ translates of $\{ (x,\phi(x)): x \in G \}$.  As $\phi$ is a homomorphism, each such translate can be written in the form $\{ (x,\phi(x)+c): x \in G \}$ for some $c \in G'$, and the claim follows.
 \end{proof}

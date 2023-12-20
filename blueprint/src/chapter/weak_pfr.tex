@@ -51,18 +51,18 @@ and $\phi(2Y)=2\phi(Y)\equiv 0$ so the left-hand side is equal to $d[\phi(X);0]=
 
 \begin{lemma}\label{app-ent-pfr}\lean{app_ent_PFR}\leanok
 Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
-\[\mathbb{H}(X)+\mathbb{H}(Y)> 48d[X;Y].\]
+\[\mathbb{H}(X)+\mathbb{H}(Y)> 44d[X;Y].\]
 There is a non-trivial subgroup $H\leq G$ such that
 \[\log \lvert H\rvert <\mathbb{H}(X)+\mathbb{H}(Y)\] and
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))< \frac{\mathbb{H}(X)+\mathbb{H}(Y)}{2}\]
 where $\psi:G\to G/H$ is the natural projection homomorphism.
 \end{lemma}
 \begin{proof}
-\uses{entropy-pfr, ruzsa-diff, dist-projection, ruzsa-nonneg}
-By Theorem \ref{entropy-pfr} there exists a subgroup $H$ such that $d[X;U_H]\leq 6d[X;Y]$ and $d[Y;U_H]\leq 6d[X;Y]$. Using Lemma \ref{dist-projection} we deduce that $\mathbb{H}(\psi(X))\leq 12 d[X;Y]$ and $\mathbb{H}(\psi(Y))\leq 12d[X;Y]$. The second claim follows adding these inequalities and using the assumption on $\mathbb{H}(X)+\mathbb{H}(Y)$.
+\uses{entropy-pfr-improv, ruzsa-diff, dist-projection, ruzsa-nonneg}
+By Theorem \ref{entropy-pfr-improv} there exists a subgroup $H$ such that $d[X;U_H]\leq \frac{11}{2} d[X;Y]$ and $d[Y;U_H]\leq \frac{11}{2} d[X;Y]$. Using Lemma \ref{dist-projection} we deduce that $\mathbb{H}(\psi(X))\leq 11 d[X;Y]$ and $\mathbb{H}(\psi(Y))\leq 11d[X;Y]$. The second claim follows adding these inequalities and using the assumption on $\mathbb{H}(X)+\mathbb{H}(Y)$.
 
 Furthermore we have by Lemma \ref{ruzsa-diff}
-\[\log \lvert H \rvert-\mathbb{H}(X)\leq 2d[X;U_H]\leq 12d[X;Y]\]
+\[\log \lvert H \rvert-\mathbb{H}(X)\leq 2d[X;U_H]\leq 11d[X;Y]\]
 and similarly for $Y$ and thus
 \[\log \lvert  H\rvert \leq \frac{\mathbb{H}(X)+\mathbb{H}(Y)}{2}+12d[X;Y]< \mathbb{H}(X)+\mathbb{H}(Y).\]
 Finally note that if $H$ were trivial then $\psi(X)=X$ and $\psi(Y)=Y$ and hence $\mathbb{H}(X)+\mathbb{H}(Y)=0$, which contradicts Lemma \ref{ruzsa-nonneg}.
@@ -73,12 +73,12 @@ Finally note that if $H$ were trivial then $\psi(X)=X$ and $\psi(Y)=Y$ and hence
 If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
-\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 48 d[\psi(X);\psi(Y)].\]
+\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 44 d[\psi(X);\psi(Y)].\]
 \end{lemma}
 \begin{proof}
 \uses{app-ent-pfr}
 Let $H\leq \mathbb{F}_2^d$ be a maximal subgroup such that
-\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))> 48d[\psi(X);\psi(Y)]\]
+\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))> 44d[\psi(X);\psi(Y)]\]
 and
 \[\log \lvert H\rvert \leq \left(2-2^{2-\lvert H\rvert}\right)(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and
@@ -100,9 +100,9 @@ Therefore (using the maximality of $H$) it must be the first condition that fail
 \end{proof}
 
 
-\begin{lemma}\label{single-fibres}\lean{single_fibres}
+\begin{lemma}\label{single-fibres}\lean{single_fibres}\leanok
 Let $\phi:G\to H$ be a homomorphism and $A,B\subseteq G$ be finite subsets. If $x,y\in H$ then let $A_x=A\cap \phi^{-1}(x)$ and $B_y=B\cap \phi^{-1}(y)$. There exist $x,y\in H$ such that $A_x,B_y$ are both non-empty and
-\[d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq (\mathbb{H}(\phi(U_A))+\mathbb{H}(\phi(U_B)))(d(U_A,U_B)-d(U_{A_x},U_{B_y}).\]
+\[d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq (\mathbb{H}(\phi(U_A))+\mathbb{H}(\phi(U_B)))(d(U_A,U_B)-d(U_{A_x},U_{B_y})).\]
 \end{lemma}
 \begin{proof}
 \uses{fibring-ident}
@@ -130,7 +130,7 @@ If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the sp
 
 \begin{theorem}\label{weak-pfr-asymm}\lean{weak_PFR_asymm}\leanok
 If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
-\[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 48d[U_A;U_B]\]
+\[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$.
 \end{theorem}
 \begin{proof}
@@ -142,28 +142,28 @@ Let $\phi:\mathbb{Z}^d\to \mathbb{F}_2^d$ be the natural mod-2 homomorphism. By 
 We now apply Lemma \ref{pfr-projection}, obtaining some subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 40d[U_A;U_B]\]
 and
-\[\mathbb{H}(\tilde{\phi}(U_A))+\mathbb{H}(\tilde{\phi}(U_B))\leq 48 d[\tilde{\phi}(U_A);\tilde{\phi}(U_B)]\]
+\[\mathbb{H}(\tilde{\phi}(U_A))+\mathbb{H}(\tilde{\phi}(U_B))\leq 44 d[\tilde{\phi}(U_A);\tilde{\phi}(U_B)]\]
 where $\tilde{\phi}:\mathbb{Z}^d\to \mathbb{F}_2^d/H$ is $\phi$ composed with the projection onto $\mathbb{F}_2^d/H$.
 
 
 By Lemma \ref{single-fibres} there exist $x,y\in \mathbb{F}_2^d/H$ such that, with $A_x=A\cap \tilde{\phi}^{-1}(x)$ and similarly for $B_y$,
-\[\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq 48(d[U_A;U_B]-d[U_{A_x};U_{B_y}]).\]
+\[\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq 44(d[U_A;U_B]-d[U_{A_x};U_{B_y}]).\]
 Suppose first that $\lvert A_x\rvert+\lvert B_y\rvert=\lvert A\rvert+\lvert B\rvert$. This means that $\tilde{\phi}(A)=\{x\}$ and $\tilde{\phi}(B)=\{y\}$, and hence both $A$ and $B$ are in cosets of $\ker \tilde{\phi}$. Since by assumption $A,B$ are not in cosets of a proper subgroup of $\mathbb{Z}^d$ this means $\ker\tilde{\phi}=\mathbb{Z}^d$, and so (examining the definition of $\tilde{\phi}$) we must have $H=\mathbb{F}_2^d$. Then our bound on $\log\lvert H\rvert$ forces $d\leq \frac{40}{\log 2}d[U_A;U_B]$ and we are done with $A'=A$ and $B'=B$.
 
 Otherwise,
 \[\lvert A_x\rvert+\lvert B_y\rvert <\lvert A\rvert+\lvert B\rvert\]
 and $\mathbb{H}(\tilde{\phi}(U_A))+\mathbb{H}(\tilde{\phi}(U_B))>0$, whence $d[\tilde{\phi}(U_A);\tilde{\phi}(U_B)]>0$. By induction we can find some $A'\subseteq A_x$ and $B'\subseteq B_y$ such that $\dim A',\dim B'\leq \frac{40}{\log 2} d[U_{A_x};U_{B_y}]\leq \frac{40}{\log 2}d[U_A;U_B]$ and
 
-\[\log \frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 48d[U_{A_x};U_{B_y}].\]
+\[\log \frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_{A_x};U_{B_y}].\]
 Adding these inequalities implies
 
-\[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 48d[U_A;U_B]\]
+\[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_A;U_B]\]
 as required.
 \end{proof}
 
 \begin{theorem}\label{weak-pfr-symm}\lean{weak_PFR_symm}\leanok
 If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
-\[\lvert A'\rvert\geq K^{-48}\lvert A\rvert\]
+\[\lvert A'\rvert\geq K^{-44}\lvert A\rvert\]
 and $\dim A'\leq 60\log K$.
 \end{theorem}
 \begin{proof}
@@ -172,7 +172,7 @@ Immediate from Theorem \ref{weak-pfr-asymm} and rearranging.
 \end{proof}
 
 \begin{theorem}\label{weak-pfr-int}\lean{weak_PFR_int}\leanok
-Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-48}\lvert A\rvert$ and $\dim A' \leq 60\log K$.
+Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-44}\lvert A\rvert$ and $\dim A' \leq 60\log K$.
 \end{theorem}
 \begin{proof}
 \uses{weak-pfr-symm,dimension-def}
