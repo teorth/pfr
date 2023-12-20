@@ -1,5 +1,6 @@
 import PFR.ApproxHomPFR
 import PFR.ImprovedPFR
+import PFR.WeakPFR
 
 section PFR
 
@@ -23,20 +24,29 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
     ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   convert PFR_conjecture_improv h₀A hA
+  norm_cast
+
+#print axioms PFR_conjecture_improv
 
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
-    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^24 ∧ ∀ x, f x - φ x ∈ T := by
+    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^22 ∧ ∀ x, f x - φ x ∈ T := by
   convert homomorphism_pfr f S hS
   norm_cast
 
 -- Todo: replace the constants C₁, C₂, C₃, C₄ below with actual values
 
 /-- The approximate homomorphism version of PFR -/
-example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (4 * C₁^25 * C₃^24 * K^(50 * C₄ + 48 * C₂)) := by
+example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (4 * C₁^21 * C₃^20 * K^(46 * C₄ + 44 * C₂)) := by
   convert approx_hom_pfr f K hK hf
 
+open Classical TensorProduct Real
 
+/-- The dimension of a subset A of a Z-module G is the rank of the set {(1,a): a in A}. -/
+example {G : Type*} [AddCommGroup G] [Module ℤ G] (A : Set G) : dimension A = Set.finrank ℝ ((fun (n : G) => (1 : ℝ) ⊗ₜ n) '' A : Set (ℝ ⊗[ℤ] G)) := by rfl
+
+/-- Weak PFR over the integers -/
+example (A : Set G) [Finite A]  [Nonempty A] (K : ℝ) (hK: 0 < K) (hA: Nat.card (A+A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-44 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ 60 * log K := weak_PFR_int hK hA
 
 end PFR
 
@@ -100,10 +110,12 @@ variable (X : Ω → S) (hX : Measurable X) (Y : Ω → T) (hY : Measurable Y) (
 example :
     H[X] =
       -∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
-  rw [entropy_eq_sum hX ℙ, ← Finset.sum_neg_distrib]
-  congr with x
-  unfold Real.negMulLog
-  ring
+  rw [entropy_eq_sum hX ℙ, ← Finset.sum_neg_distrib, tsum_eq_sum]
+  . congr with x
+    unfold Real.negMulLog
+    ring
+  intro x hx
+  simp at hx
 
 /-- $\langle X,Y \rangle$ is the random variable formed by pairing $X$ and $Y$. -/
 

@@ -1,5 +1,5 @@
 import Mathlib.Data.Set.Card
-import PFR.Main
+import PFR.ImprovedPFR
 import PFR.ForMathlib.Graph
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.SetTheory.Cardinal.Finite
@@ -7,12 +7,12 @@ import PFR.Mathlib.SetTheory.Cardinal.Finite
 /-!
 # The homomorphism form of PFR
 
-Here we apply PFR to show that approximate homomorphisms f from a 2-group to a 2-group are close to actual homomorphisms.  Here, approximate is in the sense that f(x+y)-f(x)-f(y) takes few values.
+Here we apply (improved) PFR to show that approximate homomorphisms f from a 2-group to a 2-group are close to actual homomorphisms.  Here, approximate is in the sense that f(x+y)-f(x)-f(y) takes few values.
 
 ## Main results
 
 * `goursat`: A convenient description of the subspaces of $G \times G'$ when $G, G'$ are elementary abelian 2-groups.
-* `homomorphism_pfr` : If $f: G → G'$ is a map between finite abelian elementary 2-groups such that $f(x+y)-f(x)-f(y)$ takes at most $K$ values, then there is a homomorphism $\phi: G \to G'$ such hat $f(x)-\phi(x)$ takes at most $4K^{24}$ values.
+* `homomorphism_pfr` : If $f: G → G'$ is a map between finite abelian elementary 2-groups such that $f(x+y)-f(x)-f(y)$ takes at most $K$ values, then there is a homomorphism $\phi: G \to G'$ such hat $f(x)-\phi(x)$ takes at most $4K^{22}$ values.
 -/
 
 open Pointwise
@@ -58,7 +58,7 @@ $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
 $$ |\{ f(x) - \phi(x)\}| \leq 4 |S|^{24}.$$ -/
 theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) - (f x) - (f y) ∈ S):
-  ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S:ℝ)^(24:ℝ) ∧ ∀ x : G, (f x) - (φ x) ∈ T := by
+  ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S:ℝ)^(22:ℝ) ∧ ∀ x : G, (f x) - (φ x) ∈ T := by
   classical
   let A := graph f
 
@@ -85,7 +85,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
 
   have hA_nonempty : A.Nonempty := by use (0, f 0) ; exact ⟨0, rfl⟩
 
-  obtain ⟨H, c, hcS, hHA, hAcH⟩ := PFR_conjecture hA_nonempty hA_le
+  obtain ⟨H, c, hcS, hHA, hAcH⟩ := PFR_conjecture_improv hA_nonempty hA_le
   obtain ⟨H₀, H₁, φ, hH₀₁, hH_card⟩ := goursat H
 
   let c' := (Prod.fst) '' c
@@ -106,23 +106,23 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
 
   have hc'_card_real : Nat.card c' ≤ (Nat.card c:ℝ) := by norm_cast
 
-  have hG_card_le : Nat.card G ≤ 2*(Nat.card S:ℝ)^(12:ℝ) * Nat.card H₀
+  have hG_card_le : Nat.card G ≤ 2*(Nat.card S:ℝ)^(11:ℝ) * Nat.card H₀
   · apply_fun Nat.card at hG_cover
     rw [Nat.card_coe_set_eq, Set.ncard_univ] at hG_cover
     rw [hG_cover]
     calc
       (Nat.card (c'+ (H₀:Set G)):ℝ) ≤ Nat.card c' * Nat.card H₀ := mod_cast card_add_le
-      _ ≤  2*(Nat.card S:ℝ)^(12:ℝ) * Nat.card H₀ := by
+      _ ≤  2*(Nat.card S:ℝ)^(11:ℝ) * Nat.card H₀ := by
         gcongr
         exact hc'_card_real.trans hcS.le
 
-  have : Nat.card H₁ ≤ 2*(Nat.card S : ℝ)^(12:ℝ)
+  have : Nat.card H₁ ≤ 2*(Nat.card S : ℝ)^(11:ℝ)
   · calc
       (Nat.card H₁:ℝ) = (Nat.card H:ℝ) / Nat.card H₀ := by field_simp [hH_card, mul_comm]
       _ ≤ (Nat.card G : ℝ) / Nat.card H₀ := by
         gcongr
         rwa [← card_graph f]
-      _ ≤ 2*(Nat.card S : ℝ)^(12:ℝ) := by
+      _ ≤ 2*(Nat.card S : ℝ)^(11:ℝ) := by
         rw [div_le_iff]
         apply hG_card_le
         simp [Nat.pos_iff_ne_zero]
@@ -156,7 +156,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
         norm_cast
         apply card_add_le.trans
         rw [Set.card_singleton_prod] ; rfl
-      _ ≤ (2 * Nat.card S ^ (12:ℝ)) * (2 * Nat.card S ^ (12:ℝ)) := by gcongr
+      _ ≤ (2 * Nat.card S ^ (11:ℝ)) * (2 * Nat.card S ^ (11:ℝ)) := by gcongr
       _ ≤ _ := by
         ring_nf
         rw [sq, ← Real.rpow_add]

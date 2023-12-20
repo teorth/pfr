@@ -41,9 +41,8 @@ If $\pi:G\to H$ is a homomorphism of additive groups and $X,Y$ are $G$-valued ra
 \end{corollary}
 
 \begin{proof}
-\uses{fibring-ident, ruzsa-nonneg, independent-exist, ruz-copy, conditional-mutual-nonneg}
-By Lemma \ref{independent-exist}, Lemma \ref{ruz-copy} we may assume $X,Y$ to be independent.
-By Proposition \ref{fibring-ident} and Lemma \ref{conditional-mutual-nonneg} we have
+\uses{fibring-ident, ruzsa-nonneg}\leanok
+By Proposition \ref{fibring-ident} and the nonnegativity of conditional Ruzsa distance (from Lemma \ref{ruzsa-nonneg}) we have
 \[d[X;Y]\geq d[\pi(X);\pi(Y)]+d[X\mid \pi(X);Y\mid \pi(Y)].\]
 The inequality follows from $d[X\mid \pi(X);Y\mid \pi(Y)]\geq 0$ (Lemma \ref{ruzsa-nonneg}).
 \end{proof}
