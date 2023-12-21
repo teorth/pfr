@@ -356,7 +356,7 @@ lemma condEntropy_eq_zero
 /-- Conditional entropy of a random variable is equal to the entropy of its conditional kernel. -/
 lemma condEntropy_eq_kernel_entropy
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ] [FiniteRange Y] :
-    H[X | Y ; μ] = Hk[condEntropyKernel X Y μ, μ.map Y] := by
+    H[X | Y ; μ] = Hk[condDistrib X Y μ, μ.map Y] := by
   rw [condEntropy_def, kernel.entropy]
   apply integral_congr_finiteSupport (finiteSupport_of_finiteRange hY)
   intro t ht
@@ -365,7 +365,7 @@ lemma condEntropy_eq_kernel_entropy
   simp only [entropy_def]
   congr
   ext S hS
-  rw [condEntropyKernel_apply' hX hY _ _ ht hS, Measure.map_apply hX hS,
+  rw [condDistrib_apply' hX hY _ _ ht hS, Measure.map_apply hX hS,
       cond_apply _ (hY (measurableSet_singleton _))]
 
 /-- The law of $(X, Z)$ is the image of the law of $(Z, X)$.-/
@@ -382,14 +382,12 @@ lemma map_prod_comap_swap (hX : Measurable X) (hZ : Measurable Z) (μ : Measure 
 lemma condEntropy_two_eq_kernel_entropy (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange Y] [FiniteRange Z] :
     H[X | ⟨Y, Z⟩ ; μ] =
-      Hk[kernel.condKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ),
-        Measure.map Z μ ⊗ₘ kernel.fst (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ)] := by
-  have := isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
-  have := isMarkovKernel_condEntropyKernel hY hZ μ
-  rw [Measure.compProd_congr (condEntropyKernel_fst_ae_eq hY hX hZ μ),
-      map_compProd_condEntropyKernel hY hZ,
-      kernel.entropy_congr (condKernel_condEntropyKernel_ae_eq hY hX hZ μ),
-      ← kernel.entropy_congr (swap_condEntropyKernel_ae_eq hY hX hZ μ)]
+      Hk[kernel.condKernel (condDistrib (fun a ↦ (Y a, X a)) Z μ),
+        Measure.map Z μ ⊗ₘ kernel.fst (condDistrib (fun a ↦ (Y a, X a)) Z μ)] := by
+  rw [Measure.compProd_congr (condDistrib_fst_ae_eq hY hX hZ μ),
+      map_compProd_condDistrib hY hZ,
+      kernel.entropy_congr (condKernel_condDistrib_ae_eq hY hX hZ μ),
+      ← kernel.entropy_congr (swap_condDistrib_ae_eq hY hX hZ μ)]
   have : μ.map (fun ω ↦ (Z ω, Y ω)) = (μ.map (fun ω ↦ (Y ω, Z ω))).comap Prod.swap := by
     rw [map_prod_comap_swap hY hZ]
   rw [this, condEntropy_eq_kernel_entropy hX (hY.prod_mk hZ), kernel.entropy_comap_swap]
@@ -514,8 +512,8 @@ lemma chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X
   have : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX.aemeasurable
   have : IsProbabilityMeasure (μ.map (⟨X, Y⟩)) :=
     isProbabilityMeasure_map (hX.prod_mk hY).aemeasurable
-  rw [entropy_eq_kernel_entropy, kernel.chain_rule,
-    ← kernel.map_const _ (hX.prod_mk hY), kernel.fst_map_prod _ hX hY, kernel.map_const _ hX,
+  rw [entropy_eq_kernel_entropy, kernel.chain_rule]
+  simp_rw [← kernel.map_const _ (hX.prod_mk hY), kernel.fst_map_prod _ hX hY, kernel.map_const _ hX,
     kernel.map_const _ (hX.prod_mk hY)]
   . congr 1
     · rw [kernel.entropy, integral_dirac]
@@ -525,16 +523,15 @@ lemma chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X
         ext s _
         rw [Measure.dirac_unit_compProd_const, Measure.map_map measurable_prod_mk_left hX]
         congr
-      rw [this, kernel.entropy_congr (condEntropyKernel_const_unit hX hY μ)]
+      rw [this, kernel.entropy_congr (condDistrib_const_unit hX hY μ)]
       have : μ.map (fun ω ↦ ((), X ω)) = (μ.map X).map (Prod.mk ()) := by
         ext s _
         rw [Measure.map_map measurable_prod_mk_left hX]
         rfl
       rw [this, kernel.entropy_prodMkLeft_unit _ (finiteSupport_of_finiteRange hX)]
   . exact finiteSupport_of_dirac ()
-  exact kernel.finiteKernelSupport_of_const ( finiteSupport_of_finiteRange (by measurability))
-
-
+  apply kernel.FiniteKernelSupport.aefiniteKernelSupport
+  exact kernel.finiteKernelSupport_of_const (finiteSupport_of_finiteRange (by measurability))
 
 /-- Another form of the chain rule : $H[X, Y] = H[Y] + H[X|Y]$. -/
 lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
@@ -583,14 +580,13 @@ lemma cond_chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange Z]:
     H[⟨X, Y⟩ | Z ; μ] = H[X | Z ; μ] + H[Y | ⟨X, Z⟩ ; μ] := by
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
-  have := isMarkovKernel_condEntropyKernel (hX.prod_mk hY) hZ μ
   rw [condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ, kernel.chain_rule (finiteSupport_of_finiteRange hZ)]
   . congr 1
     . rw [condEntropy_eq_kernel_entropy hX hZ]
       refine kernel.entropy_congr ?_
-      exact condEntropyKernel_fst_ae_eq hX hY hZ μ
+      exact condDistrib_fst_ae_eq hX hY hZ μ
     · rw [condEntropy_two_eq_kernel_entropy hY hX hZ]
-  exact kernel.finiteKernelSupport_of_condEntropy _ _ μ (by measurability) (by measurability)
+  exact kernel.aefiniteKernelSupport_condDistrib _ _ μ (by measurability) (by measurability)
 
 /-- $$ H[X, Y | Z] = H[Y | Z] + H[X|Y, Z].$$ -/
 lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
@@ -771,28 +767,28 @@ notation3:max "I[" X " : " Y "|" Z "]" => condMutualInfo X Y Z volume
 lemma condMutualInfo_eq_kernel_mutualInfo
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange Z] :
-    I[X : Y | Z ; μ] = Ik[condEntropyKernel (⟨X, Y⟩) Z μ, μ.map Z] := by
+    I[X : Y | Z ; μ] = Ik[condDistrib (⟨X, Y⟩) Z μ, μ.map Z] := by
   rcases finiteSupport_of_finiteRange (μ:= μ) hZ with ⟨A, hA⟩
   simp_rw [condMutualInfo_def, entropy_def, kernel.mutualInfo, kernel.entropy,
     integral_eq_sum' _ hA, smul_eq_mul, mul_sub, mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib]
   congr with x
-  · have h := condEntropyKernel_fst_ae_eq hX hY hZ μ
+  · have h := condDistrib_fst_ae_eq hX hY hZ μ
     rw [Filter.EventuallyEq, ae_iff_of_countable] at h
     specialize h x
     by_cases hx : (μ.map Z) {x} = 0
     · simp [hx]
-    rw [h hx, condEntropyKernel_apply hX hZ]
+    rw [h hx, condDistrib_apply hX hZ]
     rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
-  · have h := condEntropyKernel_snd_ae_eq hX hY hZ μ
+  · have h := condDistrib_snd_ae_eq hX hY hZ μ
     rw [Filter.EventuallyEq, ae_iff_of_countable] at h
     specialize h x
     by_cases hx : (μ.map Z) {x} = 0
     · simp [hx]
-    rw [h hx, condEntropyKernel_apply hY hZ]
+    rw [h hx, condDistrib_apply hY hZ]
     rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
   · by_cases hx : (μ.map Z) {x} = 0
     · simp [hx]
-    rw [condEntropyKernel_apply (hX.prod_mk hY) hZ]
+    rw [condDistrib_apply (hX.prod_mk hY) hZ]
     rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
 
 lemma condMutualInfo_eq_integral_mutualInfo :
@@ -837,8 +833,8 @@ lemma condMutualInfo_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange Z] :
     I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by
   rw [condMutualInfo_eq_kernel_mutualInfo hX hY hZ, kernel.mutualInfo,
-    kernel.entropy_congr (condEntropyKernel_fst_ae_eq hX hY hZ _),
-    kernel.entropy_congr (condEntropyKernel_snd_ae_eq hX hY hZ _),
+    kernel.entropy_congr (condDistrib_fst_ae_eq hX hY hZ _),
+    kernel.entropy_congr (condDistrib_snd_ae_eq hX hY hZ _),
     condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hZ,
     condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ]
 
@@ -852,7 +848,7 @@ lemma condMutualInfo_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
 /-- If $f(Z, X)$ is injective for each fixed $Z$, then $I[f(Z, X) : Y| Z] = I[X : Y| Z]$.-/
 lemma condMutualInfo_of_inj_map [IsProbabilityMeasure μ]
   (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-  {V : Type*} [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V]
+  {V : Type*} [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V] [Countable V]
   (f : U → S → V) (hf : ∀ t, Function.Injective (f t)) [FiniteRange Z] :
     I[fun ω ↦ f (Z ω) (X ω) : Y | Z ; μ] =
     I[X : Y | Z ; μ] := by
@@ -899,14 +895,12 @@ lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) [IsProbabil
 lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
     H[X | ⟨Y, Z⟩ ; μ] ≤ H[X | Z ; μ] := by
   rw [condEntropy_eq_kernel_entropy hX hZ, condEntropy_two_eq_kernel_entropy hX hY hZ]
-  have : IsMarkovKernel (condEntropyKernel (fun a ↦ (Y a, X a)) Z μ) :=
-    isMarkovKernel_condEntropyKernel (hY.prod_mk hX) hZ μ
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   refine (kernel.entropy_condKernel_le_entropy_snd ?_ ?_).trans_eq ?_
   . exact finiteSupport_of_finiteRange hZ
-  . apply kernel.finiteKernelSupport_of_condEntropy
+  . apply kernel.aefiniteKernelSupport_condDistrib
     all_goals measurability
-  exact kernel.entropy_congr (condEntropyKernel_snd_ae_eq hY hX hZ _)
+  exact kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ _)
 
 /-- The submodularity inequality:
 $$ H[X, Y, Z] + H[Z] \leq H[X, Z] + H[Y, Z].$$ -/

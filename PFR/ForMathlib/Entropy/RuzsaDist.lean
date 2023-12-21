@@ -296,8 +296,9 @@ variable [MeasurableSingletonClass S] [MeasurableSingletonClass T]
 /-- The conditional Ruzsa distance `d[X|Z ; Y|W]`. -/
 noncomputable
 def condRuzsaDist (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
-    (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ :=
-  dk[condEntropyKernel X Z μ ; μ.map Z # condEntropyKernel Y W μ' ; μ'.map W]
+    (μ : Measure Ω := by volume_tac) [IsFiniteMeasure μ]
+    (μ' : Measure Ω' := by volume_tac) [IsFiniteMeasure μ'] : ℝ :=
+  dk[condDistrib X Z μ ; μ.map Z # condDistrib Y W μ' ; μ'.map W]
 
 @[inherit_doc condRuzsaDist]
 notation3:max "d[" X " | " Z " ; " μ " # " Y " | " W " ; " μ'"]" => condRuzsaDist X Z Y W μ μ'
@@ -306,17 +307,15 @@ notation3:max "d[" X " | " Z " ; " μ " # " Y " | " W " ; " μ'"]" => condRuzsaD
 notation3:max "d[" X " | " Z " # " Y " | " W "]" => condRuzsaDist X Z Y W volume volume
 
 lemma condRuzsaDist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
-    (μ : Measure Ω) (μ' : Measure Ω') :
+    (μ : Measure Ω) [IsFiniteMeasure μ] (μ' : Measure Ω') [IsFiniteMeasure μ'] :
     d[X | Z ; μ # Y | W ; μ']
-      = dk[condEntropyKernel X Z μ ; μ.map Z # condEntropyKernel Y W μ' ; μ'.map W] := rfl
+      = dk[condDistrib X Z μ ; μ.map Z # condDistrib Y W μ' ; μ'.map W] := rfl
 
 /-- $$ d[X|Z; Y|W] = d[Y|W; X|Z]$$-/
 lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [FiniteRange Z]  [FiniteRange W]:
     d[X | Z ; μ # Y | W ; μ'] = d[Y | W ; μ' # X | Z ; μ] := by
-  have := isMarkovKernel_condEntropyKernel hX hZ μ
-  have := isMarkovKernel_condEntropyKernel hY hW μ'
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (μ'.map W) := isProbabilityMeasure_map hW.aemeasurable
   rw [condRuzsaDist_def, condRuzsaDist_def, kernel.rdist_symm]
@@ -324,12 +323,14 @@ lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' 
   exact finiteSupport_of_finiteRange hW
 
 @[simp] lemma condRuszaDist_zero_right (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
-    (μ : Measure Ω) : d[X | Z ; μ # Y | W ; 0] = 0 := by
+    (μ : Measure Ω) [IsFiniteMeasure μ] :
+    d[X | Z ; μ # Y | W ; 0] = 0 := by
   simp only [condRuzsaDist, aemeasurable_zero_measure, not_true_eq_false, Measure.map_zero,
     kernel.rdist_zero_right]
 
 @[simp] lemma condRuszaDist_zero_left (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
-    (μ' : Measure Ω') : d[X | Z ; 0 # Y | W ; μ'] = 0 := by
+    (μ' : Measure Ω') [IsFiniteMeasure μ'] :
+    d[X | Z ; 0 # Y | W ; μ'] = 0 := by
   simp [condRuzsaDist]
 
 lemma condRuzsaDist_nonneg (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) 
@@ -373,7 +374,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
     simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
   congr 1
   rw [rdist_eq_rdistm]
-  rw [condEntropyKernel_apply hX hZ _ _ hz, condEntropyKernel_apply hY hW _ _ hw]
+  rw [condDistrib_apply hX hZ _ _ hz, condDistrib_apply hY hW _ _ hw]
 
 /-- Explicit formula for conditional Ruzsa distance $d[X|Z; Y|W]$ in a fintype. -/
 lemma condRuzsaDist_eq_sum' {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
@@ -399,13 +400,13 @@ lemma condRuzsaDist_eq_sum' {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : �
     simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
   congr 1
   rw [rdist_eq_rdistm]
-  rw [condEntropyKernel_apply hX hZ _ _ hz, condEntropyKernel_apply hY hW _ _ hw]
+  rw [condDistrib_apply hX hZ _ _ hz, condDistrib_apply hY hW _ _ hw]
 
 /-- The conditional Ruzsa distance `d[X ; Y|W]`. -/
 noncomputable
 def condRuzsaDist' (X : Ω → G) (Y : Ω' → G) (W : Ω' → T)
-    (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ :=
-  dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W]
+    (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) [IsFiniteMeasure μ'] : ℝ :=
+  dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condDistrib Y W μ' ; μ'.map W]
 
 @[inherit_doc condRuzsaDist']
 notation3:max "d[" X " ; " μ " # " Y " | " W " ; " μ' "]" => condRuzsaDist' X Y W μ μ'
@@ -413,9 +414,10 @@ notation3:max "d[" X " ; " μ " # " Y " | " W " ; " μ' "]" => condRuzsaDist' X 
 notation3:max "d[" X " # " Y " | " W "]" => condRuzsaDist' X Y W volume volume
 
 /-- Conditional Ruzsa distance equals Ruzsa distance of associated kernels. -/
-lemma condRuzsaDist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) (μ' : Measure Ω') :
+lemma condRuzsaDist'_def (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) (μ' : Measure Ω')
+    [IsFiniteMeasure μ'] :
     d[X ; μ # Y | W ; μ'] =
-      dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condEntropyKernel Y W μ' ; μ'.map W] :=
+      dk[kernel.const Unit (μ.map X) ; Measure.dirac () # condDistrib Y W μ' ; μ'.map W] :=
   rfl
 
 @[simp] lemma condRuzsaDist'_zero_right (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) :
@@ -446,7 +448,7 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     refine Or.inr ?_
     simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
   congr 1
-  rw [rdist_eq_rdistm, condEntropyKernel_apply hY hW _ _ hw]
+  rw [rdist_eq_rdistm, condDistrib_apply hY hW _ _ hw]
   congr
 
 /-- Alternate formula for conditional Ruzsa distance $d[X ; Y|W]$ when T is a Fintype. -/
@@ -535,26 +537,21 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
   rw [Measure.map_apply hW (MeasurableSet.singleton _)]
 
 /-- Conditioning by a constant does not affect Ruzsa distance. -/
-lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) {W : Ω' → T} (hW : Measurable W) (c : S)
+lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) {W : Ω' → T}
+    (hW : Measurable W) (c : S)
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [FiniteRange W] :
     d[X|(fun _ ↦ c) ; μ # Y | W ; μ'] = d[X ; μ # Y | W ; μ'] := by
-  have hcX : Measurable (fun ω => (c, X ω)) := by simp [measurable_prod, hX]
-  have hc : MeasurableSet (Prod.fst ⁻¹' {c} : Set (S × G)) := measurable_fst (by simp)
   rw [condRuzsaDist_def, condRuzsaDist'_def, Measure.map_const,measure_univ,one_smul, kernel.rdist,
     kernel.rdist, integral_prod, integral_dirac, integral_prod,integral_dirac]
   dsimp; congr; ext x; congr
-  rw [condEntropyKernel, kernel.comap_apply, kernel.condKernel_apply_of_ne_zero _ _ _]
-  ext s hs
-  rw [Measure.map_apply measurable_snd hs, kernel.const_apply, cond_apply _ hc,
-    Measure.map_apply hcX hc, Measure.map_apply hcX (hc.inter (measurable_snd hs)),
-    Set.preimage_preimage, Set.preimage_inter, Set.preimage_preimage, Set.preimage_preimage,
-    Set.preimage_const_of_mem (by rfl), measure_univ, inv_one, one_mul, Set.univ_inter,
-    Measure.map_apply hX hs]
-  rw [kernel.const_apply,Measure.map_apply hcX hc,Set.preimage_preimage]
-  all_goals simp
-  all_goals {
-    exact integrable_of_finiteSupport (finiteSupport_of_prod (finiteSupport_of_dirac _) (finiteSupport_of_finiteRange ‹_›))
-  }
+  rw [condDistrib_apply hX measurable_const]
+  · simp
+  · simp
+  · exact integrable_of_finiteSupport
+      (finiteSupport_of_prod (finiteSupport_of_dirac _) (finiteSupport_of_finiteRange ‹_›))
+  · exact integrable_of_finiteSupport
+      (finiteSupport_of_prod (finiteSupport_of_dirac _) (finiteSupport_of_finiteRange ‹_›))
+
 
 /-- If $(X,Z)$ and $(Y,W)$ are independent, then
 $$ d[X | Z ; Y | W] = H[X'- Y'|Z', W'] - H[X'|Z']/2 - H[Y'|W']/2$$
@@ -565,8 +562,6 @@ lemma condRuzsaDist_of_indep
     (μ : Measure Ω) [IsProbabilityMeasure μ]
     (h : IndepFun (⟨X, Z⟩) (⟨Y, W⟩) μ) [FiniteRange Z] [FiniteRange W] :
     d[X | Z ; μ # Y | W ; μ] = H[X - Y | ⟨Z, W⟩ ; μ] - H[X | Z ; μ]/2 - H[Y | W ; μ]/2 := by
-  have : IsMarkovKernel (condEntropyKernel X Z μ) := isMarkovKernel_condEntropyKernel hX hZ μ
-  have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
   rw [condRuzsaDist_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy _ (hZ.prod_mk hW),
@@ -580,16 +575,16 @@ lemma condRuzsaDist_of_indep
     (indepFun_iff_map_prod_eq_prod_map_map hZ.aemeasurable hW.aemeasurable).mp hZW
   rw [← hZW_map]
   refine kernel.entropy_congr ?_
-  have : kernel.map (condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2) measurable_sub
-      =ᵐ[μ.map (⟨Z, W⟩)] condEntropyKernel (X - Y) (⟨Z, W⟩) μ :=
-    (condEntropyKernel_comp (hX.prod_mk hY) (hZ.prod_mk hW) _ _).symm
+  have : kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2) measurable_sub
+      =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
+    (condDistrib_comp (hX.prod_mk hY) (hZ.prod_mk hW) _ _).symm
   refine (this.symm.trans ?_).symm
-  suffices kernel.prodMkRight (condEntropyKernel X Z μ) T
-        ×ₖ kernel.prodMkLeft S (condEntropyKernel Y W μ)
-      =ᵐ[μ.map (⟨Z, W⟩)] condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ by
+  suffices kernel.prodMkRight (condDistrib X Z μ) T
+        ×ₖ kernel.prodMkLeft S (condDistrib Y W μ)
+      =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ by
     filter_upwards [this] with x hx
     rw [kernel.map_apply, kernel.map_apply, hx]
-  . exact (condEntropyKernel_eq_prod_of_indepFun hX hZ hY hW μ h).symm
+  . exact (condDistrib_eq_prod_of_indepFun hX hZ hY hW μ h).symm
   all_goals exact finiteSupport_of_finiteRange ‹_›
 
 /-- Formula for conditional Ruzsa distance for independent sets of variables. -/
@@ -598,7 +593,6 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     (μ : Measure Ω) [IsProbabilityMeasure μ]
     (h : IndepFun X (⟨Y, W⟩) μ) [FiniteRange W] :
     d[X ; μ # Y | W ; μ] = H[X - Y | W ; μ] - H[X ; μ]/2 - H[Y | W ; μ]/2 := by
-  have : IsMarkovKernel (condEntropyKernel Y W μ) := isMarkovKernel_condEntropyKernel hY hW μ
   have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
   rw [condRuzsaDist'_def, kernel.rdist_eq', condEntropy_eq_kernel_entropy _ hW,
     condEntropy_eq_kernel_entropy hY hW, entropy_eq_kernel_entropy]
@@ -608,7 +602,7 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
   . exact finiteSupport_of_finiteRange ‹_›
   congr 2
   let Z : Ω → Unit := fun _ ↦ ()
-  rw [← condEntropyKernel_unit_right hX μ]
+  rw [← condDistrib_unit_right hX μ]
   have h' : IndepFun (⟨X,Z⟩) (⟨Y, W⟩) μ := by
     rw [indepFun_iff_measure_inter_preimage_eq_mul]
     intro s t hs ht
@@ -616,30 +610,30 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     rw [this]
     rw [indepFun_iff_measure_inter_preimage_eq_mul] at h
     exact h _ _ (measurable_prod_mk_right hs) ht
-  have h_indep := condEntropyKernel_eq_prod_of_indepFun hX measurable_const hY hW _ h'
+  have h_indep := condDistrib_eq_prod_of_indepFun hX measurable_const hY hW _ h'
   have h_meas_eq : μ.map (⟨Z, W⟩) = (Measure.dirac ()).prod (μ.map W) := by
     ext s hs
     rw [Measure.map_apply (measurable_const.prod_mk hW) hs, Measure.prod_apply hs, lintegral_dirac,
       Measure.map_apply hW (measurable_prod_mk_left hs)]
     congr
   rw [← h_meas_eq]
-  have : kernel.map (kernel.prodMkRight (condEntropyKernel X Z μ) T
-        ×ₖ kernel.prodMkLeft Unit (condEntropyKernel Y W μ)) (fun x ↦ x.1 - x.2) measurable_sub
-      =ᵐ[μ.map (⟨Z, W⟩)] kernel.map (condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ)
+  have : kernel.map (kernel.prodMkRight (condDistrib X Z μ) T
+        ×ₖ kernel.prodMkLeft Unit (condDistrib Y W μ)) (fun x ↦ x.1 - x.2) measurable_sub
+      =ᵐ[μ.map (⟨Z, W⟩)] kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ)
         (fun x ↦ x.1 - x.2) measurable_sub := by
     filter_upwards [h_indep] with y hy
     conv_rhs => rw [kernel.map_apply, hy]
   rw [kernel.entropy_congr this]
-  have : kernel.map (condEntropyKernel (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2) measurable_sub
-      =ᵐ[μ.map (⟨Z, W⟩)] condEntropyKernel (X - Y) (⟨Z, W⟩) μ :=
-    (condEntropyKernel_comp (hX.prod_mk hY) (measurable_const.prod_mk hW) _ _).symm
+  have : kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2) measurable_sub
+      =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
+    (condDistrib_comp (hX.prod_mk hY) (measurable_const.prod_mk hW) _ _).symm
   rw [kernel.entropy_congr this]
   have h_meas : μ.map (⟨Z, W⟩) = (μ.map W).map (Prod.mk ()) := by
     ext s hs
     rw [Measure.map_apply measurable_prod_mk_left hs, h_meas_eq, Measure.prod_apply hs,
       lintegral_dirac]
-  have h_ker : condEntropyKernel (X - Y) (⟨Z, W⟩) μ
-      =ᵐ[μ.map (⟨Z, W⟩)] kernel.prodMkLeft Unit (condEntropyKernel (X - Y) W μ) := by
+  have h_ker : condDistrib (X - Y) (⟨Z, W⟩) μ
+      =ᵐ[μ.map (⟨Z, W⟩)] kernel.prodMkLeft Unit (condDistrib (X - Y) W μ) := by
     rw [Filter.EventuallyEq, ae_iff_of_countable]
     intro x hx
     rw [Measure.map_apply (measurable_const.prod_mk hW) (measurableSet_singleton _)] at hx
@@ -648,8 +642,8 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
       conv_lhs => rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod]
       ext1 y
       simp
-    rw [kernel.prodMkLeft_apply, condEntropyKernel_apply' _ (measurable_const.prod_mk hW) _ _ hx hs,
-      condEntropyKernel_apply' _ hW _ _ _ hs]
+    rw [kernel.prodMkLeft_apply, condDistrib_apply' _ (measurable_const.prod_mk hW) _ _ hx hs,
+      condDistrib_apply' _ hW _ _ _ hs]
     rotate_left
     · exact hX.sub hY
     · convert hx
@@ -710,7 +704,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
       rwa [Measure.map_apply hZ (measurableSet_singleton _),
         Measure.map_apply hZ' (measurableSet_singleton _)] at this
     ext s hs
-    rw [condEntropyKernel_apply' hX hZ _ _ hz hs, condEntropyKernel_apply' hX' hZ' _ _ _ hs]
+    rw [condDistrib_apply' hX hZ _ _ hz hs, condDistrib_apply' hX' hZ' _ _ _ hs]
     swap; · rwa [hZZ'x] at hz
     congr
     have : μ.map (⟨X, Z⟩) (s ×ˢ {x.1}) = μ''.map (⟨X', Z'⟩) (s ×ˢ {x.1}) := by rw [h1.map_eq]
@@ -723,7 +717,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
       rwa [Measure.map_apply hW (measurableSet_singleton _),
         Measure.map_apply hW' (measurableSet_singleton _)] at this
     ext s hs
-    rw [condEntropyKernel_apply' hY hW _ _ hw hs, condEntropyKernel_apply' hY' hW' _ _ _ hs]
+    rw [condDistrib_apply' hY hW _ _ hw hs, condDistrib_apply' hY' hW' _ _ _ hs]
     swap; · rwa [hWW'x] at hw
     congr
     have : μ'.map (⟨Y, W⟩) (s ×ˢ {x.2}) = μ'''.map (⟨Y', W'⟩) (s ×ˢ {x.2}) := by rw [h2.map_eq]
@@ -774,7 +768,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
       rwa [Measure.map_apply hW (measurableSet_singleton _),
         Measure.map_apply hW' (measurableSet_singleton _)] at this
     ext s hs
-    rw [condEntropyKernel_apply' hY hW _ _ hw hs, condEntropyKernel_apply' hY' hW' _ _ _ hs]
+    rw [condDistrib_apply' hY hW _ _ hw hs, condDistrib_apply' hY' hW' _ _ _ hs]
     swap; · rwa [hWW'x] at hw
     congr
     have : μ'.map (⟨Y, W⟩) (s ×ˢ {x.2}) = μ'''.map (⟨Y', W'⟩) (s ×ˢ {x.2}) := by rw [h2.map_eq]
