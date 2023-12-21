@@ -194,7 +194,7 @@ open BigOperators
 bound $d[X'_1|Z;X'_2|W]$ by
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
-lemma condRuzsaDistance_ge_of_min
+lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
     [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
     (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂)

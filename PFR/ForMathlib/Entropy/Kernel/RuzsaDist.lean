@@ -129,7 +129,8 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
       rw [this, ← map_map, ← kernel.fst, fst_prod]
     rw [this] at h
     refine (h ?_).trans_eq ?_
-    . apply kernel.finiteKernelSupport_of_map
+    . apply FiniteKernelSupport.aefiniteKernelSupport
+      apply kernel.finiteKernelSupport_of_map
       exact kernel.finiteKernelSupport_of_prod hκ hη
     congr 2
     have : (fun x : (G × G) × G ↦ (x.1.2, x.1.1 - x.1.2))
@@ -144,6 +145,7 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
             = (fun p ↦ (p.1, p.1 - p.2)) ∘ (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2)) := by ext1; simp
           rw [this, ← map_map]
           apply entropy_map_le _ hμ _
+          apply FiniteKernelSupport.aefiniteKernelSupport
           apply kernel.finiteKernelSupport_of_map hκη
     _ ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_countable _), μ]
         + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_countable _), μ] := by
@@ -155,16 +157,18 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
                 (measurable_of_countable _)) hμ ?_
             rwa [mutualInfo, fst_map_prod _ (measurable_of_countable _) (measurable_of_countable _),
               snd_map_prod _ (measurable_of_countable _) (measurable_of_countable _)] at h'
+            apply FiniteKernelSupport.aefiniteKernelSupport
             apply kernel.finiteKernelSupport_of_map hκη
           linarith
   have h3 : Hk[map κ (fun p : G × G ↦ (p.2, p.1 - p.2)) (measurable_of_countable _), μ]
       ≤ Hk[κ, μ] := by
-    exact entropy_map_le _ hμ hκ
+    exact entropy_map_le _ hμ (hκ.aefiniteKernelSupport _)
   have h4 : Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2)))
       (measurable_of_countable _), μ] = Hk[κ ×ₖ η, μ] := by
     refine entropy_of_map_eq_of_map
       (fun p : G × G × G ↦ ((p.2.2 + p.2.1, p.2.1), -p.1 + p.2.2 + p.2.1))
-      (fun p : (G × G) × G ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2))) ?_ ?_ hμ ?_ hκη
+      (fun p : (G × G) × G ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2))) ?_ ?_ hμ ?_
+        (hκη.aefiniteKernelSupport _)
     · rw [map_map]
       suffices ((fun p : G × G × G ↦ ((p.2.2 + p.2.1, p.2.1), -p.1 + p.2.2 + p.2.1))
           ∘ fun p ↦ (p.1.1 - p.2, p.1.2, p.1.1 - p.1.2)) = id by
@@ -172,8 +176,10 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
       ext1 p
       simp
     · rfl
+    apply FiniteKernelSupport.aefiniteKernelSupport
     apply kernel.finiteKernelSupport_of_map hκη
-  have h5 : Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by rw [entropy_prod hμ hκ hη]
+  have h5 : Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by
+    rw [entropy_prod hμ (hκ.aefiniteKernelSupport _) (hη.aefiniteKernelSupport _)]
   rw [h4, h5] at h1
   calc Hk[map κ (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
     ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_countable _), μ]
@@ -289,12 +295,8 @@ lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
         measurable_sub, (μ.prod μ'').prod μ']
       = Hk[map (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) measurable_sub,
         μ.prod μ''] := by
-          rw [map_prodMkRight, entropy_prodMkRight' _ hμ' _]
-          . exact finiteSupport_of_prod hμ hμ''
-          apply kernel.finiteKernelSupport_of_map
-          apply kernel.finiteKernelSupport_of_prod
-          . exact kernel.finiteKernelSupport_of_prodMkRight hκ
-          exact kernel.finiteKernelSupport_of_prodMkLeft hξ
+    rw [map_prodMkRight, entropy_prodMkRight' _ hμ']
+    exact finiteSupport_of_prod hμ hμ''
   have h2 :
       Hk[map (fst (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T') ×ₖ prodMkLeft (T × T'') η)
           (fun p ↦ p.1 - p.2) measurable_sub, (μ.prod μ'').prod μ']
