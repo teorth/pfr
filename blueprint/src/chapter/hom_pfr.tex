@@ -19,16 +19,30 @@ In particular, $|H| = |H_0| |H_1|$.
 \begin{theorem}[Homomorphism form of PFR]\label{hom-pfr}\lean{homomorphism_pfr}\leanok  Let $f: G \to G'$ be a function, and let $S$ denote the set
 $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
-$$ |\{ f(x) - \phi(x): x \in G \}| \leq 4 |S|^{22}.$$
+$$ |\{ f(x) - \phi(x): x \in G \}| \leq |S|^{12}.$$
 \end{theorem}
 
-\begin{proof}\uses{goursat, pfr-improv} \leanok Consider the graph $A \subset G \times G'$ defined by
+\begin{proof}\uses{goursat, PFR_conjecture_improv_aux} \leanok
+Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have
 $$ A+A \subset \{ (x,f(x)+s): x \in G, s \in S\}$$
-and hence $|A+A| \leq |S| |A|$.  Applying Theorem \ref{pfr-improv}, we may find a subspace $H \subset G \times G'$ such that $|H| \leq |A|=|G|$ and $A$ is covered by at most $2|S|^{11}$ translates of $H$.  If we let $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections that $G$ is covered by at most $2|S|^{11}$ translates of $H_0$.  This implies that
-$$ 2|S|^{11} |H_0| \geq |G|;$$
-since $|H_0| |H_1| \leq |H| \leq |G|$, we conclude that
-$$ |H_1| \leq 2|S|^{11}.$$
-By hypothesis, $A$ is covered by at most $2|S|^{11}$ translates of $H$, and hence by at most $4|S|^{22}$ translates of $\{ (x,\phi(x)): x \in G \}$.  As $\phi$ is a homomorphism, each such translate can be written in the form $\{ (x,\phi(x)+c): x \in G \}$ for some $c \in G'$, and the claim follows.
+and hence $|A+A| \leq |S| |A|$.  Applying Lemma \ref{pfr_aux-improv}, we may
+find a subspace $H \subset G \times G'$ such that $|H|/ |A| \in [K^{-10},
+K^{10}]$ and $A$ is covered by $c + H$ with $|c| \le |S|^6|A|^{1/2} /
+|H|^{1/2}$. If we let $H_0, H_1$ be as in Lemma \ref{goursat}, this implies
+on taking projections that $G$ is covered by at most $|c|$ translates of
+$H_0$. This implies that
+$$ |c| |H_0| \geq |G|;$$
+since $|H_0| |H_1| = |H|$, we conclude that
+$$ |H_1| \leq |c| |H|/|G| = |c| |H|/|A|.$$
+By hypothesis, $A$ is covered by at most $|c|$ translates of $H$, and hence
+by at most $|c| |H_1|$ translates of $\{ (x,\phi(x)): x \in G \}$. As $\phi$
+is a homomorphism, each such translate can be written in the form $\{
+(x,\phi(x)+d): x \in G \}$ for some $d \in G'$. Since
+$$
+|c| |H_1| \le |c|^2 \frac{|H|}{|A|} \le \left(|S|^6 \frac{|A|^{1/2}}{|H|^{1/2}}\right)^2 \frac{|H|}{|A|}
+= |S|^{12},
+$$
+the result follows.
 \end{proof}
