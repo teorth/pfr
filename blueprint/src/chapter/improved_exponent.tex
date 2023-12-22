@@ -210,15 +210,15 @@ From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau
 \end{proof}
 
 One can then replace Lemma~\ref{pfr_aux} with
-\begin{lemma}\label{pfr_aux-improv}
-\lean{PFR_conjecture_improv_aux}\leanok If $A \subset {\bf F}_2^n$ is non-empty and
+\begin{lemma}\label{pfr_aux-improv} \lean{PFR_conjecture_improv_aux}\leanok
+If $A \subset {\bf F}_2^n$ is non-empty and
 $|A+A| \leq K|A|$, then $A$ can be covered by at most $K^6 |A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of ${\bf F}_2^n$ with
 $$
   |H|/|A| \in [K^{-10}, K^{10}].
 $$
 \end{lemma}
 
-\begin{proof}\uses{entropy-pfr-improv, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}\leanok
+\begin{proof} \uses{entropy-pfr-improv, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}\leanok
 By repeating the proof of Lemma~\ref{pfr_aux} and using Theorem \ref{entropy-pfr-improv} one can obtain the claim with $13/2$
 replaced with $6$ and $11$ replaced by $10$.
 \end{proof}
@@ -229,7 +229,7 @@ This implies the following improved version of Theorem~\ref{pfr}:
   If $A \subset {\bf F}_2^n$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $2K^{11}$ translates of a subspace $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$.
 \end{theorem}
 
-\begin{proof}\uses{PFR_conjecture_improv_aux}\leanok
+\begin{proof}\uses{pfr_aux-improv}\leanok
 By repeating the proof of Theorem \ref{pfr} and using Lemma \ref{pfr_aux-improv} one can obtain the claim with $11$ replaced by $10$.
 \end{proof}
 
