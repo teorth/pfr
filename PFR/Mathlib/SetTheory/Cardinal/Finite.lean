@@ -50,4 +50,9 @@ lemma card_prod_singleton (A : Set α) (b : β) :
     Nat.card (A ×ˢ {b}) = Nat.card A := by
   rw [Set.prod_singleton, Nat.card_image_of_injective (Prod.mk.inj_right b)]
 
+lemma Nonempty.card_pos {s : Set α} [Finite s] (hs : s.Nonempty) :
+    0 < Nat.card s := by
+  have : Nonempty s := nonempty_coe_sort.mpr hs
+  exact Nat.card_pos
+
 end Set
