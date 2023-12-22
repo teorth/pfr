@@ -311,7 +311,8 @@ lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
         μ'.prod μ''] := by
     rw [snd_prodMkRight, snd_prod]
     exact rdist_triangle_aux2 _ _ _ _ _ hμ hμ' hμ''
-  have h4 : Hk[prodMkLeft (T × T'') η, (μ.prod μ'').prod μ'] = Hk[η, μ'] := entropy_prodMkLeft hμ' (finiteSupport_of_prod hμ hμ'') hη
+  have h4 : Hk[prodMkLeft (T × T'') η, (μ.prod μ'').prod μ'] = Hk[η, μ'] :=
+    entropy_prodMkLeft hμ' (finiteSupport_of_prod hμ hμ'')
   rw [h1, h2, h3, h4] at h
   calc Hk[map (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) _ , μ.prod μ'']
       - Hk[κ , μ] / 2 - Hk[ξ , μ''] / 2
