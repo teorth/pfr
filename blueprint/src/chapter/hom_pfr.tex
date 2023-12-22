@@ -22,7 +22,8 @@ Then there exists a homomorphism $\phi: G \to G'$ such that
 $$ |\{ f(x) - \phi(x): x \in G \}| \leq |S|^{12}.$$
 \end{theorem}
 
-\begin{proof}\uses{goursat, pfr-improv} \leanok Consider the graph $A \subset G \times G'$ defined by
+\begin{proof}\uses{goursat, PFR_conjecture_improv_aux} \leanok
+Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have
 $$ A+A \subset \{ (x,f(x)+s): x \in G, s \in S\}$$
