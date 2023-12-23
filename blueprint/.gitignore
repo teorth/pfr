@@ -2,6 +2,7 @@
 *.paux
 *.aux
 *.log
+*.synctex
 print
 web
 __pycache__

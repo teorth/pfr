@@ -1,10 +1,9 @@
+import Mathlib.Combinatorics.Additive.RuzsaCovering
+import Mathlib.Data.Finset.Pointwise
 import Mathlib.Data.Real.Basic
 import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
 import PFR.EntropyPFR
-import PFR.Mathlib.Data.Finset.Pointwise
-import PFR.Mathlib.Combinatorics.Additive.RuzsaCovering
-import PFR.Mathlib.Data.Set.Pointwise.Basic
 import PFR.Tactic.RPowSimp
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
@@ -135,7 +134,7 @@ theorem rdist_le_of_isUniform_of_card_add_le (h₀A : A.Nonempty) (hA : Nat.card
       simp
       exact Set.add_mem_add h1 h2
     have J : log (Nat.card (A + A)) ≤ log K + log (Nat.card A) := by
-      apply (log_le_log' AA_pos hA).trans (le_of_eq _)
+      apply (log_le_log AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
     have : H[U + U'] = H[U - U'] := by congr; simp
     rw [UU'_indep.rdist_eq hU hU', IsUniform.entropy_eq' Uunif hU, IsUniform.entropy_eq' U'unif hU', ← this]
@@ -289,8 +288,8 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
   -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
   · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card (H' : Set G) ≤ Nat.card A
           ∧ Nat.card A < 2 * Nat.card (H' : Set G) ∧ H' ≤ H := by
-      have A_pos' : 0 < Nat.card A := by exact_mod_cast A_pos
-      exact ElementaryAddCommGroup.exists_subgroup_subset_card_le H h.le A_pos'.ne'
+      have A_pos' : 0 < Nat.card A := mod_cast A_pos
+      exact ElementaryAddCommGroup.exists_subgroup_subset_card_le Nat.prime_two H h.le A_pos'.ne'
     have : (Nat.card A / 2 : ℝ) < Nat.card (H' : Set G) := by
       rw [div_lt_iff zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
@@ -337,8 +336,8 @@ theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2
   have A_rg : A ⊆ range ι := by simpa using AddSubgroup.subset_closure
   have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
   have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
-    rwa [cardA', preimage_add_preimage ι_inj A_rg A_rg,
-         Nat.card_preimage_of_injective ι_inj (add_subset_range A_rg A_rg)]
+    rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
+         Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
   rcases PFR_conjecture (h₀A.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
   refine ⟨AddSubgroup.map ι H', ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
   · rwa [Nat.card_image_of_injective ι_inj]

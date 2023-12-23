@@ -1,6 +1,6 @@
 import Mathlib.Data.Finsupp.Fintype
 import Mathlib.LinearAlgebra.Basis.VectorSpace
-import PFR.Mathlib.GroupTheory.Sylow
+import Mathlib.GroupTheory.Sylow
 
 /-!
 # Finite field vector spaces
@@ -110,8 +110,8 @@ instance [AddCommGroup G] [Module (ZMod 2) G] : ElementaryAddCommGroup G 2 := of
 
 /-- In an elementary abelian $p$-group, every finite subgroup $H$ contains a further subgroup of
 cardinality between $k$ and $pk$, if $k \leq |H|$.-/
-lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ}
-    [AddCommGroup G] [h : ElementaryAddCommGroup G p] [Fact p.Prime]
+lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ} (hp : p.Prime)
+    [AddCommGroup G] [h : ElementaryAddCommGroup G p]
     {k : ℕ} (H : AddSubgroup G) (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
     ∃ (H' : AddSubgroup G), Nat.card H' ≤ k ∧ k < p * Nat.card H' ∧ H' ≤ H := by
   let Gm := Multiplicative G
@@ -123,7 +123,7 @@ lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ}
       have : Multiplicative.toAdd gm ≠ 0 := hg
       simpa [h.orderOf_of_ne this] using addOrderOf_nsmul_eq_zero (Multiplicative.toAdd gm)
   let Hm : Subgroup Gm := AddSubgroup.toSubgroup H
-  rcases Sylow.exists_subgroup_subset_card_le hm Hm hk h'k with ⟨H'm, H'mk, kH'm, H'mHm⟩
+  obtain ⟨H'm, H'mHm, H'mk, kH'm⟩ := Sylow.exists_subgroup_le_card_le (H := Hm) hp hm hk h'k
   exact ⟨AddSubgroup.toSubgroup.symm H'm, H'mk, kH'm, H'mHm⟩
 
 variable [AddCommGroup G] [elem : ElementaryAddCommGroup G 2]
