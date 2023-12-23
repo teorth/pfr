@@ -277,7 +277,7 @@ lemma rdist_triangle {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
   suffices : d[X' ; μA # Z' ; μA] ≤ d[X' ; μA # Y' ; μA] + d[Y' ; μA # Z' ; μA]
   { rwa [HX.rdist_eq HY, HY.rdist_eq HZ, HX.rdist_eq HZ] at this }
   have IndepLem : IndepFun (⟨X', Z'⟩) Y' μA
-  · exact iIndepFun.indepFun_prod hInd (fun i => by fin_cases i ; all_goals { simpa }) 0 2 1
+  · exact iIndepFun.indepFun_prod_mk hInd (fun i => by fin_cases i ; all_goals { simpa }) 0 2 1
       (by norm_cast) (by norm_cast)
   calc d[X' ; μA # Z' ; μA] = H[X' - Z'; μA] - (H[X'; μA] / 2 + H[Z'; μA] / 2) := by
         rw [ProbabilityTheory.IndepFun.rdist_eq
@@ -312,9 +312,9 @@ lemma condRuzsaDist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' �
       = dk[condDistrib X Z μ ; μ.map Z # condDistrib Y W μ' ; μ'.map W] := rfl
 
 /-- $$ d[X|Z; Y|W] = d[Y|W; X|Z]$$-/
-lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T}
-    (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [FiniteRange Z]  [FiniteRange W]:
+lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' → T} (hZ : Measurable Z)
+    (hW : Measurable W) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [FiniteRange Z]
+    [FiniteRange W] :
     d[X | Z ; μ # Y | W ; μ'] = d[Y | W ; μ' # X | Z ; μ] := by
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (μ'.map W) := isProbabilityMeasure_map hW.aemeasurable
@@ -333,8 +333,8 @@ lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' 
     d[X | Z ; 0 # Y | W ; μ'] = 0 := by
   simp [condRuzsaDist]
 
-lemma condRuzsaDist_nonneg (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T) 
-  [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] : 
+lemma condRuzsaDist_nonneg (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
+  [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
   0 ≤ d[X | Z ; μ # Y | W ; μ'] := by sorry
 
 /-- Ruzsa distance of random variables equals Ruzsa distance of the kernels. -/
@@ -958,7 +958,7 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
         convert h.indepFun (show 0 ≠ 1 by decide)
       _ = H[⟨⟨X, Y⟩, Z⟩ ; μ] := by
         rw [IndepFun.entropy_pair_eq_add (hX.prod_mk hY) hZ]
-        exact h.indepFun_prod this 0 1 2 (by decide) (by decide)
+        exact h.indepFun_prod_mk this 0 1 2 (by decide) (by decide)
       _ = H[⟨X, ⟨Z , X + (Y + Z)⟩⟩ ; μ] := by
         apply entropy_of_comp_eq_of_comp μ (by measurability) (by measurability)
           (fun ((x, y), z) ↦ (x, z, x + y + z)) (fun (a, b, c) ↦ ((a, c - a - b), b))
@@ -967,11 +967,11 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
   . symm
     refine (entropy_add_right hX (by measurability) _).trans $
       IndepFun.entropy_pair_eq_add hX (by measurability) ?_
-    exact h.add_right this 0 1 2 (by decide) (by decide)
+    exact h.indepFun_add_right this 0 1 2 (by decide) (by decide)
   · rw [eq_comm, ←add_assoc]
     refine (entropy_add_right' hZ (by measurability) _).trans $
       IndepFun.entropy_pair_eq_add hZ (by measurability) ?_
-    exact h.add_right this 2 0 1 (by decide) (by decide)
+    exact h.indepFun_add_right this 2 0 1 (by decide) (by decide)
 
 /-- A version of the **Kaimanovich-Vershik inequality** with some variables negated. -/
 lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
@@ -1193,7 +1193,7 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
   have hYZ' : IndepFun Y' Z' μ'' := hi.indepFun (show (1 : Fin 3) ≠ 2 by decide)
   have hXYZ' : IndepFun X' (Y' + Z') μ'' := by
     symm
-    exact hi.add hm 1 2 0 (by decide) (by decide)
+    exact hi.indepFun_add_left hm 1 2 0 (by decide) (by decide)
   rw [← h2X'.rdist_eq h2Y', ← h2X'.rdist_eq h2, ← h2Y'.rdist_eq h2Z',
     ← h2.entropy_eq, ← h2Y'.entropy_eq, ← h2Z'.entropy_eq]
   rw [hXY'.rdist_eq hX' hY', hYZ'.rdist_eq hY' hZ', hXYZ'.rdist_eq hX' (hY'.add hZ')]
@@ -1263,7 +1263,7 @@ lemma condRuzsaDist_diff_ofsum_le [IsProbabilityMeasure μ] [IsProbabilityMeasur
     d[X ; μ # Y + Z | Y + Z + Z'; μ'] - d[X ; μ # Y; μ'] ≤
     (H[Y + Z + Z'; μ'] + H[Y + Z; μ'] - H[Y ; μ'] - H[Z' ; μ'])/2 := by
   have hadd : IndepFun (Y + Z) Z' μ' :=
-    (h.add (Fin.cases hY <| Fin.cases hZ <| Fin.cases hZ' Fin.rec0) 0 1 2
+    (h.indepFun_add_left (Fin.cases hY <| Fin.cases hZ <| Fin.cases hZ' Fin.rec0) 0 1 2
       (show 0 ≠ 2 by decide) (show 1 ≠ 2 by decide))
   have h1 := condRuzsaDist_diff_le'' μ hX (show Measurable (Y + Z) by measurability) hZ' hadd
   have h2 := condRuzsaDist_diff_le μ hX hY hZ (h.indepFun (show 0 ≠ 1 by decide))

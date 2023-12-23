@@ -113,12 +113,57 @@ open Real MeasureTheory ProbabilityTheory Pointwise
 /-- If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
-proof_wanted weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {UA : Ω → G} {UB : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hUA: IsUniform A UA μ) (hUB: IsUniform B UB μ'): ∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ Nonempty A' ∧ Nonempty B' ∧ log (((Nat.card A) * (Nat.card B)) / ((Nat.card A') * (Nat.card B'))) ≤ 44 * d[UA; μ # UB; μ'] ∧ max (dimension A') (dimension B') ≤ (40 / log 2) * d[UA; μ # UB; μ']
+lemma weak_PFR_asymm {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {UA : Ω → G} {UB : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hUA: IsUniform A UA μ) (hUB: IsUniform B UB μ'): ∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ Nonempty A' ∧ Nonempty B' ∧ log (((Nat.card A) * (Nat.card B)) / ((Nat.card A') * (Nat.card B'))) ≤ 44 * d[UA; μ # UB; μ'] ∧ max (dimension A') (dimension B') ≤ (40 / log 2) * d[UA; μ # UB; μ'] := by
+  sorry
 
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
 \[\lvert A'\rvert\geq K^{-44}\lvert A\rvert\]
 and $\dim A'\leq 60\log K$. -/
-proof_wanted weak_PFR (A : Set G) [Finite A]  [Nonempty A] {Ω : Type*} [MeasurableSpace Ω] {UA : Ω → G} {μ: Measure Ω} [IsProbabilityMeasure μ] (hUA: IsUniform A UA μ) (K : ℝ) (hK: 0 < K) (hdist: d[UA; μ # UA ; μ] ≤ log K): ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-44 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ 60 * log K
+lemma weak_PFR {A : Set G} [Finite A]  [Nonempty A] {Ω : Type*} [MeasurableSpace Ω] {UA : Ω → G} {μ: Measure Ω} [IsProbabilityMeasure μ] (hUA: IsUniform A UA μ) {K : ℝ} (hK: 0 < K) (hdist: d[UA; μ # UA ; μ] ≤ log K): ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
+  rcases weak_PFR_asymm hUA hUA with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
+
+  have : ∃ B : Set G, B ⊆ A ∧ (Nat.card B) ≥ (Nat.card A') ∧ (Nat.card B) ≥ (Nat.card A'') ∧ (dimension B) ≤
+max (dimension A') (dimension A'') := by
+    by_cases lt_or_ge (Nat.card A') (Nat.card A'') with h | h
+    . use A''
+      exact ⟨hA'', by linarith, by linarith, le_max_right _ _⟩
+    use A'
+    exact ⟨hA', by linarith, by linarith, le_max_left _ _⟩
+
+  rcases this with ⟨B, hB, hBcard, hBdim⟩
+  use B
+  convert ⟨hB, ?_, ?_⟩
+  . have := calc 2 * log ((Nat.card A) / (Nat.card B)) * (Nat.card B')
+      _ = log ( ((Nat.card A) * (Nat.card A)) / ((Nat.card B) * (Nat.card B)) ) := by
+        rw [<-log_pow]
+        congr
+        field_simp
+        ring
+      _ ≤ log ( ((Nat.card A) * (Nat.card A)) / ((Nat.card A') * (Nat.card A'')) ) := by
+        apply log_le_log (by positivity)
+        sorry
+      _ ≤ 44 * d[UA; μ # UA; μ'] := hcard
+      _ ≤ 44 * log K := mul_le_mul_of_nonneg_left hdist (by linarith)
+      _ = 2 * (22 * log K) := by ring
+      _ = 2 * log (K^22) := by rw [log_pow]
+    rw [mul_le_mul_left (by norm_num)] at this
+    sorry
+  calc dimension B
+    _ ≤ max (dimension A') (dimension A'') := hBdim
+    _ ≤ (40 / log 2) * d[UA; μ # UA ; μ] := hdim
+    _ ≤ (40 / log 2) * log K = mul_le_mul_of_nonneg_left (by positivity) hdist
+  rw [log_le_log _ (by positivity)] at this
+  . sorry
+  sorry
 
 /-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-44}\lvert A\rvert$ and $\dim A' \leq 60\log K$.-/
-theorem weak_PFR_int {A : Set G} [Finite A]  [Nonempty A] {K : ℝ} (hK: 0 < K) (hA: Nat.card (A+A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-44 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ 60 * log K := sorry
+theorem weak_PFR_int {A : Set G} [Finite A]  [Nonempty A] {K : ℝ} (hK: 0 < K) (hA: Nat.card (A+A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
+  have hnonempty : Set.Nonempty A := Set.nonempty_coe_sort.mp (by infer_instance)
+  set Af := A.toFinite.toFinset
+  have : Af.Nonempty := by simp [hnonempty]
+  rcases exists_isUniform Af this with ⟨Ω, mΩ, UA, μ, hμ, hmes, hunif, hrange⟩
+  have hUA : IsUniform A UA μ := by
+    convert hunif
+    sorry
+  apply weak_PFR hUA hK _
+  exact rdist_le_of_isUniform_of_card_add_le hnonempty hA hUA hmes

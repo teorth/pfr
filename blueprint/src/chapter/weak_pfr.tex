@@ -163,8 +163,8 @@ as required.
 
 \begin{theorem}\label{weak-pfr-symm}\lean{weak_PFR_symm}\leanok
 If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
-\[\lvert A'\rvert\geq K^{-44}\lvert A\rvert\]
-and $\dim A'\leq 60\log K$.
+\[\lvert A'\rvert\geq K^{-22}\lvert A\rvert\]
+and $\dim A'\leq \frac{40}{\log 2} \log K$.
 \end{theorem}
 \begin{proof}
 \uses{weak-pfr-asymm,dimension-def}
@@ -172,7 +172,7 @@ Immediate from Theorem \ref{weak-pfr-asymm} and rearranging.
 \end{proof}
 
 \begin{theorem}\label{weak-pfr-int}\lean{weak_PFR_int}\leanok
-Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-44}\lvert A\rvert$ and $\dim A' \leq 60\log K$.
+Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-22}\lvert A\rvert$ and $\dim A' \leq \frac{40}{\log 2}\log K$.
 \end{theorem}
 \begin{proof}
 \uses{weak-pfr-symm,dimension-def}

@@ -96,8 +96,9 @@ lemma second_estimate : I₂ ≤ 2 * p.η * k + (2 * p.η * (2 * p.η * k - I₁
   have hY_indep : iIndepFun (fun _ => hG) Y := by exact h_indep.reindex_four_badc
   have h := sum_of_rdist_eq_char_2 Y hY_indep hY
   rw [show Y 0 = X₂ by rfl, show Y 1 = X₁ by rfl, show Y 2 = X₂' by rfl, show Y 3 = X₁' by rfl] at h
-  rw [← h₂.rdist_eq h₁, rdist_symm, rdist_symm (X:= X₂ + X₂'),
-    condRuzsaDist_symm (Z := X₂ + X₂') (W := X₁ + X₁') hX₂ (hX₂.add hX₂') hX₁ (hX₁.add hX₁'),← two_mul] at h
+  rw [← h₂.rdist_eq h₁, rdist_symm, rdist_symm (X := X₂ + X₂'),
+    condRuzsaDist_symm (Z := X₂ + X₂') (W := X₁ + X₁') (hX₂.add hX₂') (hX₁.add hX₁'),
+    ← two_mul] at h
   replace h : 2 * k = d[X₁ + X₁' # X₂ + X₂'] + d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂'] + I[X₁ + X₂ : X₁ + X₁'|X₁ + X₂ + X₁' + X₂'] := by
     convert h using 3 <;> abel
   have h' := condRuzsaDistance_ge_of_min p h_min hX₁ hX₂ (X₁ + X₁') (X₂ + X₂') (hX₁.add hX₁') (hX₂.add hX₂')

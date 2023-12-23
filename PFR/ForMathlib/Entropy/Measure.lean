@@ -476,7 +476,7 @@ lemma measureEntropy_prod {μ : Measure S} {ν : Measure T} (hμ: FiniteSupport 
     simp [hA]
   rw [measureEntropy_of_isProbabilityMeasure_finite' hC, h1, h2, ← Finset.sum_add_distrib]
   congr with ⟨s, t⟩
-  simp_rw [← Set.singleton_prod_singleton, measureReal_prod_prod, negMulLog_mul']
+  simp_rw [← Set.singleton_prod_singleton, measureReal_prod_prod, negMulLog_mul]
   ring
 
 end measureEntropy

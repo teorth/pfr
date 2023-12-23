@@ -1,7 +1,6 @@
 import Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Data.Fin.Basic
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
 import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.Independence.Basic

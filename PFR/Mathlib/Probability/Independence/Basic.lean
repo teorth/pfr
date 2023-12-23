@@ -22,39 +22,12 @@ variable {Ω ι β γ : Type*} {κ : ι → Type*}
 section IndepFun
 variable {β β' γ γ' : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → β'}
 
-@[to_additive]
-lemma iIndepFun.mul_left [IsProbabilityMeasure μ] {ι : Type*} {β : Type*} {m : MeasurableSpace β}
-    [Mul β] [MeasurableMul₂ β] {f : ι → Ω → β} (hf_Indep : iIndepFun (fun _ => m) f μ)
-    (hf_meas : ∀ i, Measurable (f i)) (i j k : ι) (hik : i ≠ k) (hjk : j ≠ k) :
-    IndepFun (f i * f j) (f k) μ :=
-  kernel.iIndepFun.mul_left hf_Indep hf_meas i j k hik hjk
-
-@[to_additive]
-lemma iIndepFun.mul_right [IsProbabilityMeasure μ] {ι : Type*} {β : Type*} {m : MeasurableSpace β}
-    [Mul β] [MeasurableMul₂ β] {f : ι → Ω → β} (hf_Indep : iIndepFun (fun _ => m) f μ)
-    (hf_meas : ∀ i, Measurable (f i)) (i j k : ι) (hij : i ≠ j) (hik : i ≠ k) :
-    IndepFun (f i) (f j * f k) μ :=
-  kernel.iIndepFun.mul_right hf_Indep hf_meas i j k hij hik
-
 section iIndepFun
 
 variable {Ω ι ι' : Type*} [MeasurableSpace Ω] {α β : ι → Type*}
   [n : ∀ i, MeasurableSpace (α i)]
   [m : ∀ i, MeasurableSpace (β i)] {f : ∀ i, Ω → α i}
   {μ : Measure Ω}
-
-@[nontriviality]
-lemma iIndepFun.of_subsingleton [IsProbabilityMeasure μ] [Subsingleton ι] : iIndepFun n f μ := by
-  simp [iIndepFun_iff]
-  intro s f' hf'
-  rcases Finset.eq_empty_or_nonempty s with rfl|hs
-  · simp
-  · rcases hs with ⟨x, hx⟩
-    have : s = {x} := by ext y; simp [Subsingleton.elim y x, hx]
-    simp [this]
-
-lemma iIndepFun.isProbabilityMeasure (h : iIndepFun n f μ) : IsProbabilityMeasure μ :=
-  ⟨by simpa using h.meas_biInter (S := ∅) (s := fun _ ↦ univ)⟩
 
 lemma iIndepFun.reindex_of_injective (h : iIndepFun n f μ) (g : ι' → ι) (hg : Injective g) :
     iIndepFun (n ∘' g) (f ∘' g) μ := by
@@ -118,13 +91,6 @@ lemma iIndepFun.indepFun_prod_prod (h_indep: iIndepFun n f μ) (hf : ∀ i, Meas
     ⟨v ⟨i, mem_insert_self _ _⟩, v ⟨j, mem_insert_of_mem $ mem_singleton_self _⟩⟩
   have hg (i j : ι) : Measurable (g i j) := by measurability
   exact h.comp (hg i j) (hg k l)
-
-@[to_additive]
-lemma iIndepFun.indepFun_mul_mul {β : Type*} {m : MeasurableSpace β} {f : ι → Ω → β} [Mul β]
-    [hβ : MeasurableMul₂ β] (h_indep: iIndepFun (fun _ => m) f μ) (hf: ∀ i, Measurable (f i))
-    (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
-    IndepFun (f i * f j) (f k * f l) μ :=
-  (h_indep.indepFun_prod_prod hf i j k l hik hil hjk hjl).comp hβ.measurable_mul hβ.measurable_mul
 
 end iIndepFun
 
