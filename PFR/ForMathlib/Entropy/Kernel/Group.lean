@@ -44,23 +44,23 @@ lemma entropy_div_comm (κ : kernel T (G × G)) (μ : Measure T) :
 @[to_additive]
 lemma entropy_snd_sub_mutualInfo_le_entropy_map_mul
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ) :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     Hk[snd κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.1 * p.2) measurable_mul, μ] :=
-  entropy_snd_sub_mutualInfo_le_entropy_map_of_injective κ μ _ mul_right_injective hμ hκ
+  entropy_snd_sub_mutualInfo_le_entropy_map_of_injective κ μ _ mul_right_injective hκ
 
 @[to_additive]
 lemma entropy_snd_sub_mutualInfo_le_entropy_map_mul'
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ) :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     Hk[snd κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.2 * p.1) $ measurable_discrete _, μ] :=
-  entropy_snd_sub_mutualInfo_le_entropy_map_of_injective κ μ _ mul_left_injective hμ hκ
+  entropy_snd_sub_mutualInfo_le_entropy_map_of_injective κ μ _ mul_left_injective hκ
 
 @[to_additive]
 lemma entropy_fst_sub_mutualInfo_le_entropy_map_mul
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ) :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     Hk[fst κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.1 * p.2) measurable_mul, μ] := by
-    have h := entropy_snd_sub_mutualInfo_le_entropy_map_mul' (swapRight κ) μ hμ hκ.swapRight
+    have h := entropy_snd_sub_mutualInfo_le_entropy_map_mul' (swapRight κ) μ hκ.swapRight
     simp only [snd_swapRight, mutualInfo_swapRight, map_swapRight] at h
     refine h.trans_eq ?_
     have : (fun p : G × G ↦ p.2 * p.1) ∘ Prod.swap = (fun p ↦ p.1 * p.2) := rfl
@@ -69,9 +69,9 @@ lemma entropy_fst_sub_mutualInfo_le_entropy_map_mul
 @[to_additive]
 lemma entropy_fst_sub_mutualInfo_le_entropy_map_mul'
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
     Hk[fst κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.2 * p.1) $ measurable_discrete _, μ] := by
-    have h := entropy_snd_sub_mutualInfo_le_entropy_map_mul (swapRight κ) μ hμ hκ.swapRight
+    have h := entropy_snd_sub_mutualInfo_le_entropy_map_mul (swapRight κ) μ hκ.swapRight
     simp only [snd_swapRight, mutualInfo_swapRight, map_swapRight] at h
     refine h.trans_eq ?_
     have : (fun p : G × G ↦ p.1 * p.2) ∘ Prod.swap = (fun p ↦ p.2 * p.1) := rfl
@@ -80,16 +80,16 @@ lemma entropy_fst_sub_mutualInfo_le_entropy_map_mul'
 @[to_additive]
 lemma entropy_snd_sub_mutualInfo_le_entropy_map_div
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
     Hk[snd κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.1 / p.2) measurable_div, μ] :=
-  entropy_snd_sub_mutualInfo_le_entropy_map_of_injective κ μ _ (fun _ ↦ div_right_injective) hμ hκ
+  entropy_snd_sub_mutualInfo_le_entropy_map_of_injective κ μ _ (fun _ ↦ div_right_injective) hκ
 
 @[to_additive]
 lemma entropy_fst_sub_mutualInfo_le_entropy_map_div
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
     Hk[fst κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.1 / p.2) measurable_div, μ] := by
-    have h := entropy_snd_sub_mutualInfo_le_entropy_map_div (swapRight κ) μ hμ hκ.swapRight
+    have h := entropy_snd_sub_mutualInfo_le_entropy_map_div (swapRight κ) μ hκ.swapRight
     simp only [snd_swapRight, mutualInfo_swapRight, map_swapRight] at h
     refine h.trans_eq ?_
     have : (fun p : G × G ↦ p.1 / p.2) ∘ Prod.swap = (fun p ↦ p.2 / p.1) := rfl
@@ -99,31 +99,31 @@ lemma entropy_fst_sub_mutualInfo_le_entropy_map_div
 @[to_additive]
 lemma max_entropy_sub_mutualInfo_le_entropy_mul
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
     max (Hk[fst κ, μ]) (Hk[snd κ, μ]) - Ik[κ, μ]
       ≤ Hk[map κ (fun p ↦ p.1 * p.2) measurable_mul, μ] := by
   rw [←max_sub_sub_right, max_le_iff]
-  exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_mul _ _ hμ hκ,
-    entropy_snd_sub_mutualInfo_le_entropy_map_mul _ _ hμ hκ⟩
+  exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_mul _ _ hκ,
+    entropy_snd_sub_mutualInfo_le_entropy_map_mul _ _ hκ⟩
 
 @[to_additive]
 lemma max_entropy_sub_mutualInfo_le_entropy_mul'
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
     max (Hk[fst κ, μ]) (Hk[snd κ, μ]) - Ik[κ, μ]
       ≤ Hk[map κ (fun p ↦ p.2 * p.1) $ measurable_discrete _, μ] := by
   rw [←max_sub_sub_right, max_le_iff]
-  exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_mul' _ _ hμ hκ,
-    entropy_snd_sub_mutualInfo_le_entropy_map_mul' _ _ hμ hκ⟩
+  exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_mul' _ _ hκ,
+    entropy_snd_sub_mutualInfo_le_entropy_map_mul' _ _ hκ⟩
 
 @[to_additive]
 lemma max_entropy_sub_mutualInfo_le_entropy_div
     (κ : kernel T (G × G)) [IsMarkovKernel κ] (μ : Measure T) [IsProbabilityMeasure μ]
-    (hμ : FiniteSupport μ) (hκ : AEFiniteKernelSupport κ μ) :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     max (Hk[fst κ, μ]) (Hk[snd κ, μ]) - Ik[κ, μ]
       ≤ Hk[map κ (fun p ↦ p.1 / p.2) measurable_div, μ] := by
   rw [←max_sub_sub_right, max_le_iff]
-  exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_div _ _ hμ hκ,
-    entropy_snd_sub_mutualInfo_le_entropy_map_div _ _ hμ hκ⟩
+  exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_div _ _ hκ,
+    entropy_snd_sub_mutualInfo_le_entropy_map_div _ _ hκ⟩
 
 end ProbabilityTheory.kernel
