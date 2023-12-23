@@ -256,7 +256,7 @@ Then
 \end{lemma}
 
 \begin{proof}
-  \uses{cond-indep-exist, cond-trial-ent, cond-entropy-def,submodularity, copy, relabeled-entropy, add-entropy, ruz-indep}
+  \uses{cond-indep-exist, cond-trial-ent, conditional-entropy-def,submodularity, copy-ent, relabeled-entropy, add-entropy, ruz-indep}
   \leanok
 Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$ as produced by Lemma \ref{cond-indep-exist}, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
@@ -321,7 +321,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
   \end{lemma}
 
   \begin{proof}
-    \uses{ruz-copy, ruz-lean, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}\leanok
+    \uses{ruz-copy, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}\leanok
   We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using Lemma \ref{independent-exist} and Lemma \ref{ruz-copy}, \ref{ruz-indep}) that $X$ is independent of $Y, Z$. Then we have
   \begin{align*}  d[X ;Y+ Z] & - d[X ;Y] \\ & = \bbH[X + Y + Z] - \bbH[X + Y] - \tfrac{1}{2}\bbH[Y + Z] + \tfrac{1}{2} \bbH[Y].\end{align*}
   Combining this with Lemma \ref{kv} gives the required bound. The second form of the result is immediate Lemma \ref{ruz-indep}.
