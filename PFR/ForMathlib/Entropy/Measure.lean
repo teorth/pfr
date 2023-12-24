@@ -111,11 +111,8 @@ lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S}
 
 instance finiteSupport_of_finiteRange {μ : Measure Ω} {X : Ω → S} [hX' : FiniteRange X] :
     FiniteSupport (μ.map X) := by
-  by_cases hX : AEMeasurable X μ
-  · use hX'.toFinset
-    exact FiniteRange.null_of_compl₀ μ hX
-  · simp only [hX, not_false_eq_true, Measure.map_of_not_aemeasurable]
-    infer_instance
+  use hX'.toFinset
+  exact FiniteRange.null_of_compl μ X
 
 lemma prod_of_full_measure_finSet {μ : Measure S} {ν : Measure T} [SigmaFinite ν]
     {A : Finset S} {B : Finset T} (hA : μ Aᶜ = 0) (hB : ν Bᶜ = 0) :
