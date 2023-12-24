@@ -340,8 +340,6 @@ lemma condRuzsaDist_nonneg {X : Ω → G} (hX : Measurable X) [FiniteRange X]
   rw [condRuzsaDist_def]
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (μ'.map W) := isProbabilityMeasure_map hW.aemeasurable
-  have : FiniteSupport (μ.map Z) := finiteSupport_of_finiteRange hZ
-  have : FiniteSupport (μ'.map W) := finiteSupport_of_finiteRange hW
   refine kernel.rdist_nonneg ?_ ?_
   · exact kernel.aefiniteKernelSupport_condDistrib _ _ _ hX hZ
   · exact kernel.aefiniteKernelSupport_condDistrib _ _ _ hY hW
