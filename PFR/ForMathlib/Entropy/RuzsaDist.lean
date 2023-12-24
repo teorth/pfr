@@ -319,8 +319,6 @@ lemma condRuzsaDist_symm {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' 
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (μ'.map W) := isProbabilityMeasure_map hW.aemeasurable
   rw [condRuzsaDist_def, condRuzsaDist_def, kernel.rdist_symm]
-  . exact finiteSupport_of_finiteRange hZ
-  exact finiteSupport_of_finiteRange hW
 
 @[simp] lemma condRuszaDist_zero_right (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
     (μ : Measure Ω) [IsFiniteMeasure μ] :
@@ -547,11 +545,8 @@ lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X) (Y : Ω' → G) 
   rw [condDistrib_apply hX measurable_const]
   · simp
   · simp
-  · exact integrable_of_finiteSupport
-      (finiteSupport_of_prod (finiteSupport_of_dirac _) (finiteSupport_of_finiteRange ‹_›))
-  · exact integrable_of_finiteSupport
-      (finiteSupport_of_prod (finiteSupport_of_dirac _) (finiteSupport_of_finiteRange ‹_›))
-
+  · exact integrable_of_finiteSupport _
+  · exact integrable_of_finiteSupport _
 
 /-- If $(X,Z)$ and $(Y,W)$ are independent, then
 $$ d[X | Z ; Y | W] = H[X'- Y'|Z', W'] - H[X'|Z']/2 - H[Y'|W']/2$$
@@ -585,7 +580,6 @@ lemma condRuzsaDist_of_indep
     filter_upwards [this] with x hx
     rw [kernel.map_apply, kernel.map_apply, hx]
   . exact (condDistrib_eq_prod_of_indepFun hX hZ hY hW μ h).symm
-  all_goals exact finiteSupport_of_finiteRange ‹_›
 
 /-- Formula for conditional Ruzsa distance for independent sets of variables. -/
 lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
@@ -598,8 +592,6 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     condEntropy_eq_kernel_entropy hY hW, entropy_eq_kernel_entropy]
   rotate_left
   · exact hX.sub hY
-  . exact finiteSupport_of_dirac _
-  . exact finiteSupport_of_finiteRange ‹_›
   congr 2
   let Z : Ω → Unit := fun _ ↦ ()
   rw [← condDistrib_unit_right hX μ]
@@ -651,7 +643,6 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     · exact hX.sub hY
     congr
   rw [kernel.entropy_congr h_ker, h_meas, kernel.entropy_prodMkLeft_unit]
-  exact finiteSupport_of_finiteRange ‹_›
 
 /-- The conditional Ruzsa distance is unchanged if the sets of random variables are replaced with
 copies. -/
