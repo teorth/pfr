@@ -110,22 +110,15 @@ lemma FiniteRange.full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G] [
   measurability
 
 lemma FiniteRange.null_of_compl {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
-    [MeasurableSingletonClass G] {X : Ω → G} (hX: Measurable X) [FiniteRange X] (μ: Measure Ω) :
-    (μ.map X) (FiniteRange.toFinset X: Set G)ᶜ = 0 := by
-  rw [Measure.map_apply hX]
-  convert measure_empty
-  ext ω; simp
-  measurability
-
-lemma FiniteRange.null_of_compl₀ {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
-    [MeasurableSingletonClass G] (μ : Measure Ω)
-    {X : Ω → G} (hX : AEMeasurable X μ) [FiniteRange X] :
+    [MeasurableSingletonClass G] (μ : Measure Ω) (X : Ω → G) [FiniteRange X] :
     (μ.map X) (FiniteRange.toFinset X : Set G)ᶜ = 0 := by
-  rw [Measure.map_apply₀ hX]
-  convert measure_empty
-  ext ω
-  simp only [Set.preimage_compl, Set.mem_compl_iff, Set.mem_preimage, Finset.mem_coe, mem_iff,
-    exists_apply_eq_apply, not_true_eq_false, Set.mem_empty_iff_false]
-  simp only [NullMeasurableSet.compl_iff]
-  refine MeasurableSet.nullMeasurableSet ?_
-  measurability
+  by_cases hX : AEMeasurable X μ
+  · rw [Measure.map_apply₀ hX]
+    convert measure_empty
+    ext ω
+    simp only [Set.preimage_compl, Set.mem_compl_iff, Set.mem_preimage, Finset.mem_coe, mem_iff,
+      exists_apply_eq_apply, not_true_eq_false, Set.mem_empty_iff_false]
+    simp only [NullMeasurableSet.compl_iff]
+    refine MeasurableSet.nullMeasurableSet ?_
+    measurability
+  · simp [hX]
