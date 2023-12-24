@@ -153,6 +153,30 @@ lemma ruzsa_triangle_aux (κ : kernel T (G × G)) (η : kernel T G)
     prod_apply _ _ _ (measurable_of_countable _ hs), lintegral_snd _ _ (measurable_of_countable _)]
   congr
 
+lemma abs_sub_entropy_le_rdist {κ : kernel T G} {η : kernel T' G}
+    [IsMarkovKernel κ] [IsMarkovKernel η]
+    {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    [FiniteSupport μ] [FiniteSupport ν]
+    (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η ν) :
+    |Hk[κ, μ] - Hk[η, ν]| ≤ 2 * dk[κ ; μ # η ; ν] := by
+  have h := max_entropy_le_entropy_sub_prod (prodMkRight κ T') (prodMkLeft T η) (μ.prod ν)
+    (hκ.prodMkRight ν) (hη.prodMkLeft μ)
+  rw [entropy_prodMkRight', entropy_prodMkLeft] at h
+  rw [rdist_eq', abs_le]
+  constructor
+  · linarith [le_max_right (Hk[κ, μ]) (Hk[η, ν])]
+  · linarith [le_max_left (Hk[κ, μ]) (Hk[η, ν])]
+
+lemma rdist_nonneg {κ : kernel T G} {η : kernel T' G}
+    [IsMarkovKernel κ] [IsMarkovKernel η]
+    {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    [FiniteSupport μ] [FiniteSupport ν]
+    (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η ν) :
+    0 ≤ dk[κ ; μ # η ; ν] := by
+  suffices 0 ≤ 2 * dk[κ ; μ # η ; ν] by linarith
+  calc 0 ≤ |Hk[κ, μ] - Hk[η, ν]| := abs_nonneg _
+  _ ≤ 2 * dk[κ ; μ # η ; ν] := abs_sub_entropy_le_rdist hκ hη
+
 -- Kernel equivalent of `H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ]`
 -- `κ` is `⟨X,Y⟩`, `η` is `Z`. Independence is expressed through the product `×ₖ`.
 /-- The **improved entropic Ruzsa triangle inequality**. -/
@@ -378,6 +402,5 @@ lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
       - Hk[κ , μ] / 2 - Hk[η , μ'] / 2
       + (Hk[map (prodMkRight η T'' ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) _ , μ'.prod μ'']
       - Hk[η , μ'] / 2 - Hk[ξ , μ''] / 2) := by ring
-
 
 end ProbabilityTheory.kernel

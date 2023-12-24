@@ -17,27 +17,27 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   {κ : kernel T G} {μ : Measure T}
 
 @[to_additive (attr := simp)]
-lemma measureEntropy_inv (μ : Measure G) : Hm[μ.map (·⁻¹)] = Hm[μ] := measureEntropy_map_of_injective μ _ measurable_inv inv_injective
-
+lemma measureEntropy_inv (μ : Measure G) : Hm[μ.map (·⁻¹)] = Hm[μ] :=
+  measureEntropy_map_of_injective μ _ measurable_inv inv_injective
 
 @[to_additive]
 lemma measureEntropy_div_comm (μ : Measure (G × G)) :
     Hm[μ.map fun p ↦ p.1 / p.2] = Hm[μ.map fun p ↦ p.2 / p.1] := by
-  rw [←measureEntropy_inv, Measure.map_map measurable_inv measurable_div]
+  rw [← measureEntropy_inv, Measure.map_map measurable_inv measurable_div]
   congr with x
   simp
 
 namespace ProbabilityTheory.kernel
 
 @[to_additive]
-lemma entropy_inv (κ : kernel T G) (μ : Measure T) : Hk[map κ (·⁻¹) measurable_inv, μ] = Hk[κ, μ] := entropy_map_of_injective κ μ inv_injective measurable_inv
-
+lemma entropy_inv (κ : kernel T G) (μ : Measure T) : Hk[map κ (·⁻¹) measurable_inv, μ] = Hk[κ, μ] :=
+  entropy_map_of_injective κ μ inv_injective measurable_inv
 
 @[to_additive]
 lemma entropy_div_comm (κ : kernel T (G × G)) (μ : Measure T) :
     Hk[map κ (fun p ↦ p.1 / p.2) measurable_div, μ]
       = Hk[map κ (fun p ↦ p.2 / p.1) (measurable_snd.div measurable_fst), μ] := by
-  rw [←entropy_inv, kernel.map_map]
+  rw [← entropy_inv, kernel.map_map]
   congr with x
   simp
 
@@ -102,7 +102,7 @@ lemma max_entropy_sub_mutualInfo_le_entropy_mul
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
     max (Hk[fst κ, μ]) (Hk[snd κ, μ]) - Ik[κ, μ]
       ≤ Hk[map κ (fun p ↦ p.1 * p.2) measurable_mul, μ] := by
-  rw [←max_sub_sub_right, max_le_iff]
+  rw [← max_sub_sub_right, max_le_iff]
   exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_mul _ _ hκ,
     entropy_snd_sub_mutualInfo_le_entropy_map_mul _ _ hκ⟩
 
@@ -112,7 +112,7 @@ lemma max_entropy_sub_mutualInfo_le_entropy_mul'
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
     max (Hk[fst κ, μ]) (Hk[snd κ, μ]) - Ik[κ, μ]
       ≤ Hk[map κ (fun p ↦ p.2 * p.1) $ measurable_discrete _, μ] := by
-  rw [←max_sub_sub_right, max_le_iff]
+  rw [← max_sub_sub_right, max_le_iff]
   exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_mul' _ _ hκ,
     entropy_snd_sub_mutualInfo_le_entropy_map_mul' _ _ hκ⟩
 
@@ -122,8 +122,36 @@ lemma max_entropy_sub_mutualInfo_le_entropy_div
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     max (Hk[fst κ, μ]) (Hk[snd κ, μ]) - Ik[κ, μ]
       ≤ Hk[map κ (fun p ↦ p.1 / p.2) measurable_div, μ] := by
-  rw [←max_sub_sub_right, max_le_iff]
+  rw [← max_sub_sub_right, max_le_iff]
   exact ⟨entropy_fst_sub_mutualInfo_le_entropy_map_div _ _ hκ,
     entropy_snd_sub_mutualInfo_le_entropy_map_div _ _ hκ⟩
+
+@[to_additive]
+lemma max_entropy_le_entropy_mul_prod
+    (κ : kernel T G) [IsMarkovKernel κ] (η : kernel T G) [IsMarkovKernel η]
+    (μ : Measure T) [IsProbabilityMeasure μ] [FiniteSupport μ]
+    (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η μ) :
+    max (Hk[κ, μ]) (Hk[η, μ]) ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1 * p.2) measurable_mul, μ] := by
+  calc max (Hk[κ, μ]) (Hk[η, μ])
+    = max (Hk[κ, μ]) (Hk[η, μ]) - Ik[κ ×ₖ η, μ] := by
+        rw [mutualInfo_prod _ hκ hη, sub_zero]
+  _ ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1 * p.2) measurable_mul, μ] := by
+        convert max_entropy_sub_mutualInfo_le_entropy_mul (κ ×ₖ η) μ (hκ.prod hη)
+        · simp
+        · simp
+
+@[to_additive max_entropy_le_entropy_sub_prod]
+lemma max_entropy_le_entropy_div_prod
+    (κ : kernel T G) [IsMarkovKernel κ] (η : kernel T G) [IsMarkovKernel η]
+    (μ : Measure T) [IsProbabilityMeasure μ] [FiniteSupport μ]
+    (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η μ) :
+    max (Hk[κ, μ]) (Hk[η, μ]) ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1 / p.2) measurable_div, μ] := by
+  calc max (Hk[κ, μ]) (Hk[η, μ])
+    = max (Hk[κ, μ]) (Hk[η, μ]) - Ik[κ ×ₖ η, μ] := by
+        rw [mutualInfo_prod _ hκ hη, sub_zero]
+  _ ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1 / p.2) measurable_div, μ] := by
+        convert max_entropy_sub_mutualInfo_le_entropy_div (κ ×ₖ η) μ (hκ.prod hη)
+        · simp
+        · simp
 
 end ProbabilityTheory.kernel
