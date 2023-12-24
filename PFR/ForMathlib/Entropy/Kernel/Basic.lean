@@ -358,10 +358,37 @@ lemma finiteKernelSupport_of_prodMkRight {κ : kernel T S} (hκ : FiniteKernelSu
     FiniteKernelSupport (prodMkRight κ U) :=
   finiteKernelSupport_of_comap hκ _
 
+protected lemma AEFiniteKernelSupport.prodMkRight {κ : kernel T S} (hκ : AEFiniteKernelSupport κ μ)
+    (ν : Measure U) [SFinite ν] :
+    AEFiniteKernelSupport (prodMkRight κ U) (μ.prod ν) := by
+  rw [aefiniteKernelSupport_iff]
+  refine ⟨prodMkRight hκ.mk U, finiteKernelSupport_of_prodMkRight hκ.finiteKernelSupport_mk, ?_⟩
+  rw [Filter.EventuallyEq]
+  change ∀ᵐ (x : T × U) ∂(μ.prod ν), x ∈ {y | (prodMkRight (mk hκ) U) y = (prodMkRight κ U) y}
+  rw [Measure.ae_prod_mem_iff_ae_ae_mem]
+  · filter_upwards [hκ.ae_eq_mk] with x hx
+    simp [hx]
+  · simp only [prodMkRight_apply, measurableSet_setOf]
+    exact measurable_of_countable _
+
 /-- prodMkLeft preserves finite kernel support. -/
 lemma finiteKernelSupport_of_prodMkLeft {κ : kernel T S} (hκ : FiniteKernelSupport κ) :
     FiniteKernelSupport (prodMkLeft U κ) :=
   finiteKernelSupport_of_comap hκ _
+
+protected lemma AEFiniteKernelSupport.prodMkLeft {κ : kernel T S} (hκ : AEFiniteKernelSupport κ μ)
+    (ν : Measure U) [SFinite μ] :
+    AEFiniteKernelSupport (prodMkLeft U κ) (ν.prod μ) := by
+  rw [aefiniteKernelSupport_iff]
+  refine ⟨prodMkLeft U hκ.mk, finiteKernelSupport_of_prodMkLeft hκ.finiteKernelSupport_mk, ?_⟩
+  rw [Filter.EventuallyEq]
+  change ∀ᵐ (x : U × T) ∂(ν.prod μ), x ∈ {y | prodMkLeft U (mk hκ) y = prodMkLeft U κ y}
+  rw [Measure.ae_prod_mem_iff_ae_ae_mem]
+  · refine ae_of_all _ (fun y ↦ ?_)
+    filter_upwards [hκ.ae_eq_mk] with x hx
+    simp [hx]
+  · simp only [prodMkRight_apply, measurableSet_setOf]
+    exact measurable_of_countable _
 
 /-- Composing a finitely supported measure with a finitely supported kernel gives a finitely supported kernel. -/
 lemma finiteSupport_of_compProd' {μ : Measure T} [IsFiniteMeasure μ] {κ : kernel T S}
