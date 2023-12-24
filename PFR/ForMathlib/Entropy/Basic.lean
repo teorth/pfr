@@ -788,7 +788,7 @@ lemma condMutualInfo_eq_integral_mutualInfo :
 
 lemma condMutualInfo_eq_sum [IsFiniteMeasure μ] (hZ : Measurable Z) [FiniteRange Z] :
     I[X : Y | Z ; μ] = ∑ z in FiniteRange.toFinset Z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
-  rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum' _ (FiniteRange.null_of_compl hZ _)]
+  rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum' _ (FiniteRange.null_of_compl _ Z)]
   congr 1 with z
   rw [map_apply hZ (MeasurableSet.singleton z)]
   rfl
