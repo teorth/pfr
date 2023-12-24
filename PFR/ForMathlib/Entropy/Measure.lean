@@ -69,6 +69,9 @@ def _root_.MeasureTheory.Measure.support (μ : Measure S) [hμ : FiniteSupport �
 lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] :
   μ μ.supportᶜ = 0 := hμ.finite.choose_spec
 
+instance finiteSupport_zero : FiniteSupport (0 : Measure S) where
+  finite := ⟨(∅ : Finset S), by simp⟩
+
 /-- TODO: replace FiniteSupport hypotheses in these files with FiniteEntropy hypotheses. -/
 noncomputable def FiniteEntropy (μ : Measure S := by volume_tac) : Prop :=
   Summable (fun s ↦ negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal) ∧
@@ -106,11 +109,13 @@ lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S}
   rw [@Set.mem_toFinset S _ hX'.fintype]
   simp
 
-lemma finiteSupport_of_finiteRange {μ : Measure Ω} {X : Ω → S}
-    (hX : Measurable X) [hX' : FiniteRange X] :
+instance finiteSupport_of_finiteRange {μ : Measure Ω} {X : Ω → S} [hX' : FiniteRange X] :
     FiniteSupport (μ.map X) := by
-  use hX'.toFinset
-  exact full_measure_of_finiteRange hX
+  by_cases hX : AEMeasurable X μ
+  · use hX'.toFinset
+    exact FiniteRange.null_of_compl₀ μ hX
+  · simp only [hX, not_false_eq_true, Measure.map_of_not_aemeasurable]
+    infer_instance
 
 lemma prod_of_full_measure_finSet {μ : Measure S} {ν : Measure T} [SigmaFinite ν]
     {A : Finset S} {B : Finset T} (hA : μ Aᶜ = 0) (hB : ν Bᶜ = 0) :

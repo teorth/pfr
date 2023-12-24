@@ -417,7 +417,7 @@ lemma aefiniteKernelSupport_condDistrib (X : Ω → S) (Y : Ω → T) (μ : Meas
     AEFiniteKernelSupport (condDistrib X Y μ) (μ.map Y) := by
   filter_upwards [condDistrib_ae_eq hX hY μ] with a ha
   rw [ha]
-  exact (finiteSupport_of_finiteRange hX).finite
+  exact finiteSupport_of_finiteRange.finite
 
 lemma entropy_le_log_card (κ : kernel T S) (μ : Measure T) [Fintype S] [IsProbabilityMeasure μ] :
     Hk[κ, μ] ≤ log (Fintype.card S) := by
