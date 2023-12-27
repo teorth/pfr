@@ -198,8 +198,7 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T} [Fini
   rw [kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
     kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm,
     max_comm]
-  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _ ?_ ?_).trans_eq ?_
-  . exact finiteSupport_of_finiteRange hZ
+  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _ ?_).trans_eq ?_
   . exact kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
   have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 * x.1)
   rw [kernel.entropy_congr h.symm]
@@ -218,8 +217,7 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div {Z : Ω → T}
   swap ; · exact hX.div hY
   rw [kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
     kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm, max_comm]
-  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _ ?_ ?_).trans_eq ?_
-  . exact finiteSupport_of_finiteRange hZ
+  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _ ?_).trans_eq ?_
   . exact kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
   rw [kernel.entropy_div_comm]
   have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 / x.1)
