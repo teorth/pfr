@@ -1,6 +1,7 @@
 import PFR.EntropyPFR
 import PFR.Main
 import Mathlib.GroupTheory.Torsion
+import Mathlib.Algebra.Quotient
 
 /-!
 # Weak PFR over the integers
@@ -110,6 +111,10 @@ end dim
 variable {G : Type*} [AddCommGroup G] [Module ℤ G] [Module.Free ℤ G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
 
 open Real MeasureTheory ProbabilityTheory Pointwise
+
+lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {UA : Ω → G} {UB : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hUA: IsUniform A UA μ) (hUB: IsUniform B UB μ'): ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G) (Ωx Ωy : Type*) (hΩx:MeasurableSpace Ωx) (hΩy:MeasurableSpace Ωy) (μx:Measure Ωx) (μy:Measure Ωy) (UAx: Ωx → G) (UBy: Ωy → G), Nonempty Ax ∧ Nonempty By ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧ By = {z:G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧ IsUniform Ax UAx μx ∧ IsUniform By UBy μy ∧ (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) + 40 * d[ UA; μ # UB ; μ' ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By) ≤ 44 * (d[ UA; μ # UB ; μ' ] - d[ UAx; μx # UBy ; μy ]) := by
+  sorry
+
 
 /-- If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_A;U_B]\]
