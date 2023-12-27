@@ -18,7 +18,7 @@ section Torsion
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonClass G]
+variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonClass G] [Countable G]
  {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {X : Ω → G} {Y : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'}
 [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
@@ -30,7 +30,7 @@ proof_wanted torsion_free_doubling (hG : AddMonoid.IsTorsionFree G) :
 $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
 proof_wanted torsion_dist_shrinking {H : Type*} [AddCommGroup H] [ElementaryAddCommGroup H 2]
-  [Fintype H] [MeasurableSpace H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
+  [Fintype H] [MeasurableSpace H] [MeasurableSingletonClass H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
   H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ']
 
 end Torsion
@@ -108,11 +108,18 @@ proof_wanted dimension_le_rank [Module.Finite ℤ G] (A : Set G) :
 
 end dim
 
-variable {G : Type*} [AddCommGroup G] [Module ℤ G] [Module.Free ℤ G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
+variable {G : Type*} [AddCommGroup G] [Module ℤ G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
 
 open Real MeasureTheory ProbabilityTheory Pointwise
 
 lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type*} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ:Measure Ω)] [IsProbabilityMeasure (ℙ:Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB): ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G) (Ωx Ωy : Type*) (hΩx:MeasureSpace Ωx) (hΩy:MeasureSpace Ωy) (UAx: Ωx → G) (UBy: Ωy → G), Nonempty Ax ∧ Nonempty By ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧ By = {z:G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧ IsProbabilityMeasure (ℙ:Measure Ωx) ∧IsProbabilityMeasure (ℙ:Measure Ωy)  ∧ IsUniform Ax UAx ∧ IsUniform By UBy ∧ (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) + 40 * d[ UA # UB ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By) ≤ 44 * (d[ UA # UB ] - d[ UAx # UBy ]) := by
+  let ψ : G →+ G := zsmulAddGroupHom 2
+  let G₂ := AddMonoidHom.range ψ
+  let H := G ⧸ G₂
+  let φ : G →+ H := QuotientAddGroup.mk' G₂
+  have hφ_elem : ElementaryAddCommGroup H 2 := by
+    apply ElementaryAddCommGroup.quotient_group (by decide)
+    intro x; simp; use x; norm_cast
   sorry
 
 
