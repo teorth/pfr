@@ -176,12 +176,12 @@ max (dimension A') (dimension A'') := by
 
 
 /-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-44}\lvert A\rvert$ and $\dim A' \leq 60\log K$.-/
-theorem weak_PFR_int {A : Set G} [Finite A]  [Nonempty A] {K : ℝ} (hK: 0 < K) (hA: Nat.card (A+A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
+theorem weak_PFR_int {A : Set G} [Finite A]  [Nonempty A] {K : ℝ} (hK: 0 < K) (hA: Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
   have hnonempty : Set.Nonempty A := Set.nonempty_coe_sort.mp (by infer_instance)
   set Af := A.toFinite.toFinset
   have : Af.Nonempty := by simp [hnonempty]
-  rcases exists_isUniform Af this with ⟨Ω, mΩ, UA, μ, hμ, hmes, hunif, hrange⟩
-  have hUA : IsUniform A UA μ := by
+  rcases exists_isUniform_measureSpace Af this with ⟨Ω, mΩ, UA, hP, hmes, hunif, -⟩
+  have hUA : IsUniform A UA ℙ := by
     convert hunif
     exact (Set.Finite.coe_toFinset (Set.toFinite A)).symm
   apply weak_PFR hUA hK _

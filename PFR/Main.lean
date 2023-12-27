@@ -98,49 +98,59 @@ end ProbabilityTheory
 
 
 /-- Record positivity results that are useful in the proof of PFR. -/
-lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] [Finite G]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := by
-  have card_AA_pos : (0 : ℝ) < Nat.card (A + A) := by
-    have : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
-    have : Finite (A + A) := by exact Subtype.finite
+lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A - A) ≤ K * Nat.card A) :
+    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A - A) ∧ 0 < K := by
+  have card_AA_pos : (0 : ℝ) < Nat.card (A - A) := by
+    have : Nonempty (A - A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.sub h₀A h₀A)
+    have : Finite (A - A) := finite_coe_iff.mpr (Finite.image2 _ (Set.toFinite A) (Set.toFinite A))
     simp [Nat.cast_pos, Nat.card_pos_iff]
   have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
     have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
-variable {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
-  [MeasurableSingletonClass G] {A : Set G} {K : ℝ}
+lemma PFR_conjecture_pos_aux' {G : Type*} [AddCommGroup G] {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := by
+  have card_AA_pos : (0 : ℝ) < Nat.card (A + A) := by
+    have : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
+    have : Finite (A + A) := finite_coe_iff.mpr (Finite.image2 _ (Set.toFinite A) (Set.toFinite A))
+    simp [Nat.cast_pos, Nat.card_pos_iff]
+  have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
+    have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
+    simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
+  exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
+
+variable {G : Type*} [AddCommGroup G] [MeasurableSpace G]
+  [MeasurableSingletonClass G] {A : Set G} [Finite A] {K : ℝ} [Countable G]
 
 /-- A uniform distribution on a set with doubling constant `K` has self Rusza distance
 at most `log K`. -/
-theorem rdist_le_of_isUniform_of_card_add_le (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
+theorem rdist_le_of_isUniform_of_card_add_le (h₀A : A.Nonempty) (hA : Nat.card (A - A) ≤ K * Nat.card A)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
-  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A - A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
-
   rcases independent_copies_two U₀meas U₀meas with ⟨Ω, mΩ, U, U', hP, hU, hU', UU'_indep, idU, idU'⟩
   have Uunif : IsUniform A U := U₀unif.of_identDistrib idU.symm $ measurableSet_discrete _
   have U'unif : IsUniform A U' := U₀unif.of_identDistrib idU'.symm $ measurableSet_discrete _
   have IU : d[U # U'] ≤ log K := by
-    have I : H[U + U'] ≤ log (Nat.card (A + A)) := by
-      convert entropy_le_log_card_of_mem (A := (A+A).toFinite.toFinset) ?_ ?_ with x
+    have I : H[U - U'] ≤ log (Nat.card (A - A)) := by
+      convert entropy_le_log_card_of_mem (A := (A-A).toFinite.toFinset) ?_ ?_ with x
       . simp
         exact Iff.rfl
       . measurability
       filter_upwards [Uunif.ae_mem, U'unif.ae_mem] with ω h1 h2
       simp
-      exact Set.add_mem_add h1 h2
-    have J : log (Nat.card (A + A)) ≤ log K + log (Nat.card A) := by
+      exact Set.sub_mem_sub h1 h2
+    have J : log (Nat.card (A - A)) ≤ log K + log (Nat.card A) := by
       apply (log_le_log AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
-    have : H[U + U'] = H[U - U'] := by congr; simp
-    rw [UU'_indep.rdist_eq hU hU', IsUniform.entropy_eq' Uunif hU, IsUniform.entropy_eq' U'unif hU', ← this]
+--    have : H[U + U'] = H[U - U'] := by congr; simp
+    rw [UU'_indep.rdist_eq hU hU', IsUniform.entropy_eq' Uunif hU, IsUniform.entropy_eq' U'unif hU']
     linarith
   rwa [idU.rdist_eq idU'] at IU
 
+variable [ElementaryAddCommGroup G 2] [Fintype G]
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
@@ -151,9 +161,15 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card H ∧ A ⊆ c + H := by
   classical
-  let mG : MeasurableSpace G := ⊤
+  let _mG : MeasurableSpace G := ⊤
+  have hadd_sub : A + A = A - A := by
+    rw [<-Set.image2_add, <-Set.image2_sub]
+    congr! 1 with a _ b _
+    rw [(show a+b=a-b by simp)]
+    rfl
+  rw [hadd_sub] at hA
   have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
-  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A - A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
   let A' := A.toFinite.toFinset
   have h₀A' : Finset.Nonempty A' := by
@@ -163,6 +179,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   rw [hAA'] at UAunif
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
+  rw [<-hadd_sub] at hA
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/9, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture p (by norm_num) with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
@@ -266,7 +283,7 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
      ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
-    PFR_conjecture_pos_aux h₀A hA
+    PFR_conjecture_pos_aux' h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
