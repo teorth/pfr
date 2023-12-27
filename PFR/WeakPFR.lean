@@ -1,4 +1,5 @@
 import PFR.EntropyPFR
+import PFR.Main
 import Mathlib.GroupTheory.Torsion
 
 /-!
@@ -124,37 +125,50 @@ lemma weak_PFR {A : Set G} [Finite A]  [Nonempty A] {Ω : Type*} [MeasurableSpac
 
   have : ∃ B : Set G, B ⊆ A ∧ (Nat.card B) ≥ (Nat.card A') ∧ (Nat.card B) ≥ (Nat.card A'') ∧ (dimension B) ≤
 max (dimension A') (dimension A'') := by
-    by_cases lt_or_ge (Nat.card A') (Nat.card A'') with h | h
+    rcases lt_or_ge (Nat.card A') (Nat.card A'') with h | h
     . use A''
       exact ⟨hA'', by linarith, by linarith, le_max_right _ _⟩
     use A'
     exact ⟨hA', by linarith, by linarith, le_max_left _ _⟩
 
-  rcases this with ⟨B, hB, hBcard, hBdim⟩
+  rcases this with ⟨B, hB, hBcard, hBcard', hBdim⟩
   use B
-  convert ⟨hB, ?_, ?_⟩
-  . have := calc 2 * log ((Nat.card A) / (Nat.card B)) * (Nat.card B')
+  have hApos : Nat.card A > 0 := by
+    rw [gt_iff_lt, Nat.card_pos_iff]
+    exact ⟨ (by infer_instance), (by infer_instance) ⟩
+  have hA'pos : Nat.card A' > 0 := by
+    rw [gt_iff_lt, Nat.card_pos_iff]
+    refine ⟨ (by infer_instance), Finite.Set.subset _ hA' ⟩
+  have hA''pos : Nat.card A'' > 0 := by
+    rw [gt_iff_lt, Nat.card_pos_iff]
+    refine ⟨ (by infer_instance), Finite.Set.subset _ hA'' ⟩
+  have hBpos : Nat.card B > 0 := by linarith
+
+  refine ⟨hB, ?_, ?_⟩
+  . have := calc 2 * log ((Nat.card A) / (Nat.card B))
       _ = log ( ((Nat.card A) * (Nat.card A)) / ((Nat.card B) * (Nat.card B)) ) := by
-        rw [<-log_pow]
-        congr
+        convert (log_pow (((Nat.card A):ℝ)/(Nat.card B)) 2).symm
         field_simp
-        ring
+        rw [<-pow_two, <-pow_two]
       _ ≤ log ( ((Nat.card A) * (Nat.card A)) / ((Nat.card A') * (Nat.card A'')) ) := by
-        apply log_le_log (by positivity)
-        sorry
-      _ ≤ 44 * d[UA; μ # UA; μ'] := hcard
+        apply log_le_log
+        . positivity
+        gcongr
+      _ ≤ 44 * d[UA; μ # UA; μ] := hcard
       _ ≤ 44 * log K := mul_le_mul_of_nonneg_left hdist (by linarith)
       _ = 2 * (22 * log K) := by ring
-      _ = 2 * log (K^22) := by rw [log_pow]
-    rw [mul_le_mul_left (by norm_num)] at this
-    sorry
-  calc dimension B
-    _ ≤ max (dimension A') (dimension A'') := hBdim
+      _ = 2 * log (K^22) := by
+        congr
+        convert (log_pow K 22).symm
+    rw [mul_le_mul_left (by norm_num), log_le_log_iff (by positivity) (by positivity), div_le_iff (by positivity), <- mul_inv_le_iff (by positivity), <-ge_iff_le, mul_comm] at this
+    convert this using 2
+    convert zpow_neg K 22 using 1
+    norm_cast
+  calc ((dimension B) : ℝ)
+    _ ≤ (((max (dimension A') (dimension A'')):ℕ):ℝ) := by norm_cast
     _ ≤ (40 / log 2) * d[UA; μ # UA ; μ] := hdim
-    _ ≤ (40 / log 2) * log K = mul_le_mul_of_nonneg_left (by positivity) hdist
-  rw [log_le_log _ (by positivity)] at this
-  . sorry
-  sorry
+    _ ≤ (40 / log 2) * log K := mul_le_mul_of_nonneg_left hdist (by positivity)
+
 
 /-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-44}\lvert A\rvert$ and $\dim A' \leq 60\log K$.-/
 theorem weak_PFR_int {A : Set G} [Finite A]  [Nonempty A] {K : ℝ} (hK: 0 < K) (hA: Nat.card (A+A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
@@ -164,6 +178,6 @@ theorem weak_PFR_int {A : Set G} [Finite A]  [Nonempty A] {K : ℝ} (hK: 0 < K) 
   rcases exists_isUniform Af this with ⟨Ω, mΩ, UA, μ, hμ, hmes, hunif, hrange⟩
   have hUA : IsUniform A UA μ := by
     convert hunif
-    sorry
+    exact (Set.Finite.coe_toFinset (Set.toFinite A)).symm
   apply weak_PFR hUA hK _
   exact rdist_le_of_isUniform_of_card_add_le hnonempty hA hUA hmes
