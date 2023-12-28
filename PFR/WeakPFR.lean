@@ -30,7 +30,7 @@ proof_wanted torsion_free_doubling (hG : AddMonoid.IsTorsionFree G) :
 $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
 proof_wanted torsion_dist_shrinking {H : Type*} [AddCommGroup H] [ElementaryAddCommGroup H 2]
-  [Fintype H] [MeasurableSpace H] [MeasurableSingletonClass H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
+  [Fintype H] [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
   H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ']
 
 end Torsion
@@ -112,14 +112,117 @@ variable {G : Type*} [AddCommGroup G] [Module ℤ G] [Module.Free ℤ G] [Module
 
 open Real MeasureTheory ProbabilityTheory Pointwise
 
-lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type*} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ:Measure Ω)] [IsProbabilityMeasure (ℙ:Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB): ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G) (Ωx Ωy : Type*) (hΩx:MeasureSpace Ωx) (hΩy:MeasureSpace Ωy) (UAx: Ωx → G) (UBy: Ωy → G), Nonempty Ax ∧ Nonempty By ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧ By = {z:G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧ IsProbabilityMeasure (ℙ:Measure Ωx) ∧IsProbabilityMeasure (ℙ:Measure Ωy)  ∧ IsUniform Ax UAx ∧ IsUniform By UBy ∧ (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) + 40 * d[ UA # UB ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By) ≤ 44 * (d[ UA # UB ] - d[ UAx # UBy ]) := by
-  let ψ : G →+ G := zsmulAddGroupHom 2
-  let G₂ := AddMonoidHom.range ψ
-  let H := G ⧸ G₂
-  let φ : G →+ H := QuotientAddGroup.mk' G₂
-  have hφ_elem : ElementaryAddCommGroup H 2 := by
+/-- Move to Mathlib? -/
+lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} [Zero M] [Zero N] (f : M → N) (hf : f 0 = 0)
+  (hs: Function.Surjective f) : Function.Surjective (Finsupp.mapRange (α := α) f hf) := by
+  classical
+  let g (n : N) : M := if n = 0 then 0 else Function.surjInv hs n
+  have : Function.RightInverse g f := by
+    intro n
+    by_cases h : n = 0
+    . simp [h,hf]
+    simp [h, Function.surjInv_eq hs n]
+  have hg : g 0 = 0 := by simp
+  have hfg : (f ∘ g) 0 = 0 := by simp [hf, hg]
+  intro F
+  use Finsupp.mapRange g hg F
+  rw [<-Finsupp.mapRange_comp (h:=hfg)]
+  convert Finsupp.mapRange_id F
+  convert Function.RightInverse.id this
+
+lemma torsion_free : AddMonoid.IsTorsionFree G := by
+    rintro x hx hn
+    rw [isOfFinAddOrder_iff_nsmul_eq_zero] at hn
+    rcases hn with ⟨ n, hn, hn' ⟩
+    apply_fun Module.Free.repr ℤ G at hn'
+    simp_rw [map_nsmul, map_zero, smul_eq_zero, AddEquivClass.map_eq_zero_iff, hx, or_false] at hn'
+    linarith
+
+lemma weak_PFR_quotient_prelim :
+  let H := G ⧸ (AddMonoidHom.range (zsmulAddGroupHom 2))
+  ElementaryAddCommGroup H 2 ∧ Finite H ∧ Nat.card H = 2^(FiniteDimensional.finrank ℤ G) := by
+  set ψ : G →+ G := zsmulAddGroupHom 2
+  set G₂ := AddMonoidHom.range ψ
+  set H := G ⧸ G₂
+  set φ : G →+ H := QuotientAddGroup.mk' G₂
+  have hH_elem : ElementaryAddCommGroup H 2 := by
     apply ElementaryAddCommGroup.quotient_group (by decide)
-    intro x; simp; use x; norm_cast
+    intro x; rw [AddMonoidHom.mem_range]
+    use x
+    rw [zsmulAddGroupHom_apply]
+    norm_cast
+  let B := Module.Free.ChooseBasisIndex ℤ G
+  let bG : Basis B ℤ G := Module.Free.chooseBasis ℤ G
+  have hB_fin : Fintype B := by infer_instance
+  have hB_card : Nat.card B = FiniteDimensional.finrank ℤ G := by
+    rw [FiniteDimensional.finrank_eq_card_basis bG, Nat.card_eq_fintype_card]
+  have hH_module : Module (ZMod 2) H := by infer_instance
+  let mod : (B →₀ ℤ) →+ (B →₀ ZMod 2) := Finsupp.mapRange.addMonoidHom (Int.castAddHom (ZMod 2))
+  let f : G →+ (B →₀ ℤ) := bG.repr
+  have hker : G₂ ≤ AddMonoidHom.ker (AddMonoidHom.comp mod f) := by
+    intro x hx
+    simp_rw [AddMonoidHom.mem_range, zsmulAddGroupHom_apply, AddMonoidHom.mem_ker, AddMonoidHom.coe_comp, AddMonoidHom.coe_coe, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom] at hx ⊢
+    rcases hx with ⟨ y, rfl⟩
+    ext b
+    simp_rw [map_zsmul, Finsupp.mapRange_apply, Finsupp.coe_smul, Pi.smul_apply, smul_eq_mul,
+      Int.cast_mul, Int.int_cast_ofNat, Finsupp.coe_zero, Pi.zero_apply, mul_eq_zero]
+    left
+    exact ZMod.nat_cast_self 2
+  let g : H →+ (B →₀ ZMod 2) := QuotientAddGroup.lift G₂ (AddMonoidHom.comp mod f) hker
+  have hsur : Function.Surjective g := by
+    have h1 : Function.Surjective mod := Finsupp.mapRange_surjective (Int.castAddHom (ZMod 2)) (map_zero _) ZMod.int_cast_surjective
+    have h2 := h1.comp bG.repr.surjective
+    have h3 : mod ∘ bG.repr = g ∘ (QuotientAddGroup.mk' G₂) := by
+      ext x b
+      simp only [Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,
+        Finsupp.mapRange_apply, QuotientAddGroup.coe_mk', QuotientAddGroup.lift_mk,
+        AddMonoidHom.coe_comp, AddMonoidHom.coe_coe]
+    rw [h3] at h2
+    apply Function.Surjective.of_comp h2
+  have hinj : Function.Injective g := by
+    rw [injective_iff_map_eq_zero]
+    intro x hx
+    rcases QuotientAddGroup.mk'_surjective G₂ x with ⟨y, rfl⟩
+    simp_rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, AddMonoidHom.coe_comp, AddMonoidHom.coe_coe, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,FunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,ZMod.int_cast_zmod_eq_zero_iff_dvd] at hx
+    replace hx := fun x ↦ Int.mul_ediv_cancel' (hx x)
+    let z (b:B) := ((Module.Free.chooseBasis ℤ G).repr y) b / 2
+    let z' := (Finsupp.equivFunOnFinite).symm z
+    change ∀ b:B, 2 * z' b = (f y) b at hx
+    let x' := bG.repr.symm z'
+    simp_rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff, AddMonoidHom.mem_range, zsmulAddGroupHom_apply]
+    use x'
+    change 2 • (bG.repr.symm.toLinearMap.toAddMonoidHom z') = y
+    rw [<-AddMonoidHom.map_zsmul bG.repr.symm.toLinearMap.toAddMonoidHom z' (2:ℤ)]
+    rw [<- LinearEquiv.symm_apply_apply bG.repr y]
+    change bG.repr.symm (2 • z') = bG.repr.symm (f y)
+    congr
+    ext b
+    rw [Finsupp.smul_apply, <-hx b, smul_eq_mul]
+  rcases Function.bijective_iff_has_inverse.mp ⟨ hinj, hsur ⟩ with ⟨ g', hg' ⟩
+
+  have bH : Basis B (ZMod 2) H := by
+    constructor
+    exact {
+      toFun := g
+      invFun := g'
+      left_inv := hg'.1
+      right_inv := hg'.2
+      map_add' := AddMonoidHom.map_add _
+      map_smul' := by
+        intro r x
+        rcases ZMod.int_cast_surjective r with ⟨ n, rfl ⟩
+        change g ((n:ZMod 2) • x) = (n:ZMod 2) • g x
+        rw [intCast_smul, intCast_smul]
+        exact AddMonoidHom.map_zsmul g x n
+    }
+  have hH_fin : Fintype H := Module.fintypeOfFintype bH
+  have hH_card : Nat.card H = 2^(FiniteDimensional.finrank ℤ G) := by
+    rw [Nat.card_eq_fintype_card, Module.card_fintype bH, <- Nat.card_eq_fintype_card (α := B), hB_card]
+    congr
+  exact ⟨ hH_elem, Finite.of_fintype H, hH_card ⟩
+
+lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type*} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ:Measure Ω)] [IsProbabilityMeasure (ℙ:Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB): ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G) (Ωx Ωy : Type*) (hΩx:MeasureSpace Ωx) (hΩy:MeasureSpace Ωy) (UAx: Ωx → G) (UBy: Ωy → G), Nonempty Ax ∧ Nonempty By ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧ By = {z:G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧ IsProbabilityMeasure (ℙ:Measure Ωx) ∧IsProbabilityMeasure (ℙ:Measure Ωy)  ∧ IsUniform Ax UAx ∧ IsUniform By UBy ∧ (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) + 40 * d[ UA # UB ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By) ≤ 44 * (d[ UA # UB ] - d[ UAx # UBy ]) := by
+  stop
   sorry
 
 
