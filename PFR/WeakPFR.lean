@@ -19,7 +19,7 @@ section Torsion
 open Real ProbabilityTheory MeasureTheory
 
 variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonClass G] [Countable G]
- {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {X : Ω → G} {Y : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'}
+ {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G) (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac)
 [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.  -/
@@ -29,9 +29,9 @@ proof_wanted torsion_free_doubling (hG : AddMonoid.IsTorsionFree G) :
 /-- If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and
 $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
-proof_wanted torsion_dist_shrinking {H : Type*} [AddCommGroup H] [ElementaryAddCommGroup H 2]
+lemma torsion_dist_shrinking {H : Type*} [AddCommGroup H] [ElementaryAddCommGroup H 2]
   [Fintype H] [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
-  H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ']
+  H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ'] := by sorry
 
 end Torsion
 
@@ -40,7 +40,7 @@ section F2_projection
 open Real ProbabilityTheory MeasureTheory
 
 variable {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G]
- {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] {X : Ω → G} {Y : Ω' → G} {μ: Measure Ω} {μ': Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+ {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G) (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> 44d[X;Y].\]
@@ -55,7 +55,7 @@ proof_wanted app_ent_PFR (hent: H[ X; μ] + H[Y; μ'] > 44 * d[X;μ # Y;μ']): �
 \[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 44 d[\psi(X);\psi(Y)].\] -/
-proof_wanted PFR_projection :  ∃ H : AddSubgroup G, log (Nat.card H) < 2 * (H[X; μ] + H[Y;μ']) ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] < 44 * d[X;μ # Y;μ']
+lemma PFR_projection :  ∃ H : AddSubgroup G, log (Nat.card H) ≤ 2 * (H[X; μ] + H[Y;μ']) ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ 44 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] := by sorry
 
 end F2_projection
 
@@ -223,6 +223,8 @@ lemma weak_PFR_quotient_prelim :
     congr
   exact ⟨ hH_elem, Finite.of_fintype H, hH_card ⟩
 
+#check PFR_projection
+
 /-- Given two non-empty finite subsets A, B of a rank n free Z-module G, there exists a subgroup N and points x, y in G/N such that the fibers Ax, By of A, B over x, y respectively are non-empty, one has the inequality
 $$ \log \frac{|A| |B|}{|A_x| |B_y|} ≤ 44 (d[U_A; U_B] - d[U_{A_x}; U_{B_y}])$$
 and one has the dimension bound
@@ -233,8 +235,19 @@ lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] [Nonempty A] [No
   set ψ : G →+ G := zsmulAddGroupHom 2
   set G₂ := AddMonoidHom.range ψ
   set H := G ⧸ G₂
+  let φ : G →+ H := QuotientAddGroup.mk' G₂
   let _mH : MeasurableSpace H := ⊤
   have _msH : MeasurableSingletonClass H := ⟨λ _ ↦ trivial⟩
+  have h_fintype : Fintype H := Fintype.ofFinite H
+  have h_torsionfree := torsion_free (G := G)
+  rcases (PFR_projection (φ ∘ UA) (φ ∘ UB) ℙ ℙ) with ⟨H', ⟨ hH1, hH2 ⟩ ⟩
+  replace hH1 : log (Nat.card H') ≤ 40  * d[UA # UB] := by
+    apply hH1.trans
+    have h1 := torsion_dist_shrinking UA UB ℙ ℙ h_torsionfree φ
+    have h2 := torsion_dist_shrinking UB UA ℙ ℙ h_torsionfree φ
+    rw [rdist_symm] at h2
+    linarith
+  
   sorry
 
 
