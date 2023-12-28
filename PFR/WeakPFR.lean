@@ -112,7 +112,7 @@ variable {G : Type*} [AddCommGroup G] [Module ℤ G] [Module.Free ℤ G] [Module
 
 open Real MeasureTheory ProbabilityTheory Pointwise
 
-/-- Move to Mathlib? -/
+/-- Move to Mathlib? `Finsupp.mapRange` of a surjective function is surjective. -/
 lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} [Zero M] [Zero N] (f : M → N) (hf : f 0 = 0)
   (hs: Function.Surjective f) : Function.Surjective (Finsupp.mapRange (α := α) f hf) := by
   classical
@@ -130,6 +130,7 @@ lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} 
   convert Finsupp.mapRange_id F
   convert Function.RightInverse.id this
 
+/-- A free Z-module is torsion-free. Move to Mathlib? -/
 lemma torsion_free : AddMonoid.IsTorsionFree G := by
     rintro x hx hn
     rw [isOfFinAddOrder_iff_nsmul_eq_zero] at hn
@@ -138,6 +139,7 @@ lemma torsion_free : AddMonoid.IsTorsionFree G := by
     simp_rw [map_nsmul, map_zero, smul_eq_zero, AddEquivClass.map_eq_zero_iff, hx, or_false] at hn'
     linarith
 
+/-- If G is a rank n free Z-module, then G/2G is a finite elementary 2-group of cardinality 2^n.  Code is slow, needs to be golfed -/
 lemma weak_PFR_quotient_prelim :
   let H := G ⧸ (AddMonoidHom.range (zsmulAddGroupHom 2))
   ElementaryAddCommGroup H 2 ∧ Finite H ∧ Nat.card H = 2^(FiniteDimensional.finrank ℤ G) := by
@@ -221,8 +223,18 @@ lemma weak_PFR_quotient_prelim :
     congr
   exact ⟨ hH_elem, Finite.of_fintype H, hH_card ⟩
 
+/-- Given two non-empty finite subsets A, B of a rank n free Z-module G, there exists a subgroup N and points x, y in G/N such that the fibers Ax, By of A, B over x, y respectively are non-empty, one has the inequality
+$$ \log \frac{|A| |B|}{|A_x| |B_y|} ≤ 44 (d[U_A; U_B] - d[U_{A_x}; U_{B_y}])$$
+and one has the dimension bound
+$$ n \log 2 ≤ \log |G/N| + 40 d[U_A; U_B].$$
+ -/
 lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type*} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ:Measure Ω)] [IsProbabilityMeasure (ℙ:Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB): ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G) (Ωx Ωy : Type*) (hΩx:MeasureSpace Ωx) (hΩy:MeasureSpace Ωy) (UAx: Ωx → G) (UBy: Ωy → G), Nonempty Ax ∧ Nonempty By ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧ By = {z:G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧ IsProbabilityMeasure (ℙ:Measure Ωx) ∧IsProbabilityMeasure (ℙ:Measure Ωy)  ∧ IsUniform Ax UAx ∧ IsUniform By UBy ∧ (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) + 40 * d[ UA # UB ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By) ≤ 44 * (d[ UA # UB ] - d[ UAx # UBy ]) := by
-  stop
+  obtain ⟨ h_elem, h_finite, h_card ⟩ := weak_PFR_quotient_prelim (G := G)
+  set ψ : G →+ G := zsmulAddGroupHom 2
+  set G₂ := AddMonoidHom.range ψ
+  set H := G ⧸ G₂
+  let _mH : MeasurableSpace H := ⊤
+  have _msH : MeasurableSingletonClass H := ⟨λ _ ↦ trivial⟩
   sorry
 
 
