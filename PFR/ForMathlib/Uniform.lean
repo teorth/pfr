@@ -153,3 +153,20 @@ lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] (h : IsUnifo
     apply h.eq_of_mem x y hx hy
   · rw [←h'.measure_mem_eq hH.compl]
     exact h.measure_preimage_compl
+
+lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Finite H] {X: Ω → S} {X': Ω' → S} (hX: Measurable X) (hX': Measurable X') (hX_unif : IsUniform H X μ) (hX'_unif : IsUniform H X' μ') : IdentDistrib X X' μ μ' := by
+  constructor
+  . exact Measurable.aemeasurable hX
+  . exact Measurable.aemeasurable hX'
+  ext E hE
+  rw [<-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE, <-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
+  congr! 4 with _ x
+  rw [Measure.map_apply hX (MeasurableSet.singleton x), Measure.map_apply hX' (MeasurableSet.singleton x)]
+  set Hf := H.toFinite.toFinset
+  have hX_unif' : IsUniform Hf X μ := by convert hX_unif; simp
+  have hX'_unif' : IsUniform Hf X' μ' := by convert hX'_unif; simp
+
+  by_cases h : x ∈ Hf
+  . rw [IsUniform.measure_preimage_of_mem hX_unif' hX h,IsUniform.measure_preimage_of_mem hX'_unif' hX' h]
+    simp
+  rw [IsUniform.measure_preimage_of_nmem hX_unif' h,IsUniform.measure_preimage_of_nmem hX'_unif' h]

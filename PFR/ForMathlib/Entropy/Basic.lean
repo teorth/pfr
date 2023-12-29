@@ -310,6 +310,19 @@ lemma prob_ge_exp_neg_entropy' {Ω : Type*} [MeasurableSpace Ω] {μ : Measure �
     ENNReal.ofReal_le_iff_le_toReal (measure_ne_top _ _), ← Measure.real,
     map_measureReal_apply hX (MeasurableSet.singleton s)] at hs
 
+/-- If $X$ is an $S$-valued random variable of non-positive entropy, then $X$ is almost surely constant. -/
+lemma const_of_nonpos_entropy {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
+    [IsProbabilityMeasure μ] {X : Ω → S} (hX : Measurable X) [FiniteRange X] (hent: H[X; μ] ≤ 0):
+    ∃ s : S, μ.real (X ⁻¹' {s}) = 1 := by
+    rcases prob_ge_exp_neg_entropy' (μ := μ) X hX with ⟨ s, hs ⟩
+    use s
+    apply LE.le.antisymm
+    . rw [<-IsProbabilityMeasure.measureReal_univ (μ := μ)]
+      exact measureReal_mono (subset_univ _) (by finiteness)
+    refine le_trans ?_ hs
+    simp [hent]
+
+
 /-- $H[X, Y] = H[Y, X]$. -/
 lemma entropy_comm (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y⟩; μ] = H[⟨Y, X⟩ ; μ] := by
