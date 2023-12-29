@@ -293,6 +293,7 @@ lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] [hnA: Nonempty A
   have h1 := torsion_dist_shrinking UA UB ℙ ℙ h_torsionfree φ
   have h2 := torsion_dist_shrinking UB UA ℙ ℙ h_torsionfree φ
   rw [rdist_symm] at h2
+  -- using explicit .toFun casts as this saves a lot of heartbeats
   change H[φ.toFun ∘ UA] ≤ 10 * d[UA # UB] at h1
   change H[φ.toFun ∘ UB] ≤ 10 * d[UA # UB] at h2
   replace hH1 : log (Nat.card H') ≤ 40  * d[UA # UB] := by
@@ -430,11 +431,43 @@ lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] [hnA: Nonempty A
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (44 * (d[UA # UB] - d[UAx # UBy])) := by ring
   exact (mul_le_mul_left h).mp this
 
+/-- Separting out the conclusion of `weak_PFR_asymm` for convenience of induction arguments.-/
+def weak_PFR_asymm_conclusion (A B : Set G) {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] (UA : Ω → G) (UB : Ω' → G) : Prop := ∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ Nonempty A' ∧ Nonempty B' ∧ log (((Nat.card A) * (Nat.card B)) / ((Nat.card A') * (Nat.card B'))) ≤ 44 * d[UA # UB] ∧ max (dimension A') (dimension B') ≤ (40 / log 2) * d[UA # UB]
+
+/-- The property of two sets A,B of a group G not being contained in cosets of the same proper subgroup -/
+def not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) : Prop := AddSubgroup.closure ((A-A) ∪ (B-B)) = ⊤
+
+/-- Without loss of generality, one can move (up to translation and embedding) any pair A, B of non-empty sets into a group where they are not in a coset. -/
+lemma wlog_not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) [hA: Nonempty A] [hB: Nonempty B] : ∃ (G': Type u) (hG': AddCommGroup G') (φ: G' →+ G) (hφ: Function.Injective φ) (x y: G) (A' B' : Set G'), A = (φ '' A') + {x} ∧ B = (φ '' B') + {y} ∧ not_in_coset A' B' := by
+  set G' := AddSubgroup.closure ((A-A) ∪ (B-B))
+  set φ : G' →+ G := AddSubgroup.subtype G'
+  have hφ : Function.Injective φ := AddSubgroup.subtype_injective G'
+  have x : A := Classical.choice hA
+  have y : B := Classical.choice hB
+  set A' : Set G' := { a : G' | φ a + x ∈ A }
+  set B' : Set G' := { b : G' | φ b + y ∈ B }
+  use G', (by infer_instance), φ, hφ, x, y, A', B'
+  refine ⟨ ?_, ?_, ?_ ⟩
+  . sorry
+  . sorry
+  sorry
+
 /-- If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
-lemma weak_PFR_asymm {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ: Measure Ω)] [IsProbabilityMeasure (ℙ: Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB): ∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ Nonempty A' ∧ Nonempty B' ∧ log (((Nat.card A) * (Nat.card B)) / ((Nat.card A') * (Nat.card B'))) ≤ 44 * d[UA # UB] ∧ max (dimension A') (dimension B') ≤ (40 / log 2) * d[UA # UB] := by
+lemma weak_PFR_asymm {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ: Measure Ω)] [IsProbabilityMeasure (ℙ: Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB): weak_PFR_asymm_conclusion A B UA UB := by
+  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (hG_mod : Module ℤ G) (hG_free : Module.Free ℤ G) (hG_fin : Module.Finite ℤ G) (hG_count : Countable G) (hG_mes : MeasurableSpace G) (hG_sing: MeasurableSingletonClass G) (A B: Set G) (hA_fin: Finite A) (hB_fin: Finite B) (hA_non: Nonempty A) (hB_non: Nonempty B) (Ω Ω' : Type u) (hΩ: MeasureSpace Ω) (hΩ': MeasureSpace Ω') (UA : Ω → G) (UB : Ω' → G) (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) (hUA: IsUniform A UA) (hUB: IsUniform B UB) (hM : (Nat.card A) + (Nat.card B) ≤ M), weak_PFR_asymm_conclusion A B UA UB)
+  suffices : ∀ M, (∀ M', M' < M → P M') → P M
+  . set M := (Nat.card A) + (Nat.card B)
+    have hM : (Nat.card A) + (Nat.card B) ≤ M := Nat.le_refl _
+    convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› A B ‹_› ‹_› ‹_› ‹_› Ω Ω' _ _ UA UB ‹_› ‹_› hUA hUB hM
+  intro M h_induct
+
+
+
   sorry
+
+
 
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
 $\lvert A'\rvert\geq K^{-22}\lvert A\rvert$
