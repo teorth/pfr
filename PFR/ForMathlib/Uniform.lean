@@ -1,5 +1,6 @@
 import Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.MeasureReal
+import PFR.ForMathlib.FiniteRange
 
 open Function MeasureTheory Set
 open scoped BigOperators ENNReal
@@ -7,7 +8,7 @@ open scoped BigOperators ENNReal
 namespace ProbabilityTheory
 universe uΩ uS uT uU
 variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} [mΩ : MeasurableSpace Ω]
-  [Countable S] [Countable T] [Nonempty S] [Nonempty T] [MeasurableSpace S] [MeasurableSpace T]
+  [Countable S] [Countable T] [Nonempty T] [MeasurableSpace S] [MeasurableSpace T]
   [MeasurableSingletonClass S] [MeasurableSingletonClass T] {X : Ω → S} {Y : Ω → T} {μ : Measure Ω}
   {H : Set S}
 
@@ -22,9 +23,9 @@ structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac
 /-- Uniform distributions exist. -/
 lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
     ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
-    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ ∀ ω : Ω, X ω ∈ H := by
+    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ (∀ ω : Ω, X ω ∈ H) ∧ FiniteRange X := by
   refine ⟨H, Subtype.instMeasurableSpace, (fun x ↦ x),
-      (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, Measure.dirac i, ?_, measurable_subtype_coe, ?_, fun x ↦ x.2⟩
+      (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, Measure.dirac i, ?_, measurable_subtype_coe, ?_, fun x ↦ x.2, ?_⟩
   · constructor
     simp only [Finset.univ_eq_attach, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
       Measure.coe_finset_sum, Pi.smul_apply, Finset.sum_apply, MeasurableSet.univ,
@@ -49,6 +50,8 @@ lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
         simp [h'b]
       · simp
     · simp
+  apply finiteRange_of_finset _ H _
+  simp
 
 /-- The image of a uniform random variable under an injective map is uniform on the image. -/
 lemma IsUniform.comp [DecidableEq T] {H: Finset S} (h : IsUniform H X μ) {f : S → T} (hf : Injective f) :
@@ -66,9 +69,9 @@ lemma IsUniform.comp [DecidableEq T] {H: Finset S} (h : IsUniform H X μ) {f : S
 lemma exists_isUniform_measureSpace {S : Type u}  [MeasurableSpace S]
     [MeasurableSingletonClass S] (H : Finset S) (h : H.Nonempty) :
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
-    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ ∀ ω : Ω, U ω ∈ H := by
-  rcases exists_isUniform H h with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem⟩
-  exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem⟩
+    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω : Ω, U ω ∈ H) ∧ FiniteRange U := by
+  rcases exists_isUniform H h with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem, Xfin⟩
+  exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem, Xfin⟩
 
 /-- A uniform random variable on H almost surely takes values in H. -/
 lemma IsUniform.ae_mem (h : IsUniform H X μ) : ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
@@ -153,3 +156,20 @@ lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] (h : IsUnifo
     apply h.eq_of_mem x y hx hy
   · rw [←h'.measure_mem_eq hH.compl]
     exact h.measure_preimage_compl
+
+lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Finite H] {X: Ω → S} {X': Ω' → S} (hX: Measurable X) (hX': Measurable X') (hX_unif : IsUniform H X μ) (hX'_unif : IsUniform H X' μ') : IdentDistrib X X' μ μ' := by
+  constructor
+  . exact Measurable.aemeasurable hX
+  . exact Measurable.aemeasurable hX'
+  ext E hE
+  rw [<-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE, <-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
+  congr! 4 with _ x
+  rw [Measure.map_apply hX (MeasurableSet.singleton x), Measure.map_apply hX' (MeasurableSet.singleton x)]
+  set Hf := H.toFinite.toFinset
+  have hX_unif' : IsUniform Hf X μ := by convert hX_unif; simp
+  have hX'_unif' : IsUniform Hf X' μ' := by convert hX'_unif; simp
+
+  by_cases h : x ∈ Hf
+  . rw [IsUniform.measure_preimage_of_mem hX_unif' hX h,IsUniform.measure_preimage_of_mem hX'_unif' hX' h]
+    simp
+  rw [IsUniform.measure_preimage_of_nmem hX_unif' h,IsUniform.measure_preimage_of_nmem hX'_unif' h]

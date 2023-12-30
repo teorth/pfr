@@ -151,8 +151,8 @@ By Lemma \ref{single-fibres} there exist $x,y\in \mathbb{F}_2^d/H$ such that, wi
 Suppose first that $\lvert A_x\rvert+\lvert B_y\rvert=\lvert A\rvert+\lvert B\rvert$. This means that $\tilde{\phi}(A)=\{x\}$ and $\tilde{\phi}(B)=\{y\}$, and hence both $A$ and $B$ are in cosets of $\ker \tilde{\phi}$. Since by assumption $A,B$ are not in cosets of a proper subgroup of $\mathbb{Z}^d$ this means $\ker\tilde{\phi}=\mathbb{Z}^d$, and so (examining the definition of $\tilde{\phi}$) we must have $H=\mathbb{F}_2^d$. Then our bound on $\log\lvert H\rvert$ forces $d\leq \frac{40}{\log 2}d[U_A;U_B]$ and we are done with $A'=A$ and $B'=B$.
 
 Otherwise,
-\[\lvert A_x\rvert+\lvert B_y\rvert <\lvert A\rvert+\lvert B\rvert\]
-and $\mathbb{H}(\tilde{\phi}(U_A))+\mathbb{H}(\tilde{\phi}(U_B))>0$, whence $d[\tilde{\phi}(U_A);\tilde{\phi}(U_B)]>0$. By induction we can find some $A'\subseteq A_x$ and $B'\subseteq B_y$ such that $\dim A',\dim B'\leq \frac{40}{\log 2} d[U_{A_x};U_{B_y}]\leq \frac{40}{\log 2}d[U_A;U_B]$ and
+\[\lvert A_x\rvert+\lvert B_y\rvert <\lvert A\rvert+\lvert B\rvert.\]
+By induction we can find some $A'\subseteq A_x$ and $B'\subseteq B_y$ such that $\dim A',\dim B'\leq \frac{40}{\log 2} d[U_{A_x};U_{B_y}]\leq \frac{40}{\log 2}d[U_A;U_B]$ and
 
 \[\log \frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_{A_x};U_{B_y}].\]
 Adding these inequalities implies
@@ -163,18 +163,18 @@ as required.
 
 \begin{theorem}\label{weak-pfr-symm}\lean{weak_PFR_symm}\leanok
 If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
-\[\lvert A'\rvert\geq K^{-44}\lvert A\rvert\]
-and $\dim A'\leq 60\log K$.
+\[\lvert A'\rvert\geq K^{-22}\lvert A\rvert\]
+and $\dim A'\leq \frac{40}{\log 2} \log K$.
 \end{theorem}
 \begin{proof}
-\uses{weak-pfr-asymm,dimension-def}
+\uses{weak-pfr-asymm,dimension-def}\leanok
 Immediate from Theorem \ref{weak-pfr-asymm} and rearranging.
 \end{proof}
 
 \begin{theorem}\label{weak-pfr-int}\lean{weak_PFR_int}\leanok
-Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-44}\lvert A\rvert$ and $\dim A' \leq 60\log K$.
+Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-22}\lvert A\rvert$ and $\dim A' \leq \frac{40}{\log 2}\log K$.
 \end{theorem}
-\begin{proof}
+\begin{proof}\leanok
 \uses{weak-pfr-symm,dimension-def}
 As in the beginning of Theorem \ref{pfr} the doubling condition forces $d[U_A;U_A]\leq \log K$, and then we apply Theorem \ref{weak-pfr-symm}.
 \end{proof}

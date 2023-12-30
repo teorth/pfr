@@ -147,6 +147,43 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
   rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
   rfl
 
+/-- $d[X;Y] ≤ H[X]/2 + H[Y]/2$. -/
+lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRange Y] (hX: Measurable X) (hY: Measurable Y) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    d[X ; μ # Y ; μ'] ≤ (H[X ; μ] + H[Y ; μ'])/2 := by
+  rcases ProbabilityTheory.independent_copies_finiteRange hX hY μ μ' with ⟨ν, X', Y', hprob, hX', hY', hindep, hidentX, hidentY, hfinX, hfinY⟩
+  rw [<-ProbabilityTheory.IdentDistrib.rdist_eq hidentX hidentY, <- IdentDistrib.entropy_eq hidentX, <-IdentDistrib.entropy_eq hidentY, ProbabilityTheory.IndepFun.rdist_eq hindep hX' hY']
+  suffices H[X' - Y'; ν] ≤ H[X'; ν] + H[Y'; ν] by linarith
+  change H[(fun x ↦ x.1 - x.2) ∘ ⟨X',Y' ⟩; ν] ≤ H[X'; ν] + H[Y'; ν]
+  apply (entropy_comp_le ν (by measurability) _).trans
+  exact entropy_pair_le_add hX' hY' ν
+
+/-- Applying an injective homomorphism does not affect Ruzsa distance. -/
+lemma rdist_of_inj  {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
+  [MeasurableSub₂ H] [MeasurableAdd₂ H] [Countable H] (hX: Measurable X) (hY: Measurable Y) (φ: G →+ H) (hφ: Function.Injective φ) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']: d[φ ∘ X ; μ # φ ∘ Y ; μ'] = d[X ; μ # Y ; μ'] := by
+    rw [rdist_def, rdist_def]
+    congr 2
+    . rw [<-entropy_comp_of_injective _ (by measurability) _ hφ]
+      apply IdentDistrib.entropy_eq
+      constructor
+      . exact Measurable.aemeasurable (measurable_of_countable _)
+      . exact Measurable.aemeasurable (measurable_of_countable _)
+      set g := fun x : H × H ↦ x.1 - x.2
+      set f := fun x : G × G ↦ (φ x.1, φ x.2)
+      have : φ ∘ (fun x ↦ x.1 - x.2) = g ∘ f := by
+        ext x
+        simp
+      rw [this, <- MeasureTheory.Measure.map_map (g := g) (f := f) (measurable_of_countable _) (measurable_of_countable _), <- MeasureTheory.Measure.map_map (measurable_of_countable _) hX, <- MeasureTheory.Measure.map_map (measurable_of_countable _) hY]
+      congr
+      convert MeasureTheory.Measure.map_prod_map _ _ (measurable_of_countable _) (measurable_of_countable _)
+      . exact instSFiniteMap μ X
+      . exact instSFiniteMap μ' Y
+      all_goals infer_instance
+    . congr 1
+      exact entropy_comp_of_injective _ hX _ hφ
+    exact entropy_comp_of_injective _ hY _ hφ
+
+
+
 /-- $$ d[X ; 0] = H[X] / 2 $$ -/
 lemma rdist_zero_eq_half_ent [IsFiniteMeasure μ] [IsProbabilityMeasure μ'] :
     d[X ; μ # fun _ ↦ 0 ; μ'] = H[X ; μ]/2 := by
