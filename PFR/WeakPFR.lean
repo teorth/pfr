@@ -3,6 +3,7 @@ import PFR.Main
 import Mathlib.GroupTheory.Torsion
 import Mathlib.Algebra.Quotient
 import Mathlib.Algebra.Order.Ring.Defs
+import Mathlib.LinearAlgebra.FreeModule.PID
 
 /-!
 # Weak PFR over the integers
@@ -72,7 +73,7 @@ section dim
 
 open Classical TensorProduct
 
-variable {G : Type u} [AddCommGroup G] [Module ℤ G]
+variable {G : Type u} [AddCommGroup G]
 
 /-- If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the span of $A-A$
   over the reals -- equivalently, the smallest $d'$ such that $A$ lies in a coset of a subgroup
@@ -109,7 +110,7 @@ proof_wanted dimension_le_rank [Module.Finite ℤ G] (A : Set G) :
 
 end dim
 
-variable {G : Type u} [AddCommGroup G] [Module ℤ G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
+variable {G : Type u} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
 
 open Real MeasureTheory ProbabilityTheory Pointwise
 
@@ -437,42 +438,199 @@ def weak_PFR_asymm_conclusion (A B : Set G) {Ω Ω' : Type u} [MeasureSpace Ω] 
 /-- The property of two sets A,B of a group G not being contained in cosets of the same proper subgroup -/
 def not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) : Prop := AddSubgroup.closure ((A-A) ∪ (B-B)) = ⊤
 
-/-- Without loss of generality, one can move (up to translation and embedding) any pair A, B of non-empty sets into a group where they are not in a coset. -/
-lemma wlog_not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) [hA: Nonempty A] [hB: Nonempty B] : ∃ (G': Type u) (hG': AddCommGroup G') (φ: G' →+ G) (hφ: Function.Injective φ) (x y: G) (A' B' : Set G'), A = (φ '' A') + {x} ∧ B = (φ '' B') + {y} ∧ not_in_coset A' B' := by
+def is_shift {G: Type u} [AddCommGroup G] {H: AddSubgroup G} (A : Set G) (A' : Set H) : Prop := ∃ x, A = (A' : Set G) + {x}
+
+lemma sub_of_shift  {G: Type u} [AddCommGroup G] {H: AddSubgroup G} {A : Set G} {A' : Set H} (hA: is_shift A A') : A - A = (A' - A': Set H) := by
+  rcases hA with ⟨ x, hA ⟩
+  ext z; constructor
+  . intro hz
+    rw [hA, Set.mem_sub] at hz
+    rcases hz with ⟨ a1, a2, ha1, ha2, ha12 ⟩
+    rw [Set.add_singleton, Set.image_add_right, Set.mem_preimage, Set.mem_image] at ha1 ha2
+    rcases ha1 with ⟨ a1', ha1', ha1 ⟩
+    rcases ha2 with ⟨ a2', ha1', ha2 ⟩
+    have : z = (a1' - a2':H) := by push_cast; rw [ha1, ha2, <-ha12]; abel
+    rw [this]
+    convert Set.mem_image_of_mem Subtype.val ?_
+    rw [Set.mem_sub]
+    use a1', a2'
+  intro hz
+  rw [Set.mem_image] at hz
+  rcases hz with ⟨ z', hz, hzz ⟩
+  rw [Set.mem_sub] at hz
+  rcases hz with ⟨ a1, a2, ha1, ha2, ha12 ⟩
+  rw [Set.mem_sub, <-hzz, <-ha12, hA]
+  use a1+x, a2+x
+  simp [ha1, ha2]
+
+lemma card_of_shift  {G: Type u} [AddCommGroup G] {H: AddSubgroup G} {A : Set G} {A' : Set H} (hA: is_shift A A') [Finite A] [Nonempty A] : Finite A' ∧ Nonempty A' ∧ Nat.card A' = Nat.card A := by
+  rcases hA with ⟨ x, hA ⟩
+  set f : H → G := fun a ↦ (a:G) + x
+  have hf : Function.Injective f := by
+    intro y z hyz
+    simp at hyz
+    exact hyz
+  have hA' : A = f '' A' := by
+    rw [hA]
+    ext a
+    simp_rw [Set.add_singleton, Set.mem_image]
+    constructor
+    . rintro ⟨ a', ⟨ b, hb, hb' ⟩, ha ⟩
+      use b; rw [<-hb'] at ha; exact ⟨ hb, ha ⟩
+    rintro ⟨ a', ha, ha' ⟩
+    use a'; refine ⟨?_, ha' ⟩
+    use a'
+  have hA'_card : Nat.card A' = Nat.card A := by
+    rw [hA', Nat.card_image_of_injective hf]
+  have hA'_nonfin : Nonempty A' ∧ Finite A' := by
+    have := Nat.card_pos (α := A)
+    rw [<-hA'_card, Nat.card_pos_iff] at this
+    exact this
+  exact ⟨ hA'_nonfin.2, hA'_nonfin.1, hA'_card ⟩
+
+
+
+/-- Without loss of generality, one can move (up to translation and embedding) any pair A, B of non-empty sets into a subgroup where they are not in a coset. -/
+lemma wlog_not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) [hA: Nonempty A] [hB: Nonempty B] : ∃ (G': AddSubgroup G) (A' B' : Set G'), is_shift A A' ∧ is_shift B B' ∧ not_in_coset A' B' := by
   set G' := AddSubgroup.closure ((A-A) ∪ (B-B))
-  set φ : G' →+ G := AddSubgroup.subtype G'
-  have hφ : Function.Injective φ := AddSubgroup.subtype_injective G'
-  have x : A := Classical.choice hA
-  have y : B := Classical.choice hB
-  set A' : Set G' := { a : G' | φ a + x ∈ A }
-  set B' : Set G' := { b : G' | φ b + y ∈ B }
-  use G', (by infer_instance), φ, hφ, x, y, A', B'
-  refine ⟨ ?_, ?_, ?_ ⟩
-  . sorry
-  . sorry
+  obtain ⟨ x ⟩ := hA
+  obtain ⟨ y ⟩ := hB
+  set A' : Set G' := { a : G' | (a:G) + x ∈ A }
+  set B' : Set G' := { b : G' | (b:G) + y ∈ B }
+  use G', A', B'
+  have hA : is_shift A A' := by
+    use x; ext z; simp
+    intro hz
+    apply AddSubgroup.subset_closure
+    rw [Set.mem_union]; left
+    rw [Set.mem_sub]
+    use z, x
+    refine ⟨ hz, Subtype.mem x, sub_eq_add_neg z x ⟩
+  have hB : is_shift B B' := by
+    use y; ext z; simp
+    intro hz
+    apply AddSubgroup.subset_closure
+    rw [Set.mem_union]; right
+    rw [Set.mem_sub]
+    use z, y
+    refine ⟨ hz, Subtype.mem y, sub_eq_add_neg z y ⟩
+
+  refine ⟨ hA, hB, ?_ ⟩
+  unfold not_in_coset
+  rw [AddSubgroup.eq_top_iff']
+  intro z
+  rw [AddSubgroup.mem_closure]
+  intro K hK
+  replace hK := Set.image_mono (f := Subtype.val) hK
+  rw [Set.image_union] at hK
+  change ((A'-A':Set G'):Set G) ∪ ((B'-B':Set G'):Set G) ⊆ (K:Set G') at hK
+  rw [<-sub_of_shift hA, <-sub_of_shift hB, <- AddSubgroup.coeSubtype, <-AddSubgroup.coe_map (AddSubgroup.subtype G') K, <-AddSubgroup.closure_le] at hK
+  change G' ≤ AddSubgroup.map (AddSubgroup.subtype G') K at hK
+  replace hK := hK (SetLike.coe_mem z)
+  simp at hK
+  exact hK
+
+lemma dimension_of_shift {G: Type u} [AddCommGroup G] {H: AddSubgroup G} (A : Set H) (x : G) : dimension ((fun a:H ↦ (a:G) + x) '' A) = dimension A := by
   sorry
+
+lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ: Measure Ω)] [IsProbabilityMeasure (ℙ: Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB) [FiniteRange UA]  [FiniteRange UB] (G': AddSubgroup G) (A' B' : Set G') (hA: is_shift A A') (hB: is_shift B B') [Finite A'] [Finite B'] [Nonempty A'] [Nonempty B'] {Ω'' Ω''' : Type u} [MeasureSpace Ω''] [MeasureSpace Ω'''] (UA' : Ω'' → G') (UB' : Ω''' → G') [IsProbabilityMeasure (ℙ: Measure Ω'')] [IsProbabilityMeasure (ℙ: Measure Ω''')] (hUA': IsUniform A' UA') (hUB': IsUniform B' UB') [FiniteRange UA'] [FiniteRange UB'] : weak_PFR_asymm_conclusion A' B' UA' UB' → weak_PFR_asymm_conclusion A B UA UB := by
+  intro this
+  rcases this with ⟨ A'', B'', hA'', hB'', hA''_non, hB''_non, hcard_ineq, hdim_ineq ⟩
+  rcases hA with ⟨ x, hA ⟩
+  set f : G' → G := fun a ↦ (a:G) + x
+  have hf : Function.Injective f := by
+    intro y z hyz
+    simp at hyz
+    exact hyz
+  have hA' : A = f '' A' := by
+    rw [hA]
+    ext a
+    simp_rw [Set.add_singleton, Set.mem_image]
+    constructor
+    . rintro ⟨ a', ⟨ b, hb, hb' ⟩, ha ⟩
+      use b; rw [<-hb'] at ha; exact ⟨ hb, ha ⟩
+    rintro ⟨ a', ha, ha' ⟩
+    use a'; refine ⟨?_, ha' ⟩
+    use a'
+  rcases hB with ⟨ y, hB ⟩
+  set g : G' → G := fun a ↦ (a:G) + y
+  have hg : Function.Injective g := by
+    intro y z hyz
+    simp at hyz
+    exact hyz
+  have hB' : B = g '' B' := by
+    rw [hB]
+    ext a
+    simp_rw [Set.add_singleton, Set.mem_image]
+    constructor
+    . rintro ⟨ a', ⟨ b, hb, hb' ⟩, ha ⟩
+      use b; rw [<-hb'] at ha; exact ⟨ hb, ha ⟩
+    rintro ⟨ a', ha, ha' ⟩
+    use a'; refine ⟨?_, ha' ⟩
+    use a'
+  use f '' A'', g '' B''
+  have : d[UA # UB] = d[UA' # UB'] := by sorry
+  refine ⟨ ?_, ?_, (by infer_instance), (by infer_instance), ?_, ?_ ⟩
+  . simp [hA', hf, hA'']
+  . simp [hB', hg, hB'']
+  . convert hcard_ineq using 2
+    . congr 3
+      . rw [hA', Nat.card_image_of_injective hf]
+      . rw [hB', Nat.card_image_of_injective hg]
+      . rw [Nat.card_image_of_injective hf]
+      rw [Nat.card_image_of_injective hg]
+  convert hdim_ineq using 2
+  congr 1
+  . exact dimension_of_shift A'' x
+  exact dimension_of_shift B'' y
+
 
 /-- If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
-lemma weak_PFR_asymm {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ: Measure Ω)] [IsProbabilityMeasure (ℙ: Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB): weak_PFR_asymm_conclusion A B UA UB := by
-  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (hG_mod : Module ℤ G) (hG_free : Module.Free ℤ G) (hG_fin : Module.Finite ℤ G) (hG_count : Countable G) (hG_mes : MeasurableSpace G) (hG_sing: MeasurableSingletonClass G) (A B: Set G) (hA_fin: Finite A) (hB_fin: Finite B) (hA_non: Nonempty A) (hB_non: Nonempty B) (Ω Ω' : Type u) (hΩ: MeasureSpace Ω) (hΩ': MeasureSpace Ω') (UA : Ω → G) (UB : Ω' → G) (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) (hUA: IsUniform A UA) (hUB: IsUniform B UB) (hM : (Nat.card A) + (Nat.card B) ≤ M), weak_PFR_asymm_conclusion A B UA UB)
+lemma weak_PFR_asymm {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ: Measure Ω)] [IsProbabilityMeasure (ℙ: Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB) [FiniteRange UA] [FiniteRange UB]: weak_PFR_asymm_conclusion A B UA UB := by
+  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (hG_free : Module.Free ℤ G) (hG_fin : Module.Finite ℤ G) (hG_count : Countable G) (hG_mes : MeasurableSpace G) (hG_sing: MeasurableSingletonClass G) (A B: Set G) (hA_fin: Finite A) (hB_fin: Finite B) (hA_non: Nonempty A) (hB_non: Nonempty B) (Ω Ω' : Type u) (hΩ: MeasureSpace Ω) (hΩ': MeasureSpace Ω') (UA : Ω → G) (UB : Ω' → G) (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) (hUA: IsUniform A UA) (hUB: IsUniform B UB) (hUA_fin : FiniteRange UA) (hUB_fin : FiniteRange UB) (hM : (Nat.card A) + (Nat.card B) ≤ M), weak_PFR_asymm_conclusion A B UA UB)
   suffices : ∀ M, (∀ M', M' < M → P M') → P M
   . set M := (Nat.card A) + (Nat.card B)
     have hM : (Nat.card A) + (Nat.card B) ≤ M := Nat.le_refl _
-    convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› A B ‹_› ‹_› ‹_› ‹_› Ω Ω' _ _ UA UB ‹_› ‹_› hUA hUB hM
+    convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› A B ‹_› ‹_› ‹_› ‹_› Ω Ω' _ _ UA UB ‹_› ‹_› hUA hUB ‹_› ‹_› hM
   intro M h_induct
+  -- wlog we can assume A, B are not in cosets of a smaller subgroup
+  suffices : ∀ (G : Type u) (hG_comm : AddCommGroup G) (hG_free : Module.Free ℤ G) (hG_fin : Module.Finite ℤ G) (hG_count : Countable G) (hG_mes : MeasurableSpace G) (hG_sing: MeasurableSingletonClass G) (A B: Set G) (hA_fin: Finite A) (hB_fin: Finite B) (hA_non: Nonempty A) (hB_non: Nonempty B) (Ω Ω' : Type u) (hΩ: MeasureSpace Ω) (hΩ': MeasureSpace Ω') (UA : Ω → G) (UB : Ω' → G) (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) (hUA: IsUniform A UA) (hUB: IsUniform B UB) (hUA_fin : FiniteRange UA) (hUB_fin : FiniteRange UB) (hM : (Nat.card A) + (Nat.card B) ≤ M) (hnot: not_in_coset A B), weak_PFR_asymm_conclusion A B UA UB
+  . intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non Ω Ω' hΩ hΩ' UA UB hμ hμ' hUA hUB hUA_fin hUB_fin hM
 
+    obtain ⟨ G', A', B', hA, hB, hnot' ⟩ := wlog_not_in_coset A B
+    have hG'_fin : Module.Finite ℤ G' :=
+      (AddSubgroup.toIntSubmodule G').fg_iff_finite.mp (IsNoetherian.noetherian _)
 
+    have hG'_free : Module.Free ℤ G' := by
+      rcases Submodule.nonempty_basis_of_pid (Module.Free.chooseBasis ℤ G) (AddSubgroup.toIntSubmodule G') with ⟨ n, ⟨ b ⟩ ⟩
+      exact Module.Free.of_basis b
 
+    obtain ⟨ hA'_fin, hA'_non, hA'_card ⟩ := card_of_shift hA
+    obtain ⟨ hB'_fin, hB'_non, hB'_card ⟩ := card_of_shift hB
+    rw [<-hA'_card, <-hB'_card] at hM
+
+    set A'f := A'.toFinite.toFinset
+    have hA'f_non : A'f.Nonempty := by simp; exact Set.nonempty_coe_sort.mp hA'_non
+    rcases exists_isUniform_measureSpace A'f hA'f_non with ⟨Ω'', mΩ'', UA', hμ'', hUA'_mes, hUA'_unif, -, hUA'_fin⟩
+    set B'f := B'.toFinite.toFinset
+    have hB'f_non : B'f.Nonempty := by simp; exact Set.nonempty_coe_sort.mp hB'_non
+    rcases exists_isUniform_measureSpace B'f hB'f_non with ⟨Ω''', mΩ''', UB', hμ''', hUB'_mes, hUB'_unif, -, hUB'_fin⟩
+
+    rw [A'.toFinite.coe_toFinset] at hUA'_unif
+    rw [B'.toFinite.coe_toFinset] at hUB'_unif
+
+    replace this := this G' _ hG'_free hG'_fin (by infer_instance) (by infer_instance) (by infer_instance) A' B' hA'_fin hB'_fin hA'_non hB'_non Ω'' Ω''' mΩ'' mΩ''' UA' UB' hμ'' hμ'''  hUA'_unif hUB'_unif hUA'_fin hUB'_fin hM hnot'
+    exact conclusion_transfers hUA hUB G' A' B' hA hB UA' UB' hUA'_unif hUB'_unif this
+  intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non Ω Ω' hΩ hΩ' UA UB hμ hμ' hUA hUB hUA_fin hUB_fin hM hnot
   sorry
-
 
 
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
 $\lvert A'\rvert\geq K^{-22}\lvert A\rvert$
 and $\dim A'\leq \frac{40}{\log 2} \log K$. -/
-lemma weak_PFR {A : Set G} [Finite A]  [Nonempty A] {Ω : Type u} [MeasureSpace Ω] {UA : Ω → G} [IsProbabilityMeasure (ℙ: Measure Ω)] (hUA: IsUniform A UA) {K : ℝ} (hK: 0 < K) (hdist: d[UA # UA] ≤ log K): ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
+lemma weak_PFR {A : Set G} [Finite A]  [Nonempty A] {Ω : Type u} [MeasureSpace Ω] {UA : Ω → G} [IsProbabilityMeasure (ℙ: Measure Ω)] (hUA: IsUniform A UA) [FiniteRange UA] {K : ℝ} (hK: 0 < K) (hdist: d[UA # UA] ≤ log K): ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
   rcases weak_PFR_asymm hUA hUA with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
 
   have : ∃ B : Set G, B ⊆ A ∧ (Nat.card B) ≥ (Nat.card A') ∧ (Nat.card B) ≥ (Nat.card A'') ∧ (dimension B) ≤
@@ -527,7 +685,7 @@ theorem weak_PFR_int {A : Set G} [Finite A]  [Nonempty A] {K : ℝ} (hK: 0 < K) 
   have hnonempty : Set.Nonempty A := Set.nonempty_coe_sort.mp (by infer_instance)
   set Af := A.toFinite.toFinset
   have : Af.Nonempty := by simp [hnonempty]
-  rcases exists_isUniform_measureSpace Af this with ⟨Ω, mΩ, UA, hP, hmes, hunif, -⟩
+  rcases exists_isUniform_measureSpace Af this with ⟨Ω, mΩ, UA, hP, hmes, hunif, -, hfin⟩
   have hUA : IsUniform A UA := by
     convert hunif
     exact (Set.Finite.coe_toFinset (Set.toFinite A)).symm
