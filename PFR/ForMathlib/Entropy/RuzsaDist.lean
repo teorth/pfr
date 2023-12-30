@@ -268,6 +268,13 @@ lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     B.rdist_eq hX' (hY'.add_const _), entropy_add_const hY' c, C, entropy_add_const]
   exact hX'.sub hY'
 
+/-- A variant of `rdist_add_const` where one adds constants to both variables. -/
+lemma rdist_add_const' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (c: G) (c': G)
+    (hX : Measurable X) (hY : Measurable Y) :
+    d[X + fun _ ↦ c; μ # Y + fun _ ↦ c'; μ'] = d[X ; μ # Y ; μ'] := by
+    rw [rdist_add_const _ hY, rdist_symm, rdist_add_const hY hX, rdist_symm]
+    measurability
+
 /-- The **improved entropic Ruzsa triangle inequality**. -/
 lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)

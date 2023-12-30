@@ -543,7 +543,7 @@ lemma dimension_of_shift {G: Type u} [AddCommGroup G]  [Module.Free ℤ G] [Modu
   simp [<-hb']
   abel
 
-lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ: Measure Ω)] [IsProbabilityMeasure (ℙ: Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB) [FiniteRange UA]  [FiniteRange UB] (G': AddSubgroup G) [Module.Finite ℤ G'] [Module.Free ℤ G'] (A' B' : Set G') (hA: is_shift A A') (hB: is_shift B B') [Finite A'] [Finite B'] [Nonempty A'] [Nonempty B'] {Ω'' Ω''' : Type u} [MeasureSpace Ω''] [MeasureSpace Ω'''] (UA' : Ω'' → G') (UB' : Ω''' → G') [IsProbabilityMeasure (ℙ: Measure Ω'')] [IsProbabilityMeasure (ℙ: Measure Ω''')] (hUA': IsUniform A' UA') (hUB': IsUniform B' UB') [FiniteRange UA'] [FiniteRange UB'] : weak_PFR_asymm_conclusion A' B' UA' UB' → weak_PFR_asymm_conclusion A B UA UB := by
+lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ: Measure Ω)] [IsProbabilityMeasure (ℙ: Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB) (hUA_mes : Measurable UA) (hUB_mes: Measurable UB) [FiniteRange UA]  [FiniteRange UB] (G': AddSubgroup G) [Module.Finite ℤ G'] [Module.Free ℤ G'] (A' B' : Set G') (hA: is_shift A A') (hB: is_shift B B') [Finite A'] [Finite B'] [Nonempty A'] [Nonempty B'] {Ω'' Ω''' : Type u} [MeasureSpace Ω''] [MeasureSpace Ω'''] (UA' : Ω'' → G') (UB' : Ω''' → G') [IsProbabilityMeasure (ℙ: Measure Ω'')] [IsProbabilityMeasure (ℙ: Measure Ω''')] (hUA': IsUniform A' UA') (hUB': IsUniform B' UB') (hUA'_mes : Measurable UA') (hUB'_mes: Measurable UB') [FiniteRange UA'] [FiniteRange UB'] : weak_PFR_asymm_conclusion A' B' UA' UB' → weak_PFR_asymm_conclusion A B UA UB := by
   intro this
   rcases this with ⟨ A'', B'', hA'', hB'', hA''_non, hB''_non, hcard_ineq, hdim_ineq ⟩
   rcases hA with ⟨ x, hA ⟩
@@ -579,7 +579,25 @@ lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Non
     use a'; refine ⟨?_, ha' ⟩
     use a'
   use f '' A'', g '' B''
-  have : d[UA # UB] = d[UA' # UB'] := by sorry
+  have : d[UA # UB] = d[UA' # UB'] := by
+    rw [<-rdist_of_inj hUA'_mes hUB'_mes G'.subtype Subtype.val_injective, <-rdist_add_const' (X := G'.subtype ∘ UA') (Y := G'.subtype ∘ UB') x y]
+    . classical
+      apply ProbabilityTheory.IdentDistrib.rdist_eq
+      . apply IdentDistrib.of_isUniform hUA_mes _ hUA
+        set A'f := A'.toFinite.toFinset
+        have hUA'f : IsUniform A'f UA' := by convert hUA'; simp
+        convert IsUniform.comp hUA'f hf
+        . simp [hA']
+        exact Measurable.add (Measurable.comp (measurable_discrete _) hUA'_mes) measurable_const
+      apply IdentDistrib.of_isUniform hUB_mes _ hUB
+      set B'f := B'.toFinite.toFinset
+      have hUB'f : IsUniform B'f UB' := by convert hUB'; simp
+      convert IsUniform.comp hUB'f hg
+      . simp [hB']
+      exact Measurable.add (Measurable.comp (measurable_discrete _) hUB'_mes) measurable_const
+    . exact Measurable.comp (measurable_discrete _) hUA'_mes
+    exact Measurable.comp (measurable_discrete _) hUB'_mes
+
   refine ⟨ ?_, ?_, (by infer_instance), (by infer_instance), ?_, ?_ ⟩
   . simp [hA', hf, hA'']
   . simp [hB', hg, hB'']
@@ -600,14 +618,14 @@ lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Non
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
 lemma weak_PFR_asymm {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [IsProbabilityMeasure (ℙ: Measure Ω)] [IsProbabilityMeasure (ℙ: Measure Ω')] (hUA: IsUniform A UA) (hUB: IsUniform B UB) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) [FiniteRange UA] [FiniteRange UB]: weak_PFR_asymm_conclusion A B UA UB := by
-  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (hG_free : Module.Free ℤ G) (hG_fin : Module.Finite ℤ G) (hG_count : Countable G) (hG_mes : MeasurableSpace G) (hG_sing: MeasurableSingletonClass G) (A B: Set G) (hA_fin: Finite A) (hB_fin: Finite B) (hA_non: Nonempty A) (hB_non: Nonempty B) (Ω Ω' : Type u) (hΩ: MeasureSpace Ω) (hΩ': MeasureSpace Ω') (UA : Ω → G) (UB : Ω' → G) (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) (hUA: IsUniform A UA) (hUB: IsUniform B UB) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) (hUA_fin : FiniteRange UA)  (hUB_fin : FiniteRange UB) (hM : (Nat.card A) + (Nat.card B) ≤ M), weak_PFR_asymm_conclusion A B UA UB)
+  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: Nonempty A) (_hB_non: Nonempty B) (Ω Ω' : Type u) (hΩ: MeasureSpace Ω) (hΩ': MeasureSpace Ω') (UA : Ω → G) (UB : Ω' → G) (_hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (_hμ': IsProbabilityMeasure (ℙ: Measure Ω')) (_hUA: IsUniform A UA) (_hUB: IsUniform B UB) (_hUA_mes : Measurable UA) (_hUB_mes : Measurable UB) (_hUA_fin : FiniteRange UA)  (_hUB_fin : FiniteRange UB) (_hM : (Nat.card A) + (Nat.card B) ≤ M), weak_PFR_asymm_conclusion A B UA UB)
   suffices : ∀ M, (∀ M', M' < M → P M') → P M
   . set M := (Nat.card A) + (Nat.card B)
     have hM : (Nat.card A) + (Nat.card B) ≤ M := Nat.le_refl _
     convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› _ ‹_› A B ‹_› ‹_› ‹_› ‹_› Ω Ω' _ _ UA UB ‹_› ‹_› hUA hUB hUA_mes hUB_mes ‹_› ‹_› hM
   intro M h_induct
   -- wlog we can assume A, B are not in cosets of a smaller subgroup
-  suffices : ∀ (G : Type u) (hG_comm : AddCommGroup G) (hG_free : Module.Free ℤ G) (hG_fin : Module.Finite ℤ G) (hG_count : Countable G) (hG_mes : MeasurableSpace G) (hG_sing: MeasurableSingletonClass G) (A B: Set G) (hA_fin: Finite A) (hB_fin: Finite B) (hA_non: Nonempty A) (hB_non: Nonempty B) (Ω Ω' : Type u) (hΩ: MeasureSpace Ω) (hΩ': MeasureSpace Ω') (UA : Ω → G) (UB : Ω' → G) (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) (hUA: IsUniform A UA) (hUB: IsUniform B UB) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) (hUA_fin : FiniteRange UA) (hUB_fin : FiniteRange UB) (hM : (Nat.card A) + (Nat.card B) ≤ M) (hnot: not_in_coset A B), weak_PFR_asymm_conclusion A B UA UB
+  suffices : ∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: Nonempty A) (_hB_non: Nonempty B) (Ω Ω' : Type u) (hΩ: MeasureSpace Ω) (hΩ': MeasureSpace Ω') (UA : Ω → G) (UB : Ω' → G) (_hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (_hμ': IsProbabilityMeasure (ℙ: Measure Ω')) (_hUA: IsUniform A UA) (_hUB: IsUniform B UB) (_hUA_mes : Measurable UA) (_hUB_mes : Measurable UB) (_hUA_fin : FiniteRange UA) (_hUB_fin : FiniteRange UB) (_hM : (Nat.card A) + (Nat.card B) ≤ M) (_hnot: not_in_coset A B), weak_PFR_asymm_conclusion A B UA UB
   . intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non Ω Ω' hΩ hΩ' UA UB hμ hμ' hUA hUB hUA_mes hUB_mes hUA_fin hUB_fin hM
 
     obtain ⟨ G', A', B', hA, hB, hnot' ⟩ := wlog_not_in_coset A B
@@ -633,7 +651,7 @@ lemma weak_PFR_asymm {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty 
     rw [B'.toFinite.coe_toFinset] at hUB'_unif
 
     replace this := this G' _ hG'_free hG'_fin (by infer_instance) (by infer_instance) (by infer_instance) A' B' hA'_fin hB'_fin hA'_non hB'_non Ω'' Ω''' mΩ'' mΩ''' UA' UB' hμ'' hμ'''  hUA'_unif hUB'_unif hUA'_mes hUB'_mes hUA'_fin hUB'_fin hM hnot'
-    exact conclusion_transfers hUA hUB G' A' B' hA hB UA' UB' hUA'_unif hUB'_unif this
+    exact conclusion_transfers hUA hUB hUA_mes hUB_mes G' A' B' hA hB UA' UB' hUA'_unif hUB'_unif hUA'_mes hUB'_mes this
   intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non Ω Ω' hΩ hΩ' UA UB hμ hμ' hUA hUB hUA_mes hUB_mes hUA_fin hUB_fin hM hnot
   rcases weak_PFR_asymm_prelim hUA hUB hUA_mes hUB_mes with ⟨ N, x, y, Ax, By, Ωx, Ωy, hΩx, hΩy, UAx, UBy, hAx_non, hBy_non, hAx_fin, hBy_fin, hAx, hBy, hμ'', hμ''', hUAx_unif, hUBy_unif, hUAx_mes, hUBy_mes, hUAx_fin, hUBy_fin, hdim, hcard⟩
   have hAxA : Ax ⊆ A := by rw [hAx]; simp
