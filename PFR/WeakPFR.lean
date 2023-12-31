@@ -67,21 +67,9 @@ proof_wanted single_fibres {G H Ω Ω': Type*} [AddCommGroup G] [Countable G] [M
 
 section dim
 
-open Classical TensorProduct
+open Classical
 
-variable {G : Type*} [AddCommGroup G] [Module ℤ G]
-
-/-- If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the span of $A-A$
-  over the reals -- equivalently, the smallest $d'$ such that $A$ lies in a coset of a subgroup
-  isomorphic to $\mathbb{Z}^{d'}$. -/
-noncomputable def dimension (A : Set G) : ℕ := Set.finrank ℝ
-  ((fun (n : G) => (1 : ℝ) ⊗ₜ n) '' A : Set (ℝ ⊗[ℤ] G))
-
-lemma dimension_le_finset_card (A : Finset G) : dimension (A : Set G) ≤ A.card := by
-  rw [dimension, Finset.coe_image.symm]
-  apply le_trans (finrank_span_finset_le_card _) Finset.card_image_le
-
-proof_wanted dimension_ne_zero [Module.Free ℤ G] (A : Set G) (hA : A ≠ ⊥) : dimension A ≠ 0
+variable {G : Type*} [AddCommGroup G]
 
 /- If G ≅ ℤᵈ then there is a subgroup H of G such that A lies in a coset of H. This is helpful to
   give the equivalent definition of `dimension`. Here this is stated in greated generality since the
@@ -91,18 +79,19 @@ lemma exists_coset_cover (A : Set G) :
   existsi FiniteDimensional.finrank ℤ (⊤ : Submodule ℤ G), ⊤, 0
   refine ⟨rfl, fun a _ ↦ trivial⟩
 
-noncomputable def dimension' (A : Set G) : ℕ := Nat.find (exists_coset_cover A)
+noncomputable def dimension (A : Set G) : ℕ := Nat.find (exists_coset_cover A)
 
 lemma dimension'_le_of_coset_cover (A : Set G) (S : Submodule ℤ G) (v : G)
-  (hA : ∀ a ∈ A, a - v ∈ S) : dimension' A ≤ FiniteDimensional.finrank ℤ S := by
+  (hA : ∀ a ∈ A, a - v ∈ S) : dimension A ≤ FiniteDimensional.finrank ℤ S := by
   apply Nat.find_le
   existsi S , v
   exact ⟨rfl, hA⟩
 
-proof_wanted dimension_eq_dimension' [Module.Free ℤ G] [Module.Finite ℤ G] (A : Set G) : dimension A = dimension' A
-
-proof_wanted dimension_le_rank [Module.Finite ℤ G] (A : Set G) :
-  dimension A ≤ FiniteDimensional.finrank ℤ G
+lemma dimension_le_rank [Module.Finite ℤ G] (A : Set G) :
+  dimension A ≤ FiniteDimensional.finrank ℤ G := by
+  obtain ⟨S, v, hs, _⟩ := Nat.find_spec (exists_coset_cover A)
+  rw [dimension, ←hs]
+  apply Submodule.finrank_le S
 
 end dim
 
