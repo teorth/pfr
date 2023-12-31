@@ -235,7 +235,7 @@ lemma sum_dist_diff_le :
     · rw [(show U = X₂ + X₁ from add_comm _ _)]
       apply condRuzsaDist_diff_ofsum_le ℙ (p.hmeas2) (hX₂) (hX₁)
         (Measurable.add hX₁' hX₂') (independenceCondition2 hX₁ hX₂ hX₁' hX₂' h_indep)
-    rw [←add_assoc, aux1] at aux2
+    rw [← add_assoc, aux1] at aux2
     linarith [aux2]
 
   have V_add_eq : V + (X₁ + X₂') = S := by abel
@@ -248,7 +248,7 @@ lemma sum_dist_diff_le :
 
     have aux1 : H[S] + H[V] - H[X₁'] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₁ ; ℙ]
     · rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep, h₁.entropy_eq]; ring
-    rw [←ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl p.hmeas1.aemeasurable) h₁,
+    rw [← ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl p.hmeas1.aemeasurable) h₁,
       V_add_eq, aux1] at aux2
     linarith [aux2]
 
@@ -268,20 +268,20 @@ lemma sum_dist_diff_le :
   · have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas1 hX₁ hX₁' (Measurable.add hX₂ hX₂')
       (independenceCondition5 hX₁ hX₂ hX₁' hX₂' h_indep)
     have S_eq : X₁ + X₁' + (fun a ↦ X₂ a + X₂' a) = S
-    · rw [(show (fun a ↦ X₂ a + X₂' a) = X₂ + X₂' by rfl), ←add_assoc, add_assoc X₁, add_comm X₁', ←add_assoc]
+    · rw [(show (fun a ↦ X₂ a + X₂' a) = X₂ + X₂' by rfl), ← add_assoc, add_assoc X₁, add_comm X₁', ← add_assoc]
     rwa [S_eq, add_comm X₁ X₁'] at this
 
   have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
   · have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas2 hX₂ hX₂' (Measurable.add hX₁' hX₁)
       (independenceCondition6 hX₁ hX₂ hX₁' hX₂' h_indep)
     have S_eq : X₂ + X₂' + (fun a ↦ X₁' a + X₁ a) = S
-    · rw [(show (fun a ↦ X₁' a + X₁ a) = X₁' + X₁ by rfl), add_comm, ←add_assoc, add_comm X₁',
-      add_assoc X₁, add_comm X₁', ←add_assoc]
+    · rw [(show (fun a ↦ X₁' a + X₁ a) = X₁' + X₁ by rfl), add_comm, ← add_assoc, add_comm X₁',
+      add_assoc X₁, add_comm X₁', ← add_assoc]
     rwa [S_eq] at this
 
   have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S]
   · have S_eq : S = (X₂ + X₂') + (X₁' + X₁)
-    · rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ←add_assoc X₂, ←add_assoc X₂, add_comm X₂]
+    · rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ← add_assoc X₂, ← add_assoc X₂, add_comm X₂]
     rw [S_eq]
     apply  condRuzsaDist'_of_inj_map' p.hmeas2 (hX₂.add hX₂') (hX₁'.add hX₁)
 

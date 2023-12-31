@@ -39,6 +39,7 @@ import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Data.Real.Ennreal
 import PFR.Mathlib.Data.Set.Image
 import PFR.Mathlib.Data.Set.Sigma
+import PFR.Mathlib.GroupTheory.Subgroup.Pointwise
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic
@@ -47,7 +48,6 @@ import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
 import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Probability.Independence.Basic

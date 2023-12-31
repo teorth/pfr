@@ -1,7 +1,6 @@
 import Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Data.Fin.Basic
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.Independence.Basic
 import PFR.ForMathlib.FiniteRange
@@ -76,7 +75,7 @@ lemma identDistrib_comp_left {i : δ → α} (hi : MeasurableEmbedding i) (hi' :
     (hf : Measurable f) : IdentDistrib (f ∘ i) f (μ.comap i) μ where
   aemeasurable_fst := (hf.comp hi.measurable).aemeasurable
   aemeasurable_snd := hf.aemeasurable
-  map_eq := by rw [←Measure.map_map hf hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
+  map_eq := by rw [← Measure.map_map hf hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
 
 /-- A function is identically distributed to itself composed with a measurable embedding of conull
 range. -/

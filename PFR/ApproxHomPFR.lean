@@ -27,7 +27,7 @@ lemma nat_cauchy_schwartz {B : Type*} [Fintype B] (v w : B → ℕ) :
   let y : EuclideanSpace ℝ B := fun i ↦ (w i : ℝ)
   have := abs_real_inner_le_norm x y
   rw [PiLp.inner_apply, ((abs_eq (mul_nonneg (norm_nonneg x) (norm_nonneg y))).mpr
-    (abs_eq_abs.mp rfl)).symm, ←sq_le_sq, mul_pow, EuclideanSpace.norm_eq,EuclideanSpace.norm_eq] at this
+    (abs_eq_abs.mp rfl)).symm, ← sq_le_sq, mul_pow, EuclideanSpace.norm_eq,EuclideanSpace.norm_eq] at this
   rw [Real.sq_sqrt, Real.sq_sqrt] at this
   · simp only [IsROrC.norm_natCast] at this
     simp only [Real.sq_sqrt, Real.sq_sqrt, IsROrC.norm_natCast, Pi.mul_apply, Nat.cast_mul,
@@ -38,9 +38,9 @@ lemma nat_cauchy_schwartz {B : Type*} [Fintype B] (v w : B → ℕ) :
 lemma nat_cauchy_schwartz' {X : Type*} (B : Finset X) (v w : X → ℕ) :
   (B.sum (v * w))^2 ≤ B.sum (v^2) * B.sum (w^2) := by
   have := nat_cauchy_schwartz (fun b : B => v b) (fun b : B => w b)
-  rwa [←(show Finset.univ.sum (fun b : B => (v * w) b) = B.sum (v * w) from Finset.sum_attach),
-    ←(show Finset.univ.sum (fun b : B => (v^2 : X → ℕ) b) = B.sum (v^2) from Finset.sum_attach),
-    ←(show Finset.univ.sum (fun b : B => (w^2 : X → ℕ) b) = B.sum (w^2) from Finset.sum_attach)]
+  rwa [← (show Finset.univ.sum (fun b : B => (v * w) b) = B.sum (v * w) from Finset.sum_attach),
+    ← (show Finset.univ.sum (fun b : B => (v^2 : X → ℕ) b) = B.sum (v^2) from Finset.sum_attach),
+    ← (show Finset.univ.sum (fun b : B => (w^2 : X → ℕ) b) = B.sum (w^2) from Finset.sum_attach)]
 
 /--  If $G$ is a group, $A,B$ are finite subsets of $G$, then
 $$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$ -/
@@ -124,7 +124,7 @@ lemma cauchy_schwarz (A B : Finset G) :
               rw [this x not_in, mul_zero]
         _ ≤ B.card * T.sum (fun b => (r b)^2) := by
               apply Nat.mul_le_mul_left
-              rw [←Finset.sum_sdiff (Finset.inter_subset_left T B)]
+              rw [← Finset.sum_sdiff (Finset.inter_subset_left T B)]
               apply Nat.le_add_left _ _
         _ = B.card * E[A] := by rw [counting]
   have := nat_cauchy_schwartz' B r (fun _ => 1)
