@@ -90,10 +90,17 @@ lemma isUniform_iff_uniform_dist {Ω : Type uΩ} [mΩ : MeasurableSpace Ω] {μ:
       _ = (Nat.card (A ∩ H:Set S)) / (Nat.card H) := by
         simp [Finset.sum_const, <-Set.ncard_eq_toFinset_card (A ∩ H), Set.Nat.card_coe_set_eq]
         rfl
-  sorry
+  intro this
+  constructor
+  . intro x y hx hy
+    replace hx : {x} ∩ H = {x} := by simp [hx]
+    replace hy : {y} ∩ H = {y} := by simp [hy]
+    simp [<-map_apply hU (MeasurableSet.singleton _), this, discreteUniform_apply, hx, hy]
+  rw [<-map_apply hU (by measurability), this, discreteUniform_apply]
+  simp
 
 
--- relate to IsUniform
+
 
 end MeasureTheory.Measure
 
