@@ -64,7 +64,7 @@ lemma map_discreteUniform_of_inj {T: Type*} [MeasurableSpace T] [MeasurableSingl
   exact ⟨ s, ⟨ hs' ▸ ht, hs ⟩, hs' ⟩
 
 /-- A random variable is uniform iff its distribution is. -/
-lemma isUniform_iff_uniform_dist {Ω : Type uΩ} [mΩ : MeasurableSpace Ω] {μ: Measure Ω} [Countable S] (hμ: IsProbabilityMeasure μ) {U: Ω → S} (hU: Measurable U) :
+lemma isUniform_iff_uniform_dist {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ: Measure Ω} [Countable S] (hμ: IsProbabilityMeasure μ) {U: Ω → S} (hU: Measurable U) :
   ProbabilityTheory.IsUniform H U μ ↔ μ.map U = discreteUniform H := by
   constructor
   . intro h_unif
@@ -146,41 +146,39 @@ noncomputable def rdist_set (A B: Set G) : ℝ := kernel.rdistm (Measure.discret
 
 notation3:max "dᵤ[" A " # " B "]" => rdist_set A B
 
-variable (A B C: Set G) [Finite A] [Finite B] [Finite C] [Nonempty A] [Nonempty B] [Nonempty C]
-
 /-- Relating Ruzsa distance between sets to Ruzsa distance between random variables -/
-lemma rdist_set_eq_rdist {Ω Ω': Type*} [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) {UA: Ω → G} {UB: Ω' → G} (hUA : IsUniform A UA ℙ) (hUB : IsUniform B UB ℙ) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) : dᵤ[A # B] = d[UA # UB] := by
+lemma rdist_set_eq_rdist {A B: Set G} [Finite A] [Finite B]  [Nonempty A] [Nonempty B] {Ω Ω': Type*} [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) {UA: Ω → G} {UB: Ω' → G} (hUA : IsUniform A UA ℙ) (hUB : IsUniform B UB ℙ) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) : dᵤ[A # B] = d[UA # UB] := by
   rw [rdist_eq_rdistm, rdist_set, (Measure.isUniform_iff_uniform_dist A hμ hUA_mes).mp hUA, (Measure.isUniform_iff_uniform_dist B hμ' hUB_mes).mp hUB]
 
 /-- Ruzsa distance between sets is nonnegative. -/
-lemma rdist_set_nonneg : 0 ≤ dᵤ[A # B] := by
+lemma rdist_set_nonneg (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] : 0 ≤ dᵤ[A # B] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, UA_hfin ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, UB_hfin ⟩ := exists_isUniform_measureSpace' B
-  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes]
+  rw [rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes]
   exact rdist_nonneg hUA_mes hUB_mes
 
 /-- Ruzsa distance between sets is symmetric. -/
-lemma rdist_set_symm : dᵤ[A # B] = dᵤ[B # A] := by
+lemma rdist_set_symm (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] : dᵤ[A # B] = dᵤ[B # A] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, - ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, - ⟩ := exists_isUniform_measureSpace' B
-  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, rdist_set_eq_rdist B A hμ' hμ hUB_unif hUA_unif hUB_mes hUA_mes]
+  rw [rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, rdist_set_eq_rdist hμ' hμ hUB_unif hUA_unif hUB_mes hUA_mes]
   exact rdist_symm
 
 /-- Ruzsa distance between sets obeys the triangle inequality. -/
-lemma rdist_set_triangle : dᵤ[A # C] ≤ dᵤ[A # B] + dᵤ[B # C] := by
+lemma rdist_set_triangle (A B C: Set G) [Finite A] [Finite B] [Finite C] [Nonempty A] [Nonempty B] [Nonempty C] : dᵤ[A # C] ≤ dᵤ[A # B] + dᵤ[B # C] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, hUA_fin ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, hUB_fin ⟩ := exists_isUniform_measureSpace' B
   obtain ⟨ Ω'', mΩ'', UC, hμ'', hUC_mes, hUC_unif, -, hUC_fin ⟩ := exists_isUniform_measureSpace' C
-  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, rdist_set_eq_rdist B C hμ' hμ'' hUB_unif hUC_unif hUB_mes hUC_mes, rdist_set_eq_rdist A C hμ hμ'' hUA_unif hUC_unif hUA_mes hUC_mes]
+  rw [rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, rdist_set_eq_rdist hμ' hμ'' hUB_unif hUC_unif hUB_mes hUC_mes, rdist_set_eq_rdist hμ hμ'' hUA_unif hUC_unif hUA_mes hUC_mes]
   exact rdist_triangle hUA_mes hUB_mes hUC_mes
 
 /-- Ruzsa distance between sets is translation invariant. -/
-lemma rdist_set_add_const (c c' : G) : dᵤ[A + {c} # B + {c'}] = dᵤ[A # B] := by
+lemma rdist_set_add_const (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] (c c' : G) : dᵤ[A + {c} # B + {c'}] = dᵤ[A # B] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, hUA_fin ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, hUB_fin ⟩ := exists_isUniform_measureSpace' B
-  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, <- rdist_add_const' c c' hUA_mes hUB_mes]
+  rw [rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, <- rdist_add_const' c c' hUA_mes hUB_mes]
   classical
-  convert rdist_set_eq_rdist (A+{c}) (B+{c'}) hμ hμ' ?_ ?_ ?_ ?_
+  convert rdist_set_eq_rdist (A := A+{c}) (B := B+{c'}) hμ hμ' ?_ ?_ ?_ ?_
   . exact Set.Nonempty.to_subtype (Set.Nonempty.add (Set.nonempty_coe_sort.mp ‹_›) (Set.singleton_nonempty _))
   . exact Set.Nonempty.to_subtype (Set.Nonempty.add (Set.nonempty_coe_sort.mp ‹_›) (Set.singleton_nonempty _))
   . convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) (add_left_injective c) using 1
@@ -191,13 +189,13 @@ lemma rdist_set_add_const (c c' : G) : dᵤ[A + {c} # B + {c'}] = dᵤ[A # B] :=
   measurability
 
 /-- Ruzsa distance between sets is preserved by injective homomorphisms. -/
-lemma rdist_set_of_inj {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
+lemma rdist_set_of_inj (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
  [Countable H] {φ: G →+ H} (hφ: Function.Injective φ) : dᵤ[φ '' A # φ '' B] = dᵤ[A # B] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, - ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, - ⟩ := exists_isUniform_measureSpace' B
-  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, <-rdist_of_inj hUA_mes hUB_mes φ hφ]
+  rw [rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, <-rdist_of_inj hUA_mes hUB_mes φ hφ]
   classical
-  convert rdist_set_eq_rdist (φ '' A) (φ '' B) hμ hμ' ?_ ?_ ?_ ?_
+  convert rdist_set_eq_rdist (A := φ '' A) (B := φ '' B) hμ hμ' ?_ ?_ ?_ ?_
   . convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) hφ using 1
     ext x; simp
   . convert IsUniform.comp (B.toFinite.coe_toFinset.symm ▸ hUB_unif) hφ using 1
@@ -206,7 +204,7 @@ lemma rdist_set_of_inj {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonCl
   measurability
 
 /-- Ruzsa distance between sets is controlled by the doubling constant. -/
-lemma rdist_set_le : dᵤ[A # B] ≤ log (Nat.card (A-B)) - log (Nat.card A) / 2 - log (Nat.card B) / 2 := by
+lemma rdist_set_le (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] : dᵤ[A # B] ≤ log (Nat.card (A-B)) - log (Nat.card A) / 2 - log (Nat.card B) / 2 := by
   simp_rw [rdist_set, kernel.rdistm, ProbabilityTheory.entropy_of_discreteUniform]
   gcongr
   convert measureEntropy_le_card_aux (A-B).toFinite.toFinset ?_
