@@ -629,17 +629,6 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] [Nonempty A] [Nonempty 
     obtain ⟨ hA'_fin, hA'_non, hA'_card ⟩ := card_of_shift hA
     obtain ⟨ hB'_fin, hB'_non, hB'_card ⟩ := card_of_shift hB
     rw [<-hA'_card, <-hB'_card] at hM
-
-    set A'f := A'.toFinite.toFinset
-    have hA'f_non : A'f.Nonempty := by simp; exact Set.nonempty_coe_sort.mp hA'_non
-    rcases exists_isUniform_measureSpace A'f hA'f_non with ⟨Ω'', mΩ'', UA', hμ'', hUA'_mes, hUA'_unif, -, hUA'_fin⟩
-    set B'f := B'.toFinite.toFinset
-    have hB'f_non : B'f.Nonempty := by simp; exact Set.nonempty_coe_sort.mp hB'_non
-    rcases exists_isUniform_measureSpace B'f hB'f_non with ⟨Ω''', mΩ''', UB', hμ''', hUB'_mes, hUB'_unif, -, hUB'_fin⟩
-
-    rw [A'.toFinite.coe_toFinset] at hUA'_unif
-    rw [B'.toFinite.coe_toFinset] at hUB'_unif
-
     replace this := this G' _ hG'_free hG'_fin (by infer_instance) (by infer_instance) (by infer_instance) A' B' hA'_fin hB'_fin hA'_non hB'_non hM hnot'
     exact conclusion_transfers G' A' B' hA hB this
   intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non hM hnot
@@ -706,9 +695,6 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] [Nonempty A] [Nonempty 
   . field_simp
   simp
   exact ⟨ dimension_le_rank A, dimension_le_rank B ⟩
-
-
-/-∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ Nonempty A' ∧ Nonempty B' ∧ log (((Nat.card A) * (Nat.card B)) / ((Nat.card A') * (Nat.card B'))) ≤ 44 * d[UA # UB] ∧ max (dimension A') (dimension B') ≤ (40 / log 2) * d[UA # UB]-/
 
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
 $\lvert A'\rvert\geq K^{-22}\lvert A\rvert$
