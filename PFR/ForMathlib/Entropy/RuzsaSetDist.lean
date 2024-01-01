@@ -20,11 +20,13 @@ variable {S : Type*} [MeasurableSpace S] (H : Set S)
 /-- In practice one would also impose the conditions `MeasurableSingletonClass S`, `Finite H` and `Nonempty H` before attempting to use this definition. -/
 noncomputable def discreteUniform : Measure S := ((Set.encard H).toENNReal)⁻¹ • (restrict count H)
 
+/-- The uniform distribution on an infinite set vanishes by definition. -/
 lemma discreteUniform_of_infinite (h: Set.Infinite H) : discreteUniform H = 0 := by
   simp [discreteUniform, Set.Infinite.encard_eq h]
 
 variable [MeasurableSingletonClass S] [Finite H]
 
+/-- The usual formula for the discrete uniform measure applied to an arbitrary set. -/
 lemma discreteUniform_apply (A : Set S) :
   discreteUniform H A = (Nat.card (A ∩ H : Set S)) / Nat.card H := by
     have : Fintype (A ∩ H : Set S) := Fintype.ofFinite (A ∩ H : Set S)
@@ -37,6 +39,7 @@ lemma discreteUniform_apply (A : Set S) :
       simp [H.toFinite]
     simp
 
+/-- Variant of `discreteUniform_apply' using real-valued measures. -/
 lemma discreteUniform_apply' (A : Set S) :
   (discreteUniform H).real A = (Nat.card (A ∩ H : Set S)) / Nat.card H := by
   rw [measureReal_def, discreteUniform_apply, ENNReal.toReal_div]
@@ -60,6 +63,7 @@ lemma map_discreteUniform_of_inj {T: Type*} [MeasurableSpace T] [MeasurableSingl
   rintro ⟨ ht, s, ⟨ hs, hs'⟩ ⟩
   exact ⟨ s, ⟨ hs' ▸ ht, hs ⟩, hs' ⟩
 
+/-- A random variable is uniform iff its distribution is. -/
 lemma isUniform_iff_uniform_dist {Ω : Type uΩ} [mΩ : MeasurableSpace Ω] {μ: Measure Ω} [Countable S] (hμ: IsProbabilityMeasure μ) {U: Ω → S} (hU: Measurable U) :
   ProbabilityTheory.IsUniform H U μ ↔ μ.map U = discreteUniform H := by
   constructor
@@ -102,6 +106,7 @@ lemma isUniform_iff_uniform_dist {Ω : Type uΩ} [mΩ : MeasurableSpace Ω] {μ:
 
 open Real ProbabilityTheory
 
+/-- The entropy of a uniform measure is the log of the cardinality of its support. -/
 lemma _root_.ProbabilityTheory.entropy_of_discreteUniform : measureEntropy (discreteUniform H) = log (Nat.card H) := by
   simp [measureEntropy_def', discreteUniform_apply']
   classical
@@ -147,18 +152,21 @@ variable (A B C: Set G) [Finite A] [Finite B] [Finite C] [Nonempty A] [Nonempty 
 lemma rdist_set_eq_rdist {Ω Ω': Type*} [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) {UA: Ω → G} {UB: Ω' → G} (hUA : IsUniform A UA ℙ) (hUB : IsUniform B UB ℙ) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) : dᵤ[A # B] = d[UA # UB] := by
   rw [rdist_eq_rdistm, rdist_set, (Measure.isUniform_iff_uniform_dist A hμ hUA_mes).mp hUA, (Measure.isUniform_iff_uniform_dist B hμ' hUB_mes).mp hUB]
 
+/-- Ruzsa distance between sets is nonnegative. -/
 lemma rdist_set_nonneg : 0 ≤ dᵤ[A # B] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, UA_hfin ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, UB_hfin ⟩ := exists_isUniform_measureSpace' B
   rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes]
   exact rdist_nonneg hUA_mes hUB_mes
 
+/-- Ruzsa distance between sets is symmetric. -/
 lemma rdist_set_symm : dᵤ[A # B] = dᵤ[B # A] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, - ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, - ⟩ := exists_isUniform_measureSpace' B
   rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, rdist_set_eq_rdist B A hμ' hμ hUB_unif hUA_unif hUB_mes hUA_mes]
   exact rdist_symm
 
+/-- Ruzsa distance between sets obeys the triangle inequality. -/
 lemma rdist_set_triangle : dᵤ[A # C] ≤ dᵤ[A # B] + dᵤ[B # C] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, hUA_fin ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, hUB_fin ⟩ := exists_isUniform_measureSpace' B
@@ -166,6 +174,7 @@ lemma rdist_set_triangle : dᵤ[A # C] ≤ dᵤ[A # B] + dᵤ[B # C] := by
   rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, rdist_set_eq_rdist B C hμ' hμ'' hUB_unif hUC_unif hUB_mes hUC_mes, rdist_set_eq_rdist A C hμ hμ'' hUA_unif hUC_unif hUA_mes hUC_mes]
   exact rdist_triangle hUA_mes hUB_mes hUC_mes
 
+/-- Ruzsa distance between sets is translation invariant. -/
 lemma rdist_set_add_const (c c' : G) : dᵤ[A + {c} # B + {c'}] = dᵤ[A # B] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, hUA_fin ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, hUB_fin ⟩ := exists_isUniform_measureSpace' B
@@ -181,6 +190,7 @@ lemma rdist_set_add_const (c c' : G) : dᵤ[A + {c} # B + {c'}] = dᵤ[A # B] :=
   . measurability
   measurability
 
+/-- Ruzsa distance between sets is preserved by injective homomorphisms. -/
 lemma rdist_set_of_inj {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
  [Countable H] {φ: G →+ H} (hφ: Function.Injective φ) : dᵤ[φ '' A # φ '' B] = dᵤ[A # B] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, - ⟩ := exists_isUniform_measureSpace' A
@@ -195,6 +205,7 @@ lemma rdist_set_of_inj {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonCl
   . measurability
   measurability
 
+/-- Ruzsa distance between sets is controlled by the doubling constant. -/
 lemma rdist_set_le : dᵤ[A # B] ≤ log (Nat.card (A-B)) - log (Nat.card A) / 2 - log (Nat.card B) / 2 := by
   simp_rw [rdist_set, kernel.rdistm, ProbabilityTheory.entropy_of_discreteUniform]
   gcongr
