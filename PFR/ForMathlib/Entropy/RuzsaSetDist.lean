@@ -1,3 +1,4 @@
+import PFR.ForMathlib.Entropy.Basic
 import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.Uniform
@@ -59,7 +60,7 @@ lemma map_discreteUniform_of_inj {T: Type*} [MeasurableSpace T] [MeasurableSingl
   rintro ⟨ ht, s, ⟨ hs, hs'⟩ ⟩
   exact ⟨ s, ⟨ hs' ▸ ht, hs ⟩, hs' ⟩
 
-lemma isUniform_iff_uniform_dist {Ω : Type uΩ} [mΩ : MeasurableSpace Ω] {μ: Measure Ω} [Countable S] (hμ: IsProbabilityMeasure μ) (U: Ω → S) (hU: Measurable U) :
+lemma isUniform_iff_uniform_dist {Ω : Type uΩ} [mΩ : MeasurableSpace Ω] {μ: Measure Ω} [Countable S] (hμ: IsProbabilityMeasure μ) {U: Ω → S} (hU: Measurable U) :
   ProbabilityTheory.IsUniform H U μ ↔ μ.map U = discreteUniform H := by
   constructor
   . intro h_unif
@@ -99,9 +100,121 @@ lemma isUniform_iff_uniform_dist {Ω : Type uΩ} [mΩ : MeasurableSpace Ω] {μ:
   rw [<-map_apply hU (by measurability), this, discreteUniform_apply]
   simp
 
+open Real ProbabilityTheory
 
-
+lemma _root_.ProbabilityTheory.entropy_of_discreteUniform : measureEntropy (discreteUniform H) = log (Nat.card H) := by
+  simp [measureEntropy_def', discreteUniform_apply']
+  classical
+  calc ∑' s, negMulLog ((Nat.card ({s} ∩ H : Set S)) / (Nat.card H))
+    _ = ∑' s, if s ∈ H then negMulLog (1 / (Nat.card H)) else 0 := by
+      congr with s
+      by_cases h: s ∈ H
+      all_goals simp [h]
+    _ = ∑ s in H.toFinite.toFinset, negMulLog (1 / (Nat.card H)) := by
+      convert tsum_eq_sum (s := H.toFinite.toFinset) ?_ using 2 with s hs
+      . simp at hs; simp [hs]
+      intro s hs
+      simp at hs; simp [hs]
+    _ = (Nat.card H) * negMulLog (1 / (Nat.card H)) := by
+      simp [<-Set.ncard_coe_Finset, Set.Nat.card_coe_set_eq]
+    _ = log (Nat.card H) := by
+      simp [negMulLog, Nat.card_pos, <-mul_assoc]
+      rw [mul_inv_cancel, one_mul]
+      simp only [ne_eq, Nat.cast_eq_zero, Nat.card_ne_zero]
+      exact ⟨ ‹_›, ‹_› ⟩
 
 end MeasureTheory.Measure
 
 end UniformMeasure
+
+section RuzsaSetDist
+
+namespace ProbabilityTheory
+
+open MeasureTheory Pointwise Real
+
+variable {G:Type*} [Countable G]  [MeasurableSpace G] [MeasurableSingletonClass G]
+  [AddCommGroup G]
+
+/-- The Ruzsa distance between two subsets `A`, `B` of a group `G` is defined to be the Ruzsa distance between their uniform probability distributions.  Is only intended for use when `A`, `B` are finite and non-empty. -/
+noncomputable def rdist_set (A B: Set G) : ℝ := kernel.rdistm (Measure.discreteUniform A) (Measure.discreteUniform B)
+
+notation3:max "dᵤ[" A " # " B "]" => rdist_set A B
+
+variable (A B C: Set G) [Finite A] [Finite B] [Finite C] [Nonempty A] [Nonempty B] [Nonempty C]
+
+/-- Relating Ruzsa distance between sets to Ruzsa distance between random variables -/
+lemma rdist_set_eq_rdist {Ω Ω': Type*} [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) {UA: Ω → G} {UB: Ω' → G} (hUA : IsUniform A UA ℙ) (hUB : IsUniform B UB ℙ) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) : dᵤ[A # B] = d[UA # UB] := by
+  rw [rdist_eq_rdistm, rdist_set, (Measure.isUniform_iff_uniform_dist A hμ hUA_mes).mp hUA, (Measure.isUniform_iff_uniform_dist B hμ' hUB_mes).mp hUB]
+
+lemma rdist_set_nonneg : 0 ≤ dᵤ[A # B] := by
+  obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, UA_hfin ⟩ := exists_isUniform_measureSpace' A
+  obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, UB_hfin ⟩ := exists_isUniform_measureSpace' B
+  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes]
+  exact rdist_nonneg hUA_mes hUB_mes
+
+lemma rdist_set_symm : dᵤ[A # B] = dᵤ[B # A] := by
+  obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, - ⟩ := exists_isUniform_measureSpace' A
+  obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, - ⟩ := exists_isUniform_measureSpace' B
+  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, rdist_set_eq_rdist B A hμ' hμ hUB_unif hUA_unif hUB_mes hUA_mes]
+  exact rdist_symm
+
+lemma rdist_set_triangle : dᵤ[A # C] ≤ dᵤ[A # B] + dᵤ[B # C] := by
+  obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, hUA_fin ⟩ := exists_isUniform_measureSpace' A
+  obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, hUB_fin ⟩ := exists_isUniform_measureSpace' B
+  obtain ⟨ Ω'', mΩ'', UC, hμ'', hUC_mes, hUC_unif, -, hUC_fin ⟩ := exists_isUniform_measureSpace' C
+  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, rdist_set_eq_rdist B C hμ' hμ'' hUB_unif hUC_unif hUB_mes hUC_mes, rdist_set_eq_rdist A C hμ hμ'' hUA_unif hUC_unif hUA_mes hUC_mes]
+  exact rdist_triangle hUA_mes hUB_mes hUC_mes
+
+lemma rdist_set_add_const (c c' : G) : dᵤ[A + {c} # B + {c'}] = dᵤ[A # B] := by
+  obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, hUA_fin ⟩ := exists_isUniform_measureSpace' A
+  obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, hUB_fin ⟩ := exists_isUniform_measureSpace' B
+  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, <- rdist_add_const' c c' hUA_mes hUB_mes]
+  classical
+  convert rdist_set_eq_rdist (A+{c}) (B+{c'}) hμ hμ' ?_ ?_ ?_ ?_
+  . exact Set.Nonempty.to_subtype (Set.Nonempty.add (Set.nonempty_coe_sort.mp ‹_›) (Set.singleton_nonempty _))
+  . exact Set.Nonempty.to_subtype (Set.Nonempty.add (Set.nonempty_coe_sort.mp ‹_›) (Set.singleton_nonempty _))
+  . convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) (add_left_injective c) using 1
+    simp
+  . convert IsUniform.comp (B.toFinite.coe_toFinset.symm ▸ hUB_unif) (add_left_injective c') using 1
+    simp
+  . measurability
+  measurability
+
+lemma rdist_set_of_inj {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
+ [Countable H] {φ: G →+ H} (hφ: Function.Injective φ) : dᵤ[φ '' A # φ '' B] = dᵤ[A # B] := by
+  obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, - ⟩ := exists_isUniform_measureSpace' A
+  obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, - ⟩ := exists_isUniform_measureSpace' B
+  rw [rdist_set_eq_rdist A B hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes, <-rdist_of_inj hUA_mes hUB_mes φ hφ]
+  classical
+  convert rdist_set_eq_rdist (φ '' A) (φ '' B) hμ hμ' ?_ ?_ ?_ ?_
+  . convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) hφ using 1
+    ext x; simp
+  . convert IsUniform.comp (B.toFinite.coe_toFinset.symm ▸ hUB_unif) hφ using 1
+    ext x; simp
+  . measurability
+  measurability
+
+lemma rdist_set_le : dᵤ[A # B] ≤ log (Nat.card (A-B)) - log (Nat.card A) / 2 - log (Nat.card B) / 2 := by
+  simp_rw [rdist_set, kernel.rdistm, ProbabilityTheory.entropy_of_discreteUniform]
+  gcongr
+  convert measureEntropy_le_card_aux (A-B).toFinite.toFinset ?_
+  . rw [Set.Nat.card_coe_set_eq,]
+    exact Set.ncard_eq_toFinset_card (A - B)
+  . exact isProbabilityMeasure_map (Measurable.aemeasurable measurable_sub)
+  rw [Measure.map_apply measurable_sub (measurableSet_discrete _)]
+  apply MeasureTheory.measure_mono_null (s₂ := (Aᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ Bᶜ))
+  . intro (x, y)
+    simp
+    contrapose!
+    rintro ⟨ hx, hy⟩
+    rw [Set.mem_sub]
+    exact ⟨ x, y, hx, hy, rfl ⟩
+  apply MeasureTheory.measure_union_null
+  all_goals simp [Measure.discreteUniform_apply]
+
+
+
+end ProbabilityTheory
+
+end RuzsaSetDist
