@@ -1,5 +1,6 @@
 import PFR.EntropyPFR
 import PFR.ForMathlib.Entropy.RuzsaSetDist
+import PFR.Mathlib.GroupTheory.Torsion
 import Mathlib.GroupTheory.Torsion
 import Mathlib.Algebra.Quotient
 import Mathlib.Algebra.Order.Ring.Defs
@@ -25,8 +26,148 @@ variable {G : Type u} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonC
 [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.  -/
-proof_wanted torsion_free_doubling (hG : AddMonoid.IsTorsionFree G) :
-  d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X; μ # Y ; μ']
+lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
+    (hX : Measurable X) (hY : Measurable Y) (hG : AddMonoid.IsTorsionFree G) :
+    d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X; μ # Y ; μ'] := by
+  obtain ⟨A, mA, μA, X', Y'₁, Y'₂, hμA, h_indep, hX'_meas, hY'₁_meas, hY'₂_meas, hX'_ident,
+    hY'₁_ident, hY'₂_ident, _, _, _⟩ := independent_copies3_nondep_finiteRange hX hY hY μ μ' μ'
+  have h_meas (i : Fin 3) : Measurable (![X', Y'₁, Y'₂] i) := by fin_cases i <;> assumption
+  haveI : NoZeroSMulDivisors ℕ G := hG.noZeroNsmulDivisors
+  have h_x2y {x1 y1 x2 y2 : G} (hx : x1 = x2) (hy : x1 - 2 • y1 = x2 - 2 • y2) : y1 = y2 := by
+    exact (smul_right_inj (show 2 ≠ 0 by decide)).mp (by rwa [hx, sub_right_inj] at hy)
+  have : H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[X ; μ] + 2 * H[Y ; μ'] := calc
+    H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[⟨X', ⟨Y'₁, Y'₂⟩⟩ ; μA] := by
+      let f : G × G × G → G × G × G := fun ⟨x, y₁, y₂⟩ ↦ (x, y₁ - y₂, x - 2 • y₁)
+      show H[f ∘ ⟨X', ⟨Y'₁, Y'₂⟩⟩ ; μA] = H[⟨X', ⟨Y'₁, Y'₂⟩⟩ ; μA]
+      refine entropy_comp_of_injective μA ?_ f ?_
+      · exact Measurable.prod hX'_meas <| Measurable.prod hY'₁_meas hY'₂_meas
+      · rintro ⟨x1, y1, z1⟩ ⟨x2, y2, z2⟩ h
+        have hx : x1 = x2 := (Prod.ext_iff.mp h).1
+        have hy : y1 = y2 := h_x2y hx (Prod.ext_iff.mp (Prod.ext_iff.mp h).2).2
+        have hz : y1 - z1 = y2 - z2 := (Prod.ext_iff.mp (Prod.ext_iff.mp h).2).1
+        exact Prod.ext hx <| Prod.ext hy (by rwa [hy, sub_right_inj] at hz)
+    _ = H[X ; μ] + 2 * H[Y ; μ'] := by
+      have h1 := (h_indep.indepFun (show 1 ≠ 2 by decide)).entropy_pair_eq_add hY'₁_meas hY'₂_meas
+      have h2 : IndepFun X' (prod Y'₁ Y'₂) μA := iIndepFun.indepFun_prod_prod h_indep h_meas 0 0 1 2
+        (by decide) (by decide) (by decide) (by decide) |>.comp measurable_fst measurable_id
+      rw [h2.entropy_pair_eq_add hX'_meas (by exact Measurable.prod hY'₁_meas hY'₂_meas),
+        h1, hX'_ident.entropy_eq, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, two_mul]
+  have : H[⟨X', X' - 2 • Y'₁⟩ ; μA] = H[X ; μ] + H[Y ; μ'] := calc
+    H[⟨X', X' - 2 • Y'₁⟩ ; μA] = H[⟨X', Y'₁⟩ ; μA] := by
+      let f : G × G → G × G := fun ⟨x, y₁⟩ ↦ (x, x - 2 • y₁)
+      show H[f ∘ ⟨X', Y'₁⟩ ; μA] = H[⟨X', Y'₁⟩ ; μA]
+      apply entropy_comp_of_injective μA (by exact Measurable.prod hX'_meas hY'₁_meas) f
+      intro _ _ h
+      exact Prod.ext (Prod.ext_iff.mp h).1 (h_x2y (Prod.ext_iff.mp h).1 (Prod.ext_iff.mp h).2)
+    _ = H[X ; μ] + H[Y ; μ'] := by
+      have := (h_indep.indepFun (show 0 ≠ 1 by decide)).entropy_pair_eq_add hX'_meas hY'₁_meas
+      rw [this, hX'_ident.entropy_eq, hY'₁_ident.entropy_eq]
+  let f : G × G → G × G := fun ⟨x, y⟩ ↦ (x, y - x)
+  have hf : f.Injective := fun _ _ _ ↦ by aesop
+  have : H[⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩ ; μA] ≤ H[Y'₁ - Y'₂ ; μA] + H[X' - Y'₁ - Y'₂ ; μA] := calc
+    H[⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩ ; μA] = H[⟨Y'₁ - Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] := by
+      suffices H[f ∘ ⟨Y'₁ - Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] = H[⟨Y'₁ - Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] by
+        rwa [
+          show f ∘ ⟨Y'₁ - Y'₂, X' - Y'₁ - Y'₂⟩ = ⟨Y'₁ - Y'₂, X' - Y'₁ - Y'₂ - (Y'₁ - Y'₂)⟩ from rfl,
+          sub_sub_sub_cancel_right, ← sub_add_eq_sub_sub, ← two_nsmul
+        ] at this
+      refine entropy_comp_of_injective μA (Measurable.prod ?_ ?_) f hf
+      · exact Measurable.sub hY'₁_meas hY'₂_meas
+      · exact Measurable.sub (Measurable.sub hX'_meas hY'₁_meas) hY'₂_meas
+    _ ≤ H[Y'₁ - Y'₂ ; μA] + H[X' - Y'₁ - Y'₂ ; μA] :=
+      entropy_pair_le_add (hY'₁_meas.sub' hY'₂_meas) (hX'_meas.sub' hY'₁_meas |>.sub' hY'₂_meas) μA
+  have : H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] + H[X' - 2 • Y'₁ ; μA] ≤
+      H[⟨X', X' - 2 • Y'₁⟩ ; μA] + H[⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩ ; μA] := by
+    haveI : FiniteRange (Y'₁ - Y'₂) := FiniteRange.sub Y'₁ Y'₂
+    haveI : FiniteRange (2 • Y'₁) := by
+      show FiniteRange ((fun x ↦ 2 • x) ∘ Y'₁)
+      infer_instance
+    apply entropy_triple_add_entropy_le μA hX'_meas (Measurable.sub hY'₁_meas hY'₂_meas)
+    exact Measurable.sub' hX'_meas <| Measurable.const_smul hY'₁_meas 2
+  have : H[⟨Y'₁, ⟨Y'₂, X' - Y'₁ - Y'₂⟩⟩ ; μA] = H[X ; μ] + 2 * H[Y ; μ'] := calc
+    H[⟨Y'₁, ⟨Y'₂, X' - Y'₁ - Y'₂⟩⟩ ; μA] = H[⟨Y'₁, ⟨Y'₂, X'⟩⟩ ; μA] := by
+      let f : G × G × G → G × G × G := fun ⟨y₁, y₂, x⟩ ↦ (y₁, y₂, x - y₁ - y₂)
+      show H[f ∘ ⟨Y'₁, ⟨Y'₂, X'⟩⟩ ; μA] = H[⟨Y'₁, ⟨Y'₂, X'⟩⟩ ; μA]
+      refine entropy_comp_of_injective μA ?_ f ?_
+      · exact Measurable.prod hY'₁_meas <| Measurable.prod hY'₂_meas hX'_meas
+      · rintro ⟨y11, y21, x1⟩ ⟨y12, y22, x2⟩ h
+        have hy1 : y11 = y12 := (Prod.ext_iff.mp h).1
+        have hy2 : y21 = y22 := (Prod.ext_iff.mp (Prod.ext_iff.mp h).2).1
+        have hx : x1 - y11 - y21 = x2 - y12 - y22 := (Prod.ext_iff.mp (Prod.ext_iff.mp h).2).2
+        exact Prod.ext hy1 <| Prod.ext hy2 (by rwa [hy1, hy2, sub_left_inj, sub_left_inj] at hx)
+    _ = H[X ; μ] + 2 * H[Y ; μ'] := by
+      have h1 := (h_indep.indepFun (show 2 ≠ 0 by decide)).entropy_pair_eq_add hY'₂_meas hX'_meas
+      have h2 : IndepFun Y'₁ (prod Y'₂ X') μA := iIndepFun.indepFun_prod_prod h_indep h_meas 1 1 2 0
+        (by decide) (by decide) (by decide) (by decide) |>.comp measurable_fst measurable_id
+      rw [h2.entropy_pair_eq_add hY'₁_meas (by exact Measurable.prod hY'₂_meas hX'_meas),
+        h1, hX'_ident.entropy_eq, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq]
+      group
+  have : H[⟨Y'₁, X' - Y'₁ - Y'₂⟩ ; μA] = H[Y ; μ'] + H[X' - Y'₂ ; μA] := calc
+    H[⟨Y'₁, X' - Y'₁ - Y'₂⟩ ; μA] = H[⟨Y'₁, X' - Y'₂⟩ ; μA] := by
+      rw [sub_right_comm]
+      show H[f ∘ ⟨Y'₁, X' - Y'₂⟩ ; μA] = H[⟨Y'₁, X' - Y'₂⟩ ; μA]
+      refine entropy_comp_of_injective μA ?_ f hf
+      · exact Measurable.prod hY'₁_meas <| Measurable.sub hX'_meas hY'₂_meas
+    _ = H[Y ; μ'] + H[X' - Y'₂ ; μA] := by
+      haveI : FiniteRange (X' - Y'₂) := FiniteRange.sub X' Y'₂
+      have : IndepFun Y'₁ (X' - Y'₂) μA := iIndepFun.indepFun_prod_prod h_indep h_meas 1 1 0 2
+        (by decide) (by decide) (by decide) (by decide) |>.comp measurable_fst measurable_sub
+      rw [← hY'₁_ident.entropy_eq]
+      exact this.entropy_pair_eq_add hY'₁_meas (hX'_meas.sub hY'₂_meas)
+  have : H[⟨Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] = H[Y ; μ'] + H[X' - Y'₁ ; μA] := calc
+    H[⟨Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] = H[⟨Y'₂, X' - Y'₁⟩ ; μA] := by
+      show H[f ∘ ⟨Y'₂, X' - Y'₁⟩ ; μA] = H[⟨Y'₂, X' - Y'₁⟩ ; μA]
+      refine entropy_comp_of_injective μA ?_ f hf
+      · exact Measurable.prod hY'₂_meas <| Measurable.sub hX'_meas hY'₁_meas
+    _ = H[Y ; μ'] + H[X' - Y'₁ ; μA] := by
+      haveI : FiniteRange (X' - Y'₁) := FiniteRange.sub X' Y'₁
+      have : IndepFun Y'₂ (X' - Y'₁) μA := iIndepFun.indepFun_prod_prod h_indep h_meas 2 2 0 1
+        (by decide) (by decide) (by decide) (by decide) |>.comp measurable_fst measurable_sub
+      rw [← hY'₂_ident.entropy_eq]
+      exact this.entropy_pair_eq_add hY'₂_meas (hX'_meas.sub hY'₁_meas)
+  have : H[⟨Y'₁, ⟨Y'₂, X' - Y'₁ - Y'₂⟩⟩ ; μA] + H[X' - Y'₁ - Y'₂ ; μA] ≤
+      H[⟨Y'₁, X' - Y'₁ - Y'₂⟩ ; μA] + H[⟨Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] := by
+    apply entropy_triple_add_entropy_le μA hY'₁_meas hY'₂_meas
+    exact Measurable.sub (Measurable.sub hX'_meas hY'₁_meas) hY'₂_meas
+  have : H[X' - Y'₁ - Y'₂ ; μA] ≤ 2 * d[X ; μ # Y ; μ'] + H[Y ; μ'] := calc
+    H[X' - Y'₁ - Y'₂ ; μA] ≤ H[X' - Y'₁ ; μA] + H[X' - Y'₂ ; μA] - H[X ; μ] := by linarith
+    _ = 2 * d[X ; μ # Y ; μ'] + H[Y ; μ'] := by
+      rw [two_mul]
+      nth_rw 1 [← hX'_ident.rdist_eq hY'₁_ident, ← hX'_ident.rdist_eq hY'₂_ident]
+      have h1 : d[X' ; μA # Y'₁ ; μA] = H[X' - Y'₁ ; μA] - H[X' ; μA] / 2 - H[Y'₁ ; μA] / 2 :=
+        (h_indep.indepFun (show 0 ≠ 1 by decide)).rdist_eq hX'_meas hY'₁_meas
+      have h2 : d[X' ; μA # Y'₂ ; μA] = H[X' - Y'₂ ; μA] - H[X' ; μA] / 2 - H[Y'₂ ; μA] / 2 :=
+        (h_indep.indepFun (show 0 ≠ 2 by decide)).rdist_eq hX'_meas hY'₂_meas
+      rw [h1, h2, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, hX'_ident.entropy_eq]
+      group
+  have : d[X ; μ # 2 • Y ; μ'] ≤
+      d[Y'₁ ; μA # Y'₂ ; μA] + (H[Y ; μ'] - H[X ; μ]) / 2 + 2 * d[X ; μ # Y ; μ'] := calc
+    d[X ; μ # 2 • Y ; μ'] = H[X' - 2 • Y'₁ ; μA] - H[X ; μ] / 2 - H[2 • Y ; μ'] / 2 := by
+      have h2Y_ident : IdentDistrib (2 • Y'₁) (2 • Y) (μ := μA) (ν := μ') := by
+        convert hY'₁_ident.comp <| measurable_discrete <| fun g ↦ 2 • g
+      have h2Y_indep : IndepFun X' (2 • Y'₁) (μ := μA) := by
+        convert (h_indep.indepFun (show 0 ≠ 1 by decide)).comp measurable_id
+          (measurable_const_smul 2)
+      rw [← hX'_ident.rdist_eq h2Y_ident,
+        h2Y_indep.rdist_eq hX'_meas <| Measurable.const_smul hY'₁_meas 2,
+        hX'_ident.entropy_eq, h2Y_ident.entropy_eq]
+    _ ≤ H[Y'₁ - Y'₂ ; μA] + 2 * d[X ; μ # Y ; μ'] - H[X ; μ] / 2 - H[2 • Y ; μ'] / 2 := by linarith
+    _ = d[Y'₁ ; μA # Y'₂ ; μA] + (H[Y ; μ'] - H[X ; μ]) / 2 + 2 * d[X ; μ # Y ; μ'] := by
+      have H2Y : H[2 • Y ; μ'] = H[Y ; μ'] := by
+        let f (g : G) := 2 • g
+        exact entropy_comp_of_injective μ' hY f
+          (fun _ _ ↦ (smul_right_inj <| show 2 ≠ 0 by decide).mp)
+      have : d[Y'₁ ; μA # Y'₂ ; μA] = H[Y'₁ - Y'₂ ; μA] - H[Y'₁ ; μA] / 2 - H[Y'₂ ; μA] / 2 :=
+        (h_indep.indepFun (show 1 ≠ 2 by decide)).rdist_eq hY'₁_meas hY'₂_meas
+      rw [this, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, H2Y]
+      group
+  have : d[Y'₁ ; μA # Y'₂ ; μA] ≤ 2 * d[X ; μ # Y ; μ'] := by
+    rw [two_mul]
+    convert rdist_triangle hY'₁_meas hX'_meas hY'₂_meas (μ := μA) (μ' := μA) (μ'' := μA)
+    · exact rdist_symm.trans (hY'₁_ident.rdist_eq hX'_ident).symm
+    · exact (hX'_ident.rdist_eq hY'₂_ident).symm
+  rw [← two_nsmul]
+  linarith [abs_le.mp <| diff_ent_le_rdist hX hY (μ := μ) (μ' := μ')]
 
 /-- If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and
 $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
