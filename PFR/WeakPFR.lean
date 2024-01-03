@@ -140,7 +140,6 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
         (h_indep.indepFun (show 0 ≠ 2 by decide)).rdist_eq hX'_meas hY'₂_meas
       rw [h1, h2, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, hX'_ident.entropy_eq]
       group
-  have : H[X' - 2 • Y'₁ ; μA] ≤ H[Y'₁ - Y'₂ ; μA] + 2 * d[X ; μ # Y ; μ'] := by linarith
   have : d[X ; μ # 2 • Y ; μ'] ≤
       d[Y'₁ ; μA # Y'₂ ; μA] + (H[Y ; μ'] - H[X ; μ]) / 2 + 2 * d[X ; μ # Y ; μ'] := calc
     d[X ; μ # 2 • Y ; μ'] = H[X' - 2 • Y'₁ ; μA] - H[X ; μ] / 2 - H[2 • Y ; μ'] / 2 := by
@@ -167,10 +166,8 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
     convert rdist_triangle hY'₁_meas hX'_meas hY'₂_meas (μ := μA) (μ' := μA) (μ'' := μA)
     · exact rdist_symm.trans (hY'₁_ident.rdist_eq hX'_ident).symm
     · exact (hX'_ident.rdist_eq hY'₂_ident).symm
-  have : (H[Y ; μ'] - H[X ; μ]) / 2 ≤ d[X ; μ # Y ; μ'] := by
-    linarith only [abs_le.mp <| diff_ent_le_rdist hX hY (μ := μ) (μ' := μ')]
   rw [← two_nsmul]
-  linarith
+  linarith [abs_le.mp <| diff_ent_le_rdist hX hY (μ := μ) (μ' := μ')]
 
 /-- If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and
 $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
