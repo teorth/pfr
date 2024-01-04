@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Measure.Typeclasses
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
 
 open Function MeasureTheory Measure Set
 
@@ -14,18 +13,6 @@ lemma mem_ae_iff_apply_eq_one (hs : MeasurableSet s) : s ∈ μ.ae ↔ μ s = 1 
 
 lemma ae_iff_apply_eq_one (hp : Measurable p) : (∀ᵐ a ∂μ, p a) ↔ μ {a | p a} = 1 :=
   mem_ae_iff_apply_eq_one hp.setOf
-
-lemma isProbabilityMeasure_comap (hf : Injective f) (hf' : ∀ᵐ a ∂μ, a ∈ range f)
-    (hf'' : ∀ s, MeasurableSet s → MeasurableSet (f '' s)) :
-    IsProbabilityMeasure (μ.comap f) where
-  measure_univ := by
-    rw [comap_apply _ hf hf'' _ MeasurableSet.univ,
-      ←mem_ae_iff_apply_eq_one (hf'' _ MeasurableSet.univ)]
-    simpa
-
-protected lemma _root_.MeasurableEmbedding.isProbabilityMeasure_comap (hf : MeasurableEmbedding f)
-    (hf' : ∀ᵐ a ∂μ, a ∈ range f) : IsProbabilityMeasure (μ.comap f) :=
-  isProbabilityMeasure_comap hf.injective hf' hf.measurableSet_image'
 
 instance isProbabilityMeasure_map_up [IsProbabilityMeasure μ] :
     IsProbabilityMeasure (μ.map ULift.up) := isProbabilityMeasure_map measurable_up.aemeasurable

@@ -1,6 +1,6 @@
 import Mathlib.Data.Finsupp.Fintype
 import Mathlib.LinearAlgebra.Basis.VectorSpace
-import PFR.Mathlib.GroupTheory.Sylow
+import Mathlib.GroupTheory.Sylow
 
 /-!
 # Finite field vector spaces
@@ -95,9 +95,26 @@ end to_move
 order exactly `p`. -/
 class ElementaryAddCommGroup (G : Type*) [AddCommGroup G] (p : outParam ℕ) : Prop where
   orderOf_of_ne {x : G} (hx : x ≠ 0) : addOrderOf x = p
--- may want to change this to p . x = 0 for all x
 
 namespace ElementaryAddCommGroup
+
+@[simp]
+lemma torsion {G: Type*} [AddCommGroup G] (p: ℕ) [elem : ElementaryAddCommGroup G p] (x:G) : p • x = 0 := by
+  by_cases h: x = 0
+  . simp [h]
+  have := elem.orderOf_of_ne h
+  rw [<-this]
+  exact addOrderOf_nsmul_eq_zero x
+
+lemma of_torsion {G: Type*} [AddCommGroup G] {p: ℕ} (hp: p.Prime) (h : ∀ x : G, p • x = 0) : ElementaryAddCommGroup G p := by
+  constructor
+  intro x hx
+  have := addOrderOf_dvd_of_nsmul_eq_zero (h x)
+  rw [Nat.dvd_prime hp] at this
+  rcases this with this | this
+  . simp at this; contradiction
+  exact this
+
 
 /-- A vector space over Z/p is an elementary abelian p-group. -/
 -- We can't make this an instance as `p` is not determined.
@@ -110,8 +127,8 @@ instance [AddCommGroup G] [Module (ZMod 2) G] : ElementaryAddCommGroup G 2 := of
 
 /-- In an elementary abelian $p$-group, every finite subgroup $H$ contains a further subgroup of
 cardinality between $k$ and $pk$, if $k \leq |H|$.-/
-lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ}
-    [AddCommGroup G] [h : ElementaryAddCommGroup G p] [Fact p.Prime]
+lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ} (hp : p.Prime)
+    [AddCommGroup G] [h : ElementaryAddCommGroup G p]
     {k : ℕ} (H : AddSubgroup G) (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
     ∃ (H' : AddSubgroup G), Nat.card H' ≤ k ∧ k < p * Nat.card H' ∧ H' ≤ H := by
   let Gm := Multiplicative G
@@ -121,9 +138,9 @@ lemma exists_subgroup_subset_card_le {G : Type*} {p : ℕ}
     · exact ⟨0, by simp⟩
     · refine ⟨1, ?_⟩
       have : Multiplicative.toAdd gm ≠ 0 := hg
-      simpa [h.orderOf_of_ne this] using addOrderOf_nsmul_eq_zero (Multiplicative.toAdd gm)
+      simpa only [pow_one, h.orderOf_of_ne this] using addOrderOf_nsmul_eq_zero (Multiplicative.toAdd gm)
   let Hm : Subgroup Gm := AddSubgroup.toSubgroup H
-  rcases Sylow.exists_subgroup_subset_card_le hm Hm hk h'k with ⟨H'm, H'mk, kH'm, H'mHm⟩
+  obtain ⟨H'm, H'mHm, H'mk, kH'm⟩ := Sylow.exists_subgroup_le_card_le (H := Hm) hp hm hk h'k
   exact ⟨AddSubgroup.toSubgroup.symm H'm, H'mk, kH'm, H'mHm⟩
 
 variable [AddCommGroup G] [elem : ElementaryAddCommGroup G 2]
@@ -298,5 +315,13 @@ instance (priority := low) module : Module (ZMod 2) G where
     · simp only [Fin.mk_one, Fin.zero_eta, add_zero, self_eq_add_right] ; rfl
     · simp only [Fin.mk_one, CharTwo.add_self_eq_zero, ElementaryAddCommGroup.add_self] ; rfl
   zero_smul := fun _ => rfl
+
+
+lemma quotient_group {G : Type*} [AddCommGroup G] {p : ℕ} (hp: p.Prime) {H : AddSubgroup G} (hH: ∀ x : G, p • x ∈ H) : ElementaryAddCommGroup (G ⧸ H) p := by
+  apply of_torsion hp
+  intro x
+  rcases QuotientAddGroup.mk'_surjective H x with ⟨y, rfl⟩
+  simp only [QuotientAddGroup.mk'_apply, <-QuotientAddGroup.mk_nsmul, QuotientAddGroup.eq_zero_iff, hH y]
+
 
 end ElementaryAddCommGroup

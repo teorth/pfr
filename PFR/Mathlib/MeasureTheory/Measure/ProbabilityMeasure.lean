@@ -1,14 +1,4 @@
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
-import PFR.Mathlib.Topology.Clopen
-
-namespace MeasureTheory
-variable {Ω : Type*} [MeasurableSpace Ω]
-
-@[simp, norm_cast]
-lemma ProbabilityMeasure.coe_mk (μ : Measure Ω) (hμ) :
-    ProbabilityMeasure.toMeasure ⟨μ, hμ⟩ = μ := rfl
-
-end MeasureTheory
 
 /-!
 # The measure of a connected component of a space depends continuously on a finite measure

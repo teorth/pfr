@@ -59,39 +59,49 @@ lemma measureEntropy_def' (μ : Measure S) :
 @[inherit_doc measureEntropy] notation:100 "Hm[" μ "]" => measureEntropy μ
 
 /-- A measure has finite support if there exsists a finite set whose complement has zero measure. -/
-noncomputable def FiniteSupport (μ : Measure S := by volume_tac) : Prop :=
-  ∃ A : Finset S, μ Aᶜ  = 0
+class FiniteSupport (μ : Measure S := by volume_tac) : Prop :=
+(finite : ∃ A : Finset S, μ Aᶜ = 0)
+
+noncomputable
+def _root_.MeasureTheory.Measure.support (μ : Measure S) [hμ : FiniteSupport μ] : Finset S :=
+  hμ.finite.choose
+
+lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] :
+  μ μ.supportᶜ = 0 := hμ.finite.choose_spec
+
+instance finiteSupport_zero : FiniteSupport (0 : Measure S) where
+  finite := ⟨(∅ : Finset S), by simp⟩
 
 /-- TODO: replace FiniteSupport hypotheses in these files with FiniteEntropy hypotheses. -/
 noncomputable def FiniteEntropy (μ : Measure S := by volume_tac) : Prop :=
   Summable (fun s ↦ negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal) ∧
-  ∃ A : Set S, Countable A ∧ μ Aᶜ  = 0
+  ∃ A : Set S, Countable A ∧ μ Aᶜ = 0
 
-lemma finiteSupport_of_fintype {μ : Measure S} [Fintype S] : FiniteSupport μ := by
+instance finiteSupport_of_fintype {μ : Measure S} [Fintype S] : FiniteSupport μ := by
   use Finset.univ
   simp
 
-lemma finiteSupport_of_mul {μ : Measure S} (hμ : FiniteSupport μ) (c : ℝ≥0∞) :
+instance finiteSupport_of_mul {μ : Measure S} [FiniteSupport μ] (c : ℝ≥0∞) :
     FiniteSupport (c • μ) := by
-  rcases hμ with ⟨A, hA⟩
-  use A
-  simp [hA]
+  use μ.support
+  simp [measure_compl_support]
 
-lemma finiteSupport_of_comp  {μ : Measure Ω} (hμ : FiniteSupport μ) {X : Ω → S} (hX: Measurable X) :
+lemma finiteSupport_of_comp {μ : Measure Ω} [FiniteSupport μ] {X : Ω → S} (hX: Measurable X) :
     FiniteSupport (μ.map X) := by
-  rcases hμ with ⟨A, hA⟩
   classical
-  use Finset.image X A
+  use Finset.image X μ.support
   rw [Measure.map_apply hX (MeasurableSet.compl (Finset.measurableSet _))]
-  refine measure_mono_null ?_ hA
+  refine measure_mono_null ?_ (measure_compl_support μ)
   intro x; contrapose!; simp; intro hx; use x
 
-lemma finiteSupport_of_dirac (x : S) : FiniteSupport (Measure.dirac x) := by
+instance finiteSupport_of_dirac (x : S) : FiniteSupport (Measure.dirac x) := by
   use {x}
   simp [Measure.dirac_apply', Set.mem_singleton_iff, Set.indicator_of_mem, MeasurableSet.singleton]
 
 /-- duplicate of `FiniteRange.null_of_compl` -/
-lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S} (hX: Measurable X) [hX': FiniteRange X] : (μ.map X) (hX'.toFinset)ᶜ = 0 := by
+lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S}
+    (hX : Measurable X) [hX' : FiniteRange X] :
+    (μ.map X) (hX'.toFinset)ᶜ = 0 := by
   rw [Measure.map_apply hX (MeasurableSet.compl (Finset.measurableSet _))]
   convert measure_empty
   ext x
@@ -99,34 +109,39 @@ lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S} (hX: Measurab
   rw [@Set.mem_toFinset S _ hX'.fintype]
   simp
 
-lemma finiteSupport_of_finiteRange {μ : Measure Ω}  {X : Ω → S} (hX: Measurable X) [hX': FiniteRange X] : FiniteSupport (μ.map X) := by
+instance finiteSupport_of_finiteRange {μ : Measure Ω} {X : Ω → S} [hX' : FiniteRange X] :
+    FiniteSupport (μ.map X) := by
   use hX'.toFinset
-  exact full_measure_of_finiteRange hX
+  exact FiniteRange.null_of_compl μ X
 
-lemma prod_of_full_measure_finSet {μ : Measure S} {ν: Measure T} [SigmaFinite ν] {A : Finset S} {B: Finset T} (hA: μ Aᶜ = 0) (hB: ν Bᶜ = 0) : (μ.prod ν) (A ×ˢ B : Finset (S × T))ᶜ = 0 := by
+lemma prod_of_full_measure_finSet {μ : Measure S} {ν : Measure T} [SigmaFinite ν]
+    {A : Finset S} {B : Finset T} (hA : μ Aᶜ = 0) (hB : ν Bᶜ = 0) :
+    (μ.prod ν) (A ×ˢ B : Finset (S × T))ᶜ = 0 := by
   have : ((A ×ˢ B : Finset (S × T)) : Set (S × T))ᶜ = ((A : Set S)ᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ (B : Set T)ᶜ) := by
     ext ⟨s, t⟩
     simp; tauto
   rw [this]
   simp [hA, hB]
 
-lemma full_measure_of_null_compl {μ : Measure S} {A : Finset S} (hA: μ Aᶜ = 0) : μ A = μ Set.univ := by
+lemma full_measure_of_null_compl {μ : Measure S} {A : Finset S} (hA : μ Aᶜ = 0) :
+    μ A = μ Set.univ := by
   have := measure_add_measure_compl (μ := μ) (s := A) (by measurability)
   simp [hA] at this
   exact this
 
-lemma finiteSupport_of_prod  {μ : Measure S} (hμ : FiniteSupport μ) {ν: Measure T} [SigmaFinite ν] (hν: FiniteSupport ν) : FiniteSupport (μ.prod ν) := by
-  rcases hμ with ⟨A, hA⟩
-  rcases hν with ⟨B, hB⟩
-  use A ×ˢ B
-  exact prod_of_full_measure_finSet hA hB
+instance finiteSupport_of_prod {μ : Measure S} [FiniteSupport μ] {ν : Measure T} [SigmaFinite ν]
+    [FiniteSupport ν] :
+    FiniteSupport (μ.prod ν) := by
+  use μ.support ×ˢ ν.support
+  exact prod_of_full_measure_finSet (measure_compl_support μ) (measure_compl_support ν)
 
 /-- The countability hypothesis can probably be dropped here. Proof is unwieldy and can probably
 be golfed. -/
-lemma integrable_of_finiteSupport {μ : Measure S} (hμ : FiniteSupport μ)
+lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
     {β : Type*} [NormedAddCommGroup β] [IsFiniteMeasure μ] [Countable S] {f : S → β} :
     Integrable f μ := by
-  rcases hμ with ⟨A, hA⟩
+  let A := μ.support
+  have hA := measure_compl_support μ
   by_cases hA' : A = ∅
   . simp [hA'] at hA
     rw [hA]
@@ -153,24 +168,28 @@ lemma integrable_of_finiteSupport {μ : Measure S} (hμ : FiniteSupport μ)
   apply Integrable.comp_measurable (integrable_of_fintype _ _)
   apply measurable_of_countable
 
-lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*} [MeasurableSingletonClass Ω] [NormedAddCommGroup G] [NormedSpace ℝ G] [CompleteSpace G] {f g : Ω → G} (hμ : FiniteSupport μ) [IsFiniteMeasure μ] (hfg : ∀ x, μ {x} ≠ 0 → f x = g x) : ∫ x, f x ∂μ = ∫ x, g x ∂μ := by
-  rcases hμ with ⟨A, hA⟩
-  rw [integral_eq_sum' μ hA, integral_eq_sum' μ hA]
+lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*} [MeasurableSingletonClass Ω]
+    [NormedAddCommGroup G] [NormedSpace ℝ G] [CompleteSpace G] {f g : Ω → G}
+    [FiniteSupport μ] [IsFiniteMeasure μ] (hfg : ∀ x, μ {x} ≠ 0 → f x = g x) :
+    ∫ x, f x ∂μ = ∫ x, g x ∂μ := by
+  rw [integral_eq_sum' μ (measure_compl_support μ), integral_eq_sum' μ (measure_compl_support μ)]
   congr with x
   by_cases hx : μ {x} = 0
   . simp [hx]
   rw [hfg x hx]
 
 /-- This generalizes Measure.ext_iff_singleton in MeasureReal -/
-theorem Measure.ext_iff_singleton_finiteSupport  [MeasurableSpace S] [MeasurableSingletonClass S]
-    {μ1 μ2 : Measure S} (hμ1: FiniteSupport μ1) (hμ2: FiniteSupport μ2) :
+theorem Measure.ext_iff_singleton_finiteSupport [MeasurableSpace S] [MeasurableSingletonClass S]
+    {μ1 μ2 : Measure S} [FiniteSupport μ1] [FiniteSupport μ2] :
     μ1 = μ2 ↔ ∀ x, μ1 {x} = μ2 {x} := by
   classical
   constructor
   · rintro rfl
     simp
-  · rcases hμ1 with ⟨A1, hA1⟩
-    rcases hμ2 with ⟨A2, hA2⟩
+  · let A1 := μ1.support
+    have hA1 := measure_compl_support μ1
+    let A2 := μ2.support
+    have hA2 := measure_compl_support μ2
     intro h
     ext s
     have h1 : μ1 s = μ1 (s ∩ (A1 ∪ A2)) := by
@@ -188,17 +207,18 @@ theorem Measure.ext_iff_singleton_finiteSupport  [MeasurableSpace S] [Measurable
     rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
     simp_rw [h]
 
-theorem Measure.ext_iff_measureReal_singleton_finiteSupport  [MeasurableSpace S] [MeasurableSingletonClass S]
-    {μ1 μ2 : Measure S} (hμ1: FiniteSupport μ1) (hμ2: FiniteSupport μ2) [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :
+theorem Measure.ext_iff_measureReal_singleton_finiteSupport [MeasurableSpace S]
+    [MeasurableSingletonClass S] {μ1 μ2 : Measure S}
+    [FiniteSupport μ1] [FiniteSupport μ2] [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :
     μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
-  rw [Measure.ext_iff_singleton_finiteSupport hμ1 hμ2]
+  rw [Measure.ext_iff_singleton_finiteSupport]
   congr! with x
   have h1 : μ1 {x} ≠ ⊤ := by finiteness
   have h2 : μ2 {x} ≠ ⊤ := by finiteness
   rw [measureReal_def, measureReal_def, ENNReal.toReal_eq_toReal_iff]
   simp [h1, h2]
 
-lemma measureEntropy_def_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0) :
+lemma measureEntropy_def_finite {μ : Measure S} {A : Finset S} (hA : μ Aᶜ = 0) :
    Hm[ μ ] = ∑ s in A, negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal := by
   unfold measureEntropy
   rw [tsum_eq_sum]
@@ -207,7 +227,7 @@ lemma measureEntropy_def_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 
   apply measure_mono_null _ hA
   simpa
 
-lemma measureEntropy_def_finite' {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0):
+lemma measureEntropy_def_finite' {μ : Measure S} {A : Finset S} (hA : μ Aᶜ = 0):
     Hm[ μ ] = ∑ s in A, negMulLog (((μ.real Set.univ) ⁻¹ • μ.real) {s}) := by
     rw [measureEntropy_def_finite hA]
     congr! with s
@@ -239,13 +259,16 @@ lemma measureEntropy_of_isProbabilityMeasure' (μ : Measure S) [IsProbabilityMea
     Hm[μ] = ∑' s, negMulLog (μ.real {s}) :=
   measureEntropy_of_isProbabilityMeasure μ
 
-lemma measureEntropy_of_isProbabilityMeasure_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0) [IsProbabilityMeasure μ]:
+lemma measureEntropy_of_isProbabilityMeasure_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ = 0)
+    [IsProbabilityMeasure μ] :
     Hm[ μ ] = ∑ s in A, negMulLog (μ {s}).toReal := by
-    rw [measureEntropy_def_finite hA]
-    simp
+  rw [measureEntropy_def_finite hA]
+  simp
 
-lemma measureEntropy_of_isProbabilityMeasure_finite' {μ : Measure S} {A : Finset S} (hA: μ Aᶜ  = 0)[IsProbabilityMeasure μ]:
-    Hm[ μ ] = ∑ s in A, negMulLog (μ.real {s}) := measureEntropy_of_isProbabilityMeasure_finite hA
+lemma measureEntropy_of_isProbabilityMeasure_finite' {μ : Measure S} {A : Finset S} (hA: μ Aᶜ = 0)
+    [IsProbabilityMeasure μ] :
+    Hm[ μ ] = ∑ s in A, negMulLog (μ.real {s}) :=
+  measureEntropy_of_isProbabilityMeasure_finite hA
 
 lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
@@ -447,15 +470,15 @@ lemma measureEntropy_comap_equiv (μ : Measure S) (f : T ≃ᵐ S) :
   have : Set.range f = Set.univ := Equiv.range_eq_univ _
   simp [this]
 
-
-
 /-- An ambitious goal would be to replace FiniteSupport with finite entropy. -/
 @[simp]
-lemma measureEntropy_prod {μ : Measure S} {ν : Measure T} (hμ: FiniteSupport μ) (hν: FiniteSupport ν)
+lemma measureEntropy_prod {μ : Measure S} {ν : Measure T} [FiniteSupport μ] [FiniteSupport ν]
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     Hm[μ.prod ν] = Hm[μ] + Hm[ν] := by
-  rcases hμ with ⟨A, hA⟩
-  rcases hν with ⟨B, hB⟩
+  let A := μ.support
+  have hA := measure_compl_support μ
+  let B := ν.support
+  have hB := measure_compl_support ν
   have hC : (μ.prod ν) (A ×ˢ B : Finset (S × T))ᶜ = 0 := by
     have : ((A ×ˢ B : Finset (S × T)) : Set (S × T))ᶜ = ((A : Set S)ᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ (B : Set T)ᶜ) := by ext ⟨a, b⟩; simp; tauto
     rw [this]
@@ -476,7 +499,7 @@ lemma measureEntropy_prod {μ : Measure S} {ν : Measure T} (hμ: FiniteSupport 
     simp [hA]
   rw [measureEntropy_of_isProbabilityMeasure_finite' hC, h1, h2, ← Finset.sum_add_distrib]
   congr with ⟨s, t⟩
-  simp_rw [← Set.singleton_prod_singleton, measureReal_prod_prod, negMulLog_mul']
+  simp_rw [← Set.singleton_prod_singleton, measureReal_prod_prod, negMulLog_mul]
   ring
 
 end measureEntropy
@@ -519,21 +542,23 @@ lemma measureMutualInfo_swap (μ : Measure (S × T)) :
   all_goals exact Prod.swap_injective
 
 @[simp]
-lemma measureMutualInfo_prod {μ : Measure S} {ν : Measure T} (hμ: FiniteSupport μ) (hν: FiniteSupport ν)
+lemma measureMutualInfo_prod {μ : Measure S} {ν : Measure T} [FiniteSupport μ] [FiniteSupport ν]
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     Im[μ.prod ν] = 0 := by
-  rw [measureMutualInfo_def, measureEntropy_prod hμ hν]
+  rw [measureMutualInfo_def, measureEntropy_prod]
   simp
 
 /-- An ambitious goal would be to replace FiniteSupport with finite entropy.  Proof is long and slow; needs to be optimized -/
-lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} (hμ: FiniteSupport μ) [IsProbabilityMeasure μ] :
+lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
+    [IsProbabilityMeasure μ] :
     0 ≤ Im[μ] ∧
     (Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}) := by
   have : IsProbabilityMeasure (μ.map Prod.fst) :=
     isProbabilityMeasure_map measurable_fst.aemeasurable
   have : IsProbabilityMeasure (μ.map Prod.snd) :=
     isProbabilityMeasure_map measurable_snd.aemeasurable
-  rcases hμ with ⟨E, hE⟩
+  let E := μ.support
+  have hE := measure_compl_support μ
   classical
   set E1 : Finset S := Finset.image Prod.fst E
   set E2 : Finset U := Finset.image Prod.snd E
@@ -749,20 +774,19 @@ lemma measureMutualInfo_univ_smul (μ : Measure (S × U)) : Im[(μ Set.univ)⁻�
     convert Measure.map_apply measurable_snd MeasurableSet.univ
   convert measureEntropy_univ_smul
 
-lemma measureMutualInfo_nonneg {μ : Measure (S × U)} (hsupp : FiniteSupport μ):
+lemma measureMutualInfo_nonneg {μ : Measure (S × U)} [FiniteSupport μ] :
     0 ≤ Im[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
   . rcases eq_zero_or_neZero μ with hμ|hμ
     . simp [hμ]
     rw [← measureMutualInfo_univ_smul μ]
-    apply (measureMutualInfo_nonneg_aux _).1
-    exact finiteSupport_of_mul hsupp _
+    apply measureMutualInfo_nonneg_aux.1
   rw [measureMutualInfo_of_not_isFiniteMeasure hμ_fin]
 
-lemma measureMutualInfo_eq_zero_iff {μ : Measure (S × U)} (hsupp : FiniteSupport μ)
+lemma measureMutualInfo_eq_zero_iff {μ : Measure (S × U)} [FiniteSupport μ]
     [IsProbabilityMeasure μ] :
     Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2} :=
-  (measureMutualInfo_nonneg_aux hsupp).2
+  measureMutualInfo_nonneg_aux.2
 
 end measureMutualInfo
 

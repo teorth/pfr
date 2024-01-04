@@ -1,6 +1,6 @@
 \chapter{Weak PFR over the integers}
 
-\begin{lemma}\label{torsion-free-doubling}\lean{torsion_free_doubling}
+\begin{lemma}\label{torsion-free-doubling}\lean{torsion_free_doubling}\leanok
 If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.
 \end{lemma}
 \begin{proof}
@@ -38,7 +38,7 @@ Finally note that by the triangle inequality (Lemma \ref{ruzsa-triangle}) we hav
 The result follows from $(\mathbb{H}(Y)-\mathbb{H}(X))/2\leq d[X;Y]$ (Lemma \ref{ruzsa-diff}).
 \end{proof}
 
-\begin{lemma}\label{torsion-dist-shrinking}\lean{torsion_dist_shrinking}
+\begin{lemma}\label{torsion-dist-shrinking}\lean{torsion_dist_shrinking}\leanok
 If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\]
 \end{lemma}
@@ -134,7 +134,7 @@ If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-em
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$.
 \end{theorem}
 \begin{proof}
-\uses{torsion-dist-shrinking, pfr-projection, single-fibres, dimension-def}
+\uses{torsion-dist-shrinking, pfr-projection, single-fibres, dimension-def}\leanok
 Without loss of generality we can assume that $A$ and $B$ are not both inside (possibly distinct) cosets of the same subgroup of $\mathbb{Z}^d$, or we just replace $\mathbb{Z}^d$ with that subgroup. We prove the result by induction on $\lvert A\rvert+\lvert B\rvert$.
 
 Let $\phi:\mathbb{Z}^d\to \mathbb{F}_2^d$ be the natural mod-2 homomorphism. By Lemma \ref{torsion-dist-shrinking}
@@ -151,8 +151,8 @@ By Lemma \ref{single-fibres} there exist $x,y\in \mathbb{F}_2^d/H$ such that, wi
 Suppose first that $\lvert A_x\rvert+\lvert B_y\rvert=\lvert A\rvert+\lvert B\rvert$. This means that $\tilde{\phi}(A)=\{x\}$ and $\tilde{\phi}(B)=\{y\}$, and hence both $A$ and $B$ are in cosets of $\ker \tilde{\phi}$. Since by assumption $A,B$ are not in cosets of a proper subgroup of $\mathbb{Z}^d$ this means $\ker\tilde{\phi}=\mathbb{Z}^d$, and so (examining the definition of $\tilde{\phi}$) we must have $H=\mathbb{F}_2^d$. Then our bound on $\log\lvert H\rvert$ forces $d\leq \frac{40}{\log 2}d[U_A;U_B]$ and we are done with $A'=A$ and $B'=B$.
 
 Otherwise,
-\[\lvert A_x\rvert+\lvert B_y\rvert <\lvert A\rvert+\lvert B\rvert\]
-and $\mathbb{H}(\tilde{\phi}(U_A))+\mathbb{H}(\tilde{\phi}(U_B))>0$, whence $d[\tilde{\phi}(U_A);\tilde{\phi}(U_B)]>0$. By induction we can find some $A'\subseteq A_x$ and $B'\subseteq B_y$ such that $\dim A',\dim B'\leq \frac{40}{\log 2} d[U_{A_x};U_{B_y}]\leq \frac{40}{\log 2}d[U_A;U_B]$ and
+\[\lvert A_x\rvert+\lvert B_y\rvert <\lvert A\rvert+\lvert B\rvert.\]
+By induction we can find some $A'\subseteq A_x$ and $B'\subseteq B_y$ such that $\dim A',\dim B'\leq \frac{40}{\log 2} d[U_{A_x};U_{B_y}]\leq \frac{40}{\log 2}d[U_A;U_B]$ and
 
 \[\log \frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_{A_x};U_{B_y}].\]
 Adding these inequalities implies
@@ -163,18 +163,18 @@ as required.
 
 \begin{theorem}\label{weak-pfr-symm}\lean{weak_PFR_symm}\leanok
 If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
-\[\lvert A'\rvert\geq K^{-44}\lvert A\rvert\]
-and $\dim A'\leq 60\log K$.
+\[\lvert A'\rvert\geq K^{-22}\lvert A\rvert\]
+and $\dim A'\leq \frac{40}{\log 2} \log K$.
 \end{theorem}
 \begin{proof}
-\uses{weak-pfr-asymm,dimension-def}
+\uses{weak-pfr-asymm,dimension-def}\leanok
 Immediate from Theorem \ref{weak-pfr-asymm} and rearranging.
 \end{proof}
 
 \begin{theorem}\label{weak-pfr-int}\lean{weak_PFR_int}\leanok
-Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-44}\lvert A\rvert$ and $\dim A' \leq 60\log K$.
+Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-22}\lvert A\rvert$ and $\dim A' \leq \frac{40}{\log 2}\log K$.
 \end{theorem}
-\begin{proof}
+\begin{proof}\leanok
 \uses{weak-pfr-symm,dimension-def}
 As in the beginning of Theorem \ref{pfr} the doubling condition forces $d[U_A;U_A]\leq \log K$, and then we apply Theorem \ref{weak-pfr-symm}.
 \end{proof}

@@ -10,7 +10,14 @@
 \declaretheorem[sibling=theorem]{example}
 
 % We neutralise the Plastex commands
-\newcommand{\uses}[1]{}
 \newcommand{\proves}[1]{}
 \newcommand{\lean}[1]{}
 \newcommand{\leanok}{}
+
+% Make sure that arguments of \uses are real labels, by using invisible refs:
+% latex prints a warning if the label is not defined, but nothing is shown in the pdf file.
+\ExplSyntaxOn
+\NewDocumentCommand{\uses}{m}
+ {\clist_map_inline:nn{#1}{\vphantom{\ref{##1}}}%
+  \ignorespaces}
+\ExplSyntaxOff
