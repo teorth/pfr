@@ -5,6 +5,7 @@ import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
 import PFR.EntropyPFR
 import PFR.Tactic.RPowSimp
+import PFR.ForMathlib.Entropy.RuzsaSetDist
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
