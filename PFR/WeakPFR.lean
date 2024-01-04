@@ -639,11 +639,12 @@ lemma wlog_not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) [hA: Nonempty
   exact hK
 
 /-- In fact one has equality here, but this is tricker to prove and not needed for the argument. -/
-lemma dimension_of_shift {G: Type u} [AddCommGroup G]  [Module.Free ℤ G] [Module.Finite ℤ G] {H: AddSubgroup G} [Module.Free ℤ H] [Module.Finite ℤ H] (A : Set H) (x : G) : dimension ((fun a:H ↦ (a:G) + x) '' A) ≤ dimension A := by
-  rw [dimension_eq_dimension', dimension_eq_dimension']
+lemma dimension_of_shift {G: Type u} [AddCommGroup G]  [Module.Free ℤ G] [Module.Finite ℤ G]
+  {H: AddSubgroup G} [Module.Free ℤ H] [Module.Finite ℤ H] (A : Set H) (x : G) :
+  dimension ((fun a:H ↦ (a:G) + x) '' A) ≤ dimension A := by
   classical
   rcases Nat.find_spec (exists_coset_cover A) with ⟨ S, v, hrank, hshift ⟩
-  change FiniteDimensional.finrank ℤ S = dimension' A at hrank
+  change FiniteDimensional.finrank ℤ S = dimension A at hrank
   rw [<-hrank]
   convert dimension'_le_of_coset_cover _ (Submodule.map H.subtype.toIntLinearMap S) (x+v) ?_
   . apply LinearEquiv.finrank_eq
