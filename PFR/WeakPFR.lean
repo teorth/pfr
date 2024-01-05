@@ -191,6 +191,7 @@ lemma PFR_projection :  ∃ H : AddSubgroup G, log (Nat.card H) ≤ 2 * (H[X; μ
 end F2_projection
 
 open MeasureTheory ProbabilityTheory Real
+open scoped BigOperators
 
 lemma four_logs {a b c d : ℝ} (ha: 0 < a) (hb: 0 < b) (hc: 0 < c) (hd: 0 < d) : log ((a*b)/(c*d)) = (log a) + (log b) - (log c) - (log d) := calc log ((a*b)/(c*d))
   _  = log (a*b) - log (c*d) := by rw [log_div (by positivity) (by positivity)]
@@ -198,11 +199,172 @@ lemma four_logs {a b c d : ℝ} (ha: 0 < a) (hb: 0 < b) (hc: 0 < c) (hd: 0 < d) 
   _ = log a + log b - (log c + log d) := by rw [log_mul (by positivity) (by positivity)]
   _ = log a + log b - log c - log d := by ring
 
+lemma sum_prob_preimage {G H : Type*} {X : Finset H} {A : Set G} [Nonempty A] [Finite A] {φ : A → X}
+    {A_ : H → Set G} (hφ : ∀ x : X, A_ x = Subtype.val '' (φ ⁻¹' {x})) :
+    ∑ x in X, (Nat.card (A_ x) : ℝ) / (Nat.card A) = 1 := by
+  apply Finset.sum_div.symm.trans
+  apply (div_eq_one_iff_eq <| Nat.cast_ne_zero.mpr <| Nat.pos_iff_ne_zero.mp Nat.card_pos).mpr
+  classical
+  haveI := Fintype.ofFinite A
+  rewrite [Nat.card_eq_fintype_card, ← Finset.card_univ, Finset.card_eq_sum_card_fiberwise
+    <| fun a _ ↦ Finset.mem_univ (φ a), ← Finset.sum_coe_sort]
+  norm_cast
+  congr; ext
+  rewrite [← Set.Finite.toFinset_setOf, (Set.toFinite _).card_toFinset, ← Nat.card_eq_fintype_card,
+    hφ, Nat.card_image_of_injective Subtype.val_injective]; rfl
+
 /-- Let $\phi:G\to H$ be a homomorphism and $A,B\subseteq G$ be finite subsets. If $x,y\in H$ then let $A_x=A\cap \phi^{-1}(x)$ and $B_y=B\cap \phi^{-1}(y)$. There exist $x,y\in H$ such that $A_x,B_y$ are both non-empty and
 \[d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq (\mathbb{H}(\phi(U_A))+\mathbb{H}(\phi(U_B)))(d(U_A,U_B)-d(U_{A_x},U_{B_y}).\] -/
-lemma single_fibres {G H Ω Ω': Type u} [AddCommGroup G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
-[AddCommGroup H] [Countable H] [MeasurableSpace H] [MeasurableSingletonClass H]
-  (φ : G →+ H) {A B: Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] [MeasureSpace Ω] [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ:Measure Ω)] [IsProbabilityMeasure  (ℙ:Measure Ω')] {UA : Ω → G} {UB: Ω' → G} (hUA': Measurable UA) (hUB': Measurable UB) (hUA: IsUniform A UA) (hUB: IsUniform B UB) : ∃ (x y : H) (Ax By: Set G), Ax = A ∩ φ⁻¹' {x} ∧ By = B ∩ φ⁻¹' {y} ∧ Nonempty Ax ∧ Nonempty By  ∧ d[ φ ∘ UA # φ ∘ UB ] * log ((Nat.card A) * (Nat.card B) / ( (Nat.card Ax) * (Nat.card By)) ) ≤ (H[ φ ∘ UA ] + H[ φ ∘ UB ]) * (d[ UA # UB ] - dᵤ[ Ax # By ]) := by sorry
+lemma single_fibres {G H Ω Ω': Type u}
+    [AddCommGroup G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
+    [AddCommGroup H] [Countable H] [MeasurableSpace H] [MeasurableSingletonClass H]
+    [MeasureSpace Ω] [MeasureSpace Ω']
+    [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
+    (φ : G →+ H)
+    {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] {UA : Ω → G} {UB: Ω' → G}
+    (hUA': Measurable UA) (hUB': Measurable UB) (hUA: IsUniform A UA) (hUB: IsUniform B UB)
+    (hUA_mem : ∀ ω, UA ω ∈ A) (hUB_mem : ∀ ω, UB ω ∈ B) :
+    ∃ (x y : H) (Ax By: Set G),
+    Ax = A ∩ φ.toFun ⁻¹' {x} ∧ By = B ∩ φ.toFun ⁻¹' {y} ∧ Nonempty Ax ∧ Nonempty By ∧
+    d[φ.toFun ∘ UA # φ.toFun ∘ UB]
+    * log ((Nat.card A) * (Nat.card B) / ((Nat.card Ax) * (Nat.card By))) ≤
+    (H[φ.toFun ∘ UA] + H[φ.toFun ∘ UB]) * (d[UA # UB] - dᵤ[Ax # By]) := by
+  haveI : FiniteRange UA := finiteRange_of_finset UA A.toFinite.toFinset (by simpa)
+  haveI : FiniteRange UB := finiteRange_of_finset UB B.toFinite.toFinset (by simpa)
+  have hUA_coe : IsUniform A.toFinite.toFinset.toSet UA := by rwa [Set.Finite.coe_toFinset]
+  have hUB_coe : IsUniform B.toFinite.toFinset.toSet UB := by rwa [Set.Finite.coe_toFinset]
+
+  let A_ (x : H) : Set G := A ∩ φ.toFun ⁻¹' {x}
+  let B_ (y : H) : Set G := B ∩ φ.toFun ⁻¹' {y}
+  let X : Finset H := FiniteRange.toFinset (φ.toFun ∘ UA)
+  let Y : Finset H := FiniteRange.toFinset (φ.toFun ∘ UB)
+
+  haveI h_Ax (x : X) : Nonempty (A_ x.val) := by
+    obtain ⟨ω, hω⟩ := (FiniteRange.mem_iff _ _).mp x.property
+    use UA ω; exact Set.mem_inter (hUA_mem ω) (by exact hω)
+  haveI h_By (y : Y): Nonempty (B_ y.val) := by
+    obtain ⟨ω, hω⟩ := (FiniteRange.mem_iff _ _).mp y.property
+    use UB ω; exact Set.mem_inter (hUB_mem ω) (by exact hω)
+  have h_AX (a : A) : φ.toFun a.val ∈ X := by
+    obtain ⟨ω, hω⟩ := hUA_coe.nonempty_preimage_of_mem hUA' (A.toFinite.mem_toFinset.mpr a.property)
+    exact (FiniteRange.mem_iff _ (φ.toFun a.val)).mpr ⟨ω, congr_arg _ hω⟩
+  have h_BY (b : B) : φ.toFun b.val ∈ Y := by
+    obtain ⟨ω, hω⟩ := hUB_coe.nonempty_preimage_of_mem hUB' (B.toFinite.mem_toFinset.mpr b.property)
+    exact (FiniteRange.mem_iff _ (φ.toFun b.val)).mpr ⟨ω, congr_arg _ hω⟩
+
+  let φ_AX (a : A) : X := by use φ.toFun a.val; exact h_AX a
+  let φ_BY (b : B) : Y := by use φ.toFun b.val; exact h_BY b
+  have h_φ_AX (x : X) : A_ x.val = φ_AX ⁻¹' {x} := by ext; simp; simp [Subtype.ext_iff]
+  have h_φ_BY (y : Y) : B_ y.val = φ_BY ⁻¹' {y} := by ext; simp; simp [Subtype.ext_iff]
+
+  let p (x : H) (y : H) : ℝ :=
+    (Nat.card (A_ x).Elem) * (Nat.card (B_ y).Elem) / ((Nat.card A.Elem) * (Nat.card B.Elem))
+  have : ∑ x in X, ∑ y in Y, (p x y) * dᵤ[A_ x # B_ y] ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB]
+  calc
+    _ = d[UA | φ.toFun ∘ UA # UB | φ.toFun ∘ UB] := by
+      rewrite [condRuzsaDist_eq_sum hUA' ((measurable_discrete _).comp hUA')
+        hUB' ((measurable_discrete _).comp hUB')]
+      refine Finset.sum_congr rfl <| fun x hx ↦ Finset.sum_congr rfl <| fun y hy ↦ ?_
+      haveI : Nonempty (A_ x) := h_Ax ⟨x, hx⟩
+      haveI : Nonempty (B_ y) := h_By ⟨y, hy⟩
+      let μx := (ℙ : Measure Ω)[|(φ.toFun ∘ UA) ⁻¹' {x}]
+      let μy := (ℙ : Measure Ω')[|(φ.toFun ∘ UB) ⁻¹' {y}]
+      have h_μ_p : IsProbabilityMeasure μx ∧ IsProbabilityMeasure μy := by
+        constructor <;> apply ProbabilityTheory.cond_isProbabilityMeasure <;> rw [Set.preimage_comp]
+        refine @IsUniform.measure_preimage_ne_zero _ _ _ _ _ _ _ _ _ _ hUA_coe hUA' _ ?_
+        swap; refine @IsUniform.measure_preimage_ne_zero _ _ _ _ _ _ _ _ _ _ hUB_coe hUB' _ ?_
+        all_goals rwa [Set.inter_comm, Set.Finite.coe_toFinset]
+      have h_μ_unif : IsUniform (A_ x) UA μx ∧ IsUniform (B_ y) UB μy := by
+        have : _ ∧ _ := ⟨hUA.restrict hUA' (φ.toFun ⁻¹' {x}), hUB.restrict hUB' (φ.toFun ⁻¹' {y})⟩
+        rwa [Set.inter_comm _ A, Set.inter_comm _ B] at this
+      rewrite [rdist_set_eq_rdist h_μ_p.1 h_μ_p.2 h_μ_unif.1 h_μ_unif.2 hUA' hUB']
+      show _ = (Measure.real _ (UA ⁻¹' (_ ⁻¹' _))) * (Measure.real _ (UB ⁻¹' (_ ⁻¹' _))) * _
+      rewrite [hUA_coe.measureReal_preimage hUA', hUB_coe.measureReal_preimage hUB']
+      simp_rw [IsProbabilityMeasure.measureReal_univ, one_mul]
+      rewrite [mul_div_mul_comm, Set.inter_comm A, Set.inter_comm B]
+      simp only [Set.Finite.coe_toFinset, Set.Finite.mem_toFinset, Finset.mem_val]; rfl
+    _ ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
+      rewrite [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe]
+      linarith only [rdist_le_sum_fibre φ hUA' hUB' (μ := ℙ) (μ' := ℙ)]
+  let M := H[φ.toFun ∘ UA] + H[φ.toFun ∘ UB]
+  have hM : M = ∑ x in X, ∑ y in Y, Real.negMulLog (p x y) := by
+    have h_compl (z : H × H) (h_notin : z ∉ X ×ˢ Y) : Real.negMulLog (p z.1 z.2) = 0 := by
+      have h_p_empty {a b : ℝ} : negMulLog ((Nat.card (∅ : Set G)) * a / b) = 0 := by simp
+      unfold_let p; beta_reduce
+      rewrite [Finset.mem_product, not_and_or] at h_notin
+      cases' h_notin with h_notin h_notin
+      have h_empty : A_ z.1 = ∅; rotate_left 2
+      have h_empty : B_ z.2 = ∅; let h_AX := h_BY; rotate_left
+      rw [mul_comm, h_empty, h_p_empty]; rotate_left
+      rw [h_empty, h_p_empty]
+      all_goals {
+        by_contra hc
+        obtain ⟨a, ha⟩ := Set.nonempty_iff_ne_empty'.mpr hc
+        rewrite [← ha.right] at h_notin
+        exact h_notin (h_AX ⟨a, ha.left⟩)
+      }
+    unfold_let M
+    unfold entropy
+    haveI := isProbabilityMeasure_map (μ := ℙ) ((measurable_discrete φ).comp hUA').aemeasurable
+    haveI := isProbabilityMeasure_map (μ := ℙ) ((measurable_discrete φ).comp hUB').aemeasurable
+    rewrite [← Finset.sum_product', ← tsum_eq_sum h_compl, ← measureEntropy_prod]
+    apply tsum_congr; intro; congr
+    rewrite [← Set.singleton_prod_singleton, Measure.smul_apply, Measure.prod_prod,
+      Measure.map_apply ((measurable_discrete _).comp hUA') (MeasurableSet.singleton _),
+      Measure.map_apply ((measurable_discrete _).comp hUB') (MeasurableSet.singleton _),
+      Set.preimage_comp, hUA_coe.measure_preimage hUA',
+      Set.preimage_comp, hUB_coe.measure_preimage hUB']
+    simp? [mul_div_mul_comm, Set.inter_comm, ENNReal.toReal_div]
+      says simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe,
+        measure_univ, inv_one, Set.Finite.coe_toFinset, Set.inter_comm, one_mul,
+        Set.Finite.mem_toFinset, smul_eq_mul, ENNReal.toReal_mul, ENNReal.toReal_div,
+        ENNReal.toReal_nat, mul_div_mul_comm]
+  have h_sum : ∑ x in X, ∑ y in Y,
+      (p x y) * (M * dᵤ[A_ x # B_ y] + d[φ.toFun ∘ UA # φ.toFun ∘ UB] * -Real.log (p x y)) ≤
+      M * d[UA # UB]
+  calc
+    _ = ∑ x in X, ∑ y in Y, (p x y) * M * dᵤ[A_ x # B_ y] + M * d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
+      simp_rw [hM, Finset.sum_mul, ← Finset.sum_add_distrib]
+      refine Finset.sum_congr rfl <| fun _ _ ↦ Finset.sum_congr rfl <| fun _ _ ↦ ?_
+      simp only [negMulLog, left_distrib, mul_assoc, Finset.sum_mul]
+      exact congrArg (HAdd.hAdd _) (by group)
+    _ = M * ∑ x in X, ∑ y in Y, (p x y) * dᵤ[A_ x # B_ y] + M * d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
+      simp_rw [Finset.mul_sum]
+      congr; ext; congr; ext; group
+    _ ≤ M * d[UA # UB] := by
+      rewrite [← left_distrib]
+      apply mul_le_mul_of_nonneg_left
+      · linarith
+      · unfold_let M
+        linarith only [entropy_nonneg (φ.toFun ∘ UA) ℙ, entropy_nonneg (φ.toFun ∘ UB) ℙ]
+  have : ∃ x : X, ∃ y : Y,
+      M * dᵤ[A_ x.val # B_ y.val] + d[φ.toFun ∘ UA # φ.toFun ∘ UB] * -Real.log (p x.val y.val) ≤
+      M * d[UA # UB] := by
+    let f (xy : H × H) := (p xy.1 xy.2) * (M * d[UA # UB])
+    let g (xy : H × H) := (p xy.1 xy.2) *
+      (M * dᵤ[A_ xy.1 # B_ xy.2] + d[φ.toFun ∘ UA # φ.toFun ∘ UB] * -Real.log (p xy.1 xy.2))
+    by_contra hc; push_neg at hc
+    replace hc : ∀ xy ∈ X ×ˢ Y, f xy < g xy := by
+      refine fun xy h ↦ mul_lt_mul_of_pos_left ?_ ?_
+      · exact hc ⟨xy.1, (Finset.mem_product.mp h).1⟩ ⟨xy.2, (Finset.mem_product.mp h).2⟩
+      · haveI : Nonempty _ := h_Ax ⟨xy.1, (Finset.mem_product.mp h).1⟩
+        haveI : Nonempty _ := h_By ⟨xy.2, (Finset.mem_product.mp h).2⟩
+        simp only [div_pos, mul_pos, Nat.cast_pos, Nat.card_pos]
+    have h_nonempty : Finset.Nonempty (X ×ˢ Y) := by
+      use ⟨φ.toFun <| UA <| Classical.choice <| ProbabilityMeasure.nonempty ⟨ℙ, inferInstance⟩,
+        φ.toFun <| UB <| Classical.choice <| ProbabilityMeasure.nonempty ⟨ℙ, inferInstance⟩⟩
+      exact Finset.mem_product.mpr ⟨FiniteRange.mem _ _, FiniteRange.mem _ _⟩
+    replace hc := Finset.sum_lt_sum_of_nonempty h_nonempty hc
+    have h_p_one : ∑ x in X ×ˢ Y, p x.1 x.2 = 1 := by
+      simp_rw [Finset.sum_product, mul_div_mul_comm, ← Finset.mul_sum,
+        ← sum_prob_preimage h_φ_AX, sum_prob_preimage h_φ_BY, mul_one]
+    rewrite [← Finset.sum_mul, h_p_one, one_mul, Finset.sum_product] at hc
+    exact not_le_of_gt hc h_sum
+  obtain ⟨x, y, hxy⟩ := this
+  refine ⟨x, y, A_ x.val, B_ y.val, rfl, rfl, h_Ax x, h_By y, ?_⟩
+  rewrite [← inv_div, Real.log_inv]
+  show _ * -log (p x.val y.val) ≤ M * _
+  linarith only [hxy]
 
 section dim
 
@@ -401,8 +563,9 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A
   have h_fintype : Fintype H := Fintype.ofFinite H
   have h_torsionfree := torsion_free (G := G)
 
-  obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, hUA_fin ⟩ := exists_isUniform_measureSpace' A
-  obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, hUB_fin ⟩ := exists_isUniform_measureSpace' B
+  obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, hUA_mem, hUA_fin ⟩ := exists_isUniform_measureSpace' A
+  obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, hUB_mem, hUB_fin ⟩ :=
+    exists_isUniform_measureSpace' B
 
   rcases (PFR_projection (φ.toFun ∘ UA) (φ.toFun ∘ UB) ℙ ℙ) with ⟨H', ⟨ hH1, hH2 ⟩ ⟩
   let N := AddSubgroup.comap φ H'
@@ -414,7 +577,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A
     exact MeasurableSpace.map_def.mpr (measurableSet_discrete _)
 
   rcases third_iso H' with ⟨ e : H ⧸ H' ≃+ G ⧸ N, he ⟩
-  rcases single_fibres φ' hUA_mes hUB_mes hUA_unif hUB_unif with ⟨x, y, Ax, By, hAx, hBy, hnAx, hnBy, hcard_ineq⟩
+  rcases single_fibres φ' hUA_mes hUB_mes hUA_unif hUB_unif hUA_mem hUB_mem with
+    ⟨x, y, Ax, By, hAx, hBy, hnAx, hnBy, hcard_ineq⟩
 
   have Axf : Finite Ax := by rw [hAx]; infer_instance
   have Byf : Finite By := by rw [hBy]; infer_instance
