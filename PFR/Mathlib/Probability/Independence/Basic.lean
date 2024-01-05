@@ -319,8 +319,7 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
 
 variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
 
-/-- Improved version of `IndepFun.ae_eq` in which the ranges are allowed to be distinct.
-TODO: replace `IndepFun.ae_eq` with this one. -/
+/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
 theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}
     {g g' : Ω → β'} (hfg : IndepFun f g μ)
     (hf : f =ᵐ[μ] f') (hg : g =ᵐ[μ] g') : IndepFun f' g' μ := by
@@ -328,16 +327,14 @@ theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} 
     simp only [ae_dirac_eq, Filter.eventually_pure, kernel.const_apply]
   exacts [hf, hg]
 
-/-- Improved version of `kernel.IndepFun.symm` in which the ranges are allowed to be distinct.
-TODO: replace `kernel.IndepFun.symm` with this one. -/
+/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
 theorem kernel.IndepFun.symm' {Ω α β γ : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace α}
     {_ : MeasurableSpace β} {_ : MeasurableSpace γ} {κ : kernel α Ω} {f : Ω → β} {g : Ω → γ}
     {μ : Measure α}
     (hfg : kernel.IndepFun f g κ μ) : kernel.IndepFun g f κ μ :=
   kernel.Indep.symm hfg
 
-/-- Improved version of `IndepFun.symm` in which the ranges are allowed to be distinct.
-TODO: replace `IndepFun.symm` with this one. -/
+/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
 theorem IndepFun.symm' {γ β Ω : Type*} {_ : MeasurableSpace γ}
     {_ : MeasurableSpace β} {_ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → γ}
     (hfg : IndepFun f g μ) :
