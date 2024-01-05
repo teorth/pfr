@@ -35,13 +35,7 @@ To build the web version of the blueprint, you need a working LaTeX installation
 Furthermore, you need some packages:
 ```
 sudo apt install graphviz libgraphviz-dev
-pip3 install invoke pandoc
-cd .. # go to folder where you are happy clone git repos
-git clone git@github.com:plastex/plastex
-pip3 install ./plastex
-git clone git@github.com:PatrickMassot/leanblueprint
-pip3 install ./leanblueprint
-cd sphere-eversion
+pip install -r blueprint/requirements.txt
 ```
 
 To actually build the blueprint, run
