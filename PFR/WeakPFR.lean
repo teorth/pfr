@@ -22,8 +22,9 @@ section Torsion
 open Real ProbabilityTheory MeasureTheory
 
 variable {G : Type u} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonClass G] [Countable G]
- {Ω Ω' : Type u} [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G) (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac)
-[IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+ {Ω Ω' : Type u} [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
+ (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac)
+  [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.  -/
 lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
@@ -150,9 +151,18 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
 /-- If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and
 $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
-lemma torsion_dist_shrinking {H : Type u} [AddCommGroup H] [ElementaryAddCommGroup H 2]
-  [Fintype H] [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H] (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
-  H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ'] := by sorry
+lemma torsion_dist_shrinking {H : Type u} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
+  (hY : Measurable Y) [AddCommGroup H] [ElementaryAddCommGroup H 2]
+  [Fintype H] [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H]
+  (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
+  H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ'] := by
+  have :=
+    calc d[φ ∘ X ; μ # φ ∘ (Y + Y); μ'] ≤ d[X; μ # (Y + Y) ; μ'] := rdist_of_hom_le φ hX (Measurable.add hY hY)
+    _ ≤ 5 * d[X; μ # Y ; μ'] := torsion_free_doubling X Y μ μ' hX hY hG
+  have eq_zero : φ ∘ (Y + Y) = fun _ ↦ 0 := by ext x ; simp only [Function.comp_apply, Pi.add_apply,
+    map_add, ElementaryAddCommGroup.add_self]
+  rwa [eq_zero, rdist_zero_eq_half_ent, div_le_iff zero_lt_two, mul_assoc, mul_comm _ 2, ←mul_assoc,
+    show (5*2 : ℝ) = 10 by norm_num] at this
 
 end Torsion
 
@@ -409,8 +419,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A
   have Axf : Finite Ax := by rw [hAx]; infer_instance
   have Byf : Finite By := by rw [hBy]; infer_instance
 
-  have h1 := torsion_dist_shrinking UA UB ℙ ℙ h_torsionfree φ
-  have h2 := torsion_dist_shrinking UB UA ℙ ℙ h_torsionfree φ
+  have h1 := torsion_dist_shrinking UA UB ℙ ℙ hUA_mes hUB_mes h_torsionfree φ
+  have h2 := torsion_dist_shrinking UB UA ℙ ℙ hUB_mes hUA_mes h_torsionfree φ
   rw [rdist_symm] at h2
   rw [<- rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes] at h1 h2
   -- using explicit .toFun casts as this saves a lot of heartbeats
