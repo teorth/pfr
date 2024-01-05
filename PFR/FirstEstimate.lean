@@ -163,11 +163,8 @@ lemma ent_ofsum_le : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + 
   have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by simp
   have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by abel
   have ind_aux : IndepFun (X₁ + X₂') (X₂ + X₁') := by
-    have pairs_indep := iIndepFun.indepFun_prod_prod h_indep
-          (fun i ↦ by fin_cases i <;> assumption)
-          0 2 1 3 (by decide) (by decide) (by decide) (by decide)
-    exact IndepFun.comp (φ := fun gg ↦ gg.1 + gg.2) (ψ := fun gg ↦ gg.1 + gg.2) pairs_indep
-              measurable_add measurable_add
+    exact iIndepFun.indepFun_add_add h_indep (fun i ↦ by fin_cases i <;> assumption) 0 2 1 3
+      (by decide) (by decide) (by decide) (by decide)
   have ind : D = H[X₁ + X₂' - (X₂ + X₁')] - H[X₁ + X₂'] / 2 - H[X₂ + X₁'] / 2 :=
     @IndepFun.rdist_eq Ω G _ ℙ _ _ _ (X₁ + X₂') _ (X₂ + X₁') ind_aux (by measurability) (by measurability)
   rw [ind, ent_sub_eq_ent_add, rw₁] at aux

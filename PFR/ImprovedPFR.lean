@@ -77,7 +77,7 @@ lemma gen_ineq_aux2 :
       + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := by
   have hS : Measurable Sum := ((hZ₁.add' hZ₂).add' hZ₃).add' hZ₄
   have I : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) := by
-    apply (h_indep.indepFun_prod_prod ?_ 0 2 1 3
+    refine (h_indep.indepFun_prod_mk_prod_mk ?_ 0 2 1 3
       (by decide) (by decide) (by decide) (by decide))
     intro i; fin_cases i <;> assumption
   calc
