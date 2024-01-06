@@ -65,13 +65,27 @@ lemma IsUniform.comp [DecidableEq T] {H: Finset S} (h : IsUniform H X μ) {f : S
     simp [preimage_comp, A, h.eq_of_mem x y hx hy]
   measure_preimage_compl := by simpa [preimage_comp, hf] using h.measure_preimage_compl
 
-/-- Uniform distributions exist, version within a fintype and giving a measure space -/
+/-- Uniform distributions exist, version giving a measure space -/
 lemma exists_isUniform_measureSpace {S : Type u}  [MeasurableSpace S]
     [MeasurableSingletonClass S] (H : Finset S) (h : H.Nonempty) :
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω : Ω, U ω ∈ H) ∧ FiniteRange U := by
   rcases exists_isUniform H h with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem, Xfin⟩
   exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem, Xfin⟩
+
+/-- Uniform distributions exist, version with a Finite set rather than a Finset and giving a measure space -/
+lemma exists_isUniform_measureSpace' {S : Type u}  [MeasurableSpace S]
+    [MeasurableSingletonClass S] (H : Set S) [Finite H] [Nonempty H] :
+    ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
+    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω, U ω ∈ H) ∧ FiniteRange U := by
+  set Hf := H.toFinite.toFinset
+  have hHf : Hf.Nonempty := by
+    rwa [<-Hf.coe_nonempty, H.toFinite.coe_toFinset, <-H.nonempty_coe_sort]
+  obtain ⟨ Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin ⟩ := exists_isUniform_measureSpace Hf hHf
+  rw [ H.toFinite.coe_toFinset] at hunif
+  replace hrange : ∀ ω, U ω ∈ H := by convert hrange with ω; simp_rw [Finite.mem_toFinset]
+  exact ⟨Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin⟩
+
 
 /-- A uniform random variable on H almost surely takes values in H. -/
 lemma IsUniform.ae_mem (h : IsUniform H X μ) : ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl

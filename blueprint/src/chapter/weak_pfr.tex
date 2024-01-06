@@ -4,7 +4,7 @@
 If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.
 \end{lemma}
 \begin{proof}
-\uses{alt-submodularity,ruzsa-triangle,ruzsa-diff}
+\uses{alt-submodularity,ruzsa-triangle,ruzsa-diff}\leanok
 Let $Y_1,Y_2$ be independent copies of $Y$ (also independent of $X$). Since $G$ is torsion-free we know $X,Y_1-Y_2,X-2Y_1$ uniquely determine $X,Y_1,Y_2$ and so
 \[\mathbb{H}(X,Y_1,Y_2,X-2Y_1)=\mathbb{H}(X,Y_1,Y_2)=\mathbb{H}(X)+2\mathbb{H}(Y).\]
 Similarly
@@ -43,7 +43,7 @@ If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and $\p
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\]
 \end{lemma}
 \begin{proof}
-\uses{fibring-ineq, torsion-free-doubling, dist-zero}
+\uses{fibring-ineq, torsion-free-doubling, dist-zero}\leanok
 By Corollary \ref{fibring-ineq} and Lemma \ref{torsion-free-doubling} we have
 \[d[\phi(X);\phi(2Y)]\leq d[X;2Y]\leq 5d[X;Y]\]
 and $\phi(2Y)=2\phi(Y)\equiv 0$ so the left-hand side is equal to $d[\phi(X);0]=\mathbb{H}(\phi(X))/2$ (using Lemma \ref{dist-zero}).

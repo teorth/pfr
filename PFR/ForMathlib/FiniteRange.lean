@@ -67,7 +67,8 @@ instance {Ω Ω' G : Type*} (X : Ω → G) (f : Ω' → Ω) [hX: FiniteRange X] 
   exact FiniteRange.mem X (f ω)
 
 /-- If X, Y have finite range, then so does the pair ⟨X, Y⟩. -/
-instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY: FiniteRange Y]: FiniteRange (⟨X, Y⟩) where
+instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY: FiniteRange Y]:
+    FiniteRange (⟨X, Y⟩) where
   finite := by
     have : Set.range (⟨X, Y⟩) ⊆ (Set.range X) ×ˢ (Set.range Y) := by
       intro ⟨x, y⟩ hz
@@ -78,25 +79,29 @@ instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY:
 
 /-- The product of functions of finite range, has finite range.   -/
 @[to_additive "The sum of functions of finite range, has finite range."]
-instance {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [Group G] [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X*Y) := by
+instance FiniteRange.prod {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [Group G]
+    [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X*Y) := by
   show FiniteRange ((fun p ↦ p.1 * p.2) ∘ ⟨X, Y⟩)
   infer_instance
 
 /-- The quotient of two functions with finite range, has finite range. -/
 @[to_additive "The difference of functions of finite range, has finite range."]
-instance {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [Group G] [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X/Y) := by
+instance FiniteRange.div {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [Group G]
+    [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X/Y) := by
   show FiniteRange ((fun p ↦ p.1 / p.2) ∘ ⟨X, Y⟩)
   infer_instance
 
 /-- The inverse of a function of finite range, has finite range.-/
 @[to_additive "The negation of a function of finite range, has finite range."]
-instance {Ω G : Type*} (X : Ω → G) [Group G] [hX: FiniteRange X] : FiniteRange X⁻¹ := by
+instance FiniteRange.inv {Ω G : Type*} (X : Ω → G) [Group G] [hX: FiniteRange X] :
+    FiniteRange X⁻¹ := by
   show FiniteRange ((fun p ↦ p⁻¹) ∘ X)
   infer_instance
 
 /-- A function of finite range raised to a constant power, has finite range.  -/
 @[to_additive "The multiple of a function of finite range by a constant, has finite range."]
-instance {Ω G : Type*} (X : Ω → G) [Group G] [hX: FiniteRange X] (c : ℤ) : FiniteRange (X^c) := by
+instance FiniteRange.pow {Ω G : Type*} (X : Ω → G) [Group G] [hX: FiniteRange X] (c : ℤ) :
+    FiniteRange (X^c) := by
   show FiniteRange ((fun x ↦ x^c) ∘ X)
   infer_instance
 

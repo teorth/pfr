@@ -13,6 +13,7 @@ import PFR.ForMathlib.Entropy.Kernel.MutualInfo
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.Entropy.Measure
 import PFR.ForMathlib.Entropy.RuzsaDist
+import PFR.ForMathlib.Entropy.RuzsaSetDist
 import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.ForMathlib.FiniteMeasureProd
 import PFR.ForMathlib.FiniteRange
@@ -38,8 +39,10 @@ import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Data.Real.Ennreal
 import PFR.Mathlib.Data.Set.Image
+import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.Data.Set.Sigma
 import PFR.Mathlib.GroupTheory.Subgroup.Pointwise
+import PFR.Mathlib.GroupTheory.Torsion
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic

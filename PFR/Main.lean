@@ -2,8 +2,9 @@ import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
 import PFR.Mathlib.GroupTheory.Subgroup.Pointwise
+import PFR.ForMathlib.Entropy.RuzsaSetDist
 import PFR.Tactic.RPowSimp
-import PFR.EntropyPFR
+import PFR.TauFunctional
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))

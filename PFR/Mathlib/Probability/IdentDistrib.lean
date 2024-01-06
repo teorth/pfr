@@ -29,7 +29,7 @@ lemma identDistrib_id_right {X : α → β} (hX : AEMeasurable X μ) : IdentDist
   (identDistrib_id_left hX).symm
 
 @[simp] lemma identDistrib_id {μ ν : Measure α} : IdentDistrib id id μ ν ↔ μ = ν := by
-  simp [IdentDistrib_iff id id μ ν, aemeasurable_id]
+  simp [identDistrib_iff id id μ ν, aemeasurable_id]
 
 /-- The first projection in a product space with measure `μ.prod ν` is distributed like `μ`. -/
 lemma IdentDistrib.fst_id
