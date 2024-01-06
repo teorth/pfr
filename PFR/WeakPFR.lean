@@ -229,7 +229,7 @@ There is a non-trivial subgroup $H\leq G$ such that
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))< \frac{\mathbb{H}(X)+\mathbb{H}(Y)}{2}\]
 where $\psi : G\to G/H$ is the natural projection homomorphism.
 -/
-proof_wanted app_ent_PFR (hent : H[ X; μ] + H[Y; μ'] > 44 * d[X;μ # Y;μ']) : ∃ H : AddSubgroup G, log (Nat.card H) < H[X; μ] + H[Y;μ'] ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] < (H[ X; μ] + H[Y; μ'])/2
+proof_wanted app_ent_PFR (hent : H[ X; μ] + H[Y; μ'] > 44 * d[X;μ # Y;μ']) : ∃ H : AddSubgroup G, log (Nat.card H) < H[X; μ] + H[Y;μ'] ∧ H[QuotientAddGroup.mk' H ∘ X; μ ] + H[QuotientAddGroup.mk' H ∘ Y; μ' ] < (H[ X; μ] + H[Y; μ'])/2
 
 /-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
@@ -237,8 +237,8 @@ and if $\psi : G \to G/H$ is the natural projection then
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 44 d[\psi(X);\psi(Y)].\] -/
 lemma PFR_projection :
     ∃ H : AddSubgroup G, log (Nat.card H) ≤ 2 * (H[X; μ] + H[Y ; μ']) ∧
-      H[(QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤
-        44 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] := by sorry
+      H[QuotientAddGroup.mk' H ∘ X; μ ] + H[QuotientAddGroup.mk' H ∘ Y; μ' ] ≤
+        44 * d[ QuotientAddGroup.mk' H ∘ X;μ # QuotientAddGroup.mk' H ∘ Y;μ'] := by sorry
 
 end F2_projection
 
@@ -309,7 +309,7 @@ lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} 
   have hfg : (f ∘ g) 0 = 0 := by simp [hf, hg]
   intro F
   use Finsupp.mapRange g hg F
-  rw [← Finsupp.mapRange_comp (h :=hfg)]
+  rw [← Finsupp.mapRange_comp (h := hfg)]
   convert Finsupp.mapRange_id F
   convert Function.RightInverse.id this
 
@@ -408,7 +408,7 @@ lemma weak_PFR_quotient_prelim :
 
 open QuotientAddGroup
 
-/-- A version of the third isomorphism theorem : if G₂ ≤ G and H' is a subgroup of G⧸G₂, then there is a canonical isomorphism between H⧸H' and G⧸N, where N is the preimage of H' in G. A bit clunky; may be a better way to do this -/
+/-- A version of the third isomorphism theorem: if G₂ ≤ G and H' is a subgroup of G⧸G₂, then there is a canonical isomorphism between H⧸H' and G⧸N, where N is the preimage of H' in G. A bit clunky; may be a better way to do this -/
 lemma third_iso {G : Type u} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSubgroup (G ⧸ G₂)) :
   let H := G ⧸ G₂
   let φ : G →+ H := mk' G₂
@@ -449,10 +449,12 @@ $$ \log \frac{|A| |B|}{|A_x| |B_y|} ≤ 44 (d[U_A; U_B] - d[U_{A_x}; U_{B_y}])$$
 and one has the dimension bound
 $$ n \log 2 ≤ \log |G/N| + 40 d[U_A; U_B].$$
  -/
-lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] (hA : A.Nonempty) (hB : B.Nonempty)
-    {Ω Ω' : Type u} [hΩ : MeasureSpace Ω] [hΩ' : MeasureSpace Ω'] {UA : Ω → G} {UB : Ω' → G} [hpΩ : IsProbabilityMeasure (ℙ : Measure Ω)] [hpΩ' : IsProbabilityMeasure (ℙ : Measure Ω')] (hUA : IsUniform A UA) (hUB : IsUniform B UB) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) [hUA_f : FiniteRange UA] [hUB_f : FiniteRange UB] :
-    ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G) (Ωx Ωy : Type u) (hΩx : MeasureSpace Ωx)
-    (hΩy : MeasureSpace Ωy) (UAx : Ωx → G) (UBy : Ωy → G), Ax.Nonempty ∧ By.Nonempty ∧ Set.Finite Ax ∧ Set.Finite By ∧ Ax = {z : G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧ By = {z : G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧ IsProbabilityMeasure (ℙ : Measure Ωx) ∧IsProbabilityMeasure (ℙ : Measure Ωy)  ∧ IsUniform Ax UAx ∧ IsUniform By UBy ∧ Measurable UAx ∧ Measurable UBy ∧ FiniteRange UAx ∧ FiniteRange UBy ∧ (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) + 40 * dᵤ[ A # B ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By) ≤ 44 * (dᵤ[ A # B ] - dᵤ[ Ax # By ]) := by
+lemma weak_PFR_asymm_prelim {A B : Set G} [Finite A] [Finite B] (hA : A.Nonempty)
+    (hB : B.Nonempty) :
+    ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G), Ax.Nonempty ∧ By.Nonempty ∧ Ax.Finite ∧
+      By.Finite ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧
+        By = {z : G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧
+        log 2 * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) + 40 * dᵤ[ A # B ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By) ≤ 44 * (dᵤ[ A # B ] - dᵤ[ Ax # By ]) := by
   have := hA.to_subtype
   have := hB.to_subtype
   obtain ⟨ h_elem, h_finite, h_card ⟩ := weak_PFR_quotient_prelim (G := G)
@@ -683,11 +685,12 @@ lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Non
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 44d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
 lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB : B.Nonempty) : WeakPFRAsymmConclusion A B  := by
-  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: Nonempty A) (_hB_non: Nonempty B) (_hM : (Nat.card A) + (Nat.card B) ≤ M), WeakPFRAsymmConclusion A B)
+  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: A.Nonempty) (_hB_non: B.Nonempty) (_hM : (Nat.card A) + (Nat.card B) ≤ M), WeakPFRAsymmConclusion A B)
   suffices : ∀ M, (∀ M', M' < M → P M') → P M
   . set M := (Nat.card A) + (Nat.card B)
     have hM : (Nat.card A) + (Nat.card B) ≤ M := Nat.le_refl _
     convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› _ ‹_› A B ‹_› ‹_› ‹_› ‹_› hM
+  stop
   intro M h_induct
   -- wlog we can assume A, B are not in cosets of a smaller subgroup
   suffices : ∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: Nonempty A) (_hB_non: Nonempty B) (_hM : (Nat.card A) + (Nat.card B) ≤ M) (_hnot: NotInCoset A B), WeakPFRAsymmConclusion A B
@@ -774,8 +777,10 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
 $\lvert A'\rvert\geq K^{-22}\lvert A\rvert$
 and $\dim A'\leq \frac{40}{\log 2} \log K$. -/
-lemma weak_PFR {A : Set G} [Finite A] [Nonempty A]  {K : ℝ} (hK: 0 < K) (hdist: dᵤ[A # A] ≤ log K): ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
-  rcases weak_PFR_asymm A A with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
+lemma weak_PFR {A : Set G} [Finite A] (hA : A.Nonempty) {K : ℝ} (hK: 0 < K)
+    (hdist : dᵤ[A # A] ≤ log K) :
+    ∃ A' ⊆ A, Nat.card A' ≥ K^(-22 : ℝ) * Nat.card A ∧ dimension A' ≤ 40 / log 2 * log K := by
+  rcases weak_PFR_asymm A A hA hA with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
 
   have : ∃ B : Set G, B ⊆ A ∧ (Nat.card B) ≥ (Nat.card A') ∧ (Nat.card B) ≥ (Nat.card A'') ∧ (dimension B) ≤
 max (dimension A') (dimension A'') := by
@@ -789,7 +794,7 @@ max (dimension A') (dimension A'') := by
   use B
   have hApos : Nat.card A > 0 := by
     rw [gt_iff_lt, Nat.card_pos_iff]
-    exact ⟨ (by infer_instance), (by infer_instance) ⟩
+    exact ⟨hA.to_subtype, inferInstance⟩
   have hA'pos : Nat.card A' > 0 := by
     rw [gt_iff_lt, Nat.card_pos_iff]
     refine ⟨ (by infer_instance), Finite.Set.subset _ hA' ⟩
@@ -818,15 +823,18 @@ max (dimension A') (dimension A'') := by
     convert this using 2
     convert zpow_neg K 22 using 1
     norm_cast
-  calc ((dimension B) : ℝ)
+  calc (dimension B : ℝ)
     _ ≤ (((max (dimension A') (dimension A'')) : ℕ) : ℝ) := by norm_cast
-    _ ≤ (40 / log 2) * d[A # A] := hdim
+    _ ≤ (40 / log 2) * dᵤ[A # A] := hdim
     _ ≤ (40 / log 2) * log K := mul_le_mul_of_nonneg_left hdist (by positivity)
 
 
 /-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A-A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-22}\lvert A\rvert$ and $\dim A' \leq \frac{40}{\log 2} \log K$.-/
-theorem weak_PFR_int {A : Set G} [Finite A] [Nonempty A] {K : ℝ} (hK: 0 < K) (hA: Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
-  apply weak_PFR hK ((rdist_set_le A A).trans _)
+theorem weak_PFR_int {A : Set G} [Finite A] (hA₀ : A.Nonempty) {K : ℝ} (hK: 0 < K)
+    (hA: Nat.card (A-A) ≤ K * Nat.card A) :
+    ∃ A' ⊆ A, Nat.card A' ≥ K^(-22 : ℝ) * Nat.card A ∧ dimension A' ≤ (40 / log 2) * log K := by
+  have := hA₀.to_subtype
+  apply weak_PFR hA₀ hK ((rdist_set_le A A hA₀ hA₀).trans _)
   suffices log (Nat.card (A-A)) ≤ log K + log (Nat.card A) by linarith
   rw [<-log_mul (by positivity) _]
   . apply log_le_log _ hA

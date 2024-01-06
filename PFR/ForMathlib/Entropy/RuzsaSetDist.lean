@@ -204,7 +204,10 @@ lemma rdist_set_of_inj (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempt
   measurability
 
 /-- Ruzsa distance between sets is controlled by the doubling constant. -/
-lemma rdist_set_le (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] : dᵤ[A # B] ≤ log (Nat.card (A-B)) - log (Nat.card A) / 2 - log (Nat.card B) / 2 := by
+lemma rdist_set_le (A B: Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB : B.Nonempty) :
+    dᵤ[A # B] ≤ log (Nat.card (A-B)) - log (Nat.card A) / 2 - log (Nat.card B) / 2 := by
+  have := hA.to_subtype
+  have := hB.to_subtype
   simp_rw [rdist_set, kernel.rdistm, ProbabilityTheory.entropy_of_discreteUniform]
   gcongr
   convert measureEntropy_le_card_aux (A-B).toFinite.toFinset ?_
@@ -219,8 +222,5 @@ lemma rdist_set_le (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B]
   apply MeasureTheory.measure_union_null
   all_goals simp [Measure.discreteUniform_apply]
 
-
-
 end ProbabilityTheory
-
 end RuzsaSetDist
