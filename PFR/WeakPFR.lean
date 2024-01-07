@@ -661,9 +661,34 @@ lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Non
   have : dᵤ[A # B] = dᵤ[A' # B'] := by
     rw [<-rdist_set_of_inj _ _ (φ := G'.subtype) Subtype.val_injective, <-rdist_set_add_const (G'.subtype '' A') (G'.subtype '' B') x y]
     congr
-    simp
-    sorry
-    sorry
+    . rw [hA]
+      ext y
+      simp [Set.mem_vadd_set]
+      constructor
+      . rintro ⟨ z, ⟨ ⟨ w, hw ⟩, rfl ⟩ ⟩
+        have : x + z + -x ∈ G' := by simp [w]
+        use this
+        simp
+        convert hw
+      rintro ⟨ h, ha ⟩
+      use y + -x
+      constructor
+      . use h
+      abel
+    rw [hB]
+    ext x
+    simp [Set.mem_vadd_set]
+    constructor
+    . rintro ⟨ z, ⟨ ⟨ w, hw ⟩, rfl ⟩ ⟩
+      have : y + z + -y ∈ G' := by simp [w]
+      use this
+      simp
+      convert hw
+    rintro ⟨ h, ha ⟩
+    use x + -y
+    constructor
+    . use h
+    abel
 
   refine ⟨ ?_, ?_, (by infer_instance), (by infer_instance), ?_, ?_ ⟩
   . simp [hA', hf, hA'']
@@ -690,27 +715,38 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
   . set M := (Nat.card A) + (Nat.card B)
     have hM : (Nat.card A) + (Nat.card B) ≤ M := Nat.le_refl _
     convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› _ ‹_› A B ‹_› ‹_› ‹_› ‹_› hM
-  stop
   intro M h_induct
   -- wlog we can assume A, B are not in cosets of a smaller subgroup
   suffices : ∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: Nonempty A) (_hB_non: Nonempty B) (_hM : (Nat.card A) + (Nat.card B) ≤ M) (_hnot: NotInCoset A B), WeakPFRAsymmConclusion A B
   . intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non hM
 
-    obtain ⟨ G', A', B', hAA', hBB', hnot' ⟩ := wlog_notInCoset hA hB
+    obtain ⟨ G', A', B', hAA', hBB', hnot' ⟩ := wlog_notInCoset hA_non hB_non
     have hG'_fin : Module.Finite ℤ G' :=
       Module.Finite.iff_fg (N := AddSubgroup.toIntSubmodule G').2 (IsNoetherian.noetherian _)
 
     have hG'_free : Module.Free ℤ G' := by
       rcases Submodule.nonempty_basis_of_pid (Module.Free.chooseBasis ℤ G) (AddSubgroup.toIntSubmodule G') with ⟨ n, ⟨ b ⟩ ⟩
       exact Module.Free.of_basis b
-    rw [hAA'.card_congr, hBB'.card_congr] at hM
-    obtain ⟨ hA'_fin, hA'_non, hA'_card ⟩ := hA.card_congr
-    obtain ⟨ hB'_fin, hB'_non, hB'_card ⟩ := card_of_shift hB
-    rw [<-hA'_card, <-hB'_card] at hM
+    have hAA'_card: Nat.card A = Nat.card A' := (Nat.card_image_of_injective Subtype.val_injective _) ▸ hAA'.card_congr
+    have hBB'_card: Nat.card B = Nat.card B' := (Nat.card_image_of_injective Subtype.val_injective _) ▸ hBB'.card_congr
+    have hA_non' : Nonempty A := Set.nonempty_coe_sort.mpr hA_non
+    have hB_non' : Nonempty B := Set.nonempty_coe_sort.mpr hB_non
+
+    rw [hAA'_card, hBB'_card] at hM
+
+    have hA'_nonfin : Nonempty A'  ∧ Finite A' := by
+      have := Nat.card_pos (α := A)
+      rwa [hAA'_card, Nat.card_pos_iff] at this
+    have hB'_nonfin : Nonempty B' ∧ Finite B' := by
+      have := Nat.card_pos (α := B)
+      rwa [hBB'_card, Nat.card_pos_iff] at this
+    obtain ⟨ hA'_non, hA'_fin ⟩ := hA'_nonfin
+    obtain ⟨ hB'_non, hB'_fin ⟩ := hB'_nonfin
+
     replace this := this G' _ hG'_free hG'_fin (by infer_instance) (by infer_instance) (by infer_instance) A' B' hA'_fin hB'_fin hA'_non hB'_non hM hnot'
-    exact conclusion_transfers G' A' B' hA hB this
+    exact conclusion_transfers G' A' B' hAA' hBB' this
   intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non hM hnot
-  rcases weak_PFR_asymm_prelim A B with ⟨ N, x, y, Ax, By, hAx_non, hBy_non, hAx_fin, hBy_fin, hAx, hBy, hdim, hcard⟩
+  rcases weak_PFR_asymm_prelim (Set.nonempty_coe_sort.mp hA_non) (Set.nonempty_coe_sort.mp hB_non) with ⟨ N, x, y, Ax, By, hAx_non, hBy_non, hAx_fin, hBy_fin, hAx, hBy, hdim, hcard⟩
   have hAxA : Ax ⊆ A := by rw [hAx]; simp
   have hByB : By ⊆ B := by rw [hBy]; simp
   have hA_pos : (0 : ℝ) < Nat.card A := Nat.cast_pos.mpr Nat.card_pos
@@ -724,6 +760,8 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     have hBy_fin' := Set.finite_coe_iff.mpr hBy_fin
     have hA'_fin' := Set.finite_coe_iff.mpr (Set.Finite.subset hAx_fin hA')
     have hB'_fin' := Set.finite_coe_iff.mpr (Set.Finite.subset hBy_fin hB')
+    have hAx_non' := Set.nonempty_coe_sort.mpr hAx_non
+    have hBy_non' := Set.nonempty_coe_sort.mpr hBy_non
     have hAx_pos : (0 : ℝ) < Nat.card Ax := Nat.cast_pos.mpr Nat.card_pos
     have hBy_pos : (0 : ℝ) < Nat.card By := Nat.cast_pos.mpr Nat.card_pos
     have hA'_pos : (0 : ℝ) < Nat.card A' := Nat.cast_pos.mpr Nat.card_pos
