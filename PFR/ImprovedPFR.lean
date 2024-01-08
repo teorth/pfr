@@ -845,13 +845,13 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   rw [hAA'] at UAunif
   have hadd_sub : A + A = A - A := by
-    rw [<-Set.image2_add, <-Set.image2_sub]
+    rw [← Set.image2_add, ← Set.image2_sub]
     congr! 1 with a _ b _
     rw [(show a+b=a-b by simp)]
     rfl
   rw [hadd_sub] at hA
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
-  rw [<-hadd_sub] at hA
+  rw [← hadd_sub] at hA
 
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/8, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance

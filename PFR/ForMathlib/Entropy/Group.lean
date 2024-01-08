@@ -95,7 +95,7 @@ lemma entropy_inv (hX : Measurable X) : H[X⁻¹ ; μ] = H[X ; μ] :=
 /-- $$H[X / Y] = H[Y / X]$$ -/
 @[to_additive "$$H[X - Y] = H[Y - X]$$"]
 lemma entropy_div_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
-    H[X / Y ; μ] = H[Y / X ; μ] := by rw [←inv_div]; exact entropy_inv (hY.div hX)
+    H[X / Y ; μ] = H[Y / X ; μ] := by rw [← inv_div]; exact entropy_inv (hY.div hX)
 
 end entropy
 
@@ -147,21 +147,21 @@ variable [IsProbabilityMeasure μ] {Y : Ω → G} [FiniteRange Y]
 @[to_additive "$$H[X] - I[X : Y] \\leq H[X + Y]$$"]
 lemma entropy_sub_mutualInfo_le_entropy_mul (hX : Measurable X) (hY : Measurable Y) :
     H[X ; μ] - I[X : Y ; μ] ≤ H[X * Y ; μ] := by
-  rw [entropy_sub_mutualInfo_eq_condEntropy hX hY, ←condEntropy_mul_right hX hY]
+  rw [entropy_sub_mutualInfo_eq_condEntropy hX hY, ← condEntropy_mul_right hX hY]
   exact condEntropy_le_entropy _ (hX.mul hY) hY
 
 /-- $$H[Y] - I[X : Y] \leq H[X * Y]$$ -/
 @[to_additive "$$H[Y] - I[X : Y] \\leq H[X + Y]$$"]
 lemma entropy_sub_mutualInfo_le_entropy_mul' (hX : Measurable X) (hY : Measurable Y) :
     H[Y ; μ] - I[X : Y ; μ] ≤ H[X * Y ; μ] := by
-  rw [entropy_sub_mutualInfo_eq_condEntropy' hX hY, ←condEntropy_mul_left hY hX]
+  rw [entropy_sub_mutualInfo_eq_condEntropy' hX hY, ← condEntropy_mul_left hY hX]
   exact condEntropy_le_entropy _ (hX.mul hY) hX
 
 /-- $$H[X] - I[X : Y] \leq H[X / Y]$$ -/
 @[to_additive "$$H[X] - I[X : Y] \\leq H[X - Y]$$"]
 lemma entropy_sub_mutualInfo_le_entropy_div (hX : Measurable X) (hY : Measurable Y) :
     H[X ; μ] - I[X : Y ; μ] ≤ H[X / Y ; μ] := by
-  rw [entropy_sub_mutualInfo_eq_condEntropy hX hY, ←condEntropy_div_right hX hY]
+  rw [entropy_sub_mutualInfo_eq_condEntropy hX hY, ← condEntropy_div_right hX hY]
   exact condEntropy_le_entropy _ (hX.div hY) hY
 
 /-- $$H[Y] - I[X : Y] \leq H[X / Y]$$ -/
@@ -169,21 +169,21 @@ lemma entropy_sub_mutualInfo_le_entropy_div (hX : Measurable X) (hY : Measurable
 lemma entropy_sub_mutualInfo_le_entropy_div' (hX : Measurable X) (hY : Measurable Y) :
     H[Y ; μ] - I[X : Y ; μ] ≤ H[X / Y ; μ] := by
   rw [mutualInfo_comm hX hY, entropy_sub_mutualInfo_eq_condEntropy hY hX,
-    ←condEntropy_div_left hY hX]
+    ← condEntropy_div_left hY hX]
   exact condEntropy_le_entropy _ (hX.div hY) hX
 
 /-- $$\max(H[X], H[Y]) - I[X : Y] \leq H[X * Y]$$ -/
 @[to_additive "$$\\max(H[X], H[Y]) - I[X : Y] \\leq H[X + Y]$$"]
 lemma max_entropy_sub_mutualInfo_le_entropy_mul (hX : Measurable X) (hY : Measurable Y) :
     max H[X ; μ] H[Y ; μ] - I[X : Y ; μ] ≤ H[X * Y ; μ] := by
-  rw [←max_sub_sub_right, max_le_iff]
+  rw [← max_sub_sub_right, max_le_iff]
   exact ⟨entropy_sub_mutualInfo_le_entropy_mul hX hY, entropy_sub_mutualInfo_le_entropy_mul' hX hY⟩
 
 /-- $$\max(H[X], H[Y]) - I[X : Y] \leq H[X / Y]$$ -/
 @[to_additive "$$\\max(H[X], H[Y]) - I[X : Y] \\leq H[X - Y]$$"]
 lemma max_entropy_sub_mutualInfo_le_entropy_div (hX : Measurable X) (hY : Measurable Y) :
     max H[X ; μ] H[Y ; μ] - I[X : Y ; μ] ≤ H[X / Y ; μ] := by
-  rw [←max_sub_sub_right, max_le_iff]
+  rw [← max_sub_sub_right, max_le_iff]
   exact ⟨entropy_sub_mutualInfo_le_entropy_div hX hY, entropy_sub_mutualInfo_le_entropy_div' hX hY⟩
 
 /-- $$\max(H[X | Z], H[Y | Z]) - I[X : Y | Z] \leq H[X * Y | Z]$$ -/

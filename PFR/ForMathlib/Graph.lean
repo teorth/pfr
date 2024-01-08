@@ -13,7 +13,7 @@ lemma graph_def (f : G → G') : graph f = {(x, f x) | x : G} := rfl
 
 lemma card_graph (f : G → G') : Nat.card (graph f) = Nat.card G := by
   apply Nat.card_congr ⟨fun p => p.1.1, fun x => ⟨⟨x, f x⟩, x, rfl⟩,
-      by rintro ⟨p, h, hh⟩; simp [←hh],
+      by rintro ⟨p, h, hh⟩; simp [← hh],
       by intro x; simp⟩
 
 @[simp]

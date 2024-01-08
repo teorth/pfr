@@ -107,7 +107,7 @@ lemma indepFun_fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
   rw [IndepFun_iff]
   rintro _ _ ⟨s, _, rfl⟩ ⟨t, _, rfl⟩
-  simp [←Set.prod_univ, ←Set.univ_prod, Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ,
+  simp [← Set.prod_univ, ← Set.univ_prod, Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ,
     Set.univ_inter, Measure.prod_prod, measure_univ, mul_one, one_mul]
 
 variable {f : Ω → α} {g : Ω → β}
@@ -120,7 +120,7 @@ lemma IndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi' : �
   change μ (range i)ᶜ = 0 at hi'
   rw [IndepFun_iff] at hfg ⊢
   rintro _ _ ⟨s, hs, rfl⟩ ⟨t, ht, rfl⟩
-  rw [preimage_comp, preimage_comp, ←preimage_inter, comap_apply, comap_apply, comap_apply,
+  rw [preimage_comp, preimage_comp, ← preimage_inter, comap_apply, comap_apply, comap_apply,
     image_preimage_eq_inter_range, image_preimage_eq_inter_range, image_preimage_eq_inter_range,
     measure_inter_conull hi', measure_inter_conull hi', measure_inter_conull hi',
     hfg _ _ ⟨_, hs, rfl⟩ ⟨_, ht, rfl⟩]
@@ -188,7 +188,7 @@ theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι
   set l : ∀ i, Set (β i) := fun i ↦ if i ∈ S then s i else univ with hldef
   have hl (i : ι) : MeasurableSet (l i) := by by_cases hiS : i ∈ S <;> simp [hldef, hiS, hs]
   specialize h₀ hl
-  rw [←h] at h₀
+  rw [← h] at h₀
   convert h₀.2 using 1
   · congr with x
     simp (config := { contextual := true })

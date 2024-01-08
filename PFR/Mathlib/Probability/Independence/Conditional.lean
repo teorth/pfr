@@ -1,6 +1,5 @@
 import PFR.ForMathlib.Pair
 import PFR.Mathlib.Data.Set.Image
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Tactic.Finiteness
@@ -113,9 +112,9 @@ lemma CondIndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi'
     (hf : Measurable f) (hg : Measurable g) (hh : Measurable h) (hfg : CondIndepFun f g h μ) :
     CondIndepFun (f ∘ i) (g ∘ i) (h ∘ i) (μ.comap i) := by
   rw [condIndepFun_iff] at hfg ⊢
-  rw [←Measure.map_map hh hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
+  rw [← Measure.map_map hh hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
   refine hfg.mono $ fun c hc ↦ ?_
-  rw [preimage_comp, ←comap_cond hi hi' $ hh $ measurableSet_singleton _]
+  rw [preimage_comp, ← comap_cond hi hi' $ hh $ measurableSet_singleton _]
   exact IndepFun.comp_right hi (cond_absolutelyContinuous.ae_le hi') hf hg hc
 
 end defs
