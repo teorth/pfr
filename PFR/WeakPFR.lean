@@ -167,12 +167,15 @@ lemma torsion_dist_shrinking {H : Type u} [FiniteRange X] [FiniteRange Y] (hX : 
 
 end Torsion
 
+instance {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G] (H : AddSubgroup G)
+    : MeasurableSingletonClass (G ⧸ H) :=
+  ⟨λ _ ↦ by { rw [measurableSet_quotient]; simp [measurableSet_discrete] }⟩
+
 section F2_projection
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G]
- {Ω Ω' : Type u} /- [MeasurableSpace Ω] [MeasurableSpace Ω']  -/ [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' → G) (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac) [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
+variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G] {Ω Ω' : Type u}
 
 /-- Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> 44d[X;Y].\]
@@ -181,7 +184,8 @@ There is a non-trivial subgroup $H\leq G$ such that
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))< \frac{\mathbb{H}(X)+\mathbb{H}(Y)}{2}\]
 where $\psi:G\to G/H$ is the natural projection homomorphism.
 -/
-lemma app_ent_PFR (hent: H[X] + H[Y] > 44 * d[X # Y])
+lemma app_ent_PFR' [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' → G) [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
+  (hent: H[X] + H[Y] > 44 * d[X # Y])
   (hX : Measurable X) (hY : Measurable Y) :
   ∃ H : AddSubgroup G, log (Nat.card H) < H[X] + H[Y] ∧
   H[ (QuotientAddGroup.mk' H) ∘ X] + H[(QuotientAddGroup.mk' H) ∘ Y] < (H[X] + H[Y])/2 := by
@@ -243,11 +247,95 @@ lemma app_ent_PFR (hent: H[X] + H[Y] > 44 * d[X # Y])
     _ = (44 * d[X # Y])/2 := by ring
     _ < (H[X] + H[Y])/2 := by rwa [div_lt_div_right two_pos]
 
+variable [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G) (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+
+lemma app_ent_PFR (hent: H[ X; μ] + H[Y; μ'] > 44 * d[X;μ # Y;μ']) (hX : Measurable X) (hY : Measurable Y) : ∃ H : AddSubgroup G, log (Nat.card H) < H[X; μ] + H[Y;μ'] ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] < (H[ X; μ] + H[Y; μ'])/2 := @app_ent_PFR' _ _ _ _ _ _ _ _ (MeasureSpace.mk μ) (MeasureSpace.mk μ') _ _ _ _ hent hX hY
+
 /-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 44 d[\psi(X);\psi(Y)].\] -/
-lemma PFR_projection :  ∃ H : AddSubgroup G, log (Nat.card H) ≤ 2 * (H[X; μ] + H[Y;μ']) ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ 44 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] := by sorry
+lemma PFR_projection (hX : Measurable X) (hY : Measurable Y) : ∃ H : AddSubgroup G, log (Nat.card H) ≤ 2 * (H[X; μ] + H[Y;μ']) ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ 44 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] := by
+  let S := { H : AddSubgroup G | (∃ (k : ℝ),  log (Nat.card H) ≤ (2 - 2 ^ (2 - k)) * (H[X; μ] + H[Y;μ']) ∧
+    H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ (2 ^ (1 - k)) * (H[X; μ] + H[Y;μ'])) ∧
+    H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] > 44 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] }
+  have : 0 ≤ H[X ; μ] + H[Y ; μ'] := by linarith [entropy_nonneg X μ, entropy_nonneg Y μ']
+  by_cases hE : (⊥ : AddSubgroup G) ∈ S
+  · classical
+    obtain ⟨H, ⟨⟨k, hlog, hup⟩, hent⟩, hMaxl⟩ := S.toFinite.exists_maximal_wrt id S (Set.nonempty_of_mem hE)
+    set ψ : G →+ G ⧸ H := QuotientAddGroup.mk' H
+    have surj : Function.Surjective ψ := QuotientAddGroup.mk'_surjective H
+
+    set G' := G ⧸ H
+    have : ElementaryAddCommGroup G' 2 := ElementaryAddCommGroup.quotient_group (by decide) (by simp [AddSubgroup.zero_mem])
+
+    obtain ⟨H', hlog', hup'⟩ := app_ent_PFR _ _ _ _ hent ((measurable_discrete _).comp hX) ((measurable_discrete _).comp hY)
+    have H_ne_bot: H' ≠ ⊥ := by
+      by_contra!
+      rcases this with rfl
+      have inj : Function.Injective (QuotientAddGroup.mk' (⊥ : AddSubgroup G')) :=
+          (QuotientAddGroup.quotientBot : (G' ⧸ ⊥) ≃+ G').symm.injective
+      rw [entropy_comp_of_injective _ ((measurable_discrete _).comp hX) _ inj,
+          entropy_comp_of_injective _ ((measurable_discrete _).comp hY) _ inj] at hup'
+      linarith [entropy_nonneg (ψ ∘ X) μ, entropy_nonneg (ψ ∘ Y) μ']
+    let H'' := H'.comap ψ
+    use H''
+
+    rw [← (AddSubgroup.map_comap_eq_self_of_surjective surj _ : H''.map ψ = H')] at hup' hlog'
+    set H' := H''.map ψ
+
+    have Hlt : H < H'' := by
+      have : H = (⊥ : AddSubgroup G').comap ψ := by simp only [AddMonoidHom.comap_bot, QuotientAddGroup.ker_mk']
+      rw [this, AddSubgroup.comap_lt_comap_of_surjective surj]
+      exact Ne.bot_lt H_ne_bot
+    have cardprod : Nat.card H'' = Nat.card H' * Nat.card H := by
+      have hcard₀ := Nat.card_congr <| (AddSubgroup.addSubgroupOfEquivOfLe Hlt.le).toEquiv
+      have hcard₁ := Nat.card_congr <| (QuotientAddGroup.quotientKerEquivRange (ψ.restrict H'')).toEquiv
+      have hcard₂ := AddSubgroup.card_eq_card_quotient_add_card_addSubgroup (H.addSubgroupOf H'')
+      rw [ψ.ker_restrict H'', QuotientAddGroup.ker_mk', ψ.restrict_range H''] at hcard₁
+      simpa only [← Nat.card_eq_fintype_card, hcard₀, hcard₁] using hcard₂
+
+    let φ : G' ⧸ H' ≃+ G ⧸ H'' := QuotientAddGroup.quotientQuotientEquivQuotient H H'' Hlt.le
+    set ψ' : G' →+ G' ⧸ H' := QuotientAddGroup.mk' H'
+    set ψ'' : G →+ G ⧸ H'' := QuotientAddGroup.mk' H''
+    have diag : ψ' ∘ ψ = φ.symm ∘ ψ'' := rfl
+    rw [← Function.comp.assoc, ← Function.comp.assoc, diag, Function.comp.assoc, Function.comp.assoc] at hup'
+
+    have cond₁ : log (Nat.card H'') < (2 - 2 ^ (2 - (k+1))) * (H[X; μ] + H[Y;μ']) := calc log (Nat.card H'')
+      _ = log ((Nat.card H' : ℝ) * (Nat.card H : ℝ)) := by rw [cardprod]; norm_cast
+      _ = log (Nat.card H') + log (Nat.card H) := by rw [Real.log_mul (Nat.cast_ne_zero.2 (@Nat.card_pos H').ne') (Nat.cast_ne_zero.2 (@Nat.card_pos H).ne')]
+      _ < 2 ^ (1 - k) * (H[X; μ] + H[Y;μ']) + log (Nat.card H) := by gcongr; exact hlog'.trans_le hup
+      _ ≤ 2 ^ (1 - k) * (H[X; μ] + H[Y;μ']) + (2 - 2 ^ (2 - k)) * (H[X; μ] + H[Y;μ']) := by gcongr
+      _ = (2 - 2 ^ ((1 - k) + 1) + 2 ^ (1 - k)) * (H[X; μ] + H[Y;μ']) := by ring_nf
+      _ = (2 - 2 * 2 ^ (1 - k) + 2 ^ (1 - k)) * (H[X; μ] + H[Y;μ']) := by rw [rpow_add two_pos, rpow_one, mul_comm 2]
+      _ = (2 - 2 ^ (2 - (k+1))) * (H[X; μ] + H[Y;μ']) := by ring_nf
+
+    have cond₁' : log (Nat.card H'') < 2 * (H[X; μ] + H[Y;μ']) := calc log (Nat.card H'')
+      _ < (2 - 2 ^ (2 - (k+1))) * (H[X; μ] + H[Y;μ']) := cond₁
+      _ ≤ 2 * (H[X; μ] + H[Y;μ']) := by gcongr; apply le_of_lt; simp [rpow_pos_of_pos (by linarith : (0 : ℝ) < 2)]
+
+    have cond₂ : H[ ψ'' ∘ X; μ ] + H[ ψ'' ∘ Y; μ' ] < (2 ^ (1 - (k+1))) * (H[X; μ] + H[Y;μ']) := calc H[ ψ'' ∘ X; μ ] + H[ ψ'' ∘ Y; μ' ]
+      _ = H[ φ.symm ∘ ψ'' ∘ X; μ ] + H[ φ.symm ∘ ψ'' ∘ Y; μ' ] := by
+        simp_rw [← entropy_comp_of_injective _ ((measurable_discrete _).comp hX) _ φ.symm.injective,
+                 ← entropy_comp_of_injective _ ((measurable_discrete _).comp hY) _ φ.symm.injective]
+      _ < (H[ ψ ∘ X; μ ] + H[ ψ ∘ Y; μ' ])/2 := hup'
+      _ ≤ 2 ^ (1 - k) * (H[X; μ] + H[Y;μ']) / 2 := by linarith [hup]
+      _ = 2 ^ (1 - k) / 2 * (H[X; μ] + H[Y;μ']) := mul_div_right_comm _ _ _
+      _ = 2 ^ (1 - k - 1) * (H[X; μ] + H[Y;μ']) := by rw [← rpow_sub_one two_ne_zero]
+      _ = 2 ^ (1 - (k+1)) * (H[X; μ] + H[Y;μ']) := by ring_nf
+
+    have HS : H'' ∉ S := λ Hs => Hlt.ne (hMaxl H'' Hs Hlt.le)
+    simp only [ge_iff_le, gt_iff_lt, Set.mem_setOf_eq, not_and, not_lt] at HS
+    exact ⟨cond₁'.le, HS ⟨k+1, cond₁.le, cond₂.le⟩⟩
+  · use ⊥
+    have : ElementaryAddCommGroup (G ⧸ ⊥) 2 := ElementaryAddCommGroup.quotient_group (by decide) (by simp [AddSubgroup.zero_mem])
+    constructor
+    · norm_num; assumption
+    · simp only [ge_iff_le, gt_iff_lt, Set.mem_setOf_eq,
+        AddSubgroup.mem_bot, Nat.card_eq_fintype_card, Fintype.card_ofSubsingleton, Nat.cast_one,
+        log_one, sub_self, rpow_zero, one_mul, not_and, not_lt] at hE
+      apply hE
+      refine ⟨1, by norm_num, by norm_num; exact add_le_add (entropy_comp_le μ hX _) (entropy_comp_le μ' hY _)⟩
 
 end F2_projection
 
@@ -620,7 +708,6 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A
   set H := G ⧸ G₂
   let φ : G →+ H := QuotientAddGroup.mk' G₂
   let _mH : MeasurableSpace H := ⊤
-  have _msH : MeasurableSingletonClass H := ⟨λ _ ↦ trivial⟩
   have h_fintype : Fintype H := Fintype.ofFinite H
   have h_torsionfree := torsion_free (G := G)
 
@@ -628,7 +715,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, hUB_mem, hUB_fin ⟩ :=
     exists_isUniform_measureSpace' B
 
-  rcases (PFR_projection (φ.toFun ∘ UA) (φ.toFun ∘ UB) ℙ ℙ) with ⟨H', ⟨ hH1, hH2 ⟩ ⟩
+  rcases (PFR_projection (φ.toFun ∘ UA) (φ.toFun ∘ UB) ℙ ℙ (by measurability) (by measurability)) with ⟨H', ⟨ hH1, hH2 ⟩ ⟩
   let N := AddSubgroup.comap φ H'
   set φ' := QuotientAddGroup.mk' N
   have _cGN : Countable (G ⧸ N) := Function.Surjective.countable (QuotientAddGroup.mk'_surjective N)
