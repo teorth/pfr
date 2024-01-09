@@ -105,7 +105,7 @@ Let $\phi:G\to H$ be a homomorphism and $A,B\subseteq G$ be finite subsets. If $
 \[d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq (\mathbb{H}(\phi(U_A))+\mathbb{H}(\phi(U_B)))(d(U_A,U_B)-d(U_{A_x},U_{B_y})).\]
 \end{lemma}
 \begin{proof}
-\uses{fibring-ident}
+\uses{fibring-ident}\leanok
 The random variables $(U_A\mid \phi(U_A)=x)$ and $(U_B\mid \phi(U_B)=y)$ are equal in distribution to $U_{A_x}$ and $U_{B_y}$ respectively (both are uniformly distributed over their respective fibres). It follows from Lemma \ref{fibring-ident} that
 \begin{align*}
 \sum_{x,y\in H}\frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A\rvert\lvert B\rvert}d[U_{A_x};U_{B_y}]
