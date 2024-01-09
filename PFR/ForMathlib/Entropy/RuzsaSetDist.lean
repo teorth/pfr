@@ -147,8 +147,15 @@ noncomputable def rdist_set (A B: Set G) : ℝ := kernel.rdistm (Measure.discret
 notation3:max "dᵤ[" A " # " B "]" => rdist_set A B
 
 /-- Relating Ruzsa distance between sets to Ruzsa distance between random variables -/
-lemma rdist_set_eq_rdist {A B: Set G} [Finite A] [Finite B]  [Nonempty A] [Nonempty B] {Ω Ω': Type*} [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (hμ: IsProbabilityMeasure (ℙ: Measure Ω)) (hμ': IsProbabilityMeasure (ℙ: Measure Ω')) {UA: Ω → G} {UB: Ω' → G} (hUA : IsUniform A UA ℙ) (hUB : IsUniform B UB ℙ) (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) : dᵤ[A # B] = d[UA # UB] := by
-  rw [rdist_eq_rdistm, rdist_set, (Measure.isUniform_iff_uniform_dist A hμ hUA_mes).mp hUA, (Measure.isUniform_iff_uniform_dist B hμ' hUB_mes).mp hUB]
+lemma rdist_set_eq_rdist {A B: Set G} [Finite A] [Finite B]  [Nonempty A] [Nonempty B]
+    {Ω Ω': Type*} [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω']
+    {μ : Measure Ω} {μ' : Measure Ω'}
+    (hμ: IsProbabilityMeasure μ) (hμ': IsProbabilityMeasure μ')
+    {UA: Ω → G} {UB: Ω' → G} (hUA : IsUniform A UA μ) (hUB : IsUniform B UB μ')
+    (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) :
+    dᵤ[A # B] = d[UA ; μ # UB ; μ'] := by
+  rw [rdist_eq_rdistm, rdist_set, (Measure.isUniform_iff_uniform_dist A hμ hUA_mes).mp hUA,
+    (Measure.isUniform_iff_uniform_dist B hμ' hUB_mes).mp hUB]
 
 /-- Ruzsa distance between sets is nonnegative. -/
 lemma rdist_set_nonneg (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] : 0 ≤ dᵤ[A # B] := by
