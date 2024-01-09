@@ -58,7 +58,7 @@ There is a non-trivial subgroup $H\leq G$ such that
 where $\psi:G\to G/H$ is the natural projection homomorphism.
 \end{lemma}
 \begin{proof}
-\uses{entropy-pfr-improv, ruzsa-diff, dist-projection, ruzsa-nonneg}
+\uses{entropy-pfr-improv, ruzsa-diff, dist-projection, ruzsa-nonneg}\leanok
 By Theorem \ref{entropy-pfr-improv} there exists a subgroup $H$ such that $d[X;U_H]\leq \frac{11}{2} d[X;Y]$ and $d[Y;U_H]\leq \frac{11}{2} d[X;Y]$. Using Lemma \ref{dist-projection} we deduce that $\mathbb{H}(\psi(X))\leq 11 d[X;Y]$ and $\mathbb{H}(\psi(Y))\leq 11d[X;Y]$. The second claim follows adding these inequalities and using the assumption on $\mathbb{H}(X)+\mathbb{H}(Y)$.
 
 Furthermore we have by Lemma \ref{ruzsa-diff}
