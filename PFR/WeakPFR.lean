@@ -171,8 +171,9 @@ section F2_projection
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G]
- {Ω Ω' : Type u} /- [MeasurableSpace Ω] [MeasurableSpace Ω']  -/ [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' → G) (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac) [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
+variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+  [MeasurableSingletonClass G] {Ω Ω' : Type u} [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G)
+  (Y : Ω' → G) [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
 
 /-- Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> 44d[X;Y].\]
@@ -242,6 +243,8 @@ lemma app_ent_PFR (hent: H[X] + H[Y] > 44 * d[X # Y])
   calc H[ψ ∘ X] + H[ψ ∘ Y] ≤ 11*d[X # Y] + 11*d[X # Y] := add_le_add ent_le₁ ent_le₂
     _ = (44 * d[X # Y])/2 := by ring
     _ < (H[X] + H[Y])/2 := by rwa [div_lt_div_right two_pos]
+
+variable (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac)
 
 /-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
