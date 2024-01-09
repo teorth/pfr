@@ -184,7 +184,7 @@ where $\psi:G\to G/H$ is the natural projection homomorphism.
 lemma app_ent_PFR (hent: H[X] + H[Y] > 44 * d[X # Y])
   (hX : Measurable X) (hY : Measurable Y) :
   ∃ H : AddSubgroup G, log (Nat.card H) < H[X] + H[Y] ∧
-  H[ (QuotientAddGroup.mk' H) ∘ X] + H[ (QuotientAddGroup.mk' H) ∘ Y] < (H[X] + H[Y])/2 := by
+  H[ (QuotientAddGroup.mk' H) ∘ X] + H[(QuotientAddGroup.mk' H) ∘ Y] < (H[X] + H[Y])/2 := by
   let p : refPackage Ω Ω' G := {
     X₀₁ := X
     X₀₂ := Y
@@ -193,33 +193,36 @@ lemma app_ent_PFR (hent: H[X] + H[Y] > 44 * d[X # Y])
     η := 1/8
     hη := by norm_num
     hη' := by norm_num }
-  obtain ⟨H, Ω'', hΩ'', U, _, hUmeas, hUunif, ineq⟩ := entropic_PFR_conjecture_improv p rfl
+  obtain ⟨H, Ω'', hΩ'', U, _, hUmeas, hUunif, _, ineq₁, ineq₂⟩ := entropic_PFR_conjecture_improv' p rfl
   let ψ := (QuotientAddGroup.mk' H)
   use H
   haveI : Finite H := Subtype.finite
-  have ineq₁ : d[X # U] ≤ 11/2 * d[X # Y] := sorry
-  have ineq₂ : d[Y # U] ≤ 11/2 * d[X # Y] := sorry
+  -- Note that  H[ψ ∘ X] ≤ 11*d[X # Y]
   have ent_le₁ : H[ψ ∘ X] ≤ 11*d[X # Y] :=
     calc H[ψ ∘ X] ≤ 2 * d[X # U] := ent_of_proj_le _ hX hUmeas hUunif H
       _ ≤ 2 * (11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₁
       _ = 11*d[X # Y] := by ring
+  -- similarly H[ψ ∘ Y] ≤ 11*d[X # Y]
   have ent_le₂ : H[ψ ∘ Y] ≤ 11*d[X # Y] :=
     calc H[ψ ∘ Y] ≤ 2 * d[Y # U] := ent_of_proj_le _ hY hUmeas hUunif H
       _ ≤ 2 * (11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₂
       _ = 11*d[X # Y] := by ring
-  have log_sub_le₁ :=
+  -- Note that log (Nat.card H) - H[X] ≤ 11 * d[X # Y]
+  have log_sub_le₁ : log (Nat.card H) - H[X] ≤ 11 * d[X # Y] :=
     calc log (Nat.card H) - H[X] = H[U] - H[X] := by rw [IsUniform.entropy_eq' hUunif hUmeas, SetLike.coe_sort_coe]
       _ ≤ |(H[U] - H[X])| := le_abs_self _
       _ ≤ 2*d[X # U] := by rw [rdist_symm] ; apply diff_ent_le_rdist hUmeas hX
       _ ≤ 2*(11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₁
       _ = 11 * d[X # Y] := by ring
-  have log_sub_le₂ :=
+  -- and similarly for Y
+  have log_sub_le₂ : log (Nat.card H) - H[Y] ≤ 11 * d[X # Y] :=
     calc log (Nat.card H) - H[Y] = H[U] - H[Y] :=  by rw [IsUniform.entropy_eq' hUunif hUmeas, SetLike.coe_sort_coe]
       _ ≤ |(H[U] - H[Y])| := le_abs_self _
       _ ≤ 2*d[Y # U] := by rw [rdist_symm] ; apply diff_ent_le_rdist hUmeas hY
       _ ≤ 2*(11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₂
       _ = 11 * d[X # Y] := by ring
   rw [sub_le_iff_le_add'] at log_sub_le₁ log_sub_le₂
+  -- the first half of the claim follows from adding the two previous inequlities and the assumption that H[X] + H[Y] > 44 * d[X # Y]
   have log_lt :=
     calc log (Nat.card H) = 1/2 * (log (Nat.card H) + log (Nat.card H)) := by ring
       _ ≤ 1/2 * ((H[X] + 11*d[X # Y]) + (H[Y] + 11*d[X # Y])) := by
@@ -235,7 +238,8 @@ lemma app_ent_PFR (hent: H[X] + H[Y] > 44 * d[X # Y])
         norm_num
         apply lt_of_le_of_lt (mul_nonneg (by norm_num) (rdist_nonneg hX hY)) hent
   refine ⟨log_lt, ?_⟩
-  calc  H[ψ ∘ X] + H[ψ ∘ Y] ≤ 11*d[X # Y] + 11*d[X # Y] := add_le_add ent_le₁ ent_le₂
+  -- the second claim follows from adding the inequalities ent_le₁ and ent_le₂, plus a bit of algebra and the assumption on H[X] + H[Y]
+  calc H[ψ ∘ X] + H[ψ ∘ Y] ≤ 11*d[X # Y] + 11*d[X # Y] := add_le_add ent_le₁ ent_le₂
     _ = (44 * d[X # Y])/2 := by ring
     _ < (H[X] + H[Y])/2 := by rwa [div_lt_div_right two_pos]
 
