@@ -250,19 +250,23 @@ $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphis
 lemma ent_of_proj_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (UH: Ω' → G) [FiniteRange X]
     (hX : Measurable X) (hU: Measurable UH) (hunif: IsUniform H UH μ') [FiniteRange UH]
     (H: AddSubgroup G) : H[(QuotientAddGroup.mk' H) ∘ X; μ] ≤ 2 * d[X; μ # UH ; μ'] := by
+  let π := QuotientAddGroup.mk' H
   obtain ⟨ν, X', UH', hν, hX', hUH', h_ind, h_id_X', h_id_UH', _, _⟩ :=
     independent_copies_finiteRange hX hU μ μ'
   rewrite [← (h_id_X'.comp (measurable_discrete _)).entropy_eq, ← h_id_X'.rdist_eq h_id_UH']
-  have : H[X' - UH' ; ν] = H[(QuotientAddGroup.mk' H) ∘ X' ; ν] + H[UH' ; ν] := calc
-    _ = H[⟨(QuotientAddGroup.mk' H) ∘ X', UH'⟩ ; ν] := by
-      sorry
-    _ = _ := by
-      haveI : MeasurableSingletonClass (HasQuotient.Quotient G H) :=
-        ⟨fun _ ↦ measurableSet_quotient.mpr (measurableSet_discrete _)⟩
-      apply IndepFun.entropy_pair_eq_add (measurable_discrete _) hUH'
-      exact h_ind.comp (measurable_discrete _) measurable_id
-  have : d[X' ; ν # UH' ; ν] =
-      H[(QuotientAddGroup.mk' H) ∘ X' ; ν] + (H[UH' ; ν] - H[X' ; ν]) / 2 := by
+  haveI : MeasurableSingletonClass (HasQuotient.Quotient G H) :=
+    ⟨fun _ ↦ measurableSet_quotient.mpr (measurableSet_discrete _)⟩
+  have : H[X' - UH' | π ∘ X' ; ν] = H[UH' ; ν] := by
+    sorry
+  have : H[X' - UH' ; ν] = H[π ∘ X' ; ν] + H[UH' ; ν] := by calc
+    _ = H[⟨X' - UH', π ∘ X'⟩ ; ν] := sorry
+    _ = H[π ∘ X' ; ν] + H[UH' ; ν] := by
+      haveI : Countable (HasQuotient.Quotient G H) := Quotient.countable
+      haveI := FiniteRange.sub X' UH'
+      show H[⟨fun _ ↦ X' _ - UH' _, _⟩ ; ν] = _
+      rw [chain_rule ν (hX'.sub hUH') (measurable_discrete _)]
+      congr
+  have : d[X' ; ν # UH' ; ν] = H[π ∘ X' ; ν] + (H[UH' ; ν] - H[X' ; ν]) / 2 := by
     rewrite [h_ind.rdist_eq hX' hUH']
     linarith
   linarith [(abs_le.mp (diff_ent_le_rdist hX' hUH' (μ := ν) (μ' := ν))).2]
