@@ -199,12 +199,12 @@ lemma app_ent_PFR (hent: H[X] + H[Y] > 44 * d[X # Y])
   haveI : Finite H := Subtype.finite
   -- Note that  H[ψ ∘ X] ≤ 11*d[X # Y]
   have ent_le₁ : H[ψ ∘ X] ≤ 11*d[X # Y] :=
-    calc H[ψ ∘ X] ≤ 2 * d[X # U] := ent_of_proj_le _ hX hUmeas hUunif H
+    calc H[ψ ∘ X] ≤ 2 * d[X # U] := ent_of_proj_le hX hUmeas hUunif
       _ ≤ 2 * (11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₁
       _ = 11*d[X # Y] := by ring
   -- similarly H[ψ ∘ Y] ≤ 11*d[X # Y]
   have ent_le₂ : H[ψ ∘ Y] ≤ 11*d[X # Y] :=
-    calc H[ψ ∘ Y] ≤ 2 * d[Y # U] := ent_of_proj_le _ hY hUmeas hUunif H
+    calc H[ψ ∘ Y] ≤ 2 * d[Y # U] := ent_of_proj_le hY hUmeas hUunif
       _ ≤ 2 * (11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₂
       _ = 11*d[X # Y] := by ring
   -- Note that log (Nat.card H) - H[X] ≤ 11 * d[X # Y]
