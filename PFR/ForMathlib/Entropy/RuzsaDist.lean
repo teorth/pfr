@@ -247,29 +247,61 @@ lemma rdist_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 /-- If $G$ is an additive group and $X$ is a $G$-valued random variable and
 $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphism we have
 (if $U_H$ is the  uniform distribution on $H$) \[\mathbb{H}(\pi(X))\leq 2d[X;U_H].\] -/
-lemma ent_of_proj_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (UH: Ω' → G) [FiniteRange X]
-    (hX : Measurable X) (hU: Measurable UH) (hunif: IsUniform H UH μ') [FiniteRange UH]
-    (H: AddSubgroup G) : H[(QuotientAddGroup.mk' H) ∘ X; μ] ≤ 2 * d[X; μ # UH ; μ'] := by
-  let π := QuotientAddGroup.mk' H
+lemma ent_of_proj_le (UH: Ω' → G) [FiniteRange X] [FiniteRange UH]
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+    (hX : Measurable X) (hU: Measurable UH) (H: AddSubgroup G) [Finite H] -- TODO: infer from [FiniteRange UH]?
+    (hunif: IsUniform H UH μ')
+    : H[(QuotientAddGroup.mk' H) ∘ X; μ] ≤ 2 * d[X; μ # UH ; μ'] := by
   obtain ⟨ν, X', UH', hν, hX', hUH', h_ind, h_id_X', h_id_UH', _, _⟩ :=
     independent_copies_finiteRange hX hU μ μ'
   rewrite [← (h_id_X'.comp (measurable_discrete _)).entropy_eq, ← h_id_X'.rdist_eq h_id_UH']
+  let π := ⇑(QuotientAddGroup.mk' H) -- `toFun` is a perf hack
   haveI : MeasurableSingletonClass (HasQuotient.Quotient G H) :=
-    ⟨fun _ ↦ measurableSet_quotient.mpr (measurableSet_discrete _)⟩
+    { measurableSet_singleton := fun _ ↦ measurableSet_quotient.mpr (measurableSet_discrete _) }
+  replace hunif : IsUniform H UH' ν :=
+    IsUniform.of_identDistrib hunif h_id_UH'.symm (measurableSet_discrete _)
   have : H[X' - UH' | π ∘ X' ; ν] = H[UH' ; ν] := by
-    sorry
+    have h_meas_le : ∀ y ∈ FiniteRange.toFinset (π ∘ X'),
+        (ν.map (π ∘ X') {y}).toReal * H[X' - UH' | (π ∘ X') ← y ; ν] ≤
+        (ν.map (π ∘ X') {y}).toReal * H[UH' ; ν] := by
+      intro x hx
+      refine mul_le_mul_of_nonneg_left ?_ ENNReal.toReal_nonneg
+      let H' : Finset G := (H : Set G).toFinite.toFinset
+      let ν' := ν[|π ∘ X' ← x]
+      have h : ∀ᵐ ω ∂ν', (X' - UH') ω ∈ H' := -- TODO: should be x + H'; just placeholder H' for now
+        sorry
+      convert entropy_le_log_card_of_mem (Measurable.sub hX' hUH') h
+      simp_rw [hunif.entropy_eq' hUH', Set.Finite.mem_toFinset]
+    have h_one : (∑ x in FiniteRange.toFinset (π ∘ X'), (ν.map (π ∘ X') {x}).toReal) = 1 :=
+      sorry
+    haveI : Countable (HasQuotient.Quotient G H) := Quotient.countable
+    haveI := FiniteRange.sub X' UH'
+    have h_ge : H[X' - UH' | π ∘ X' ; ν] ≥ H[UH' ; ν] := calc
+      _ ≥ H[X' - UH' | X' ; ν] := condEntropy_comp_ge ν hX' (hX'.sub hUH') π
+      _ = H[UH' | X' ; ν] := condEntropy_sub_left hUH' hX'
+      _ = H[UH' ; ν] := h_ind.symm.condEntropy_eq_entropy hUH' hX'
+    have h_le : H[X' - UH' | π ∘ X' ; ν] ≤ H[UH' ; ν] := by
+      rewrite [condEntropy_eq_sum _ _ _ (measurable_discrete _)]
+      apply (Finset.sum_le_sum h_meas_le).trans
+      rewrite [← Finset.sum_mul, h_one, one_mul]
+      rfl
+    exact h_le.ge_iff_eq.mp h_ge
   have : H[X' - UH' ; ν] = H[π ∘ X' ; ν] + H[UH' ; ν] := by calc
-    _ = H[⟨X' - UH', π ∘ X'⟩ ; ν] := sorry
+    _ = H[⟨X' - UH', π ∘ (X' - UH')⟩ ; ν] := (entropy_prod_comp (hX'.sub hUH') ν π).symm
+    _ = H[⟨X' - UH', π ∘ X'⟩ ; ν] := by
+      apply IdentDistrib.entropy_eq
+      apply IdentDistrib.of_ae_eq (Measurable.aemeasurable (measurable_discrete _))
+      apply MeasureTheory.mem_ae_iff.mpr
+      convert hunif.measure_preimage_compl
+      ext; simp
     _ = H[π ∘ X' ; ν] + H[UH' ; ν] := by
       haveI : Countable (HasQuotient.Quotient G H) := Quotient.countable
-      haveI := FiniteRange.sub X' UH'
-      show H[⟨fun _ ↦ X' _ - UH' _, _⟩ ; ν] = _
-      rw [chain_rule ν (hX'.sub hUH') (measurable_discrete _)]
+      rewrite [chain_rule ν (by exact hX'.sub hUH') (measurable_discrete _)]
       congr
   have : d[X' ; ν # UH' ; ν] = H[π ∘ X' ; ν] + (H[UH' ; ν] - H[X' ; ν]) / 2 := by
     rewrite [h_ind.rdist_eq hX' hUH']
-    linarith
-  linarith [(abs_le.mp (diff_ent_le_rdist hX' hUH' (μ := ν) (μ' := ν))).2]
+    linarith only [this]
+  linarith only [this, (abs_le.mp (diff_ent_le_rdist hX' hUH' (μ := ν) (μ' := ν))).2]
 
 /-- Adding a constant to a random variable does not change the Rusza distance. -/
 lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
