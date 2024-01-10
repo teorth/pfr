@@ -23,7 +23,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 
 \begin{lemma}[Jensen bound]\label{jensen-bound}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.entropy_le_log_card}
+  \lean{ProbabilityTheory.entropy_le_log_card, ProbabilityTheory.entropy_le_log_card_of_mem}
   \leanok
   If $X$ is an $S$-valued random variable, then $\bbH[X] \leq \log |S|$.
 \end{lemma}
@@ -210,7 +210,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{proof}
 
 \begin{corollary}[Submodularity]\label{submodularity}
-  \lean{ProbabilityTheory.entropy_submodular}\leanok
+  \lean{ProbabilityTheory.entropy_submodular, ProbabilityTheory.condEntropy_comp_ge}\leanok
   With three random variables $X,Y,Z$, one has $\bbH[X|Y,Z] \leq \bbH[X|Z]$.
 \end{corollary}
 
