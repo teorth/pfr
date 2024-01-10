@@ -30,9 +30,7 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
-    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ 4 * (Nat.card S)^22 ∧ ∀ x, f x - φ x ∈ T := by
-  convert homomorphism_pfr f S hS
-  norm_cast
+    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ (Nat.card S)^12 ∧ ∀ x, f x - φ x ∈ T := homomorphism_pfr f S hS
 
 -- Todo: replace the constants C₁, C₂, C₃, C₄ below with actual values
 
@@ -42,11 +40,18 @@ example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+
 
 open Classical TensorProduct Real
 
-/-- The dimension of a subset A of a Z-module G is the rank of the set {(1,a): a in A}. -/
-example {G : Type*} [AddCommGroup G] [Module ℤ G] (A : Set G) : dimension A = Set.finrank ℝ ((fun (n : G) => (1 : ℝ) ⊗ₜ n) '' A : Set (ℝ ⊗[ℤ] G)) := by rfl
+/-- The dimension of a subset A of a Z-module G is the minimal rank of a coset of G that covers A. -/
+example {G : Type*} [AddCommGroup G] (A : Set G) :  ∃ (S : Submodule ℤ G) (v : G), FiniteDimensional.finrank ℤ S = dimension A  ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_spec (exists_coset_cover A)
+
+example {G : Type*} [AddCommGroup G] (A : Set G) (d:ℕ) (h: d < dimension A): ¬ ∃ (S : Submodule ℤ G) (v : G), FiniteDimensional.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_min (exists_coset_cover A) h
+
+
+#print axioms weak_PFR_int
+
+variable  {G : Type u} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G]  [MeasurableSpace G] [MeasurableSingletonClass G]
 
 /-- Weak PFR over the integers -/
-example (A : Set G) [Finite A]  [Nonempty A] (K : ℝ) (hK: 0 < K) (hA: Nat.card (A+A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-44 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ 60 * log K := weak_PFR_int hK hA
+example (A : Set G) [Finite A]  [Nonempty A] (K : ℝ) (hK: 0 < K) (hA: Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40/log 2) * log K := weak_PFR_int hK hA
 
 end PFR
 
