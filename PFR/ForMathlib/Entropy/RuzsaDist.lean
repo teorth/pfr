@@ -246,7 +246,7 @@ lemma rdist_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- If $G$ is an additive group and $X$ is a $G$-valued random variable and
 $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphism we have
-(if $U_H$ is the  uniform distribution on $H$) \[\mathbb{H}(\pi(X))\leq 2d[X;U_H].\] -/
+(where $U_H$ is uniform on $H$) $\mathbb{H}(\pi(X))\leq 2d[X;U_H].$ -/
 lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hU: Measurable UH) {H: AddSubgroup G} [Finite H] -- TODO: infer from [FiniteRange UH]?

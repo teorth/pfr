@@ -908,7 +908,7 @@ lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
 
 /-- Data-processing inequality for the conditional entropy:
 $$ H[Y|f(X)] \geq H[Y|X]$$
-To upgrade this to equality, see `condEntropy_of_injective` -/
+To upgrade this to equality, see `condEntropy_of_injective'` -/
 lemma condEntropy_comp_ge [FiniteRange X] [FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (f : S → U) : H[Y | f ∘ X ; μ] ≥ H[Y | X; μ] := by
   have h_joint : H[⟨Y, ⟨X, f ∘ X⟩⟩ ; μ] = H[⟨Y, X⟩ ; μ] := by

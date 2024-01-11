@@ -159,13 +159,19 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X ;Y].$$
 
 
 \begin{lemma}[Projection entropy and distance]\label{dist-projection}\lean{ent_of_proj_le}\leanok
-If $G$ is an additive group and $X$ is a $G$-valued random variable and $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphism we have (if $U_H$ is the  uniform distribution on $H$, independent of $X$)
+If $G$ is an additive group and $X$ is a $G$-valued random variable and $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphism we have (where $U_H$ is uniform on $H$)
 \[\mathbb{H}(\pi(X))\leq 2d[X;U_H].\]
 \end{lemma}
 \begin{proof}
-\uses{ruzsa-diff}\leanok
-We have
-\[\mathbb{H}(X+U_H)=\mathbb{H}(\pi(X))+\mathbb{H}(U_H)\]
+\uses{independent-exist, ruzsa-diff, chain-rule, shear-ent, submodularity, jensen-bound}\leanok
+WLOG, we make $X$, $U_H$ independent (Lemma \ref{independent-exist}).
+Now by Lemmas \ref{submodularity}, \ref{shear-ent}, \ref{jensen-bound}
+\begin{align*}
+&\mathbb{H}(X-U_H|\pi(X)) \geq \mathbb{H}(X-U_H|X) &= \mathbb{H}(U_H) \\
+&\mathbb{H}(X-U_H|\pi(X)) \leq \log |H| &= \mathbb{H}(U_H)
+\end{align*}
+By Lemma \ref{chain-rule}
+\[\mathbb{H}(X-U_H)=\mathbb{H}(\pi(X))+\mathbb{H}(X-U_H|\pi(X))=\mathbb{H}(\pi(X))+\mathbb{H}(U_H)\]
 and therefore
 \[d[X;U_H]=\mathbb{H}(\pi(X))+\frac{\mathbb{H}(U_H)-\mathbb{H}(X)}{2}.\]
 Furthermore by Lemma \ref{ruzsa-diff}
