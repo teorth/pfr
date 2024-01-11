@@ -248,13 +248,13 @@ lemma PFR_projection (hX : Measurable X) (hY : Measurable Y) :
     ∃ H : AddSubgroup G, log (Nat.card H) ≤ 2 * (H[X; μ] + H[Y;μ']) ∧
     H[(QuotientAddGroup.mk' H) ∘ X; μ] + H[(QuotientAddGroup.mk' H) ∘ Y; μ'] ≤
       40 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] := by
-  let S := { H : AddSubgroup G | (∃ (k : ℝ),  log (Nat.card H) ≤ (2 - 2 ^ (2 - k)) * (H[X; μ] + H[Y;μ']) ∧
-    H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ (2 ^ (1 - k)) * (H[X; μ] + H[Y;μ'])) ∧
+  let S := { H : AddSubgroup G | (∃ (α : ℝ), α ≥ 0 ∧ log (Nat.card H) ≤ (2 - 2 * α) * (H[X; μ] + H[Y;μ']) ∧
+    H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ α * (H[X; μ] + H[Y;μ'])) ∧
     H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] > 40 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] }
   have : 0 ≤ H[X ; μ] + H[Y ; μ'] := by linarith [entropy_nonneg X μ, entropy_nonneg Y μ']
   by_cases hE : (⊥ : AddSubgroup G) ∈ S
   · classical
-    obtain ⟨H, ⟨⟨k, hlog, hup⟩, hent⟩, hMaxl⟩ := S.toFinite.exists_maximal_wrt id S (Set.nonempty_of_mem hE)
+    obtain ⟨H, ⟨⟨α, αnn, hlog, hup⟩, hent⟩, hMaxl⟩ := S.toFinite.exists_maximal_wrt id S (Set.nonempty_of_mem hE)
     set ψ : G →+ G ⧸ H := QuotientAddGroup.mk' H
     have surj : Function.Surjective ψ := QuotientAddGroup.mk'_surjective H
 
@@ -279,55 +279,39 @@ lemma PFR_projection (hX : Measurable X) (hY : Measurable Y) :
     have Hlt : H < H'' := by
       have : H = (⊥ : AddSubgroup G').comap ψ := by simp only [AddMonoidHom.comap_bot, QuotientAddGroup.ker_mk']
       rw [this, AddSubgroup.comap_lt_comap_of_surjective surj]
-      exact Ne.bot_lt H_ne_bot
-    have cardprod : Nat.card H'' = Nat.card H' * Nat.card H := by
-      have hcard₀ := Nat.card_congr <| (AddSubgroup.addSubgroupOfEquivOfLe Hlt.le).toEquiv
-      have hcard₁ := Nat.card_congr <| (QuotientAddGroup.quotientKerEquivRange (ψ.restrict H'')).toEquiv
-      have hcard₂ := AddSubgroup.card_eq_card_quotient_add_card_addSubgroup (H.addSubgroupOf H'')
-      rw [ψ.ker_restrict H'', QuotientAddGroup.ker_mk', ψ.restrict_range H''] at hcard₁
-      simpa only [← Nat.card_eq_fintype_card, hcard₀, hcard₁] using hcard₂
-
+      exact H_ne_bot.bot_lt
     let φ : G' ⧸ H' ≃+ G ⧸ H'' := QuotientAddGroup.quotientQuotientEquivQuotient H H'' Hlt.le
     set ψ' : G' →+ G' ⧸ H' := QuotientAddGroup.mk' H'
     set ψ'' : G →+ G ⧸ H'' := QuotientAddGroup.mk' H''
     have diag : ψ' ∘ ψ = φ.symm ∘ ψ'' := rfl
     rw [← Function.comp.assoc, ← Function.comp.assoc, diag, Function.comp.assoc, Function.comp.assoc] at hup'
 
-    have cond₁ : log (Nat.card H'') < (2 - 2 ^ (2 - (k+1))) * (H[X; μ] + H[Y;μ']) := calc log (Nat.card H'')
-      _ = log ((Nat.card H' : ℝ) * (Nat.card H : ℝ)) := by rw [cardprod]; norm_cast
-      _ = log (Nat.card H') + log (Nat.card H) := by rw [Real.log_mul (Nat.cast_ne_zero.2 (@Nat.card_pos H').ne') (Nat.cast_ne_zero.2 (@Nat.card_pos H).ne')]
-      _ < 2 ^ (1 - k) * (H[X; μ] + H[Y;μ']) + log (Nat.card H) := by gcongr; exact hlog'.trans_le hup
-      _ ≤ 2 ^ (1 - k) * (H[X; μ] + H[Y;μ']) + (2 - 2 ^ (2 - k)) * (H[X; μ] + H[Y;μ']) := by gcongr
-      _ = (2 - 2 ^ ((1 - k) + 1) + 2 ^ (1 - k)) * (H[X; μ] + H[Y;μ']) := by ring_nf
-      _ = (2 - 2 * 2 ^ (1 - k) + 2 ^ (1 - k)) * (H[X; μ] + H[Y;μ']) := by rw [rpow_add two_pos, rpow_one, mul_comm 2]
-      _ = (2 - 2 ^ (2 - (k+1))) * (H[X; μ] + H[Y;μ']) := by ring_nf
-
-    have cond₁' : log (Nat.card H'') < 2 * (H[X; μ] + H[Y;μ']) := calc log (Nat.card H'')
-      _ < (2 - 2 ^ (2 - (k+1))) * (H[X; μ] + H[Y;μ']) := cond₁
-      _ ≤ 2 * (H[X; μ] + H[Y;μ']) := by gcongr; apply le_of_lt; simp [rpow_pos_of_pos (by linarith : (0 : ℝ) < 2)]
-
-    have cond₂ : H[ ψ'' ∘ X; μ ] + H[ ψ'' ∘ Y; μ' ] < (2 ^ (1 - (k+1))) * (H[X; μ] + H[Y;μ']) := calc H[ ψ'' ∘ X; μ ] + H[ ψ'' ∘ Y; μ' ]
-      _ = H[ φ.symm ∘ ψ'' ∘ X; μ ] + H[ φ.symm ∘ ψ'' ∘ Y; μ' ] := by
-        simp_rw [← entropy_comp_of_injective _ ((measurable_discrete _).comp hX) _ φ.symm.injective,
-                 ← entropy_comp_of_injective _ ((measurable_discrete _).comp hY) _ φ.symm.injective]
-      _ < (H[ ψ ∘ X; μ ] + H[ ψ ∘ Y; μ' ])/2 := hup'
-      _ ≤ 2 ^ (1 - k) * (H[X; μ] + H[Y;μ']) / 2 := by linarith [hup]
-      _ = 2 ^ (1 - k) / 2 * (H[X; μ] + H[Y;μ']) := mul_div_right_comm _ _ _
-      _ = 2 ^ (1 - k - 1) * (H[X; μ] + H[Y;μ']) := by rw [← rpow_sub_one two_ne_zero]
-      _ = 2 ^ (1 - (k+1)) * (H[X; μ] + H[Y;μ']) := by ring_nf
-
     have HS : H'' ∉ S := λ Hs => Hlt.ne (hMaxl H'' Hs Hlt.le)
-    simp only [ge_iff_le, gt_iff_lt, Set.mem_setOf_eq, not_and, not_lt] at HS
-    exact ⟨cond₁'.le, HS ⟨k+1, cond₁.le, cond₂.le⟩⟩
+    simp only [Set.mem_setOf_eq, not_and, not_lt] at HS
+    refine ⟨LE.le.trans ?_a (by gcongr; linarith), HS ⟨α/2, by linarith, ?_a, ?_b⟩⟩
+    · have cardprod : Nat.card H'' = Nat.card H' * Nat.card H := by
+        have hcard₀ := Nat.card_congr <| (AddSubgroup.addSubgroupOfEquivOfLe Hlt.le).toEquiv
+        have hcard₁ := Nat.card_congr <| (QuotientAddGroup.quotientKerEquivRange (ψ.restrict H'')).toEquiv
+        have hcard₂ := AddSubgroup.card_eq_card_quotient_add_card_addSubgroup (H.addSubgroupOf H'')
+        rw [ψ.ker_restrict H'', QuotientAddGroup.ker_mk', ψ.restrict_range H''] at hcard₁
+        simpa only [← Nat.card_eq_fintype_card, hcard₀, hcard₁] using hcard₂
+      calc log (Nat.card H'')
+        _ = log ((Nat.card H' : ℝ) * (Nat.card H : ℝ)) := by rw [cardprod]; norm_cast
+        _ = log (Nat.card H') + log (Nat.card H) := by rw [Real.log_mul (Nat.cast_ne_zero.2 (@Nat.card_pos H').ne') (Nat.cast_ne_zero.2 (@Nat.card_pos H).ne')]
+        _ ≤ α * (H[X; μ] + H[Y;μ']) + (2 - 2 * α) * (H[X; μ] + H[Y;μ']) := by gcongr; exact hlog'.le.trans hup
+        _ = (2 - 2 * (α/2)) * (H[X; μ] + H[Y;μ']) := by ring
+    · calc H[ ψ'' ∘ X; μ ] + H[ ψ'' ∘ Y; μ' ]
+        _ = H[ φ.symm ∘ ψ'' ∘ X; μ ] + H[ φ.symm ∘ ψ'' ∘ Y; μ' ] := by
+          simp_rw [← entropy_comp_of_injective _ ((measurable_discrete _).comp hX) _ φ.symm.injective,
+                   ← entropy_comp_of_injective _ ((measurable_discrete _).comp hY) _ φ.symm.injective]
+        _ ≤ (H[ ψ ∘ X; μ ] + H[ ψ ∘ Y; μ' ])/2 := hup'.le
+        _ ≤ (α/2) * (H[X; μ] + H[Y;μ']) := by linarith [hup]
   · use ⊥
     have : ElementaryAddCommGroup (G ⧸ ⊥) 2 := ElementaryAddCommGroup.quotient_group (by decide) (by simp [AddSubgroup.zero_mem])
     constructor
     · norm_num; assumption
-    · simp only [ge_iff_le, gt_iff_lt, Set.mem_setOf_eq,
-        AddSubgroup.mem_bot, Nat.card_eq_fintype_card, Fintype.card_ofSubsingleton, Nat.cast_one,
-        log_one, sub_self, rpow_zero, one_mul, not_and, not_lt] at hE
-      apply hE
-      refine ⟨1, by norm_num, by norm_num; exact add_le_add (entropy_comp_le μ hX _) (entropy_comp_le μ' hY _)⟩
+    · simp only [Set.mem_setOf_eq, not_and, not_lt] at hE
+      exact hE ⟨1, by norm_num, by norm_num; exact add_le_add (entropy_comp_le μ hX _) (entropy_comp_le μ' hY _)⟩
 
 end F2_projection
 
