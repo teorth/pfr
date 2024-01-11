@@ -52,7 +52,7 @@ and $\phi(2Y)=2\phi(Y)\equiv 0$ so the left-hand side is equal to $d[\phi(X);0]=
 \begin{lemma}\label{app-ent-pfr}\lean{app_ent_PFR}\leanok
 Let $G=\mathbb{F}_2^n$ and $\alpha\in (0,1)$ and let $X,Y$ be $G$-valued
 random variables such that
-\[\mathbb{H}(X)+\mathbb{H}(Y)> (20/\alpha) d[X;Y].\]
+\[\mathbb{H}(X)+\mathbb{H}(Y)> \frac{20}{\alpha} d[X;Y].\]
 There is a non-trivial subgroup $H\leq G$ such that
 \[\log \lvert H\rvert <\frac{1+\alpha}{2}(\mathbb{H}(X)+\mathbb{H}(Y))\] and
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))< \alpha (\mathbb{H}(X)+\mathbb{H}(Y))\]
@@ -93,11 +93,11 @@ and if $\psi:G \to G/H$ is the natural projection then
 \begin{proof}
 \uses{app-ent-pfr}\leanok
 Let $H\leq \mathbb{F}_2^d$ be a maximal subgroup such that
-\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))> (20/\alpha)d[\psi(X);\psi(Y)]\]
-and there exists some integer $k$ such that
-\[\log \lvert H\rvert \leq \frac{1+\alpha}{2(1-\alpha)}(1-\alpha^k)(\mathbb{H}(X)+\mathbb{H}(Y))\]
+\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))> \frac{20}{\alpha} d[\psi(X);\psi(Y)]\]
+and such that there exists $c \ge 0$ with
+\[\log \lvert H\rvert \leq \frac{1+\alpha}{2(1-\alpha)}(1-c)(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and
-\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq \alpha^k (\mathbb{H}(X)+\mathbb{H}(Y)).\]
+\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq c (\mathbb{H}(X)+\mathbb{H}(Y)).\]
 Note that this exists since $H=\{0\}$ is an example of such a subgroup or we are done with this choice of $H$.
 
 We know that $G/H$ is a $2$-elementary group and so by Lemma
@@ -105,23 +105,25 @@ We know that $G/H$ is a $2$-elementary group and so by Lemma
 that
 \[\log \lvert H'\rvert < \frac{1+\alpha}{2}(\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\]
 and
-\[\mathbb{H}(\psi'(X))+\mathbb{H}(\psi'(Y))< \alpha(\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y)))\]
-where $\psi':G/H\to (G/H)/H'$.
-By group isomorphism theorems we know that there exists
-some $H''$ with $H\leq H''\leq G$ such that $H'\cong H''/H$ and $\psi'(X)=\psi''(X)$ where $\psi'':G\to G/H''$ is the projection homomorphism.
+\[\mathbb{H}(\psi' \circ\psi(X))+\mathbb{H}(\psi' \circ \psi(Y))< \alpha(\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y)))\]
+where $\psi':G/H\to (G/H)/H'$. By group isomorphism theorems we know that
+there exists some $H''$ with $H\leq H''\leq G$ such that $H'\cong H''/H$ and
+$\psi' \circ \psi(X)=\psi''(X)$ where $\psi'':G\to G/H''$ is the projection
+homomorphism.
 
 Since $H'$ is non-trivial we know that $H$ is a proper subgroup of $H''$. On the other hand we know that
-\[\log \lvert H''\rvert=\log \lvert H'\rvert+\log \lvert H\rvert< \frac{1+\alpha}{2(1-\alpha)}(1-\alpha^{k+1})(\mathbb{H}(X)+\mathbb{H}(Y))\]
+\[\log \lvert H''\rvert=\log \lvert H'\rvert+\log \lvert H\rvert< \frac{1+\alpha}{2(1-\alpha)}(1-\alpha c)(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and
-\[\mathbb{H}(\psi''(X))+\mathbb{H}(\psi''(Y))< \alpha (\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y)))\leq \alpha^{k+1}(\mathbb{H}(X)+\mathbb{H}(Y)).\]
+\[\mathbb{H}(\psi''(X))+\mathbb{H}(\psi''(Y))< \alpha (\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y)))\leq \alpha c (\mathbb{H}(X)+\mathbb{H}(Y)).\]
 Therefore (using the maximality of $H$) it must be the first condition that fails, whence
-\[\mathbb{H}(\psi''(X))+\mathbb{H}(\psi''(Y))\leq \frac{20}{\alpha}d[\psi''(X);\psi''(Y)].\]
+\[\mathbb{H}(\psi''(X))+\mathbb{H}(\psi''(Y))\leq \frac{20}{\alpha}d[\psi''(X);\psi''(Y)].
+\qedhere\]
 \end{proof}
 
 We could use the previous lemma for any value of $\alpha \in (0,1)$, which
-would give a whole range of estimates in Theorem~\ref{weak-pfr-int} below.
-For definiteness, we specialize only to $\alpha=3/5$, which gives a constant
-$2$ in the first bound below.
+would give a whole range of estimates in Theorem~\ref{weak-pfr-int}. For
+definiteness, we specialize only to $\alpha=3/5$, which gives a constant $2$
+in the first bound below.
 
 \begin{lemma}\label{pfr-projection}\lean{PFR_projection}\leanok
 If $G=\mathbb{F}_2^d$ and $\alpha\in (0,1)$ and $X,Y$ are $G$-valued random

@@ -156,7 +156,7 @@ $\phi:G\to \mathbb{F}_2^d$ is a homomorphism then
 \[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
 lemma torsion_dist_shrinking {H : Type u} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
   (hY : Measurable Y) [AddCommGroup H] [ElementaryAddCommGroup H 2]
-  [Fintype H] [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H]
+  [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H]
   (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
   H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ'] := by
   have :=
@@ -252,23 +252,27 @@ lemma PFR_projection'
     ∃ H : AddSubgroup G, log (Nat.card H) ≤ (1 + α) / (2 * (1 - α)) * (H[X ; μ] + H[Y ; μ']) ∧
     α * (H[(QuotientAddGroup.mk' H) ∘ X ; μ] + H[(QuotientAddGroup.mk' H) ∘ Y ; μ']) ≤
       20 * d[(QuotientAddGroup.mk' H) ∘ X ; μ # (QuotientAddGroup.mk' H) ∘ Y ; μ'] := by
-  let S := { H : AddSubgroup G | (∃ (k : ℕ),
-      log (Nat.card H) ≤ (1 + α) / (2 * (1 - α)) * (1 - α ^ k) * (H[X; μ] + H[Y;μ']) ∧
-    H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ α^k * (H[X; μ] + H[Y;μ'])) ∧
-    α * (H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ']) >
-      20 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] }
+  let S := { H : AddSubgroup G | (∃ (c : ℝ), 0 ≤ c ∧
+      log (Nat.card H) ≤ (1 + α) / (2 * (1 - α)) * (1 - c) * (H[X; μ] + H[Y;μ']) ∧
+    H[(QuotientAddGroup.mk' H) ∘ X; μ] + H[(QuotientAddGroup.mk' H) ∘ Y; μ'] ≤
+      c * (H[X; μ] + H[Y;μ'])) ∧
+    20 * d[(QuotientAddGroup.mk' H) ∘ X ; μ # (QuotientAddGroup.mk' H) ∘ Y ; μ'] <
+      α * (H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ']) }
   have : 0 ≤ H[X ; μ] + H[Y ; μ'] := by linarith [entropy_nonneg X μ, entropy_nonneg Y μ']
   have : 0 < 1 - α := sub_pos.mpr αone
   by_cases hE : (⊥ : AddSubgroup G) ∈ S
   · classical
-    obtain ⟨H, ⟨⟨k, hlog, hup⟩, hent⟩, hMaxl⟩ := S.toFinite.exists_maximal_wrt id S (Set.nonempty_of_mem hE)
+    obtain ⟨H, ⟨⟨c, hc, hlog, hup⟩, hent⟩, hMaxl⟩ :=
+      S.toFinite.exists_maximal_wrt id S (Set.nonempty_of_mem hE)
     set ψ : G →+ G ⧸ H := QuotientAddGroup.mk' H
     have surj : Function.Surjective ψ := QuotientAddGroup.mk'_surjective H
 
     set G' := G ⧸ H
-    have : ElementaryAddCommGroup G' 2 := ElementaryAddCommGroup.quotient_group (by decide) (by simp [AddSubgroup.zero_mem])
+    have : ElementaryAddCommGroup G' 2 := ElementaryAddCommGroup.quotient_group (by decide)
+      (by simp [AddSubgroup.zero_mem])
 
-    obtain ⟨H', hlog', hup'⟩ := app_ent_PFR _ _ _ _ α hent ((measurable_discrete _).comp hX) ((measurable_discrete _).comp hY)
+    obtain ⟨H', hlog', hup'⟩ := app_ent_PFR _ _ _ _ α hent ((measurable_discrete _).comp hX)
+      ((measurable_discrete _).comp hY)
     have H_ne_bot: H' ≠ ⊥ := by
       by_contra!
       rcases this with rfl
@@ -284,65 +288,62 @@ lemma PFR_projection'
     set H' := H''.map ψ
 
     have Hlt : H < H'' := by
-      have : H = (⊥ : AddSubgroup G').comap ψ := by simp only [AddMonoidHom.comap_bot, QuotientAddGroup.ker_mk']
+      have : H = (⊥ : AddSubgroup G').comap ψ := by
+        simp only [AddMonoidHom.comap_bot, QuotientAddGroup.ker_mk']
       rw [this, AddSubgroup.comap_lt_comap_of_surjective surj]
       exact Ne.bot_lt H_ne_bot
-    have cardprod : Nat.card H'' = Nat.card H' * Nat.card H := by
-      have hcard₀ := Nat.card_congr <| (AddSubgroup.addSubgroupOfEquivOfLe Hlt.le).toEquiv
-      have hcard₁ := Nat.card_congr <| (QuotientAddGroup.quotientKerEquivRange (ψ.restrict H'')).toEquiv
-      have hcard₂ := AddSubgroup.card_eq_card_quotient_add_card_addSubgroup (H.addSubgroupOf H'')
-      rw [ψ.ker_restrict H'', QuotientAddGroup.ker_mk', ψ.restrict_range H''] at hcard₁
-      simpa only [← Nat.card_eq_fintype_card, hcard₀, hcard₁] using hcard₂
 
     let φ : G' ⧸ H' ≃+ G ⧸ H'' := QuotientAddGroup.quotientQuotientEquivQuotient H H'' Hlt.le
     set ψ' : G' →+ G' ⧸ H' := QuotientAddGroup.mk' H'
     set ψ'' : G →+ G ⧸ H'' := QuotientAddGroup.mk' H''
     have diag : ψ' ∘ ψ = φ.symm ∘ ψ'' := rfl
-    rw [← Function.comp.assoc, ← Function.comp.assoc, diag, Function.comp.assoc, Function.comp.assoc] at hup'
+    rw [← Function.comp.assoc, ← Function.comp.assoc, diag, Function.comp.assoc,
+        Function.comp.assoc] at hup'
 
-    have cond₁ : log (Nat.card H'') <
-        (1 + α) / (2 * (1 - α)) * (1 - α ^ (k + 1)) * (H[X; μ] + H[Y;μ']) := calc
-      log (Nat.card H'')
+    have cond : log (Nat.card H'') ≤
+        (1 + α) / (2 * (1 - α)) * (1 - α * c) * (H[X; μ] + H[Y;μ']) := by
+      have cardprod : Nat.card H'' = Nat.card H' * Nat.card H := by
+        have hcard₀ := Nat.card_congr <| (AddSubgroup.addSubgroupOfEquivOfLe Hlt.le).toEquiv
+        have hcard₁ := Nat.card_congr <|
+          (QuotientAddGroup.quotientKerEquivRange (ψ.restrict H'')).toEquiv
+        have hcard₂ := AddSubgroup.card_eq_card_quotient_add_card_addSubgroup (H.addSubgroupOf H'')
+        rw [ψ.ker_restrict H'', QuotientAddGroup.ker_mk', ψ.restrict_range H''] at hcard₁
+        simpa only [← Nat.card_eq_fintype_card, hcard₀, hcard₁] using hcard₂
+      calc
+          log (Nat.card H'')
       _ = log ((Nat.card H' : ℝ) * (Nat.card H : ℝ)) := by rw [cardprod]; norm_cast
       _ = log (Nat.card H') + log (Nat.card H) := by
         rw [Real.log_mul (Nat.cast_ne_zero.2 (@Nat.card_pos H').ne')
               (Nat.cast_ne_zero.2 (@Nat.card_pos H).ne')]
-      _ < (1 + α) / 2 * (H[⇑ψ ∘ X ; μ] + H[⇑ψ ∘ Y ; μ']) + log (Nat.card H) := by gcongr
-      _ ≤ (1 + α) / 2 * (α ^ k * (H[X; μ] + H[Y;μ'])) +
-            (1 + α) / (2 * (1 - α)) * (1 - α ^ k) * (H[X ; μ] + H[Y ; μ']) := by gcongr
-      _ = (1 + α) / (2 * (1 - α)) * (1 - α ^ (k + 1)) * (H[X; μ] + H[Y;μ']) := by
-        field_simp [pow_succ]; ring
+      _ ≤ (1 + α) / 2 * (H[⇑ψ ∘ X ; μ] + H[⇑ψ ∘ Y ; μ']) + log (Nat.card H) := by gcongr
+      _ ≤ (1 + α) / 2 * (c * (H[X; μ] + H[Y;μ'])) +
+            (1 + α) / (2 * (1 - α)) * (1 - c) * (H[X ; μ] + H[Y ; μ']) := by gcongr
+      _ = (1 + α) / (2 * (1 - α)) * (1 - α * c) * (H[X ; μ] + H[Y ; μ']) := by
+        field_simp; ring
 
-    have cond₁' : log (Nat.card H'') < (1 + α) / (2 * (1 - α)) * (H[X; μ] + H[Y;μ']) := calc
+    have HS : H'' ∉ S := λ Hs => Hlt.ne (hMaxl H'' Hs Hlt.le)
+    simp only [Set.mem_setOf_eq, not_and, not_lt] at HS
+    refine ⟨?_, HS ⟨α * c, by positivity, cond, ?_⟩⟩
+    · calc
       log (Nat.card H'')
-      _ < (1 + α) / (2 * (1 - α)) * (1 - α ^ (k + 1)) * (H[X; μ] + H[Y;μ']) := cond₁
-      _ ≤ (1 + α) / (2 * (1 - α)) * 1 * (H[X; μ] + H[Y;μ']) := by gcongr; simp [αpos.le]
+      _ ≤ (1 + α) / (2 * (1 - α)) * (1 - α * c) * (H[X; μ] + H[Y;μ']) := cond
+      _ ≤ (1 + α) / (2 * (1 - α)) * 1 * (H[X; μ] + H[Y;μ']) := by gcongr; simp; positivity
       _ = (1 + α) / (2 * (1 - α)) * (H[X; μ] + H[Y;μ']) := by simp only [mul_one]
-
-    have cond₂ : H[ ψ'' ∘ X; μ ] + H[ ψ'' ∘ Y; μ' ] ≤ α ^ (k + 1) * (H[X; μ] + H[Y;μ']) := calc
+    · calc
       H[ ψ'' ∘ X; μ ] + H[ ψ'' ∘ Y; μ' ]
       _ = H[ φ.symm ∘ ψ'' ∘ X; μ ] + H[ φ.symm ∘ ψ'' ∘ Y; μ' ] := by
         simp_rw [← entropy_comp_of_injective _ ((measurable_discrete _).comp hX) _ φ.symm.injective,
                  ← entropy_comp_of_injective _ ((measurable_discrete _).comp hY) _ φ.symm.injective]
       _ ≤ α * (H[ ψ ∘ X; μ ] + H[ ψ ∘ Y; μ' ]) := hup'.le
-      _ ≤ α * (α ^ k * (H[X ; μ] + H[Y ; μ'])) := by gcongr
-      _ = α ^ (k + 1) * (H[X; μ] + H[Y;μ']) := by simp [pow_succ]; ring
-
-    have HS : H'' ∉ S := λ Hs => Hlt.ne (hMaxl H'' Hs Hlt.le)
-    simp only [ge_iff_le, gt_iff_lt, Set.mem_setOf_eq, not_and, not_lt] at HS
-    exact ⟨cond₁'.le, HS ⟨k+1, cond₁.le, cond₂⟩⟩
+      _ ≤ α * (c * (H[X ; μ] + H[Y ; μ'])) := by gcongr
+      _ = (α * c) * (H[X ; μ] + H[Y ; μ']) := by ring
   · use ⊥
-    have : ElementaryAddCommGroup (G ⧸ ⊥) 2 :=
-      ElementaryAddCommGroup.quotient_group (by decide) (by simp [AddSubgroup.zero_mem])
     constructor
     · simp only [AddSubgroup.mem_bot, Nat.card_eq_fintype_card, Fintype.card_ofSubsingleton,
         Nat.cast_one, log_one]
       positivity
-    · simp only [ge_iff_le, gt_iff_lt, Set.mem_setOf_eq,
-        AddSubgroup.mem_bot, Nat.card_eq_fintype_card, Fintype.card_ofSubsingleton, Nat.cast_one,
-        log_one, sub_self, rpow_zero, one_mul, not_and, not_lt] at hE
-      apply hE
-      exact ⟨0, by norm_num, by
+    · simp only [Set.mem_setOf_eq, not_and, not_lt] at hE
+      exact hE ⟨1, by norm_num, by
         norm_num; exact add_le_add (entropy_comp_le μ hX _) (entropy_comp_le μ' hY _)⟩
 
 /-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is
@@ -552,6 +553,7 @@ lemma exists_coset_cover (A : Set G) :
   existsi FiniteDimensional.finrank ℤ (⊤ : Submodule ℤ G), ⊤, 0
   refine ⟨rfl, fun a _ ↦ trivial⟩
 
+/-- The dimension of the affine span over `ℤ` of a subset of an additive group. -/
 noncomputable def dimension (A : Set G) : ℕ := Nat.find (exists_coset_cover A)
 
 lemma dimension'_le_of_coset_cover (A : Set G) (S : Submodule ℤ G) (v : G)
@@ -901,7 +903,9 @@ def weak_PFR_asymm_conclusion (A B : Set G) : Prop :=
 /-- The property of two sets A,B of a group G not being contained in cosets of the same proper subgroup -/
 def not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) : Prop := AddSubgroup.closure ((A-A) ∪ (B-B)) = ⊤
 
-def is_shift {G: Type u} [AddCommGroup G] {H: AddSubgroup G} (A : Set G) (A' : Set H) : Prop := ∃ x, A = (A' : Set G) + {x}
+/-- The property of a set in a group being a translate of a subset of a subgroup. -/
+def is_shift {G: Type u} [AddCommGroup G] {H: AddSubgroup G} (A : Set G) (A' : Set H) : Prop :=
+  ∃ x, A = (A' : Set G) + {x}
 
 lemma sub_of_shift  {G: Type u} [AddCommGroup G] {H: AddSubgroup G} {A : Set G} {A' : Set H} (hA: is_shift A A') : A - A = (A' - A': Set H) := by
   rcases hA with ⟨ x, hA ⟩
@@ -994,8 +998,8 @@ lemma wlog_not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) [hA: Nonempty
   exact hK
 
 /-- In fact one has equality here, but this is tricker to prove and not needed for the argument. -/
-lemma dimension_of_shift {G: Type u} [AddCommGroup G]  [Module.Free ℤ G] [Module.Finite ℤ G]
-  {H: AddSubgroup G} [Module.Free ℤ H] [Module.Finite ℤ H] (A : Set H) (x : G) :
+lemma dimension_of_shift {G: Type u} [AddCommGroup G]
+  {H: AddSubgroup G} (A : Set H) (x : G) :
   dimension ((fun a:H ↦ (a:G) + x) '' A) ≤ dimension A := by
   classical
   rcases Nat.find_spec (exists_coset_cover A) with ⟨ S, v, hrank, hshift ⟩
@@ -1012,9 +1016,11 @@ lemma dimension_of_shift {G: Type u} [AddCommGroup G]  [Module.Free ℤ G] [Modu
   simp [<-hb']
   abel
 
-lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Nonempty B] (G': AddSubgroup G) [Module.Finite ℤ G'] [Module.Free ℤ G'] (A' B' : Set G') (hA: is_shift A A') (hB: is_shift B B') [Finite A'] [Finite B'] [Nonempty A'] [Nonempty B'] : weak_PFR_asymm_conclusion A' B' → weak_PFR_asymm_conclusion A B := by
-  intro this
-  rcases this with ⟨ A'', B'', hA'', hB'', hA''_non, hB''_non, hcard_ineq, hdim_ineq ⟩
+lemma conclusion_transfers {A B : Set G}
+    (G': AddSubgroup G) (A' B' : Set G')
+    (hA : is_shift A A') (hB : is_shift B B') [Finite A'] [Finite B'] [Nonempty A'] [Nonempty B']
+    (h : weak_PFR_asymm_conclusion A' B') : weak_PFR_asymm_conclusion A B := by
+  rcases h with ⟨A'', B'', hA'', hB'', hA''_non, hB''_non, hcard_ineq, hdim_ineq⟩
   rcases hA with ⟨ x, hA ⟩
   set f : G' → G := fun a ↦ (a:G) + x
   have hf : Function.Injective f := by
@@ -1065,8 +1071,7 @@ lemma conclusion_transfers {A B : Set G} [Finite A] [Finite B] [Nonempty A] [Non
   norm_cast
   apply max_le_max
   . exact dimension_of_shift A'' x
-  exact dimension_of_shift B'' y
-
+  · exact dimension_of_shift B'' y
 
 /-- If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 34 d[U_A;U_B]\]
@@ -1219,10 +1224,11 @@ There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-17}\lvert A\rve
 and $\dim A' \leq \frac{40}{\log 2} \log K$.-/
 theorem weak_PFR_int {A : Set G} [Finite A] [Nonempty A] {K : ℝ} (hK : 0 < K)
     (hA: Nat.card (A-A) ≤ K * Nat.card A) :
-    ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-17 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
+    ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-17 : ℝ) * (Nat.card A) ∧
+      dimension A' ≤ (40 / log 2) * log K := by
   apply weak_PFR hK ((rdist_set_le A A).trans _)
   suffices log (Nat.card (A-A)) ≤ log K + log (Nat.card A) by linarith
-  rw [<-log_mul (by positivity) _]
+  rw [← log_mul (by positivity) _]
   . apply log_le_log _ hA
     norm_cast
     have : Nonempty (A-A) := by
