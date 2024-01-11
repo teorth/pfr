@@ -175,7 +175,8 @@ section F2_projection
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G] {Ω Ω' : Type u}
+variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+[MeasurableSingletonClass G] {Ω Ω' : Type*}
 
 /-- Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> 44d[X;Y].\]
@@ -184,11 +185,11 @@ There is a non-trivial subgroup $H\leq G$ such that
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))< \frac{\mathbb{H}(X)+\mathbb{H}(Y)}{2}\]
 where $\psi:G\to G/H$ is the natural projection homomorphism.
 -/
-lemma app_ent_PFR' [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' → G) [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
-  (hent: H[X] + H[Y] > 44 * d[X # Y])
-  (hX : Measurable X) (hY : Measurable Y) :
+lemma app_ent_PFR' [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' → G)
+  [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
+  (hent : 40 * d[X # Y] < H[X] + H[Y]) (hX : Measurable X) (hY : Measurable Y) :
   ∃ H : AddSubgroup G, log (Nat.card H) < H[X] + H[Y] ∧
-  H[ (QuotientAddGroup.mk' H) ∘ X] + H[(QuotientAddGroup.mk' H) ∘ Y] < (H[X] + H[Y])/2 := by
+  H[(QuotientAddGroup.mk' H) ∘ X] + H[(QuotientAddGroup.mk' H) ∘ Y] < (H[X] + H[Y])/2 := by
   let p : refPackage Ω Ω' G := {
     X₀₁ := X
     X₀₂ := Y
@@ -197,68 +198,57 @@ lemma app_ent_PFR' [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' 
     η := 1/8
     hη := by norm_num
     hη' := by norm_num }
-  obtain ⟨H, Ω'', hΩ'', U, _, hUmeas, hUunif, _, ineq₁, ineq₂⟩ := entropic_PFR_conjecture_improv' p rfl
+  obtain ⟨H, Ω'', hΩ'', U, _, hUmeas, hUunif, ineq⟩ := entropic_PFR_conjecture_improv p rfl
   let ψ := (QuotientAddGroup.mk' H)
   use H
   haveI : Finite H := Subtype.finite
-  -- Note that  H[ψ ∘ X] ≤ 11*d[X # Y]
-  have ent_le₁ : H[ψ ∘ X] ≤ 11*d[X # Y] :=
-    calc H[ψ ∘ X] ≤ 2 * d[X # U] := ent_of_proj_le hX hUmeas hUunif
-      _ ≤ 2 * (11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₁
-      _ = 11*d[X # Y] := by ring
-  -- similarly H[ψ ∘ Y] ≤ 11*d[X # Y]
-  have ent_le₂ : H[ψ ∘ Y] ≤ 11*d[X # Y] :=
-    calc H[ψ ∘ Y] ≤ 2 * d[Y # U] := ent_of_proj_le hY hUmeas hUunif
-      _ ≤ 2 * (11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₂
-      _ = 11*d[X # Y] := by ring
-  -- Note that log (Nat.card H) - H[X] ≤ 11 * d[X # Y]
-  have log_sub_le₁ : log (Nat.card H) - H[X] ≤ 11 * d[X # Y] :=
-    calc log (Nat.card H) - H[X] = H[U] - H[X] := by rw [IsUniform.entropy_eq' hUunif hUmeas, SetLike.coe_sort_coe]
-      _ ≤ |(H[U] - H[X])| := le_abs_self _
-      _ ≤ 2*d[X # U] := by rw [rdist_symm] ; apply diff_ent_le_rdist hUmeas hX
-      _ ≤ 2*(11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₁
-      _ = 11 * d[X # Y] := by ring
-  -- and similarly for Y
-  have log_sub_le₂ : log (Nat.card H) - H[Y] ≤ 11 * d[X # Y] :=
-    calc log (Nat.card H) - H[Y] = H[U] - H[Y] :=  by rw [IsUniform.entropy_eq' hUunif hUmeas, SetLike.coe_sort_coe]
-      _ ≤ |(H[U] - H[Y])| := le_abs_self _
-      _ ≤ 2*d[Y # U] := by rw [rdist_symm] ; apply diff_ent_le_rdist hUmeas hY
-      _ ≤ 2*(11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₂
-      _ = 11 * d[X # Y] := by ring
-  rw [sub_le_iff_le_add'] at log_sub_le₁ log_sub_le₂
-  -- the first half of the claim follows from adding the two previous inequlities and the assumption that H[X] + H[Y] > 44 * d[X # Y]
-  have log_lt :=
-    calc log (Nat.card H) = 1/2 * (log (Nat.card H) + log (Nat.card H)) := by ring
-      _ ≤ 1/2 * ((H[X] + 11*d[X # Y]) + (H[Y] + 11*d[X # Y])) := by
-        apply (mul_le_mul_left _).mpr (add_le_add log_sub_le₁ log_sub_le₂)
-        norm_num
-      _ = (H[X] + H[Y])/2 + 11*d[X # Y] := by ring
-      _ < (H[X] + H[Y])/2 + 11/44 * (H[X] + H[Y]) := by
-        apply add_lt_add_left
-        rwa [div_eq_mul_inv, mul_assoc, mul_lt_mul_left, ←div_eq_inv_mul, lt_div_iff, mul_comm]
-        all_goals norm_num
-      _ < H[X] + H[Y] := by
-        rw [div_eq_inv_mul, ←add_mul, mul_lt_iff_lt_one_left]
-        norm_num
-        apply lt_of_le_of_lt (mul_nonneg (by norm_num) (rdist_nonneg hX hY)) hent
-  refine ⟨log_lt, ?_⟩
-  -- the second claim follows from adding the inequalities ent_le₁ and ent_le₂, plus a bit of algebra and the assumption on H[X] + H[Y]
-  calc H[ψ ∘ X] + H[ψ ∘ Y] ≤ 11*d[X # Y] + 11*d[X # Y] := add_le_add ent_le₁ ent_le₂
-    _ = (44 * d[X # Y])/2 := by ring
-    _ < (H[X] + H[Y])/2 := by rwa [div_lt_div_right two_pos]
+  -- Note that  H[ψ ∘ X] + H[ψ ∘ Y] ≤ 20 * d[X # Y]
+  have ent_le : H[ψ ∘ X] + H[ψ ∘ Y] ≤ 20 * d[X # Y] := calc
+    H[ψ ∘ X] + H[ψ ∘ Y] ≤ 2 * d[X # U] + 2 * d[Y # U] := by
+      gcongr
+      · exact ent_of_proj_le hX hUmeas hUunif
+      · exact ent_of_proj_le hY hUmeas hUunif
+    _ = 2 * (d[X # U] + d[Y # U]) := by ring
+    _ ≤ 2 * (10 * d[X # Y]) := by gcongr
+    _ = 20 * d[X # Y] := by ring
+  -- Note that (log (Nat.card H) - H[X]) + (log (Nat.card H) - H[Y]) ≤ 20 * d[X # Y]
+  have log_sub_le : (log (Nat.card H) - H[X]) + (log (Nat.card H) - H[Y]) ≤ 20 * d[X # Y] := calc
+    (log (Nat.card H) - H[X]) + (log (Nat.card H) - H[Y]) =
+      (H[U] - H[X]) + (H[U] - H[Y]) := by
+        rw [IsUniform.entropy_eq' hUunif hUmeas, SetLike.coe_sort_coe]
+    _ ≤ |(H[U] - H[X])| + |(H[U] - H[Y])| := by gcongr <;> exact le_abs_self _
+    _ ≤ 2 * d[X # U] + 2 * d[Y # U] := by
+      gcongr
+      · rw [rdist_symm]; exact diff_ent_le_rdist hUmeas hX
+      · rw [rdist_symm]; exact diff_ent_le_rdist hUmeas hY
+    _ = 2 * (d[X # U] + d[Y # U]) := by ring
+    _ ≤ 2 * (10 * d[X # Y]) := by gcongr
+    _ = 20 * d[X # Y] := by ring
+  -- then the conclusion follows frpm the assumption `hent` and basic inequality manipulations
+  exact ⟨by linarith [entropy_nonneg X ℙ, entropy_nonneg Y ℙ], by linarith⟩
 
-variable [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G) (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+variable [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
+(μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
+[IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
-lemma app_ent_PFR (hent: H[ X; μ] + H[Y; μ'] > 44 * d[X;μ # Y;μ']) (hX : Measurable X) (hY : Measurable Y) : ∃ H : AddSubgroup G, log (Nat.card H) < H[X; μ] + H[Y;μ'] ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] < (H[ X; μ] + H[Y; μ'])/2 := @app_ent_PFR' _ _ _ _ _ _ _ _ (MeasureSpace.mk μ) (MeasureSpace.mk μ') _ _ _ _ hent hX hY
+lemma app_ent_PFR (hent: H[X; μ] + H[Y; μ'] > 40 * d[X;μ # Y;μ']) (hX : Measurable X)
+    (hY : Measurable Y) :
+    ∃ H : AddSubgroup G, log (Nat.card H) < H[X; μ] + H[Y;μ'] ∧
+    H[(QuotientAddGroup.mk' H) ∘ X; μ] + H[(QuotientAddGroup.mk' H) ∘ Y; μ']
+      < (H[ X; μ] + H[Y; μ']) / 2 :=
+  @app_ent_PFR' _ _ _ _ _ _ _ _ (MeasureSpace.mk μ) (MeasureSpace.mk μ') _ _ _ _ hent hX hY
 
 /-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
-\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 44 d[\psi(X);\psi(Y)].\] -/
-lemma PFR_projection (hX : Measurable X) (hY : Measurable Y) : ∃ H : AddSubgroup G, log (Nat.card H) ≤ 2 * (H[X; μ] + H[Y;μ']) ∧ H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ 44 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] := by
+\[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 40 d[\psi(X);\psi(Y)].\] -/
+lemma PFR_projection (hX : Measurable X) (hY : Measurable Y) :
+    ∃ H : AddSubgroup G, log (Nat.card H) ≤ 2 * (H[X; μ] + H[Y;μ']) ∧
+    H[(QuotientAddGroup.mk' H) ∘ X; μ] + H[(QuotientAddGroup.mk' H) ∘ Y; μ'] ≤
+      40 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] := by
   let S := { H : AddSubgroup G | (∃ (k : ℝ),  log (Nat.card H) ≤ (2 - 2 ^ (2 - k)) * (H[X; μ] + H[Y;μ']) ∧
     H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] ≤ (2 ^ (1 - k)) * (H[X; μ] + H[Y;μ'])) ∧
-    H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] > 44 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] }
+    H[ (QuotientAddGroup.mk' H) ∘ X; μ ] + H[ (QuotientAddGroup.mk' H) ∘ Y; μ' ] > 40 * d[(QuotientAddGroup.mk' H) ∘ X;μ # (QuotientAddGroup.mk' H) ∘ Y;μ'] }
   have : 0 ≤ H[X ; μ] + H[Y ; μ'] := by linarith [entropy_nonneg X μ, entropy_nonneg Y μ']
   by_cases hE : (⊥ : AddSubgroup G) ∈ S
   · classical
@@ -701,7 +691,13 @@ $$ \log \frac{|A| |B|}{|A_x| |B_y|} ≤ 44 (d[U_A; U_B] - d[U_{A_x}; U_{B_y}])$$
 and one has the dimension bound
 $$ n \log 2 ≤ \log |G/N| + 40 d[U_A; U_B].$$
  -/
-lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A] [hnB: Nonempty B]: ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G), Nonempty Ax ∧ Nonempty By ∧ Set.Finite Ax ∧ Set.Finite By ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧ By = {z:G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧ (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) + 40 * dᵤ[ A # B ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By) ≤ 44 * (dᵤ[ A # B ] - dᵤ[ Ax # By ]) := by
+lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA : Nonempty A] [hnB : Nonempty B]:
+    ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G), Nonempty Ax ∧ Nonempty By ∧
+    Set.Finite Ax ∧ Set.Finite By ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧
+    By = {z:G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧
+    (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) +
+      40 * dᵤ[ A # B ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By)
+      ≤ 40 * (dᵤ[ A # B ] - dᵤ[ Ax # By ]) := by
   obtain ⟨ h_elem, h_finite, h_card ⟩ := weak_PFR_quotient_prelim (G := G)
   set ψ : G →+ G := zsmulAddGroupHom 2
   set G₂ := AddMonoidHom.range ψ
@@ -752,12 +748,12 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A
   use N, x, y, Ax, By
   refine ⟨ hnAx, hnBy, Ax.toFinite, By.toFinite, hAx, hBy, h_card, ?_ ⟩
 
-  replace hH2 : H[φ'.toFun ∘ UA] + H[φ'.toFun ∘ UB] ≤ 44 * d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] := by
+  replace hH2 : H[φ'.toFun ∘ UA] + H[φ'.toFun ∘ UB] ≤ 40 * d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] := by
     set X := ((mk' H').toFun ∘ φ.toFun) ∘ UA
     set Y := ((mk' H').toFun ∘ φ.toFun) ∘ UB
     have hX : Measurable X := Measurable.comp (measurable_discrete _) hUA_mes
     have hY : Measurable Y := Measurable.comp (measurable_discrete _) hUB_mes
-    change H[X] + H[Y] ≤ 44 * d[X # Y] at hH2
+    change H[X] + H[Y] ≤ 40 * d[X # Y] at hH2
 
     have ha : φ'.toFun ∘ UA = e.toFun ∘ X := by ext x; exact (he (UA x)).symm
     have hb : φ'.toFun ∘ UB = e.toFun ∘ Y := by ext x; exact (he (UB x)).symm
@@ -838,7 +834,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A
       convert (four_logs ?_ ?_ ?_ ?_).symm
       all_goals norm_cast; exact Nat.card_pos
     _ ≤ (H[φ'.toFun ∘ UA] + H[φ'.toFun ∘ UB]) * (d[UA # UB] - dᵤ[Ax # By]) := hcard_ineq
-    _ ≤ (44 * d[φ'.toFun ∘ UA # φ'.toFun ∘ UB]) * (d[UA # UB] - dᵤ[Ax # By]) := by
+    _ ≤ (40 * d[φ'.toFun ∘ UA # φ'.toFun ∘ UB]) * (d[UA # UB] - dᵤ[Ax # By]) := by
       apply mul_le_mul_of_nonneg_right hH2
       have := rdist_le_avg_ent (Measurable.comp (measurable_discrete φ'.toFun) hUA_mes) (Measurable.comp (measurable_discrete φ'.toFun) hUB_mes)
       replace this : 0 < H[φ'.toFun ∘ UA] + H[φ'.toFun ∘ UB] := by linarith
@@ -858,12 +854,15 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] [hnA: Nonempty A
       rw [hBy]; exact Set.inter_subset_left _ _
       norm_cast
       exact mul_pos Nat.card_pos Nat.card_pos
-    _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (44 * (d[UA # UB] - dᵤ[Ax # By])) := by ring
-    _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (44 * (dᵤ[A # B] - dᵤ[Ax # By])) := by rw [<- rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes]
+    _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (40 * (d[UA # UB] - dᵤ[Ax # By])) := by ring
+    _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (40 * (dᵤ[A # B] - dᵤ[Ax # By])) := by rw [<- rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes]
   exact (mul_le_mul_left h).mp this
 
-/-- Separting out the conclusion of `weak_PFR_asymm` for convenience of induction arguments.-/
-def weak_PFR_asymm_conclusion (A B : Set G) : Prop := ∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ Nonempty A' ∧ Nonempty B' ∧ log (((Nat.card A) * (Nat.card B)) / ((Nat.card A') * (Nat.card B'))) ≤ 44 * dᵤ[A # B] ∧ max (dimension A') (dimension B') ≤ (40 / log 2) * dᵤ[A # B]
+/-- Separating out the conclusion of `weak_PFR_asymm` for convenience of induction arguments.-/
+def weak_PFR_asymm_conclusion (A B : Set G) : Prop :=
+  ∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ Nonempty A' ∧ Nonempty B' ∧
+  log (((Nat.card A) * (Nat.card B)) / ((Nat.card A') * (Nat.card B'))) ≤ 40 * dᵤ[A # B] ∧
+  max (dimension A') (dimension B') ≤ (40 / log 2) * dᵤ[A # B]
 
 /-- The property of two sets A,B of a group G not being contained in cosets of the same proper subgroup -/
 def not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) : Prop := AddSubgroup.closure ((A-A) ∪ (B-B)) = ⊤
@@ -1128,9 +1127,11 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] [Nonempty A] [Nonempty 
   exact ⟨ dimension_le_rank A, dimension_le_rank B ⟩
 
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
-$\lvert A'\rvert\geq K^{-22}\lvert A\rvert$
+$\lvert A'\rvert\geq K^{-20}\lvert A\rvert$
 and $\dim A'\leq \frac{40}{\log 2} \log K$. -/
-lemma weak_PFR {A : Set G} [Finite A]  [Nonempty A]  {K : ℝ} (hK: 0 < K) (hdist: dᵤ[A # A] ≤ log K): ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
+lemma weak_PFR {A : Set G} [Finite A]  [Nonempty A]  {K : ℝ} (hK: 0 < K) (hdist: dᵤ[A # A] ≤ log K):
+    ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-20 : ℝ) * (Nat.card A)
+    ∧ (dimension A') ≤ (40 / log 2) * log K := by
   rcases weak_PFR_asymm A A with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
 
   have : ∃ B : Set G, B ⊆ A ∧ (Nat.card B) ≥ (Nat.card A') ∧ (Nat.card B) ≥ (Nat.card A'') ∧ (dimension B) ≤
@@ -1164,24 +1165,27 @@ max (dimension A') (dimension A'') := by
         apply log_le_log
         . positivity
         gcongr
-      _ ≤ 44 * dᵤ[A # A] := hcard
-      _ ≤ 44 * log K := mul_le_mul_of_nonneg_left hdist (by linarith)
-      _ = 2 * (22 * log K) := by ring
-      _ = 2 * log (K^22) := by
+      _ ≤ 40 * dᵤ[A # A] := hcard
+      _ ≤ 40 * log K := mul_le_mul_of_nonneg_left hdist (by linarith)
+      _ = 2 * (20 * log K) := by ring
+      _ = 2 * log (K^20) := by
         congr
-        convert (log_pow K 22).symm
+        convert (log_pow K 20).symm
     rw [mul_le_mul_left (by norm_num), log_le_log_iff (by positivity) (by positivity), div_le_iff (by positivity), <- mul_inv_le_iff (by positivity), <-ge_iff_le, mul_comm] at this
     convert this using 2
-    convert zpow_neg K 22 using 1
+    convert zpow_neg K 20 using 1
     norm_cast
   calc ((dimension B) : ℝ)
     _ ≤ (((max (dimension A') (dimension A'')):ℕ):ℝ) := by norm_cast
     _ ≤ (40 / log 2) * dᵤ[A # A] := hdim
     _ ≤ (40 / log 2) * log K := mul_le_mul_of_nonneg_left hdist (by positivity)
 
-
-/-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A-A\rvert\leq K\lvert A\rvert$. There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-22}\lvert A\rvert$ and $\dim A' \leq \frac{40}{\log 2} \log K$.-/
-theorem weak_PFR_int {A : Set G} [Finite A]  [Nonempty A] {K : ℝ} (hK: 0 < K) (hA: Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-22 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
+/-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A-A\rvert\leq K\lvert A\rvert$.
+There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-20}\lvert A\rvert$
+and $\dim A' \leq \frac{40}{\log 2} \log K$.-/
+theorem weak_PFR_int {A : Set G} [Finite A] [Nonempty A] {K : ℝ} (hK : 0 < K)
+    (hA: Nat.card (A-A) ≤ K * Nat.card A) :
+    ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-20 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40 / log 2) * log K := by
   apply weak_PFR hK ((rdist_set_le A A).trans _)
   suffices log (Nat.card (A-A)) ≤ log K + log (Nat.card A) by linarith
   rw [<-log_mul (by positivity) _]
