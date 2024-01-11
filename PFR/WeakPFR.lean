@@ -224,7 +224,7 @@ lemma app_ent_PFR' [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' 
     _ = 2 * (d[X # U] + d[Y # U]) := by ring
     _ ≤ 2 * (10 * d[X # Y]) := by gcongr
     _ = 20 * d[X # Y] := by ring
-  -- then the conclusion follows frpm the assumption `hent` and basic inequality manipulations
+  -- then the conclusion follows from the assumption `hent` and basic inequality manipulations
   exact ⟨by linarith [entropy_nonneg X ℙ, entropy_nonneg Y ℙ], by linarith⟩
 
 variable [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
