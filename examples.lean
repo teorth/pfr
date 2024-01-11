@@ -51,7 +51,7 @@ example {G : Type*} [AddCommGroup G] (A : Set G) (d:ℕ) (h: d < dimension A): �
 variable  {G : Type u} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G]  [MeasurableSpace G] [MeasurableSingletonClass G]
 
 /-- Weak PFR over the integers -/
-example (A : Set G) [Finite A]  [Nonempty A] (K : ℝ) (hK: 0 < K) (hA: Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-20 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (34/log 2) * log K := weak_PFR_int hK hA
+example (A : Set G) [Finite A]  [Nonempty A] (K : ℝ) (hK: 0 < K) (hA: Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-17 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40/log 2) * log K := weak_PFR_int hK hA
 
 end PFR
 
