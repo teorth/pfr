@@ -114,8 +114,8 @@ lemma condEntropy_mul_right (hX : Measurable X) (hY : Measurable Y) :
     H[X * Y | Y ; μ] = H[X | Y ; μ] :=
   condEntropy_of_injective μ hX hY (fun y x ↦ x * y) mul_left_injective
 
-/-- $$H[X / Y | Y] = H[X | Y]$$ -/
-@[to_additive "$$H[X - Y | Y] = H[X | Y]$$"]
+/-- $$H[Y / X | Y] = H[X | Y]$$ -/
+@[to_additive "$$H[Y - X | Y] = H[X | Y]$$"]
 lemma condEntropy_div_left (hX : Measurable X) (hY : Measurable Y) :
     H[Y / X | Y ; μ] = H[X | Y ; μ] :=
   condEntropy_of_injective μ hX hY (fun y x ↦ y / x) fun _ ↦ div_right_injective

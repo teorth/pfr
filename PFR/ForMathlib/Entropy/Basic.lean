@@ -906,6 +906,22 @@ lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
     all_goals measurability
   exact kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ _)
 
+/-- Data-processing inequality for the conditional entropy:
+$$ H[Y|f(X)] \geq H[Y|X]$$
+To upgrade this to equality, see `condEntropy_of_injective'` -/
+lemma condEntropy_comp_ge [FiniteRange X] [FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ]
+    (hX : Measurable X) (hY : Measurable Y) (f : S → U) : H[Y | f ∘ X ; μ] ≥ H[Y | X; μ] := by
+  have h_joint : H[⟨Y, ⟨X, f ∘ X⟩⟩ ; μ] = H[⟨Y, X⟩ ; μ] := by
+    let g : T × S → T × S × U := fun (y, x) ↦ (y, (x, f x))
+    show H[g ∘ ⟨Y, X⟩ ; μ] = H[⟨Y, X⟩ ; μ]
+    refine entropy_comp_of_injective μ (by exact Measurable.prod hY hX) g (fun _ _ h => ?_)
+    repeat rewrite [Prod.mk.injEq] at h
+    exact Prod.ext h.1 h.2.1
+  have hZ : Measurable (f ∘ X) := (measurable_of_countable _).comp hX
+  rewrite [chain_rule'' μ hY hX, ← entropy_prod_comp hX μ f, ← h_joint,
+    ← chain_rule'' μ hY (Measurable.prod (by exact hX) (by exact hZ))]
+  exact entropy_submodular μ hY hX hZ
+
 /-- The submodularity inequality:
 $$ H[X, Y, Z] + H[Z] \leq H[X, Z] + H[Y, Z].$$ -/
 lemma entropy_triple_add_entropy_le (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :

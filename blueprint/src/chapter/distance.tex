@@ -3,7 +3,7 @@
 In this section $G$ will be a finite additive group.  (May eventually want to generalize to infinite $G$.)
 
 \begin{lemma}[Negation preserves entropy]\label{neg-ent}
-  \lean{entropy_neg}\leanok
+  \lean{ProbabilityTheory.entropy_neg}\leanok
   If $X$ is $G$-valued, then $\bbH[-X]=\bbH[X]$.
 \end{lemma}
 
@@ -12,7 +12,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 \end{proof}
 
 \begin{lemma}[Shearing preserves entropy]\label{shear-ent}
-  \lean{condEntropy_add_right, condEntropy_of_diff_eq,entropy_of_shear_eq,entropy_of_shear_eq'}\leanok
+  \lean{ProbabilityTheory.condEntropy_add_right, ProbabilityTheory.condEntropy_add_left, ProbabilityTheory.condEntropy_sub_right, ProbabilityTheory.condEntropy_sub_left}\leanok
   If $X,Y$ are $G$-valued, then $\bbH[X \pm Y | Y]=\bbH[X|Y]$ and $\bbH[X \pm Y, Y] = \bbH[X, Y]$.
 \end{lemma}
 
@@ -21,7 +21,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 \end{proof}
 
 \begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}
-  \lean{max_entropy_sub_mutualInfo_le_entropy_add,max_entropy_sub_mutualInfo_le_entropy_sub}\leanok
+  \lean{ProbabilityTheory.max_entropy_sub_mutualInfo_le_entropy_add, ProbabilityTheory.max_entropy_sub_mutualInfo_le_entropy_sub}\leanok
   If $X,Y$ are $G$-valued random variables on $\Omega$, we have
 $$ \max(\bbH[X], \bbH[Y]) -  \bbI[X:Y] \leq \bbH[X \pm Y].$$
 \end{lemma}
@@ -36,7 +36,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 
 \begin{corollary}[Conditional lower bound on sumset]\label{sumset-lower-gen-cond}
   \uses{conditional-mutual-def}
-  \lean{max_condEntropy_sub_condMutualInfo_le_condEntropy_mul, max_condEntropy_sub_condMutualInfo_le_condEntropy_div}\leanok
+  \lean{ProbabilityTheory.max_condEntropy_sub_condMutualInfo_le_condEntropy_mul, ProbabilityTheory.max_condEntropy_sub_condMutualInfo_le_condEntropy_div}\leanok
   If $X,Y$ are $G$-valued random variables on $\Omega$ and $Z$ is another random variable on $\Omega$ then
 \[
   \max(\bbH[X|Z], \bbH[Y|Z]) -  \bbI[X:Y|Z] \leq \bbH[X\pm Y|Z],
@@ -159,13 +159,19 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X ;Y].$$
 
 
 \begin{lemma}[Projection entropy and distance]\label{dist-projection}\lean{ent_of_proj_le}\leanok
-If $G$ is an additive group and $X$ is a $G$-valued random variable and $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphism we have (if $U_H$ is the  uniform distribution on $H$, independent of $X$)
+If $G$ is an additive group and $X$ is a $G$-valued random variable and $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphism we have (where $U_H$ is uniform on $H$)
 \[\mathbb{H}(\pi(X))\leq 2d[X;U_H].\]
 \end{lemma}
 \begin{proof}
-\uses{ruzsa-diff}
-We have
-\[\mathbb{H}(X+U_H)=\mathbb{H}(\pi(X))+\mathbb{H}(U_H)\]
+\uses{independent-exist, ruzsa-diff, chain-rule, shear-ent, submodularity, jensen-bound}\leanok
+WLOG, we make $X$, $U_H$ independent (Lemma \ref{independent-exist}).
+Now by Lemmas \ref{submodularity}, \ref{shear-ent}, \ref{jensen-bound}
+\begin{align*}
+&\mathbb{H}(X-U_H|\pi(X)) \geq \mathbb{H}(X-U_H|X) &= \mathbb{H}(U_H) \\
+&\mathbb{H}(X-U_H|\pi(X)) \leq \log |H| &= \mathbb{H}(U_H)
+\end{align*}
+By Lemma \ref{chain-rule}
+\[\mathbb{H}(X-U_H)=\mathbb{H}(\pi(X))+\mathbb{H}(X-U_H|\pi(X))=\mathbb{H}(\pi(X))+\mathbb{H}(U_H)\]
 and therefore
 \[d[X;U_H]=\mathbb{H}(\pi(X))+\frac{\mathbb{H}(U_H)-\mathbb{H}(X)}{2}.\]
 Furthermore by Lemma \ref{ruzsa-diff}

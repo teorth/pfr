@@ -425,7 +425,7 @@ Moreover, from Definition \ref{eta-def} we have $8 \eta + \eta^2 < 1$. It follow
   Furthermore, both $d[X^0_1;U_H]$ and $d[X^0_2;U_H]$ are at most $6 d[X^0_1;X^0_2]$.
 \end{theorem}
 
-\begin{proof} \uses{de-prop, tau-min, lem:100pc, ruzsa-triangle} \leanok  Let $X_1, X_2$ be the $\tau$-minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop}, $d[X_1;X_2]=0$.  From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_1;X^0_2]$.  Using this and the Ruzsa triangle inequality we can conclude.
+\begin{proof} \uses{de-prop, tau-min, lem:100pc, ruzsa-triangle} \leanok  Let $X_1, X_2$ be the $\tau$-minimizer from Lemma \ref{tau-min}.  From Theorem \ref{de-prop}, $d[X_1;X_2]=0$.  From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_2;X^0_1]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}
 
 Note: a ``stretch goal'' for this project would be to obtain a `decidable` analogue of this result (see the remark at the end of Section 2 for some related discussion).
