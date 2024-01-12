@@ -972,7 +972,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     rw [add_sub_assoc]
     apply add_subset_add_left
     apply (sub_subset_sub (inter_subset_right _ _) (inter_subset_right _ _)).trans
-    rintro - ⟨-, -, ⟨y, xy, hy, hxy, rfl⟩, ⟨z, xz, hz, hxz, rfl⟩, rfl⟩
+    rintro - ⟨-, ⟨y, hy, xy, hxy, rfl⟩, -, ⟨z, hz, xz, hxz, rfl⟩, rfl⟩
     simp only [mem_singleton_iff] at hxy hxz
     simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
