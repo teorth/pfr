@@ -7,6 +7,7 @@ namespace Set
 
 variable {G G' : Type*}
 
+-- TODO: maybe `Function.graph` for dot notation?
 def graph (f : G → G') : Set (G×G') := {(x, f x) | x : G}
 
 lemma graph_def (f : G → G') : graph f = {(x, f x) | x : G} := rfl
@@ -22,6 +23,9 @@ lemma mem_graph {f : G → G'} (x : G × G') : x ∈ graph f ↔ f x.1 = x.2 := 
   · rintro ⟨_, rfl⟩; rfl
   · refine fun h ↦ ⟨x.1, ?_⟩
     rw [h]
+
+lemma fst_injOn_graph (f : G → G') : (graph f).InjOn Prod.fst := fun x hx y hy h ↦
+  Prod.ext h <| ((mem_graph x).mp hx).symm.trans <| (congr_arg f h).trans <| (mem_graph y).mp hy
 
 @[simp]
 lemma image_fst_graph {f : G → G'} : Prod.fst '' (graph f) = Set.univ := by
