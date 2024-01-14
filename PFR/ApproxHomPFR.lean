@@ -232,13 +232,12 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
         Set.InjOn.mono (Set.Finite.subset_toFinset.mp hA') (Set.fst_injOn_graph f))
     have h_proj_c : Prod.fst '' (c + H : Set (G × G')) = (Prod.fst '' c) + H₀ := by
       ext x ; constructor <;> intro hx
-      · obtain ⟨x, ⟨⟨c, h, hc, hh, hch⟩, hx⟩⟩ := hx
+      · obtain ⟨x, ⟨⟨c, hc, h, hh, hch⟩, hx⟩⟩ := hx
         rewrite [← hx]
-        use c.1, h.1
-        exact ⟨Set.mem_image_of_mem Prod.fst hc, ((hH₀H₁ h).mp hh).1, (Prod.ext_iff.mp hch).1⟩
-      · obtain ⟨_, h, ⟨c, hc⟩, hh, hch⟩ := hx
-        refine ⟨c + Prod.mk h (φ h), ⟨⟨c, Prod.mk h (φ h), ?_⟩,  by rwa [← hc.2] at hch⟩⟩
-        exact ⟨hc.1, (hH₀H₁ ⟨h, φ h⟩).mpr ⟨hh, by rw [sub_self]; apply zero_mem⟩, rfl⟩
+        exact ⟨c.1, Set.mem_image_of_mem Prod.fst hc, h.1, ((hH₀H₁ h).mp hh).1, (Prod.ext_iff.mp hch).1⟩
+      · obtain ⟨_, ⟨c, hc⟩, h, hh, hch⟩ := hx
+        refine ⟨c + Prod.mk h (φ h), ⟨⟨c, hc.1, Prod.mk h (φ h), ?_⟩, by rwa [← hc.2] at hch⟩⟩
+        exact ⟨(hH₀H₁ ⟨h, φ h⟩).mpr ⟨hh, by rw [sub_self]; apply zero_mem⟩, rfl⟩
     rewrite [← h_proj_A'', h_proj_c] at h_le
     apply (h_le.trans Set.card_add_le).trans
     gcongr
@@ -264,7 +263,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
   have h_translate (c : G × G') (h : G') :
       Prod.fst '' translate c h ⊆ { x : G | f x = φ x + (-φ c.1 + c.2 + h) } := by
     intro x hx
-    obtain ⟨x, ⟨⟨hxA'', ⟨_, x', ⟨c', h', hc, hh, hch⟩, hx, hchx⟩⟩, hxx⟩⟩ := hx
+    obtain ⟨x, ⟨⟨hxA'', ⟨_, ⟨c', hc, h', hh, hch⟩, x', hx, hchx⟩⟩, hxx⟩⟩ := hx
     show f _ = φ _ + (-φ c.1 + c.2 + h)
     replace := (Set.mem_graph x).mp <| (Set.graph f).toFinite.mem_toFinset.mp (hA' hxA'')
     rewrite [← hxx, this, ← hchx, ← hch, hc, hh]
@@ -279,17 +278,17 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
   let cH₁ := (c ×ˢ H₁).toFinite.toFinset
   haveI A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
   replace : Nonempty c := by
-    obtain ⟨c, _, hc, _, _⟩ := hH_cover (Classical.choice A_nonempty).property
+    obtain ⟨c, hc, _, _, _⟩ := hH_cover (Classical.choice A_nonempty).property
     exact ⟨c, hc⟩
   replace h_nonempty : Set.Nonempty (c ×ˢ H₁) :=
     Set.Nonempty.prod (Set.nonempty_coe_sort.mp this) (Set.nonempty_coe_sort.mp inferInstance)
   replace : A' = Finset.biUnion cH₁ fun ch ↦ (translate ch.1 ch.2).toFinite.toFinset := by
     ext x ; constructor <;> intro hx
-    · obtain ⟨c', h, hc, hh, hch⟩ := hH_cover hx
+    · obtain ⟨c', hc, h, hh, hch⟩ := hH_cover hx
       refine Finset.mem_biUnion.mpr ⟨(c', h.2 - φ h.1), ?_⟩
       refine ⟨(Set.Finite.mem_toFinset _).mpr ⟨hc, ((hH₀H₁ h).mp hh).2⟩, ?_⟩
-      refine (Set.Finite.mem_toFinset _).mpr ⟨hx, ⟨c' + (0, h.2 - φ h.1), (h.1, φ h.1), ?_⟩⟩
-      refine ⟨⟨c', (0, h.2 - φ h.1), rfl, rfl, rfl⟩, ⟨⟨h.1, rfl⟩, ?_⟩⟩
+      refine (Set.Finite.mem_toFinset _).mpr ⟨hx, c' + (0, h.2 - φ h.1), ?_⟩
+      refine ⟨⟨c', rfl, (0, h.2 - φ h.1), rfl, rfl⟩, (h.1, φ h.1), ⟨h.1, rfl⟩, ?_⟩
       beta_reduce
       rewrite [add_assoc]
       show c' + (0 + h.1, h.2 - φ h.1 + φ h.1) = x
