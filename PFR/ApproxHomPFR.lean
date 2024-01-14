@@ -38,9 +38,9 @@ lemma nat_cauchy_schwartz {B : Type*} [Fintype B] (v w : B → ℕ) :
 lemma nat_cauchy_schwartz' {X : Type*} (B : Finset X) (v w : X → ℕ) :
   (B.sum (v * w))^2 ≤ B.sum (v^2) * B.sum (w^2) := by
   have := nat_cauchy_schwartz (fun b : B => v b) (fun b : B => w b)
-  rwa [← (show Finset.univ.sum (fun b : B => (v * w) b) = B.sum (v * w) from Finset.sum_attach _ _),
-    ← (show Finset.univ.sum (fun b : B => (v^2 : X → ℕ) b) = B.sum (v^2) from Finset.sum_attach _ _),
-    ← (show Finset.univ.sum (fun b : B => (w^2 : X → ℕ) b) = B.sum (w^2) from Finset.sum_attach _ _)]
+  rwa [← (show Finset.univ.sum (fun b : B => (v * w) b) = B.sum (v * w) from Finset.sum_attach ..),
+    ← (show Finset.univ.sum (fun b : B => (v^2 : X → ℕ) b) = B.sum (v^2) from Finset.sum_attach ..),
+    ← (show Finset.univ.sum (fun b : B => (w^2 : X → ℕ) b) = B.sum (w^2) from Finset.sum_attach ..)]
 
 /--  If $G$ is a group, $A,B$ are finite subsets of $G$, then
 $$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$ -/
