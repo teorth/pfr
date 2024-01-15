@@ -73,10 +73,10 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
     let B := A - {0}×ˢS
     have hAB : A + A ⊆ B := by
       intro x hx
-      obtain ⟨a, a', ha, ha', haa'⟩ := Set.mem_add.mp hx
+      obtain ⟨a, ha, a', ha', haa'⟩ := Set.mem_add.mp hx
       simp at ha ha'
       rw [Set.mem_sub]
-      refine ⟨(x.1, f x.1), (0, f (a.1 + a'.1) - f a.1 - f a'.1), ?_, ?_⟩
+      refine ⟨(x.1, f x.1), ?_, (0, f (a.1 + a'.1) - f a.1 - f a'.1), ?_⟩
       · simp
       · simp only [singleton_prod, mem_image, Prod.mk.injEq, true_and,
           exists_eq_right, Prod.mk_sub_mk, sub_zero]
@@ -128,7 +128,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
     have : (H : Set (G × G')) ⊆ ({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G} := by
       rintro ⟨g, g'⟩ hg
       simp only [SetLike.mem_coe, hH₀₁] at hg
-      refine ⟨(0, g' - φ g), (g, φ g), ?_,?_⟩
+      refine ⟨(0, g' - φ g), ?_, (g, φ g), ?_⟩
       · simp only [singleton_prod, mem_image, SetLike.mem_coe,
           Prod.mk.injEq, true_and, exists_eq_right, hg.2]
       · simp only [mem_setOf_eq, Prod.mk.injEq, exists_eq_left, Prod.mk_add_mk, zero_add, true_and,
