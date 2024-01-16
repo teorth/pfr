@@ -105,7 +105,7 @@ lemma IsUniform.measure_preimage_of_mem {H: Finset S} (h : IsUniform H X μ) (hX
     μ (X ⁻¹' {s}) = μ univ / Nat.card H := by
   have B : μ univ = (Nat.card H) * μ (X ⁻¹' {s}) := calc
     μ univ = μ (X ⁻¹' Hᶜ) + μ (X ⁻¹' H) := by
-      rw [←measure_union (disjoint_compl_left.preimage _) (hX (measurableSet_discrete _))]
+      rw [← measure_union (disjoint_compl_left.preimage _) (hX (measurableSet_discrete _))]
       simp
     _ = μ (X ⁻¹' H) := by rw [h.measure_preimage_compl, zero_add]
     _ = ∑ x in H, μ (X ⁻¹' {x}) := by
@@ -124,7 +124,7 @@ lemma IsUniform.measure_preimage_of_mem {H: Finset S} (h : IsUniform H X μ) (hX
   rcases Nat.eq_zero_or_pos (Nat.card H) with hH|hH
   · simp only [hH, CharP.cast_eq_zero, zero_mul, Measure.measure_univ_eq_zero] at B
     simp [B]
-  · rwa [eq_comm, ←ENNReal.eq_div_iff] at B
+  · rwa [eq_comm, ← ENNReal.eq_div_iff] at B
     · simpa using Nat.pos_iff_ne_zero.mp hH
     · simp
 
@@ -195,10 +195,10 @@ lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] (h : IsUnifo
     IsUniform H X' μ' := by
   constructor
   · intro x y hx hy
-    rw [←h'.measure_mem_eq (MeasurableSet.singleton x),
-      ←h'.measure_mem_eq (MeasurableSet.singleton y)]
+    rw [← h'.measure_mem_eq (MeasurableSet.singleton x),
+      ← h'.measure_mem_eq (MeasurableSet.singleton y)]
     apply h.eq_of_mem x y hx hy
-  · rw [←h'.measure_mem_eq hH.compl]
+  · rw [← h'.measure_mem_eq hH.compl]
     exact h.measure_preimage_compl
 
 /-- $\mathbb{P}(U_H \in H') \neq 0$ if $H'$ intersects $H$ and the measure is non-zero. -/
@@ -234,7 +234,7 @@ lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Meas
   . exact Measurable.aemeasurable hX
   . exact Measurable.aemeasurable hX'
   ext E hE
-  rw [<-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE, <-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
+  rw [← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE, ← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
   congr! 4 with _ x
   rw [Measure.map_apply hX (MeasurableSet.singleton x), Measure.map_apply hX' (MeasurableSet.singleton x)]
   set Hf := H.toFinite.toFinset

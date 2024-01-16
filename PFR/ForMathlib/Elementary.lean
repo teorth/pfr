@@ -103,7 +103,7 @@ lemma torsion {G: Type*} [AddCommGroup G] (p: ℕ) [elem : ElementaryAddCommGrou
   by_cases h: x = 0
   . simp [h]
   have := elem.orderOf_of_ne h
-  rw [<-this]
+  rw [← this]
   exact addOrderOf_nsmul_eq_zero x
 
 lemma of_torsion {G: Type*} [AddCommGroup G] {p: ℕ} (hp: p.Prime) (h : ∀ x : G, p • x = 0) : ElementaryAddCommGroup G p := by
@@ -321,7 +321,7 @@ lemma quotient_group {G : Type*} [AddCommGroup G] {p : ℕ} (hp: p.Prime) {H : A
   apply of_torsion hp
   intro x
   rcases QuotientAddGroup.mk'_surjective H x with ⟨y, rfl⟩
-  simp only [QuotientAddGroup.mk'_apply, <-QuotientAddGroup.mk_nsmul, QuotientAddGroup.eq_zero_iff, hH y]
+  simp only [QuotientAddGroup.mk'_apply, ← QuotientAddGroup.mk_nsmul, QuotientAddGroup.eq_zero_iff, hH y]
 
 
 end ElementaryAddCommGroup

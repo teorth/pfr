@@ -1,11 +1,11 @@
 import Mathlib.Combinatorics.Additive.RuzsaCovering
-import Mathlib.Data.Finset.Pointwise
-import Mathlib.Data.Real.Basic
 import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
-import PFR.EntropyPFR
-import PFR.Tactic.RPowSimp
+import PFR.Mathlib.GroupTheory.Subgroup.Pointwise
 import PFR.ForMathlib.Entropy.RuzsaSetDist
+import PFR.Tactic.RPowSimp
+import PFR.TauFunctional
+import PFR.EntropyPFR
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
@@ -16,9 +16,8 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 Here we prove the polynomial Freiman-Ruzsa conjecture.
 -/
 
-open Pointwise ProbabilityTheory MeasureTheory Real Set Fintype Function
-
-open scoped BigOperators
+open ProbabilityTheory MeasureTheory Real Set Fintype Function
+open scoped BigOperators Pointwise
 
 universe u
 
@@ -268,13 +267,11 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
     convert T using 1 <;> rpow_ring <;> norm_num
   have A_subset_uH : A ⊆ u + H := by
-    apply Au.trans
-    rw [add_sub_assoc]
-    apply add_subset_add_left
-    apply (sub_subset_sub (inter_subset_right _ _) (inter_subset_right _ _)).trans
-    rintro - ⟨-, -, ⟨y, xy, hy, hxy, rfl⟩, ⟨z, xz, hz, hxz, rfl⟩, rfl⟩
-    simp only [mem_singleton_iff] at hxy hxz
-    simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
+    rw [add_sub_assoc] at Au
+    refine Au.trans $ add_subset_add_left $
+      (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
+    rw [add_sub_add_comm, singleton_sub_singleton, sub_self]
+    simp
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 
