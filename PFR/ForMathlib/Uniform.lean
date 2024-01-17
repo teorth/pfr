@@ -1,4 +1,5 @@
 import Mathlib.Probability.IdentDistrib
+import Mathlib.Probability.ConditionalProbability
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.FiniteRange
 
@@ -65,13 +66,27 @@ lemma IsUniform.comp [DecidableEq T] {H: Finset S} (h : IsUniform H X μ) {f : S
     simp [preimage_comp, A, h.eq_of_mem x y hx hy]
   measure_preimage_compl := by simpa [preimage_comp, hf] using h.measure_preimage_compl
 
-/-- Uniform distributions exist, version within a fintype and giving a measure space -/
+/-- Uniform distributions exist, version giving a measure space -/
 lemma exists_isUniform_measureSpace {S : Type u}  [MeasurableSpace S]
     [MeasurableSingletonClass S] (H : Finset S) (h : H.Nonempty) :
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω : Ω, U ω ∈ H) ∧ FiniteRange U := by
   rcases exists_isUniform H h with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem, Xfin⟩
   exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem, Xfin⟩
+
+/-- Uniform distributions exist, version with a Finite set rather than a Finset and giving a measure space -/
+lemma exists_isUniform_measureSpace' {S : Type u}  [MeasurableSpace S]
+    [MeasurableSingletonClass S] (H : Set S) [Finite H] [Nonempty H] :
+    ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
+    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω, U ω ∈ H) ∧ FiniteRange U := by
+  set Hf := H.toFinite.toFinset
+  have hHf : Hf.Nonempty := by
+    rwa [<-Hf.coe_nonempty, H.toFinite.coe_toFinset, <-H.nonempty_coe_sort]
+  obtain ⟨ Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin ⟩ := exists_isUniform_measureSpace Hf hHf
+  rw [ H.toFinite.coe_toFinset] at hunif
+  replace hrange : ∀ ω, U ω ∈ H := by convert hrange with ω; simp_rw [Finite.mem_toFinset]
+  exact ⟨Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin⟩
+
 
 /-- A uniform random variable on H almost surely takes values in H. -/
 lemma IsUniform.ae_mem (h : IsUniform H X μ) : ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
@@ -90,7 +105,7 @@ lemma IsUniform.measure_preimage_of_mem {H: Finset S} (h : IsUniform H X μ) (hX
     μ (X ⁻¹' {s}) = μ univ / Nat.card H := by
   have B : μ univ = (Nat.card H) * μ (X ⁻¹' {s}) := calc
     μ univ = μ (X ⁻¹' Hᶜ) + μ (X ⁻¹' H) := by
-      rw [←measure_union (disjoint_compl_left.preimage _) (hX (measurableSet_discrete _))]
+      rw [← measure_union (disjoint_compl_left.preimage _) (hX (measurableSet_discrete _))]
       simp
     _ = μ (X ⁻¹' H) := by rw [h.measure_preimage_compl, zero_add]
     _ = ∑ x in H, μ (X ⁻¹' {x}) := by
@@ -109,7 +124,7 @@ lemma IsUniform.measure_preimage_of_mem {H: Finset S} (h : IsUniform H X μ) (hX
   rcases Nat.eq_zero_or_pos (Nat.card H) with hH|hH
   · simp only [hH, CharP.cast_eq_zero, zero_mul, Measure.measure_univ_eq_zero] at B
     simp [B]
-  · rwa [eq_comm, ←ENNReal.eq_div_iff] at B
+  · rwa [eq_comm, ← ENNReal.eq_div_iff] at B
     · simpa using Nat.pos_iff_ne_zero.mp hH
     · simp
 
@@ -138,6 +153,35 @@ lemma IsUniform.measureReal_preimage_of_nmem (h : IsUniform H X μ) {s : S} (hs 
     μ.real (X ⁻¹' {s}) = 0 := by
   rw [measureReal_def, h.measure_preimage_of_nmem hs, ENNReal.zero_toReal]
 
+/-- $\mathbb{P}(U_H \in H') = \dfrac{|H' \cap H|}{|H|}$ -/
+lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Measurable X)
+    (H' : Set S) : μ (X ⁻¹' H') = (μ univ) * (Nat.card (H' ∩ H.toSet).Elem) / Nat.card H := calc
+  _ = μ (X ⁻¹' (H' ∩ H.toSet) ∪ X ⁻¹' (H' \ H.toSet)) := by simp
+  _ = μ (X ⁻¹' (H' ∩ H.toSet)) + μ (X ⁻¹' (H' \ H.toSet)) :=
+    measure_union (Disjoint.preimage X disjoint_inf_sdiff) (by measurability)
+  _ = μ (X ⁻¹' (H' ∩ H.toSet)) + 0 := congrArg _ <| by
+    rewrite [Set.diff_eq_compl_inter, ← le_zero_iff, ← h.measure_preimage_compl]
+    exact measure_mono (inter_subset_left _ _)
+  _ = μ (X ⁻¹' (H' ∩ H.toSet).toFinite.toFinset) := by simp
+  _ = (μ univ) * ∑ __ in (H' ∩ H.toSet).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
+    rewrite [← sum_measure_preimage_singleton _ (by measurability), Finset.mul_sum]
+    refine Finset.sum_congr rfl (fun _ hx ↦ ?_)
+    rw [mul_one_div, h.measure_preimage_of_mem hX ((Finite.mem_toFinset _).mp hx).2]
+  _ = (μ univ) * (Nat.card (H' ∩ H.toSet).Elem) / Nat.card H := by
+    rw [Finset.sum_const, Nat.card_eq_card_finite_toFinset, nsmul_eq_mul, ← mul_assoc, mul_one_div]
+
+/-- $\mathbb{P}(U_H \in H') = \dfrac{|H' \cap H|}{|H|}$ -/
+lemma IsUniform.measureReal_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Measurable X)
+    (H' : Set S) :
+    μ.real (X ⁻¹' H') = (μ.real univ) * (Nat.card (H' ∩ H.toSet).Elem) / Nat.card H := by
+  simp [measureReal_def, h.measure_preimage hX H', ENNReal.toReal_div]
+
+lemma IsUniform.nonempty_preimage_of_mem [NeZero μ] {H: Finset S} (h : IsUniform H X μ)
+    (hX : Measurable X) {s : S} (hs : s ∈ H) : Set.Nonempty (X ⁻¹' {s}) := by
+  apply MeasureTheory.nonempty_of_measure_ne_zero
+  rewrite [h.measure_preimage_of_mem hX hs]
+  simp [NeZero.ne]
+
 lemma IsUniform.full_measure (h : IsUniform H X μ) (hX: Measurable X) :
     (μ.map X) H = μ Set.univ := by
     rw [Measure.map_apply hX (by measurability)]
@@ -151,18 +195,46 @@ lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] (h : IsUnifo
     IsUniform H X' μ' := by
   constructor
   · intro x y hx hy
-    rw [←h'.measure_mem_eq (MeasurableSet.singleton x),
-      ←h'.measure_mem_eq (MeasurableSet.singleton y)]
+    rw [← h'.measure_mem_eq (MeasurableSet.singleton x),
+      ← h'.measure_mem_eq (MeasurableSet.singleton y)]
     apply h.eq_of_mem x y hx hy
-  · rw [←h'.measure_mem_eq hH.compl]
+  · rw [← h'.measure_mem_eq hH.compl]
     exact h.measure_preimage_compl
+
+/-- $\mathbb{P}(U_H \in H') \neq 0$ if $H'$ intersects $H$ and the measure is non-zero. -/
+lemma IsUniform.measure_preimage_ne_zero {H : Finset S} [NeZero μ] (h : IsUniform H X μ)
+    (hX : Measurable X) (H' : Set S) [Nonempty (H' ∩ H.toSet).Elem] : μ (X ⁻¹' H') ≠ 0 := by
+  simp_rw [h.measure_preimage hX H', ne_eq, ENNReal.div_eq_zero_iff, ENNReal.nat_ne_top, or_false,
+    mul_eq_zero, NeZero.ne, false_or, Nat.cast_eq_zero, ← Nat.pos_iff_ne_zero, Nat.card_pos]
+
+/-- If $X$ is uniform w.r.t. $\mu$ on $H$, then $X$ is uniform w.r.t. $\mu$ conditioned by
+$H'$ on $H' \cap H$. -/
+lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) (H' : Set S) :
+    IsUniform (H' ∩ H) X (μ[|X ⁻¹' H']) where
+  eq_of_mem := fun x y hx hy ↦ by
+    show _ * _ = _ * _
+    rw [μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hx.1)),
+      μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hy.1)), h.eq_of_mem x y hx.2 hy.2]
+  measure_preimage_compl := le_zero_iff.mp <| by
+    rewrite [Set.compl_inter, Set.preimage_union]
+    calc
+      _ ≤ (μ[|X ⁻¹' H']) (X ⁻¹' H'ᶜ) + (μ[|X ⁻¹' H']) (X ⁻¹' Hᶜ) := measure_union_le _ _
+      _ = (μ[|X ⁻¹' H']) (X ⁻¹' H'ᶜ) + 0 := congrArg _ <| by
+        show _ * _ = _
+        rw [le_zero_iff.mp <| h.measure_preimage_compl.trans_ge <| Measure.restrict_apply_le _ _,
+          mul_zero]
+      _ = 0 := by
+        show _ * _ + 0 = 0
+        rw [add_zero, Set.preimage_compl, Measure.restrict_apply <|
+          MeasurableSet.compl (measurableSet_preimage hX (measurableSet_discrete H')),
+          compl_inter_self, measure_empty, mul_zero]
 
 lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Finite H] {X: Ω → S} {X': Ω' → S} (hX: Measurable X) (hX': Measurable X') (hX_unif : IsUniform H X μ) (hX'_unif : IsUniform H X' μ') : IdentDistrib X X' μ μ' := by
   constructor
   . exact Measurable.aemeasurable hX
   . exact Measurable.aemeasurable hX'
   ext E hE
-  rw [<-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE, <-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
+  rw [← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE, ← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
   congr! 4 with _ x
   rw [Measure.map_apply hX (MeasurableSet.singleton x), Measure.map_apply hX' (MeasurableSet.singleton x)]
   set Hf := H.toFinite.toFinset

@@ -75,23 +75,6 @@ lemma iIndepFun.inv (h : iIndepFun n f μ) : iIndepFun n (update f i (f i)⁻¹)
   · subst hj; simp [measurable_inv]
   · simp [hj, measurable_id]
 
-variable [IsProbabilityMeasure μ]
-
-open Finset in
-lemma iIndepFun.indepFun_prod_prod (h_indep: iIndepFun n f μ) (hf : ∀ i, Measurable (f i))
-    (i j k l : ι) (hik : i ≠ k) (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) :
-    IndepFun (fun a => (f i a, f j a)) (fun a => (f k a, f l a)) μ := by
-  classical
-  have hd : Disjoint ({i, j} : Finset ι) ({k,l} : Finset ι)
-  · simp only [Finset.mem_singleton, Finset.disjoint_insert_right, Finset.mem_insert,
-      Finset.disjoint_singleton_right]
-    tauto
-  have h := h_indep.indepFun_finset ({i, j} : Finset ι) ({k,l} : Finset ι) hd hf
-  let g (i j : ι) (v : Π x : ({i, j} : Finset ι), α x) : α i × α j :=
-    ⟨v ⟨i, mem_insert_self _ _⟩, v ⟨j, mem_insert_of_mem $ mem_singleton_self _⟩⟩
-  have hg (i j : ι) : Measurable (g i j) := by measurability
-  exact h.comp (hg i j) (hg k l)
-
 end iIndepFun
 
 section
@@ -124,7 +107,7 @@ lemma indepFun_fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
   rw [IndepFun_iff]
   rintro _ _ ⟨s, _, rfl⟩ ⟨t, _, rfl⟩
-  simp [←Set.prod_univ, ←Set.univ_prod, Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ,
+  simp [← Set.prod_univ, ← Set.univ_prod, Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ,
     Set.univ_inter, Measure.prod_prod, measure_univ, mul_one, one_mul]
 
 variable {f : Ω → α} {g : Ω → β}
@@ -137,7 +120,7 @@ lemma IndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi' : �
   change μ (range i)ᶜ = 0 at hi'
   rw [IndepFun_iff] at hfg ⊢
   rintro _ _ ⟨s, hs, rfl⟩ ⟨t, ht, rfl⟩
-  rw [preimage_comp, preimage_comp, ←preimage_inter, comap_apply, comap_apply, comap_apply,
+  rw [preimage_comp, preimage_comp, ← preimage_inter, comap_apply, comap_apply, comap_apply,
     image_preimage_eq_inter_range, image_preimage_eq_inter_range, image_preimage_eq_inter_range,
     measure_inter_conull hi', measure_inter_conull hi', measure_inter_conull hi',
     hfg _ _ ⟨_, hs, rfl⟩ ⟨_, ht, rfl⟩]
@@ -205,7 +188,7 @@ theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι
   set l : ∀ i, Set (β i) := fun i ↦ if i ∈ S then s i else univ with hldef
   have hl (i : ι) : MeasurableSet (l i) := by by_cases hiS : i ∈ S <;> simp [hldef, hiS, hs]
   specialize h₀ hl
-  rw [←h] at h₀
+  rw [← h] at h₀
   convert h₀.2 using 1
   · congr with x
     simp (config := { contextual := true })
@@ -336,8 +319,7 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
 
 variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
 
-/-- Improved version of `IndepFun.ae_eq` in which the ranges are allowed to be distinct.
-TODO: replace `IndepFun.ae_eq` with this one. -/
+/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
 theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}
     {g g' : Ω → β'} (hfg : IndepFun f g μ)
     (hf : f =ᵐ[μ] f') (hg : g =ᵐ[μ] g') : IndepFun f' g' μ := by
@@ -345,16 +327,14 @@ theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} 
     simp only [ae_dirac_eq, Filter.eventually_pure, kernel.const_apply]
   exacts [hf, hg]
 
-/-- Improved version of `kernel.IndepFun.symm` in which the ranges are allowed to be distinct.
-TODO: replace `kernel.IndepFun.symm` with this one. -/
+/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
 theorem kernel.IndepFun.symm' {Ω α β γ : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace α}
     {_ : MeasurableSpace β} {_ : MeasurableSpace γ} {κ : kernel α Ω} {f : Ω → β} {g : Ω → γ}
     {μ : Measure α}
     (hfg : kernel.IndepFun f g κ μ) : kernel.IndepFun g f κ μ :=
   kernel.Indep.symm hfg
 
-/-- Improved version of `IndepFun.symm` in which the ranges are allowed to be distinct.
-TODO: replace `IndepFun.symm` with this one. -/
+/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
 theorem IndepFun.symm' {γ β Ω : Type*} {_ : MeasurableSpace γ}
     {_ : MeasurableSpace β} {_ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → γ}
     (hfg : IndepFun f g μ) :

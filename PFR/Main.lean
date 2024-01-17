@@ -1,10 +1,11 @@
 import Mathlib.Combinatorics.Additive.RuzsaCovering
-import Mathlib.Data.Finset.Pointwise
-import Mathlib.Data.Real.Basic
 import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
-import PFR.EntropyPFR
+import PFR.Mathlib.GroupTheory.Subgroup.Pointwise
+import PFR.ForMathlib.Entropy.RuzsaSetDist
 import PFR.Tactic.RPowSimp
+import PFR.TauFunctional
+import PFR.EntropyPFR
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
@@ -15,9 +16,8 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 Here we prove the polynomial Freiman-Ruzsa conjecture.
 -/
 
-open Pointwise ProbabilityTheory MeasureTheory Real Set Fintype Function
-
-open scoped BigOperators
+open ProbabilityTheory MeasureTheory Real Set Fintype Function
+open scoped BigOperators Pointwise
 
 universe u
 
@@ -152,6 +152,12 @@ theorem rdist_le_of_isUniform_of_card_add_le (h₀A : A.Nonempty) (hA : Nat.card
 
 variable [ElementaryAddCommGroup G 2] [Fintype G]
 
+lemma sumset_eq_sub : A + A = A - A := by
+  rw [← Set.image2_add, ← Set.image2_sub]
+  congr! 1 with a _ b _
+  show a + b = a - b
+  simp
+
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
 such that $A$ can be covered by at most $K^{13/2} |A|^{1/2} / |H|^{1/2}$ cosets of $H$, and $H$ has
@@ -162,12 +168,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
       ∧ Nat.card H ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card H ∧ A ⊆ c + H := by
   classical
   let _mG : MeasurableSpace G := ⊤
-  have hadd_sub : A + A = A - A := by
-    rw [<-Set.image2_add, <-Set.image2_sub]
-    congr! 1 with a _ b _
-    rw [(show a+b=a-b by simp)]
-    rfl
-  rw [hadd_sub] at hA
+  rw [sumset_eq_sub] at hA
   have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A - A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
@@ -179,7 +180,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
   rw [hAA'] at UAunif
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
-  rw [<-hadd_sub] at hA
+  rw [← sumset_eq_sub] at hA
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/9, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture p (by norm_num) with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
@@ -266,13 +267,11 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
     convert T using 1 <;> rpow_ring <;> norm_num
   have A_subset_uH : A ⊆ u + H := by
-    apply Au.trans
-    rw [add_sub_assoc]
-    apply add_subset_add_left
-    apply (sub_subset_sub (inter_subset_right _ _) (inter_subset_right _ _)).trans
-    rintro - ⟨-, -, ⟨y, xy, hy, hxy, rfl⟩, ⟨z, xz, hz, hxz, rfl⟩, rfl⟩
-    simp only [mem_singleton_iff] at hxy hxz
-    simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
+    rw [add_sub_assoc] at Au
+    refine Au.trans $ add_subset_add_left $
+      (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
+    rw [add_sub_add_comm, singleton_sub_singleton, sub_self]
+    simp
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 

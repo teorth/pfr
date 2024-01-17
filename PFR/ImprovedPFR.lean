@@ -77,7 +77,7 @@ lemma gen_ineq_aux2 :
       + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := by
   have hS : Measurable Sum := ((hZ₁.add' hZ₂).add' hZ₃).add' hZ₄
   have I : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) := by
-    apply (h_indep.indepFun_prod_prod ?_ 0 2 1 3
+    refine (h_indep.indepFun_prod_mk_prod_mk ?_ 0 2 1 3
       (by decide) (by decide) (by decide) (by decide))
     intro i; fin_cases i <;> assumption
   calc
@@ -812,6 +812,34 @@ theorem entropic_PFR_conjecture_improv (hpη : p.η = 1/8) :
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
   linarith
 
+/-- `entropic_PFR_conjecture_improv'`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
+    subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$., and d[X^0_1; U_H] and d[X^0_2; U_H] are at most 5/2 * d[X^0_1;X^0_2] -/
+theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1/8) :
+    ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
+    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
+    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] ∧ d[p.X₀₁ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] ∧ d[p.X₀₂ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] := by
+  obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, hP, htau_min, hdist⟩ := tau_minimizer_exists_rdist_eq_zero p
+  obtain ⟨H, U, hU, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
+  have : d[p.X₀₁ # p.X₀₂] = d[p.X₀₂ # p.X₀₁] := rdist_symm
+  have goal₁ :  d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂]
+  · have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
+    rw [tau, tau, hpη] at h
+    norm_num at h
+    have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle p.hmeas1 hX₁ hU
+    have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
+    linarith
+  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle p.hmeas1 p.hmeas2 hU
+  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle p.hmeas2 p.hmeas1 hU
+  refine ⟨H, Ω', inferInstance, U, inferInstance, hU, hH_unif, goal₁, by linarith, by linarith⟩
+
+
+
+
+
+
+
+
+
 end EntropicPFR
 
 section PFR
@@ -845,13 +873,13 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   rw [hAA'] at UAunif
   have hadd_sub : A + A = A - A := by
-    rw [<-Set.image2_add, <-Set.image2_sub]
+    rw [← Set.image2_add, ← Set.image2_sub]
     congr! 1 with a _ b _
     rw [(show a+b=a-b by simp)]
     rfl
   rw [hadd_sub] at hA
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
-  rw [<-hadd_sub] at hA
+  rw [← hadd_sub] at hA
 
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/8, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
@@ -944,7 +972,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     rw [add_sub_assoc]
     apply add_subset_add_left
     apply (sub_subset_sub (inter_subset_right _ _) (inter_subset_right _ _)).trans
-    rintro - ⟨-, -, ⟨y, xy, hy, hxy, rfl⟩, ⟨z, xz, hz, hxz, rfl⟩, rfl⟩
+    rintro - ⟨-, ⟨y, hy, xy, hxy, rfl⟩, -, ⟨z, hz, xz, hxz, rfl⟩, rfl⟩
     simp only [mem_singleton_iff] at hxy hxz
     simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩

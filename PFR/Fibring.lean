@@ -73,10 +73,10 @@ lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H}
   exact le_add_of_nonneg_right (condMutualInfo_nonneg (by measurability) (Measurable.prod_mk (hπ.comp m1) (hπ.comp m2)) _ _)
 
 /-- \[d[X;Y]\geq d[\pi(X);\pi(Y)].\] -/
-lemma rdist_of_hom_le {Z_1 Z_2: Ω → H}
+lemma rdist_of_hom_le {Z_1 : Ω → H} {Z_2 : Ω' → H}
     (h1 : Measurable Z_1) (h2 : Measurable Z_2) [FiniteRange Z_1] [FiniteRange Z_2] :
-    d[π ∘ Z_1; μ # π ∘ Z_2; μ] ≤ d[Z_1; μ # Z_2; μ] := by
-  apply le_trans _ (rdist_le_sum_fibre π h1 h2 (μ := μ) (μ' := μ))
+    d[π ∘ Z_1; μ # π ∘ Z_2; μ'] ≤ d[Z_1; μ # Z_2; μ'] := by
+  apply le_trans _ (rdist_le_sum_fibre π h1 h2 (μ := μ) (μ' := μ'))
   rw [le_add_iff_nonneg_right]
   exact condRuzsaDist_nonneg h1 ((measurable_of_countable π).comp h1) h2
     ((measurable_of_countable π).comp h2)
@@ -99,7 +99,7 @@ lemma sum_of_rdist_eq_step_condRuzsaDist {Y : Fin 4 → Ω → G} (h_indep: iInd
   let f : (G × G) → (G × G) := fun (g, h) ↦ (g, g - h)
   have hf : Measurable f := measurable_of_countable _
   have h_indep' : IndepFun (⟨Y' 0, Y' 2⟩) (⟨Y' 1, Y' 3⟩) μ :=
-    (h_indep.indepFun_prod_prod h_meas 0 2 1 3
+    (h_indep.indepFun_prod_mk_prod_mk h_meas 0 2 1 3
       (by decide) (by decide) (by decide) (by decide)).comp hf hf
   have h_meas' : ∀ i, Measurable (Y' i)
     | 0 => h_meas 0
@@ -170,11 +170,10 @@ lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 
   have m2 : Measurable Z_2 := (h_meas 1).prod_mk (h_meas 3)
   have h_indep_0 : IndepFun (Y 0) (Y 1) μ := h_indep.indepFun (by decide)
   have h_indep_2 : IndepFun (Y 2) (Y 3) μ := h_indep.indepFun (by decide)
-  have h_indep_Z : IndepFun Z_1 Z_2 μ := h_indep.indepFun_prod_prod h_meas
+  have h_indep_Z : IndepFun Z_1 Z_2 μ := h_indep.indepFun_prod_mk_prod_mk h_meas
     0 2 1 3 (by decide) (by decide) (by decide) (by decide)
   have h_indep_sub : IndepFun (Y 0 - Y 1) (Y 2 - Y 3) μ :=
-    (h_indep.indepFun_prod_prod h_meas 0 1 2 3
-    (by decide) (by decide) (by decide) (by decide)).comp measurable_sub measurable_sub
+    h_indep.indepFun_sub_sub h_meas 0 1 2 3 (by decide) (by decide) (by decide) (by decide)
   have msub (i j : Fin 4) : Measurable (Y i - Y j) := (h_meas i).sub (h_meas j)
   have h_add : d[Z_1; μ # Z_2; μ] = d[Y 0; μ # Y 1; μ] + d[Y 2; μ # Y 3; μ] := by
     rw [h_indep_0.rdist_eq (h_meas 0) (h_meas 1), h_indep_2.rdist_eq (h_meas 2) (h_meas 3),

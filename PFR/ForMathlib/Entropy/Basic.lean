@@ -317,7 +317,7 @@ lemma const_of_nonpos_entropy {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω
     rcases prob_ge_exp_neg_entropy' (μ := μ) X hX with ⟨ s, hs ⟩
     use s
     apply LE.le.antisymm
-    . rw [<-IsProbabilityMeasure.measureReal_univ (μ := μ)]
+    . rw [← IsProbabilityMeasure.measureReal_univ (μ := μ)]
       exact measureReal_mono (subset_univ _) (by finiteness)
     refine le_trans ?_ hs
     simp [hent]
@@ -487,7 +487,7 @@ lemma condEntropy_of_injective
     (hY : Measurable Y) (f : T → S → U) (hf : ∀ t, Injective (f t)) [FiniteRange Y] :
     H[(fun ω ↦ f (Y ω) (X ω)) | Y ; μ] = H[X | Y ; μ] := by
   rw [condEntropy_eq_sum _ _ _ hY, condEntropy_eq_sum _ _ _ hY]
-  have : ∀ y, H[fun ω ↦ f (Y ω) (X ω)|Y←y; μ] = H[(f y ∘ X) | Y ← y ; μ] := by
+  have : ∀ y, H[fun ω ↦ f (Y ω) (X ω)|Y← y; μ] = H[(f y ∘ X) | Y ← y ; μ] := by
     intro y
     refine entropy_congr ?_
     have : ∀ᵐ ω ∂μ[|Y ← y], Y ω = y := by
@@ -747,7 +747,7 @@ lemma IndepFun.condEntropy_eq_entropy {μ : Measure Ω} (h : IndepFun X Y μ)
 lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
     [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[⟨X, Y⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by
-  rw [eq_comm, ← sub_eq_zero, ←mutualInfo_eq_zero hX hY]; rfl
+  rw [eq_comm, ← sub_eq_zero, ← mutualInfo_eq_zero hX hY]; rfl
 
 /-- If $X, Y$ are independent, then $H[X, Y] = H[X] + H[Y]$. -/
 protected alias ⟨_, IndepFun.entropy_pair_eq_add⟩ := entropy_pair_eq_add
@@ -905,6 +905,22 @@ lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
   . apply kernel.aefiniteKernelSupport_condDistrib
     all_goals measurability
   exact kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ _)
+
+/-- Data-processing inequality for the conditional entropy:
+$$ H[Y|f(X)] \geq H[Y|X]$$
+To upgrade this to equality, see `condEntropy_of_injective'` -/
+lemma condEntropy_comp_ge [FiniteRange X] [FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ]
+    (hX : Measurable X) (hY : Measurable Y) (f : S → U) : H[Y | f ∘ X ; μ] ≥ H[Y | X; μ] := by
+  have h_joint : H[⟨Y, ⟨X, f ∘ X⟩⟩ ; μ] = H[⟨Y, X⟩ ; μ] := by
+    let g : T × S → T × S × U := fun (y, x) ↦ (y, (x, f x))
+    show H[g ∘ ⟨Y, X⟩ ; μ] = H[⟨Y, X⟩ ; μ]
+    refine entropy_comp_of_injective μ (by exact Measurable.prod hY hX) g (fun _ _ h => ?_)
+    repeat rewrite [Prod.mk.injEq] at h
+    exact Prod.ext h.1 h.2.1
+  have hZ : Measurable (f ∘ X) := (measurable_of_countable _).comp hX
+  rewrite [chain_rule'' μ hY hX, ← entropy_prod_comp hX μ f, ← h_joint,
+    ← chain_rule'' μ hY (Measurable.prod (by exact hX) (by exact hZ))]
+  exact entropy_submodular μ hY hX hZ
 
 /-- The submodularity inequality:
 $$ H[X, Y, Z] + H[Z] \leq H[X, Z] + H[Y, Z].$$ -/
