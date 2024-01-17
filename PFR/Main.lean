@@ -213,7 +213,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     · rw [exp_add, exp_log H_pos, ← rpow_def_of_pos K_pos]
   have IHA : Nat.card (H : Set G) ≤ K ^ 11 * Nat.card A := by
     have : log (Nat.card (H : Set G)) ≤ log K * 11 + log (Nat.card A) := by
-      linarith [(neg_le_abs_self _).trans Icard]
+      linarith [(neg_le_abs _).trans Icard]
     convert exp_monotone this using 1
     · exact (exp_log H_pos).symm
     · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos]

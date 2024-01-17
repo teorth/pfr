@@ -61,12 +61,12 @@ lemma rdist_eq' {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFini
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[κ ; μ # η ; ν] =
-      Hk[map ((prodMkRight κ T') ×ₖ (prodMkLeft T η)) (fun x ↦ x.1 - x.2) measurable_sub, μ.prod ν]
+      Hk[map ((prodMkRight T' κ) ×ₖ (prodMkLeft T η)) (fun x ↦ x.1 - x.2) measurable_sub, μ.prod ν]
       - Hk[κ, μ]/2 - Hk[η, ν]/2 := by
   rw [rdist_eq]
   congr with p
   simp only
-  rw [map_apply, prod_apply'', prodMkLeft_apply, prodMkRight_apply]
+  rw [map_apply, prod_apply, prodMkLeft_apply, prodMkRight_apply]
 
 lemma rdist_symm {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFiniteKernel η]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
@@ -94,10 +94,10 @@ lemma rdist_symm {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFin
   simp only [prodMkLeft_zero, entropy_zero_kernel, zero_div, sub_zero]
   rw [sub_eq_iff_eq_add]
   ring_nf
-  have : map (prodMkRight κ T' ×ₖ 0) (fun x ↦ x.1 - x.2) measurable_sub
+  have : map (prodMkRight T' κ ×ₖ 0) (fun x ↦ x.1 - x.2) measurable_sub
       = 0 := by
     ext1 x
-    rw [map_apply, prod_apply'']
+    rw [map_apply, prod_apply]
     simp
   rw [this, entropy_zero_kernel]
 
@@ -116,11 +116,11 @@ lemma rdist_symm {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFin
     zero_div, sub_zero]
   rw [sub_eq_iff_eq_add]
   ring_nf
-  have : map (prodMkRight κ T' ×ₖ prodMkLeft T (const T' (Measure.dirac 0)))
+  have : map (prodMkRight T' κ ×ₖ prodMkLeft T (const T' (Measure.dirac 0)))
         (fun x ↦ x.1 - x.2) measurable_sub
-      = prodMkRight κ T' := by
+      = prodMkRight T' κ := by
     ext x s hs
-    rw [prodMkRight_apply, map_apply, prod_apply'', prodMkLeft_apply, const_apply,
+    rw [prodMkRight_apply, map_apply, prod_apply, prodMkLeft_apply, const_apply,
       prodMkRight_apply, Measure.map_apply measurable_sub hs,
       Measure.prod_apply (measurable_sub hs)]
     simp only [Set.mem_preimage, sub_zero, Measure.dirac_apply]
@@ -149,8 +149,8 @@ lemma ruzsa_triangle_aux (κ : kernel T (G × G)) (η : kernel T G)
   have : (fun p : G × G ↦ p.1 - p.2) = (fun p ↦ p.2 - p.1) ∘ Prod.swap := by ext1 p; simp
   rw [this, ← map_map _ measurable_swap (measurable_of_countable _), map_prod_swap]
   ext x s hs
-  rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply _ _ _ (measurable_of_countable _ hs),
-    prod_apply _ _ _ (measurable_of_countable _ hs), lintegral_snd _ _ (measurable_of_countable _)]
+  rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply' _ _ _ (measurable_of_countable _ hs),
+    prod_apply' _ _ _ (measurable_of_countable _ hs), lintegral_snd _ _ (measurable_of_countable _)]
   congr
 
 lemma abs_sub_entropy_le_rdist {κ : kernel T G} {η : kernel T' G}
@@ -159,7 +159,7 @@ lemma abs_sub_entropy_le_rdist {κ : kernel T G} {η : kernel T' G}
     [FiniteSupport μ] [FiniteSupport ν]
     (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η ν) :
     |Hk[κ, μ] - Hk[η, ν]| ≤ 2 * dk[κ ; μ # η ; ν] := by
-  have h := max_entropy_le_entropy_sub_prod (prodMkRight κ T') (prodMkLeft T η) (μ.prod ν)
+  have h := max_entropy_le_entropy_sub_prod (prodMkRight T' κ) (prodMkLeft T η) (μ.prod ν)
     (hκ.prodMkRight ν) (hη.prodMkLeft μ)
   rw [entropy_prodMkRight', entropy_prodMkLeft] at h
   rw [rdist_eq', abs_le]
@@ -271,7 +271,7 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
       - Hk[η, μ] := by
         congr 3
         · ext x s hs
-          rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply, prod_apply, lintegral_fst]
+          rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply', prod_apply', lintegral_fst]
           · congr with x
           · exact measurable_of_countable _
           · exact measurable_sub hs
@@ -285,9 +285,9 @@ lemma rdist_triangle_aux1 (κ : kernel T G) (η : kernel T' G)
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ'']
     [FiniteSupport μ] [FiniteSupport μ'] [FiniteSupport μ''] :
-    Hk[map (prodMkRight (prodMkRight κ T'') T' ×ₖ prodMkLeft (T × T'') η)
+    Hk[map (prodMkRight T' (prodMkRight T'' κ) ×ₖ prodMkLeft (T × T'') η)
           (fun p ↦ p.1 - p.2) measurable_sub, (μ.prod μ'').prod μ']
-      = Hk[map (prodMkRight κ T' ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub,
+      = Hk[map (prodMkRight T' κ ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub,
         μ.prod μ'] := by
   have hAB : (μ.prod μ') ((μ.support ×ˢ μ'.support : Finset (T × T')) : Set (T × T'))ᶜ = 0 :=
     prod_of_full_measure_finSet (measure_compl_support μ) (measure_compl_support μ')
@@ -297,19 +297,17 @@ lemma rdist_triangle_aux1 (κ : kernel T G) (η : kernel T' G)
       (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')) : Set ((T × T'') × T'))ᶜ = 0 :=
     prod_of_full_measure_finSet hAC (measure_compl_support μ')
 
-  simp_rw [entropy, integral_eq_sum' _ hAB, integral_eq_sum' _ hACB, smul_eq_mul, Measure.prod_apply_singleton,
-    Finset.sum_product, ENNReal.toReal_mul, mul_assoc, ← Finset.mul_sum]
+  simp_rw [entropy, integral_eq_sum' _ hAB, integral_eq_sum' _ hACB, smul_eq_mul,
+    Measure.prod_apply_singleton, Finset.sum_product, ENNReal.toReal_mul, mul_assoc,
+    ← Finset.mul_sum]
   congr with x
-  have : ∀ z y, map (prodMkRight (prodMkRight κ T'') T' ×ₖ prodMkLeft (T × T'') η)
+  have : ∀ z y, map (prodMkRight T' (prodMkRight T'' κ) ×ₖ prodMkLeft (T × T'') η)
         (fun p ↦ p.1 - p.2) measurable_sub ((x, z), y)
-      = map (prodMkRight κ T' ×ₖ prodMkLeft T η) (fun p ↦ p.1 - p.2) measurable_sub (x, y) := by
+      = map (prodMkRight T' κ ×ₖ prodMkLeft T η) (fun p ↦ p.1 - p.2) measurable_sub (x, y) := by
     intro z y
     ext s hs
     rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply, prod_apply]
-    -- todo: prodMkLeft_apply should be simp
-    · simp [prodMkLeft_apply]
-    · exact measurable_sub hs
-    · exact measurable_sub hs
+    simp
   simp_rw [this, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
     full_measure_of_null_compl (measure_compl_support μ'')]
   simp
@@ -319,9 +317,9 @@ lemma rdist_triangle_aux2 (η : kernel T' G) (ξ : kernel T'' G)
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ'']
     [FiniteSupport μ] [FiniteSupport μ'] [FiniteSupport μ''] :
-    Hk[map (prodMkLeft (T × T'') η ×ₖ prodMkRight (prodMkLeft T ξ) T')
+    Hk[map (prodMkLeft (T × T'') η ×ₖ prodMkRight T' (prodMkLeft T ξ))
       (fun p ↦ p.1 - p.2) measurable_sub, (μ.prod μ'').prod μ']
-    = Hk[map (prodMkRight η T'' ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
+    = Hk[map (prodMkRight T'' η ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
       μ'.prod μ''] := by
   have hBC: (μ'.prod μ'') ((μ'.support ×ˢ μ''.support : Finset (T' × T'')):Set (T' × T''))ᶜ = 0 :=
     prod_of_full_measure_finSet (measure_compl_support μ') (measure_compl_support μ'')
@@ -335,15 +333,13 @@ lemma rdist_triangle_aux2 (η : kernel T' G) (ξ : kernel T'' G)
   conv_lhs => rw [Finset.sum_product, Finset.sum_product_right]
   simp_rw [ENNReal.toReal_mul, mul_assoc, ← Finset.mul_sum]
   congr with z
-  have : ∀ x y, map (prodMkLeft (T × T'') η ×ₖ prodMkRight (prodMkLeft T ξ) T')
+  have : ∀ x y, map (prodMkLeft (T × T'') η ×ₖ prodMkRight T' (prodMkLeft T ξ))
         (fun p ↦ p.1 - p.2) measurable_sub ((x, z), y)
-      = map (prodMkLeft T'' η ×ₖ prodMkRight ξ T') (fun p ↦ p.1 - p.2) measurable_sub (z, y) := by
+      = map (prodMkLeft T'' η ×ₖ prodMkRight T' ξ) (fun p ↦ p.1 - p.2) measurable_sub (z, y) := by
     intro x y
     ext s hs
     rw [map_apply' _ _ _ hs, map_apply' _ _ _ hs, prod_apply, prod_apply]
-    · simp [prodMkLeft_apply]
-    · exact measurable_sub hs
-    · exact measurable_sub hs
+    simp
   simp_rw [this, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
     full_measure_of_null_compl (measure_compl_support μ), measure_univ, ENNReal.one_toReal,
     one_mul, ← mul_assoc, mul_comm _ (μ'' {z}).toReal, mul_assoc, ← Finset.mul_sum, map_apply]
@@ -351,9 +347,7 @@ lemma rdist_triangle_aux2 (η : kernel T' G) (ξ : kernel T'' G)
   congr 2 with s hs
   rw [Measure.map_apply measurable_sub hs, Measure.map_apply measurable_sub hs, prod_apply,
     prod_apply]
-  · simp [prodMkLeft_apply]
-  · exact measurable_sub hs
-  · exact measurable_sub hs
+  simp
 
 lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
     [IsMarkovKernel κ] [IsMarkovKernel η] [IsMarkovKernel ξ]
@@ -363,7 +357,7 @@ lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
     (hκ: FiniteKernelSupport κ) (hη: FiniteKernelSupport η) (hξ: FiniteKernelSupport ξ) :
     dk[κ ; μ # ξ ; μ''] ≤ dk[κ ; μ # η ; μ'] + dk[η ; μ' # ξ ; μ''] := by
   rw [rdist_eq', rdist_eq', rdist_eq']
-  have h := ent_of_diff_le (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T')
+  have h := ent_of_diff_le (prodMkRight T' (prodMkRight T'' κ ×ₖ prodMkLeft T ξ))
     (prodMkLeft (T × T'') η) ((μ.prod μ'').prod μ') ?_ ?_
   rotate_left
   . apply kernel.finiteKernelSupport_of_prodMkRight
@@ -371,36 +365,36 @@ lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
     . exact kernel.finiteKernelSupport_of_prodMkRight hκ
     exact kernel.finiteKernelSupport_of_prodMkLeft hξ
   . apply kernel.finiteKernelSupport_of_prodMkLeft hη
-  have h1 : Hk[map (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T') (fun p ↦ p.1 - p.2)
+  have h1 : Hk[map (prodMkRight T' (prodMkRight T'' κ ×ₖ prodMkLeft T ξ)) (fun p ↦ p.1 - p.2)
         measurable_sub, (μ.prod μ'').prod μ']
-      = Hk[map (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) measurable_sub,
+      = Hk[map (prodMkRight T'' κ ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) measurable_sub,
         μ.prod μ''] := by
     rw [map_prodMkRight, entropy_prodMkRight']
   have h2 :
-      Hk[map (fst (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T') ×ₖ prodMkLeft (T × T'') η)
+      Hk[map (fst (prodMkRight T' (prodMkRight T'' κ ×ₖ prodMkLeft T ξ)) ×ₖ prodMkLeft (T × T'') η)
           (fun p ↦ p.1 - p.2) measurable_sub, (μ.prod μ'').prod μ']
-      = Hk[map (prodMkRight κ T' ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub,
+      = Hk[map (prodMkRight T' κ ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub,
         μ.prod μ'] := by
     rw [fst_prodMkRight, fst_prod]
     exact rdist_triangle_aux1 _ _ _ _ _
   have h3 :
-      Hk[map (prodMkLeft (T × T'') η ×ₖ snd (prodMkRight (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) T'))
+      Hk[map (prodMkLeft (T × T'') η ×ₖ snd (prodMkRight T' (prodMkRight T'' κ ×ₖ prodMkLeft T ξ)))
         (fun p ↦ p.1 - p.2) measurable_sub, (μ.prod μ'').prod μ']
-      = Hk[map (prodMkRight η T'' ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
+      = Hk[map (prodMkRight T'' η ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
         μ'.prod μ''] := by
     rw [snd_prodMkRight, snd_prod]
     exact rdist_triangle_aux2 _ _ _ _ _
   have h4 : Hk[prodMkLeft (T × T'') η, (μ.prod μ'').prod μ'] = Hk[η, μ'] := entropy_prodMkLeft
   rw [h1, h2, h3, h4] at h
-  calc Hk[map (prodMkRight κ T'' ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) _ , μ.prod μ'']
+  calc Hk[map (prodMkRight T'' κ ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) _ , μ.prod μ'']
       - Hk[κ , μ] / 2 - Hk[ξ , μ''] / 2
-    ≤ Hk[map (prodMkRight κ T' ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub, μ.prod μ']
-      + Hk[map (prodMkRight η T'' ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
+    ≤ Hk[map (prodMkRight T' κ ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub, μ.prod μ']
+      + Hk[map (prodMkRight T'' η ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
         μ'.prod μ'']
       - Hk[η, μ'] - Hk[κ , μ] / 2 - Hk[ξ , μ''] / 2 := by gcongr
-  _ = Hk[map (prodMkRight κ T' ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) _ , μ.prod μ']
+  _ = Hk[map (prodMkRight T' κ ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) _ , μ.prod μ']
       - Hk[κ , μ] / 2 - Hk[η , μ'] / 2
-      + (Hk[map (prodMkRight η T'' ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) _ , μ'.prod μ'']
+      + (Hk[map (prodMkRight T'' η ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) _ , μ'.prod μ'']
       - Hk[η , μ'] / 2 - Hk[ξ , μ''] / 2) := by ring
 
 end ProbabilityTheory.kernel

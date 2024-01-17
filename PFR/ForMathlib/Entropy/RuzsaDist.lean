@@ -703,7 +703,7 @@ lemma condRuzsaDist_of_indep
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
     (condDistrib_comp (hX.prod_mk hY) (hZ.prod_mk hW) _ _).symm
   refine (this.symm.trans ?_).symm
-  suffices kernel.prodMkRight (condDistrib X Z μ) T
+  suffices kernel.prodMkRight T (condDistrib X Z μ)
         ×ₖ kernel.prodMkLeft S (condDistrib Y W μ)
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ by
     filter_upwards [this] with x hx
@@ -738,7 +738,7 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
       Measure.map_apply hW (measurable_prod_mk_left hs)]
     congr
   rw [← h_meas_eq]
-  have : kernel.map (kernel.prodMkRight (condDistrib X Z μ) T
+  have : kernel.map (kernel.prodMkRight T (condDistrib X Z μ)
         ×ₖ kernel.prodMkLeft Unit (condDistrib Y W μ)) (fun x ↦ x.1 - x.2) measurable_sub
       =ᵐ[μ.map (⟨Z, W⟩)] kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ)
         (fun x ↦ x.1 - x.2) measurable_sub := by
