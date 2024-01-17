@@ -141,7 +141,7 @@ lemma condKernel_compProd_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
 
 lemma condKernel_prod_ae_eq (κ : kernel T S) [IsFiniteKernel κ]
     (η : kernel T U) [IsMarkovKernel η] [IsFiniteMeasure μ] :
-    condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight η S := condKernel_compProd_ae_eq _ _ _
+    condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight S η := condKernel_compProd_ae_eq _ _ _
 
 lemma disintegration (κ : kernel T (S × U)) [IsFiniteKernel κ] :
     κ = (kernel.fst κ) ⊗ₖ (condKernel κ) := by
@@ -468,13 +468,13 @@ lemma condDistrib_eq_prod_of_indepFun
     (μ : Measure Ω) [IsProbabilityMeasure μ]
     (h : IndepFun (fun ω ↦ (X ω, Z ω)) (fun ω ↦ (Y ω, W ω)) μ) :
     condDistrib (fun ω ↦ (X ω, Y ω)) (fun ω ↦ (Z ω, W ω)) μ
-      =ᵐ[μ.map (fun ω ↦ (Z ω, W ω))] kernel.prodMkRight (condDistrib X Z μ) V
+      =ᵐ[μ.map (fun ω ↦ (Z ω, W ω))] kernel.prodMkRight V (condDistrib X Z μ)
         ×ₖ kernel.prodMkLeft U (condDistrib Y W μ) := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [Measure.map_apply (hZ.prod_mk hW) (measurableSet_singleton _)] at hx
   ext s hs
-  rw [condDistrib_apply (hX.prod_mk hY) (hZ.prod_mk hW) _ _ hx, kernel.prod_apply _ _ _ hs]
+  rw [condDistrib_apply (hX.prod_mk hY) (hZ.prod_mk hW) _ _ hx, kernel.prod_apply' _ _ _ hs]
   simp_rw [kernel.prodMkLeft_apply, kernel.prodMkRight_apply]
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod] at hx
   have hxZ : μ (Z ⁻¹' {x.1}) ≠ 0 := fun h0 ↦ hx (measure_mono_null (Set.inter_subset_left _ _) h0)
