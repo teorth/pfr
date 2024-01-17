@@ -424,7 +424,7 @@ lemma four_logs {a b c d : ℝ} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hd : 0 <
 lemma sum_prob_preimage {G H : Type*} {X : Finset H} {A : Set G} [Finite A] {φ : A → X}
     {A_ : H → Set G} (hA : A.Nonempty) (hφ : ∀ x : X, A_ x = Subtype.val '' (φ ⁻¹' {x})) :
     ∑ x in X, (Nat.card (A_ x) : ℝ) / (Nat.card A) = 1 := by
-  apply Finset.sum_div.symm.trans
+  rw [← Finset.sum_div]
   apply (div_eq_one_iff_eq <| Nat.cast_ne_zero.mpr <| Nat.pos_iff_ne_zero.mp (@Nat.card_pos _ hA.to_subtype _)).mpr
   classical
   haveI := Fintype.ofFinite A
