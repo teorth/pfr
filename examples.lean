@@ -35,10 +35,10 @@ example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈
 -- Todo: replace the constants C₁, C₂, C₃, C₄ below with actual values
 
 /-- The approximate homomorphism version of PFR -/
-example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (4 * C₁^21 * C₃^20 * K^(46 * C₄ + 44 * C₂)) := by
+example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (C₁ * C₃^12 * K^(24 * C₄ + 2 * C₂)) := by
   convert approx_hom_pfr f K hK hf
 
-open Classical TensorProduct Real
+open Classical Real
 
 /-- The dimension of a subset A of a Z-module G is the minimal rank of a coset of G that covers A. -/
 example {G : Type*} [AddCommGroup G] (A : Set G) :  ∃ (S : Submodule ℤ G) (v : G), FiniteDimensional.finrank ℤ S = dimension A  ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_spec (exists_coset_cover A)
@@ -51,7 +51,7 @@ example {G : Type*} [AddCommGroup G] (A : Set G) (d:ℕ) (h: d < dimension A): �
 variable  {G : Type u} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G]  [MeasurableSpace G] [MeasurableSingletonClass G]
 
 /-- Weak PFR over the integers -/
-example (A : Set G) [Finite A]  [Nonempty A] (K : ℝ) (hK: 0 < K) (hA: Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-17 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40/log 2) * log K := weak_PFR_int hK hA
+example (A : Set G) [Finite A]  [hn: Nonempty A] (K : ℝ) (hK: 0 < K) (hA: Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-17 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40/log 2) * log K := weak_PFR_int (Set.nonempty_coe_sort.mp hn) hK hA
 
 end PFR
 
