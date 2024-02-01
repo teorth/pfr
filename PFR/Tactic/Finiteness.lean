@@ -58,8 +58,7 @@ nonnegative reals (`ℝ≥0∞`). -/
 macro (name := finiteness) "finiteness" c:Aesop.tactic_clause* : tactic =>
 `(tactic|
   aesop $c*
-    (options := { introsTransparency? := some .reducible, terminal := true })
-    (simp_options := { enabled := false })
+    (config := { introsTransparency? := some .reducible, terminal := true, enableSimp := false })
     (rule_sets [$(Lean.mkIdent `Finiteness):ident, -default, -builtin]))
 
 /-! ## Tests -/

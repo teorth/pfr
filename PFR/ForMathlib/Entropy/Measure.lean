@@ -463,8 +463,7 @@ lemma measureEntropy_comap (μ : Measure S) (f : T → S) (hf : MeasurableEmbedd
     rwa [← hx] at this
   exact hf.injective
 
-lemma measureEntropy_comap_equiv (μ : Measure S) (f : T ≃ᵐ S) :
-    Hm[μ.comap f] = Hm[μ] := by
+lemma measureEntropy_comap_equiv (μ : Measure S) (f : T ≃ᵐ S) : Hm[μ.comap f] = Hm[μ] := by
   refine measureEntropy_comap μ f f.measurableEmbedding ?_
   simp only [ae_eq_univ]
   have : Set.range f = Set.univ := Equiv.range_eq_univ _
@@ -726,12 +725,15 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         rw [H] at hyp
         have := inv_mul_eq_one₀' hyp
         convert this.symm
-      have : {p.2} ⊆ (E2 : Set U)ᶜ := by simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp2
-      replace : (Measure.map Prod.snd μ).real {p.2} = 0 := by rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE2
+      have : {p.2} ⊆ (E2 : Set U)ᶜ
+      · simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp2
+      replace : (Measure.map Prod.snd μ).real {p.2} = 0
+      · rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE2
       have hp : μ.real {p} = 0 := by contrapose! this; exact (h_snd_ne_zero p) this
       simp [hp, this]
     have : {p.1} ⊆ (E1 : Set S)ᶜ := by simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp1
-    replace : (Measure.map Prod.fst μ).real {p.1} = 0 := by rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE1
+    replace : (Measure.map Prod.fst μ).real {p.1} = 0
+    · rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE1
     have hp : μ.real {p} = 0 := by contrapose! this; exact (h_fst_ne_zero p) this
     simp [hp, this]
   intro hyp ⟨s, u⟩ _ hw

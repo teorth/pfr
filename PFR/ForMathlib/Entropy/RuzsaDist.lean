@@ -72,7 +72,7 @@ lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Fintype Ω]
   intro ω _
   apply Real.continuous_negMulLog.comp
   simp only [measure_univ, inv_one, one_smul]
-  exact continuous_probabilityMeasure_apply_of_isClopen (s := {ω}) ⟨isOpen_discrete _, T1Space.t1 _⟩
+  exact continuous_probabilityMeasure_apply_of_isClopen (s := {ω}) $ isClopen_discrete _
 
 lemma continuous_entropy_restrict_probabilityMeasure [Fintype G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :

@@ -355,7 +355,7 @@ lemma PFR_projection'
         have hcard₀ := Nat.card_congr <| (AddSubgroup.addSubgroupOfEquivOfLe Hlt.le).toEquiv
         have hcard₁ := Nat.card_congr <|
           (QuotientAddGroup.quotientKerEquivRange (ψ.restrict H'')).toEquiv
-        have hcard₂ := AddSubgroup.card_eq_card_quotient_add_card_addSubgroup (H.addSubgroupOf H'')
+        have hcard₂ := AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup (H.addSubgroupOf H'')
         rw [ψ.ker_restrict H'', QuotientAddGroup.ker_mk', ψ.restrict_range H''] at hcard₁
         simpa only [← Nat.card_eq_fintype_card, hcard₀, hcard₁] using hcard₂
       calc
@@ -699,7 +699,10 @@ lemma weak_PFR_quotient_prelim :
     rw [injective_iff_map_eq_zero]
     intro x hx
     rcases QuotientAddGroup.mk'_surjective G₂ x with ⟨y, rfl⟩
-    simp_rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, AddMonoidHom.coe_comp, AddMonoidHom.coe_coe, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,FunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,ZMod.int_cast_zmod_eq_zero_iff_dvd] at hx
+    simp_rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, AddMonoidHom.coe_comp,
+      AddMonoidHom.coe_coe, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply,
+      Int.coe_castAddHom, DFunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,
+      ZMod.int_cast_zmod_eq_zero_iff_dvd] at hx
     replace hx := fun x ↦ Int.mul_ediv_cancel' (hx x)
     let z (b : B) := ((Module.Free.chooseBasis ℤ G).repr y) b / 2
     let z' := (Finsupp.equivFunOnFinite).symm z

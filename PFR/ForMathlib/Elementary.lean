@@ -252,16 +252,17 @@ open Set
 
 lemma exists_finsupp {G : Type*} [AddCommGroup G] {n : ℕ}
     [ElementaryAddCommGroup G (n + 1)] {A : Set G} {x : G} (hx : x ∈ Submodule.span ℤ A) :
-    ∃ μ : A →₀ ZMod (n + 1), (μ.sum fun a r ↦ (r : ℤ) • (a : G)) = x := by
+    ∃ μ : A →₀ ZMod (n + 1), (μ.sum fun a r ↦ (ZMod.cast r : ℤ) • (a : G)) = x := by
   rcases mem_span_set.1 hx with ⟨w, hw, rfl⟩; clear hx
   use (w.subtypeDomain A).mapRange (↑) rfl
   rw [Finsupp.sum_mapRange_index (by simp)]
   set A' := w.support.preimage ((↑) : A → G) injOn_subtype_val
-  erw [Finsupp.sum_subtypeDomain_index hw (h := fun (a : G) (r : ℤ) ↦ ((r : ZMod (n+1)) : ℤ) • a)]
+  erw [Finsupp.sum_subtypeDomain_index hw
+    (h := fun (a : G) (r : ℤ) ↦ (ZMod.cast (r : ZMod (n+1)) : ℤ) • a)]
   refine (Finsupp.sum_congr ?_).symm
   intro g _
   generalize w g = r
-  have : ∃ k : ℤ, ((r : ZMod (n+1)) : ℤ) = r + k*(n+1) := by
+  have : ∃ k : ℤ, (ZMod.cast (r : ZMod (n+1)) : ℤ) = r + k*(n+1) := by
     use -(r / (n+1))
     rw_mod_cast [ZMod.coe_int_cast, Int.mod_eq, sub_eq_add_neg, neg_mul]
   rcases this with ⟨k, hk⟩
@@ -276,7 +277,7 @@ lemma finite_closure {G : Type*} [AddCommGroup G] {n : ℕ}
   have : Fintype A := Finite.fintype h
   have : Fintype (A →₀ ZMod (n + 1)) := Finsupp.fintype
   rw [← Submodule.span_int_eq_addSubgroup_closure, Submodule.coe_toAddSubgroup]
-  let φ : (A →₀ ZMod (n + 1)) → G := fun μ ↦ μ.sum fun a r ↦ (r : ℤ) • (a : G)
+  let φ : (A →₀ ZMod (n + 1)) → G := fun μ ↦ μ.sum fun a r ↦ (ZMod.cast r : ℤ) • (a : G)
   have : SurjOn φ univ (Submodule.span ℤ A : Set G) := by
     intro x hx
     rcases exists_finsupp hx with ⟨μ, hμ⟩
@@ -317,7 +318,8 @@ instance (priority := low) module : Module (ZMod 2) G where
   zero_smul := fun _ => rfl
 
 
-lemma quotient_group {G : Type*} [AddCommGroup G] {p : ℕ} (hp: p.Prime) {H : AddSubgroup G} (hH: ∀ x : G, p • x ∈ H) : ElementaryAddCommGroup (G ⧸ H) p := by
+lemma quotient_group {G : Type*} [AddCommGroup G] {p : ℕ} (hp : p.Prime) {H : AddSubgroup G}
+    (hH : ∀ x : G, p • x ∈ H) : ElementaryAddCommGroup (G ⧸ H) p := by
   apply of_torsion hp
   intro x
   rcases QuotientAddGroup.mk'_surjective H x with ⟨y, rfl⟩

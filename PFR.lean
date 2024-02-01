@@ -31,13 +31,13 @@ import PFR.Mathlib.Algebra.BigOperators.Basic
 import PFR.Mathlib.Algebra.Group.Hom.Basic
 import PFR.Mathlib.Algebra.GroupWithZero.Units.Lemmas
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
+import PFR.Mathlib.Data.ENNReal.Basic
 import PFR.Mathlib.Data.Fin.Basic
 import PFR.Mathlib.Data.Finset.Sigma
 import PFR.Mathlib.Data.Fintype.Card
 import PFR.Mathlib.Data.Fintype.Lattice
 import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.Data.Fin.VecNotation
-import PFR.Mathlib.Data.Real.Ennreal
 import PFR.Mathlib.Data.Set.Image
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.Data.Set.Sigma
