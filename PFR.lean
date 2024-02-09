@@ -26,7 +26,6 @@ import PFR.ForMathlib.Uniform
 import PFR.HomPFR
 import PFR.HundredPercent
 import PFR.ImprovedPFR
-import PFR.LeanAPAP.Extras.BSG
 import PFR.Main
 import PFR.Mathlib.Algebra.BigOperators.Basic
 import PFR.Mathlib.Algebra.Group.Hom.Basic
