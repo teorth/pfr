@@ -376,7 +376,7 @@ lemma construct_good_prelim :
 
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
   · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
-    · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
+    · simp [integral_sub (.of_finite _ _) (.of_finite _ _)]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
@@ -385,7 +385,7 @@ lemma construct_good_prelim :
 
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
   · have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂]
-    · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
+    · simp [integral_sub (.of_finite _ _) (.of_finite _ _)]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
@@ -393,13 +393,13 @@ lemma construct_good_prelim :
 
   have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2
   · have : sum4 = sum1 + p.η * (sum2 + sum3)
-    · simp only [integral_add (integrable_of_fintype _ _) (integrable_of_fintype _ _),
+    · simp only [integral_add (.of_finite _ _) (.of_finite _ _),
         integral_mul_left]
     linarith
 
   have hk : k ≤ sum4
   · suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
-    refine integral_mono_ae (integrable_of_fintype _ _) (integrable_of_fintype _ _) $
+    refine integral_mono_ae (.of_finite _ _) (.of_finite _ _) $
       ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
       cond_isProbabilityMeasure ℙ (by simpa [hT₃] using ht)

@@ -1229,7 +1229,7 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
     _ = H[A₁ - B₂ | Z' ; ν] - H[A₁ | Z' ; ν] / 2 - H[B₂ | Z' ; ν] / 2 := by
         rw [integral_sub, integral_sub, integral_div, integral_div]
         rfl
-        all_goals exact integrable_of_fintype _ _
+        all_goals exact .of_finite _ _
     _ ≤ 2 * I[A : B ; μ] + H[Z ; μ] - H[A₁ | Z' ; ν] / 2 - H[B₂ | Z' ; ν] / 2 :=
         sub_le_sub_right (sub_le_sub_right ‹_› _) _
     _ = _ := by rw [hA₁Z, hB₂Z]; ring
