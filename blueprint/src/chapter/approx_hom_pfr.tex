@@ -18,18 +18,18 @@ $$ (\sum_{b \in B} r(b))^2 \leq |B| \sum_{b \in B} r(b)^2.$$
 \end{proof}
 
 \begin{lemma}[Balog--Szemer\'edi--Gowers lemma]\label{bsg}\uses{energy-def}\lean{bsg}\leanok Let $G$ be an abelian group, and let $A$ be a finite non-empty set with $E(A) \geq |A|^3 / K$ for some $K \geq 1$.  Then there is a subset $A'$ of $A$ with $|A'| \geq |A| / (C_1 K^{C_2})$ and $|A'-A'| \leq C_3 K^{C_4} |A|$, where (provisionally)
-$$ C_1 = 2^4, C_2 = 1, C_3 = 2^{10}, C_4 = 4.$$
+$$ C_1 = 2^4, C_2 = 1, C_3 = 2^{10}, C_4 = 5.$$
 \end{lemma}
 
-\begin{proof} See \url{https://terrytao.files.wordpress.com/2024/01/simplebsg.pdf}
+\begin{proof}\leanok See \url{https://terrytao.files.wordpress.com/2024/01/simplebsg.pdf}
 \end{proof}
 
 \begin{theorem}[Approximate homomorphism form of PFR]\label{approx-hom-pfr}\lean{approx_hom_pfr}\leanok Let $G,G'$ be finite abelian $2$-groups.
   Let $f: G \to G'$ be a function, and suppose that there are at least $|G|^2 / K$ pairs $(x,y) \in G^2$ such that
 $$ f(x+y) = f(x) + f(y).$$
 Then there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$
-such that $f(x) = \phi(x)+c$ for at least $|G| / C_1 C_3^{12}
-K^{24C_4 + 2C_2}$ values of $x \in G$.
+such that $f(x) = \phi(x)+c$ for at least $|G| / C_1^{13} C_3^{12}
+K^{24C_4+26 C_2}$ values of $x \in G$.
 \end{theorem}
 
 \begin{proof}\uses{goursat, cs-bound, bsg, pfr_aux-improv}\leanok Consider the graph $A \subset G \times G'$ defined by
@@ -38,10 +38,10 @@ Clearly, $|A| = |G|$.  By hypothesis, we have $a+a' \in A$ for at least
 $|A|^2/K$ pairs $(a,a') \in A^2$. By Lemma \ref{cs-bound}, this implies that
 $E(A) \geq |A|^3/K^2$.  Applying Lemma \ref{bsg}, we conclude that there
 exists a subset $A' \subset A$ with $|A'| \geq |A|/C_1 K^{2C_2}$ and $|A'+A'|
-\leq L|A'|$, where $L = C_3 K^{2C_4}$. Applying Lemma \ref{pfr_aux-improv}, we may
-find a subspace $H \subset G \times G'$
-and a subset $c$ of cardinality at most $L^6 |A'|^{1/2} / |H|^{1/2}$
-such that $A' \subseteq c + H$. If we let
+\leq C_1C_3 K^{2(C_2+C_4)} |A'|$. Applying Lemma \ref{pfr_aux-improv}, we may
+find a subspace $H \subset G \times G'$ such that $|H| / |A'| \in [L^{-10},
+L^{10}$ and a subset $c$ of cardinality at most $L^6 |A'|^{1/2} / |H|^{1/2}$
+such that $A' \subseteq c + H$, where $L =  C_1C_3 K^{2(C_2+C_4)}$. If we let
 $H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections
 the projection of $A'$ to $G$ is covered by at most $|c|$ translates of
 $H_0$.  This implies that
@@ -59,6 +59,6 @@ $$
 $$
 
 By the pigeonhole principle, one of these translates must then contain at
-least $|A'|/L^{12} \geq |G| / (C_3 K^{2C_4})^{12} (C_1 K^{2C_2})$
+least $|A'|/L^{12} \geq |G| / (C_1C_3 K^{2(C_2+C_4)})^{12} (C_1 K^{2C_2})$
 elements of $A'$ (and hence of $A$), and the claim follows.
 \end{proof}
