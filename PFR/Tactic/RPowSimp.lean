@@ -199,7 +199,7 @@ def rewrite (parent : Expr) (root := true) : M Simp.Result := fun nctx rctx s �
       pure (.done r)
     catch _ =>
       pure <| Simp.Step.visit { expr := e }
-  let post := (Simp.postDefault · fun _ ↦ none)
+  let post := (Simp.postDefault #[])
   (·.1) <$> Simp.main parent nctx.ctx (methods := { pre, post })
 
 open RingNF in
@@ -221,7 +221,7 @@ def M.run
     ].foldlM (·.addConst ·) thms
   let ctx' := { ctx with simpTheorems := #[thms] }
   let simp (r' : Simp.Result) := do
-    Simp.mkEqTrans r' (← Simp.main r'.expr ctx' (methods := Simp.DefaultMethods.methods)).1
+    Simp.Result.mkEqTrans r' (← Simp.main r'.expr ctx' (methods := Simp.mkDefaultMethodsCore #[])).1
   x { ctx := { ctx with config.singlePass := true }, simp } { red := cfg.red } s
 
 open Elab.Tactic Parser.Tactic

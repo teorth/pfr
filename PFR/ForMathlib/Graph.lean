@@ -45,6 +45,9 @@ lemma graph_comp {A B C : Type*} {f : A → B} (g : B → C) :
     rw [h]
   · rintro ⟨x, rfl⟩; rfl
 
+lemma graph_nonempty [Nonempty G] (f : G → G') : (graph f).Nonempty := by
+  inhabit G; exact ⟨_, default, rfl⟩
+
 lemma graph_add [AddGroup G] [AddCommGroup G'] {f : G →+ G'} {c : G × G'} :
     (c+·) '' graph f = {(g, f g + (c.2 - f c.1)) | g : G} := by
   ext x

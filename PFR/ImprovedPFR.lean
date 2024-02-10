@@ -338,13 +338,13 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   -- rewrite sum2 and sum3 as Rusza distances
   have h2 : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
 
-    simp only [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _), integral_const,
+    simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
-    simp only [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _), integral_const,
+    simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
@@ -352,13 +352,13 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
       + (d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂])) := by
     have : sum4 = sum1 + p.η * (sum2 + sum3) := by
-      simp only [integral_add (integrable_of_fintype _ _) (integrable_of_fintype _ _),
+      simp only [integral_add (.of_finite _ _) (.of_finite _ _),
         integral_mul_left]
     rw [this, h2, h3, add_assoc, mul_add]
     linarith
   have hk : k ≤ sum4 := by
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
-    refine integral_mono_ae (integrable_of_fintype _ _) (integrable_of_fintype _ _) $
+    refine integral_mono_ae (.of_finite _ _) (.of_finite _ _) $
       ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
       cond_isProbabilityMeasure ℙ (by simpa [hT₃] using ht)

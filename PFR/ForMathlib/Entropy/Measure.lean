@@ -2,10 +2,9 @@ import PFR.ForMathlib.FiniteRange
 import PFR.ForMathlib.MeasureReal
 import PFR.Mathlib.Algebra.GroupWithZero.Units.Lemmas
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.Data.Fintype.Card
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
-
+import LeanAPAP.Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Entropy of a measure
@@ -165,7 +164,7 @@ lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
     simp at ha
     simp [ha]
   apply Integrable.congr _ this
-  apply Integrable.comp_measurable (integrable_of_fintype _ _)
+  apply Integrable.comp_measurable (.of_finite _ _)
   apply measurable_of_countable
 
 lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*} [MeasurableSingletonClass Ω]
