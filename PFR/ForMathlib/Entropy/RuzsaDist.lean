@@ -1,9 +1,11 @@
+import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
+import LeanAPAP.Mathlib.Data.Finset.Basic
+import LeanAPAP.Mathlib.Algebra.BigOperators.Basic
 import PFR.ForMathlib.Elementary
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.ProbabilityMeasureProdCont
-import PFR.Mathlib.Algebra.BigOperators.Basic
 import PFR.Mathlib.Algebra.Group.Hom.Basic
 import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Probability.IdentDistrib

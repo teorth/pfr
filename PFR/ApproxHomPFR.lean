@@ -2,7 +2,6 @@ import Mathlib.Combinatorics.Additive.Energy
 import Mathlib.Analysis.NormedSpace.PiLp
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import LeanAPAP.Extras.BSG
-import PFR.Mathlib.Combinatorics.Additive.Energy
 import PFR.HomPFR
 
 /-!
@@ -96,11 +95,11 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
     _ = (Finset.card A)^3 / K^2 := by
       rw [pow_succ, mul_comm, mul_div_assoc, div_self (ne_of_gt hA_pos), mul_one,
         Nat.card_eq_finsetCard]
-  have hA : A.Nonempty := (Set.Finite.toFinset_nonempty _).2 $ Set.graph_nonempty _
+  have hA_nonempty : A.Nonempty := (Set.Finite.toFinset_nonempty _).2 $ Set.graph_nonempty _
   obtain ⟨A', hA', hA'1, hA'2⟩ := bsg A _ (K^2) (sq_nonneg _) (by convert this)
   clear h_cs hf this
   have hA'₀ : A'.Nonempty := Finset.card_pos.1 $ Nat.cast_pos.1 $ hA'1.trans_lt' $ by
-    have := hA.card_pos; positivity
+    have := hA_nonempty.card_pos; positivity
 
   let A'' := A'.toSet
   have hA''_coe : Nat.card A'' = Finset.card A' := Nat.card_eq_finsetCard A'
@@ -215,34 +214,25 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
   use φ, -φ c'.1 + c'.2 + h
   refine LE.le.trans ?_ hch
   unfold_let cH₁
-  rewrite [← Nat.card_eq_finsetCard, div_div, hA]
-  apply div_le_div_of_le_left (Nat.cast_nonneg _) <| mul_pos h_pos1 <| Nat.cast_pos.mpr <|
-    Finset.card_pos.mpr <| (Set.Finite.toFinset_nonempty _).mpr h_nonempty
-  rewrite [← c.toFinite.toFinset_prod (H₁ : Set G').toFinite, Finset.card_product]
-  repeat rewrite [Set.Finite.card_toFinset, ← Nat.card_eq_fintype_card]
-  rewrite [Nat.cast_mul, ← mul_assoc _ (Nat.card c : ℝ)]
-  replace := mul_nonneg h_pos1.le (Nat.cast_nonneg (Nat.card c))
-  apply (mul_le_mul_of_nonneg_left h_le_H₁ this).trans
-  rewrite [mul_div_assoc, ← mul_assoc, mul_comm _ (Nat.card c : ℝ), mul_assoc]
-  have hHA := div_nonneg (α := ℝ) (Nat.cast_nonneg (Nat.card H)) <| Nat.cast_nonneg (Nat.card A'')
-  apply (mul_le_mul_of_nonneg_right hc_card <| mul_nonneg this hHA).trans
-  rewrite [mul_comm, mul_assoc, mul_comm _ (Nat.card c : ℝ), mul_assoc]
-  refine (mul_le_mul_of_nonneg_right hc_card ?_).trans_eq ?_
-  · exact mul_nonneg h_pos1.le <| mul_nonneg hHA <| by positivity
-  have h_pos2 : 0 < (C₃ : ℝ) * (K ^ 2) ^ C₄ :=
-    mul_pos (by unfold C₃; norm_num) (pow_pos (pow_pos hK 2) C₄)
-  rewrite [mul_comm, mul_assoc, mul_assoc, mul_assoc, mul_mul_mul_comm,
-    ← Real.rpow_add (Nat.cast_pos.mpr Nat.card_pos), mul_mul_mul_comm,
-    ← Real.rpow_add (Nat.cast_pos.mpr Nat.card_pos), ← Real.rpow_add h_pos2]
-  norm_num
-  rewrite [mul_comm _ (Finset.card A' : ℝ), mul_assoc (Finset.card A' : ℝ),
-    ← mul_assoc _ (Finset.card A' : ℝ), div_mul_cancel _ <|
-    Nat.cast_ne_zero.mpr (Finset.card_pos.mpr hA''_nonempty).ne.symm, Real.rpow_neg_one,
-    mul_comm (Fintype.card H : ℝ), mul_assoc _ _ (Fintype.card H : ℝ),
-    inv_mul_cancel <| NeZero.natCast_ne _ _, mul_one, ← pow_mul,
-    Real.mul_rpow (by norm_num) (pow_nonneg (sq_nonneg K) C₄), ← pow_mul,
-    mul_comm (K ^ _), mul_assoc _ _ (K ^ _)]
-  repeat rewrite [show (12 : ℝ) = ((12 : ℕ) : ℝ) from rfl]
-  repeat rewrite [Real.rpow_nat_cast]
-  rewrite [← pow_mul, ← pow_add, mul_right_comm, ← mul_assoc]
-  norm_num
+  rewrite [← Nat.card_eq_finsetCard, hA, ← mul_inv, inv_mul_eq_div, div_div]
+  apply div_le_div (Nat.cast_nonneg _) le_rfl
+  · apply mul_pos
+    · apply mul_pos
+      · norm_num
+      · exact sq_pos_of_pos hK
+    · rewrite [Nat.cast_pos, Finset.card_pos, Set.Finite.toFinset_nonempty _]
+      exact h_nonempty
+  · rw [mul_assoc (2^4), mul_comm (K^2), pow_add, ← mul_assoc (_ * _), ← mul_assoc (2^4)]
+    gcongr ?_ * K^2
+    rw [mul_assoc, C₁]
+    gcongr
+    · norm_num
+    rewrite [← c.toFinite.toFinset_prod (H₁ : Set G').toFinite, Finset.card_product]
+    repeat rewrite [Set.Finite.card_toFinset, ← Nat.card_eq_fintype_card]
+    push_cast
+    refine (mul_le_mul_of_nonneg_left h_le_H₁ (Nat.cast_nonneg _)).trans ?_
+    refine (mul_le_mul_of_nonneg_right hc_card (by positivity)).trans ?_
+    rewrite [mul_div_left_comm]
+    refine (mul_le_mul_of_nonneg_right hc_card ?_).trans ?_
+    sorry
+    stop
