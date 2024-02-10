@@ -96,7 +96,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
       rw [pow_succ, mul_comm, mul_div_assoc, div_self (ne_of_gt hA_pos), mul_one,
         Nat.card_eq_finsetCard]
   have hA_nonempty : A.Nonempty := (Set.Finite.toFinset_nonempty _).2 $ Set.graph_nonempty _
-  obtain ⟨A', hA', hA'1, hA'2⟩ := bsg A _ (K^2) (sq_nonneg _) (by convert this)
+  obtain ⟨A', hA', hA'1, hA'2⟩ := bsg A hA_nonempty (K^2) (sq_nonneg _) (by convert this)
   clear h_cs hf this
   have hA'₀ : A'.Nonempty := Finset.card_pos.1 $ Nat.cast_pos.1 $ hA'1.trans_lt' $ by
     have := hA_nonempty.card_pos; positivity
@@ -248,6 +248,9 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
       Real.mul_rpow (by positivity) (by positivity)]
     have : K ^ (12 : ℕ) = K ^ (12 : ℝ) := (Real.rpow_nat_cast K 12).symm
     rw [this, ← Real.rpow_mul (by positivity)]
-    norm_num
-    exact Real.rpow_nat_cast K 144
-    sorry
+    repeat rewrite [show (6 : ℝ) * (2 : ℝ) = 12 by norm_num]
+    rw [show (2 : ℝ)^14 = (16 : ℝ) * (2 : ℝ)^10 by norm_num,
+      show (12 : ℝ) * (12 : ℝ) = 144 by norm_num]
+    congr 1
+    · exact Real.rpow_nat_cast _ 12
+    · exact Real.rpow_nat_cast K 144
