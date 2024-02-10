@@ -114,7 +114,13 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
     rewrite [← this, hA''_coe]
     calc
       (_ : ℝ) ≤ 2 ^ 10 * (K ^ 2) ^ 5 * A.card := by convert hA'2
-      _ = 2 ^ 14 * K ^ 12 * ((2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * A.card) := sorry
+      _ = 2 ^ 14 * K ^ 12 * ((2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * A.card) := by
+        rw [mul_mul_mul_comm, ← mul_assoc (2^14), ← Real.rpow_two, mul_assoc _ (_)⁻¹,
+          ← mul_assoc (_)⁻¹, ← Real.rpow_neg (by positivity),
+          show K ^ (12 : ℕ) = K ^ (12 : ℝ) from (Real.rpow_nat_cast K 12).symm,
+          show (K ^ (2 : ℝ)) ^ (5 : ℕ) = (K ^ (2 : ℝ)) ^ (5 : ℝ) from (Real.rpow_nat_cast _ 5).symm,
+          ← Real.rpow_add (by positivity), ← Real.rpow_mul (by positivity), mul_assoc]
+        norm_num
       _ ≤ _ := by gcongr
   obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := PFR_conjecture_improv_aux hA''_nonempty this
   clear hA'2 hA''_coe hH_le hH_ge hA_pos
