@@ -63,5 +63,34 @@ lemma graph_add [AddGroup G] [AddCommGroup G'] {f : G →+ G'} {c : G × G'} :
   · rintro ⟨g, rfl⟩;
     abel_nf
 
+variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G'] [DecidableEq G]
+  [DecidableEq G']
+
+lemma equiv_filter_graph (f : G → G') :
+    let A := (Set.graph f).toFinite.toFinset
+    (A ×ˢ A).filter (fun (a, a') ↦ a + a' ∈ A) ≃ {x : G × G | f (x.1 + x.2) = f x.1 + f x.2} where
+  toFun := fun ⟨a, ha⟩ ↦ by
+    let A := (Set.graph f).toFinite.toFinset
+    use (a.1.1, a.2.1)
+    apply Finset.mem_filter.mp at ha
+    have h {a} (h' : a ∈ A) := (Set.mem_graph _).mp <| (Set.graph f).toFinite.mem_toFinset.mp h'
+    show f (a.1.1 + a.2.1) = (f a.1.1) + (f a.2.1)
+    rw [h (Finset.mem_product.mp ha.1).1, h (Finset.mem_product.mp ha.1).2]
+    exact h ha.2
+  invFun := fun ⟨a, ha⟩ ↦ by
+    use ((a.1, f a.1), (a.2, f a.2))
+    refine Finset.mem_filter.mpr ⟨Finset.mem_product.mpr ⟨?_, ?_⟩, ?_⟩
+    <;> apply (Set.graph f).toFinite.mem_toFinset.mpr
+    · exact ⟨a.1, rfl⟩
+    · exact ⟨a.2, rfl⟩
+    · exact (Set.mem_graph _).mpr ha
+  left_inv := fun ⟨x, hx⟩ ↦ by
+    apply Subtype.ext
+    show ((x.1.1, f x.1.1), x.2.1, f x.2.1) = x
+    obtain ⟨hx1, hx2⟩ := Finset.mem_product.mp (Finset.mem_filter.mp hx).1
+    rewrite [(Set.graph f).toFinite.mem_toFinset] at hx1 hx2
+    rw [(Set.mem_graph x.1).mp hx1, (Set.mem_graph x.2).mp hx2]
+  right_inv := fun _ ↦ rfl
+
 end Set
 end Graph
