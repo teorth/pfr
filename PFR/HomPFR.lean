@@ -28,9 +28,8 @@ variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype 
 /-- Let $H_0$ be a subgroup of $G$.  Then every homomorphism $\phi: H_0 \to G'$ can be extended to a
 homomorphism $\tilde \phi: G \to G'$. -/
 lemma hahn_banach (H₀ : AddSubgroup G) (φ : H₀ →+ G') : ∃ (φ' : G →+ G'), ∀ x : H₀, φ x = φ' x := by
-  let H₀ : Submodule (ZMod 2) G := H₀
-  let φ : H₀ →+ G' := φ
-  let φ : H₀ →ₗ[ZMod 2] G' := φ
+  let H₀ := AddSubgroup.toZModSubmodule 2 H₀
+  let φ := (show H₀ →+ G' from φ).toZModLinearMap 2
   obtain ⟨φ', hφ'⟩ := φ.exists_extend
   use φ'; intro x; show φ x = φ'.comp H₀.subtype x; rw [hφ']
 
@@ -41,10 +40,11 @@ In particular, $|H| = |H_0| |H_1|$. -/
 lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : AddSubgroup G') (φ : G →+ G'),
     (∀ x : G × G', x ∈ H ↔ (x.1 ∈ H₀ ∧ x.2 - φ x.1 ∈ H₁)) ∧
     (Nat.card H) = (Nat.card H₀) * (Nat.card H₁) := by
-  obtain ⟨S₁, S₂, f, φ, hf, hf_inv⟩ := (H.toSubmodule (n := 2)).exists_equiv_fst_sndModFst
+  let H := AddSubgroup.toZModSubmodule 2 H
+  obtain ⟨S₁, S₂, f, φ, hf, hf_inv⟩ := H.exists_equiv_fst_sndModFst
   use S₁.toAddSubgroup, S₂.toAddSubgroup, φ
   constructor ; swap
-  · show Nat.card (H.toSubmodule (n := 2)) = _
+  · show Nat.card H = _
     exact Eq.trans (Nat.card_eq_of_bijective f f.bijective) (Nat.card_prod S₁ S₂)
   · intro x
     · constructor

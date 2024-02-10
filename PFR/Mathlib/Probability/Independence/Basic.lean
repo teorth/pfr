@@ -281,7 +281,7 @@ lemma iIndepFun.pi
     intro ij hij
     rw [← Finset.mem_singleton.mp (Finset.mem_sigma.mp hij).left] at hi
     convert (h_sets ⟨ij.fst, hi⟩).left ij.snd
-    simp? [hi] says simp only [hi, dite_true]
+    simp [hi]
   intros ij hij
   obtain ⟨hi, _⟩ := Finset.mem_sigma.mp hij
   simp_rw [hi]
