@@ -76,7 +76,7 @@ $f(x) = \phi(x)+c$ for at least $|G| / C_1 C_3^{12} K^{24C_4 + 2C_2}$ values of 
 theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
     (hf: Nat.card { x : G × G | f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2 / K) :
     ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥
-    Nat.card G / (C₁ * C₃^12 * K^(24 * C₄ + 2)) := by
+    Nat.card G / (C₁ * (C₁ * C₃)^12 * K^(144 + 2)) := by
   let A := (Set.graph f).toFinite.toFinset
 
   have h_cs : ((A ×ˢ A).filter (fun (a, a') ↦ a + a' ∈ A) |>.card : ℝ) ^ 2 ≤
@@ -232,7 +232,22 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK: K > 0)
     push_cast
     refine (mul_le_mul_of_nonneg_left h_le_H₁ (Nat.cast_nonneg _)).trans ?_
     refine (mul_le_mul_of_nonneg_right hc_card (by positivity)).trans ?_
-    rewrite [mul_div_left_comm]
-    refine (mul_le_mul_of_nonneg_right hc_card ?_).trans ?_
+    rewrite [mul_div_left_comm, mul_assoc]
+    refine (mul_le_mul_of_nonneg_right hc_card (by positivity)).trans_eq ?_
+    rw [mul_assoc ((_ * _)^6), mul_mul_mul_comm, mul_comm (_ ^ (1/2) * _), mul_comm_div,
+      ← mul_assoc _ (_^_) (_^_), mul_div_assoc, mul_mul_mul_comm _ (_^_) (_^_),
+      ← mul_div_assoc, mul_assoc _ (_^(1/2)) (_^(1/2)),
+      ← Real.rpow_add (Nat.cast_pos.mpr Nat.card_pos), add_halves, Real.rpow_one,
+      ← Real.rpow_add (Nat.cast_pos.mpr Nat.card_pos), add_halves, Real.rpow_neg_one,
+      mul_comm _ (_ / _), mul_assoc (_^6)]
+    conv => { lhs; rhs; rw [← mul_assoc, ← mul_div_assoc, mul_comm_div, mul_div_assoc] }
+    rw [div_self <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, mul_one]
+    push_cast
+    rw [mul_inv_cancel <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, one_mul, ← sq,
+      ← Real.rpow_two, ← Real.rpow_mul (by positivity), C₃,
+      Real.mul_rpow (by positivity) (by positivity)]
+    have : K ^ (12 : ℕ) = K ^ (12 : ℝ) := (Real.rpow_nat_cast K 12).symm
+    rw [this, ← Real.rpow_mul (by positivity)]
+    norm_num
+    exact Real.rpow_nat_cast K 144
     sorry
-    stop
