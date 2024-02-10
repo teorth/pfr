@@ -187,7 +187,7 @@ partial def eval (e : Q(ℝ)) : AtomM (Result ExProd e) := Lean.withIncRecDepth 
   | _ => els
 
 def rewrite (parent : Expr) (root := true) : M Simp.Result := fun nctx rctx s ↦
-  let pre e :=
+  let pre : Simp.Simproc := fun e =>
     try
       guard <| root || parent != e -- recursion guard
       let e ← withReducible <| whnf e
@@ -197,8 +197,7 @@ def rewrite (parent : Expr) (root := true) : M Simp.Result := fun nctx rctx s �
       let r ← nctx.simp { expr := a, proof? := pa }
       if ← withReducible <| isDefEq r.expr e then return .done { expr := r.expr }
       pure (.done r)
-    catch _ =>
-      pure <| Simp.Step.visit { expr := e }
+    catch _ => pure <| .continue
   let post := (Simp.postDefault #[])
   (·.1) <$> Simp.main parent nctx.ctx (methods := { pre, post })
 
@@ -221,7 +220,7 @@ def M.run
     ].foldlM (·.addConst ·) thms
   let ctx' := { ctx with simpTheorems := #[thms] }
   let simp (r' : Simp.Result) := do
-    Simp.Result.mkEqTrans r' (← Simp.main r'.expr ctx' (methods := Simp.mkDefaultMethodsCore #[])).1
+    r'.mkEqTrans (← Simp.main r'.expr ctx' (methods := ← Lean.Meta.Simp.mkDefaultMethods)).1
   x { ctx := { ctx with config.singlePass := true }, simp } { red := cfg.red } s
 
 open Elab.Tactic Parser.Tactic
