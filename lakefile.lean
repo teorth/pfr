@@ -22,7 +22,7 @@ def weakLeanArgs : Array String :=
 
 package PFR where
   leanOptions := #[
-    ⟨`relaxedAutoImplicit, true⟩, -- prevents typos to be interpreted as new free variables
+    ⟨`relaxedAutoImplicit, false⟩, -- prevents typos to be interpreted as new free variables
     ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
     ⟨`pp.proofs.withType, false⟩]
   -- add any package configuration options here

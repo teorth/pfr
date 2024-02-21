@@ -115,7 +115,7 @@ lemma CondIndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi'
   rw [← Measure.map_map hh hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
   refine hfg.mono $ fun c hc ↦ ?_
   rw [preimage_comp, ← comap_cond hi hi' $ hh $ measurableSet_singleton _]
-  exact IndepFun.comp_right hi (cond_absolutelyContinuous.ae_le hi') hf hg hc
+  exact IndepFun.comp_right hi (cond_absolutelyContinuous'.ae_le hi') hf hg hc
 
 end defs
 
@@ -274,8 +274,8 @@ lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY 
   let i := Subtype.val (p := fun ω ↦ p (X₁ ω) (Y' ω) ∧ p (X₂ ω) (Y' ω))
   have hi : MeasurableEmbedding i := MeasurableEmbedding.subtype_coe
     ((hp.comp $ hX₁.prod_mk hY').and $ hp.comp $ hX₂.prod_mk hY').setOf
-  have hi' : ∀ᵐ ω ∂ν, ω ∈ range i
-  · simp only [mem_setOf_eq, Subtype.range_coe_subtype, Filter.eventually_and]
+  have hi' : ∀ᵐ ω ∂ν, ω ∈ range i := by
+    simp only [mem_setOf_eq, Subtype.range_coe_subtype, Filter.eventually_and]
     exact ⟨hXY₁.symm.ae_snd (p := uncurry p) hp.setOf hp',
       hXY₂.symm.ae_snd (p := uncurry p) hp.setOf hp'⟩
   refine ⟨{ω // p (X₁ ω) (Y' ω) ∧ p (X₂ ω) (Y' ω)}, inferInstance, X₁ ∘ (↑), X₂ ∘ (↑), Y' ∘ (↑),

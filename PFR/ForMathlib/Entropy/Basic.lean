@@ -165,8 +165,7 @@ open Function
 lemma IsUniform.entropy_eq (H : Finset S) (X : Ω → S) {μ : Measure Ω} [IsProbabilityMeasure μ]
     (hX : IsUniform H X μ) (hX' : Measurable X) : H[X ; μ] = log (Nat.card H) := by
   haveI : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX'.aemeasurable
-  have : ∀ (t : S), negMulLog ((μ.map X).real {t}) = ((μ.map X).real {t}) * log (Nat.card H)
-  · intro t
+  have (t : S) : negMulLog ((μ.map X).real {t}) = ((μ.map X).real {t}) * log (Nat.card H) := by
     by_cases ht : t ∈ H
     · simp only [negMulLog, neg_mul, neg_mul_eq_mul_neg, IsUniform.measureReal_preimage_of_mem'
         hX hX' ht, one_div, log_inv, neg_neg]
@@ -281,8 +280,8 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) [IsProbabilityMea
   rw [neg_le, ← one_mul (-log _), ← h_pdf1, Finset.sum_mul]
   let g_lhs s := pdf s * neg_log_pdf s_max
   let g_rhs s := -pdf s * log (pdf s)
-  suffices : ∑ s in A, g_lhs s ≤ ∑ s in A, g_rhs s
-  . convert this
+  suffices ∑ s in A, g_lhs s ≤ ∑ s in A, g_rhs s by
+    convert this
     rw [entropy_eq_sum_finset hX hA]
     congr with s
     simp [negMulLog, g_rhs]
@@ -461,6 +460,7 @@ lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [Mea
     · rw [ENNReal.mul_inv_cancel hy (by finiteness), one_mul]
   · rw [A, cond_cond_eq_cond_inter'' (hZ (measurableSet_singleton y))
       (hY (measurableSet_singleton x))]
+    finiteness
 
 /-- $H[X|Y] = \sum_y \sum_x P[Y=y] P[X=x|Y=y] log \frac{1}{P[X=x|Y=y]}$.-/
 lemma condEntropy_eq_sum_sum [MeasurableSingletonClass T] (hX : Measurable X) {Y : Ω → T} (hY : Measurable Y)

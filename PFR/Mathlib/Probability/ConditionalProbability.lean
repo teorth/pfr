@@ -1,6 +1,4 @@
 import Mathlib.Probability.ConditionalProbability
-import Mathlib.Probability.IdentDistrib
-import PFR.Tactic.Finiteness
 
 open ENNReal MeasureTheory MeasurableSpace Measure Set
 open scoped BigOperators
@@ -13,21 +11,14 @@ namespace ProbabilityTheory
 @[inherit_doc cond] -- TODO: Also tag the two existing notations
 scoped notation:60 μ "[|" T " ← " t "]" => μ[|T ⁻¹' {t}]
 
-lemma cond_absolutelyContinuous : μ[|s] ≪ μ :=
-  smul_absolutelyContinuous.trans restrict_le_self.absolutelyContinuous
-
-/-- `μ[|s]` is always a finite measure. -/
-instance cond_isFiniteMeasure : IsFiniteMeasure (μ[|s]) := by
-  constructor
-  simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, MeasurableSet.univ,
-    Measure.restrict_apply, Set.univ_inter, smul_eq_mul, ProbabilityTheory.cond,
-    ← ENNReal.div_eq_inv_mul]
-  exact ENNReal.div_self_le_one.trans_lt ENNReal.one_lt_top
+lemma cond_absolutelyContinuous' : μ[|s] ≪ μ := cond_absolutelyContinuous _
 
 lemma cond_eq_zero_of_measure_eq_zero (hμs : μ s = 0) : μ[|s] = 0 := by
   simp [cond, restrict_eq_zero.2 hμs]
 
 @[simp] lemma cond_eq_zero (hμs : μ s ≠ ⊤) : μ[|s] = 0 ↔ μ s = 0 := by simp [cond, hμs]
+
+lemma cond_eq_zero_of_meas_eq_zero (hμs : μ s = 0) : μ[|s] = 0 := by simp [hμs]
 
 lemma comap_cond (hi : MeasurableEmbedding i) (hi' : ∀ᵐ ω ∂μ, ω ∈ range i) (hs : MeasurableSet s) :
     comap i (μ[|s]) = (comap i μ)[|i ⁻¹' s] := by
@@ -46,39 +37,29 @@ lemma comap_cond (hi : MeasurableEmbedding i) (hi' : ∀ᵐ ω ∂μ, ω ∈ ran
 
 variable [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
 
-/-- The law of total probability : a measure $\mu$ can be expressed as a mixture of its conditional
-measures $\mu[|Y^{-1}\{y\}]$ from a finitely valued random variable $Y$.-/
+/-- The **law of total probability**: a measure `μ` can be expressed as a mixture of its conditional
+measures `μ[|Y ← y]` from a random variable `Y` valued in a fintype. -/
 lemma law_of_total_probability {Y : Ω → T} (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ] :
     μ = ∑ y, μ (Y ⁻¹' {y}) • (μ[|Y ← y]) := by
-  apply Measure.ext
-  intro E hE
-  simp only [Measure.coe_finset_sum, smul_toOuterMeasure, OuterMeasure.coe_smul, Finset.sum_apply,
-    Pi.smul_apply, smul_eq_mul]
-  have : μ E = ∑ y : T, μ (Y ⁻¹' {y} ∩ E) := by
-    have : E = ⋃ y ∈ Set.univ, Y ⁻¹' {y} ∩ E := by
-      simp; ext _; simp
-    nth_rewrite 1 [this]
-    convert measure_biUnion_finset _ _
-    . simp
-    · intro _ _ _ _ hyz
-      apply Disjoint.inf_left
-      apply Disjoint.inf_right
-      apply Disjoint.preimage
-      simp [hyz]
-    intro b _
-    exact MeasurableSet.inter (hY (MeasurableSet.singleton b)) hE
-  rw [this]
-  congr with y
-  rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
-  . simp [hy]
-    exact measure_inter_null_of_null_left E hy
-  symm
-  rw [mul_comm, cond_mul_eq_inter _ (hY (MeasurableSet.singleton y)) hy]
+  ext E hE
+  calc
+    _ = ∑ y, μ (Y ⁻¹' {y} ∩ E) := by
+      have : ⋃ y ∈ Finset.univ, Y ⁻¹' {y} ∩ E = E := by simp; ext _; simp
+      rw [← measure_biUnion_finset _ fun _ _ ↦ (hY (.singleton _)).inter hE, this]
+      aesop (add simp [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_left])
+    _ = _ := by
+      simp only [Measure.coe_finset_sum, smul_toOuterMeasure, OuterMeasure.coe_smul, Finset.sum_apply,
+        Pi.smul_apply, smul_eq_mul]
+      congr with y
+      rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
+      . simp [hy]
+        exact measure_inter_null_of_null_left E hy
+      symm
+      rw [mul_comm, cond_mul_eq_inter _ (hY (MeasurableSet.singleton y)) hy]
 
 /-- Replace `cond_cond_eq_cond_inter'` in mathlib with this version, which removes a nonzero measure
-assumption-/
-theorem cond_cond_eq_cond_inter'' (hms : MeasurableSet s) (hmt : MeasurableSet t)
-    (hcs : μ s ≠ ∞ := by finiteness) :
+assumption -/
+lemma cond_cond_eq_cond_inter'' (hms : MeasurableSet s) (hmt : MeasurableSet t) (hcs : μ s ≠ ∞) :
     μ[|s][|t] = μ[|s ∩ t] := by
   ext u
   rw [cond_apply _ hmt, cond_apply _ hms, cond_apply _ hms, cond_apply _ (hms.inter hmt)]

@@ -133,8 +133,8 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
           Prod.mk.injEq, true_and, exists_eq_right, hg.2]
       · simp only [mem_setOf_eq, Prod.mk.injEq, exists_eq_left, Prod.mk_add_mk, zero_add, true_and,
           sub_add_cancel]
-    have hA_sub : A ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G})
-    · calc
+    have hA_sub : A ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G}) :=
+      calc
         A ⊆ c + (H : Set _) := hAcH
         _ ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G}) := add_subset_add_left this
     rw [← add_assoc] at hA_sub

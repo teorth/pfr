@@ -1,3 +1,4 @@
+import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Kernel.CondDistrib
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable

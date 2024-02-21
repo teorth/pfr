@@ -1,20 +1,12 @@
+import Mathlib.Data.Finset.Sigma
 import Mathlib.Probability.Independence.Basic
 import PFR.ForMathlib.MeasureReal
 import PFR.Mathlib.Data.Fintype.Lattice
-import PFR.Mathlib.Data.Finset.Sigma
 import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.Probability.Independence.Kernel
 
 open Function MeasureTheory MeasurableSpace Measure Set
 open scoped BigOperators MeasureTheory ENNReal
-
-namespace Sigma
-variable {α γ : Type*} {β : α → Type*}
-
-/-- Nondependent eliminator for `Sigma`. -/
-def elim (f : ∀ a, β a → γ) (a : Sigma β) : γ := Sigma.casesOn a f
-
-end Sigma
 
 namespace ProbabilityTheory
 variable {Ω ι β γ : Type*} {κ : ι → Type*}
@@ -42,8 +34,7 @@ lemma iIndepFun.reindex_of_injective (h : iIndepFun n f μ) (g : ι' → ι) (hg
 lemma iIndepFun.reindex (g : ι' ≃ ι) (h : iIndepFun (n ∘' g) (f ∘' g) μ) : iIndepFun n f μ := by
   rw [iIndepFun_iff] at h ⊢
   intro t s hs
-  have : ⋂ i, ⋂ (_ : g i ∈ t), s (g i) = ⋂ i ∈ t, s i
-  · ext x; simp [g.forall_congr_left']
+  have : ⋂ i, ⋂ (_ : g i ∈ t), s (g i) = ⋂ i ∈ t, s i := by ext x; simp [g.forall_congr_left']
   specialize h (t.map g.symm.toEmbedding) (f' := s ∘ g)
   simp [this, g.forall_congr_left'] at h
   apply h
@@ -173,8 +164,8 @@ theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι
   rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
   have h₀ {h : ∀ i, Set (β i)} (hm : ∀ (i : ι), MeasurableSet (h i)) :
       ∏ i : ι, μ (f i ⁻¹' h i) = ∏ i : ι, μ.map (f i) (h i) ∧
-      μ (⋂ i : ι, (f i ⁻¹' h i)) = μ.map (fun ω i ↦ f i ω) (Set.pi univ h)
-  · constructor
+      μ (⋂ i : ι, (f i ⁻¹' h i)) = μ.map (fun ω i ↦ f i ω) (Set.pi univ h) := by
+    constructor
     · rw [Finset.prod_congr (show Finset.univ = Finset.univ by rfl)
       (fun x _ => Measure.map_apply_of_aemeasurable (hf x).aemeasurable (hm x))]
     rw [Measure.map_apply_of_aemeasurable _ (MeasurableSet.univ_pi hm)]
@@ -194,8 +185,8 @@ theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι
     simp (config := { contextual := true })
   convert h₀.1 using 1
   · rw [hldef, ← Finset.prod_compl_mul_prod S]
-    suffices : ∀ i ∈ Sᶜ, μ (f i ⁻¹' (fun i ↦ if i ∈ S then s i else univ) i) = 1
-    · rw [Finset.prod_congr (show Sᶜ = Sᶜ by rfl) this]; aesop
+    suffices ∀ i ∈ Sᶜ, μ (f i ⁻¹' (fun i ↦ if i ∈ S then s i else univ) i) = 1 by
+      rw [Finset.prod_congr (show Sᶜ = Sᶜ by rfl) this]; aesop
     aesop
   . simp
 
@@ -261,22 +252,21 @@ lemma iIndepFun.pi
   set set_σ := fun (ij : (i : ι) × κ i) ↦ set ij.fst ij.snd with set_σ_def
   let meas i j := μ (set i j)
   let meas_σ ij := μ (set_σ ij)
-  suffices : μ (⋂ i ∈ s, ⋂ j : κ i, set i j) = ∏ i in s, μ (⋂ j : κ i, set i j)
-  · convert this with k hk k hk ; all_goals { exact box k hk }
+  suffices μ (⋂ i ∈ s, ⋂ j, set i j) = ∏ i in s, μ (⋂ j, set i j) by
+    convert this with k hk k hk ; all_goals { exact box k hk }
 
   let κ_σ (i : ι) := Finset.sigma {i} fun i ↦ Finset.univ (α := κ i)
-  have reindex_prod (i : ι) : ∏ j : κ i, meas i j = ∏ ij : κ_σ i, meas_σ ij := by
+  have reindex_prod (i : ι) : ∏ j, meas i j = ∏ ij : κ_σ i, meas_σ ij := by
     rw [Finset.prod_coe_sort, Finset.prod_sigma, Finset.prod_singleton]
-  have reindex_inter (i : ι) : ⋂ j : κ i, set i j = ⋂ ij : κ_σ i, set_σ ij := by
-    rw [iInter_subtype, set_σ_def, ← Finset.iInter_sigma, Finset.set_biInter_singleton]
-    exact Finset.set_biInter_univ
-
+  have reindex_inter (i : ι) : ⋂ j, set i j = ⋂ ij ∈ κ_σ i, set_σ ij := by
+    rw [set_σ_def, Set.biInter_finsetSigma, Finset.set_biInter_singleton]
+    simp
   rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at hf
   rw [Fintype.iInter_sigma, hf, Finset.prod_sigma]
   · apply Finset.prod_congr rfl
     intro i hi
     symm
-    rw [reindex_prod, reindex_inter, Finset.prod_coe_sort, iInter_subtype]
+    rw [reindex_prod, reindex_inter, Finset.prod_coe_sort]
     apply hf (κ_σ i) (sets := fun ij ↦ sets' ij.fst ij.snd)
     intro ij hij
     rw [← Finset.mem_singleton.mp (Finset.mem_sigma.mp hij).left] at hi

@@ -575,11 +575,10 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     contrapose!
     intro h; use u
   have hE1' : (μ.map Prod.fst).real E1 = 1 := by
-    suffices : (μ.map Prod.fst) E1 = 1
-    . unfold Measure.real; rw [this]; norm_num
-    rw [measure_compl (Finset.measurableSet E1)] at hE1
-    . simp at hE1; convert hE1; simp
-    exact measure_ne_top _ _
+    rw [prob_compl_eq_zero_iff E1.measurableSet] at hE1
+    unfold Measure.real
+    rw [hE1]
+    norm_num
   have hE2 : (μ.map Prod.snd) E2ᶜ = 0 := by
     rw [Measure.map_apply measurable_snd (MeasurableSet.compl (Finset.measurableSet E2))]
     refine measure_mono_null ?_ hE
@@ -588,11 +587,10 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     contrapose!
     intro h; use s
   have hE2' : (μ.map Prod.snd).real E2 = 1 := by
-    suffices : (μ.map Prod.snd) E2 = 1
-    . unfold Measure.real; rw [this]; norm_num
-    rw [measure_compl (Finset.measurableSet E2)] at hE2
-    . simp at hE2; convert hE2; simp
-    exact measure_ne_top _ _
+    rw [prob_compl_eq_zero_iff E2.measurableSet] at hE2
+    unfold Measure.real
+    rw [hE2]
+    norm_num
   have h_fst_ne_zero : ∀ p, μ.real {p} ≠ 0 → (μ.map Prod.fst).real {p.1} ≠ 0 := by
     intro p hp
     rw [map_measureReal_apply measurable_fst (measurableSet_singleton _)]
@@ -724,15 +722,16 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         rw [H] at hyp
         have := inv_mul_eq_one₀' hyp
         convert this.symm
-      have : {p.2} ⊆ (E2 : Set U)ᶜ
-      · simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp2
-      replace : (Measure.map Prod.snd μ).real {p.2} = 0
-      · rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE2
+      have : {p.2} ⊆ (E2 : Set U)ᶜ := by
+        simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp2
+      replace : (Measure.map Prod.snd μ).real {p.2} = 0 := by
+        rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE2
       have hp : μ.real {p} = 0 := by contrapose! this; exact (h_snd_ne_zero p) this
       simp [hp, this]
-    have : {p.1} ⊆ (E1 : Set S)ᶜ := by simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp1
-    replace : (Measure.map Prod.fst μ).real {p.1} = 0
-    · rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE1
+    have : {p.1} ⊆ (E1 : Set S)ᶜ := by
+      simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp1
+    replace : (Measure.map Prod.fst μ).real {p.1} = 0 := by
+      rw [measureReal_eq_zero_iff]; exact measure_mono_null this hE1
     have hp : μ.real {p} = 0 := by contrapose! this; exact (h_fst_ne_zero p) this
     simp [hp, this]
   intro hyp ⟨s, u⟩ _ hw

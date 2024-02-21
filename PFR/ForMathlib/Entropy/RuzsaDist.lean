@@ -6,7 +6,6 @@ import PFR.ForMathlib.Elementary
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.ProbabilityMeasureProdCont
-import PFR.Mathlib.Algebra.Group.Hom.Basic
 import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Probability.IdentDistrib
 
@@ -29,7 +28,7 @@ Here we define Ruzsa distance and establish its basic properties.
   $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]$$
 -/
 
-open Filter MeasureTheory Measure ProbabilityTheory
+open Filter Function MeasureTheory Measure ProbabilityTheory
 open scoped BigOperators
 
 attribute [symm] ProbabilityTheory.IdentDistrib.symm
@@ -397,10 +396,10 @@ lemma rdist_triangle {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
     d[X ; μ # Z ; μ''] ≤ d[X ; μ # Y ; μ'] + d[Y ; μ' # Z ; μ''] := by
   obtain ⟨A, mA, μA, X', Y', Z', hμA, hInd, hX', hY', hZ', HX, HY, HZ, _, _, _⟩ :=
     independent_copies3_nondep_finiteRange hX hY hZ μ μ' μ''
-  suffices : d[X' ; μA # Z' ; μA] ≤ d[X' ; μA # Y' ; μA] + d[Y' ; μA # Z' ; μA]
-  { rwa [HX.rdist_eq HY, HY.rdist_eq HZ, HX.rdist_eq HZ] at this }
-  have IndepLem : IndepFun (⟨X', Z'⟩) Y' μA
-  · exact iIndepFun.indepFun_prod_mk hInd (fun i => by fin_cases i ; all_goals { simpa }) 0 2 1
+  suffices d[X' ; μA # Z' ; μA] ≤ d[X' ; μA # Y' ; μA] + d[Y' ; μA # Z' ; μA] by
+    rwa [HX.rdist_eq HY, HY.rdist_eq HZ, HX.rdist_eq HZ] at this
+  have IndepLem : IndepFun (⟨X', Z'⟩) Y' μA :=
+    iIndepFun.indepFun_prod_mk hInd (fun i => by fin_cases i ; all_goals { simpa }) 0 2 1
       (by norm_cast) (by norm_cast)
   calc d[X' ; μA # Z' ; μA] = H[X' - Z'; μA] - (H[X'; μA] / 2 + H[Z'; μA] / 2) := by
         rw [ProbabilityTheory.IndepFun.rdist_eq
@@ -634,6 +633,7 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
   · congr 1
     rw [A, cond_cond_eq_cond_inter'' (hW (MeasurableSet.singleton w))
       (hW' (MeasurableSet.singleton w')), Set.inter_comm]
+    finiteness
 
 /-- Version of `condRuzsaDist'_prod_eq_sum` when `W` has finite codomain. -/
 lemma condRuzsaDist'_prod_eq_sum' {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → T}
@@ -920,19 +920,15 @@ lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T] [Fintype T'] [Measurable
     [MeasurableSingletonClass T'] [IsFiniteMeasure μ']
     (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T')
     (hY : Measurable Y) (hW : Measurable W) (he : Measurable e)
-    (h'e : Function.Injective e) :
+    (h'e : Injective e) :
     d[X ; μ # Y | e ∘ W ; μ'] = d[X ; μ # Y | W ; μ'] := by
   rw [condRuzsaDist'_eq_sum' hY (he.comp hW), condRuzsaDist'_eq_sum' hY hW]
   simp [Set.preimage_comp]
-  have A i : e ⁻¹' {e i} = {i} := by ext x; simp [Function.Injective.eq_iff h'e]
+  have A i : e ⁻¹' {e i} = {i} := by ext x; simp [h'e.eq_iff]
   symm
-  apply Finset.sum_eq_of_injective e h'e (fun i ↦ ?_) (fun i hi ↦ ?_)
-  · simp [A]
-  · have : e ⁻¹' {i} = ∅ := by
-      contrapose! hi
-      rcases hi with ⟨x, rfl⟩
-      exact Set.mem_range_self x
-    simp [this]
+  refine Fintype.sum_of_injective e h'e  _ _ (fun i hi ↦ ?_) (by simp [A])
+  suffices e ⁻¹' {i} = ∅ by simp [this]
+  simpa [Set.eq_empty_iff_forall_not_mem] using hi
 
 lemma condRuzsaDist_of_inj_map {G' : Type*} [Countable G'] [AddCommGroup G']
   [MeasurableSpace G'] [MeasurableSingletonClass G'] [IsProbabilityMeasure μ]
@@ -952,7 +948,7 @@ lemma condRuzsaDist_of_inj_map {G' : Type*} [Countable G'] [AddCommGroup G']
     condRuzsaDist_of_indep ((measurable_of_countable _).comp ((h_meas 0).prod_mk (h_meas 2)))
     (h_meas 2) ((measurable_of_countable _).comp ((h_meas 1).prod_mk (h_meas 3))) (h_meas 3) μ
     (h_indep.comp hf'' hf''),
-    ← condEntropy_of_injective μ hm1 hm2 f' hf', ← π.comp_sub,
+    ← condEntropy_of_injective μ hm1 hm2 f' hf', ← map_comp_sub π,
     ← condEntropy_of_injective μ (h_meas 0) (h_meas 2) f hπ,
     ← condEntropy_of_injective μ (h_meas 1) (h_meas 3) f hπ]
   rfl
@@ -1068,9 +1064,8 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ]
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     H[X + Y + Z ; μ] - H[X + Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
-  suffices : (H[X ; μ] + H[Y ; μ] + H[Z ; μ]) + H[X + Y + Z ; μ]
-    ≤ (H[X ; μ] + H[Y + Z ; μ]) + (H[Z ; μ] + H[X + Y ; μ])
-  . linarith
+  suffices (H[X ; μ] + H[Y ; μ] + H[Z ; μ]) + H[X + Y + Z ; μ]
+    ≤ (H[X ; μ] + H[Y + Z ; μ]) + (H[Z ; μ] + H[X + Y ; μ]) by linarith
   have : ∀ (i : Fin 3), Measurable (![X, Y, Z] i) := fun i ↦ by fin_cases i <;> assumption
   convert entropy_triple_add_entropy_le _ hX hZ (show Measurable (X + (Y + Z)) by measurability)
     using 2
@@ -1102,15 +1097,14 @@ lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X,
     H[X - (Y + Z) ; μ] - H[X - Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
   rw [← entropy_neg (hY.add' hZ), ← entropy_neg hY]
   simp_rw [sub_eq_add_neg, neg_add, ← add_assoc]
-  apply kaimanovich_vershik _ hX _ _
-  . convert (h.neg 1).neg 2
-    ext i; fin_cases i
-    · simp (discharger := decide)
-    · simp (discharger := decide)
-    · rw [← show ∀ h : 2 < 3, (2 : Fin 3) = ⟨2, h⟩ by intro; rfl]
-      simp (discharger := decide)
+  refine kaimanovich_vershik ?_ hX ?_ hZ.neg
+  convert (h.neg 1).neg 2
+  ext i; fin_cases i
+  · simp (discharger := decide)
+  · simp (discharger := decide)
+  · rw [← show ∀ h : 2 < 3, (2 : Fin 3) = ⟨2, h⟩ by intro; rfl]
+    simp (discharger := decide)
   . exact hY.neg
-  exact hZ.neg
 
 section BalogSzemerediGowers
 

@@ -1,6 +1,7 @@
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
+import PFR.Mathlib.Data.Fintype.Card
 import PFR.Mathlib.GroupTheory.Subgroup.Pointwise
 import PFR.ForMathlib.Entropy.RuzsaSetDist
 import PFR.Tactic.RPowSimp

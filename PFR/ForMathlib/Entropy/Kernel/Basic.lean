@@ -579,8 +579,7 @@ lemma entropy_compProd_aux [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKerne
     rw [← Finset.mul_sum]
     simp
     rw [kernel.comap_apply]
-    suffices : (η (t, s)).real ↑C = (η (t, s)).real Set.univ
-    . simp [this]
+    suffices (η (t, s)).real ↑C = (η (t, s)).real Set.univ by simp [this]
     have := hC (t, s) hts
     rw [← measureReal_eq_zero_iff] at this
     rw [← measureReal_add_measureReal_compl (s := C) _, this, add_zero]

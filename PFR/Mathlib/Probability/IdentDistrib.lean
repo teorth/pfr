@@ -51,9 +51,9 @@ protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (
     (hfg : IdentDistrib (fun a ↦ (f a, f' a)) (fun b ↦ (g b, g' b)) μ ν) :
     IdentDistrib f g (μ[|f' ⁻¹' s]) (ν[|g' ⁻¹' s]) where
   aemeasurable_fst := (measurable_fst.aemeasurable.comp_aemeasurable hfg.aemeasurable_fst).mono_ac
-    cond_absolutelyContinuous
+    cond_absolutelyContinuous'
   aemeasurable_snd := (measurable_fst.aemeasurable.comp_aemeasurable hfg.aemeasurable_snd).mono_ac
-    cond_absolutelyContinuous
+    cond_absolutelyContinuous'
   map_eq := by
     ext t ht
     rw [map_apply₀ _ ht.nullMeasurableSet, map_apply₀ _ ht.nullMeasurableSet,
@@ -66,8 +66,8 @@ protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (
       simpa only [map_apply₀ hfg.aemeasurable_fst (ht.prod hs).nullMeasurableSet,
         map_apply₀ hfg.aemeasurable_snd (ht.prod hs).nullMeasurableSet]
         using congr_fun (congr_arg (⇑) hfg.map_eq) (t ×ˢ s)
-    · exact (hfg.comp measurable_fst).aemeasurable_snd.mono_ac cond_absolutelyContinuous
-    · exact (hfg.comp measurable_fst).aemeasurable_fst.mono_ac cond_absolutelyContinuous
+    · exact (hfg.comp measurable_fst).aemeasurable_snd.mono_ac cond_absolutelyContinuous'
+    · exact (hfg.comp measurable_fst).aemeasurable_fst.mono_ac cond_absolutelyContinuous'
 
 /-- A function is identically distributed to itself composed with a measurable embedding of conull
 range. -/
