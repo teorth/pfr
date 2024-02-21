@@ -27,7 +27,7 @@ import PFR.HomPFR
 import PFR.HundredPercent
 import PFR.ImprovedPFR
 import PFR.Main
-import PFR.Mathlib.Algebra.GroupWithZero.Units.Lemmas
+import PFR.Mathlib.Algebra.Group.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.ENNReal.Basic
 import PFR.Mathlib.Data.Fin.Basic

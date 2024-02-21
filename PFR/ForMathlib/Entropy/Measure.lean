@@ -1,6 +1,6 @@
 import PFR.ForMathlib.FiniteRange
 import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.Algebra.GroupWithZero.Units.Lemmas
+import PFR.Mathlib.Algebra.Group.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
@@ -720,7 +720,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
           exact hw.symm
         replace hyp := hyp p hp hw
         rw [H] at hyp
-        have := inv_mul_eq_one₀' hyp
+        have := eq_of_inv_mul_eq_one hyp
         convert this.symm
       have : {p.2} ⊆ (E2 : Set U)ᶜ := by
         simp only [Set.singleton_subset_iff, Set.mem_compl_iff, Finset.mem_coe]; convert hp2

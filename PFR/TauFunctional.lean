@@ -58,7 +58,7 @@ To lighten notation, We package `X^0_1` and `X^0_2` in a single object named `p`
 We denote it as `τ[X₁ ; μ₁ # X₂ ; μ₂ | p]` where `p` is a fixed package containing the information
 of the reference random variables. When the measurable spaces have a canonical measure `ℙ`, we
 can use `τ[X₁ # X₂ | p]`
---/
+-/
 @[pp_dot] noncomputable def tau {Ω₁ Ω₂ : Type*} [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     (X₁ : Ω₁ → G) (X₂ : Ω₂ → G) (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) : ℝ :=
   d[X₁ ; μ₁ # X₂ ; μ₂] + p.η * d[p.X₀₁ ; ℙ # X₁ ; μ₁] + p.η * d[p.X₀₂ ; ℙ # X₂ ; μ₂]
