@@ -1,7 +1,5 @@
-import Mathlib.Data.Finset.Sigma
 import Mathlib.Probability.Independence.Basic
 import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.Data.Fintype.Lattice
 import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.Probability.Independence.Kernel
 
@@ -262,7 +260,7 @@ lemma iIndepFun.pi
     rw [set_σ_def, Set.biInter_finsetSigma, Finset.set_biInter_singleton]
     simp
   rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at hf
-  rw [Fintype.iInter_sigma, hf, Finset.prod_sigma]
+  rw [Set.biInter_finsetSigma_univ', hf, Finset.prod_sigma]
   · apply Finset.prod_congr rfl
     intro i hi
     symm
