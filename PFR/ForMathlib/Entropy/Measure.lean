@@ -1,10 +1,10 @@
+import LeanAPAP.Mathlib.Tactic.Positivity.Finset
 import PFR.ForMathlib.FiniteRange
 import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.Algebra.Group.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
+import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
-import LeanAPAP.Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Entropy of a measure
@@ -58,15 +58,15 @@ lemma measureEntropy_def' (μ : Measure S) :
 @[inherit_doc measureEntropy] notation:100 "Hm[" μ "]" => measureEntropy μ
 
 /-- A measure has finite support if there exsists a finite set whose complement has zero measure. -/
-class FiniteSupport (μ : Measure S := by volume_tac) : Prop :=
-(finite : ∃ A : Finset S, μ Aᶜ = 0)
+class FiniteSupport (μ : Measure S := by volume_tac) : Prop where
+  finite : ∃ A : Finset S, μ Aᶜ = 0
 
 noncomputable
 def _root_.MeasureTheory.Measure.support (μ : Measure S) [hμ : FiniteSupport μ] : Finset S :=
   hμ.finite.choose
 
-lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] :
-  μ μ.supportᶜ = 0 := hμ.finite.choose_spec
+lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] : μ μ.supportᶜ = 0 :=
+  hμ.finite.choose_spec
 
 instance finiteSupport_zero : FiniteSupport (0 : Measure S) where
   finite := ⟨(∅ : Finset S), by simp⟩
@@ -100,7 +100,7 @@ instance finiteSupport_of_dirac (x : S) : FiniteSupport (Measure.dirac x) := by
 /-- duplicate of `FiniteRange.null_of_compl` -/
 lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S}
     (hX : Measurable X) [hX' : FiniteRange X] :
-    (μ.map X) (hX'.toFinset)ᶜ = 0 := by
+    (μ.map X) hX'.toFinsetᶜ = 0 := by
   rw [Measure.map_apply hX (MeasurableSet.compl (Finset.measurableSet _))]
   convert measure_empty
   ext x
@@ -113,26 +113,11 @@ instance finiteSupport_of_finiteRange {μ : Measure Ω} {X : Ω → S} [hX' : Fi
   use hX'.toFinset
   exact FiniteRange.null_of_compl μ X
 
-lemma prod_of_full_measure_finSet {μ : Measure S} {ν : Measure T} [SigmaFinite ν]
-    {A : Finset S} {B : Finset T} (hA : μ Aᶜ = 0) (hB : ν Bᶜ = 0) :
-    (μ.prod ν) (A ×ˢ B : Finset (S × T))ᶜ = 0 := by
-  have : ((A ×ˢ B : Finset (S × T)) : Set (S × T))ᶜ = ((A : Set S)ᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ (B : Set T)ᶜ) := by
-    ext ⟨s, t⟩
-    simp; tauto
-  rw [this]
-  simp [hA, hB]
-
-lemma full_measure_of_null_compl {μ : Measure S} {A : Finset S} (hA : μ Aᶜ = 0) :
-    μ A = μ Set.univ := by
-  have := measure_add_measure_compl (μ := μ) (s := A) (by measurability)
-  simp [hA] at this
-  exact this
-
 instance finiteSupport_of_prod {μ : Measure S} [FiniteSupport μ] {ν : Measure T} [SigmaFinite ν]
     [FiniteSupport ν] :
     FiniteSupport (μ.prod ν) := by
   use μ.support ×ˢ ν.support
-  exact prod_of_full_measure_finSet (measure_compl_support μ) (measure_compl_support ν)
+  exact Measure.prod_of_full_measure_finset (measure_compl_support μ) (measure_compl_support ν)
 
 /-- The countability hypothesis can probably be dropped here. Proof is unwieldy and can probably
 be golfed. -/

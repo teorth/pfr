@@ -1,4 +1,5 @@
 import PFR.ForMathlib.Entropy.Kernel.Group
+import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 
 /-!
 # Ruzsa distance between kernels
@@ -290,12 +291,12 @@ lemma rdist_triangle_aux1 (κ : kernel T G) (η : kernel T' G)
       = Hk[map (prodMkRight T' κ ×ₖ prodMkLeft T η) (fun x ↦ x.1 - x.2) measurable_sub,
         μ.prod μ'] := by
   have hAB : (μ.prod μ') ((μ.support ×ˢ μ'.support : Finset (T × T')) : Set (T × T'))ᶜ = 0 :=
-    prod_of_full_measure_finSet (measure_compl_support μ) (measure_compl_support μ')
+    Measure.prod_of_full_measure_finset (measure_compl_support μ) (measure_compl_support μ')
   have hAC : (μ.prod μ'') ((μ.support ×ˢ μ''.support : Finset (T × T'')) : Set (T × T''))ᶜ = 0 :=
-    prod_of_full_measure_finSet (measure_compl_support μ) (measure_compl_support μ'')
+    Measure.prod_of_full_measure_finset (measure_compl_support μ) (measure_compl_support μ'')
   have hACB : (μ.prod μ'').prod μ'
       (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')) : Set ((T × T'') × T'))ᶜ = 0 :=
-    prod_of_full_measure_finSet hAC (measure_compl_support μ')
+    Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
 
   simp_rw [entropy, integral_eq_sum' _ hAB, integral_eq_sum' _ hACB, smul_eq_mul,
     Measure.prod_apply_singleton, Finset.sum_product, ENNReal.toReal_mul, mul_assoc,
@@ -322,11 +323,11 @@ lemma rdist_triangle_aux2 (η : kernel T' G) (ξ : kernel T'' G)
     = Hk[map (prodMkRight T'' η ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) measurable_sub,
       μ'.prod μ''] := by
   have hBC: (μ'.prod μ'') ((μ'.support ×ˢ μ''.support : Finset (T' × T'')):Set (T' × T''))ᶜ = 0 :=
-    prod_of_full_measure_finSet (measure_compl_support μ') (measure_compl_support μ'')
+    Measure.prod_of_full_measure_finset (measure_compl_support μ') (measure_compl_support μ'')
   have hAC: (μ.prod μ'') ((μ.support ×ˢ μ''.support : Finset (T × T'')):Set (T × T''))ᶜ = 0 :=
-    prod_of_full_measure_finSet (measure_compl_support μ) (measure_compl_support μ'')
+    Measure.prod_of_full_measure_finset (measure_compl_support μ) (measure_compl_support μ'')
   have hACB: (μ.prod μ'').prod μ' (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')):Set ((T × T'') × T'))ᶜ = 0 :=
-    prod_of_full_measure_finSet hAC (measure_compl_support μ')
+    Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
 
   simp_rw [entropy, integral_eq_sum' _ hACB, integral_eq_sum' _ hBC, smul_eq_mul, Measure.prod_apply_singleton]
   conv_rhs => rw [Finset.sum_product_right]

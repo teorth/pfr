@@ -480,7 +480,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
           * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
   have : Measure.prod (μ.map Z) (μ'.map W) ((((FiniteRange.toFinset Z)
       ×ˢ (FiniteRange.toFinset W)) : Finset (S × T)): Set (S × T))ᶜ = 0 := by
-    apply prod_of_full_measure_finSet
+    apply Measure.prod_of_full_measure_finset
     all_goals {
       rw [Measure.map_apply ‹_›]
       convert measure_empty
@@ -559,7 +559,7 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     d[X ; μ # Y | W ; μ']
       = ∑ w in FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
   have : Measure.prod (dirac ()) (μ'.map W) ((Finset.univ (α := Unit) ×ˢ FiniteRange.toFinset W : Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
-    apply prod_of_full_measure_finSet
+    apply Measure.prod_of_full_measure_finset
     . simp
     rw [Measure.map_apply ‹_›]
     convert measure_empty
@@ -789,7 +789,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
   set A := (FiniteRange.toFinset Z) ∪ (FiniteRange.toFinset Z')
   set B := (FiniteRange.toFinset W) ∪ (FiniteRange.toFinset W')
   have hfull : Measure.prod (μ.map Z) (μ'.map W) ((A ×ˢ B : Finset (S × T)): Set (S × T))ᶜ = 0 := by
-    apply prod_of_full_measure_finSet
+    apply Measure.prod_of_full_measure_finset
     all_goals {
       rw [Measure.map_apply ‹_›]
       convert measure_empty
@@ -797,7 +797,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
       measurability
     }
   have hfull' : Measure.prod (μ''.map Z') (μ'''.map W') ((A ×ˢ B : Finset (S × T)): Set (S × T))ᶜ = 0 := by
-    apply prod_of_full_measure_finSet
+    apply Measure.prod_of_full_measure_finset
     all_goals {
       rw [Measure.map_apply ‹_›]
       convert measure_empty
@@ -859,7 +859,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
   set A := (FiniteRange.toFinset W) ∪ (FiniteRange.toFinset W')
   have hfull : Measure.prod (dirac ()) (μ'.map W)
       ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
-    apply prod_of_full_measure_finSet
+    apply Measure.prod_of_full_measure_finset
     . simp
     rw [Measure.map_apply ‹_›]
     convert measure_empty
@@ -867,7 +867,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     measurability
   have hfull' : Measure.prod (dirac ()) (μ'''.map W')
       ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
-    apply prod_of_full_measure_finSet
+    apply Measure.prod_of_full_measure_finset
     . simp
     rw [Measure.map_apply ‹_›]
     convert measure_empty

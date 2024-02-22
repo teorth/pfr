@@ -331,7 +331,7 @@ lemma entropy_comm (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
 /-- $H[(X, Y), Z] = H[X, (Y, Z)]$. -/
 lemma entropy_assoc (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
     H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ] := by
-  change H[Equiv.prodAssoc _ _ _ ∘ ⟨⟨X, Y⟩, Z⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ]
+  change H[MeasurableEquiv.prodAssoc ∘ ⟨⟨X, Y⟩, Z⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ]
   exact entropy_comp_of_injective μ ((hX.prod_mk hY).prod_mk hZ) _ $ Equiv.injective _
 
 /-- $H[X, f(X)] = H[X]$.-/
