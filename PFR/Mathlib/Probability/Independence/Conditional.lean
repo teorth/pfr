@@ -1,5 +1,4 @@
 import PFR.ForMathlib.Pair
-import PFR.Mathlib.Data.Set.Image
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Tactic.Finiteness
