@@ -33,7 +33,6 @@ import PFR.Mathlib.Data.Fintype.Card
 import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Data.Set.Pointwise.SMul
-import PFR.Mathlib.Data.Sigma.Basic
 import PFR.Mathlib.GroupTheory.Subgroup.Pointwise
 import PFR.Mathlib.GroupTheory.Torsion
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
