@@ -1,6 +1,5 @@
 import Mathlib.Probability.Independence.Basic
 import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.Probability.Independence.Kernel
 
 open Function MeasureTheory MeasurableSpace Measure Set

@@ -28,9 +28,6 @@ import PFR.HundredPercent
 import PFR.ImprovedPFR
 import PFR.Main
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.Data.Fin.Basic
-import PFR.Mathlib.Data.Fintype.Card
-import PFR.Mathlib.Data.Fintype.Sigma
 import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.GroupTheory.Subgroup.Pointwise

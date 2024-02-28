@@ -631,8 +631,7 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
     · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.one_toReal, one_mul]
       exacts [hw.ne', by finiteness]
   · congr 1
-    rw [A, cond_cond_eq_cond_inter'' (hW (MeasurableSet.singleton w))
-      (hW' (MeasurableSet.singleton w')), Set.inter_comm]
+    rw [A, cond_cond_eq_cond_inter' _ (hW (.singleton w)) (hW' (.singleton w')), Set.inter_comm]
     finiteness
 
 /-- Version of `condRuzsaDist'_prod_eq_sum` when `W` has finite codomain. -/

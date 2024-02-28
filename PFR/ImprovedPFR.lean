@@ -141,8 +141,8 @@ lemma gen_ineq_aux2 :
       congr 1
       have A : IdentDistrib Z₁ Z₁ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := by
-        rw [← cond_cond_eq_cond_inter'' ((hZ₁.add' hZ₃) (measurableSet_singleton _))
-          ((hZ₂.add' hZ₄) (measurableSet_singleton _))]
+        rw [← cond_cond_eq_cond_inter' _ ((hZ₁.add' hZ₃) (.singleton _))
+          ((hZ₂.add' hZ₄) (.singleton _))]
         have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure _ h1
         apply (IndepFun.identDistrib_cond _ (measurableSet_singleton _) hZ₁ (hZ₂.add' hZ₄) _).symm
         · have : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
@@ -156,8 +156,8 @@ lemma gen_ineq_aux2 :
         · finiteness
       have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := by
-        rw [Set.inter_comm, ← cond_cond_eq_cond_inter'' ((hZ₂.add' hZ₄) (measurableSet_singleton _))
-          ((hZ₁.add' hZ₃) (measurableSet_singleton _))]
+        rw [Set.inter_comm, ← cond_cond_eq_cond_inter' _ ((hZ₂.add' hZ₄) (.singleton _))
+          ((hZ₁.add' hZ₃) (.singleton _))]
         have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure _ h2
         apply (IndepFun.identDistrib_cond _ (measurableSet_singleton _) hZ₂ (hZ₁.add' hZ₃) _).symm
         · have : IndepFun (⟨Z₂, Z₄⟩) (⟨Z₁, Z₃⟩) (ℙ[|(⟨Z₂, Z₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
