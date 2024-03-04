@@ -1,7 +1,7 @@
-import LeanAPAP.Mathlib.Tactic.Positivity.Finset
+import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+import Mathlib.Tactic.Positivity.Finset
 import PFR.ForMathlib.FiniteRange
 import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
@@ -309,37 +309,32 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
       congr with x
       rw [← mul_assoc, mul_inv_cancel, one_mul]
       exact N_pos.ne'
-  _ ≤ N * negMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) :=
-       mul_le_mul_of_nonneg_left
-         (sum_negMulLog_le (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)) (by positivity)
+  _ ≤ N * negMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
+      gcongr
+      exact concaveOn_negMulLog.le_map_sum (by simp) (by simp [mul_inv_cancel N_pos.ne']) (by simp)
   _ = N * negMulLog ((N : ℝ)⁻¹) := by simp [← Finset.mul_sum, μA]
   _ = log A.card := by simp [negMulLog, ← mul_assoc, mul_inv_cancel N_pos.ne']
 
 lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S] [Fintype S]
     (μ : Measure S) [IsProbabilityMeasure μ] :
-    Hm[μ] = log (Fintype.card S) ↔∀ s : S, μ.real {s} = (Fintype.card S : ℝ)⁻¹ := by
-  cases isEmpty_or_nonempty S with
-  | inl h =>
-    have : μ = 0 := Subsingleton.elim _ _
-    simp [Fintype.card_eq_zero, this]
-  | inr h =>
-    -- multiply LHS equation through by `N⁻¹`
-    set N := Fintype.card S
-    have hN : (N:ℝ)⁻¹ ≠ 0 := by positivity
-    rw [← mul_right_inj' hN]
-    -- setup to use equality case of Jensen
-    let w (_ : S) := (N:ℝ)⁻¹
-    have hw1 : ∀ s ∈ Finset.univ, 0 < w s := by intros; positivity
-    have hw2 : ∑ s : S, w s = 1 := by simp [Finset.card_univ]
-    let p (s : S) := μ.real {s}
-    have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
-    -- use equality case of Jensen
-    convert sum_negMulLog_eq_iff hw1 hw2 hp using 2
-    · rw [measureEntropy_def', tsum_fintype, Finset.mul_sum]
-      simp
-    · simp [negMulLog, ← Finset.mul_sum]
-    · rw [← Finset.mul_sum]
-      simp
+    Hm[μ] = log (Fintype.card S) ↔ ∀ s, μ.real {s} = (Fintype.card S : ℝ)⁻¹ := by
+  cases isEmpty_or_nonempty S
+  · simp [Fintype.card_eq_zero, Subsingleton.elim μ 0]
+  -- multiply LHS equation through by `N⁻¹`
+  set N := Fintype.card S
+  have hN : (N:ℝ)⁻¹ ≠ 0 := by positivity
+  rw [← mul_right_inj' hN]
+  -- setup to use equality case of Jensen
+  let w (_ : S) := (N:ℝ)⁻¹
+  have hw1 : ∀ s ∈ Finset.univ, 0 < w s := by intros; positivity
+  have hw2 : ∑ s : S, w s = 1 := by simp [Finset.card_univ]
+  let p (s : S) := μ.real {s}
+  have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
+  rw [measureEntropy_def', tsum_fintype, eq_comm]
+  convert strictConcaveOn_negMulLog.map_sum_eq_iff hw1 hw2 hp using 2
+  · simp [negMulLog, ← Finset.mul_sum]
+  · simp [Finset.mul_sum]
+  · simp [← Finset.mul_sum]
 
 lemma measureEntropy_eq_card_iff_measure_eq_aux
     (μ : Measure S) [Fintype S] [IsProbabilityMeasure μ] :
@@ -688,8 +683,9 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     rw [H, negMulLog_one]
   constructor
   · rw [← neg_nonpos, H1]
-    convert sum_negMulLog_le (s := E1 ×ˢ E2) hw1 hw2 hf
-  rw [← neg_eq_zero, H1, H2, sum_negMulLog_eq_iff' hw1 hw2 hf]
+    convert concaveOn_negMulLog.le_map_sum hw1 hw2 hf
+  rw [← neg_eq_zero, H1, H2, eq_comm]
+  refine (strictConcaveOn_negMulLog.map_sum_eq_iff' hw1 hw2 hf).trans ?_
   have w0 (p : S × U) (hp: w p = 0) : μ.real {p} = 0 := by
     simp at hp
     rcases hp with hp | hp
@@ -704,7 +700,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         . rw [w0 p hw]
           exact hw.symm
         replace hyp := hyp p hp hw
-        rw [H] at hyp
+        simp_rw [smul_eq_mul, H] at hyp
         have := eq_of_inv_mul_eq_one hyp
         convert this.symm
       have : {p.2} ⊆ (E2 : Set U)ᶜ := by
@@ -720,7 +716,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     have hp : μ.real {p} = 0 := by contrapose! this; exact (h_fst_ne_zero p) this
     simp [hp, this]
   intro hyp ⟨s, u⟩ _ hw
-  rw [H]
+  simp_rw [smul_eq_mul, H]
   show (w (s,u))⁻¹ * (μ.real {(s,u)}) = 1
   have : w (s,u) ≠ 0 := by exact hw
   field_simp [this]
