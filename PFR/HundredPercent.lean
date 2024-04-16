@@ -151,8 +151,7 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
   refine ⟨symmGroup X hX, fun ω ↦ X ω - x₀, hX.sub_const _,
     isUniform_sub_const_of_rdist_eq_zero hX hdist h₀, ?_⟩
   simp_rw [sub_eq_add_neg]
-  suffices : d[X # X + fun _ ↦ -x₀] = 0
-  . convert this
+  suffices d[X # X + fun _ ↦ -x₀] = 0 by convert this
   rw [rdist_add_const hX hX]
   exact hdist
 

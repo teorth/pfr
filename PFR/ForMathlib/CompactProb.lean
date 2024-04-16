@@ -23,8 +23,7 @@ variable [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X]
 
 lemma continuous_pmf_apply' (i : X) :
     Continuous fun μ : ProbabilityMeasure X ↦ (μ : Measure X).real {i} :=
-  continuous_probabilityMeasure_apply_of_isClopen (s := {i})
-    ⟨isOpen_discrete _, T1Space.t1 _⟩
+  continuous_probabilityMeasure_apply_of_isClopen (s := {i}) $ isClopen_discrete _
 
 lemma continuous_pmf_apply (i : X) :  Continuous fun μ : ProbabilityMeasure X ↦ μ {i} := by
   -- KK: The coercion fight here is one reason why I now prefer ℝ-valued and not ℝ≥0-valued probas.

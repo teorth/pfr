@@ -47,13 +47,13 @@ lemma wlog_notInCoset (hA : A.Nonempty) (hB : B.Nonempty) :
   set G' := AddSubgroup.closure ((A - A) ∪ (B - B))
   set A' : Set G' := (↑) ⁻¹' ((-x) +ᵥ A)
   set B' : Set G' := (↑) ⁻¹' ((-y) +ᵥ B)
-  have hxA : -x +ᵥ A ⊆ range ((↑) : G' → G)
-  · simp only [← singleton_add', ← neg_singleton, neg_add_eq_sub, SetLike.coe_sort_coe,
+  have hxA : -x +ᵥ A ⊆ range ((↑) : G' → G) := by
+    simp only [← singleton_add', ← neg_singleton, neg_add_eq_sub, SetLike.coe_sort_coe,
       Subtype.range_coe_subtype, SetLike.mem_coe]
     exact (sub_subset_sub_left $ singleton_subset_iff.2 hx).trans $ (subset_union_left ..).trans
       AddSubgroup.subset_closure
-  have hyB : -y +ᵥ B ⊆ range ((↑) : G' → G)
-  · simp only [← singleton_add', ← neg_singleton, neg_add_eq_sub, SetLike.coe_sort_coe,
+  have hyB : -y +ᵥ B ⊆ range ((↑) : G' → G) := by
+    simp only [← singleton_add', ← neg_singleton, neg_add_eq_sub, SetLike.coe_sort_coe,
       Subtype.range_coe_subtype, SetLike.mem_coe]
     exact (sub_subset_sub_left $ singleton_subset_iff.2 hy).trans $ (subset_union_right ..).trans
       AddSubgroup.subset_closure
@@ -355,7 +355,7 @@ lemma PFR_projection'
         have hcard₀ := Nat.card_congr <| (AddSubgroup.addSubgroupOfEquivOfLe Hlt.le).toEquiv
         have hcard₁ := Nat.card_congr <|
           (QuotientAddGroup.quotientKerEquivRange (ψ.restrict H'')).toEquiv
-        have hcard₂ := AddSubgroup.card_eq_card_quotient_add_card_addSubgroup (H.addSubgroupOf H'')
+        have hcard₂ := AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup (H.addSubgroupOf H'')
         rw [ψ.ker_restrict H'', QuotientAddGroup.ker_mk', ψ.restrict_range H''] at hcard₁
         simpa only [← Nat.card_eq_fintype_card, hcard₀, hcard₁] using hcard₂
       calc
@@ -424,7 +424,7 @@ lemma four_logs {a b c d : ℝ} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hd : 0 <
 lemma sum_prob_preimage {G H : Type*} {X : Finset H} {A : Set G} [Finite A] {φ : A → X}
     {A_ : H → Set G} (hA : A.Nonempty) (hφ : ∀ x : X, A_ x = Subtype.val '' (φ ⁻¹' {x})) :
     ∑ x in X, (Nat.card (A_ x) : ℝ) / (Nat.card A) = 1 := by
-  apply Finset.sum_div.symm.trans
+  rw [← Finset.sum_div]
   apply (div_eq_one_iff_eq <| Nat.cast_ne_zero.mpr <| Nat.pos_iff_ne_zero.mp (@Nat.card_pos _ hA.to_subtype _)).mpr
   classical
   haveI := Fintype.ofFinite A
@@ -483,7 +483,8 @@ lemma single_fibres {G H Ω Ω': Type u}
 
   let p (x : H) (y : H) : ℝ :=
     (Nat.card (A_ x).Elem) * (Nat.card (B_ y).Elem) / ((Nat.card A.Elem) * (Nat.card B.Elem))
-  have : ∑ x in X, ∑ y in Y, (p x y) * dᵤ[A_ x # B_ y] ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB]
+  have :
+    ∑ x in X, ∑ y in Y, (p x y) * dᵤ[A_ x # B_ y] ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] :=
   calc
     _ = d[UA | φ.toFun ∘ UA # UB | φ.toFun ∘ UB] := by
       rewrite [condRuzsaDist_eq_sum hUA' ((measurable_discrete _).comp hUA')
@@ -512,26 +513,22 @@ lemma single_fibres {G H Ω Ω': Type u}
       linarith only [rdist_le_sum_fibre φ hUA' hUB' (μ := ℙ) (μ' := ℙ)]
   let M := H[φ.toFun ∘ UA] + H[φ.toFun ∘ UB]
   have hM : M = ∑ x in X, ∑ y in Y, Real.negMulLog (p x y) := by
-    have h_compl (z : H × H) (h_notin : z ∉ X ×ˢ Y) : Real.negMulLog (p z.1 z.2) = 0 := by
-      have h_p_empty {a b : ℝ} : negMulLog ((Nat.card (∅ : Set G)) * a / b) = 0 := by simp
+    have h_compl {x y} (h_notin : (x, y) ∉ X ×ˢ Y) : Real.negMulLog (p x y) = 0 := by
       unfold_let p; beta_reduce
       rewrite [Finset.mem_product, not_and_or] at h_notin
-      cases' h_notin with h_notin h_notin
-      have h_empty : A_ z.1 = ∅; rotate_left 2
-      have h_empty : B_ z.2 = ∅; let h_AX := h_BY; rotate_left
-      rw [mul_comm, h_empty, h_p_empty]; rotate_left
-      rw [h_empty, h_p_empty]
-      all_goals {
-        by_contra hc
-        obtain ⟨a, ha⟩ := Set.nonempty_iff_ne_empty'.mpr hc
-        rewrite [← ha.right] at h_notin
-        exact h_notin (h_AX ⟨a, ha.left⟩)
-      }
+      suffices A_ x = ∅ ∨ B_ y = ∅ by obtain h | h := this <;> rw [h] <;> simp
+      refine h_notin.imp ?_ ?_
+      · rw [← not_nonempty_iff_eq_empty]
+        rintro h ⟨a, ha, rfl⟩
+        exact h (h_AX ⟨a, ha⟩)
+      · rw [← not_nonempty_iff_eq_empty]
+        rintro h ⟨a, ha, rfl⟩
+        exact h (h_BY ⟨a, ha⟩)
     unfold_let M
     unfold entropy
     haveI := isProbabilityMeasure_map (μ := ℙ) ((measurable_discrete φ).comp hUA').aemeasurable
     haveI := isProbabilityMeasure_map (μ := ℙ) ((measurable_discrete φ).comp hUB').aemeasurable
-    rewrite [← Finset.sum_product', ← tsum_eq_sum h_compl, ← measureEntropy_prod]
+    rewrite [← Finset.sum_product', ← tsum_eq_sum fun _ ↦ h_compl, ← measureEntropy_prod]
     apply tsum_congr; intro; congr
     rewrite [← Set.singleton_prod_singleton, Measure.smul_apply, Measure.prod_prod,
       Measure.map_apply ((measurable_discrete _).comp hUA') (MeasurableSet.singleton _),
@@ -545,7 +542,7 @@ lemma single_fibres {G H Ω Ω': Type u}
         ENNReal.toReal_nat, mul_div_mul_comm]
   have h_sum : ∑ x in X, ∑ y in Y,
       (p x y) * (M * dᵤ[A_ x # B_ y] + d[φ.toFun ∘ UA # φ.toFun ∘ UB] * -Real.log (p x y)) ≤
-      M * d[UA # UB]
+      M * d[UA # UB] :=
   calc
     _ = ∑ x in X, ∑ y in Y, (p x y) * M * dᵤ[A_ x # B_ y] + M * d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
       simp_rw [hM, Finset.sum_mul, ← Finset.sum_add_distrib]
@@ -699,7 +696,10 @@ lemma weak_PFR_quotient_prelim :
     rw [injective_iff_map_eq_zero]
     intro x hx
     rcases QuotientAddGroup.mk'_surjective G₂ x with ⟨y, rfl⟩
-    simp_rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, AddMonoidHom.coe_comp, AddMonoidHom.coe_coe, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,FunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,ZMod.int_cast_zmod_eq_zero_iff_dvd] at hx
+    simp_rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, AddMonoidHom.coe_comp,
+      AddMonoidHom.coe_coe, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply,
+      Int.coe_castAddHom, DFunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,
+      ZMod.int_cast_zmod_eq_zero_iff_dvd] at hx
     replace hx := fun x ↦ Int.mul_ediv_cancel' (hx x)
     let z (b : B) := ((Module.Free.chooseBasis ℤ G).repr y) b / 2
     let z' := (Finsupp.equivFunOnFinite).symm z
@@ -1060,15 +1060,17 @@ lemma conclusion_transfers {A B : Set G}
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
 lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB : B.Nonempty) : WeakPFRAsymmConclusion A B  := by
   let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: A.Nonempty) (_hB_non: B.Nonempty) (_hM : (Nat.card A) + (Nat.card B) ≤ M), WeakPFRAsymmConclusion A B)
-  suffices : ∀ M, (∀ M', M' < M → P M') → P M
-  . set M := (Nat.card A) + (Nat.card B)
+  suffices ∀ M, (∀ M', M' < M → P M') → P M by
+    set M := (Nat.card A) + (Nat.card B)
     have hM : (Nat.card A) + (Nat.card B) ≤ M := Nat.le_refl _
     convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› _ ‹_› A B ‹_› ‹_› ‹_› ‹_› hM
   intro M h_induct
   -- wlog we can assume A, B are not in cosets of a smaller subgroup
-  suffices : ∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: A.Nonempty) (_hB_non: B.Nonempty) (_hM : (Nat.card A) + (Nat.card B) ≤ M) (_hnot: NotInCoset A B), WeakPFRAsymmConclusion A B
-  . intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non hM
-
+  suffices ∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
+    (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G)
+    (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B) (_hA_non : A.Nonempty) (_hB_non : B.Nonempty) (_hM : Nat.card A + Nat.card B ≤ M)
+    (_hnot : NotInCoset A B), WeakPFRAsymmConclusion A B by
+    intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non hM
     obtain ⟨ G', A', B', hAA', hBB', hnot' ⟩ := wlog_notInCoset hA_non hB_non
     have hG'_fin : Module.Finite ℤ G' :=
       Module.Finite.iff_fg (N := AddSubgroup.toIntSubmodule G').2 (IsNoetherian.noetherian _)

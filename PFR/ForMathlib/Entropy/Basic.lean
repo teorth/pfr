@@ -129,7 +129,7 @@ lemma entropy_eq_sum_finiteRange' (hX : Measurable X) {μ : Measure Ω} [IsProba
 lemma entropy_cond_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] (y : T) :
     H[X | Y ← y ; μ] = ∑' x, negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
   by_cases hy : μ (Y ⁻¹' {y}) = 0
-  · rw [entropy_def, cond_eq_zero_of_measure_eq_zero hy]
+  · rw [entropy_def, cond_eq_zero_of_meas_eq_zero _ hy]
     simp
   · have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure _ hy
     rw [entropy_eq_sum hX]
@@ -137,7 +137,7 @@ lemma entropy_cond_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMe
 lemma entropy_cond_eq_sum_finiteRange (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] (y : T) [FiniteRange X]:
     H[X | Y ← y ; μ] = ∑ x in FiniteRange.toFinset X, negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
   by_cases hy : μ (Y ⁻¹' {y}) = 0
-  · rw [entropy_def, cond_eq_zero_of_measure_eq_zero hy]
+  · rw [entropy_def, cond_eq_zero_of_meas_eq_zero _ hy]
     simp
   · have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure _ hy
     rw [entropy_eq_sum_finiteRange hX]
@@ -165,8 +165,7 @@ open Function
 lemma IsUniform.entropy_eq (H : Finset S) (X : Ω → S) {μ : Measure Ω} [IsProbabilityMeasure μ]
     (hX : IsUniform H X μ) (hX' : Measurable X) : H[X ; μ] = log (Nat.card H) := by
   haveI : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX'.aemeasurable
-  have : ∀ (t : S), negMulLog ((μ.map X).real {t}) = ((μ.map X).real {t}) * log (Nat.card H)
-  · intro t
+  have (t : S) : negMulLog ((μ.map X).real {t}) = ((μ.map X).real {t}) * log (Nat.card H) := by
     by_cases ht : t ∈ H
     · simp only [negMulLog, neg_mul, neg_mul_eq_mul_neg, IsUniform.measureReal_preimage_of_mem'
         hX hX' ht, one_div, log_inv, neg_neg]
@@ -281,8 +280,8 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) [IsProbabilityMea
   rw [neg_le, ← one_mul (-log _), ← h_pdf1, Finset.sum_mul]
   let g_lhs s := pdf s * neg_log_pdf s_max
   let g_rhs s := -pdf s * log (pdf s)
-  suffices : ∑ s in A, g_lhs s ≤ ∑ s in A, g_rhs s
-  . convert this
+  suffices ∑ s in A, g_lhs s ≤ ∑ s in A, g_rhs s by
+    convert this
     rw [entropy_eq_sum_finset hX hA]
     congr with s
     simp [negMulLog, g_rhs]
@@ -332,7 +331,7 @@ lemma entropy_comm (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
 /-- $H[(X, Y), Z] = H[X, (Y, Z)]$. -/
 lemma entropy_assoc (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
     H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ] := by
-  change H[Equiv.prodAssoc _ _ _ ∘ ⟨⟨X, Y⟩, Z⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ]
+  change H[MeasurableEquiv.prodAssoc ∘ ⟨⟨X, Y⟩, Z⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ]
   exact entropy_comp_of_injective μ ((hX.prod_mk hY).prod_mk hZ) _ $ Equiv.injective _
 
 /-- $H[X, f(X)] = H[X]$.-/
@@ -361,7 +360,7 @@ lemma condEntropy_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
 lemma condEntropy_eq_zero
     (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ] (t : T) (ht : (μ.map Y {t}).toReal = 0) : H[X | Y ← t ; μ] = 0 := by
   convert entropy_zero_measure X
-  apply cond_eq_zero_of_measure_eq_zero
+  apply cond_eq_zero_of_meas_eq_zero
   rw [Measure.map_apply hY (MeasurableSet.singleton t)] at ht
   rw [← measureReal_eq_zero_iff]
   exact ht
@@ -459,8 +458,7 @@ lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [Mea
         le_antisymm ((measure_mono (Set.inter_subset_left _ _)).trans hy.le) bot_le
       simp [this, hy]
     · rw [ENNReal.mul_inv_cancel hy (by finiteness), one_mul]
-  · rw [A, cond_cond_eq_cond_inter'' (hZ (measurableSet_singleton y))
-      (hY (measurableSet_singleton x))]
+  · rw [A, cond_cond_eq_cond_inter _ (hZ (.singleton y)) (hY (.singleton x))]
 
 /-- $H[X|Y] = \sum_y \sum_x P[Y=y] P[X=x|Y=y] log \frac{1}{P[X=x|Y=y]}$.-/
 lemma condEntropy_eq_sum_sum [MeasurableSingletonClass T] (hX : Measurable X) {Y : Ω → T} (hY : Measurable Y)
@@ -950,7 +948,7 @@ lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measu
     rw [Pi.le_def]
     intro z; simp
     by_cases hz : μ (Z ⁻¹' {z}) = 0
-    · have : μ[| Z ⁻¹' {z}] = 0 := cond_eq_zero_of_measure_eq_zero hz
+    · have : μ[| Z ⁻¹' {z}] = 0 := cond_eq_zero_of_meas_eq_zero _ hz
       simp [this]
       rw [mutualInfo_def]
       simp

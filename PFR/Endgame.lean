@@ -126,12 +126,10 @@ lemma I₃_eq : I[V : W | S] = I₂ := by
         · exact (measurable_pi_apply _).add (measurable_pi_apply _)
         · apply measurable_pi_apply
       · apply measurable_pi_apply
-  have hUVS : IdentDistrib (prod U S) (prod V S)
-  · convert (IdentDistrib.comp hident hmeas1)
-    all_goals {simp; abel}
-  have hUVWS : IdentDistrib (prod (prod U W) S) (prod (prod V W) S)
-  · convert (IdentDistrib.comp hident hmeas2)
-    all_goals {simp; abel}
+  have hUVS : IdentDistrib (prod U S) (prod V S) := by
+    convert (IdentDistrib.comp hident hmeas1); simp; abel
+  have hUVWS : IdentDistrib (prod (prod U W) S) (prod (prod V W) S) := by
+    convert (IdentDistrib.comp hident hmeas2) <;> simp <;> abel
   have hU : Measurable U := Measurable.add hX₁ hX₂
   have hV : Measurable V := Measurable.add hX₁' hX₂
   have hW : Measurable W := Measurable.add hX₁' hX₁
@@ -216,10 +214,9 @@ lemma sum_dist_diff_le :
   c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ (6 - 3 * p.η)*k + 3 * (2*p.η*k - I₁) := by
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
-
-  have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2
-  · have aux1 : H[S] + H[U] - H[X₁] - H[X₁' + X₂'] = H[S] - H[X₁]
-    · rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep] ; ring
+  have ineq1 : d[X₀₁ # U | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by
+    have aux1 : H[S] + H[U] - H[X₁] - H[X₁' + X₂'] = H[S] - H[X₁] := by
+      rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep]; ring
     have aux2 : d[X₀₁ # U | U + (X₁' + X₂')] - d[X₀₁ # X₁]
             ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₁] - H[X₁' + X₂']) / 2 :=
       condRuzsaDist_diff_ofsum_le ℙ (hX := p.hmeas1) (hY := hX₁) (hZ := hX₂)
@@ -227,12 +224,12 @@ lemma sum_dist_diff_le :
     rw [← add_assoc, aux1] at aux2
     linarith [aux2]
 
-  have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2
-  · have aux1 : H[S] + H[U] - H[X₂] - H[X₁' + X₂'] = H[S] - H[X₂]
-    · rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep] ; ring
+  have ineq2 : d[X₀₂ # U | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by
+    have aux1 : H[S] + H[U] - H[X₂] - H[X₁' + X₂'] = H[S] - H[X₂] := by
+      rw [hU X₁ X₂ X₁' X₂' h₁ h₂ h_indep] ; ring
     have aux2 : d[X₀₂ # U | U + (X₁' + X₂')] - d[X₀₂ # X₂]
-            ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₂] - H[X₁' + X₂']) / 2
-    · rw [(show U = X₂ + X₁ from add_comm _ _)]
+            ≤ (H[U + (X₁' + X₂')] + H[U] - H[X₂] - H[X₁' + X₂']) / 2 := by
+      rw [(show U = X₂ + X₁ from add_comm _ _)]
       apply condRuzsaDist_diff_ofsum_le ℙ (p.hmeas2) (hX₂) (hX₁)
         (Measurable.add hX₁' hX₂') (independenceCondition2 hX₁ hX₂ hX₁' hX₂' h_indep)
     rw [← add_assoc, aux1] at aux2
@@ -240,63 +237,67 @@ lemma sum_dist_diff_le :
 
   have V_add_eq : V + (X₁ + X₂') = S := by abel
 
-  have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2
-  · have aux2 : d[p.X₀₁ # V | V + (X₁ + X₂')] - d[p.X₀₁ # X₁']
+  have ineq3 : d[X₀₁ # V | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 := by
+    have aux2 : d[p.X₀₁ # V | V + (X₁ + X₂')] - d[p.X₀₁ # X₁']
             ≤ (H[V + (X₁ + X₂')] + H[V] - H[X₁'] - H[X₁ + X₂']) / 2 :=
       condRuzsaDist_diff_ofsum_le ℙ (p.hmeas1) (hX₁') (hX₂) (Measurable.add hX₁ hX₂')
       (independenceCondition3 hX₁ hX₂ hX₁' hX₂' h_indep)
 
-    have aux1 : H[S] + H[V] - H[X₁'] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₁ ; ℙ]
-    · rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep, h₁.entropy_eq]; ring
+    have aux1 : H[S] + H[V] - H[X₁'] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₁ ; ℙ] := by
+      rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep, h₁.entropy_eq]; ring
     rw [← ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl p.hmeas1.aemeasurable) h₁,
       V_add_eq, aux1] at aux2
     linarith [aux2]
 
-  have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2
-  · have aux2 : d[p.X₀₂ # V | V + (X₁ + X₂')] - d[p.X₀₂ # X₂]
-            ≤ (H[V + (X₁ + X₂')] + H[V] - H[X₂] - H[X₁ + X₂']) / 2
-    · rw [(show V = X₂ + X₁' from add_comm _ _)]
+  have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by
+    have aux2 : d[p.X₀₂ # V | V + (X₁ + X₂')] - d[p.X₀₂ # X₂]
+            ≤ (H[V + (X₁ + X₂')] + H[V] - H[X₂] - H[X₁ + X₂']) / 2 := by
+      rw [(show V = X₂ + X₁' from add_comm _ _)]
       apply condRuzsaDist_diff_ofsum_le ℙ (p.hmeas2) (hX₂) (hX₁') (Measurable.add hX₁ hX₂')
         (independenceCondition4 hX₁ hX₂ hX₁' hX₂' h_indep)
-    have aux1 : H[S] + H[V] - H[X₂] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₂ ; ℙ]
-    · rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep]; ring
+    have aux1 : H[S] + H[V] - H[X₂] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₂ ; ℙ] := by
+      rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep]; ring
     rw [V_add_eq, aux1] at aux2
     linarith [aux2]
 
   let W' := X₂ + X₂'
-  have ineq5 : d[X₀₁ # W | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2
-  · have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas1 hX₁ hX₁' (Measurable.add hX₂ hX₂')
+  have ineq5 : d[X₀₁ # W | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 := by
+    have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas1 hX₁ hX₁' (Measurable.add hX₂ hX₂')
       (independenceCondition5 hX₁ hX₂ hX₁' hX₂' h_indep)
-    have S_eq : X₁ + X₁' + (fun a ↦ X₂ a + X₂' a) = S
-    · rw [(show (fun a ↦ X₂ a + X₂' a) = X₂ + X₂' by rfl), ← add_assoc, add_assoc X₁, add_comm X₁', ← add_assoc]
+    have S_eq : X₁ + X₁' + (fun a ↦ X₂ a + X₂' a) = S := by
+      rw [(show (fun a ↦ X₂ a + X₂' a) = X₂ + X₂' by rfl), ← add_assoc, add_assoc X₁, add_comm X₁',
+        ← add_assoc]
     rwa [S_eq, add_comm X₁ X₁'] at this
 
-  have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
-  · have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas2 hX₂ hX₂' (Measurable.add hX₁' hX₁)
+  have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2 := by
+    have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas2 hX₂ hX₂' (Measurable.add hX₁' hX₁)
       (independenceCondition6 hX₁ hX₂ hX₁' hX₂' h_indep)
-    have S_eq : X₂ + X₂' + (fun a ↦ X₁' a + X₁ a) = S
-    · rw [(show (fun a ↦ X₁' a + X₁ a) = X₁' + X₁ by rfl), add_comm, ← add_assoc, add_comm X₁',
+    have S_eq : X₂ + X₂' + (fun a ↦ X₁' a + X₁ a) = S := by
+      rw [(show (fun a ↦ X₁' a + X₁ a) = X₁' + X₁ by rfl), add_comm, ← add_assoc, add_comm X₁',
       add_assoc X₁, add_comm X₁', ← add_assoc]
     rwa [S_eq] at this
 
-  have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S]
-  · have S_eq : S = (X₂ + X₂') + (X₁' + X₁)
-    · rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ← add_assoc X₂, ← add_assoc X₂, add_comm X₂]
+  have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S] := by
+    have S_eq : S = (X₂ + X₂') + (X₁' + X₁) := by
+      rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ← add_assoc X₂, ← add_assoc X₂,
+        add_comm X₂]
     rw [S_eq]
-    apply  condRuzsaDist'_of_inj_map' p.hmeas2 (hX₂.add hX₂') (hX₁'.add hX₁)
+    apply condRuzsaDist'_of_inj_map' p.hmeas2 (hX₂.add hX₂') (hX₁'.add hX₁)
 
   -- Put everything together to bound the sum of the `c` terms
-  have ineq7 : c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ]
-  · have step₁ : c[U|S # U|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
-    · calc c[U|S # U|S] = (d[p.X₀₁ # U|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # U|S] - d[p.X₀₂ # X₂]) := by ring
+  have ineq7 : c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤
+    3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by
+    have step₁ : c[U|S # U|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 :=
+      calc
+        _ = (d[p.X₀₁ # U|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # U|S] - d[p.X₀₂ # X₂]) := by ring
         _ ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 + (H[S ; ℙ] - H[X₂ ; ℙ])/2 := add_le_add ineq1 ineq2
         _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
-    have step₂ : c[V|S # V|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
-    · calc c[V|S # V|S] =(d[p.X₀₁ # V|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # V|S] - d[p.X₀₂ # X₂]) := by ring
+    have step₂ : c[V|S # V|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 :=
+      calc c[V|S # V|S] =(d[p.X₀₁ # V|S] - d[p.X₀₁ # X₁]) + (d[p.X₀₂ # V|S] - d[p.X₀₂ # X₂]) := by ring
         _ ≤ (H[S ; ℙ] - H[X₁ ; ℙ])/2 + (H[S ; ℙ] - H[X₂ ; ℙ])/2 := add_le_add ineq3 ineq4
         _ = H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 := by ring
-    have step₃ : c[W|S # W|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2
-    · calc c[W|S # W|S] = (d[X₀₁ # W | S] - d[X₀₁ # X₁]) + (d[X₀₂ # W' | S] - d[X₀₂ # X₂]) :=
+    have step₃ : c[W|S # W|S] ≤ H[S ; ℙ] - (H[X₁ ; ℙ] + H[X₂ ; ℙ])/2 :=
+      calc c[W|S # W|S] = (d[X₀₁ # W | S] - d[X₀₁ # X₁]) + (d[X₀₂ # W' | S] - d[X₀₂ # X₂]) :=
           by rw [dist_eq]
         _ ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 + (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2
           := add_le_add ineq5 ineq6
@@ -306,14 +307,14 @@ lemma sum_dist_diff_le :
         add_le_add (add_le_add step₁ step₂) step₃
     _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
 
-  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁']
-  · apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (2 : Fin 4) 3)
+  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
+    apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (2 : Fin 4) 3)
     convert h_indep using 1
     ext x
     fin_cases x ; all_goals { aesop }
 
-  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * (H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+p.η)*k - 3*I₁
-  · calc 3 * H[S ; ℙ] ≤ 3 * (H[X₁ ; ℙ] / 2 + H[X₂ ; ℙ] / 2 + (2+p.η)*k - I₁) := by
+  have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * (H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+p.η)*k - 3*I₁ :=
+    calc 3 * H[S ; ℙ] ≤ 3 * (H[X₁ ; ℙ] / 2 + H[X₂ ; ℙ] / 2 + (2+p.η)*k - I₁) := by
           apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr
             (ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min)
       _ =  3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+p.η)*k - 3*I₁ := by ring
@@ -359,48 +360,45 @@ lemma construct_good_prelim :
 
   have hp.η : 0 ≤ p.η := by linarith [p.hη]
   have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
-  have h2T₃ : T₃ = T₁ + T₂
-  · calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp
+  have h2T₃ : T₃ = T₁ + T₂ :=
+    calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp
       _ = T₁ + T₂ := by rw [add_sub_cancel]
   have h2T₁ : T₁ = T₂ + T₃ := by simp [h2T₃, add_left_comm]
   have h2T₂ : T₂ = T₃ + T₁ := by simp [h2T₁, add_left_comm]
 
-  have h1 : sum1 ≤ δ
-  · have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := by
+  have h1 : sum1 ≤ δ := by
+    have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := by
       subst h2T₃; exact ent_bsg hT₁ hT₂
-    have h2 : H[⟨T₂, T₃⟩] = H[⟨T₁, T₂⟩]
-    · rw [h2T₃, entropy_add_right', entropy_comm] <;> assumption
-    have h3 : H[⟨T₁, T₂⟩] = H[⟨T₃, T₁⟩]
-    · rw [h2T₃, entropy_add_left, entropy_comm] <;> assumption
+    have h2 : H[⟨T₂, T₃⟩] = H[⟨T₁, T₂⟩] := by
+      rw [h2T₃, entropy_add_right', entropy_comm] <;> assumption
+    have h3 : H[⟨T₁, T₂⟩] = H[⟨T₃, T₁⟩] := by
+      rw [h2T₃, entropy_add_left, entropy_comm] <;> assumption
     simp_rw [mutualInfo_def] at h1 ⊢; linarith
 
-  have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2)
-  · have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁]
-    · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
+  have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2) := by
+    have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
+      simp [integral_sub (.of_finite _ _) (.of_finite _ _)]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
 
-  have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2)
-  · have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂]
-    · simp [integral_sub (integrable_of_fintype _ _) (integrable_of_fintype _ _)]
+  have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2) := by
+    have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
+      simp [integral_sub (.of_finite _ _) (.of_finite _ _)]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
 
-  have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2
-  · have : sum4 = sum1 + p.η * (sum2 + sum3)
-    · simp only [integral_add (integrable_of_fintype _ _) (integrable_of_fintype _ _),
-        integral_mul_left]
-    linarith
+  have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2 := by
+    suffices sum4 = sum1 + p.η * (sum2 + sum3) by linarith
+    simp only [integral_add (.of_finite _ _) (.of_finite _ _), integral_mul_left]
 
-  have hk : k ≤ sum4
-  · suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
-    refine integral_mono_ae (integrable_of_fintype _ _) (integrable_of_fintype _ _) $
-      ae_iff_of_countable.2 fun t ht ↦ ?_
+  have hk : k ≤ sum4 := by
+    suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
+    refine integral_mono_ae (.of_finite _ _) (.of_finite _ _) $ ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
       cond_isProbabilityMeasure ℙ (by simpa [hT₃] using ht)
     dsimp only
@@ -472,8 +470,7 @@ lemma cond_construct_good :
   gcongr (?_ * ?_)
   · apply rdist_nonneg hX₁ hX₂
   · rfl
-  have : IsProbabilityMeasure (ℙ[|R ⁻¹' {r}])
-  · refine cond_isProbabilityMeasure ℙ hr
+  have : IsProbabilityMeasure (ℙ[|R ⁻¹' {r}]) := cond_isProbabilityMeasure ℙ hr
   apply construct_good' p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 
 end construct_good

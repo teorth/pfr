@@ -24,7 +24,7 @@ project, but we should probably add them back in the long run if they turn out t
 -/
 
 open MeasureTheory Measure Set
-open scoped ENNReal NNReal BigOperators
+open scoped ENNReal NNReal BigOperators symmDiff
 
 section aux_lemmas
 

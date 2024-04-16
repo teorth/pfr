@@ -1,6 +1,4 @@
 import PFR.ForMathlib.Pair
-import PFR.Mathlib.Data.Set.Image
-import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Tactic.Finiteness
 
@@ -114,7 +112,7 @@ lemma CondIndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi'
   rw [condIndepFun_iff] at hfg ⊢
   rw [← Measure.map_map hh hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
   refine hfg.mono $ fun c hc ↦ ?_
-  rw [preimage_comp, ← comap_cond hi hi' $ hh $ measurableSet_singleton _]
+  rw [preimage_comp, ← comap_cond _ hi hi' $ hh $ measurableSet_singleton _]
   exact IndepFun.comp_right hi (cond_absolutelyContinuous.ae_le hi') hf hg hc
 
 end defs
@@ -175,7 +173,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     simp
   . rw [condIndepFun_iff, ae_iff_of_countable ]
     have h1 : ν.map Prod.snd = μ.map Y := by
-      rw [law_of_total_probability hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
+      rw [← sum_meas_smul_cond_fiber hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
       simp
       congr with y
       rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
@@ -228,7 +226,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       simp
     . exact (measurable_fst.comp measurable_fst).aemeasurable
     exact (measurable_snd.comp measurable_fst).aemeasurable
-  . rw [law_of_total_probability hY μ]
+  . rw [← sum_meas_smul_cond_fiber hY μ]
     apply identDistrib_of_sum ((measurable_fst.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
     intro y hy
     have h1 : IdentDistrib (fun ω ↦ (ω.1.1, ω.2)) (fun ω ↦ (ω.1.1, y)) (m y) (m y) := by
@@ -244,7 +242,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       apply (identDistrib_comp_fst measurable_id _ _).trans
       apply identDistrib_map hX measurable_id
     exact (h1.trans h2).trans (h3 y)
-  rw [law_of_total_probability hY μ]
+  rw [← sum_meas_smul_cond_fiber hY μ]
   apply identDistrib_of_sum ((measurable_snd.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
   intro y hy
   have h1 : IdentDistrib (fun ω ↦ (ω.1.2, ω.2)) (fun ω ↦ (ω.1.2, y)) (m y) (m y) := by
@@ -274,8 +272,8 @@ lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY 
   let i := Subtype.val (p := fun ω ↦ p (X₁ ω) (Y' ω) ∧ p (X₂ ω) (Y' ω))
   have hi : MeasurableEmbedding i := MeasurableEmbedding.subtype_coe
     ((hp.comp $ hX₁.prod_mk hY').and $ hp.comp $ hX₂.prod_mk hY').setOf
-  have hi' : ∀ᵐ ω ∂ν, ω ∈ range i
-  · simp only [mem_setOf_eq, Subtype.range_coe_subtype, Filter.eventually_and]
+  have hi' : ∀ᵐ ω ∂ν, ω ∈ range i := by
+    simp only [mem_setOf_eq, Subtype.range_coe_subtype, Filter.eventually_and]
     exact ⟨hXY₁.symm.ae_snd (p := uncurry p) hp.setOf hp',
       hXY₂.symm.ae_snd (p := uncurry p) hp.setOf hp'⟩
   refine ⟨{ω // p (X₁ ω) (Y' ω) ∧ p (X₂ ω) (Y' ω)}, inferInstance, X₁ ∘ (↑), X₂ ∘ (↑), Y' ∘ (↑),

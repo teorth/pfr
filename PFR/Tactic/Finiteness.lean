@@ -33,11 +33,11 @@ theorem ENNReal.add_ne_top' {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞)
 
 /-! ## Tactic implementation -/
 
-attribute [aesop (rule_sets [Finiteness]) unsafe 20%] ne_top_of_lt
+attribute [aesop (rule_sets := [Finiteness]) unsafe 20%] ne_top_of_lt
 -- would have been better to implement this as a "safe" "forward" rule, why doesn't this work?
--- attribute [aesop (rule_sets [Finiteness]) safe forward] ne_top_of_lt
+-- attribute [aesop (rule_sets := [Finiteness]) safe forward] ne_top_of_lt
 
-attribute [aesop (rule_sets [Finiteness]) safe apply]
+attribute [aesop (rule_sets := [Finiteness]) safe apply]
   Ne.lt_top
   ENNReal.ofReal_ne_top ENNReal.coe_ne_top ENNReal.nat_ne_top
   ENNReal.zero_ne_top ENNReal.one_ne_top ENNReal.ofNat_ne_top
@@ -45,11 +45,11 @@ attribute [aesop (rule_sets [Finiteness]) safe apply]
   MeasureTheory.measure_ne_top
 
 open Aesop.BuiltinRules in
-attribute [aesop (rule_sets [Finiteness]) safe -50] assumption intros
+attribute [aesop (rule_sets := [Finiteness]) safe -50] assumption intros
 
 open Lean Elab Tactic in
 /-- A version of the positivity tactic for use by `aesop`. -/
-@[aesop safe tactic (rule_sets [Finiteness])]
+@[aesop safe tactic (rule_sets := [Finiteness])]
 def PositivityForAesop : TacticM Unit :=
   liftMetaTactic fun g => do Mathlib.Meta.Positivity.positivity g; pure []
 
@@ -58,9 +58,8 @@ nonnegative reals (`ℝ≥0∞`). -/
 macro (name := finiteness) "finiteness" c:Aesop.tactic_clause* : tactic =>
 `(tactic|
   aesop $c*
-    (options := { introsTransparency? := some .reducible, terminal := true })
-    (simp_options := { enabled := false })
-    (rule_sets [$(Lean.mkIdent `Finiteness):ident, -default, -builtin]))
+    (config := { introsTransparency? := some .reducible, terminal := true, enableSimp := false })
+    (rule_sets := [$(Lean.mkIdent `Finiteness):ident, -default, -builtin]))
 
 /-! ## Tests -/
 

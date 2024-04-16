@@ -1,4 +1,5 @@
 import Mathlib.Data.Finsupp.Fintype
+import Mathlib.Data.ZMod.Module
 import Mathlib.LinearAlgebra.Basis.VectorSpace
 import Mathlib.GroupTheory.Sylow
 
@@ -11,85 +12,6 @@ Here we define the notion of a vector space over a finite field, and record basi
 
 * `ElementaryAddCommGroup`: An elementary p-group.
 -/
-
--- TODO: Find an appropriate home for this section
-section to_move
-
-section AddCommMonoid
-variable {n : ℕ} {M : Type*} [AddCommMonoid M] [Module (ZMod (n + 1)) M]
-
-/- FIXME: n is not unified/inferred -/
-@[coe] def AddSubmonoid.toSubmodule (S : AddSubmonoid M) : Submodule (ZMod (n + 1)) M := by
-  have smul_mem : ∀ (c : ZMod (n + 1)) { x : M }, x ∈ S.carrier → c • x ∈ S.carrier := by
-    intros c _ hx
-    induction' c using Fin.induction with _ hc
-    · simp_rw [zero_smul, AddSubmonoid.mem_carrier, AddSubmonoid.zero_mem]
-    · rw [← Fin.coeSucc_eq_succ, Module.add_smul, one_smul] ; exact S.add_mem hc hx
-  exact { S with smul_mem' := smul_mem }
-
-@[simp, norm_cast] theorem AddSubmonoid.coe_toSubmodule (S : AddSubmonoid M) :
-  S.toSubmodule (n := n) = (S : Set M) := rfl
-
-instance : Coe (AddSubmonoid M) (Submodule (ZMod (n + 1)) M) := ⟨AddSubmonoid.toSubmodule⟩
-
-variable {M' : Type*} [AddCommMonoid M'] [Module (ZMod (n + 1)) M']
-
-@[coe] def AddMonoidHom.toLinearMap (f : M →+ M') : M →ₗ[ZMod (n + 1)] M' := by
-  have map_smul : ∀ (c : ZMod (n + 1)) (x : M), f (c • x) = c • f x := by
-    intros c _
-    induction' c using Fin.induction with _ hc
-    · simp_rw [zero_smul, map_zero]
-    · simp_rw [← Fin.coeSucc_eq_succ, Module.add_smul, one_smul, f.map_add, hc]
-  exact { f with map_smul' := map_smul }
-
-@[simp, norm_cast] theorem AddMonoidHom.coe_toLinearMap (f : M →+ M) :
-  ⇑(f.toLinearMap (n := n)) = f := rfl
-
-instance : Coe (M →+ M') (M →ₗ[ZMod (n + 1)] M') := ⟨AddMonoidHom.toLinearMap⟩
-
-end AddCommMonoid
-
-section AddCommGroup
-
-variable {n : ℕ} {G : Type*} [AddCommGroup G] [Module (ZMod n) G]
-
-@[coe] def AddSubgroup.toSubmodule (H : AddSubgroup G) : Submodule (ZMod n) G := by
-  have smul_mem : ∀ (c : ZMod n) { x : G }, x ∈ H.carrier → c • x ∈ H.carrier := by
-    cases' n with n; swap
-    · exact fun c _ hx ↦ (AddSubmonoid.toSubmodule H.toAddSubmonoid).smul_mem c hx
-    · intros c _ hx
-      induction' c using Int.induction_on with _ hc _ hc
-      · simp_rw [zero_smul, AddSubgroup.mem_carrier, AddSubgroup.zero_mem]
-      · simp_rw [Module.add_smul, one_smul, AddSubgroup.mem_carrier, H.add_mem hc hx]
-      · simp_rw [sub_smul, one_smul, AddSubgroup.mem_carrier, H.sub_mem hc hx]
-  exact { H with smul_mem' := smul_mem }
-
-@[simp, norm_cast] theorem AddSubgroup.coe_toSubmodule (H : AddSubgroup G) :
-  H.toSubmodule (n := n) = (H : Set G) := rfl
-
-instance : Coe (AddSubgroup G) (Submodule (ZMod n) G) := ⟨AddSubgroup.toSubmodule⟩
-
-variable {G' : Type*} [AddCommGroup G'] [Module (ZMod n) G']
-
-@[coe] def AddMonoidHom.toLinearMapGroup (f : G →+ G') : G →ₗ[ZMod n] G' := by
-  have map_smul : ∀ (c : ZMod n) (x : G), f (c • x) = c • f x := by
-    cases' n with n; swap
-    · exact (AddMonoidHom.toLinearMap f).map_smul
-    · intros c _
-      induction' c using Int.induction_on with _ hc _ hc
-      · simp_rw [zero_smul, map_zero]
-      · simp_rw [Module.add_smul, one_smul, f.map_add, hc]
-      · simp_rw [sub_smul, one_smul, f.map_sub, hc]
-  exact { f with map_smul' := map_smul }
-
-@[simp, norm_cast] theorem AddMonoidHom.coe_toLinearMapGroup (f : G →+ G') :
-  ⇑(f.toLinearMapGroup (n := n)) = f := rfl
-
-instance : Coe (G →+ G') (G →ₗ[ZMod n] G') := ⟨AddMonoidHom.toLinearMapGroup⟩
-
-end AddCommGroup
-end to_move
-
 
 /-- An elementary `p`-group, i.e., a commutative additive group in which every nonzero element has
 order exactly `p`. -/
@@ -121,6 +43,11 @@ lemma of_torsion {G: Type*} [AddCommGroup G] {p: ℕ} (hp: p.Prime) (h : ∀ x :
 lemma ofModule [AddCommGroup G] [Module (ZMod p) G] [Fact p.Prime] :
     ElementaryAddCommGroup G p where
   orderOf_of_ne := addOrderOf_eq_prime (Basis.ext_elem (.ofVectorSpace (ZMod p) G) (by simp))
+
+instance (priority := low) module [AddCommGroup G] [ElementaryAddCommGroup G n] :
+    Module (ZMod n) G := by
+  classical exact AddCommGroup.zmodModule fun x ↦ if h : x = 0 then (smul_eq_zero_of_right n h)
+    else (by rewrite [← orderOf_of_ne h]; exact addOrderOf_nsmul_eq_zero x)
 
 -- We add the special case instance for `p = 2`.
 instance [AddCommGroup G] [Module (ZMod 2) G] : ElementaryAddCommGroup G 2 := ofModule
@@ -252,16 +179,17 @@ open Set
 
 lemma exists_finsupp {G : Type*} [AddCommGroup G] {n : ℕ}
     [ElementaryAddCommGroup G (n + 1)] {A : Set G} {x : G} (hx : x ∈ Submodule.span ℤ A) :
-    ∃ μ : A →₀ ZMod (n + 1), (μ.sum fun a r ↦ (r : ℤ) • (a : G)) = x := by
+    ∃ μ : A →₀ ZMod (n + 1), (μ.sum fun a r ↦ (ZMod.cast r : ℤ) • (a : G)) = x := by
   rcases mem_span_set.1 hx with ⟨w, hw, rfl⟩; clear hx
   use (w.subtypeDomain A).mapRange (↑) rfl
   rw [Finsupp.sum_mapRange_index (by simp)]
   set A' := w.support.preimage ((↑) : A → G) injOn_subtype_val
-  erw [Finsupp.sum_subtypeDomain_index hw (h := fun (a : G) (r : ℤ) ↦ ((r : ZMod (n+1)) : ℤ) • a)]
+  erw [Finsupp.sum_subtypeDomain_index hw
+    (h := fun (a : G) (r : ℤ) ↦ (ZMod.cast (r : ZMod (n+1)) : ℤ) • a)]
   refine (Finsupp.sum_congr ?_).symm
   intro g _
   generalize w g = r
-  have : ∃ k : ℤ, ((r : ZMod (n+1)) : ℤ) = r + k*(n+1) := by
+  have : ∃ k : ℤ, (ZMod.cast (r : ZMod (n+1)) : ℤ) = r + k*(n+1) := by
     use -(r / (n+1))
     rw_mod_cast [ZMod.coe_int_cast, Int.mod_eq, sub_eq_add_neg, neg_mul]
   rcases this with ⟨k, hk⟩
@@ -276,7 +204,7 @@ lemma finite_closure {G : Type*} [AddCommGroup G] {n : ℕ}
   have : Fintype A := Finite.fintype h
   have : Fintype (A →₀ ZMod (n + 1)) := Finsupp.fintype
   rw [← Submodule.span_int_eq_addSubgroup_closure, Submodule.coe_toAddSubgroup]
-  let φ : (A →₀ ZMod (n + 1)) → G := fun μ ↦ μ.sum fun a r ↦ (r : ℤ) • (a : G)
+  let φ : (A →₀ ZMod (n + 1)) → G := fun μ ↦ μ.sum fun a r ↦ (ZMod.cast r : ℤ) • (a : G)
   have : SurjOn φ univ (Submodule.span ℤ A : Set G) := by
     intro x hx
     rcases exists_finsupp hx with ⟨μ, hμ⟩
@@ -291,33 +219,8 @@ lemma subgroup {G : Type*} [AddCommGroup G] {n : ℕ}
   apply orderOf_of_ne
   norm_cast
 
-def smul : ZMod 2 → G → G
-  | 0, _ => 0
-  | 1, x => x
-
-instance (priority := low) module : Module (ZMod 2) G where
-  smul := smul
-  one_smul := fun _ => rfl
-  mul_smul := by
-    intro a b x
-    fin_cases a <;> fin_cases b <;> abel
-  smul_zero := by intro a ; fin_cases a <;> rfl
-  smul_add := by
-    intro a x y
-    fin_cases a
-    · change 0 = 0 + 0 ; simp
-    · rfl
-  add_smul := by
-    intro a b x
-    fin_cases a <;> fin_cases b
-    · simp only [Fin.zero_eta, CharTwo.add_self_eq_zero, ElementaryAddCommGroup.add_self] ; rfl
-    · simp only [Fin.zero_eta, Fin.mk_one, zero_add, self_eq_add_left] ; rfl
-    · simp only [Fin.mk_one, Fin.zero_eta, add_zero, self_eq_add_right] ; rfl
-    · simp only [Fin.mk_one, CharTwo.add_self_eq_zero, ElementaryAddCommGroup.add_self] ; rfl
-  zero_smul := fun _ => rfl
-
-
-lemma quotient_group {G : Type*} [AddCommGroup G] {p : ℕ} (hp: p.Prime) {H : AddSubgroup G} (hH: ∀ x : G, p • x ∈ H) : ElementaryAddCommGroup (G ⧸ H) p := by
+lemma quotient_group {G : Type*} [AddCommGroup G] {p : ℕ} (hp : p.Prime) {H : AddSubgroup G}
+    (hH : ∀ x : G, p • x ∈ H) : ElementaryAddCommGroup (G ⧸ H) p := by
   apply of_torsion hp
   intro x
   rcases QuotientAddGroup.mk'_surjective H x with ⟨y, rfl⟩

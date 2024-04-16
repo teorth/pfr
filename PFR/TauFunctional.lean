@@ -58,7 +58,7 @@ To lighten notation, We package `X^0_1` and `X^0_2` in a single object named `p`
 We denote it as `τ[X₁ ; μ₁ # X₂ ; μ₂ | p]` where `p` is a fixed package containing the information
 of the reference random variables. When the measurable spaces have a canonical measure `ℙ`, we
 can use `τ[X₁ # X₂ | p]`
---/
+-/
 @[pp_dot] noncomputable def tau {Ω₁ Ω₂ : Type*} [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     (X₁ : Ω₁ → G) (X₂ : Ω₂ → G) (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) : ℝ :=
   d[X₁ ; μ₁ # X₂ ; μ₂] + p.η * d[p.X₀₁ ; ℙ # X₁ ; μ₁] + p.η * d[p.X₀₂ ; ℙ # X₂ ; μ₂]
@@ -228,9 +228,9 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
   have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure ℙ hpz
   set μ' := ℙ[|W ← w]
   have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure ℙ hpw
-  suffices : d[X₁ # X₂] - p.η * (d[p.X₀₁; volume # X'₁; μ] - d[p.X₀₁ # X₁]) - p.η * (d[p.X₀₂; volume # X'₂; μ'] - d[p.X₀₂ # X₂])
-  ≤ d[X'₁ ; μ # X'₂; μ']
-  . replace this := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)
+  suffices d[X₁ # X₂] - p.η * (d[p.X₀₁; volume # X'₁; μ] - d[p.X₀₁ # X₁]) -
+    p.η * (d[p.X₀₂; volume # X'₂; μ'] - d[p.X₀₂ # X₂]) ≤ d[X'₁ ; μ # X'₂; μ'] by
+    replace this := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)
     convert this using 1
     ring
   exact distance_ge_of_min' p h h1 h2

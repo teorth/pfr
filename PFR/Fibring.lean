@@ -41,7 +41,7 @@ lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
     have hsub : H[(Z_1 - Z_2)| π ∘ (Z_1 - Z_2); μ] = H[(Z_1 - Z_2); μ] - H[π ∘ (Z_1 - Z_2); μ] := condEntropy_comp_self (by measurability) hπ
 
     rw [h.rdist_eq h1 h2, (h.comp hπ hπ).rdist_eq (hπ.comp h1) (hπ.comp h2),
-      condEntropy_comp_self h1 hπ, condEntropy_comp_self h2 hπ, hsub, π.comp_sub]
+      condEntropy_comp_self h1 hπ, condEntropy_comp_self h2 hπ, hsub, map_comp_sub π]
     ring_nf
   have m0 : Measurable (fun x ↦ (x, π x)) := measurable_of_countable _
   have h' : IndepFun (⟨Z_1, π ∘ Z_1⟩) (⟨Z_2, π ∘ Z_2⟩) μ := h.comp m0 m0
@@ -50,7 +50,7 @@ lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
   have m3 : Measurable (↑π ∘ (Z_1 - Z_2)) := hπ.comp m1
   have entroplem : H[Z_1 - Z_2|⟨⟨↑π ∘ Z_1, ↑π ∘ Z_2⟩, ↑π ∘ (Z_1 - Z_2)⟩; μ]
       = H[Z_1 - Z_2|⟨↑π ∘ Z_1, ↑π ∘ Z_2⟩; μ] := by
-    rw [π.comp_sub]
+    rw [map_comp_sub π]
     let f : H' × H' → (H' × H') × H' := fun (x,y) ↦ ((x,y), x - y)
     have hf : Function.Injective f := fun _ _ h ↦ (Prod.ext_iff.1 h).1
     have mf : Measurable f := measurable_id.prod_mk measurable_sub
@@ -117,10 +117,8 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
   (h_meas : ∀ i, Measurable (Y i)) :
     I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
     I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - Y 2 + Y 3;μ] := by
-  suffices : I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
-    I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - (Y 2 - Y 3) ;μ]
-  . convert this using 2
-    abel
+  suffices I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
+    I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - (Y 2 - Y 3) ; μ] by convert this using 2; abel
   symm
   have hm (f : G → G → G × G) {a b i j k l : Fin 4} :
     Measurable (Function.uncurry f ∘ ⟨Y i - Y j - (Y k - Y l), Y a - Y b⟩) :=
