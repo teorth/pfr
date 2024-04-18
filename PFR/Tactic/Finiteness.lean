@@ -24,7 +24,7 @@ open ENNReal
 /-! ## Lemmas -/
 
 theorem ENNReal.ofNat_ne_top (n : ℕ) [Nat.AtLeastTwo n] : no_index (OfNat.ofNat n) ≠ ∞ :=
-  ENNReal.nat_ne_top n
+  ENNReal.natCast_ne_top n
 
 theorem ENNReal.inv_ne_top' (h : a ≠ 0) : a⁻¹ ≠ ∞ := ENNReal.inv_ne_top.2 h
 
@@ -39,7 +39,7 @@ attribute [aesop (rule_sets := [Finiteness]) unsafe 20%] ne_top_of_lt
 
 attribute [aesop (rule_sets := [Finiteness]) safe apply]
   Ne.lt_top
-  ENNReal.ofReal_ne_top ENNReal.coe_ne_top ENNReal.nat_ne_top
+  ENNReal.ofReal_ne_top ENNReal.coe_ne_top ENNReal.natCast_ne_top
   ENNReal.zero_ne_top ENNReal.one_ne_top ENNReal.ofNat_ne_top
   ENNReal.mul_ne_top ENNReal.add_ne_top' ENNReal.sub_ne_top ENNReal.inv_ne_top'
   MeasureTheory.measure_ne_top
