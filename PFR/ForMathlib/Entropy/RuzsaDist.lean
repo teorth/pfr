@@ -278,7 +278,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
         let T : Set (G × G) := ((π' ∘ X') ⁻¹' {x})ᶜ
         let U : Set (G × G) := UH' ⁻¹' Hᶜ
         have h_subset : (X' - UH') ⁻¹' H_xᶜ ⊆ T ∪ U :=
-          fun ω hω ↦ Classical.byContradiction fun _ ↦ by sorry -- simp_all [not_or]
+          fun ω hω ↦ Classical.byContradiction fun h ↦ by simp_all [not_or, T, U, H_x, π']
         refine MeasureTheory.mem_ae_iff.mpr (le_zero_iff.mp ?_)
         calc
           _ ≤ (ν' T) + (ν' U) := (measure_mono h_subset).trans (measure_union_le T U)

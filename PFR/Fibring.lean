@@ -142,7 +142,7 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
       { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
     { rw [sub_sub, add_sub_left_comm, ← sub_sub]
       ext ω
-      { simp only [Function.comp_apply, Pi.sub_apply, add_sub_cancel'_right] }
+      { simp only [Function.comp_apply, Pi.sub_apply, add_sub_cancel] }
       { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
   . exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).2
   exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).1

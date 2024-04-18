@@ -35,9 +35,8 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
 
   have h_cs : ((A ×ˢ A).filter (fun (a, a') ↦ a + a' ∈ A) |>.card : ℝ) ^ 2 ≤
       Finset.card A * E[A] := by
-    --norm_cast
-    --convert card_sq_le_card_mul_additiveEnergy A A
-    sorry
+    norm_cast
+    convert card_sq_le_card_mul_additiveEnergy A A A
   rewrite [← Nat.card_eq_finsetCard, ← Nat.card_eq_finsetCard,
     Nat.card_congr (Set.equiv_filter_graph f)] at h_cs
 

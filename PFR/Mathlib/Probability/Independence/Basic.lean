@@ -342,7 +342,7 @@ theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} 
   change a ∈ ⋂ i ∈ s, E i ↔ a ∈ ⋂ i ∈ s, F i
   simp
   change ∀ i ∈ s, a ∈ E i ↔ a ∈ F i at ha
-  exact ball_congr ha
+  exact forall₂_congr ha
 
 /-- TODO: a kernel version of this theorem-/
 theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}

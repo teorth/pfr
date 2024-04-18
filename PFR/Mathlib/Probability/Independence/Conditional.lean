@@ -211,15 +211,14 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
         apply measure_inter_null_of_null_left E
         rw [← Measure.map_apply measurable_snd (by simp), MeasureTheory.Measure.map_snd_prod]
         simp; right; exact hx
-      simp only [ν]
+      simp only [ν, coe_finset_sum, smul_toOuterMeasure, OuterMeasure.coe_smul, Finset.sum_apply,
+        Pi.smul_apply, smul_eq_mul]
       rw [Finset.sum_eq_single_of_mem y (Finset.mem_univ y)]
-      . simp only [smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul]
-        rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
+      . rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
         finiteness
-      sorry
-      --intro x _ hx
-      --rw [h3' hx]
-      --simp
+      · intro x _ hx
+        rw [h3' hx]
+        simp
     rw [h2, indepFun_iff_map_prod_eq_prod_map_map]
     . let f : (α × α) × β → α × α := Prod.fst
       show ((m y).map f) = ((m y).map (Prod.fst ∘ f)).prod ((m y).map (Prod.snd ∘ f))
