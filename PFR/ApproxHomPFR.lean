@@ -34,7 +34,9 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   let A := (Set.graph f).toFinite.toFinset
 
   have h_cs : ((A ×ˢ A).filter (fun (a, a') ↦ a + a' ∈ A) |>.card : ℝ) ^ 2 ≤
-      Finset.card A * E[A] := by norm_cast; convert card_sq_le_card_mul_additiveEnergy A A
+      Finset.card A * E[A] := by
+    norm_cast
+    convert card_sq_le_card_mul_additiveEnergy A A A
   rewrite [← Nat.card_eq_finsetCard, ← Nat.card_eq_finsetCard,
     Nat.card_congr (Set.equiv_filter_graph f)] at h_cs
 
@@ -47,7 +49,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     _ ≥ ((Nat.card A)^2 / K)^2 / Nat.card A := (div_le_iff' <| hA_pos).mpr this
     _ = ((Nat.card A)^4 / (Nat.card A)) / K^2 := by ring
     _ = (Finset.card A)^3 / K^2 := by
-      rw [pow_succ, mul_comm, mul_div_assoc, div_self (ne_of_gt hA_pos), mul_one,
+      rw [pow_succ, mul_div_assoc, div_self (ne_of_gt hA_pos), mul_one,
         Nat.card_eq_finsetCard]
   have hA_nonempty : A.Nonempty := (Set.Finite.toFinset_nonempty _).2 $ Set.graph_nonempty _
   obtain ⟨A', hA', hA'1, hA'2⟩ :=
@@ -98,7 +100,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       refine mul_le_mul_of_nonneg_left ?_ (Nat.cast_nonneg _)
       refine le_of_mul_le_mul_right ?_ hH₀_pos
       refine le_of_mul_le_mul_right ?_ (Nat.cast_pos.mpr hA''_pos)
-      rewrite [div_mul_cancel 1, mul_right_comm, one_mul,  div_mul_cancel, ← Nat.cast_mul]
+      rewrite [div_mul_cancel₀ 1, mul_right_comm, one_mul, div_mul_cancel₀, ← Nat.cast_mul]
       · exact Nat.cast_le.mpr h_le_H₀
       · exact ne_of_gt (Nat.cast_pos.mpr hA''_pos)
       · exact ne_of_gt hH₀_pos

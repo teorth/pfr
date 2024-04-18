@@ -218,7 +218,7 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) [IsProbabilityMea
   have h_norm : norm = μ Set.univ := by
     have := measure_add_measure_compl (μ := μS) (s := A) (Finset.measurableSet _)
     rw [hA, add_zero] at this
-    simp [this, Measure.map_apply hX MeasurableSet.univ]
+    simp [norm, μS, this, Measure.map_apply hX MeasurableSet.univ]
 
   let pdf_nn s := norm⁻¹ * μs s
   let pdf s := (pdf_nn s).toReal
@@ -284,12 +284,12 @@ lemma prob_ge_exp_neg_entropy (X : Ω → S) (μ : Measure Ω) [IsProbabilityMea
     convert this
     rw [entropy_eq_sum_finset hX hA]
     congr with s
-    simp [negMulLog, g_rhs]
+    simp only [negMulLog, neg_mul, ENNReal.toReal_mul, neg_inj, g_rhs, pdf, pdf_nn]
     simp at h_norm
     rw [h_norm]
     simp
-  have h_lhs : ∀ s, μs s = 0 → g_lhs s = 0 := by {intros _ h; simp [h]}
-  have h_rhs : ∀ s, μs s = 0 → g_rhs s = 0 := by {intros _ h; simp [h]}
+  have h_lhs : ∀ s, μs s = 0 → g_lhs s = 0 := by {intros _ h; simp [g_lhs, pdf, pdf_nn, h]}
+  have h_rhs : ∀ s, μs s = 0 → g_rhs s = 0 := by {intros _ h; simp [g_rhs, pdf, pdf_nn, h]}
   rw [← Finset.sum_filter_of_ne (fun s _ ↦ (h_lhs s).mt),
     ← Finset.sum_filter_of_ne (fun s _ ↦ (h_rhs s).mt)]
   apply Finset.sum_le_sum
@@ -552,7 +552,7 @@ lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
 lemma chain_rule'' (μ : Measure Ω) [IsProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y] :
     H[X | Y ; μ] = H[⟨X, Y⟩ ; μ] - H[Y ; μ] := by
-  rw [chain_rule μ hX hY, add_sub_cancel']
+  rw [chain_rule μ hX hY, add_sub_cancel_left]
 
 /-- Two pairs of variables that have the same joint distribution, have the same
 conditional entropy. -/

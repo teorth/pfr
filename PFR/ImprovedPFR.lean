@@ -91,7 +91,7 @@ lemma gen_ineq_aux2 :
       convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
         (⟨Z₁ + Z₃, Sum⟩) e (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)
         (measurable_discrete e) e.injective).symm
-      simp only [Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
+      simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
       abel
   _ = ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal *
         d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]] := by
@@ -221,7 +221,7 @@ lemma gen_ineq_01 : d[Y # Z₁ + Z₂ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] �
     right_inv := by intro ⟨a, b⟩; simp [add_comm a b, ← add_assoc] }
   convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂) (⟨Z₁ + Z₃, Sum⟩) e
     (by measurability) (by measurability) (by measurability) e.injective) with p
-  simp only [Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
+  simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
   abel
 
 /-- Other version of `gen_ineq_00`, in which we switch to the complement in the first term. -/
@@ -326,7 +326,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   let sum4 : ℝ := (Measure.map T₃ ℙ)[fun t ↦ ψ[T₁; ℙ[|T₃ ⁻¹' {t}] # T₂; ℙ[|T₃ ⁻¹' {t}]]]
   have h2T₃ : T₃ = T₁ + T₂ := by
     calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp
-      _ = T₁ + T₂ := by rw [add_sub_cancel]
+      _ = T₁ + T₂ := by rw [add_sub_cancel_right]
   have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
   -- control sum1 with entropic BSG
   have h1 : sum1 ≤ δ := by
@@ -339,13 +339,13 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp_rw [mutualInfo_def] at h1 ⊢; linarith
   -- rewrite sum2 and sum3 as Rusza distances
   have h2 : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
-    simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const,
+    simp only [sum2, integral_sub (.of_finite _ _) (.of_finite _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
-    simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const,
+    simp only [sum3, integral_sub (.of_finite _ _) (.of_finite _ _), integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
       Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
@@ -353,7 +353,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
       + (d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂])) := by
     have : sum4 = sum1 + p.η * (sum2 + sum3) := by
-      simp only [integral_add (.of_finite _ _) (.of_finite _ _),
+      simp only [sum4, integral_add (.of_finite _ _) (.of_finite _ _),
         integral_mul_left]
     rw [this, h2, h3, add_assoc, mul_add]
     linarith
@@ -440,9 +440,11 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
   simp only [condMutualInfo_eq_sum' hS, ← Finset.sum_add_distrib, ← mul_add,
     condRuzsaDist'_prod_eq_sum', hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
     ← mul_assoc (p.η/6), mul_comm (p.η/6), mul_assoc _ _ (p.η/6)]
+  rw [Finset.sum_mul, ← Finset.sum_add_distrib]
   apply Finset.sum_le_sum (fun i _hi ↦ ?_)
   rcases eq_or_ne (ℙ (S ⁻¹' {i})) 0 with h'i|h'i
   · simp [h'i]
+  rw [mul_assoc, ← mul_add]
   gcongr
   have : IsProbabilityMeasure (ℙ[|S ⁻¹' {i}]) := cond_isProbabilityMeasure ℙ h'i
   linarith [construct_good_improved'' h_min (ℙ[|S ⁻¹' {i}]) hUVW hU hV hW]
@@ -869,7 +871,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     PFR_conjecture_pos_aux' h₀A hA
   let A' := A.toFinite.toFinset
   have h₀A' : Finset.Nonempty A' := by
-    simp [Finset.Nonempty]
+    simp [A', Finset.Nonempty]
     exact h₀A
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
@@ -1053,7 +1055,9 @@ theorem PFR_conjecture_improv' {G : Type*} [AddCommGroup G] [ElementaryAddCommGr
   let ι : G'→+ G := G'.subtype
   have ι_inj : Injective ι := AddSubgroup.subtype_injective G'
   let A' : Set G' := ι ⁻¹' A
-  have A_rg : A ⊆ range ι := by simpa using AddSubgroup.subset_closure
+  have A_rg : A ⊆ range ι := by
+    simp only [AddSubgroup.coeSubtype, Subtype.range_coe_subtype, SetLike.mem_coe, ι]
+    exact AddSubgroup.subset_closure
   have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
   have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
     rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,

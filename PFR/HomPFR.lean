@@ -74,10 +74,10 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
     have hAB : A + A ⊆ B := by
       intro x hx
       obtain ⟨a, ha, a', ha', haa'⟩ := Set.mem_add.mp hx
-      simp at ha ha'
+      simp only [mem_graph, A] at ha ha'
       rw [Set.mem_sub]
       refine ⟨(x.1, f x.1), ?_, (0, f (a.1 + a'.1) - f a.1 - f a'.1), ?_⟩
-      · simp
+      · simp [A]
       · simp only [singleton_prod, mem_image, Prod.mk.injEq, true_and,
           exists_eq_right, Prod.mk_sub_mk, sub_zero]
         exact ⟨hS a.1 a'.1,

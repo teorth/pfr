@@ -64,7 +64,7 @@ lemma wlog_notInCoset (hA : A.Nonempty) (hB : B.Nonempty) :
   convert AddSubgroup.closure_preimage_eq_top ((A - A) ∪ (B - B))
   simp_rw [preimage_union, hA.sub_self_congr, hB.sub_self_congr]
   rw [preimage_sub, preimage_sub]
-  simp [preimage_image_preimage]
+  simp [A', B', preimage_image_preimage]
   all_goals apply_rules [Subtype.coe_injective, (image_preimage_subset ..).trans, hxA, hyB]
 
 end AddCommGroup
@@ -92,7 +92,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       show H[f ∘ ⟨X', ⟨Y'₁, Y'₂⟩⟩ ; μA] = _
       refine entropy_comp_of_injective μA ?_ f ?_
       · exact Measurable.prod hX'_meas <| Measurable.prod hY'₁_meas hY'₂_meas
-      · exact fun ⟨_, _, _⟩ _ h ↦ by simp at h; obtain ⟨_, _, _⟩ := h; simp_all [smul_right_inj]
+      · exact fun ⟨_, _, _⟩ _ h ↦ by simp [f] at h; obtain ⟨_, _, _⟩ := h; simp_all [smul_right_inj]
     _ = H[X ; μ] + 2 * H[Y ; μ'] := by
       have : IndepFun X' (prod Y'₁ Y'₂) μA := Indep.symm <|
         h_indep.indepFun_prod_mk h_meas 1 2 0 (by decide) (by decide)
@@ -104,12 +104,12 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       let f : G × G → G × G := fun ⟨x, y₁⟩ ↦ (x, x - 2 • y₁)
       show H[f ∘ ⟨X', Y'₁⟩ ; μA] = _
       apply entropy_comp_of_injective μA (by exact Measurable.prod hX'_meas hY'₁_meas) f
-      exact fun ⟨_, _⟩ _ h ↦ by simp at h; obtain ⟨_, _⟩ := h; simp_all [smul_right_inj]
+      exact fun ⟨_, _⟩ _ h ↦ by simp [f] at h; obtain ⟨_, _⟩ := h; simp_all [smul_right_inj]
     _ = H[X ; μ] + H[Y ; μ'] := by
       rw [IndepFun.entropy_pair_eq_add hX'_meas hY'₁_meas (h_indep.indepFun (show 0 ≠ 1 by decide)),
         hX'_ident.entropy_eq, hY'₁_ident.entropy_eq]
   let f : G × G → G × G := fun ⟨x, y⟩ ↦ (x, y - x)
-  have hf : f.Injective := fun ⟨_, _⟩ _ h ↦ by simp at h; obtain ⟨_, _⟩ := h; simp_all
+  have hf : f.Injective := fun ⟨_, _⟩ _ h ↦ by simp [f] at h; obtain ⟨_, _⟩ := h; simp_all
   have : H[⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩ ; μA] ≤ H[Y'₁ - Y'₂ ; μA] + H[X' - Y'₁ - Y'₂ ; μA] := calc
     H[⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩ ; μA] = H[f ∘ ⟨Y'₁ - Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] := by
       show _ = H[⟨Y'₁ - Y'₂, X' - Y'₁ - Y'₂ - (Y'₁ - Y'₂)⟩ ; μA]
@@ -132,7 +132,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       show H[f ∘ ⟨Y'₁, ⟨Y'₂, X'⟩⟩ ; μA] = H[⟨Y'₁, ⟨Y'₂, X'⟩⟩ ; μA]
       refine entropy_comp_of_injective μA ?_ f ?_
       · exact Measurable.prod hY'₁_meas <| Measurable.prod hY'₂_meas hX'_meas
-      · exact fun ⟨_, _, _⟩ _ h ↦ by simp at h; obtain ⟨_, _, _⟩ := h; simp_all
+      · exact fun ⟨_, _, _⟩ _ h ↦ by simp [f] at h; obtain ⟨_, _, _⟩ := h; simp_all
     _ = H[X ; μ] + 2 * H[Y ; μ'] := by
       have : IndepFun Y'₁ (prod Y'₂ X') μA := Indep.symm <|
         h_indep.indepFun_prod_mk h_meas 2 0 1 (by decide) (by decide)
@@ -187,7 +187,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
     _ = d[Y'₁ ; μA # Y'₂ ; μA] + (H[Y ; μ'] - H[X ; μ]) / 2 + 2 * d[X ; μ # Y ; μ'] := by
       have H2Y : H[2 • Y ; μ'] = H[Y ; μ'] := by
         let f (g : G) := 2 • g
-        exact entropy_comp_of_injective μ' hY f (fun _ _ ↦ by simp [smul_right_inj])
+        exact entropy_comp_of_injective μ' hY f (fun _ _ ↦ by simp [f, smul_right_inj])
       have : d[Y'₁ ; μA # Y'₂ ; μA] = H[Y'₁ - Y'₂ ; μA] - H[Y'₁ ; μA] / 2 - H[Y'₂ ; μA] / 2 :=
         (h_indep.indepFun (show 1 ≠ 2 by decide)).rdist_eq hY'₁_meas hY'₂_meas
       rw [this, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, H2Y]
@@ -338,7 +338,7 @@ lemma PFR_projection'
 
     have Hlt : H < H'' := by
       have : H = (⊥ : AddSubgroup G').comap ψ := by
-        simp only [AddMonoidHom.comap_bot, QuotientAddGroup.ker_mk']
+        simp only [ψ, AddMonoidHom.comap_bot, QuotientAddGroup.ker_mk']
       rw [this, AddSubgroup.comap_lt_comap_of_surjective surj]
       exact Ne.bot_lt H_ne_bot
 
@@ -371,7 +371,7 @@ lemma PFR_projection'
         field_simp; ring
 
     have HS : H'' ∉ S := λ Hs => Hlt.ne (hMaxl H'' Hs Hlt.le)
-    simp only [Set.mem_setOf_eq, not_and, not_lt] at HS
+    simp only [S, Set.mem_setOf_eq, not_and, not_lt] at HS
     refine ⟨?_, HS ⟨α * c, by positivity, cond, ?_⟩⟩
     · calc
       log (Nat.card H'')
@@ -391,7 +391,7 @@ lemma PFR_projection'
     · simp only [AddSubgroup.mem_bot, Nat.card_eq_fintype_card, Fintype.card_ofSubsingleton,
         Nat.cast_one, log_one]
       positivity
-    · simp only [Set.mem_setOf_eq, not_and, not_lt] at hE
+    · simp only [S, Set.mem_setOf_eq, not_and, not_lt] at hE
       exact hE ⟨1, by norm_num, by
         norm_num; exact add_le_add (entropy_comp_le μ hX _) (entropy_comp_le μ' hY _)⟩
 
@@ -478,8 +478,8 @@ lemma single_fibres {G H Ω Ω': Type u}
 
   let φ_AX (a : A) : X := by use φ.toFun a.val; exact h_AX a
   let φ_BY (b : B) : Y := by use φ.toFun b.val; exact h_BY b
-  have h_φ_AX (x : X) : A_ x.val = φ_AX ⁻¹' {x} := by ext; simp; simp [Subtype.ext_iff]
-  have h_φ_BY (y : Y) : B_ y.val = φ_BY ⁻¹' {y} := by ext; simp; simp [Subtype.ext_iff]
+  have h_φ_AX (x : X) : A_ x.val = φ_AX ⁻¹' {x} := by ext; simp [A_, φ_AX]; simp [Subtype.ext_iff]
+  have h_φ_BY (y : Y) : B_ y.val = φ_BY ⁻¹' {y} := by ext; simp [B_, φ_BY]; simp [Subtype.ext_iff]
 
   let p (x : H) (y : H) : ℝ :=
     (Nat.card (A_ x).Elem) * (Nat.card (B_ y).Elem) / ((Nat.card A.Elem) * (Nat.card B.Elem))
@@ -505,7 +505,7 @@ lemma single_fibres {G H Ω Ω': Type u}
       rewrite [rdist_set_eq_rdist h_μ_p.1 h_μ_p.2 h_μ_unif.1 h_μ_unif.2 hUA' hUB']
       show _ = (Measure.real _ (UA ⁻¹' (_ ⁻¹' _))) * (Measure.real _ (UB ⁻¹' (_ ⁻¹' _))) * _
       rewrite [hUA_coe.measureReal_preimage hUA', hUB_coe.measureReal_preimage hUB']
-      simp_rw [IsProbabilityMeasure.measureReal_univ, one_mul]
+      simp_rw [p, A_, B_, IsProbabilityMeasure.measureReal_univ, one_mul]
       rewrite [mul_div_mul_comm, Set.inter_comm A, Set.inter_comm B]
       simp only [Set.Finite.coe_toFinset, Set.Finite.mem_toFinset, Finset.mem_val]; rfl
     _ ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
@@ -535,11 +535,7 @@ lemma single_fibres {G H Ω Ω': Type u}
       Measure.map_apply ((measurable_discrete _).comp hUB') (MeasurableSet.singleton _),
       Set.preimage_comp, hUA_coe.measure_preimage hUA',
       Set.preimage_comp, hUB_coe.measure_preimage hUB']
-    simp? [mul_div_mul_comm, Set.inter_comm, ENNReal.toReal_div]
-      says simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe,
-        measure_univ, inv_one, Finite.coe_toFinset, inter_comm, one_mul,
-        Finite.mem_toFinset, smul_eq_mul, ENNReal.toReal_mul, ENNReal.toReal_div,
-        ENNReal.toReal_nat, mul_div_mul_comm]
+    simp [p, A_, B_, mul_div_mul_comm, Set.inter_comm, ENNReal.toReal_div]
   have h_sum : ∑ x in X, ∑ y in Y,
       (p x y) * (M * dᵤ[A_ x # B_ y] + d[φ.toFun ∘ UA # φ.toFun ∘ UB] * -Real.log (p x y)) ≤
       M * d[UA # UB] :=
@@ -570,14 +566,14 @@ lemma single_fibres {G H Ω Ω': Type u}
       · exact hc ⟨xy.1, (Finset.mem_product.mp h).1⟩ ⟨xy.2, (Finset.mem_product.mp h).2⟩
       · haveI : Nonempty _ := h_Ax ⟨xy.1, (Finset.mem_product.mp h).1⟩
         haveI : Nonempty _ := h_By ⟨xy.2, (Finset.mem_product.mp h).2⟩
-        simp only [div_pos, mul_pos, Nat.cast_pos, Nat.card_pos]
+        simp only [p, div_pos, mul_pos, Nat.cast_pos, Nat.card_pos]
     have h_nonempty : Finset.Nonempty (X ×ˢ Y) := by
       use ⟨φ.toFun <| UA <| Classical.choice <| ProbabilityMeasure.nonempty ⟨ℙ, inferInstance⟩,
         φ.toFun <| UB <| Classical.choice <| ProbabilityMeasure.nonempty ⟨ℙ, inferInstance⟩⟩
       exact Finset.mem_product.mpr ⟨FiniteRange.mem _ _, FiniteRange.mem _ _⟩
     replace hc := Finset.sum_lt_sum_of_nonempty h_nonempty hc
     have h_p_one : ∑ x in X ×ˢ Y, p x.1 x.2 = 1 := by
-      simp_rw [Finset.sum_product, mul_div_mul_comm, ← Finset.mul_sum,
+      simp_rw [Finset.sum_product, p, mul_div_mul_comm, ← Finset.mul_sum,
         ← sum_prob_preimage hA h_φ_AX, sum_prob_preimage hB h_φ_BY, mul_one]
     rewrite [← Finset.sum_mul, h_p_one, one_mul, Finset.sum_product] at hc
     exact not_le_of_gt hc h_sum
@@ -631,9 +627,9 @@ lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} 
   have : Function.RightInverse g f := by
     intro n
     by_cases h : n = 0
-    . simp [h,hf]
-    simp [h, Function.surjInv_eq hs n]
-  have hg : g 0 = 0 := by simp
+    . simp [g, h, hf]
+    · simp [g, h, Function.surjInv_eq hs n]
+  have hg : g 0 = 0 := by simp [g]
   have hfg : (f ∘ g) 0 = 0 := by simp [hf, hg]
   intro F
   use Finsupp.mapRange g hg F
@@ -674,11 +670,13 @@ lemma weak_PFR_quotient_prelim :
   let f : G →+ (B →₀ ℤ) := bG.repr
   have hker : G₂ ≤ AddMonoidHom.ker (AddMonoidHom.comp mod f) := by
     intro x hx
-    simp_rw [AddMonoidHom.mem_range, zsmulAddGroupHom_apply, AddMonoidHom.mem_ker, AddMonoidHom.coe_comp, AddMonoidHom.coe_coe, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom] at hx ⊢
-    rcases hx with ⟨ y, rfl⟩
+    simp only [AddMonoidHom.mem_range, G₂, ψ, zsmulAddGroupHom_apply] at hx
+    simp_rw [AddMonoidHom.mem_ker, AddMonoidHom.coe_comp, Function.comp_apply, mod,
+      Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom]
+    rcases hx with ⟨y, rfl⟩
     ext b
     simp_rw [map_zsmul, Finsupp.mapRange_apply, Finsupp.coe_smul, Pi.smul_apply, smul_eq_mul,
-      Int.cast_mul, Int.int_cast_ofNat, Finsupp.coe_zero, Pi.zero_apply, mul_eq_zero]
+      Int.cast_mul, Int.cast_ofNat, Finsupp.coe_zero, Pi.zero_apply, mul_eq_zero]
     left
     exact ZMod.nat_cast_self 2
   let g : H →+ (B →₀ ZMod 2) := QuotientAddGroup.lift G₂ (AddMonoidHom.comp mod f) hker
@@ -687,17 +685,19 @@ lemma weak_PFR_quotient_prelim :
     have h2 := h1.comp bG.repr.surjective
     have h3 : mod ∘ bG.repr = g ∘ (QuotientAddGroup.mk' G₂) := by
       ext x b
-      simp only [Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,
-        Finsupp.mapRange_apply, QuotientAddGroup.coe_mk', QuotientAddGroup.lift_mk,
-        AddMonoidHom.coe_comp, AddMonoidHom.coe_coe]
+      simp_rw [mod, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,
+        Finsupp.mapRange_apply, QuotientAddGroup.coe_mk', g]
+      rw [QuotientAddGroup.lift_mk]
+      simp [mod, f]
     rw [h3] at h2
     apply Function.Surjective.of_comp h2
   have hinj : Function.Injective g := by
     rw [injective_iff_map_eq_zero]
     intro x hx
     rcases QuotientAddGroup.mk'_surjective G₂ x with ⟨y, rfl⟩
-    simp_rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, AddMonoidHom.coe_comp,
-      AddMonoidHom.coe_coe, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply,
+    simp only [QuotientAddGroup.mk'_apply, g] at hx
+    rw [QuotientAddGroup.lift_mk] at hx
+    simp_rw [AddMonoidHom.coe_comp, Function.comp_apply, mod, Finsupp.mapRange.addMonoidHom_apply,
       Int.coe_castAddHom, DFunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,
       ZMod.int_cast_zmod_eq_zero_iff_dvd] at hx
     replace hx := fun x ↦ Int.mul_ediv_cancel' (hx x)
@@ -705,7 +705,8 @@ lemma weak_PFR_quotient_prelim :
     let z' := (Finsupp.equivFunOnFinite).symm z
     change ∀ b : B, 2 * z' b = (f y) b at hx
     let x' := bG.repr.symm z'
-    simp_rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff, AddMonoidHom.mem_range, zsmulAddGroupHom_apply]
+    rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff, AddMonoidHom.mem_range]
+    simp_rw [ψ, zsmulAddGroupHom_apply]
     use x'
     change 2 • (bG.repr.symm.toLinearMap.toAddMonoidHom z') = y
     rw [← AddMonoidHom.map_zsmul bG.repr.symm.toLinearMap.toAddMonoidHom z' (2 : ℤ)]
@@ -751,7 +752,8 @@ lemma third_iso {G : Type u} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSu
   have h1 : G₂ ≤ N := by
     intro x hx
     rw [← eq_zero_iff] at hx
-    simp [hx, AddSubgroup.zero_mem H']
+    have : φ x = 0 := hx
+    simp [N, this, AddSubgroup.zero_mem H']
   set H'' := AddSubgroup.map (mk' G₂) N
   have h2 : H' = H'' := by
     change H' = AddSubgroup.map (mk' G₂) N
@@ -875,9 +877,9 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
       rw [← MeasureTheory.map_measureReal_apply hUA_mes (measurableSet_discrete _)] at hx
       set Af := A.toFinite.toFinset
       have hUAf : IsUniform Af UA := by
-        convert hUA_unif; simp only [Set.Finite.coe_toFinset]
-      have hnAf : 0 < Nat.card Af := by simp only [Set.Finite.mem_toFinset, Nat.card_pos]
-      have hzf : z ∈ Af := by simp [Set.Finite.mem_toFinset, hz]
+        convert hUA_unif; simp only [Af, Set.Finite.coe_toFinset]
+      have hnAf : 0 < Nat.card Af := by simp only [Af, Set.Finite.mem_toFinset, Nat.card_pos]
+      have hzf : z ∈ Af := by simp [Af, Set.Finite.mem_toFinset, hz]
       have : (Measure.map UA ℙ).real {z} > 0 := by
         rw [IsUniform.measureReal_preimage_of_mem' hUAf hUA_mes hzf]
         positivity
@@ -899,9 +901,9 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
       change (ℙ).real (UB⁻¹' (φ'⁻¹' {y'})) = 1 at hy
       rw [← MeasureTheory.map_measureReal_apply hUB_mes (measurableSet_discrete _)] at hy
       set Bf := B.toFinite.toFinset
-      have hUBf : IsUniform Bf UB := by convert hUB_unif; simp only [Set.Finite.coe_toFinset]
-      have hnBf : 0 < Nat.card Bf := by simp only [Set.Finite.mem_toFinset, Nat.card_pos]
-      have hzf : z ∈ Bf := by simp [Set.Finite.mem_toFinset, hz]
+      have hUBf : IsUniform Bf UB := by convert hUB_unif; simp only [Bf, Set.Finite.coe_toFinset]
+      have hnBf : 0 < Nat.card Bf := by simp only [Bf, Set.Finite.mem_toFinset, Nat.card_pos]
+      have hzf : z ∈ Bf := by simp [Bf, Set.Finite.mem_toFinset, hz]
       have : (Measure.map UB ℙ).real {z} > 0 := by
         rw [IsUniform.measureReal_preimage_of_mem' hUBf hUB_mes hzf]
         positivity
@@ -992,18 +994,18 @@ lemma conclusion_transfers {A B : Set G}
   set f : G' → G := fun a ↦ (a : G) + x
   have hf : Function.Injective f := by
     intro y z hyz
-    simp at hyz
+    simp [f] at hyz
     exact hyz
   have hA' : A = f '' A' := by
-    simp_rw [hA, ← Set.image_vadd, Set.image_image, vadd_eq_add, add_comm]; rfl
+    simp_rw [hA, ← Set.image_vadd, Set.image_image, vadd_eq_add, f, add_comm]; rfl
   rcases hB with ⟨ y, hB ⟩
   set g : G' → G := fun a ↦ (a : G) + y
   have hg : Function.Injective g := by
     intro y z hyz
-    simp at hyz
+    simp [g] at hyz
     exact hyz
   have hB' : B = g '' B' := by
-    simp_rw [hB, ← Set.image_vadd, Set.image_image, vadd_eq_add, add_comm]; rfl
+    simp_rw [hB, ← Set.image_vadd, Set.image_image, vadd_eq_add, g, add_comm]; rfl
   use f '' A'', g '' B''
   have : dᵤ[A # B] = dᵤ[A' # B'] := by
     rw [<-rdist_set_of_inj _ _ (φ := G'.subtype) Subtype.val_injective, <-rdist_set_add_const (G'.subtype '' A') (G'.subtype '' B') x y]

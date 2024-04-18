@@ -51,13 +51,13 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
     _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply (Finset.sum_subset W.subset_univ _).symm
         intro i _ hi
-        replace hi : i ∉ A ∨ i ∉ B := by simp at hi; tauto
+        replace hi : i ∉ A ∨ i ∉ B := by simp [W] at hi; tauto
         rcases hi with h'i|h'i
         · simp [Uunif.measureReal_preimage_of_nmem h'i]
         · simp [Vunif.measureReal_preimage_of_nmem h'i]
     _ = ∑ p in W, (1 / Nat.card A : ℝ) * (1 / Nat.card B) := by
         apply Finset.sum_congr rfl (fun i hi ↦ ?_)
-        replace hi : i ∈ A ∧ i ∈ B := by simpa using hi
+        replace hi : i ∈ A ∧ i ∈ B := by simpa [W] using hi
         rw [Uunif.measureReal_preimage_of_mem (by trivial) hi.1,
             Vunif.measureReal_preimage_of_mem (by trivial) hi.2]
     _ = (W.card : ℝ) / (Nat.card A * Nat.card B) := by simp [div_eq_inv_mul]; ring
@@ -83,7 +83,7 @@ lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measur
     exact hindep.comp measurable_id this
   have : (U - V) ⁻¹' {x} = (U - W) ⁻¹' {0} := by
     ext ω
-    simp only [mem_preimage, Pi.add_apply, mem_singleton_iff, Pi.sub_apply, ← sub_eq_zero (b := x)]
+    simp only [W, mem_preimage, Pi.add_apply, mem_singleton_iff, Pi.sub_apply, ← sub_eq_zero (b := x)]
     abel_nf
   have h : (B:Set G)+{x} = (B+{x}:Finset G) := by simp
   rw [h] at Wunif
@@ -174,7 +174,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     PFR_conjecture_pos_aux h₀A hA
   let A' := A.toFinite.toFinset
   have h₀A' : Finset.Nonempty A' := by
-    simp [Finset.Nonempty]
+    simp [A', Finset.Nonempty]
     exact h₀A
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
@@ -349,7 +349,9 @@ theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2
   let ι : G'→+ G := G'.subtype
   have ι_inj : Injective ι := AddSubgroup.subtype_injective G'
   let A' : Set G' := ι ⁻¹' A
-  have A_rg : A ⊆ range ι := by simpa using AddSubgroup.subset_closure
+  have A_rg : A ⊆ range ι := by
+    simp only [AddSubgroup.coeSubtype, Subtype.range_coe_subtype, SetLike.mem_coe, G', ι]
+    exact AddSubgroup.subset_closure
   have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
   have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
     rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,

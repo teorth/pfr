@@ -134,7 +134,7 @@ lemma iIndepFun_iff' [MeasurableSpace Ω] {β : ι → Type*}
   · exact iInter₂_congr this
   · rw [this _ ‹_›]
   · rintro i
-    by_cases hi : i ∈ s <;> simp [hi, hf]
+    by_cases hi : i ∈ s <;> simp [g, hi, hf]
 
 -- TODO: Replace mathlib version with this lemma (this lemma uses `AEMeasurable`)
 theorem indepFun_iff_map_prod_eq_prod_map_map' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'}
@@ -178,7 +178,8 @@ theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι
   specialize h₀ hl
   rw [← h] at h₀
   convert h₀.2 using 1
-  · congr with x
+  · simp only [l]
+    congr with x
     simp (config := { contextual := true })
   convert h₀.1 using 1
   · rw [hldef, ← Finset.prod_compl_mul_prod S]
@@ -240,7 +241,7 @@ lemma iIndepFun.pi
   let sets' (i : ι) (j : κ i) : Set (α i j) := if h : i ∈ s then sets ⟨i, h⟩ j else Set.univ
   have box (i : ι) (hi : i ∈ s) : E i = ⋂ j : κ i, (f i j)⁻¹' (sets' i j) := by
     rw [← (h_sets ⟨i, hi⟩).right]
-    simp_rw [hi]
+    simp_rw [sets', hi]
     ext : 1
     rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
     exact ⟨fun hj j ↦ mem_preimage.mpr (hj j), fun hj j ↦ mem_preimage.mp (hj j)⟩
@@ -268,10 +269,10 @@ lemma iIndepFun.pi
     intro ij hij
     rw [← Finset.mem_singleton.mp (Finset.mem_sigma.mp hij).left] at hi
     convert (h_sets ⟨ij.fst, hi⟩).left ij.snd
-    simp [hi]
+    simp [sets', hi]
   intros ij hij
   obtain ⟨hi, _⟩ := Finset.mem_sigma.mp hij
-  simp_rw [hi]
+  simp_rw [sets', hi]
   exact (h_sets ⟨ij.fst, hi⟩).1 ij.snd
 
 
@@ -341,7 +342,7 @@ theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} 
   change a ∈ ⋂ i ∈ s, E i ↔ a ∈ ⋂ i ∈ s, F i
   simp
   change ∀ i ∈ s, a ∈ E i ↔ a ∈ F i at ha
-  exact ball_congr ha
+  exact forall₂_congr ha
 
 /-- TODO: a kernel version of this theorem-/
 theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}

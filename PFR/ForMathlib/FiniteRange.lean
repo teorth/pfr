@@ -37,7 +37,6 @@ lemma finiteRange_of_finset {Ω G : Type*} (f: Ω → G) (A : Finset G) (h : ∀
 lemma FiniteRange.range {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] :
     Set.range X = FiniteRange.toFinset X := by
   simp [FiniteRange.toFinset]
-  convert (Set.coe_toFinset _).symm
 
 lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) :
     X ω ∈ FiniteRange.toFinset X := by

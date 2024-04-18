@@ -53,13 +53,13 @@ lemma compProd_deterministic_apply [MeasurableSingletonClass γ]
     suffices ∀ b ∈ t, (if (b, f (x, b)) ∈ s then (1 : ℝ≥0∞) else 0) = 1 by
       rw [set_lintegral_congr_fun ht (ae_of_all _ this), set_lintegral_one]
     intro b hb
-    simp only [Set.mem_setOf_eq] at hb
+    simp only [t, Set.mem_setOf_eq] at hb
     simp [hb]
   have h2 : ∫⁻ b in tᶜ, if (b, f (x, b)) ∈ s then 1 else 0 ∂(κ x) = 0 := by
     suffices ∀ b ∈ tᶜ, (if (b, f (x, b)) ∈ s then (1 : ℝ≥0∞) else 0) = 0 by
       rw [set_lintegral_congr_fun ht.compl (ae_of_all _ this), lintegral_zero]
     intro b hb
-    simp only [Set.mem_compl_iff, Set.mem_setOf_eq] at hb
+    simp only [t, Set.mem_compl_iff, Set.mem_setOf_eq] at hb
     simp [hb]
   rw [h1, h2, add_zero]
 
