@@ -26,33 +26,14 @@ lemma _root_.MeasureTheory.lintegral_piecewise {α : Type*} {mα : MeasurableSpa
   · refine set_lintegral_congr_fun hs.compl ?_
     exact ae_of_all μ (fun a ha ↦ Set.piecewise_eq_of_not_mem _ _ _ ha)
 
+/-
 lemma MeasureTheory.Measure.condKernel_apply {α β : Type*} {mα : MeasurableSpace α}
     {mβ : MeasurableSpace β} [MeasurableSingletonClass α] [StandardBorelSpace β] [Nonempty β]
     (μ : Measure (α × β)) [IsFiniteMeasure μ] {x : α} (hx : μ.fst {x} ≠ 0)
     {s : Set β} (hs : MeasurableSet s) :
-    μ.condKernel x s = (μ.fst {x})⁻¹ * μ ({x} ×ˢ s) := by
-  nth_rewrite 3 [measure_eq_compProd μ]
-  rw [Measure.compProd_apply]
-  swap; · refine measurableSet_prod.mpr (Or.inl ⟨measurableSet_singleton x, hs⟩)
-  classical
-  have : ∀ a, μ.condKernel a (Prod.mk a ⁻¹' {x} ×ˢ s)
-      = ({x} : Set α).indicator (fun a ↦ μ.condKernel a s) a := by
-    intro a
-    by_cases hax : a = x
-    · simp only [hax, Set.singleton_prod, Set.mem_singleton_iff, Set.indicator_of_mem]
-      congr
-      ext y : 1
-      simp
-    · simp only [Set.singleton_prod, Set.mem_singleton_iff, hax, not_false_eq_true,
-        Set.indicator_of_not_mem]
-      have : Prod.mk a ⁻¹' (Prod.mk x '' s) = ∅ := by
-        ext y
-        simp [Ne.symm hax]
-      simp only [this, OuterMeasure.empty']
-  simp_rw [this]
-  rw [MeasureTheory.lintegral_indicator _ (measurableSet_singleton x)]
-  simp only [restrict_singleton, lintegral_smul_measure, lintegral_dirac]
-  rw [← mul_assoc, ENNReal.inv_mul_cancel hx (measure_ne_top μ.fst _), one_mul]
+    μ.condKernel x s = (μ.fst {x})⁻¹ * μ ({x} ×ˢ s) :=
+  condKernel_apply_of_ne_zero_of_measurableSet hx hs
+-/
 
 instance instStandardBorelSpace_discreteMeasurableSpace {α : Type*} [MeasurableSpace α]
     [DiscreteMeasurableSpace α] [Countable α] :
@@ -72,27 +53,28 @@ namespace kernel
 
 section condKernel
 
+/-
 /-- Kernel such that `κ : kernel T (S × U)` is equal to `(fst κ) ⊗ₖ (condKernel κ)`. -/
 noncomputable
 def condKernel (κ : kernel T (S × U)) [IsFiniteKernel κ] :
     kernel (T × S) U where
   val := fun ts ↦ (κ ts.1).condKernel ts.2
   property := measurable_of_countable _
+-/
 
-lemma condKernel_apply (κ : kernel T (S × U)) [IsFiniteKernel κ] (x : T × S) :
-    condKernel κ x = (κ x.1).condKernel x.2 := rfl
-
-instance (κ : kernel T (S × U)) [IsFiniteKernel κ] : IsMarkovKernel (condKernel κ) := by
-  constructor
-  intro a
-  rw [condKernel_apply]
-  infer_instance
+lemma condKernel_apply (κ : kernel T (S × U)) [IsFiniteKernel κ] (x : T × S)
+    (hx : κ x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0) :
+    condKernel κ x = (κ x.1).condKernel x.2 := by
+  have h := condKernel_apply_eq_condKernel κ x.1
+  rw [Filter.EventuallyEq, ae_iff_of_countable] at h
+  refine h x.2 ?_
+  rwa [fst_apply' _ _ (measurableSet_singleton _)]
 
 lemma condKernel_apply' (κ : kernel T (S × U)) [IsFiniteKernel κ]
     (x : T × S) (hx : κ x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0) {s : Set U} (hs : MeasurableSet s) :
     condKernel κ x s
       = (κ x.1 (Prod.fst ⁻¹' {x.2}))⁻¹ * (κ x.1) ({x.2} ×ˢ s) := by
-  rw [condKernel_apply, Measure.condKernel_apply _ _ hs,
+  rw [condKernel_apply _ _ hx, Measure.condKernel_apply_of_ne_zero_of_measurableSet _ hs,
     Measure.fst_apply (measurableSet_singleton _)]
   rwa [Measure.fst_apply (measurableSet_singleton _)]
 
@@ -248,7 +230,7 @@ variable {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
 lemma condDistrib_apply' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [IsFiniteMeasure μ]
     (x : T) (hYx : μ (Y ⁻¹' {x}) ≠ 0) {s : Set S} (hs : MeasurableSet s) :
     condDistrib X Y μ x s = (μ (Y ⁻¹' {x}))⁻¹ * μ (Y ⁻¹' {x} ∩ X ⁻¹' s) := by
-  rw [condDistrib, Measure.condKernel_apply _ _ hs]
+  rw [condDistrib, Measure.condKernel_apply_of_ne_zero_of_measurableSet _ hs]
   · rw [fst_map_prod_mk hX, Measure.map_apply hY (measurableSet_singleton _),
       Measure.map_apply (hY.prod_mk hX) ((measurableSet_singleton _).prod hs)]
     congr

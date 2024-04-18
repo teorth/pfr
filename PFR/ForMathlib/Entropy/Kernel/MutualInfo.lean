@@ -268,7 +268,8 @@ lemma entropy_triple_add_entropy_le' {κ : kernel T (S × U × V)} [IsMarkovKern
   let κ'' := condKernel (fst κ')
   let η := condKernel κ'
   have hξ_eq : ξ = fst κ := by
-    simp only [fst, MeasurableEquiv.prodAssoc, MeasurableEquiv.coe_mk, Equiv.coe_fn_mk, map_map]
+    simp only [ξ, κ', fst, MeasurableEquiv.prodAssoc, MeasurableEquiv.coe_mk, Equiv.coe_fn_mk,
+      map_map]
     congr
   have h_compProd_eq : ξ ⊗ₖ κ'' = fst κ' := (disintegration (fst κ')).symm
   have h_compProd_triple_eq : (ξ ⊗ₖ κ'') ⊗ₖ η = κ' := by

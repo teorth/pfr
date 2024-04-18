@@ -151,7 +151,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     rw [mem_ae_iff]
     have : { ω : (α × α) × β | ω.2 = y}ᶜ = Prod.snd⁻¹' {t : β | t ≠ y} := by simp; rfl
     rw [this, ← Measure.map_apply measurable_snd (measurableSet_discrete _)]
-    simp
+    simp [m]
 
   have h5 {y : β} (hy : μ (Y ⁻¹' {y}) ≠ 0) : IsProbabilityMeasure (m' y) := by
     have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy
@@ -159,7 +159,8 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
 
   refine ⟨(α × α) × β, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_, measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst, measurable_snd, ?_, ?_, ?_⟩
   . constructor
-    simp
+    simp only [coe_finset_sum, smul_toOuterMeasure, OuterMeasure.coe_smul, Finset.sum_apply,
+      Pi.smul_apply, smul_eq_mul, ν]
     have : ∑ y : β, μ (Y ⁻¹' {y})*1 = 1 := by
       simp
       rw [sum_measure_preimage_singleton] <;>
@@ -174,7 +175,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
   . rw [condIndepFun_iff, ae_iff_of_countable ]
     have h1 : ν.map Prod.snd = μ.map Y := by
       rw [← sum_meas_smul_cond_fiber hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
-      simp
+      simp only [_root_.map_sum, LinearMapClass.map_smul, ν]
       congr with y
       rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
       . simp [hy]
@@ -182,7 +183,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       have h7 : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy
       congr 3
       rw [Measure.mapₗ_apply_of_measurable measurable_snd, Measure.mapₗ_apply_of_measurable hY]
-      simp
+      simp only [map_snd_prod, measure_univ, one_smul, m]
       have := (μ[|Y ← y]).map_const y
       simp at this; rw [← this]
       apply Measure.map_congr
@@ -200,28 +201,30 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       rw [Measure.ext_iff]
       intro E _
       rw [cond_apply ν (measurable_snd (by simp)) E, hy']
-      simp
       have h3 : (m y) ((Prod.snd⁻¹' {y}) ∩ E) = (m y) E := by
         apply measure_congr
         apply inter_ae_eq_right_of_ae_eq_univ
         simp
         rw [(show (Prod.snd⁻¹' {y})ᶜ = Prod.snd⁻¹' ({y}ᶜ) by rfl), ← map_apply measurable_snd (by simp)]
-        simp
+        simp [m]
       have h3' {x : β} (hx : x ≠ y) : (m x) ((Prod.snd⁻¹' {y}) ∩ E) = 0 := by
         apply measure_inter_null_of_null_left E
         rw [← Measure.map_apply measurable_snd (by simp), MeasureTheory.Measure.map_snd_prod]
         simp; right; exact hx
+      simp only [ν]
       rw [Finset.sum_eq_single_of_mem y (Finset.mem_univ y)]
-      . rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
+      . simp only [smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul]
+        rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
         finiteness
-      intro x _ hx
-      rw [h3' hx]
-      simp
+      sorry
+      --intro x _ hx
+      --rw [h3' hx]
+      --simp
     rw [h2, indepFun_iff_map_prod_eq_prod_map_map]
     . let f : (α × α) × β → α × α := Prod.fst
       show ((m y).map f) = ((m y).map (Prod.fst ∘ f)).prod ((m y).map (Prod.snd ∘ f))
       have : IsProbabilityMeasure (m' y) := h5 hy''
-      have : (m y).map f = (m' y).prod (m' y) := by simp
+      have : (m y).map f = (m' y).prod (m' y) := by simp [f, m]
       rw [← map_map measurable_fst measurable_fst, ← map_map measurable_snd measurable_fst, this]
       simp
     . exact (measurable_fst.comp measurable_fst).aemeasurable
@@ -273,7 +276,7 @@ lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY 
   have hi : MeasurableEmbedding i := MeasurableEmbedding.subtype_coe
     ((hp.comp $ hX₁.prod_mk hY').and $ hp.comp $ hX₂.prod_mk hY').setOf
   have hi' : ∀ᵐ ω ∂ν, ω ∈ range i := by
-    simp only [mem_setOf_eq, Subtype.range_coe_subtype, Filter.eventually_and]
+    simp only [i, mem_setOf_eq, Subtype.range_coe_subtype, Filter.eventually_and]
     exact ⟨hXY₁.symm.ae_snd (p := uncurry p) hp.setOf hp',
       hXY₂.symm.ae_snd (p := uncurry p) hp.setOf hp'⟩
   refine ⟨{ω // p (X₁ ω) (Y' ω) ∧ p (X₂ ω) (Y' ω)}, inferInstance, X₁ ∘ (↑), X₂ ∘ (↑), Y' ∘ (↑),

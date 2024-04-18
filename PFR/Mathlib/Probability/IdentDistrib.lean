@@ -343,18 +343,20 @@ lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*} [MeasurableSpace Ω] [Mea
     intro ω
     simp
     by_cases h: X ω ∈ A
-    . left; simp at h; simp [h]
-    right; intro ω₀ hω₀; rw [← hω₀] at h
-    simp at h
+    . left; simp at h; simp [X', h]
+    · right
+      simp only [ite_eq_right_iff, X']
+      exact fun h' ↦ absurd h' h
   apply Filter.eventuallyEq_of_mem (s := X ⁻¹' A)
   . simp [ae]
     rw [← Set.preimage_compl, ← IdentDistrib.measure_preimage_eq hi]
     . convert measure_empty
       ext ω
-      simp
+      simp [A]
     measurability
   intro ω
-  simp; tauto
+  simp only [mem_preimage, Finset.mem_coe, ite_eq_left_iff, X']
+  tauto
 
 /-- A version of `independent_copies` that guarantees that the copies have `FiniteRange` if the original variables do. -/
 lemma independent_copies_finiteRange {X : Ω → α} {Y : Ω' → β} (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y]   [MeasurableSingletonClass α] [Nonempty α] [MeasurableSingletonClass β] [Nonempty β]

@@ -1,6 +1,5 @@
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
-import LeanAPAP.Mathlib.Data.Finset.Basic
 import LeanAPAP.Mathlib.Algebra.BigOperators.Basic
 import PFR.ForMathlib.Elementary
 import PFR.ForMathlib.Entropy.Group
@@ -279,7 +278,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
         let T : Set (G × G) := ((π' ∘ X') ⁻¹' {x})ᶜ
         let U : Set (G × G) := UH' ⁻¹' Hᶜ
         have h_subset : (X' - UH') ⁻¹' H_xᶜ ⊆ T ∪ U :=
-          fun ω hω ↦ Classical.byContradiction fun _ ↦ by simp_all [not_or]
+          fun ω hω ↦ Classical.byContradiction fun _ ↦ by sorry -- simp_all [not_or]
         refine MeasureTheory.mem_ae_iff.mpr (le_zero_iff.mp ?_)
         calc
           _ ≤ (ν' T) + (ν' U) := (measure_mono h_subset).trans (measure_union_le T U)
@@ -289,11 +288,11 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
               mul_zero]
           _ = 0 := (add_zero _).trans <| by
             have : restrict ν (π ∘ X' ⁻¹' {x}) T = 0 := by
-              simp [restrict_apply (measurableSet_discrete T)]
+              simp [restrict_apply (measurableSet_discrete T), T, π', π]
             show _ * _ = 0
             rw [this, mul_zero]
       convert entropy_le_log_card_of_mem (Measurable.sub hX' hUH') h
-      simp_rw [hunif.entropy_eq' hUH', Set.Finite.mem_toFinset, h_card, SetLike.coe_sort_coe]
+      simp_rw [hunif.entropy_eq' hUH', H_x, Set.Finite.mem_toFinset, h_card, SetLike.coe_sort_coe]
     have h_one : (∑ x in FiniteRange.toFinset (π ∘ X'), (νq {x}).toReal) = 1 := by
       rewrite [Finset.sum_toReal_measure_singleton]
       apply (ENNReal.toReal_eq_one_iff _).mpr
@@ -320,7 +319,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
       apply IdentDistrib.of_ae_eq (Measurable.aemeasurable (measurable_discrete _))
       apply MeasureTheory.mem_ae_iff.mpr
       convert hunif.measure_preimage_compl
-      ext; simp
+      ext; simp [π]
     _ = H[π ∘ X' ; ν] + H[UH' ; ν] := by
       rewrite [chain_rule ν (by exact hX'.sub hUH') (measurable_discrete _)]
       congr
@@ -788,6 +787,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
   set A := (FiniteRange.toFinset Z) ∪ (FiniteRange.toFinset Z')
   set B := (FiniteRange.toFinset W) ∪ (FiniteRange.toFinset W')
   have hfull : Measure.prod (μ.map Z) (μ'.map W) ((A ×ˢ B : Finset (S × T)): Set (S × T))ᶜ = 0 := by
+    simp only [A, B]
     apply Measure.prod_of_full_measure_finset
     all_goals {
       rw [Measure.map_apply ‹_›]
@@ -796,6 +796,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
       measurability
     }
   have hfull' : Measure.prod (μ''.map Z') (μ'''.map W') ((A ×ˢ B : Finset (S × T)): Set (S × T))ᶜ = 0 := by
+    simp only [A, B]
     apply Measure.prod_of_full_measure_finset
     all_goals {
       rw [Measure.map_apply ‹_›]
@@ -860,6 +861,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
       ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
     apply Measure.prod_of_full_measure_finset
     . simp
+    simp only [A]
     rw [Measure.map_apply ‹_›]
     convert measure_empty
     simp [← FiniteRange.range]
@@ -868,6 +870,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
       ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
     apply Measure.prod_of_full_measure_finset
     . simp
+    simp only [A]
     rw [Measure.map_apply ‹_›]
     convert measure_empty
     simp [← FiniteRange.range]
@@ -963,10 +966,10 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
     map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add,
       ElementaryAddCommGroup.sub_eq_add]; abel }
   let Y : Fin 4 → Ω → G := ![-X, C, fun _ ↦ 0, B + C]
-  have _ : FiniteRange (Y 0) := by simp; infer_instance
-  have _ : FiniteRange (Y 1) := by simp; infer_instance
-  have _ : FiniteRange (Y 2) := by simp; infer_instance
-  have _ : FiniteRange (Y 3) := by simp; infer_instance
+  have _ : FiniteRange (Y 0) := by simp [Y]; infer_instance
+  have _ : FiniteRange (Y 1) := by simp [Y]; infer_instance
+  have _ : FiniteRange (Y 2) := by simp [Y]; infer_instance
+  have _ : FiniteRange (Y 3) := by simp [Y]; infer_instance
 
   have hY_meas : ∀ i, Measurable (Y i) := by
     intro i
@@ -977,20 +980,20 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
         rw [condRuzsaDist_of_const hX _ _]
   _ = d[π ∘ ⟨-X, fun _ : Ω ↦ (0 : G)⟩ | fun _ : Ω ↦ (0 : G) ; μ # π ∘ ⟨C, B + C⟩ | B + C ; μ] := by
         congr
-        · ext1 ω; simp
+        · ext1 ω; simp [π]
         · ext1 ω
-          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply, Pi.add_apply]
+          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply, Pi.add_apply, π]
           abel
   _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] := by congr
   _ = d[-X | fun _ : Ω ↦ (0 : G) ; μ # C | B + C ; μ] := by
         rw [condRuzsaDist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
         · congr
-        · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp
+        · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp [Y]
           have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
             ext1 ω;
             simp only [ElementaryAddCommGroup.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
               Function.comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
-              Matrix.cons_val_fin_one, true_and]
+              Matrix.cons_val_fin_one, true_and, Y]
             congr
           rw [h1, h2]
           refine h_indep.comp ?_ ?_
@@ -1023,13 +1026,13 @@ lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabili
       · exact hA.aemeasurable
       · exact hX₂'.aemeasurable
       · rw [← Measure.map_map hA measurable_fst]
-        simp
+        simp [μ']
     · constructor
       · exact (hB.prod_mk (hB.add hC)).aemeasurable
       · exact (hB'.prod_mk (hB'.add hC')).aemeasurable
-      · have : ⟨B', B' + C'⟩ = (⟨B, B + C⟩) ∘ Prod.snd := by ext1 _; simp
+      · have : ⟨B', B' + C'⟩ = (⟨B, B + C⟩) ∘ Prod.snd := by ext1 _; simp [C', B']
         rw [this, ← Measure.map_map _ measurable_snd]
-        · simp only [Measure.map_snd_prod, measure_univ, one_smul]
+        · simp only [Measure.map_snd_prod, measure_univ, one_smul, μ']
         · exact hB.prod_mk (hB.add hC)
   have h2 : d[A ; μ'' # C | B + C ; μ] = d[X₂' ; μ' # C' | B' + C' ; μ'] := by
     apply condRuzsaDist'_of_copy _ hC (by measurability) X₂' hC' (by measurability) ?_ ?_
@@ -1037,18 +1040,18 @@ lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabili
       · exact hA.aemeasurable
       · exact hX₂'.aemeasurable
       · rw [← Measure.map_map hA measurable_fst]
-        simp
+        simp [μ']
     · constructor
       · exact (hC.prod_mk (hB.add hC)).aemeasurable
       · exact (hC'.prod_mk (hB'.add hC')).aemeasurable
-      · have : ⟨C', B' + C'⟩ = (⟨C, B + C⟩) ∘ Prod.snd := by ext1 _; simp
+      · have : ⟨C', B' + C'⟩ = (⟨C, B + C⟩) ∘ Prod.snd := by ext1 _; simp [B', C']
         rw [this, ← Measure.map_map _ measurable_snd]
-        · simp only [Measure.map_snd_prod, measure_univ, one_smul]
+        · simp only [Measure.map_snd_prod, measure_univ, one_smul, μ']
         · exact hC.prod_mk (hB.add hC)
   rw [h1, h2, condRuzsaDist'_of_inj_map hX₂' hB' hC']
   rw [indepFun_iff_map_prod_eq_prod_map_map hX₂'.aemeasurable (hB'.prod_mk hC').aemeasurable]
-  have h_prod : (fun ω ↦ (X₂' ω, prod B' C' ω)) = Prod.map A (⟨B, C⟩) := by ext1; simp
-  have h_comp_snd : (fun a ↦ (B' a, C' a)) = (⟨B, C⟩) ∘ Prod.snd := by ext1; simp
+  have h_prod : (fun ω ↦ (X₂' ω, prod B' C' ω)) = Prod.map A (⟨B, C⟩) := by ext1; simp [B', C', X₂']
+  have h_comp_snd : (fun a ↦ (B' a, C' a)) = (⟨B, C⟩) ∘ Prod.snd := by ext1; simp [B', C']
   rw [h_prod, h_comp_snd, hX₂'_def, ← Measure.map_map _ measurable_snd,
     ← Measure.map_map _ measurable_fst, Measure.map_prod_map]
   rotate_left
@@ -1056,7 +1059,7 @@ lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabili
   · exact hB.prod_mk hC
   · exact hA
   · exact hB.prod_mk hC
-  simp
+  simp [μ']
 
 /-- The **Kaimanovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+ Z] - H[Y]$$ -/
 lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)

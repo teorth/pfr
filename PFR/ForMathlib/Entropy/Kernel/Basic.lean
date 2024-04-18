@@ -370,7 +370,8 @@ lemma entropy_map_le
     intro x y hxy
     simp only [Prod.mk.injEq] at hxy
     exact hxy.1
-  rw [this, chain_rule' (hκ.map _), snd_map_prod _ measurable_id', le_add_iff_nonneg_right]
+  rw [this, chain_rule' (hκ.map _)]
+  simp_rw [snd_map_prod κ measurable_id' (measurable_of_countable f), le_add_iff_nonneg_right]
   exact entropy_nonneg _ _
 
 lemma entropy_of_map_eq_of_map {κ : kernel T S} {η : kernel T U}

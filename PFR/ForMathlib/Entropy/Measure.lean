@@ -105,8 +105,6 @@ lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S}
   convert measure_empty
   ext x
   simp [FiniteRange.toFinset]
-  rw [@Set.mem_toFinset S _ hX'.fintype]
-  simp
 
 instance finiteSupport_of_finiteRange {μ : Measure Ω} {X : Ω → S} [hX' : FiniteRange X] :
     FiniteSupport (μ.map X) := by
@@ -125,7 +123,7 @@ lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
     {β : Type*} [NormedAddCommGroup β] [IsFiniteMeasure μ] [Countable S] {f : S → β} :
     Integrable f μ := by
   let A := μ.support
-  have hA := measure_compl_support μ
+  have hA : μ Aᶜ = 0 := measure_compl_support μ
   by_cases hA' : A = ∅
   . simp [hA'] at hA
     rw [hA]
@@ -147,7 +145,7 @@ lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
     simp
     congr
     simp at ha
-    simp [ha]
+    simp [f', g, ha]
   apply Integrable.congr _ this
   apply Integrable.comp_measurable (.of_finite _ _)
   apply measurable_of_countable
@@ -327,14 +325,14 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [MeasurableSingletonClass S]
   -- setup to use equality case of Jensen
   let w (_ : S) := (N:ℝ)⁻¹
   have hw1 : ∀ s ∈ Finset.univ, 0 < w s := by intros; positivity
-  have hw2 : ∑ s : S, w s = 1 := by simp [Finset.card_univ]
+  have hw2 : ∑ s : S, w s = 1 := by simp [w, Finset.card_univ]
   let p (s : S) := μ.real {s}
   have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
   rw [measureEntropy_def', tsum_fintype, eq_comm]
   convert strictConcaveOn_negMulLog.map_sum_eq_iff hw1 hw2 hp using 2
-  · simp [negMulLog, ← Finset.mul_sum]
+  · simp [w, p, negMulLog, ← Finset.mul_sum]
   · simp [Finset.mul_sum]
-  · simp [← Finset.mul_sum]
+  · simp [p, ← Finset.mul_sum]
 
 lemma measureEntropy_eq_card_iff_measure_eq_aux
     (μ : Measure S) [Fintype S] [IsProbabilityMeasure μ] :
@@ -407,7 +405,7 @@ lemma measureEntropy_map_of_injective
     apply (tsum_subtype_eq_of_support_subset _).symm
     intro x hx
     contrapose hx
-    suffices f ⁻¹' {x} = ∅ by simp [this]
+    suffices f ⁻¹' {x} = ∅ by simp [F, this]
     contrapose! hx
     rw [Set.image_univ]
     exact hx
@@ -431,7 +429,7 @@ lemma measureEntropy_comap (μ : Measure S) (f : T → S) (hf : MeasurableEmbedd
   apply tsum_subtype_eq_of_support_subset
   . intro x hx
     contrapose hx
-    suffices μ {x} = 0 by simp [this]
+    suffices μ {x} = 0 by simp [F, this]
     refine measure_mono_null ?_ hf_range
     intro y'
     simp only [Set.mem_singleton_iff, Set.mem_compl_iff, Set.mem_range, not_exists]
@@ -546,6 +544,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     contrapose!
     intro h
     simp at h ⊢
+    simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E, E2]
     constructor; use u; use s
   have hE1 : (μ.map Prod.fst) E1ᶜ = 0 := by
     rw [Measure.map_apply measurable_fst (MeasurableSet.compl (Finset.measurableSet E1))]
@@ -553,6 +552,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     intro ⟨s, u⟩
     simp
     contrapose!
+    simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E]
     intro h; use u
   have hE1' : (μ.map Prod.fst).real E1 = 1 := by
     rw [prob_compl_eq_zero_iff E1.measurableSet] at hE1
@@ -565,6 +565,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     intro ⟨s, u⟩
     simp
     contrapose!
+    simp only [Finset.mem_image, Prod.exists, exists_eq_right, E2, E]
     intro h; use s
   have hE2' : (μ.map Prod.snd).real E2 = 1 := by
     rw [prob_compl_eq_zero_iff E2.measurableSet] at hE2
@@ -596,6 +597,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         intro ⟨s, u⟩ ⟨h1, h2⟩
         contrapose! h2
         simp at h1 h2 ⊢
+        simp only [Finset.mem_image, Prod.exists, exists_eq_right, E2, E]
         constructor; exact h1; use s
       convert measure_empty
       rw [Set.diff_eq_empty]
@@ -613,6 +615,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         intro ⟨s, u⟩ ⟨h1, h2⟩
         contrapose! h2
         simp at h1 h2 ⊢
+        simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E]
         constructor; use u; exact h1
       convert measure_empty
       rw [Set.diff_eq_empty]
@@ -626,12 +629,12 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
   have hw1 : ∀ p ∈ (E1 ×ˢ E2), 0 ≤ w p := by intros; positivity
   have hw2 : ∑ p in (E1 ×ˢ E2), w p = 1 := by
     rw [Finset.sum_product]
-    simp [← Finset.mul_sum]
+    simp [w, ← Finset.mul_sum]
     rw [← Finset.sum_mul]
     rw [show (1:ℝ) = 1 * 1 by norm_num]
     congr
-    . convert hE1'; simp
-    convert hE2'; simp
+    convert hE1'
+    simp
   have hf : ∀ p ∈ E1 ×ˢ E2, 0 ≤ f p := by intros; positivity
   have H :=
   calc
@@ -639,8 +642,8 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         = ∑ p in (E1 ×ˢ E2), μ.real {p} := by
           congr with p
           by_cases hp : μ.real {p} = 0
-          · simp [hp]
-          field_simp [h_fst_ne_zero p hp, h_snd_ne_zero p hp]
+          · simp [f, hp]
+          field_simp [f, h_fst_ne_zero p hp, h_snd_ne_zero p hp]
           ring
       _ = 1 := by
         simp
@@ -672,11 +675,11 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     := by
         congr! 1 with p _
         by_cases hp : μ.real {p} = 0
-        · simp [hp]
+        · simp [f, hp]
         have := h_fst_ne_zero p hp
         have := h_snd_ne_zero p hp
         rw [negMulLog, log_mul, log_inv, log_mul]
-        · field_simp
+        · field_simp [f]
           ring
         all_goals positivity
   have H2 : 0 = negMulLog (∑ s in (E1 ×ˢ E2), w s * f s) := by
@@ -687,7 +690,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
   rw [← neg_eq_zero, H1, H2, eq_comm]
   refine (strictConcaveOn_negMulLog.map_sum_eq_iff' hw1 hw2 hf).trans ?_
   have w0 (p : S × U) (hp: w p = 0) : μ.real {p} = 0 := by
-    simp at hp
+    simp only [mul_eq_zero, w] at hp
     rcases hp with hp | hp
     . contrapose! hp; exact (h_fst_ne_zero p) hp
     contrapose! hp; exact (h_snd_ne_zero p) hp

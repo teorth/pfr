@@ -80,14 +80,14 @@ lemma isUniform_iff_uniform_dist {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ: Me
         congr with x
         by_cases h : x ∈ A
         . by_cases h' : x ∈ H
-          . simp [h, h', map_apply hU (MeasurableSet.singleton x), ProbabilityTheory.IsUniform.measure_preimage_of_mem h_unif' hU ((Set.Finite.coe_toFinset H.toFinite).symm ▸ h')]
+          . simp [h, h', Hf, map_apply hU (MeasurableSet.singleton x), ProbabilityTheory.IsUniform.measure_preimage_of_mem h_unif' hU ((Set.Finite.coe_toFinset H.toFinite).symm ▸ h')]
           simp [h, h', map_apply hU (MeasurableSet.singleton x), ProbabilityTheory.IsUniform.measure_preimage_of_nmem h_unif' ((Set.Finite.coe_toFinset H.toFinite).symm ▸ h')]
         simp [h]
       _ = Finset.sum AHf (fun _ ↦ (1:ENNReal) / (Nat.card H)) := by
         rw [tsum_eq_sum (s := (A ∩ H).toFinite.toFinset)]
         . apply Finset.sum_congr (by rfl)
           intro x hx
-          simp at hx
+          simp only [Set.Finite.mem_toFinset, Set.mem_inter_iff, AHf] at hx
           simp [hx]
         intro x hx
         simp at hx

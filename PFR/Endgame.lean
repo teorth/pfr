@@ -362,7 +362,7 @@ lemma construct_good_prelim :
   have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
   have h2T₃ : T₃ = T₁ + T₂ :=
     calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp
-      _ = T₁ + T₂ := by rw [add_sub_cancel]
+      _ = T₁ + T₂ := by rw [add_sub_cancel_right]
   have h2T₁ : T₁ = T₂ + T₃ := by simp [h2T₃, add_left_comm]
   have h2T₂ : T₂ = T₃ + T₁ := by simp [h2T₁, add_left_comm]
 
@@ -377,7 +377,7 @@ lemma construct_good_prelim :
 
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2) := by
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
-      simp [integral_sub (.of_finite _ _) (.of_finite _ _)]
+      simp [sum2, integral_sub (.of_finite _ _) (.of_finite _ _), sum2]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
@@ -386,7 +386,7 @@ lemma construct_good_prelim :
 
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2) := by
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
-      simp [integral_sub (.of_finite _ _) (.of_finite _ _)]
+      simp [sum3, integral_sub (.of_finite _ _) (.of_finite _ _)]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
@@ -394,7 +394,7 @@ lemma construct_good_prelim :
 
   have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2 := by
     suffices sum4 = sum1 + p.η * (sum2 + sum3) by linarith
-    simp only [integral_add (.of_finite _ _) (.of_finite _ _), integral_mul_left]
+    simp only [sum4, integral_add (.of_finite _ _) (.of_finite _ _), integral_mul_left]
 
   have hk : k ≤ sum4 := by
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this

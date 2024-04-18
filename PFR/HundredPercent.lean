@@ -27,7 +27,7 @@ def symmGroup (X : Ω → G) (hX : Measurable X) : AddSubgroup G where
     dsimp
     convert Z using 1
     ext ω
-    simp only
+    simp only [f]
     abel
   zero_mem' := by simpa using IdentDistrib.refl hX.aemeasurable
   neg_mem' := by
@@ -37,11 +37,11 @@ def symmGroup (X : Ω → G) (hX : Measurable X) : AddSubgroup G where
     have : IdentDistrib (f ∘ X) (fun ω ↦ f (X ω + x)) := hx.comp $ measurable_sub_const' _
     convert this.symm using 1
     · ext ω
-      simp only
+      simp only [f]
       abel
     · ext ω
       simp only [Function.comp_apply]
-      abel
+      abel_nf
 
 @[simp] lemma mem_symmGroup (hX : Measurable X) {x : G} :
     x ∈ symmGroup X hX ↔ IdentDistrib X (fun ω ↦ X ω + x) := Iff.rfl

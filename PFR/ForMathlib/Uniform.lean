@@ -84,7 +84,7 @@ lemma exists_isUniform_measureSpace' {S : Type u}  [MeasurableSpace S]
     rwa [<-Hf.coe_nonempty, H.toFinite.coe_toFinset, <-H.nonempty_coe_sort]
   obtain ⟨ Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin ⟩ := exists_isUniform_measureSpace Hf hHf
   rw [ H.toFinite.coe_toFinset] at hunif
-  replace hrange : ∀ ω, U ω ∈ H := by convert hrange with ω; simp_rw [Finite.mem_toFinset]
+  replace hrange : ∀ ω, U ω ∈ H := by convert hrange with ω; simp_rw [Hf, Finite.mem_toFinset]
   exact ⟨Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin⟩
 
 
@@ -204,8 +204,9 @@ lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] (h : IsUnifo
 /-- $\mathbb{P}(U_H \in H') \neq 0$ if $H'$ intersects $H$ and the measure is non-zero. -/
 lemma IsUniform.measure_preimage_ne_zero {H : Finset S} [NeZero μ] (h : IsUniform H X μ)
     (hX : Measurable X) (H' : Set S) [Nonempty (H' ∩ H.toSet).Elem] : μ (X ⁻¹' H') ≠ 0 := by
-  simp_rw [h.measure_preimage hX H', ne_eq, ENNReal.div_eq_zero_iff, ENNReal.nat_ne_top, or_false,
-    mul_eq_zero, NeZero.ne, false_or, Nat.cast_eq_zero, ← Nat.pos_iff_ne_zero, Nat.card_pos]
+  simp_rw [h.measure_preimage hX H', ne_eq, ENNReal.div_eq_zero_iff, ENNReal.natCast_ne_top,
+    or_false, mul_eq_zero, NeZero.ne, false_or, Nat.cast_eq_zero, ← Nat.pos_iff_ne_zero,
+    Nat.card_pos]
 
 /-- If $X$ is uniform w.r.t. $\mu$ on $H$, then $X$ is uniform w.r.t. $\mu$ conditioned by
 $H'$ on $H' \cap H$. -/
@@ -238,8 +239,8 @@ lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Meas
   congr! 4 with _ x
   rw [Measure.map_apply hX (MeasurableSet.singleton x), Measure.map_apply hX' (MeasurableSet.singleton x)]
   set Hf := H.toFinite.toFinset
-  have hX_unif' : IsUniform Hf X μ := by convert hX_unif; simp
-  have hX'_unif' : IsUniform Hf X' μ' := by convert hX'_unif; simp
+  have hX_unif' : IsUniform Hf X μ := by convert hX_unif; simp [Hf]
+  have hX'_unif' : IsUniform Hf X' μ' := by convert hX'_unif; simp [Hf]
 
   by_cases h : x ∈ Hf
   . rw [IsUniform.measure_preimage_of_mem hX_unif' hX h,IsUniform.measure_preimage_of_mem hX'_unif' hX' h]
