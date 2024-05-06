@@ -1,0 +1,101 @@
+\chapter{The $m$-torsion case}
+
+\subsection{Data processing inequality}
+
+\begin{lemma}[Data processing for a single variable]\label{data-process-single}  Let $X$ be a random variable.  Then for any function $f$ on the range of $X$, one has $\bbH[f(X)] \leq \bbH[X]$.
+\end{lemma}
+
+\begin{proof}
+We have
+$$ \bbH[X] = \bbH[X,f(X)] = \bbH[f(X)] + \bbH[X|f(X)]$$
+thanks to Lemma \ref{relabeled-entropy} and Lemma \ref{chain-rule}, giving the claim.
+\end{proof}
+
+\begin{lemma}[One-sided unconditional data processing inequality]\label{data-process-unc-one} Let $X,Y$ be random variables. For any function $f, g$ on the range of $X$, we have $\bbI[f(X) : Y] \leq \bbI[X:Y]$.
+\end{lemma}
+
+\begin{proof}
+  By Lemma \ref{alternative-mutual} it suffices to show that $\bbH[Y|X] \geq \bbH[Y|f(X)]$. But this follows from Corollary \ref{submodularity} (and Lemma \ref{relabeled-entropy}).
+\end{proof}
+
+\begin{lemma}[Unconditional data processing inequality]\label{data-process-unc} Let $X,Y$ be random variables. For any functions $f, g$ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )] \leq \bbI[X : Y]$.
+\end{lemma}
+
+\begin{proof} From Lemma \ref{data-process-unc-one}, Lemma \ref{entropy-comm} we have $\bbI[f(X) : Y] \leq \bbI[X:Y]$ and $\bbI[f(X): g(Y)] \leq \bbI[f(X):Y]$, giving the claim.
+\end{proof}
+
+\begin{lemma}[Data processing inequality]\label{data-process} Let $X,Y,Z$. For any functions $f, g$
+on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X :Y |Z]$.
+\end{lemma}
+
+\begin{proof}  Apply Lemma \ref{data-process-unc} to $X,Y$ conditioned to the event $Z=z$, multiply by ${\bf P}[Z=z]$, and sum using Definition \ref{conditional-mutual-def}.
+\end{proof}
+
+\subsection{More Ruzsa distance estimates}
+
+Let $G$ be an additive group.
+
+\begin{lemma}[Flipping a sign]\label{sign-flip}
+  If $X,Y$ are $G$-valued, then
+  $$  d[X ; -Y]  \leq 3 d[X;Y].$$
+\end{lemma}
+
+\begin{proof}
+Without loss of generality (using Lemma \ref{ruz-copy} and Lemma \ref{independent-exist}) we may take $X,Y$ to be independent.
+By $(X_1,Y_1)$, $(X_2,Y_2)$ be copies of $(X,Y)$ that are conditionally independent over $X_1-Y_1=X_2-Y_2$ (this exists thanks to Lemma \ref{cond-indep-exist}).  By Lemma \ref{independent-exist}, we can also find another copy $(X_3,Y_3)$ of $(X,Y)$ that is independent of $X_1,Y_1,X_2,Y_2$.  From Lemma \ref{alt-submodularity}, one has
+$$ \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3, Y_3, X_3+Y_3] + \bbH[X_3+Y_3] \leq \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] + \bbH[X_3, Y_3, X_3+Y_3].$$
+From Lemma \ref{ruz-indep}, Lemma \ref{neg-ent}, Lemma \ref{ruz-copy} we have
+$$ \bbH[X_3+Y_3] = \frac{1}{2} \bbH[X_3] + \frac{1}{2} \bbH[-Y_3] + d[X_3;-Y_3] = \frac{1}{2} \bbH[X] + \frac{1}{2} \bbH[Y] + d[X;-Y].$$
+Since $X_3+Y_3$ is a function of $X_3,Y_3$, we see from Lemma \ref{relabeled-entropy} and Corollary \ref{add-entropy} that
+$$ \bbH[X_3,Y_3,X_3+Y_3] = \bbH[X_3,Y_3] = \bbH[X,Y] = \bbH[X]+\bbH[Y].$$
+Because $X_1-Y_1=X_2-Y_2$, we have
+$$ X_3+Y_3 = (X_3-Y_2) - (X_1-Y_3) + (X_2+Y_1)$$
+and thus by Lemma \ref{relabeled-entropy}
+$$ \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] = \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1]$$
+and hence by Corollary \ref{subadditive}
+$$ \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] \leq \bbH[X_3-Y_2] + \bbH[X_1-Y_3] + \bbH[X_2] + \bbH[Y_1].$$
+Since $X_3,Y_2$ are independent, we see from Lemma \ref{ruz-indep}, Lemma \ref{ruz-copy} that
+$$\bbH[X_3-Y_2] = \frac{1}{2} \bbH[X] + \frac{1}{2} \bbH[Y] + d[X; Y].$$
+Similarly
+$$ \bbH[X_1-Y_3] = \frac{1}{2} \bbH[X] + \frac{1}{2} \bbH[Y] + d[X; Y].$$
+We conclude that
+$$ \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] \leq 2\bbH[X] + 2\bbH[Y] + 2d[X; Y].$$
+Finally, from Lemma \ref{data-process-single} we have
+$$ \bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] \leq \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3, Y_3, X_3+Y_3].$$
+From Corollary \ref{add-entropy} followed by Corollary \ref{cond-trial-ent}, we have
+$$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X_1,Y_1,X_1-Y_1] + \bbH[X_2,Y_2,X_2-Y_2] - \bbH[X_1-Y_1] + \bbH[X_3,Y_3]$$
+and thus by Lemma \ref{ruz-indep}, Lemma \ref{ruz-copy}, Lemma \ref{relabeled-entropy}, Corollary \ref{add-entropy}
+$$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X] + \bbH[Y] + \bbH[X] + \bbH[Y] -(\frac{1}{2}\bbH[X] + \frac{5}{1}\bbH[Y] - d[X; Y]) + \bbH[X] + \bbH[Y].$$
+Applying all of these estimates, the claim now follows from linear arithmetic.
+\end{proof}
+
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+  $$ \bbH[X + \sum_{i=1}^n Y_i] - \bbH[X] \leq \sum_{i=1}^n \bbH[X+Y_i] - \bbH[X].$$
+\end{lemma}
+
+\begin{proof}  This is trivial for $n=1$ (and also for $n=0$, if one wanted to extend to this case), while the $n=2$ case is Lemma \ref{kv}.  Now suppose inductively that $n > 2$, and the claim was already proven for $n-1$.  By a further application of Lemma \ref{kv} one has
+$$  \bbH[X + \sum_{i=1}^n Y_i] -  \bbH[X + \sum_{i=1}^{n-1} Y_i] \leq \bbH[X+Y_n] - \bbH[X].$$
+By induction hypothesis one has
+$$ \bbH[X + \sum_{i=1}^{n-1} Y_i] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - \bbH[X].$$
+Summing the two inequalities, we obtain the claim.
+\end{proof}
+
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, II]\label{klm-2}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+  $$ d[X; \sum_{i=1}^n Y_i] \leq 2 \sum_{i=1}^n d[X; Y_i].$$
+\end{lemma}
+
+\begin{proof}
+  Applying Lemma \ref{klm-1} with all the $Y_i$ replaced by $-Y_i$, and using Lemma \ref{neg-ent} and Lemma \ref{ruz-indep}, we obtain after some rearranging
+$$ d[X; \sum_{i=1}^n Y_i] + \frac{1}{2} (\bbH[\sum_{i=1}^n Y_i] - \bbH[X]) \leq \sum_{i=1}^n d[X;Y_i] + \frac{1}{2} (\bbH[Y_i] - \bbH[X]).$$
+From Corollary \ref{sumset-lower} we have
+$$ \bbH[\sum_{i=1}^n Y_i] \geq \bbH[Y_i]$$
+for all $i$; subtracting $\bbH[X]$ and averaging, we conclude that
+$$ \bbH[\sum_{i=1}^n Y_i] - \bbH[X] \leq \frac{1}{n} \sum_{i=1}^n \bbH[Y_i] - \bbH[X]$$
+and thus
+$$ d[X; \sum_{i=1}^n Y_i] \leq \sum_{i=1}^n d[X;Y_i] + \frac{n-1}{2n} (\bbH[Y_i] - \bbH[X]).$$
+From Lemma \ref{ruzsa-diff} we have
+$$ \bbH[Y_i] - \bbH[X] \leq 2 d[X;Y_i].$$
+Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
+\end{proof}
+
+\subsection{Multidistance}
