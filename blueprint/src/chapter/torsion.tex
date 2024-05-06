@@ -98,4 +98,40 @@ $$ \bbH[Y_i] - \bbH[X] \leq 2 d[X;Y_i].$$
 Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
 \end{proof}
 
+
+\begin{lemma}[Sums of dilates I]\label{sum-dilate-I}  Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
+$$\bbH[X-(a+1)Y] \leq \bbH[X-aY] + \bbH[X-Y-X'] - \bbH[X]$$
+and
+$$\bbH[X-(a-1)Y] \leq \bbH[X-aY] + \bbH[X-Y-X'] - \bbH[X].$$
+\end{lemma}
+
+\begin{proof}
+From Lemma \ref{ruzsa-triangle-improved} we have
+$$ \bbH[(X-Y)-aY] \leq \bbH[(X-Y) - X'] + \bbH[X'-aY] - \bbH[X']$$
+which gives the first inequality.  Similarly from Lemma \ref{ruzsa-triangle-improved} we have
+$$ \bbH[(X+Y)-aY] \leq \bbH[(X+Y) - X'] + \bbH[X'-aY] - \bbH[X']$$
+which (when combined with Lemma \ref{neg-ent}) gives the second inequality.
+\end{proof}
+
+\begin{lemma}[Sums of dilates II]\label{sum-dilate-II}  Let $X,Y$ be independent $G$-valued random variables, and let $a$ be an integer.  Then
+  $$\bbH[X-aY] - \bbH[X] \leq 4 |a| d[X;Y].$$
+\end{lemma}
+
+\begin{proof} From Lemma \ref{kv} one has
+  $$ \bbH[Y-X'+X] - \bbH[Y-X'] \leq \bbH[Y+X] - \bbH[Y]$$
+  which by Lemma \ref{ruz-indep} gives
+  $$ \bbH[X-Y-X'] -\bbH[X] \leq d[X;Y] + d[X;-Y]$$
+  and hence by Lemma \ref{sign-flip}
+  $$ \bbH[X-Y-X'] -\bbH[X] \leq 4d[X;Y].$$
+  From Lemma \ref{sum-dilate-I} we then have
+  $$\bbH[X-(a\pm 1)Y] \leq \bbH[X-aY] + 4 d[X;Y]$$
+and the claim now follows by an induction on $|a|$.
+\end{proof}
+
+We remark that in the paper [GGMT2024] the variant estimate
+$$\bbH[X-aY] - \bbH[X] \leq (4 + 10 \lfloor \log_2 |a| \rfloor) d[X;Y]$$
+is also proven by a similar method.  This variant is superior for $|a| \geq 9$ (or $|a|=7$); but we will not need this estimate here.
+
+
+
 \subsection{Multidistance}
