@@ -2,30 +2,30 @@
 
 \subsection{Data processing inequality}
 
-\begin{lemma}[Data processing for a single variable]\label{data-process-single}  Let $X$ be a random variable.  Then for any function $f$ on the range of $X$, one has $\bbH[f(X)] \leq \bbH[X]$.
+\begin{lemma}[Data processing for a single variable]\label{data-process-single}\lean{entropy_comp_le}\leanok  Let $X$ be a random variable.  Then for any function $f$ on the range of $X$, one has $\bbH[f(X)] \leq \bbH[X]$.
 \end{lemma}
 
-\begin{proof}\uses{relabeled-entropy, chain-rule}
+\begin{proof}\uses{relabeled-entropy, chain-rule}\leanok
 We have
 $$ \bbH[X] = \bbH[X,f(X)] = \bbH[f(X)] + \bbH[X|f(X)]$$
 thanks to Lemma \ref{relabeled-entropy} and Lemma \ref{chain-rule}, giving the claim.
 \end{proof}
 
-\begin{lemma}[One-sided unconditional data processing inequality]\label{data-process-unc-one} Let $X,Y$ be random variables. For any function $f, g$ on the range of $X$, we have $\bbI[f(X) : Y] \leq \bbI[X:Y]$.
+\begin{lemma}[One-sided unconditional data processing inequality]\label{data-process-unc-one}\lean{mutual_comp_le}\leanok Let $X,Y$ be random variables. For any function $f, g$ on the range of $X$, we have $\bbI[f(X) : Y] \leq \bbI[X:Y]$.
 \end{lemma}
 
 \begin{proof}\uses{alternative-mutual, submodularity, relabeled-entropy}
   By Lemma \ref{alternative-mutual} it suffices to show that $\bbH[Y|X] \geq \bbH[Y|f(X)]$. But this follows from Corollary \ref{submodularity} (and Lemma \ref{relabeled-entropy}).
 \end{proof}
 
-\begin{lemma}[Unconditional data processing inequality]\label{data-process-unc} Let $X,Y$ be random variables. For any functions $f, g$ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )] \leq \bbI[X : Y]$.
+\begin{lemma}[Unconditional data processing inequality]\label{data-process-unc}\lean{mutual_comp_comp_le}\leanok Let $X,Y$ be random variables. For any functions $f, g$ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )] \leq \bbI[X : Y]$.
 \end{lemma}
 
 \begin{proof}\uses{data-process-unc-one, entropy-comm}
    From Lemma \ref{data-process-unc-one}, Lemma \ref{entropy-comm} we have $\bbI[f(X) : Y] \leq \bbI[X:Y]$ and $\bbI[f(X): g(Y)] \leq \bbI[f(X):Y]$, giving the claim.
 \end{proof}
 
-\begin{lemma}[Data processing inequality]\label{data-process} Let $X,Y,Z$. For any functions $f, g$
+\begin{lemma}[Data processing inequality]\label{data-process}\lean{condMutual_comp_comp_le}\leanok Let $X,Y,Z$. For any functions $f, g$
 on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X :Y |Z]$.
 \end{lemma}
 
@@ -36,7 +36,7 @@ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X 
 
 Let $G$ be an additive group.
 
-\begin{lemma}[Flipping a sign]\label{sign-flip}
+\begin{lemma}[Flipping a sign]\label{sign-flip}\lean{rdist_of_neg_le}\leanok
   If $X,Y$ are $G$-valued, then
   $$  d[X ; -Y]  \leq 3 d[X;Y].$$
 \end{lemma}
@@ -70,7 +70,7 @@ $$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X] + \bbH[Y] + \bbH[X] + \bbH[Y] -(\frac{
 Applying all of these estimates, the claim now follows from linear arithmetic.
 \end{proof}
 
-\begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}\lean{kvm_ineq_I}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ \bbH[X + \sum_{i=1}^n Y_i] - \bbH[X] \leq \sum_{i=1}^n \bbH[X+Y_i] - \bbH[X].$$
 \end{lemma}
 
@@ -81,7 +81,7 @@ $$ \bbH[X + \sum_{i=1}^{n-1} Y_i] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - 
 Summing the two inequalities, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, II]\label{klm-2}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, II]\label{klm-2}\lean{kvm_ineq_II}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ d[X; \sum_{i=1}^n Y_i] \leq 2 \sum_{i=1}^n d[X; Y_i].$$
 \end{lemma}
 
@@ -99,7 +99,7 @@ $$ \bbH[Y_i] - \bbH[X] \leq 2 d[X;Y_i].$$
 Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
 \end{proof}
 
-\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, III]\label{klm-3}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, III]\label{klm-3}\lean{kvm_ineq_III}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ d[X; \sum_{i=1}^n Y_i] \leq d[X; Y_1] + \frac{1}{2}(\bbH[ \sum_{i=1}^n Y_i ] - \bbH[Y_1]).$$
 \end{lemma}
 
@@ -783,7 +783,7 @@ Finally, applying Lemma \ref{multidist-ruzsa-II} (and dropping some lower order 
 \begin{proposition}[Vanishing entropy]\label{k-vanish}  We have $k = 0$.
 \end{proposition}
 
-\begin{proof}\uses{lem:get-better, multidist-ruzsa-III, multidist-lower, xi-z2-w-dist, eta-def-multi, multidist-nonneg} For each value $W=w$, apply Lemma \ref{lem:get-better} to
+\begin{proof}\uses{lem:get-better, multidist-ruzsa-III, multidist-lower, xi-z2-w-dist, eta-def-multi, multidist-nonneg, Zero-sum} For each value $W=w$, apply Lemma \ref{lem:get-better} (and Lemma \ref{Zero-sum}) to
   \[
     T_1 = (Z_1 \,|\, W \mathop{=} w),\
     T_2 = (Z_2 \,|\, W \mathop{=} w),\
