@@ -321,7 +321,7 @@ The claim now follows from Lemma \ref{multidist-ruzsa-III}.
   $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$
 \end{lemma}
 
-\begin{proof}\uses{mutidist-lower, cond-multidist-def, cond-multidist-alt}
+\begin{proof}\uses{multidist-lower, cond-multidist-def, cond-multidist-alt}
   Immediate from Lemma \ref{multidist-lower}, Lemma \ref{cond-multidist-alt}, and Definition \ref{cond-dist-def}.
 \end{proof}
 
@@ -837,7 +837,7 @@ Finally, applying Lemma \ref{multidist-ruzsa-II} (and dropping some lower order 
 \begin{theorem}[Entropy form of PFR]\label{main-entropy} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
 
-\begin{proof}\uses{independent-exist, k-vanish, ruzsa-triange, tau-def, multi-zero, eta-def}  Set $(X^0_i)_{1 \leq i \leq m}$ to be $m$ independent copies of $X$ (which exists thanks to Lemma \ref{independent-exist}).  By Proposition \ref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_I = (X_i)_{1 \leq i \leq m}$.  By Proposition \ref{k-vanish}, we have $D[X_I]=0$. By Proposition \ref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By Proposition \ref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by Lemma \ref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from Definition \ref{eta-def}.
+\begin{proof}\uses{independent-exist, k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def}  Set $(X^0_i)_{1 \leq i \leq m}$ to be $m$ independent copies of $X$ (which exists thanks to Lemma \ref{independent-exist}).  By Proposition \ref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_I = (X_i)_{1 \leq i \leq m}$.  By Proposition \ref{k-vanish}, we have $D[X_I]=0$. By Proposition \ref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By Proposition \ref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by Lemma \ref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from Definition \ref{eta-def}.
 \end{proof}
 
 \begin{lemma}\label{pfr_aux_torsion}  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
