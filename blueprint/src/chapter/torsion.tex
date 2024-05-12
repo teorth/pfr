@@ -327,7 +327,7 @@ The claim now follows from Lemma \ref{multidist-ruzsa-III}.
 
 \begin{corollary}[Lower bound on conditional multidistance, II]\label{cond-multidist-lower-II} With the notation of the previous lemma, we have
   \begin{equation}\label{5.3-conv}
-    k - \multidist{ X'_{I} | Y_{I} } \leq \eta \sum_{i \in I} \dist{X_{\sigma(i)}}{X'_i|Y_i}
+    k - D[ X'_{I} | Y_{I} ] \leq \eta \sum_{i \in I} d[X_{\sigma(i)};X'_i|Y_i]
   \end{equation}
 for any permutation $\sigma : I \rightarrow I$.
 \end{corollary}
@@ -548,7 +548,7 @@ Finally, summing over $i$ and using $D[X_I] = k$ gives
 \end{align*}
 where in the second step we used the permutation hypothesis. Combining this with~\eqref{eq:distbnd3} gives the
 $$
-{\mathcal I} \leq 2\eta m \biggl( \sum_{i=1}^m \dist{X_i}{X_i} \biggr).$$
+{\mathcal I} \leq 2\eta m \biggl( \sum_{i=1}^m d[X_i;X_i] \biggr).$$
 The claim \eqref{I-ineq} is now immediate from Lemma \ref{multidist-ruzsa-II}.
 \end{proof}
 
@@ -588,9 +588,9 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
 \begin{proposition}[Mutual information bound]\label{prop:52}
   We have
   \[
-    \mutual{Z_1 : Z_2\, |\, W},\
-    \mutual{Z_2 : Z_3\, |\, W},\
-    \mutual{Z_1 : Z_3\, |\, W} \leq t
+    \bbI[Z_1 : Z_2\, |\, W],\
+    \bbI[Z_2 : Z_3\, |\, W],\
+    \bbI[Z_1 : Z_3\, |\, W] \leq t
   \]
   where
   \begin{equation}\label{t-def}
@@ -691,7 +691,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   Using Lemma \ref{sum-dilate-II} and~\eqref{eq:s-bound} we get
   \begin{align*}
     \bbH[Z_2]
-              &\leq \bbH[S] + 4m (m-2) \dist{S}{-S} \\
+              &\leq \bbH[S] + 4m (m-2) d[S;-S] \\
               &\leq \bbH[S] + 8m (m-2) k.
   \end{align*}
   Applying~\eqref{eq:ent-s} gives the claim.
@@ -815,7 +815,7 @@ Finally, applying Lemma \ref{multidist-ruzsa-II} (and dropping some lower order 
   On the other hand, from Lemma \ref{multidist-lower} one has
   \begin{equation}
     \label{eq:uw3}
-    D[(U_w)_I] \geq k - \eta \sum_{i=1}^m \dist{X_i}{U_w}.
+    D[(U_w)_I] \geq k - \eta \sum_{i=1}^m d[X_i;U_w].
   \end{equation}
   Combining~\eqref{eq:uw1},~\eqref{eq:uw2} and~\eqref{eq:uw3} and averaging over $w$ (with weight $p_W(w)$), and recalling the value $\alpha=\eta/m$, gives
   \[
