@@ -98,6 +98,28 @@ $$ \bbH[Y_i] - \bbH[X] \leq 2 d[X;Y_i].$$
 Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
 \end{proof}
 
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, III]\label{klm-3}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+  $$ d[X; \sum_{i=1}^n Y_i] \leq d[X; Y_1] + \frac{1}{2}(\bbH[ \sum_{i=1}^n Y_i ] - \bbH[Y_1]).$$
+\end{lemma}
+
+\begin{proof}
+  From Lemma \ref{kv} one has
+  $$ \bbH[ -X + \sum_{i=1}^n Y_i ] \leq \bbH[ - X + Y_1 ] + \bbH[ \sum_{i=1}^n Y_i ] - \bbH[ \sum_{i=2}^n Y_i ].$$
+  The claim then follows from Lemma \ref{ruz-indep} and some elementary algebra.
+\end{proof}
+
+\begin{lemma}[Comparing sums]\label{compare-sums}  Let $(X_i)_{i \in I}$ and $(Y_j)_{j \in J}$ be tuples of independent random variables, and let $f: J \to I$ be a function, then
+  $$ \bbH[\sum_{j \in J} Y_j] \leq \bbH[ \sum_{i \in I} X_i ] + \sum_{j \in J} (\bbH[ Y_j - X_{f(j)}] - \bbH[X_{f(j)}]).$$
+\end{lemma}
+
+\begin{proof}  Write $W := \sum_{i \in I} X_i$.  From Corollary \ref{sumset-lower} we have
+$$ \bbH[\sum_{j \in J} Y_j]  \leq \bbH[-W + \sum_{j \in J} Y_j]$$
+while from Lemma \ref{klm-1} one has
+$$ \bbH[-W + \sum_{j \in J} Y_j] \leq \bbH[-W] + \sum_{j \in J} \bbH[-W + Y_j] - \bbH[-W].$$
+From Lemma \ref{kv} one has
+$$ \bbH[-W + Y_j] - \bbH[-W] \leq \bbH[-X_{f(j)} + Y_j] - \bbH[-X_{f(j)}].$$
+The claim now follows from Lemma \ref{neg-ent} and some elementary algebra.
+\end{proof}
 
 \begin{lemma}[Sums of dilates I]\label{sum-dilate-I}  Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
 $$\bbH[X-(a+1)Y] \leq \bbH[X-aY] + \bbH[X-Y-X'] - \bbH[X]$$
@@ -135,3 +157,291 @@ is also proven by a similar method.  This variant is superior for $|a| \geq 9$ (
 
 
 \subsection{Multidistance}
+
+We continue to let $G$ be an abelian group.
+
+\begin{definition}[Multidistance]\label{multidist-def}  Let $X_I = (X_i)_{i \in I}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
+\[
+  D[X_{I}] := \bbH[\sum_{i \in I} \tilde X_i] - \frac{1}{|I|} \sum_{i \in I} \bbH[\tilde X_i],
+\]
+where the $\tilde X_i$ are independent copies of the $X_i$.
+\end{definition}
+
+\begin{lemma}[Nonnegativity]\label{multidist-nonneg}  For any such tuple, we have $D[X_I] \geq 0$.
+\end{lemma}
+
+\begin{proof}  From Corollary \ref{sumset-lower} one has
+$$ \bbH[\sum_{i \in I} \tilde X_i] \geq \bbH[\tilde X_i]$$
+for each $i \in I$.  Averaging over $i$, we obtain the claim.
+\end{proof}
+
+\begin{lemma}[Relabeling]\label{multidist-perm} If $\phi: J \to I$ is a bijection, then $D[X_I] = D[(X_{\phi(j)})_{j \in J}]$.
+\end{lemma}
+
+\begin{proof} Trivial.
+\end{proof}
+
+\begin{lemma}[Multidistance and Ruzsa distance, I]\label{multidist-ruzsa-I}
+  Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. Then
+  $$\sum_{j,k \in I: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_I].$$
+\end{lemma}
+
+\begin{proof}
+By Lemma \ref{ruz-copy} we may take the $X_i$ to be jointly independent.  From Corollary \ref{sumset-lower}, we see that for any distinct $j,k \in I$, we have
+  \[
+    \bbH[X_j+X_k] \leq \bbH[\sum_{i \in I} X_i],
+  \]
+  and hence by Lemma \ref{ruz-indep}
+  \[
+    d[X_j;-X_k] \leq \bbH[\sum_{i \in I} X_i] - \frac{1}{2} \bbH[X_j] - \frac{1}{2} \bbH[X_k].
+  \]
+  Summing this over all pairs $(j,k)$, $j \neq k$, we obtain the claim.
+\end{proof}
+
+\begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}
+  Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. Then
+  $$\sum_{j \in I} d[X_j;X_j] \leq 2 m D[X_I].$$
+\end{lemma}
+
+\begin{proof}
+From Lemma \ref{ruzsa-triangle} we have $\dist{X_j}{X_j} \leq 2 \dist{X_j}{-X_k}$, and applying this to every summand in Lemma \ref{multidist-ruzsa-I}, we obtain the claim.
+\end{proof}
+
+\begin{lemma}[Multidistance and Ruzsa distance, III]\label{multidist-ruzsa-III}
+  Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_I] \leq m d[X_i;X_i]$ for any $i \in I$.
+\end{lemma}
+
+\begin{proof}
+  We may take the $X_i$ to be independent.  Let $X_0$ be a further independent copy of the $X_i$.
+From Lemma \ref{klm-1}, we have
+$$ \bbH[-X_0 + \sum_{i \in I} X_i] - \bbH[-X_0] \leq \sum_{i \in I} \bbH[X_0 - X_i] - \bbH[-X_0]$$
+and hence by Lemma \ref{neg-ent} and Lemma \ref{ruz-indep}
+$$ \bbH[-X_0 + \sum_{i \in I} X_i] - \bbH[X_0] \leq m d[X_i,X_i].$$
+On the other hand, by Corollary \ref{sumset-lower} we have
+$$ \bbH[\sum_{i \in I} X_i] \leq \bbH[-X_0 + \sum_{i \in I} X_i]$$
+and the claim follows.
+\end{proof}
+
+\begin{lemma}[Multidistance and Ruzsa distance, IV]\label{multidist-ruzsa-IV}
+  Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i \in I} X_i$. Then
+  $$ d[W;-W] \leq 2 D[X_i].$$
+\end{lemma}
+
+\begin{proof}
+  Take $(X'_i)_{i \in I}$ to be further independent copies of $(X_i)_{i \in I}$ (which exist by Lemma \ref{independent-exist}), and write $W' := \sum_{i \in I} X'_i$.
+  Fix any distinct $a,b \in I$.
+
+  From Lemma \ref{kv} one has
+  \begin{equation}\label{7922}
+    \bbH[W + W'] \leq  \bbH[W] + \bbH[X_{a} + W'] - \bbH[X_{a}]
+   \end{equation}
+   and also
+   \[ \bbH[X_a + W'] \leq \bbH[X_a + X_b] + \bbH[W'] - \bbH[X'_b].\]
+   Combining this with~\eqref{7922} and then applying Corollary \ref{sumset-lower} we have
+   \begin{align*}  \bbH[W + W']  & \leq    2\bbH[W] + \bbH[X_a + X_b]  - \bbH[X_a] - \bbH[X_b] \\ & \leq
+    3 \bbH[W] - \bbH[X_a] - \bbH[X_b].
+  \end{align*}
+  Averaging this over all choices of $(a,b)$ gives $\bbH[W] + 2 D[X_I]$, and the claim follows from Lemma \ref{ruz-indep}.
+\end{proof}
+
+\begin{proposition}[Vanishing]\label{multi-zero} Suppose that $I$ has
+If $D[X_I]=0$, then there is a finite subgroup $H \leq G$ such that $d[X_i; U_H] = 0$ for all $i$.
+\end{proposition}
+
+\begin{proof}  From Lemma \ref{multidist-ruzsa-I} and Lemma \ref{ruzsa-nonneg} we have $d[X_j; X_{-k}]$ for all $j,k \in I$.  Using Lemma \ref{lem:100pc}, we conclude that for each $j$ there is a finite subgroup $H_j \leq G$ such that $d[X_j; U_{H_j}] = 0$.  By Lemma \ref{ruzsa-triangle} we have $d[U_{H_j}, U_{H_k}] = 0$ for all $j,k$.  This implies $H_j = H_k$ by some direct calculation, giving the claim.
+\end{proof}
+
+\subsection{The $\tau$-functional}
+
+Fix $m \geq 2$, and a reference tuple $(X^0_i)_{1 \leq i \leq m}$ in $G$, where the $X^0_i$ all have the same distribution.
+
+\begin{definition}[$\eta$]\label{eta-def-multi}
+We set $\eta := c/m^3$, where $c := ???$.
+\end{definition}
+
+\begin{definition}[$\tau$-functional]\label{tau-def-multi}  If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
+$$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0_i].$$
+\end{definition}
+
+\begin{definition}[$\tau$-minimizer]\label{tau-min-multi}  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables.
+\end{definition}
+
+\begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}  A $\tau$-minimizer exists.
+\end{proposition}
+
+\begin{proof} This is similar to the proof of Proposition \ref{tau-min}.
+\end{proof}
+
+\begin{proposition}[Minimizer close to reference variables]\label{tau-ref}  If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0_i] \leq \frac{2m}{\eta} d[X^0_1; X^0_1]$.
+\end{proposition}
+
+\begin{proof}  By Definition \ref{tau-min-multi} we have
+  $$ \tau[ (X_i)_{1 \leq i \leq m}] \leq \tau[ (X^0_i)_{1 \leq i \leq m}]$$
+and hence by Definition \ref{tau-def-multi} and Lemma \ref{multidist-nonneg}
+$$ \eta \sum_{i=1}^m d[X_i; X^0_i] \leq D[(X^0_i)_{1 \leq i \leq m}] + m d[X^0_1; X^0_1].$$
+The claim now follows from Lemma \ref{multidist-ruzsa-III}.
+\end{proof}
+
+\begin{lemma}[Lower bound on multidistance]\label{multidist-lower}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
+  $$ k - D[(X'_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i].$$
+\end{lemma}
+
+\begin{proof}
+  By Definition \ref{tau-min-multi} we have
+  $$ \tau[ (X_i)_{1 \leq i \leq m}] \leq \tau[ (X'_i)_{1 \leq i \leq m}]$$
+  and hence by Definition \ref{tau-def-multi}
+  $$ k + \eta \sum_{i=1}^m d[X_i; X^0_i] \leq D[(X'_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X'_i; X^0_i].$$
+  On the other hand, by Lemma \ref{ruzsa-triangle} we have
+  $$ d[X'_i; X^0_i] \leq d[X_i; X^0_i] + d[X_i; X'_i].$$
+  The claim follows.
+\end{proof}
+
+\begin{definition}[Conditional multidistance]\label{cond-multidist-def} If $X_I = (X_i)_{i \in I}$ and $Y_I = (Y_i)_{i \in I}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
+  \begin{equation}\label{multi-def-cond}
+  D[ X_{I} | Y_{I}] := \bbH[\sum_{i \in I} \tilde X_i \big| (\tilde Y_j)_{j \in I} ] - \frac{1}{|I|} \sum_{i \in I} \bbH[ \tilde X_i | \tilde Y_i]
+    \end{equation}
+  where $(\tilde X_i,\tilde Y_i)$, $i \in I$ are independent copies of $(X_i,Y_i), i \in I$ (but note here that we do \emph{not} assume $X_i$ are independent of $Y_i$, or $\tilde X_i$ independent of $\tilde Y_i$).
+\end{definition}
+
+\begin{lemma}[Alternate form of conditional multidistance]\label{cond-multidist-alt}  With the above notation, we have
+  \begin{equation}\label{multi-def-cond-alt}
+    D[ X_{I} | Y_{I} ] = \sum_{(y_i)_{i \in I}} \biggl(\prod_{i \in I} p_{Y_i}(y_i)\biggr) D[ (X_i \,|\, Y_i \mathop{=}y_i)_{i \in I}]
+  \end{equation}
+  where each $y_i$ ranges over the support of $p_{Y_i}$ for $i \in I$.
+\end{lemma}
+
+\begin{proof}
+  This is routine from Definition \ref{conditional-entropy-def} and Definitions \ref{multidist-def} and \ref{cond-multidist-def}.
+\end{proof}
+
+\begin{lemma}[Lower bound on conditional multidistance]\label{cond-multidist-lower}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
+  $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$
+\end{lemma}
+
+\begin{proof}
+  Immediate from Lemma \ref{multidist-lower}, Lemma \ref{cond-multidist-alt}, and Definition \ref{cond-dist-def}.
+\end{proof}
+
+\subsection{The multidistance chain rule}
+
+\begin{lemma}[Multidistance chain rule]\label{multidist-chain-rule}  Let $\pi \colon G \to H$ be a homomorphism of abelian groups and let $X_{I}$ be a tuple of jointly independent $G$-valued random variables.  Then $D[X_{I}]$ is equal to
+  \begin{equation}
+      D[ X_{I} | \pi(X_{I}) ]  +D[ \pi(X_{I}) ]  + \bbI[ \sum_{i \in I} X_i  : \pi(X_{I}) \; \big| \; \pi\bigl(\sum_{i \in I} X_i\bigr) ]
+    \label{chain-eq}
+  \end{equation}
+  where $\pi(X_I) := (\pi(X_i))_{i \in I}$.
+  \end{lemma}
+
+  \begin{proof} For notational brevity during this proof, write $S := \sum_{i \in I} X_i$.
+
+    From Lemma \ref{conditional-mutual-alt} and Lemma \ref{relabeled-entropy}, noting that $\pi(S)$ is determined both by $S$ and by $\pi(X_I)$, we have
+  \begin{equation*}
+   \bbI[S:\pi(X_I)|\pi(S)] = \bbH[S]+\bbH[\pi(X_I)]-\bbH[S,\pi(X_I)]-\bbH[\pi(S)],
+  \end{equation*}
+  and by Lemma \ref{chain-rule} the right-hand side is equal to
+  \begin{equation*}
+  \bbH[S]-\bbH[S|\pi(X_I)]-\bbH[\pi(\S)].
+  \end{equation*}
+  Therefore,
+  \begin{equation}\label{chain-1}
+  \bbH[S]=\bbH[S|\pi(X_I)]+\bbH[\pi(S)]+\bbI[S:\pi(X_I)|\pi(S)]. \end{equation}
+  From a further application of Lemma \ref{chain-rule} and Lemma \ref{relabeled-entropy} we have
+  \begin{equation}\label{chain-2}
+    \bbH[X_i] = \bbH[X_i \, | \, \pi(X_i)] + \bbH[\pi(X_i)]
+  \end{equation}
+  for all $i \in I$.  Averaging~\eqref{chain-2} in $i$ and subtracting this from~\eqref{chain-1}, we obtain the claim from Definition \ref{multidist-def}.
+  \end{proof}
+
+  We will need to iterate the multidistance chain rule, so it is convenient to observe a conditional version of this rule, as follows.
+
+  \begin{lemma}[Conditional multidistance chain rule]\label{multidist-chain-rule-cond}
+    Let $\pi \colon G \to H$ be a homomorphism of abelian groups.
+    Let $I$ be a finite index set and let $X_{I}$ be a tuple of $G$-valued random variables.
+    Let $Y_{I}$ be another tuple of random variables (not necessarily $G$-valued).
+    Suppose that the pairs $(X_i, Y_i)$ are jointly independent of one another (but $X_i$ need not be independent of $Y_i$).
+    Then
+    \begin{align}\nonumber
+        D[ X_{I} | Y_{I} ] &=  D[ X_{I} \,|\, \pi(X_{I}), Y_{I}] + D[ \pi(X_{I}) \,|\, Y_{I}] \\
+         &\quad\qquad + \bbI[ \sum_{i\in I} X_i : \pi(X_{I}) \; \big| \;  \pi\bigl(\sum_{i\in I} X_i \bigr), Y_{I} ].\label{chain-eq-cond}
+    \end{align}
+  \end{lemma}
+
+  \begin{proof}
+  For each $y_i$ in the support of $p_{Y_i}$, apply Lemma \ref{multidist-chain-rule} with $X_i$ replaced by the conditioned random variable $(X_i|Y_i=y_i)$, and the claim~\eqref{chain-eq-cond} follows by averaging~\eqref{chain-eq} in the $y_i$ using the weights $p_{Y_i}$.
+  \end{proof}
+
+  We can iterate the above lemma as follows.
+
+  \begin{lemma}\label{multidist-chain-rule-iter}  Let $m$ be a positive integer.
+    Suppose one has a sequence
+    \begin{equation}\label{g-seq}
+      G_m \to G_{m-1} \to \dots \to G_1 \to G_0 = \{0\}
+    \end{equation}
+    of homomorphisms between abelian groups $G_0,\dots,G_m$, and for each $d=0,\dots,m$, let $\pi_d : G_m \to G_d$ be the homomorphism from $G_m$ to $G_d$ arising from this sequence by composition \uppar{so for instance $\pi_m$ is the identity homomorphism and $\pi_0$ is the zero homomorphism}.
+    Let $I$ be a finite index set and let $X_{I} = (X_i)_{i \in I}$ be a jointly independent tuple of $G_m$-valued random variables.
+    Then
+    \begin{equation}
+      \begin{split}
+        D[ X_{I} ] &=  \sum_{d=1}^m D[ \pi_d(X_{I}) \,|\, \pi_{d-1}(X_{I})] \\
+         &\quad + \sum_{d=1}^{m-1} \bbI[ \sum_i X_i : \pi_d(X_{I}) \; \big| \; \pi_d\big(\sum_i X_i\big), \pi_{d-1}(X_{I}) ].
+      \end{split}\label{chain-eq-cond'}
+    \end{equation}
+    In particular, by Lemma \ref{conditional-nonneg},
+    \begin{align}\nonumber
+        D[ X_{I} ] \geq  & \sum_{d=1}^m D[ \pi_d(X_{I})|\pi_{d-1}(X_{I}) ] \\
+         & + \bbI[ \sum_i X_i : \pi_1(X_{I}) \; \big| \; \pi_1\bigl(\sum_i X_i\bigr) ].\label{chain-eq-cond''}
+    \end{align}
+  \end{lemma}
+
+  \begin{proof}
+  From Lemma \ref{multidist-chain-rule-cond} (taking $Y_I = \pi_{d-1}(X_I)$ and $\pi = \pi_d$ there, and noting that $\pi_d(X_I)$ determines $Y_I$) we have
+  \begin{align*}
+    D[ X_{I} \,|\, \pi_{d-1}(X_{I}) ] &=  D[ X_{I} \,|\, \pi_d(X_{I}) ] + D[  \pi_d(X_{I})\,|\,\pi_{d-1}(X_{I}) ] \\
+                                             &\quad + \bbI[ \sum_{i \in I} X_i : \pi_d(X_{I}) \; \big| \; \pi_d\bigl(\sum_{i \in I} X_i\bigr), \pi_{d-1}(X_{I}) ]
+  \end{align*}
+  for $d=1,\dots,m-1$. The claim follows by telescoping series, noting that $D[X_I | \pi_0(X_I)] = D[X_I]$ and that $\pi_m(X_I)=X_I$.
+  \end{proof}
+
+  In our application we will need the following special case of the above lemma.
+
+  \begin{corollary}\label{cor-multid} Let $G$ be an abelian group and let $m \geq 2$.  Suppose that $X_{i,j}$, $1 \leq i, j \leq m$, are independent $G$-valued random variables.
+    Then
+    \begin{align*}
+      &\bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m} : \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i = 1}^m \; \big| \; \sum_{i=1}^m \sum_{j = 1}^m  X_{i,j} ] \\
+      &\quad \leq \sum_{j=1}^{m-1} \Bigl(D[(X_{i, j})_{i = 1}^m] - D[ (X_{i, j})_{i = 1}^m  \; \big| \; (X_{i,j} + \cdots + X_{i,m})_{i =1}^m ]\Bigr) \\ & \qquad\qquad\qquad\qquad +  D[(X_{i,m})_{i=1}^m] - D[ \bigl(\tsum_{j=1}^m X_{i,j}\bigr)_{i=1}^m ],
+    \end{align*}
+  where all the multidistances here involve the indexing set $\{1,\dots, m\}$.
+  \end{corollary}
+
+  \begin{proof}
+    In Lemma \ref{multidist-chain-rule-iter} we take $G_d \coloneqq G^d$ with the maps $\pi_d \colon G^m \to G^d$ for $d=1,\dots,m$ defined by
+  \[
+    \pi_d(x_1,\dots,x_m) := (x_1,\dots,x_{d-1}, x_d + \cdots + x_m)
+  \]
+  with $\pi_0=0$. Since $\pi_{d-1}(x)$ can be obtained from $\pi_{d}(x)$ by applying a homomorphism, we obtain a sequence of the form~\eqref{g-seq}.
+
+  Now we apply Lemma \ref{multidist-chain-rule-iter} with $I = \{1,\dots, m\}$ and $X_i \coloneqq (X_{i,j})_{j = 1}^m$.  Using joint independence and Corollary \ref{add-entropy}, we find that
+  \[
+    D[ X_{I} ] = \sum_{j=1}^m D[ (X_{i,j})_{i \in I} ].
+  \]
+  On the other hand, for $1 \leq j \leq m-1$, we see that once $\pi_{j}(X_i)$ is fixed, $\pi_{j+1}(X_i)$ is determined by $X_{i, j}$ and vice versa, so
+  \[
+    D[ \pi_{j+1}(X_{I}) \; | \; \pi_{j}(X_{I}) ] = D[ (X_{i, j})_{i \in I} \; | \; \pi_{j}(X_{I} )].
+  \]
+  Since the $X_{i,j}$ are jointly independent, we may further simplify:
+  \[
+    D[ (X_{i, j})_{i \in I} \; | \; \pi_{j}(X_{I})] = D[ (X_{i,j})_{i \in I} \; | \; ( X_{i, j} + \cdots + X_{i, m})_{i \in I} ].
+  \]
+  Putting all this into the conclusion of Lemma \ref{multidist-chain-rule-iter}, we obtain
+  \[
+    \sum_{j=1}^{m} D[ (X_{i,j})_{i \in I} ]
+    \geq
+    \begin{aligned}[t]
+    &\sum_{j=1}^{m-1} D[ (X_{i,j})_{i \in I} \; | \; (X_{i,j} + \cdots + X_{i,m})_{i \in I} ] \\
+    &\!\!\!+
+    D[ \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i \in I}] \\
+    &\!\!\!+\bbI[  \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m} : \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i = 1}^m \; \big| \; \sum_{i=1}^m \sum_{j = 1}^m  X_{i,j} ]
+    \end{aligned}
+  \]
+  and the claim follows by rearranging.
+\end{proof}
