@@ -11,15 +11,6 @@ If $A,B$ are finite non-empty subsets of a group $G$, then $A$ can be covered by
 Cover $A$ greedily by disjoint translates of $B$.
 \end{proof}
 
-\begin{lemma}\label{pfr_aux}
-\lean{PFR_conjecture_aux}\leanok If $A \subset {\bf F}_2^n$ is non-empty and
-$|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^
-{13/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of ${\bf F}_2^n$ with
-\begin{equation}
-  \label{ah}
-  |H|/|A| \in [K^{-11}, K^{11}].
-\end{equation}
-\end{lemma}
 \begin{proof}
 \uses{entropy-pfr, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}\leanok
   Let $U_A$ be the uniform distribution on $A$ (which exists by Lemma \ref{unif-exist}), thus $\bbH[U_A] = \log |A|$ by Lemma \ref{uniform-entropy-II}. By Lemma \ref{jensen-bound} and the fact that $U_A + U_A$ is supported on $A + A$, $\bbH[U_A + U_A] \leq \log|A+A|$. By Definition \ref{ruz-dist-def}, the doubling condition $|A+A| \leq K|A|$ therefore gives
