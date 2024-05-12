@@ -427,13 +427,13 @@ for any permutation $\sigma : I \rightarrow I$.
   \end{corollary}
 
   \begin{proof}\uses{multidist-chain-rule-iter, add-entropy}
-    In Lemma \ref{multidist-chain-rule-iter} we take $G_d \coloneqq G^d$ with the maps $\pi_d \colon G^m \to G^d$ for $d=1,\dots,m$ defined by
+    In Lemma \ref{multidist-chain-rule-iter} we take $G_d := G^d$ with the maps $\pi_d \colon G^m \to G^d$ for $d=1,\dots,m$ defined by
   \[
     \pi_d(x_1,\dots,x_m) := (x_1,\dots,x_{d-1}, x_d + \cdots + x_m)
   \]
   with $\pi_0=0$. Since $\pi_{d-1}(x)$ can be obtained from $\pi_{d}(x)$ by applying a homomorphism, we obtain a sequence of the form~\eqref{g-seq}.
 
-  Now we apply Lemma \ref{multidist-chain-rule-iter} with $I = \{1,\dots, m\}$ and $X_i \coloneqq (X_{i,j})_{j = 1}^m$.  Using joint independence and Corollary \ref{add-entropy}, we find that
+  Now we apply Lemma \ref{multidist-chain-rule-iter} with $I = \{1,\dots, m\}$ and $X_i :=  (X_{i,j})_{j = 1}^m$.  Using joint independence and Corollary \ref{add-entropy}, we find that
   \[
     D[ X_{I} ] = \sum_{j=1}^m D[ (X_{i,j})_{i \in I} ].
   \]
@@ -594,7 +594,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   \]
   where
   \begin{equation}\label{t-def}
-    t \coloneqq 4m^2 \eta k.
+    t :=  4m^2 \eta k.
   \end{equation}
 \end{proposition}
 
@@ -783,7 +783,7 @@ Finally, applying Lemma \ref{multidist-ruzsa-II} (and dropping some lower order 
 \begin{proposition}[Vanishing entropy]\label{k-vanish}  We have $k = 0$.
 \end{proposition}
 
-\begin{proof}\uses{lem:get-better, multidist-ruzsa-III, multidist-lower, xi-z2-w-dist, eta-def-multi, multidist-nonneg, Zero-sum} For each value $W=w$, apply Lemma \ref{lem:get-better} (and Lemma \ref{Zero-sum}) to
+\begin{proof}\uses{lem:get-better, multidist-ruzsa-III, multidist-lower, xi-z2-w-dist, eta-def-multi, multidist-nonneg, Zero-sum, prop:52} For each value $W=w$, apply Lemma \ref{lem:get-better} (and Lemma \ref{Zero-sum}) to
   \[
     T_1 = (Z_1 \,|\, W \mathop{=} w),\
     T_2 = (Z_2 \,|\, W \mathop{=} w),\
@@ -791,7 +791,7 @@ Finally, applying Lemma \ref{multidist-ruzsa-II} (and dropping some lower order 
   \]
   with $Y_i=X_i$ and $\alpha=\eta/m$.  Write
   \[
-    \delta_w \coloneqq \bbI[T_1 : T_2] + \bbI[T_1 : T_3] + \bbI[T_2 : T_3]
+    \delta_w :=  \bbI[T_1 : T_2] + \bbI[T_1 : T_3] + \bbI[T_2 : T_3]
   \]
   for this choice, and note that
   \begin{align}
@@ -837,14 +837,14 @@ Finally, applying Lemma \ref{multidist-ruzsa-II} (and dropping some lower order 
 \begin{theorem}[Entropy form of PFR]\label{main-entropy} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
 
-\begin{proof}\uses{independent-exist, k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def}  Set $(X^0_i)_{1 \leq i \leq m}$ to be $m$ independent copies of $X$ (which exists thanks to Lemma \ref{independent-exist}).  By Proposition \ref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_I = (X_i)_{1 \leq i \leq m}$.  By Proposition \ref{k-vanish}, we have $D[X_I]=0$. By Proposition \ref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By Proposition \ref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by Lemma \ref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from Definition \ref{eta-def}.
+\begin{proof}\uses{independent-exist, k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $(X^0_i)_{1 \leq i \leq m}$ to be $m$ independent copies of $X$ (which exists thanks to Lemma \ref{independent-exist}).  By Proposition \ref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_I = (X_i)_{1 \leq i \leq m}$.  By Proposition \ref{k-vanish}, we have $D[X_I]=0$. By Proposition \ref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By Proposition \ref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by Lemma \ref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from Definition \ref{eta-def-multi}.
 \end{proof}
 
 \begin{lemma}\label{pfr_aux_torsion}  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
   $|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^
   {(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
   \begin{equation}
-    \label{ah}
+    \label{ah2}
     |H|/|A| \in [K^{-64m^3}, K^{64m^3}].
   \end{equation}
   \end{lemma}

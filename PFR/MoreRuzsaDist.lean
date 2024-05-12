@@ -49,6 +49,7 @@ lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : 
   (f : S → V) (g : T → W) [FiniteRange X] [FiniteRange Y]:
     I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by sorry
 
+end ProbabilityTheory
 end dataProcessing
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
