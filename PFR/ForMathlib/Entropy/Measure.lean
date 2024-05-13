@@ -34,7 +34,7 @@ variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
 section measureEntropy
 variable {μ : Measure S}
 
-/-- Entropy of a measure on a finite measurable space.
+/-- Entropy of a measure on a measurable space.
 
 We normalize the measure by `(μ Set.univ)⁻¹` to extend the entropy definition to finite measures.
 What we really want to do is deal with `μ=0` or `IsProbabilityMeasure μ`, but we don't have

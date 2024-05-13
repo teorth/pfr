@@ -517,7 +517,8 @@ end condEntropy
 section pair
 
 /-- One form of the chain rule : $H[X, Y] = H[X] + H[Y|X]. -/
-lemma chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y]:
+lemma chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
+    [FiniteRange X] [FiniteRange Y] :
     H[⟨X, Y⟩ ; μ] = H[X ; μ] + H[Y | X ; μ] := by
   have : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX.aemeasurable
   have : IsProbabilityMeasure (μ.map (⟨X, Y⟩)) :=
