@@ -15,7 +15,7 @@ thanks to Lemma \ref{relabeled-entropy} and Lemma \ref{chain-rule}, giving the c
 \end{lemma}
 
 \begin{proof}\uses{alternative-mutual, submodularity, relabeled-entropy}
-  By Lemma \ref{alternative-mutual} it suffices to show that $\bbH[Y|X] \geq \bbH[Y|f(X)]$. But this follows from Corollary \ref{submodularity} (and Lemma \ref{relabeled-entropy}).
+  By Lemma \ref{alternative-mutual} it suffices to show that $\bbH[Y|X] \leq \bbH[Y|f(X)]$. But this follows from Corollary \ref{submodularity} (and Lemma \ref{relabeled-entropy}).
 \end{proof}
 
 \begin{lemma}[Unconditional data processing inequality]\label{data-process-unc}\lean{ProbabilityTheory.mutual_comp_comp_le}\leanok Let $X,Y$ be random variables. For any functions $f, g$ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )] \leq \bbI[X : Y]$.
