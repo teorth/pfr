@@ -31,8 +31,14 @@ variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} {V : Type uV}
 /--
 Let $X,Y$ be random variables. For any function $f, g$ on the range of $X$, we have $I[f(X) : Y] \leq I[X:Y]$.
 -/
-lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → U) [FiniteRange X]:
-    I[f ∘ X : Y ; μ] ≤ I[X : Y ; μ] := by sorry
+lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
+    (hY : Measurable Y) (f : S → U) (hf : Measurable f) [FiniteRange X] [FiniteRange Y] :
+    I[f ∘ X : Y ; μ] ≤ I[X : Y ; μ] := by
+  rw [mutualInfo_comm (Measurable.comp hf hX) hY, mutualInfo_comm hX hY,
+    mutualInfo_eq_entropy_sub_condEntropy hY (Measurable.comp hf hX),
+    mutualInfo_eq_entropy_sub_condEntropy hY hX]
+  gcongr
+  exact condEntropy_comp_ge μ hX hY f
 
 /--
  Let $X,Y$ be random variables. For any functions $f, g$ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )] \leq \bbI[X : Y]$.
