@@ -87,3 +87,46 @@ lemma kvm_ineq_II : 0 = 1 := by sorry
   $$ d[X; \sum_{i=1}^n Y_i] \leq d[X; Y_1] + \frac{1}{2}(\bbH[ \sum_{i=1}^n Y_i ] - \bbH[Y_1]).$$
 -/
 lemma kvm_ineq_III : 0 = 1 := by sorry
+
+/-- Let $(X_i)_{i \in I}$ and $(Y_j)_{j \in J}$ be tuples of independent random variables, and let $f: J \to I$ be a function, then
+  $$ H[\sum_{j \in J} Y_j] \leq H[ \sum_{i \in I} X_i ] + \sum_{j \in J} (H[ Y_j - X_{f(j)}] - H[X_{f(j)}]).$$
+-/
+lemma ent_of_sum_le_ent_of_sum : 0 = 1 := by sorry
+
+/-- Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
+$$H[X-(a+1)Y] \leq H[X-aY] + H[X-Y-X'] - H[X]$$ -/
+lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X'] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X') (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a:ℤ} : H[X - (a+1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by sorry
+
+/-- Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
+$$H[X-(a-1)Y] \leq H[X-aY] + H[X-Y-X'] - H[X]$$ -/
+lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X'] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X') (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a:ℤ} : H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by sorry
+
+/--  Let $X,Y$ be independent $G$-valued random variables, and let $a$ be an integer.  Then
+  $$H[X-aY] - H[X] \leq 4 |a| d[X;Y].$$ -/
+lemma ent_of_sub_smul_le {Y : Ω → G} [FiniteRange Y] (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a:ℤ} : H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by sorry
+
+section multiDistance
+
+open Filter Function MeasureTheory Measure ProbabilityTheory
+open scoped BigOperators
+
+variable {Ω G : Type*}
+  [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
+  [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
+  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G]
+
+variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
+
+/--  Let $X_I = (X_i)_{i \in I}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
+\[
+  D[X_{I}] := \bbH[\sum_{i \in I} \tilde X_i] - \frac{1}{|I|} \sum_{i \in I} \bbH[\tilde X_i],
+\]
+where the $\tilde X_i$ are independent copies of the $X_i$.-/
+noncomputable
+def multiDist {I: Type*} (X : I → Ω → G) (μ : Measure Ω := by volume_tac) : ℝ := sorry
+
+@[inherit_doc multiDist] notation3:max "D[" X " ; " μ "]" => multiDist X μ
+
+
+
+end multiDistance
