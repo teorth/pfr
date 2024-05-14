@@ -130,38 +130,38 @@ variable {Ω G : Type*}
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
-/--  Let $X_I = (X_i)_{i \in I}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
+/--  Let $X_{[m]} = (X_i)_{1 \leq i \leq m}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
 \[
-  D[X_{I}] := \bbH[\sum_{i \in I} \tilde X_i] - \frac{1}{|I|} \sum_{i \in I} \bbH[\tilde X_i],
+  D[X_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i] - \frac{1}{m} \sum_{i=1}^m \bbH[\tilde X_i],
 \]
 where the $\tilde X_i$ are independent copies of the $X_i$.-/
 noncomputable
-def multiDist {I: Type*} (X : I → Ω → G) (μ : Measure Ω := by volume_tac) : ℝ := sorry
+def multiDist {m:ℕ} (X : Fin m → Ω → G) (μ : Measure Ω := by volume_tac) : ℝ := sorry
 
 @[inherit_doc multiDist] notation3:max "D[" X " ; " μ "]" => multiDist X μ
 
-/-- For any such tuple, we have $D[X_I] \geq 0$. -/
+/-- For any such tuple, we have $D[X_{[m]}] \geq 0$. -/
 lemma multiDist_nonneg : 0 = 1 := by sorry
 
-/--  If $\phi: J \to I$ is a bijection, then $D[X_I] = D[(X_{\phi(j)})_{j \in J}]$. -/
+/--  If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$. -/
 lemma multiDist_of_perm : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. Then
-  $$\sum_{j,k \in I: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_I].$$ -/
+/-- Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
+  $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$ -/
 lemma multidist_ruzsa_I : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. Then
-  $$\sum_{j \in I} d[X_j;X_j] \leq 2 m D[X_I].$$ -/
+/-- Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
+  $$\sum_{j=1}^m d[X_j;X_j] \leq 2 m D[X_{[m]}].$$ -/
 lemma multidist_ruzsa_II : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_I] \leq m d[X_i;X_i]$ for any $i \in I$. -/
+/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_{[m]}] \leq m d[X_i;X_i]$ for any $1 \leq i \leq m$. -/
 lemma multidist_ruzsa_III : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i \in I} X_i$. Then
+/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i \in I} X_i$. Then
   $$ d[W;-W] \leq 2 D[X_i].$$ -/
 lemma multidist_ruzsa_IV : 0 = 1 := by sorry
 
-/-- If $D[X_I]=0$, then for each $i \in I$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$. -/
+/-- If $D[X_{[m]}]=0$, then for each $i \in I$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$. -/
 lemma multidist_eq_zero : 0 = 1 := by sorry
 
 end multiDistance
