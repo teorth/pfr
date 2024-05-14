@@ -32,11 +32,11 @@ variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} {V : Type uV}
 Let $X,Y$ be random variables. For any function $f, g$ on the range of $X$, we have $I[f(X) : Y] \leq I[X:Y]$.
 -/
 lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-    (hY : Measurable Y) (f : S → U) (hf : Measurable f) [FiniteRange X] [FiniteRange Y] :
+    (hY : Measurable Y) (f : S → U) [FiniteRange X] [FiniteRange Y] :
     I[f ∘ X : Y ; μ] ≤ I[X : Y ; μ] := by
-  rw [mutualInfo_comm (Measurable.comp hf hX) hY, mutualInfo_comm hX hY,
-    mutualInfo_eq_entropy_sub_condEntropy hY (Measurable.comp hf hX),
-    mutualInfo_eq_entropy_sub_condEntropy hY hX]
+  have h_meas : Measurable (f ∘ X) := Measurable.comp (measurable_discrete f) hX
+  rw [mutualInfo_comm h_meas hY, mutualInfo_comm hX hY,
+    mutualInfo_eq_entropy_sub_condEntropy hY h_meas, mutualInfo_eq_entropy_sub_condEntropy hY hX]
   gcongr
   exact condEntropy_comp_ge μ hX hY f
 
@@ -45,13 +45,13 @@ lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurabl
  have $\bbI[f(X) : g(Y)] \leq \bbI[X : Y]$.
  -/
 lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-    (hY : Measurable Y) (f : S → U) (g : T → V) (hf : Measurable f) (hg : Measurable g) [
-    FiniteRange X] [FiniteRange Y]:
+    (hY : Measurable Y) (f : S → U) (g : T → V) (hg : Measurable g)
+    [FiniteRange X] [FiniteRange Y] :
     I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ] :=
   calc
-    _ ≤ I[X : g ∘ Y ; μ] := mutual_comp_le μ hX (Measurable.comp hg hY) f hf
+    _ ≤ I[X : g ∘ Y ; μ] := mutual_comp_le μ hX (Measurable.comp hg hY) f
     _ = I[g ∘ Y : X ; μ] := mutualInfo_comm hX (Measurable.comp hg hY) μ
-    _ ≤ I[Y : X ; μ] := mutual_comp_le μ hY hX g hg
+    _ ≤ I[Y : X ; μ] := mutual_comp_le μ hY hX g
     _ = I[X : Y ; μ] := mutualInfo_comm hY hX μ
 
 /--
