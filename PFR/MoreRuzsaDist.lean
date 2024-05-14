@@ -82,10 +82,36 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
+-- PRd to Mathlib, see #12918. When it gets merged and bumped remove these lines.
+@[to_additive]
+lemma ProbabilityTheory.IdentDistrib.inv {α : Type*} {β : Type*} {γ : Type*}
+    [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ] {μ : Measure α} {ν : Measure β}
+    {f : α → γ} {g : β → γ} [Inv γ] [MeasurableInv γ] (h : IdentDistrib f g μ ν) :
+    IdentDistrib f⁻¹ g⁻¹ μ ν := h.comp measurable_inv
+
 /--   If $X,Y$ are $G$-valued, then
   $$  d[X ; -Y]  \leq 3 d[X;Y].$$ -/
-lemma rdist_of_neg_le : d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by sorry
+lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
+    (hY : Measurable Y) :
+    d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
+  obtain ⟨ν, X', Y', ⟨hν, hX', hY', h_indep, hXX', hYY'⟩⟩ := independent_copies hX hY μ μ'
+  rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
+  sorry
 
+-- #check ProbabilityTheory.IdentDistrib.rdist_eq
+-- #check ProbabilityTheory.independent_copies
+-- #check ProbabilityTheory.independent_copies'
+-- #check ProbabilityTheory.independent_copies_two
+-- #check ProbabilityTheory.independent_copies3_nondep
+-- #check ProbabilityTheory.condIndep_copies
+-- #check ProbabilityTheory.entropy_triple_add_entropy_le
+-- #check ProbabilityTheory.IndepFun.rdist_eq
+-- #check ProbabilityTheory.entropy_neg
+-- #check ProbabilityTheory.entropy_comp_of_injective
+-- #check ProbabilityTheory.entropy_of_comp_eq_of_comp
+-- #check ProbabilityTheory.entropy_pair_eq_add
+-- #check ProbabilityTheory.entropy_pair_le_add
+-- #check ProbabilityTheory.entropy_comp_le
 
 open Classical in
 /--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
