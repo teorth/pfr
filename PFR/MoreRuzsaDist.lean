@@ -123,12 +123,9 @@ section multiDistance
 open Filter Function MeasureTheory Measure ProbabilityTheory
 open scoped BigOperators
 
-variable {Ω G : Type*}
-  [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
+variable {G : Type*}
   [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G]
-
-variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
 /--  Let $X_{[m]} = (X_i)_{1 \leq i \leq m}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
 \[
@@ -136,9 +133,9 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [Finite
 \]
 where the $\tilde X_i$ are independent copies of the $X_i$.-/
 noncomputable
-def multiDist {m:ℕ} (X : Fin m → Ω → G) (μ : Measure Ω := by volume_tac) : ℝ := sorry
+def multiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) : ℝ := sorry
 
-@[inherit_doc multiDist] notation3:max "D[" X " ; " μ "]" => multiDist X μ
+@[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
 /-- For any such tuple, we have $D[X_{[m]}] \geq 0$. -/
 lemma multiDist_nonneg : 0 = 1 := by sorry
@@ -163,5 +160,22 @@ lemma multidist_ruzsa_IV : 0 = 1 := by sorry
 
 /-- If $D[X_{[m]}]=0$, then for each $i \in I$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$. -/
 lemma multidist_eq_zero : 0 = 1 := by sorry
+
+/-- If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
+  \begin{equation}\label{multi-def-cond}
+  D[ X_{[m]} | Y_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i \big| (\tilde Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \bbH[ \tilde X_i | \tilde Y_i]
+    \end{equation}
+  where $(\tilde X_i,\tilde Y_i)$, $1 \leq i \leq m$ are independent copies of $(X_i,Y_i), 1 \leq i \leq m$ (but note here that we do \emph{not} assume $X_i$ are independent of $Y_i$, or $\tilde X_i$ independent of $\tilde Y_i$). -/
+noncomputable
+def condMultiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) (Y : (i:Fin m) → (Ω i) → G) : ℝ := sorry
+
+@[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
+
+/-- With the above notation, we have
+  \begin{equation}\label{multi-def-cond-alt}
+    D[ X_{[m]} | Y_{[m]} ] = \sum_{(y_i)_{1 \leq i \leq m}} \biggl(\prod_{1 \leq i \leq m} p_{Y_i}(y_i)\biggr) D[ (X_i \,|\, Y_i \mathop{=}y_i)_{1 \leq i \leq m}]
+  \end{equation}
+  where each $y_i$ ranges over the support of $p_{Y_i}$ for $1 \leq i \leq m$. -/
+lemma condMultiDist_eq : 0 = 1 := by sorry
 
 end multiDistance

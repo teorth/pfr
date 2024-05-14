@@ -258,24 +258,24 @@ With more effort one can show that $H_i$ is independent of $i$, but we will not 
 
 Fix $m \geq 2$, and a reference variable $X^0$ in $G$.
 
-\begin{definition}[$\eta$]\label{eta-def-multi}
+\begin{definition}[$\eta$]\label{eta-def-multi}\lean{multiRefPackage}\leanok
 We set $\eta := \frac{1}{32m^3}$.
 \end{definition}
 
-\begin{definition}[$\tau$-functional]\label{tau-def-multi}\uses{eta-def-multi}  If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
+\begin{definition}[$\tau$-functional]\label{tau-def-multi}\uses{eta-def-multi}\lean{multiTau}  If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 \end{definition}
 
-\begin{definition}[$\tau$-minimizer]\label{tau-min-multi}\uses{tau-def-multi}  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables.
+\begin{definition}[$\tau$-minimizer]\label{tau-min-multi}\uses{tau-def-multi}\lean{multiTau_minimizes}  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables.
 \end{definition}
 
-\begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}  If $G$ is finite, then a $\tau$-minimizer exists.
+\begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}\lean{multiTau_min_exists}  If $G$ is finite, then a $\tau$-minimizer exists.
 \end{proposition}
 
 \begin{proof}\uses{tau-def-multi} This is similar to the proof of Proposition \ref{tau-min}.
 \end{proof}
 
-\begin{proposition}[Minimizer close to reference variables]\label{tau-ref}  If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$.
+\begin{proposition}[Minimizer close to reference variables]\label{tau-ref}\lean{multiTau_min_sum_le}  If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$.
 \end{proposition}
 
 \begin{proof}\uses{tau-min-multi, multidist-nonneg, multidist-ruzsa-III}  By Definition \ref{tau-min-multi} we have
@@ -285,7 +285,7 @@ $$ \eta \sum_{i=1}^m d[X_i; X^0] \leq D[(X^0)_{1 \leq i \leq m}] + m d[X^0; X^0]
 The claim now follows from Lemma \ref{multidist-ruzsa-III}.
 \end{proof}
 
-\begin{lemma}[Lower bound on multidistance]\label{multidist-lower}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
+\begin{lemma}[Lower bound on multidistance]\label{multidist-lower}\lean{sub_multiDistance_le}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i].$$
 \end{lemma}
 
@@ -299,14 +299,14 @@ The claim now follows from Lemma \ref{multidist-ruzsa-III}.
   The claim follows.
 \end{proof}
 
-\begin{definition}[Conditional multidistance]\label{cond-multidist-def}\uses{multidist-def} If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
+\begin{definition}[Conditional multidistance]\label{cond-multidist-def}\uses{multidist-def}\lean{condMultiDist} If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
   \begin{equation}\label{multi-def-cond}
   D[ X_{[m]} | Y_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i \big| (\tilde Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \bbH[ \tilde X_i | \tilde Y_i]
     \end{equation}
   where $(\tilde X_i,\tilde Y_i)$, $1 \leq i \leq m$ are independent copies of $(X_i,Y_i), 1 \leq i \leq m$ (but note here that we do \emph{not} assume $X_i$ are independent of $Y_i$, or $\tilde X_i$ independent of $\tilde Y_i$).
 \end{definition}
 
-\begin{lemma}[Alternate form of conditional multidistance]\label{cond-multidist-alt}  With the above notation, we have
+\begin{lemma}[Alternate form of conditional multidistance]\label{cond-multidist-alt}\lean{condMultiDist_eq}  With the above notation, we have
   \begin{equation}\label{multi-def-cond-alt}
     D[ X_{[m]} | Y_{[m]} ] = \sum_{(y_i)_{1 \leq i \leq m}} \biggl(\prod_{1 \leq i \leq m} p_{Y_i}(y_i)\biggr) D[ (X_i \,|\, Y_i \mathop{=}y_i)_{1 \leq i \leq m}]
   \end{equation}
@@ -317,7 +317,7 @@ The claim now follows from Lemma \ref{multidist-ruzsa-III}.
   This is routine from Definition \ref{conditional-entropy-def} and Definitions \ref{multidist-def} and \ref{cond-multidist-def}.
 \end{proof}
 
-\begin{lemma}[Lower bound on conditional multidistance]\label{cond-multidist-lower}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
+\begin{lemma}[Lower bound on conditional multidistance]\label{cond-multidist-lower}\lean{sub_condMultiDistance_le}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$
 \end{lemma}
 
@@ -325,11 +325,11 @@ The claim now follows from Lemma \ref{multidist-ruzsa-III}.
   Immediate from Lemma \ref{multidist-lower}, Lemma \ref{cond-multidist-alt}, and Definition \ref{cond-dist-def}.
 \end{proof}
 
-\begin{corollary}[Lower bound on conditional multidistance, II]\label{cond-multidist-lower-II} With the notation of the previous lemma, we have
+\begin{corollary}[Lower bound on conditional multidistance, II]\label{cond-multidist-lower-II}\lean{sub_condMultiDistance_le'} With the notation of the previous lemma, we have
   \begin{equation}\label{5.3-conv}
     k - D[ X'_{[m]} | Y_{[m]} ] \leq \eta \sum_{i=1}^m d[X_{\sigma(i)};X'_i|Y_i]
   \end{equation}
-for any permutation $\sigma : I \rightarrow I$.
+for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 \end{corollary}
 
 \begin{proof}\uses{cond-multidist-lower, multidist-perm}  This follows from Lemma \ref{cond-multidist-lower} and Lemma \ref{multidist-perm}.
