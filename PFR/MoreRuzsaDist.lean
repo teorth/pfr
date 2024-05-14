@@ -48,7 +48,7 @@ lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurabl
 lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     (hY : Measurable Y) (f : S → U) (g : T → V) (hf : Measurable f) (hg : Measurable g) [
     FiniteRange X] [FiniteRange Y]:
-    I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ] := by
+    I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ] :=
   calc
     _ ≤ I[X : g ∘ Y ; μ] := mutual_comp_le μ hX (Measurable.comp hg hY) f hf
     _ = I[g ∘ Y : X ; μ] := mutualInfo_comm hX (Measurable.comp hg hY) μ
@@ -124,45 +124,59 @@ section multiDistance
 open Filter Function MeasureTheory Measure ProbabilityTheory
 open scoped BigOperators
 
-variable {Ω G : Type*}
-  [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
+variable {G : Type*}
   [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G]
 
-variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
-
-/--  Let $X_I = (X_i)_{i \in I}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
+/--  Let $X_{[m]} = (X_i)_{1 \leq i \leq m}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
 \[
-  D[X_{I}] := \bbH[\sum_{i \in I} \tilde X_i] - \frac{1}{|I|} \sum_{i \in I} \bbH[\tilde X_i],
+  D[X_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i] - \frac{1}{m} \sum_{i=1}^m \bbH[\tilde X_i],
 \]
 where the $\tilde X_i$ are independent copies of the $X_i$.-/
 noncomputable
-def multiDist {I: Type*} (X : I → Ω → G) (μ : Measure Ω := by volume_tac) : ℝ := sorry
+def multiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) : ℝ := sorry
 
-@[inherit_doc multiDist] notation3:max "D[" X " ; " μ "]" => multiDist X μ
+@[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
-/-- For any such tuple, we have $D[X_I] \geq 0$. -/
+/-- For any such tuple, we have $D[X_{[m]}] \geq 0$. -/
 lemma multiDist_nonneg : 0 = 1 := by sorry
 
-/--  If $\phi: J \to I$ is a bijection, then $D[X_I] = D[(X_{\phi(j)})_{j \in J}]$. -/
+/--  If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$. -/
 lemma multiDist_of_perm : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. Then
-  $$\sum_{j,k \in I: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_I].$$ -/
+/-- Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
+  $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$ -/
 lemma multidist_ruzsa_I : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. Then
-  $$\sum_{j \in I} d[X_j;X_j] \leq 2 m D[X_I].$$ -/
+/-- Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
+  $$\sum_{j=1}^m d[X_j;X_j] \leq 2 m D[X_{[m]}].$$ -/
 lemma multidist_ruzsa_II : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_I] \leq m d[X_i;X_i]$ for any $i \in I$. -/
+/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_{[m]}] \leq m d[X_i;X_i]$ for any $1 \leq i \leq m$. -/
 lemma multidist_ruzsa_III : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{I}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i \in I} X_i$. Then
+/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i \in I} X_i$. Then
   $$ d[W;-W] \leq 2 D[X_i].$$ -/
 lemma multidist_ruzsa_IV : 0 = 1 := by sorry
 
-/-- If $D[X_I]=0$, then for each $i \in I$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$. -/
+/-- If $D[X_{[m]}]=0$, then for each $i \in I$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$. -/
 lemma multidist_eq_zero : 0 = 1 := by sorry
+
+/-- If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
+  \begin{equation}\label{multi-def-cond}
+  D[ X_{[m]} | Y_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i \big| (\tilde Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \bbH[ \tilde X_i | \tilde Y_i]
+    \end{equation}
+  where $(\tilde X_i,\tilde Y_i)$, $1 \leq i \leq m$ are independent copies of $(X_i,Y_i), 1 \leq i \leq m$ (but note here that we do \emph{not} assume $X_i$ are independent of $Y_i$, or $\tilde X_i$ independent of $\tilde Y_i$). -/
+noncomputable
+def condMultiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) (Y : (i:Fin m) → (Ω i) → G) : ℝ := sorry
+
+@[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
+
+/-- With the above notation, we have
+  \begin{equation}\label{multi-def-cond-alt}
+    D[ X_{[m]} | Y_{[m]} ] = \sum_{(y_i)_{1 \leq i \leq m}} \biggl(\prod_{1 \leq i \leq m} p_{Y_i}(y_i)\biggr) D[ (X_i \,|\, Y_i \mathop{=}y_i)_{1 \leq i \leq m}]
+  \end{equation}
+  where each $y_i$ ranges over the support of $p_{Y_i}$ for $1 \leq i \leq m$. -/
+lemma condMultiDist_eq : 0 = 1 := by sorry
 
 end multiDistance
