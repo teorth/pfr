@@ -70,11 +70,11 @@ $$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X] + \bbH[Y] + \bbH[X] + \bbH[Y] -(\frac{
 Applying all of these estimates, the claim now follows from linear arithmetic.
 \end{proof}
 
-\begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}\lean{kvm_ineq_I}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}\lean{kvm_ineq_I}  If $n \geq 0$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ \bbH[X + \sum_{i=1}^n Y_i] - \bbH[X] \leq \sum_{i=1}^n \bbH[X+Y_i] - \bbH[X].$$
 \end{lemma}
 
-\begin{proof}\uses{kv}  This is trivial for $n=1$ (and also for $n=0$, if one wanted to extend to this case), while the $n=2$ case is Lemma \ref{kv}.  Now suppose inductively that $n > 2$, and the claim was already proven for $n-1$.  By a further application of Lemma \ref{kv} one has
+\begin{proof}\uses{kv}  This is trivial for $n=0,1$, while the $n=2$ case is Lemma \ref{kv}.  Now suppose inductively that $n > 2$, and the claim was already proven for $n-1$.  By a further application of Lemma \ref{kv} one has
 $$  \bbH[X + \sum_{i=1}^n Y_i] -  \bbH[X + \sum_{i=1}^{n-1} Y_i] \leq \bbH[X+Y_n] - \bbH[X].$$
 By induction hypothesis one has
 $$ \bbH[X + \sum_{i=1}^{n-1} Y_i] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - \bbH[X].$$
@@ -109,14 +109,14 @@ Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
   The claim then follows from Lemma \ref{ruz-indep} and some elementary algebra.
 \end{proof}
 
-\begin{lemma}[Comparing sums]\label{compare-sums}\lean{ent_of_sum_le_ent_of_sum}  Let $(X_i)_{1 \leq i \leq m}$ and $(Y_j)_{j \in J}$ be tuples of independent random variables, and let $f: J \to I$ be a function, then
-  $$ \bbH[\sum_{j \in J} Y_j] \leq \bbH[ \sum_{i=1}^m X_i ] + \sum_{j \in J} (\bbH[ Y_j - X_{f(j)}] - \bbH[X_{f(j)}]).$$
+\begin{lemma}[Comparing sums]\label{compare-sums}\lean{ent_of_sum_le_ent_of_sum}  Let $(X_i)_{1 \leq i \leq m}$ and $(Y_j)_{1 \leq j \leq l}$ be tuples of jointly independent random variables (so the $X$'s and $Y$'s are also independent of each other), and let $f: \{1,\dots,l\} \to \{1,\dots,m\}$ be a function, then
+  $$ \bbH[\sum_{j=1}^l Y_j] \leq \bbH[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\bbH[ Y_j - X_{f(j)}] - \bbH[X_{f(j)}]).$$
 \end{lemma}
 
 \begin{proof}\uses{klm-1, kv, neg-ent, sumset-lower}  Write $W := \sum_{i=1}^m X_i$.  From Corollary \ref{sumset-lower} we have
-$$ \bbH[\sum_{j \in J} Y_j]  \leq \bbH[-W + \sum_{j \in J} Y_j]$$
+$$ \bbH[\sum_{j=1}^l Y_j]  \leq \bbH[-W + \sum_{j=1}^l Y_j]$$
 while from Lemma \ref{klm-1} one has
-$$ \bbH[-W + \sum_{j \in J} Y_j] \leq \bbH[-W] + \sum_{j \in J} \bbH[-W + Y_j] - \bbH[-W].$$
+$$ \bbH[-W + \sum_{j=1}^l Y_j] \leq \bbH[-W] + \sum_{j=1}^l \bbH[-W + Y_j] - \bbH[-W].$$
 From Lemma \ref{kv} one has
 $$ \bbH[-W + Y_j] - \bbH[-W] \leq \bbH[-X_{f(j)} + Y_j] - \bbH[-X_{f(j)}].$$
 The claim now follows from Lemma \ref{neg-ent} and some elementary algebra.
@@ -412,7 +412,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
     D[ X_{[m]} \,|\, \pi_{d-1}(X_{[m]}) ] &=  D[ X_{[m]} \,|\, \pi_d(X_{[m]}) ] + D[  \pi_d(X_{[m]})\,|\,\pi_{d-1}(X_{[m]}) ] \\
                                              &\quad + \bbI[ \sum_{i=1}^m X_i : \pi_d(X_{[m]}) \; \big| \; \pi_d\bigl(\sum_{i=1}^m X_i\bigr), \pi_{d-1}(X_{[m]}) ]
   \end{align*}
-  for $d=1,\dots,m-1$. The claim follows by telescoping series, noting that $D[X_{[m]} | \pi_0(X_{[m]})] = D[X_{[m]}]$ and that $\pi_m(X_{[m]})=X_{[m]}$.
+  for $d=1,\dots,m$. The claim follows by telescoping series, noting that $D[X_{[m]} | \pi_0(X_{[m]})] = D[X_{[m]}]$ and that $\pi_m(X_{[m]})=X_{[m]}$ (and also $\pi_m( \sum_i X_i ) = \sum_i X_i$).
   \end{proof}
 
   In our application we will need the following special case of the above lemma.
@@ -705,7 +705,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   \[
     \bbH[W | Z_2] \geq \bbH[W \,|\, Q_1,\dots,Q_{m-1}] = \bbH[Q_m] = \bbH[S].
   \]
-  Hence, by Lemma \ref{ent-w} and the fact that $D[X_{[m]}] = k$,
+  Hence, by Lemma \ref{ent-w},
   \[
     \bbI[W : Z_2] \leq \bbH[W] - \bbH[S] \leq 2 (m-1) k,
   \]

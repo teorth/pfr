@@ -107,9 +107,12 @@ lemma rdist_of_neg_le : d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
 #check ProbabilityTheory.entropy_pair_le_add
 #check ProbabilityTheory.entropy_comp_le
 
+open Classical in
 /--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ H[X + \sum_{i=1}^n Y_i] - H[X] \leq \sum_{i=1}^n H[X+Y_i] - \bbH[X].$$ -/
-lemma kvm_ineq_I : 0 = 1 := by sorry
+lemma kvm_ineq_I {I:Type*} (i₀: I) (s: Finset I) (hs: i₀ ∈ s) (Y: I → Ω → G) (hY: (i:I) → Measurable (Y i))
+                 (hindep: iIndepFun (fun (i:I) => hG) Y μ )
+                : H[ ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in (Finset.erase s i₀), (H[ Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
 
 /--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ d[X; \sum_{i=1}^n Y_i] \leq 2 \sum_{i=1}^n d[X; Y_i].$$
@@ -121,8 +124,9 @@ lemma kvm_ineq_II : 0 = 1 := by sorry
 -/
 lemma kvm_ineq_III : 0 = 1 := by sorry
 
-/-- Let $(X_i)_{i \in I}$ and $(Y_j)_{j \in J}$ be tuples of independent random variables, and let $f: J \to I$ be a function, then
-  $$ H[\sum_{j \in J} Y_j] \leq H[ \sum_{i \in I} X_i ] + \sum_{j \in J} (H[ Y_j - X_{f(j)}] - H[X_{f(j)}]).$$
+/-- Let $(X_i)_{1 \leq i \leq m}$ and $(Y_j)_{1 \leq j \leq l}$ be tuples of jointly independent random variables (so the $X$'s and $Y$'s are also independent of each other), and let $f: \{1,\dots,l\} \to \{1,\dots,m\}$ be a function, then
+  $$ \bbH[\sum_{j=1}^l Y_j] \leq \bbH[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\bbH[ Y_j - X_{f(j)}] - \bbH[X_{f(j)}]).$$
+
 -/
 lemma ent_of_sum_le_ent_of_sum : 0 = 1 := by sorry
 
