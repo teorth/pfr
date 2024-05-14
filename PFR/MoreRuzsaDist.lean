@@ -85,8 +85,27 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [Finite
 
 /--   If $X,Y$ are $G$-valued, then
   $$  d[X ; -Y]  \leq 3 d[X;Y].$$ -/
-lemma rdist_of_neg_le : d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by sorry
+lemma rdist_of_neg_le : d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
 
+  sorry
+  -- have := independent_copies X Y μ μ'
+
+
+
+#check ProbabilityTheory.IdentDistrib.rdist_eq
+#check ProbabilityTheory.independent_copies
+#check ProbabilityTheory.independent_copies'
+#check ProbabilityTheory.independent_copies_two
+#check ProbabilityTheory.independent_copies3_nondep
+#check ProbabilityTheory.condIndep_copies
+#check ProbabilityTheory.entropy_triple_add_entropy_le
+#check ProbabilityTheory.IndepFun.rdist_eq
+#check ProbabilityTheory.entropy_neg
+#check ProbabilityTheory.entropy_comp_of_injective
+#check ProbabilityTheory.entropy_of_comp_eq_of_comp
+#check ProbabilityTheory.entropy_pair_eq_add
+#check ProbabilityTheory.entropy_pair_le_add
+#check ProbabilityTheory.entropy_comp_le
 
 /--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ H[X + \sum_{i=1}^n Y_i] - H[X] \leq \sum_{i=1}^n H[X+Y_i] - \bbH[X].$$ -/
