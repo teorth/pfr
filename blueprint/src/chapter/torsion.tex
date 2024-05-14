@@ -70,7 +70,7 @@ $$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X] + \bbH[Y] + \bbH[X] + \bbH[Y] -(\frac{
 Applying all of these estimates, the claim now follows from linear arithmetic.
 \end{proof}
 
-\begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}\lean{kvm_ineq_I}  If $n \geq 0$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}\lean{kvm_ineq_I}\leanok  If $n \geq 0$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ \bbH[X + \sum_{i=1}^n Y_i] - \bbH[X] \leq \sum_{i=1}^n \bbH[X+Y_i] - \bbH[X].$$
 \end{lemma}
 
@@ -81,7 +81,7 @@ $$ \bbH[X + \sum_{i=1}^{n-1} Y_i] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - 
 Summing the two inequalities, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, II]\label{klm-2}\lean{kvm_ineq_II}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, II]\label{klm-2}\lean{kvm_ineq_II}\leanok  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ d[X; \sum_{i=1}^n Y_i] \leq 2 \sum_{i=1}^n d[X; Y_i].$$
 \end{lemma}
 
@@ -99,7 +99,7 @@ $$ \bbH[Y_i] - \bbH[X] \leq 2 d[X;Y_i].$$
 Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
 \end{proof}
 
-\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, III]\label{klm-3}\lean{kvm_ineq_III}  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
+\begin{lemma}[Kaimonovich--Vershik--Madiman inequality, III]\label{klm-3}\lean{kvm_ineq_III}\leanok  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ d[X; \sum_{i=1}^n Y_i] \leq d[X; Y_1] + \frac{1}{2}(\bbH[ \sum_{i=1}^n Y_i ] - \bbH[Y_1]).$$
 \end{lemma}
 
@@ -136,7 +136,7 @@ $$ \bbH[(X+Y)-aY] \leq \bbH[(X+Y) - X'] + \bbH[X'-aY] - \bbH[X']$$
 which (when combined with Lemma \ref{neg-ent}) gives the second inequality.
 \end{proof}
 
-\begin{lemma}[Sums of dilates II]\label{sum-dilate-II}\lean{nt_of_sub_smul_le}\leanok  Let $X,Y$ be independent $G$-valued random variables, and let $a$ be an integer.  Then
+\begin{lemma}[Sums of dilates II]\label{sum-dilate-II}\lean{ent_of_sub_smul_le}\leanok  Let $X,Y$ be independent $G$-valued random variables, and let $a$ be an integer.  Then
   $$\bbH[X-aY] - \bbH[X] \leq 4 |a| d[X;Y].$$
 \end{lemma}
 
