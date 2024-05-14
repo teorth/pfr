@@ -168,7 +168,7 @@ We continue to let $G$ be an abelian group.
 where the $\tilde X_i$ are independent copies of the $X_i$.
 \end{definition}
 
-\begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}  For any such tuple, we have $D[X_{[m]}] \geq 0$.
+\begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}  For any such tuple, we have $D[X_{[m]}] \geq 0$.
 \end{lemma}
 
 \begin{proof}\uses{sumset-lower}  From Corollary \ref{sumset-lower} one has
@@ -176,13 +176,13 @@ $$ \bbH[\sum_{i =1}^m \tilde X_i] \geq \bbH[\tilde X_i]$$
 for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Relabeling]\label{multidist-perm}\lean{multiDist_of_perm} If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$.
+\begin{lemma}[Relabeling]\label{multidist-perm}\lean{multiDist_of_perm}\uses{multidist-def} If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$.
 \end{lemma}
 
 \begin{proof} Trivial.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, I]\label{multidist-ruzsa-I}\lean{multidist_ruzsa_I}
+\begin{lemma}[Multidistance and Ruzsa distance, I]\label{multidist-ruzsa-I}\lean{multidist_ruzsa_I}\uses{multidist-def}
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
   $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$
 \end{lemma}
@@ -199,7 +199,7 @@ By Lemma \ref{ruz-copy} we may take the $X_i$ to be jointly independent.  From C
   Summing this over all pairs $(j,k)$, $j \neq k$, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}\lean{multidist_ruzsa_II}
+\begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}\lean{multidist_ruzsa_II}\uses{multidist-def}
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
   $$\sum_{j=1}^m d[X_j;X_j] \leq 2 m D[X_{[m]}].$$
 \end{lemma}
@@ -208,7 +208,7 @@ By Lemma \ref{ruz-copy} we may take the $X_i$ to be jointly independent.  From C
 From Lemma \ref{ruzsa-triangle} we have $\dist{X_j}{X_j} \leq 2 \dist{X_j}{-X_k}$, and applying this to every summand in Lemma \ref{multidist-ruzsa-I}, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, III]\label{multidist-ruzsa-III}\lean{multidist_ruzsa_III}
+\begin{lemma}[Multidistance and Ruzsa distance, III]\label{multidist-ruzsa-III}\lean{multidist_ruzsa_III}\uses{multidist-def}
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_{[m]}] \leq m d[X_i;X_i]$ for any $1 \leq i \leq m$.
 \end{lemma}
 
@@ -223,7 +223,7 @@ $$ \bbH[\sum_{i=1}^m X_i] \leq \bbH[-X_0 + \sum_{i=1}^m X_i]$$
 and the claim follows.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, IV]\label{multidist-ruzsa-IV}\lean{multidist_ruzsa_IV}
+\begin{lemma}[Multidistance and Ruzsa distance, IV]\label{multidist-ruzsa-IV}\lean{multidist_ruzsa_IV}\uses{multidist-def}
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i=1}^m X_i$. Then
   $$ d[W;-W] \leq 2 D[X_i].$$
 \end{lemma}
@@ -245,7 +245,7 @@ and the claim follows.
   Averaging this over all choices of $(a,b)$ gives $\bbH[W] + 2 D[X_{[m]}]$, and the claim follows from Lemma \ref{ruz-indep}.
 \end{proof}
 
-\begin{proposition}[Vanishing]\label{multi-zero}\lean{multidist_eq_zero}
+\begin{proposition}[Vanishing]\label{multi-zero}\lean{multidist_eq_zero}\uses{multidist-def}
 If $D[X_{[m]}]=0$, then for each $1 \leq i \leq m$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$.
 \end{proposition}
 
@@ -262,7 +262,7 @@ Fix $m \geq 2$, and a reference variable $X^0$ in $G$.
 We set $\eta := \frac{1}{32m^3}$.
 \end{definition}
 
-\begin{definition}[$\tau$-functional]\label{tau-def-multi}\uses{eta-def-multi}\lean{multiTau}  If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
+\begin{definition}[$\tau$-functional]\label{tau-def-multi}\uses{eta-def-multi}\lean{multiTau}\uses{multidist-def}  If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 \end{definition}
 
