@@ -42,7 +42,7 @@ If $\pi:G\to H$ is a homomorphism of additive groups and $X,Y$ are $G$-valued ra
 
 \begin{proof}
 \uses{fibring-ident, ruzsa-nonneg}\leanok
-By Proposition \ref{fibring-ident} and the nonnegativity of conditional Ruzsa distance (from Lemma \ref{ruzsa-nonneg}) we have
+By \Cref{fibring-ident} and the nonnegativity of conditional Ruzsa distance (from Lemma \ref{ruzsa-nonneg}) we have
 \[d[X;Y]\geq d[\pi(X);\pi(Y)]+d[X\mid \pi(X);Y\mid \pi(Y)].\]
 The inequality follows from $d[X\mid \pi(X);Y\mid \pi(Y)]\geq 0$ (Lemma \ref{ruzsa-nonneg}).
 \end{proof}
@@ -60,7 +60,7 @@ The inequality follows from $d[X\mid \pi(X);Y\mid \pi(Y)]\geq 0$ (Lemma \ref{ruz
 
 \begin{proof}
   \uses{fibring-ident, add-entropy, relabeled-entropy-cond}\leanok
-  We apply Proposition \ref{fibring-ident} with $H := G \times G$, $H' := G$, $\pi$ the addition homomorphism $\pi(x,y) := x+y$, and with the random variables $Z_1 := (Y_1,Y_3)$ and $Z_2 := (Y_2,Y_4)$.  Then by independence (Lemma \ref{add-entropy})
+  We apply \Cref{fibring-ident} with $H := G \times G$, $H' := G$, $\pi$ the addition homomorphism $\pi(x,y) := x+y$, and with the random variables $Z_1 := (Y_1,Y_3)$ and $Z_2 := (Y_2,Y_4)$.  Then by independence (Lemma \ref{add-entropy})
 \[
   d[Z_1; Z_2] = d[Y_1; Y_2] + d[Y_3; Y_4]
 \]

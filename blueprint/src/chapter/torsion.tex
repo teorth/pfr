@@ -272,7 +272,7 @@ $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1
 \begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}\lean{multiTau_min_exists}  If $G$ is finite, then a $\tau$-minimizer exists.
 \end{proposition}
 
-\begin{proof}\uses{tau-def-multi} This is similar to the proof of Proposition \ref{tau-min}.
+\begin{proof}\uses{tau-def-multi} This is similar to the proof of \Cref{tau-min}.
 \end{proof}
 
 \begin{proposition}[Minimizer close to reference variables]\label{tau-ref}\lean{multiTau_min_sum_le}  If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$.
@@ -599,7 +599,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
 \end{proposition}
 
 \begin{proof}\uses{key, data-process}
-  We analyze these variables by Proposition \ref{key} in several different ways.
+  We analyze these variables by \Cref{key} in several different ways.
   In the first application, take $X_{i,j}=Y_{i,j}$.
   Note that each column $(X_{i,j})_{i=1}^m$ is indeed a permutation of $X_1,\dots,X_m$; in fact, the trivial permutation.
   Note also that for each $i \in \Z/m\Z$, the row sum is
@@ -611,7 +611,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
     \sum_{i=1}^m X_{i,j} = \sum_{i \in \Z/m\Z} Y_{i,j} = Q_j.
   \]
   Finally note that $\sum_{i,j=1}^m X_{i,j} = W$.
-  From Proposition \ref{key} we then have
+  From \Cref{key} we then have
   \[
     \bbI[ (P_i)_{i \in \Z/m\Z} : (Q_j)_{j \in \Z/m\Z } \,\big|\, W ] \leq t,
   \]
@@ -621,7 +621,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
     \bbI[ Z_1 : Z_2 \,|\, W ] \leq t.
   \]
 
-  In the second application of Proposition \ref{key}, we instead consider $X'_{i,j} = Y_{i-j,j}$.
+  In the second application of \Cref{key}, we instead consider $X'_{i,j} = Y_{i-j,j}$.
   Again, for each fixed $j$, the tuple $(X'_{i,j})_{i=1}^m$ is a permutation of $X_1,\dots,X_m$.
   This time the row sums for $i \in \{1,\dots, m\}$ are
   \[
@@ -632,18 +632,18 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
     \sum_{i=1}^m X'_{i,j} = \sum_{i \in \Z/m\Z} Y_{i-j,j} = Q_j.
   \]
   As before, $\sum_{i,j=1}^m X'_{i,j} = W$.
-  Hence, using~\eqref{eq:is-fn} and Lemma \ref{data-process} again, Proposition \ref{key} tells us
+  Hence, using~\eqref{eq:is-fn} and Lemma \ref{data-process} again, \Cref{key} tells us
   \[
     \bbI[ Z_3 :  Z_2 \,|\, W] \leq \bbI[ (R_i)_{i \in \Z/m\Z} : (Q_j)_{j \in \Z/m\Z } \,\big|\, W ] \leq t.
   \]
 
-  In the third application\footnote{In fact, by permuting the variables $(Y_{i,j})_{i,j \in \Z/m\Z}$, one can see that the random variables $(W, Z_1, Z_2)$ and $(W, Z_1, Z_3)$ have the same distribution, so this is in some sense identical to -- and can be deduced from -- the first application.} of Proposition \ref{key}, take $X''_{i,j} = Y_{i,j-i}$.
+  In the third application\footnote{In fact, by permuting the variables $(Y_{i,j})_{i,j \in \Z/m\Z}$, one can see that the random variables $(W, Z_1, Z_2)$ and $(W, Z_1, Z_3)$ have the same distribution, so this is in some sense identical to -- and can be deduced from -- the first application.} of \Cref{key}, take $X''_{i,j} = Y_{i,j-i}$.
   The column and row sums are respectively
   \[
     \sum_{j=1}^m X''_{i,j} = \sum_{j \in \Z/m\Z} Y_{i,j-i} = P_i \] and
 \[     \sum_{i=1}^m X''_{i,j} = \sum_{i \in \Z/m\Z} Y_{i,j-i} = R_{-j}.
   \]
-  Hence, Proposition \ref{key} and Lemma \ref{data-process} give
+  Hence, \Cref{key} and Lemma \ref{data-process} give
   \[
     \bbI[ Z_1 : Z_3 \,|\, W] \leq \bbI[ (P_i)_{i \in \Z/m\Z} : (R_j)_{j \in \Z/m\Z } \,\big|\, W ] \leq t,
   \]
@@ -800,7 +800,7 @@ Finally, applying Lemma \ref{multidist-ruzsa-II} (and dropping some lower order 
     \delta_\ast := \sum_w p_W(w) \delta_w &= \bbI[Z_1 : Z_2 \,|\, W] + \bbI[Z_1 : Z_3 \,|\, W] + \bbI[Z_2 : Z_3 \,|\, W] \\
                            & \leq 12 m^2 \eta k
   \end{align}
-  by Proposition \ref{prop:52}.
+  by \Cref{prop:52}.
   Write $U_w$ for the random variable guaranteed to exist by Lemma \ref{lem:get-better},
   so that~\eqref{eq:get-better} gives \begin{equation}
     \label{eq:uw1}
@@ -837,7 +837,7 @@ Finally, applying Lemma \ref{multidist-ruzsa-II} (and dropping some lower order 
 \begin{theorem}[Entropy form of PFR]\label{main-entropy} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
 
-\begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By Proposition \ref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By Proposition \ref{k-vanish}, we have $D[X_{[m]}]=0$. By Proposition \ref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By Proposition \ref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by Lemma \ref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from Definition \ref{eta-def-multi}.
+\begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by Lemma \ref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from Definition \ref{eta-def-multi}.
 \end{proof}
 
 \begin{lemma}\label{pfr_aux_torsion}  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
