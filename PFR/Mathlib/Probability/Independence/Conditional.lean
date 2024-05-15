@@ -124,7 +124,7 @@ variable {Ω : Type*} {α β : Type u} [MeasurableSpace Ω] [MeasurableSpace α]
 
 open Function Set Measure
 
-/-- For $X, Y$ random variables, there exist conditionally independent trials $X_1, X_2, Y'$. -/
+/-- For `X, Y` random variables, there exist conditionally independent trials `X_1, X_2, Y'`. -/
 lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY : Measurable Y)
     (μ : Measure Ω) [IsProbabilityMeasure μ] :
     ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
