@@ -82,7 +82,7 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
--- PRd to Mathlib, see #12918. When it gets merged and bumped remove these lines.
+-- Mathlib PR #12918 has been merged.
 @[to_additive]
 lemma ProbabilityTheory.IdentDistrib.inv {α : Type*} {β : Type*} {γ : Type*}
     [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ] {μ : Measure α} {ν : Measure β}
