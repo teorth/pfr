@@ -29,7 +29,7 @@ thanks to \Cref{relabeled-entropy} and \Cref{chain-rule}, giving the claim.
 on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X :Y |Z]$.
 \end{lemma}
 
-\begin{proof}\uses{data-process-unc, conditional-mutual-def}  Apply \Cref{data-process-unc} to $X,Y$ conditioned to the event $Z=z$, multiply by ${\bf P}[Z=z]$, and sum using Definition \ref{conditional-mutual-def}.
+\begin{proof}\uses{data-process-unc, conditional-mutual-def}  Apply \Cref{data-process-unc} to $X,Y$ conditioned to the event $Z=z$, multiply by ${\bf P}[Z=z]$, and sum using \Cref{conditional-mutual-def}.
 \end{proof}
 
 \subsection{More Ruzsa distance estimates}
@@ -278,9 +278,9 @@ $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1
 \begin{proposition}[Minimizer close to reference variables]\label{tau-ref}\lean{multiTau_min_sum_le}  If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$.
 \end{proposition}
 
-\begin{proof}\uses{tau-min-multi, multidist-nonneg, multidist-ruzsa-III}  By Definition \ref{tau-min-multi} we have
+\begin{proof}\uses{tau-min-multi, multidist-nonneg, multidist-ruzsa-III}  By \Cref{tau-min-multi} we have
   $$ \tau[ (X_i)_{1 \leq i \leq m}] \leq \tau[ (X^0)_{1 \leq i \leq m}]$$
-and hence by Definition \ref{tau-def-multi} and \Cref{multidist-nonneg}
+and hence by \Cref{tau-def-multi} and \Cref{multidist-nonneg}
 $$ \eta \sum_{i=1}^m d[X_i; X^0] \leq D[(X^0)_{1 \leq i \leq m}] + m d[X^0; X^0].$$
 The claim now follows from \Cref{multidist-ruzsa-III}.
 \end{proof}
@@ -290,9 +290,9 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
 \end{lemma}
 
 \begin{proof}\uses{tau-min-multi, ruzsa-triangle}
-  By Definition \ref{tau-min-multi} we have
+  By \Cref{tau-min-multi} we have
   $$ \tau[ (X_i)_{1 \leq i \leq m}] \leq \tau[ (X'_i)_{1 \leq i \leq m}]$$
-  and hence by Definition \ref{tau-def-multi}
+  and hence by \Cref{tau-def-multi}
   $$ k + \eta \sum_{i=1}^m d[X_i; X^0] \leq D[(X'_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X'_i; X^0].$$
   On the other hand, by \Cref{ruzsa-triangle} we have
   $$ d[X'_i; X^0] \leq d[X_i; X^0] + d[X_i; X'_i].$$
@@ -314,7 +314,7 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
 \end{lemma}
 
 \begin{proof}\uses{conditional-entropy-def, multidist-def, cond-multidist-def}
-  This is routine from Definition \ref{conditional-entropy-def} and Definitions \ref{multidist-def} and \ref{cond-multidist-def}.
+  This is routine from \Cref{conditional-entropy-def} and Definitions \ref{multidist-def} and \ref{cond-multidist-def}.
 \end{proof}
 
 \begin{lemma}[Lower bound on conditional multidistance]\label{cond-multidist-lower}\lean{sub_condMultiDistance_le}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
@@ -322,7 +322,7 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
 \end{lemma}
 
 \begin{proof}\uses{multidist-lower, cond-multidist-def, cond-multidist-alt}
-  Immediate from \Cref{multidist-lower}, \Cref{cond-multidist-alt}, and Definition \ref{cond-dist-def}.
+  Immediate from \Cref{multidist-lower}, \Cref{cond-multidist-alt}, and \Cref{cond-dist-def}.
 \end{proof}
 
 \begin{corollary}[Lower bound on conditional multidistance, II]\label{cond-multidist-lower-II}\lean{sub_condMultiDistance_le'} With the notation of the previous lemma, we have
@@ -362,7 +362,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
   \begin{equation}\label{chain-2}
     \bbH[X_i] = \bbH[X_i \, | \, \pi(X_i)] + \bbH[\pi(X_i)]
   \end{equation}
-  for all $1 \leq i \leq m$.  Averaging~\eqref{chain-2} in $i$ and subtracting this from~\eqref{chain-1}, we obtain the claim from Definition \ref{multidist-def}.
+  for all $1 \leq i \leq m$.  Averaging~\eqref{chain-2} in $i$ and subtracting this from~\eqref{chain-1}, we obtain the claim from \Cref{multidist-def}.
   \end{proof}
 
   We will need to iterate the multidistance chain rule, so it is convenient to observe a conditional version of this rule, as follows.
@@ -668,7 +668,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   \[
     \bbH[W] \leq 2 k (m-1) + \bbH[S].
   \]
-  From Definition \ref{multidist-def} we have
+  From \Cref{multidist-def} we have
   \begin{equation}
     \label{eq:ent-s}
     \bbH[S] = k + \frac1m \sum_{i=1}^m \bbH[X_i],
@@ -827,7 +827,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
   \[
     12 m^3 (2+\frac{\eta}{2}) \eta k + \eta 8(m^3-m^2) k \geq k.
   \]
-  From Definition \ref{eta-def-multi} we have we have
+  From \Cref{eta-def-multi} we have we have
   $$ 12 m^3 (2+\frac{\eta}{2}) \eta + \eta 8(m^3-m^2) < 1$$
   and hence $k \leq 0$.  The claim now follows from \Cref{multidist-nonneg}.
 \end{proof}
@@ -837,7 +837,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \begin{theorem}[Entropy form of PFR]\label{main-entropy} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
 
-\begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from Definition \ref{eta-def-multi}.
+\begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from \Cref{eta-def-multi}.
 \end{proof}
 
 \begin{lemma}\label{pfr_aux_torsion}  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and

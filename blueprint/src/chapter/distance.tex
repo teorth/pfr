@@ -64,7 +64,7 @@ One random variable is said to be a copy of another if they have the same distri
   If $X'$ is a copy of $X$ then $\bbH[X'] = \bbH[X]$.
 \end{lemma}
 
-\begin{proof}\leanok Immediate from Definition \ref{entropy-def}.
+\begin{proof}\leanok Immediate from \Cref{entropy-def}.
 \end{proof}
 
 \begin{lemma}[Existence of independent copies]\label{independent-exist}
@@ -112,7 +112,7 @@ This is an immediate consequence of the definitions and $X-0\equiv X$ and $\math
   $$ d[X ;Y] := \bbH[X - Y] - \bbH[X]/2 - \bbH[Y]/2.$$
 \end{lemma}
 
-\begin{proof} \uses{relabeled-entropy, copy-ent}\leanok Immediate from Definition \ref{ruz-dist-def} and Lemmas \ref{relabeled-entropy}, \ref{copy-ent}.
+\begin{proof} \uses{relabeled-entropy, copy-ent}\leanok Immediate from \Cref{ruz-dist-def} and Lemmas \ref{relabeled-entropy}, \ref{copy-ent}.
 \end{proof}
 
 \begin{lemma}[Distance symmetric]\label{ruzsa-symm}
@@ -122,7 +122,7 @@ This is an immediate consequence of the definitions and $X-0\equiv X$ and $\math
   $$ d[X ;Y] = d[Y;X].$$
 \end{lemma}
 
-\begin{proof} \uses{neg-ent}\leanok Immediate from \Cref{neg-ent} and Definition \ref{ruz-dist-def}.
+\begin{proof} \uses{neg-ent}\leanok Immediate from \Cref{neg-ent} and \Cref{ruz-dist-def}.
 \end{proof}
 
 \begin{lemma}[Distance controls entropy difference]\label{ruzsa-diff}
@@ -132,7 +132,7 @@ This is an immediate consequence of the definitions and $X-0\equiv X$ and $\math
 $$|\bbH[X]-H[Y]| \leq 2 d[X ;Y].$$
 \end{lemma}
 
-\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from \Cref{sumset-lower} and Definition \ref{ruz-dist-def}, and also \Cref{neg-ent}.
+\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from \Cref{sumset-lower} and \Cref{ruz-dist-def}, and also \Cref{neg-ent}.
 \end{proof}
 
 \begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}
@@ -142,7 +142,7 @@ $$|\bbH[X]-H[Y]| \leq 2 d[X ;Y].$$
 $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X ;Y].$$
 \end{lemma}
 
-\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from \Cref{sumset-lower} and Definition \ref{ruz-dist-def}, and also \Cref{neg-ent}.
+\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from \Cref{sumset-lower} and \Cref{ruz-dist-def}, and also \Cref{neg-ent}.
 \end{proof}
 
 \begin{lemma}[Distance nonnegative]\label{ruzsa-nonneg}
@@ -207,7 +207,7 @@ This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ ar
 $$ d[X ;Y] \leq d[X ;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved}\leanok By \Cref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from \Cref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
+\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved}\leanok By \Cref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from \Cref{ruzsa-triangle-improved} and \Cref{ruz-dist-def}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
@@ -227,7 +227,7 @@ and similarly
 $$  d[X ;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \end{lemma}
 
-\begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def}\leanok Straightforward thanks to \Cref{copy-ent}, \Cref{ruz-copy}, \Cref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
+\begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def}\leanok Straightforward thanks to \Cref{copy-ent}, \Cref{ruz-copy}, \Cref{ruz-indep}, \Cref{cond-dist-def}, \Cref{conditional-entropy-def}.
 \end{proof}
 
 \begin{lemma}[Kaimanovich-Vershik-Madiman inequality]\label{kv}
@@ -247,7 +247,7 @@ However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we h
 \begin{lemma}[Existence of conditional independent trials]\label{cond-indep-exist}
   \uses{conditional-independent-def}
   \lean{ProbabilityTheory.condIndep_copies}\leanok
-  For $X,Y$ random variables, there exist random variables $X_1,X_2,Y'$ on a common probability space with $(X_1, Y'), (X_2, Y')$ both having the distribution of $(X,Y)$, and $X_1, X_2$ conditionally independent over $Y'$ in the sense of Definition \ref{conditional-independent-def}.
+  For $X,Y$ random variables, there exist random variables $X_1,X_2,Y'$ on a common probability space with $(X_1, Y'), (X_2, Y')$ both having the distribution of $(X,Y)$, and $X_1, X_2$ conditionally independent over $Y'$ in the sense of \Cref{conditional-independent-def}.
 \end{lemma}
 
 \begin{proof}\leanok Explicit construction.
@@ -312,7 +312,7 @@ Using \Cref{cond-dist-alt} and \Cref{independent-exist}, if $(X',Z'), (Y',W')$ a
                        &\le \bbH[X'-Y']- \tfrac{1}{2} \bbH[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
                        &= d[X';Y'] + \tfrac{1}{2}  \bbI[X' : Z'] + \tfrac{1}{2}  \bbI[Y' : W'].
 \end{align*}
-Here, in the middle step we used \Cref{cond-reduce}, and in the last step we used Definition \ref{ruz-dist-def} and Definition \ref{information-def}.
+Here, in the middle step we used \Cref{cond-reduce}, and in the last step we used \Cref{ruz-dist-def} and \Cref{information-def}.
 \end{proof}
 
 \begin{lemma}[Comparison of Ruzsa distances, I]\label{first-useful}
@@ -332,7 +332,7 @@ Here, in the middle step we used \Cref{cond-reduce}, and in the last step we use
   \begin{align*}  d[X ;Y+ Z] & - d[X ;Y] \\ & = \bbH[X + Y + Z] - \bbH[X + Y] - \tfrac{1}{2}\bbH[Y + Z] + \tfrac{1}{2} \bbH[Y].\end{align*}
   Combining this with \Cref{kv} gives the required bound. The second form of the result is immediate \Cref{ruz-indep}.
 
-  Turning to~\eqref{ruzsa-3}, we have from Definition \ref{information-def} and \Cref{relabeled-entropy}
+  Turning to~\eqref{ruzsa-3}, we have from \Cref{information-def} and \Cref{relabeled-entropy}
   \begin{align*}  \bbI[Y : Y+ Z] & = \bbH[Y] + \bbH[Y + Z] - \bbH[Y, Y + Z] \\ & = \bbH[Y] + \bbH[Y + Z] - \bbH[Y, Z]  = \bbH[Y + Z] - \bbH[Z],\end{align*}
   and so~\eqref{ruzsa-3} is a consequence of \Cref{cond-dist-fact}. Once again the second form of the result is immediate from \Cref{ruz-indep}.
 \end{proof}

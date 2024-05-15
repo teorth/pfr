@@ -120,7 +120,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{proof}
   \uses{relabeled-entropy}\leanok
-  For the first part, use Definition \ref{conditional-entropy-def} and then \Cref{relabeled-entropy}.  The second part is a direct computation.
+  For the first part, use \Cref{conditional-entropy-def} and then \Cref{relabeled-entropy}.  The second part is a direct computation.
 \end{proof}
 
 
@@ -286,7 +286,7 @@ If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] \ge 0$.
 \begin{proof}
 \uses{submodularity}
 \leanok
-Use Definition \ref{conditional-mutual-def} and \Cref{submodularity}.
+Use \Cref{conditional-mutual-def} and \Cref{submodularity}.
 \end{proof}
 
 \begin{definition}[Conditionally independent random variables]
@@ -301,7 +301,7 @@ Use Definition \ref{conditional-mutual-def} and \Cref{submodularity}.
   If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
 \end{lemma}
 
-\begin{proof} \uses{vanish-entropy, conditional-independent-def}\leanok Immediate from \Cref{vanish-entropy} and Definition \ref{conditional-independent-def}.
+\begin{proof} \uses{vanish-entropy, conditional-independent-def}\leanok Immediate from \Cref{vanish-entropy} and \Cref{conditional-independent-def}.
 \end{proof}
 
 \begin{corollary}[Entropy of conditionally independent variables]\label{cond-trial-ent}

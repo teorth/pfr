@@ -54,7 +54,7 @@ $$ d[X'_1;X'_2] \geq k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'
 
 \begin{proof}
   \uses{tau-def, tau-min}\leanok
-  Immediate from Definition \ref{tau-def} and Definition \ref{tau-min}.
+  Immediate from \Cref{tau-def} and \Cref{tau-min}.
 \end{proof}
 
 \begin{lemma}[Conditional distance lower bound]\label{cond-distance-lower}
@@ -407,8 +407,8 @@ Putting this together with \Cref{uvw-s} and \Cref{total-dist}, we conclude that
   &= (8\eta + \eta^2) k - \biggl( \frac{1 - 5 \eta}{1-\eta}\Bigl(1 + \frac{\eta}{3}\Bigr) -  \eta \biggr)(2 \eta k - I_1)\\
   &\leq (8 \eta + \eta^2) k
  \end{align*}
-since the quantity $2 \eta k - I_1$ is non-negative (by \Cref{first-estimate}), and its coefficient in the above expression is non-positive provided that $\eta(2\eta + 17) \le 3$, which is certainly the case with Definition \ref{eta-def}.
-Moreover, from Definition \ref{eta-def} we have $8 \eta + \eta^2 < 1$. It follows that $k=0$, as desired.
+since the quantity $2 \eta k - I_1$ is non-negative (by \Cref{first-estimate}), and its coefficient in the above expression is non-positive provided that $\eta(2\eta + 17) \le 3$, which is certainly the case with \Cref{eta-def}.
+Moreover, from \Cref{eta-def} we have $8 \eta + \eta^2 < 1$. It follows that $k=0$, as desired.
 \end{proof}
 
 
