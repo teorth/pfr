@@ -8,7 +8,7 @@ The arguments here are due to Jyun-Jie Liao.
 Previously in Definition \ref{eta-def} we had set $\eta=1/9$.  To implement
 this chapter, one should refactor the previous arguments so that $\eta$ is
 now free to be a positive number, though the specific hypothesis $\eta=1/9$
-would now need to be added to Theorem \ref{de-prop}.
+would now need to be added to \Cref{de-prop}.
 
 Let $X^0_1, X^0_2$ be $G$-valued random variables, and let $X_1, X_2$ be $\tau$-minimizers as defined in Definition \ref{tau-min-def}.
 
@@ -205,7 +205,7 @@ tau-minimizers for $1/8$ satisfying additionally $d[X_1;X_2] = 0$.
 \end{theorem}
 
 \begin{proof} \uses{de-prop-lim-improv, lem:100pc, ruzsa-triangle}\leanok
-Let $X_1, X_2$ be the good $\tau$-minimizer from Theorem \ref{de-prop-lim-improv}. By construction, $d[X_1;X_2]=0$.
+Let $X_1, X_2$ be the good $\tau$-minimizer from \Cref{de-prop-lim-improv}. By construction, $d[X_1;X_2]=0$.
 From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_2;X^0_1]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}
 
@@ -220,7 +220,7 @@ $$
 \end{lemma}
 
 \begin{proof}\uses{entropy-pfr-improv, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}\leanok
-By repeating the proof of Lemma~\ref{pfr_aux} and using Theorem \ref{entropy-pfr-improv} one can obtain the claim with $13/2$
+By repeating the proof of Lemma~\ref{pfr_aux} and using \Cref{entropy-pfr-improv} one can obtain the claim with $13/2$
 replaced with $6$ and $11$ replaced by $10$.
 \end{proof}
 
@@ -231,7 +231,7 @@ This implies the following improved version of Theorem~\ref{pfr}:
 \end{theorem}
 
 \begin{proof}\uses{pfr_aux-improv}\leanok
-By repeating the proof of Theorem \ref{pfr} and using \Cref{pfr_aux-improv} one can obtain the claim with $11$ replaced by $10$.
+By repeating the proof of \Cref{pfr} and using \Cref{pfr_aux-improv} one can obtain the claim with $11$ replaced by $10$.
 \end{proof}
 
-Of course, by replacing Theorem \ref{pfr} with Theorem \ref{pfr-improv} we may also improve constants in downstream theorems in a straightforward manner.
+Of course, by replacing \Cref{pfr} with \Cref{pfr-improv} we may also improve constants in downstream theorems in a straightforward manner.

@@ -60,7 +60,7 @@ where $\psi:G\to G/H$ is the natural projection homomorphism.
 \end{lemma}
 \begin{proof}
 \uses{entropy-pfr-improv, ruzsa-diff, dist-projection, ruzsa-nonneg}\leanok
-By Theorem \ref{entropy-pfr-improv} there exists a subgroup $H$ such that
+By \Cref{entropy-pfr-improv} there exists a subgroup $H$ such that
 $d[X;U_H] + d[Y;U_H] \leq 10 d[X;Y]$. Using \Cref{dist-projection} we
 deduce that $\mathbb{H}(\psi(X)) + \mathbb{H}(\psi(X)) \leq 20 d[X;Y]$. The
 second claim follows adding these inequalities and using the assumption on
@@ -207,7 +207,7 @@ and $\dim A'\leq \frac{40}{\log 2} \log K$.
 \end{theorem}
 \begin{proof}
 \uses{weak-pfr-asymm,dimension-def}\leanok
-Immediate from Theorem \ref{weak-pfr-asymm} and rearranging.
+Immediate from \Cref{weak-pfr-asymm} and rearranging.
 \end{proof}
 
 \begin{theorem}\label{weak-pfr-int}\lean{weak_PFR_int}\leanok
@@ -217,5 +217,5 @@ A\rvert$ and $\dim A' \leq \frac{40}{\log 2}\log K$.
 \end{theorem}
 \begin{proof}\leanok
 \uses{weak-pfr-symm,dimension-def}
-As in the beginning of Theorem \ref{pfr} the doubling condition forces $d[U_A;U_A]\leq \log K$, and then we apply Theorem \ref{weak-pfr-symm}.
+As in the beginning of \Cref{pfr} the doubling condition forces $d[U_A;U_A]\leq \log K$, and then we apply \Cref{weak-pfr-symm}.
 \end{proof}
