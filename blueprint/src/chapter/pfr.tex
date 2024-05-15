@@ -23,23 +23,23 @@ Cover $A$ greedily by disjoint translates of $B$.
 
 \begin{proof}
 \uses{entropy-pfr, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}\leanok
-  Let $U_A$ be the uniform distribution on $A$ (which exists by Lemma \ref{unif-exist}), thus $\bbH[U_A] = \log |A|$ by Lemma \ref{uniform-entropy-II}. By Lemma \ref{jensen-bound} and the fact that $U_A + U_A$ is supported on $A + A$, $\bbH[U_A + U_A] \leq \log|A+A|$. By Definition \ref{ruz-dist-def}, the doubling condition $|A+A| \leq K|A|$ therefore gives
+  Let $U_A$ be the uniform distribution on $A$ (which exists by \Cref{unif-exist}), thus $\bbH[U_A] = \log |A|$ by \Cref{uniform-entropy-II}. By \Cref{jensen-bound} and the fact that $U_A + U_A$ is supported on $A + A$, $\bbH[U_A + U_A] \leq \log|A+A|$. By Definition \ref{ruz-dist-def}, the doubling condition $|A+A| \leq K|A|$ therefore gives
   \[d[U_A;U_A] \leq \log K.\]
   By Theorem \ref{entropy-pfr}, we may thus find a subspace $H$ of $\F_2^n$ such that
   \begin{equation}\label{uauh} d[U_A;U_H] \leq \tfrac{1}{2} C' \log K\end{equation}
   with $C' = 11$.
-  By Lemma \ref{ruzsa-diff} we conclude that
+  By \Cref{ruzsa-diff} we conclude that
   \begin{equation*}
     |\log |H| - \log |A|| \leq C' \log K,
   \end{equation*}
   proving~\eqref{ah}.
   From Definition \ref{ruz-dist-def},~\eqref{uauh} is equivalent to
   \[\bbH[U_A - U_H] \leq \log( |A|^{1/2} |H|^{1/2}) + \tfrac{1}{2} C' \log K.\]
-  By Lemma \ref{bound-conc} we conclude the existence of a point $x_0 \in \F_p^n$ such that
+  By \Cref{bound-conc} we conclude the existence of a point $x_0 \in \F_p^n$ such that
   \[p_{U_A-U_H}(x_0) \geq |A|^{-1/2} |H|^{-1/2} K^{-C'/2},\]
   or equivalently
   \[|A \cap (H + x_0)| \geq K^{-C'/2} |A|^{1/2} |H|^{1/2}.\]
-  Applying Lemma \ref{ruz-cov}, we may thus cover $A$ by at most
+  Applying \Cref{ruz-cov}, we may thus cover $A$ by at most
   \[\frac{|A + (A \cap (H+x_0))|}{|A \cap (H + x_0)|} \leq \frac{K|A|}{K^{-C'/2} |A|^{1/2} |H|^{1/2}} = K^{C'/2+1} \frac{|A|^{1/2}}{|H|^{1/2}}\]
   translates of
   \[\bigl(A \cap (H + x_0)\bigr) - \bigl(A \cap (H + x_0)\bigr) \subseteq H.\]

@@ -8,7 +8,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 \end{lemma}
 
 \begin{proof}
-  \uses{relabeled-entropy}\leanok Immediate from Lemma \ref{relabeled-entropy}.
+  \uses{relabeled-entropy}\leanok Immediate from \Cref{relabeled-entropy}.
 \end{proof}
 
 \begin{lemma}[Shearing preserves entropy]\label{shear-ent}
@@ -17,7 +17,7 @@ In this section $G$ will be a finite additive group.  (May eventually want to ge
 \end{lemma}
 
 \begin{proof}
-  \uses{relabeled-entropy-cond,chain-rule}\leanok Immediate from Lemma \ref{relabeled-entropy-cond} and Lemma \ref{chain-rule}.
+  \uses{relabeled-entropy-cond,chain-rule}\leanok Immediate from \Cref{relabeled-entropy-cond} and \Cref{chain-rule}.
 \end{proof}
 
 \begin{lemma}[Lower bound of sumset]\label{sumset-lower-gen}
@@ -27,7 +27,7 @@ $$ \max(\bbH[X], \bbH[Y]) -  \bbI[X:Y] \leq \bbH[X \pm Y].$$
 \end{lemma}
 
 \begin{proof}\uses{cond-reduce, alternative-mutual, shear-ent, neg-ent} \leanok
-    By Lemma \ref{cond-reduce}, \ref{shear-ent}, \ref{alternative-mutual}, \ref{neg-ent} we have
+    By \Cref{cond-reduce}, \ref{shear-ent}, \ref{alternative-mutual}, \ref{neg-ent} we have
 $$
  \bbH[X\pm Y] \geq \bbH[X\pm Y|Y] = \bbH[X|Y]= \bbH[X] -  \bbI[X:Y]
 $$
@@ -43,7 +43,7 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 \]
 \end{corollary}
 
-\begin{proof} \uses{sumset-lower-gen}\leanok This follows from Lemma \ref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $ \bbP[Z=z]$).
+\begin{proof} \uses{sumset-lower-gen}\leanok This follows from \Cref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $ \bbP[Z=z]$).
 \end{proof}
 
 \begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}
@@ -53,7 +53,7 @@ $$\max(\bbH[X], \bbH[Y]) \leq \bbH[X\pm Y].
 $$
 \end{corollary}
 
-\begin{proof} \uses{sumset-lower-gen, vanish-entropy}\leanok Combine Lemma \ref{sumset-lower-gen} with Lemma \ref{vanish-entropy}.
+\begin{proof} \uses{sumset-lower-gen, vanish-entropy}\leanok Combine \Cref{sumset-lower-gen} with \Cref{vanish-entropy}.
 \end{proof}
 
 One random variable is said to be a copy of another if they have the same distribution.
@@ -82,7 +82,7 @@ One random variable is said to be a copy of another if they have the same distri
   \lean{rdist_def}\leanok
   Let $X,Y$ be $G$-valued random variables (not necessarily on the same sample space).  The \emph{Ruzsa distance} $d[X ;Y]$ between $X$ and $Y$ is defined to be
 $$ d[X ;Y] := \bbH[X' - Y'] - \bbH[X']/2 - \bbH[Y']/2$$
-where $X',Y'$ are (the canonical) independent copies of $X,Y$ from Lemma \ref{independent-exist}.
+where $X',Y'$ are (the canonical) independent copies of $X,Y$ from \Cref{independent-exist}.
 \end{definition}
 
 
@@ -102,7 +102,7 @@ This is an immediate consequence of the definitions and $X-0\equiv X$ and $\math
   If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X ;Y]$.
 \end{lemma}
 
-\begin{proof} \uses{copy-ent}\leanok Immediate from Definitions \ref{ruz-dist-def} and Lemma \ref{copy-ent}.
+\begin{proof} \uses{copy-ent}\leanok Immediate from Definitions \ref{ruz-dist-def} and \Cref{copy-ent}.
 \end{proof}
 
 \begin{lemma}[Ruzsa distance in independent case]\label{ruz-indep}
@@ -122,7 +122,7 @@ This is an immediate consequence of the definitions and $X-0\equiv X$ and $\math
   $$ d[X ;Y] = d[Y;X].$$
 \end{lemma}
 
-\begin{proof} \uses{neg-ent}\leanok Immediate from Lemma \ref{neg-ent} and Definition \ref{ruz-dist-def}.
+\begin{proof} \uses{neg-ent}\leanok Immediate from \Cref{neg-ent} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
 \begin{lemma}[Distance controls entropy difference]\label{ruzsa-diff}
@@ -132,7 +132,7 @@ This is an immediate consequence of the definitions and $X-0\equiv X$ and $\math
 $$|\bbH[X]-H[Y]| \leq 2 d[X ;Y].$$
 \end{lemma}
 
-\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
+\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from \Cref{sumset-lower} and Definition \ref{ruz-dist-def}, and also \Cref{neg-ent}.
 \end{proof}
 
 \begin{lemma}[Distance controls entropy growth]\label{ruzsa-growth}
@@ -142,7 +142,7 @@ $$|\bbH[X]-H[Y]| \leq 2 d[X ;Y].$$
 $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X ;Y].$$
 \end{lemma}
 
-\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from Lemma \ref{sumset-lower} and Definition \ref{ruz-dist-def}, and also Lemma \ref{neg-ent}.
+\begin{proof} \uses{sumset-lower, neg-ent} \leanok Immediate from \Cref{sumset-lower} and Definition \ref{ruz-dist-def}, and also \Cref{neg-ent}.
 \end{proof}
 
 \begin{lemma}[Distance nonnegative]\label{ruzsa-nonneg}
@@ -154,7 +154,7 @@ $$  \bbH[X-Y] - \bbH[X], \bbH[X-Y] - \bbH[Y] \leq 2d[X ;Y].$$
 \begin{proof}
   \uses{ruzsa-diff}
   \leanok
-  Immediate from Lemma \ref{ruzsa-diff}.
+  Immediate from \Cref{ruzsa-diff}.
 \end{proof}
 
 
@@ -164,17 +164,17 @@ If $G$ is an additive group and $X$ is a $G$-valued random variable and $H\leq G
 \end{lemma}
 \begin{proof}
 \uses{independent-exist, ruzsa-diff, chain-rule, shear-ent, submodularity, jensen-bound}\leanok
-WLOG, we make $X$, $U_H$ independent (Lemma \ref{independent-exist}).
+WLOG, we make $X$, $U_H$ independent (\Cref{independent-exist}).
 Now by Lemmas \ref{submodularity}, \ref{shear-ent}, \ref{jensen-bound}
 \begin{align*}
 &\mathbb{H}(X-U_H|\pi(X)) \geq \mathbb{H}(X-U_H|X) &= \mathbb{H}(U_H) \\
 &\mathbb{H}(X-U_H|\pi(X)) \leq \log |H| &= \mathbb{H}(U_H)
 \end{align*}
-By Lemma \ref{chain-rule}
+By \Cref{chain-rule}
 \[\mathbb{H}(X-U_H)=\mathbb{H}(\pi(X))+\mathbb{H}(X-U_H|\pi(X))=\mathbb{H}(\pi(X))+\mathbb{H}(U_H)\]
 and therefore
 \[d[X;U_H]=\mathbb{H}(\pi(X))+\frac{\mathbb{H}(U_H)-\mathbb{H}(X)}{2}.\]
-Furthermore by Lemma \ref{ruzsa-diff}
+Furthermore by \Cref{ruzsa-diff}
 \[d[X;U_H]\geq \frac{\lvert \mathbb{H}(X)-\mathbb{H}(U_H)\rvert}{2}.\]
 Adding these inequalities gives the result.
 \end{proof}
@@ -192,11 +192,11 @@ This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ ar
   \[\bbH[X - Z, X - Y] + \bbH[Y, X - Y] \geq \bbH[X - Z, Y, X - Y] + \bbH[X - Y].\]
   Using
   \[\bbH[X - Z, X - Y] \leq \bbH[X - Z] + \bbH[Y - Z]\]
-  (from Lemma \ref{relabeled-entropy}, Lemma \ref{subadditive}),
+  (from \Cref{relabeled-entropy}, \Cref{subadditive}),
   \[\bbH[Y, X - Y] = \bbH[X, Y] \]
-  (from Lemma \ref{relabeled-entropy}), and
+  (from \Cref{relabeled-entropy}), and
   \[\bbH[X - Z, Y, X - Y] = \bbH[X, Y, Z] = \bbH[X, Y] + \bbH[Z]\]
-  (from Lemma \ref{relabeled-entropy} and Lemma \ref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
+  (from \Cref{relabeled-entropy} and \Cref{add-entropy}) and rearranging, we indeed obtain~\eqref{submod-explicit}.
 \end{proof}
 
 \begin{lemma}[Ruzsa triangle inequality]
@@ -207,7 +207,7 @@ This is an improvement over the usual Ruzsa triangle inequality because $X,Y$ ar
 $$ d[X ;Y] \leq d[X ;Z] + d[Z;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved}\leanok By Lemma \ref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from Lemma \ref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
+\begin{proof}\uses{ruz-copy, ruz-indep, independent-exist, ruzsa-triangle-improved}\leanok By \Cref{ruz-copy} and Lemmas \ref{independent-exist}, \ref{ruz-indep}, it suffices to prove this inequality assuming that $X,Y,Z$ are defined on the same space and are independent.  But then the claim follows from \Cref{ruzsa-triangle-improved} and Definition \ref{ruz-dist-def}.
 \end{proof}
 
 \begin{definition}[Conditioned Ruzsa distance]\label{cond-dist-def}
@@ -227,7 +227,7 @@ and similarly
 $$  d[X ;Y | W] = \bbH[X-Y|W] - \bbH[X]/2 - \bbH[Y|W]/2.$$
 \end{lemma}
 
-\begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def}\leanok Straightforward thanks to Lemma \ref{copy-ent}, Lemma \ref{ruz-copy}, Lemma \ref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
+\begin{proof}\uses{copy-ent, ruz-copy, ruz-indep, cond-dist-def, conditional-entropy-def}\leanok Straightforward thanks to \Cref{copy-ent}, \Cref{ruz-copy}, \Cref{ruz-indep}, Definition \ref{cond-dist-def}, Definition \ref{conditional-entropy-def}.
 \end{proof}
 
 \begin{lemma}[Kaimanovich-Vershik-Madiman inequality]\label{kv}
@@ -239,7 +239,7 @@ Suppose that $X, Y, Z$ are independent $G$-valued random variables. Then
 \end{lemma}
 
 \begin{proof}\uses{submodularity, add-entropy, relabeled-entropy}\leanok
-From Lemma \ref{submodularity} we have
+From \Cref{submodularity} we have
 $$ \bbH[X, X + Y+ Z] + \bbH[Z, X + Y+ Z] \geq \bbH[X, Z, X + Y+ Z] + \bbH[X + Y+ Z].$$
 However, using Lemmas \ref{add-entropy}, \ref{relabeled-entropy} repeatedly we have $\bbH[X, X + Y+ Z] = \bbH[X, Y+ Z] = \bbH[X] + \bbH[Y+ Z]$, $\bbH[Z, X + Y + Z] = \bbH[Z, X + Y] = \bbH[Z] + \bbH[X + Y]$ and $\bbH[X, Z, X + Y+ Z] = \bbH[X, Y, Z] = \bbH[X] + \bbH[Y] + \bbH[Z]$.  The claim then follows from a calculation.
 \end{proof}
@@ -264,21 +264,21 @@ Then
 \begin{proof}
   \uses{cond-indep-exist, cond-trial-ent, conditional-entropy-def,submodularity, copy-ent, relabeled-entropy, add-entropy, ruz-indep}
   \leanok
-Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$ as produced by Lemma \ref{cond-indep-exist}, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
+Let $(A_1, B_1)$ and $(A_2, B_2)$ (and $Z'$, which by abuse of notation we call $Z$) be conditionally independent trials of $(A,B)$ relative to $Z$ as produced by \Cref{cond-indep-exist}, thus $(A_1,B_1)$ and $(A_2,B_2)$ are coupled through the random variable $A_1 + B_1 = A_2 + B_2$, which by abuse of notation we shall also call $Z$.
 
-Observe from Lemma \ref{ruz-indep} that the left-hand side of~\eqref{2-bsg-takeaway} is
+Observe from \Cref{ruz-indep} that the left-hand side of~\eqref{2-bsg-takeaway} is
 \begin{equation}\label{lhs-to-bound}
 \bbH[A_1 - B_2| Z] - \bbH[A_1 | Z]/2 - \bbH[B_2 | Z]/2.
 \end{equation}
 since, crucially, $(A_1 | Z=z)$ and $(B_2 | Z=z)$ are independent for all $z$.
 
-Applying submodularity (Lemma \ref{alt-submodularity}) gives
+Applying submodularity (\Cref{alt-submodularity}) gives
 \begin{equation}\label{bsg-31} \begin{split}
 &\bbH[A_1 - B_2] + \bbH[A_1 - B_2, A_1, B_1] \\
 &\qquad \leq \bbH[A_1 - B_2, A_1] + \bbH[A_1 - B_2,B_1].
 \end{split}\end{equation}
 We estimate the second, third and fourth terms appearing here.
-First note that, by Lemma \ref{cond-trial-ent} and Lemma \ref{relabeled-entropy} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
+First note that, by \Cref{cond-trial-ent} and \Cref{relabeled-entropy} (noting that the tuple $(A_1 - B_2, A_1, B_1)$  determines the tuple $(A_1, A_2, B_1, B_2)$ since $A_1+B_1=A_2+B_2$)
 \begin{equation}\label{bsg-24} \bbH[A_1 - B_2, A_1, B_1] = \bbH[A_1, B_1, A_2, B_2,Z] = 2\bbH[A,B] - \bbH[Z].\end{equation}
 Next observe that
 \begin{equation}\label{bsg-23} \bbH[A_1 - B_2, A_1] = \bbH[A_1, B_2] \leq \bbH[A] + \bbH[B].
@@ -306,13 +306,13 @@ $3 \bbI[A:B] + 2\bbH[Z]-\bbH[A]-\bbH[B]$ as claimed.
 
 \begin{proof}
 \uses{cond-dist-alt, independent-exist, cond-reduce}\leanok
-Using Lemma \ref{cond-dist-alt} and Lemma \ref{independent-exist}, if $(X',Z'), (Y',W')$ are independent copies of the variables $(X,Z)$, $(Y,W)$, we have
+Using \Cref{cond-dist-alt} and \Cref{independent-exist}, if $(X',Z'), (Y',W')$ are independent copies of the variables $(X,Z)$, $(Y,W)$, we have
 \begin{align*}
   d[X  | Z; Y | W]&= \bbH[X'-Y'|Z',W'] - \tfrac{1}{2} \bbH[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
                        &\le \bbH[X'-Y']- \tfrac{1}{2} \bbH[X'|Z'] - \tfrac{1}{2}H[Y'|W'] \\
                        &= d[X';Y'] + \tfrac{1}{2}  \bbI[X' : Z'] + \tfrac{1}{2}  \bbI[Y' : W'].
 \end{align*}
-Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step we used Definition \ref{ruz-dist-def} and Definition \ref{information-def}.
+Here, in the middle step we used \Cref{cond-reduce}, and in the last step we used Definition \ref{ruz-dist-def} and Definition \ref{information-def}.
 \end{proof}
 
 \begin{lemma}[Comparison of Ruzsa distances, I]\label{first-useful}
@@ -328,13 +328,13 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 
   \begin{proof}
     \uses{ruz-copy, independent-exist, kv, ruz-indep, relabeled-entropy, cond-dist-fact}\leanok
-  We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using Lemma \ref{independent-exist} and Lemma \ref{ruz-copy}, \ref{ruz-indep}) that $X$ is independent of $Y, Z$. Then we have
+  We first prove~\eqref{lem51-a}. We may assume (taking an independent copy, using \Cref{independent-exist} and \Cref{ruz-copy}, \ref{ruz-indep}) that $X$ is independent of $Y, Z$. Then we have
   \begin{align*}  d[X ;Y+ Z] & - d[X ;Y] \\ & = \bbH[X + Y + Z] - \bbH[X + Y] - \tfrac{1}{2}\bbH[Y + Z] + \tfrac{1}{2} \bbH[Y].\end{align*}
-  Combining this with Lemma \ref{kv} gives the required bound. The second form of the result is immediate Lemma \ref{ruz-indep}.
+  Combining this with \Cref{kv} gives the required bound. The second form of the result is immediate \Cref{ruz-indep}.
 
-  Turning to~\eqref{ruzsa-3}, we have from Definition \ref{information-def} and Lemma \ref{relabeled-entropy}
+  Turning to~\eqref{ruzsa-3}, we have from Definition \ref{information-def} and \Cref{relabeled-entropy}
   \begin{align*}  \bbI[Y : Y+ Z] & = \bbH[Y] + \bbH[Y + Z] - \bbH[Y, Y + Z] \\ & = \bbH[Y] + \bbH[Y + Z] - \bbH[Y, Z]  = \bbH[Y + Z] - \bbH[Z],\end{align*}
-  and so~\eqref{ruzsa-3} is a consequence of Lemma \ref{cond-dist-fact}. Once again the second form of the result is immediate from Lemma \ref{ruz-indep}.
+  and so~\eqref{ruzsa-3} is a consequence of \Cref{cond-dist-fact}. Once again the second form of the result is immediate from \Cref{ruz-indep}.
 \end{proof}
 
 \begin{lemma}[Comparison of Ruzsa distances, II]\label{second-useful}
@@ -347,7 +347,7 @@ Here, in the middle step we used Lemma \ref{cond-reduce}, and in the last step w
 
   \begin{proof}
     \uses{first-useful}\leanok
-  By Lemma \ref{first-useful} (with a change of variables) we have
+  By \Cref{first-useful} (with a change of variables) we have
   \[d[X ; Y + Z | Y + Z + Z'] - d[X ; Y + Z] \leq \tfrac{1}{2}( \bbH[Y + Z + Z'] - \bbH[Z']).\]
   Adding this to~\eqref{lem51-a} gives the result.
   \end{proof}
