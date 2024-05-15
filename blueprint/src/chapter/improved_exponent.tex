@@ -108,7 +108,7 @@ Let $X_1, X_2, X_3, X_4$ be independent $G$-valued random variables, and let $Y$
   &\qquad + \tfrac{1}{2} (d[X_1;X_2] + d[X_1+X_2;X_3+X_4] + \bbI[X_1 + X_2 : X_1 + X_3|S])\\
   &\qquad + \tfrac{1}{4} (\bbH[X_1+X_2] - \bbH[X_3+X_4] + \bbH[X_2] - \bbH[X_1]).
   \end{align*}
-  From Corollary \ref{cor-fibre} (with $Y_1,Y_2,Y_3,Y_4$ set equal to $X_3, X_1, X_4, X_2$ respectively) one has
+  From \Cref{cor-fibre} (with $Y_1,Y_2,Y_3,Y_4$ set equal to $X_3, X_1, X_4, X_2$ respectively) one has
   $$ d[X_3+X_4; X_1+X_2] + d[X_3|X_3+X_4; X_1|X_1+X_2] $$
   $$ + \bbI[X_3 + X_1 : X_1 + X_2|S] = d[X_3;X_1] + d[X_4;X_2].$$
 Rearranging the mutual information and Ruzsa distances slightly, we conclude that
@@ -131,7 +131,7 @@ Rearranging the mutual information and Ruzsa distances slightly, we conclude tha
   &\qquad + \tfrac{1}{2} (d[X_1;X_3] + d[X_1|X_1+X_3;X_2|X_2+X_4])\\
   &\qquad + \tfrac{1}{4} (\bbH[X_2|X_2+X_4] - \bbH[X_1|X_1+X_3] + \bbH[X_1] - \bbH[X_3]).
   \end{align*}
-  If one takes the arithmetic mean of these two bounds and simplifies using Corollary \ref{cor-fibre}, one obtains the claim.
+  If one takes the arithmetic mean of these two bounds and simplifies using \Cref{cor-fibre}, one obtains the claim.
 \end{proof}
 
 Returning to our specific situation, we now have
@@ -206,7 +206,7 @@ tau-minimizers for $1/8$ satisfying additionally $d[X_1;X_2] = 0$.
 
 \begin{proof} \uses{de-prop-lim-improv, lem:100pc, ruzsa-triangle}\leanok
 Let $X_1, X_2$ be the good $\tau$-minimizer from \Cref{de-prop-lim-improv}. By construction, $d[X_1;X_2]=0$.
-From Corollary \ref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_2;X^0_1]$.  Using this and the Ruzsa triangle inequality we can conclude.
+From \Cref{lem:100pc}, $d[X_1;U_H] = d[X_2; U_H] = 0$.  Also from $\tau$-minimization we have $\tau[X_1;X_2] \leq \tau[X^0_2;X^0_1]$.  Using this and the Ruzsa triangle inequality we can conclude.
 \end{proof}
 
 One can then replace Lemma~\ref{pfr_aux} with

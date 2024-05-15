@@ -214,7 +214,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   With three random variables $X,Y,Z$, one has $\bbH[X|Y,Z] \leq \bbH[X|Z]$.
 \end{corollary}
 
-\begin{proof} \uses{cond-reduce}\leanok Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
+\begin{proof} \uses{cond-reduce}\leanok Apply the ``averaging over conditioning'' argument to \Cref{cond-reduce}.
 \end{proof}
 
 \begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}
@@ -223,7 +223,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   $$ \bbH[X,Y,Z] + \bbH[Z] \leq \bbH[X,Z] + \bbH[Y,Z].$$
 \end{corollary}
 
-\begin{proof}  \uses{submodularity,chain-rule} \leanok Apply Corollary \ref{submodularity} and \Cref{chain-rule}.
+\begin{proof}  \uses{submodularity,chain-rule} \leanok Apply \Cref{submodularity} and \Cref{chain-rule}.
 \end{proof}
 
 \begin{definition}[Independent random variables]

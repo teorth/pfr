@@ -15,7 +15,7 @@ thanks to \Cref{relabeled-entropy} and \Cref{chain-rule}, giving the claim.
 \end{lemma}
 
 \begin{proof}\uses{alternative-mutual, submodularity, relabeled-entropy}\leanok
-  By \Cref{alternative-mutual} it suffices to show that $\bbH[Y|X] \leq \bbH[Y|f(X)]$. But this follows from Corollary \ref{submodularity} (and \Cref{relabeled-entropy}).
+  By \Cref{alternative-mutual} it suffices to show that $\bbH[Y|X] \leq \bbH[Y|f(X)]$. But this follows from \Cref{submodularity} (and \Cref{relabeled-entropy}).
 \end{proof}
 
 \begin{lemma}[Unconditional data processing inequality]\label{data-process-unc}\lean{ProbabilityTheory.mutual_comp_comp_le}\leanok Let $X,Y$ be random variables. For any functions $f, g$ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )] \leq \bbI[X : Y]$.
@@ -47,13 +47,13 @@ By $(X_1,Y_1)$, $(X_2,Y_2)$ be copies of $(X,Y)$ that are conditionally independ
 $$ \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3, Y_3, X_3+Y_3] + \bbH[X_3+Y_3] \leq \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] + \bbH[X_3, Y_3, X_3+Y_3].$$
 From \Cref{ruz-indep}, \Cref{neg-ent}, \Cref{ruz-copy} we have
 $$ \bbH[X_3+Y_3] = \frac{1}{2} \bbH[X_3] + \frac{1}{2} \bbH[-Y_3] + d[X_3;-Y_3] = \frac{1}{2} \bbH[X] + \frac{1}{2} \bbH[Y] + d[X;-Y].$$
-Since $X_3+Y_3$ is a function of $X_3,Y_3$, we see from \Cref{relabeled-entropy} and Corollary \ref{add-entropy} that
+Since $X_3+Y_3$ is a function of $X_3,Y_3$, we see from \Cref{relabeled-entropy} and \Cref{add-entropy} that
 $$ \bbH[X_3,Y_3,X_3+Y_3] = \bbH[X_3,Y_3] = \bbH[X,Y] = \bbH[X]+\bbH[Y].$$
 Because $X_1-Y_1=X_2-Y_2$, we have
 $$ X_3+Y_3 = (X_3-Y_2) - (X_1-Y_3) + (X_2+Y_1)$$
 and thus by \Cref{relabeled-entropy}
 $$ \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] = \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1]$$
-and hence by Corollary \ref{subadditive}
+and hence by \Cref{subadditive}
 $$ \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] \leq \bbH[X_3-Y_2] + \bbH[X_1-Y_3] + \bbH[X_2] + \bbH[Y_1].$$
 Since $X_3,Y_2$ are independent, we see from \Cref{ruz-indep}, \Cref{ruz-copy} that
 $$\bbH[X_3-Y_2] = \frac{1}{2} \bbH[X] + \frac{1}{2} \bbH[Y] + d[X; Y].$$
@@ -63,9 +63,9 @@ We conclude that
 $$ \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] \leq 2\bbH[X] + 2\bbH[Y] + 2d[X; Y].$$
 Finally, from \Cref{data-process-single} we have
 $$ \bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] \leq \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3, Y_3, X_3+Y_3].$$
-From Corollary \ref{add-entropy} followed by Corollary \ref{cond-trial-ent}, we have
+From \Cref{add-entropy} followed by \Cref{cond-trial-ent}, we have
 $$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X_1,Y_1,X_1-Y_1] + \bbH[X_2,Y_2,X_2-Y_2] - \bbH[X_1-Y_1] + \bbH[X_3,Y_3]$$
-and thus by \Cref{ruz-indep}, \Cref{ruz-copy}, \Cref{relabeled-entropy}, Corollary \ref{add-entropy}
+and thus by \Cref{ruz-indep}, \Cref{ruz-copy}, \Cref{relabeled-entropy}, \Cref{add-entropy}
 $$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X] + \bbH[Y] + \bbH[X] + \bbH[Y] -(\frac{1}{2}\bbH[X] + \frac{5}{1}\bbH[Y] - d[X; Y]) + \bbH[X] + \bbH[Y].$$
 Applying all of these estimates, the claim now follows from linear arithmetic.
 \end{proof}
@@ -88,7 +88,7 @@ Summing the two inequalities, we obtain the claim.
 \begin{proof}\uses{klm-1, neg-ent, ruz-indep, sumset-lower, ruzsa-diff}
   Applying \Cref{klm-1} with all the $Y_i$ replaced by $-Y_i$, and using \Cref{neg-ent} and \Cref{ruz-indep}, we obtain after some rearranging
 $$ d[X; \sum_{i=1}^n Y_i] + \frac{1}{2} (\bbH[\sum_{i=1}^n Y_i] - \bbH[X]) \leq \sum_{i=1}^n d[X;Y_i] + \frac{1}{2} (\bbH[Y_i] - \bbH[X]).$$
-From Corollary \ref{sumset-lower} we have
+From \Cref{sumset-lower} we have
 $$ \bbH[\sum_{i=1}^n Y_i] \geq \bbH[Y_i]$$
 for all $i$; subtracting $\bbH[X]$ and averaging, we conclude that
 $$ \bbH[\sum_{i=1}^n Y_i] - \bbH[X] \leq \frac{1}{n} \sum_{i=1}^n \bbH[Y_i] - \bbH[X]$$
@@ -113,7 +113,7 @@ Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
   $$ \bbH[\sum_{j=1}^l Y_j] \leq \bbH[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\bbH[ Y_j - X_{f(j)}] - \bbH[X_{f(j)}]).$$
 \end{lemma}
 
-\begin{proof}\uses{klm-1, kv, neg-ent, sumset-lower}  Write $W := \sum_{i=1}^m X_i$.  From Corollary \ref{sumset-lower} we have
+\begin{proof}\uses{klm-1, kv, neg-ent, sumset-lower}  Write $W := \sum_{i=1}^m X_i$.  From \Cref{sumset-lower} we have
 $$ \bbH[\sum_{j=1}^l Y_j]  \leq \bbH[-W + \sum_{j=1}^l Y_j]$$
 while from \Cref{klm-1} one has
 $$ \bbH[-W + \sum_{j=1}^l Y_j] \leq \bbH[-W] + \sum_{j=1}^l \bbH[-W + Y_j] - \bbH[-W].$$
@@ -171,7 +171,7 @@ where the $\tilde X_i$ are independent copies of the $X_i$.
 \begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}  For any such tuple, we have $D[X_{[m]}] \geq 0$.
 \end{lemma}
 
-\begin{proof}\uses{sumset-lower}  From Corollary \ref{sumset-lower} one has
+\begin{proof}\uses{sumset-lower}  From \Cref{sumset-lower} one has
 $$ \bbH[\sum_{i =1}^m \tilde X_i] \geq \bbH[\tilde X_i]$$
 for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
 \end{proof}
@@ -188,7 +188,7 @@ for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
 \end{lemma}
 
 \begin{proof}\uses{ruz-copy, sumset-lower, ruz-indep}
-By \Cref{ruz-copy} we may take the $X_i$ to be jointly independent.  From Corollary \ref{sumset-lower}, we see that for any distinct $1 \leq j,k \leq m$, we have
+By \Cref{ruz-copy} we may take the $X_i$ to be jointly independent.  From \Cref{sumset-lower}, we see that for any distinct $1 \leq j,k \leq m$, we have
   \[
     \bbH[X_j+X_k] \leq \bbH[\sum_{i=1}^m X_i],
   \]
@@ -218,7 +218,7 @@ From \Cref{klm-1}, we have
 $$ \bbH[-X_0 + \sum_{i=1}^m X_i] - \bbH[-X_0] \leq \sum_{i=1}^m \bbH[X_0 - X_i] - \bbH[-X_0]$$
 and hence by \Cref{neg-ent} and \Cref{ruz-indep}
 $$ \bbH[-X_0 + \sum_{i=1}^m X_i] - \bbH[X_0] \leq m d[X_i,X_i].$$
-On the other hand, by Corollary \ref{sumset-lower} we have
+On the other hand, by \Cref{sumset-lower} we have
 $$ \bbH[\sum_{i=1}^m X_i] \leq \bbH[-X_0 + \sum_{i=1}^m X_i]$$
 and the claim follows.
 \end{proof}
@@ -238,7 +238,7 @@ and the claim follows.
    \end{equation}
    and also
    \[ \bbH[X_a + W'] \leq \bbH[X_a + X_b] + \bbH[W'] - \bbH[X'_b].\]
-   Combining this with~\eqref{7922} and then applying Corollary \ref{sumset-lower} we have
+   Combining this with~\eqref{7922} and then applying \Cref{sumset-lower} we have
    \begin{align*}  \bbH[W + W']  & \leq    2\bbH[W] + \bbH[X_a + X_b]  - \bbH[X_a] - \bbH[X_b] \\ & \leq
     3 \bbH[W] - \bbH[X_a] - \bbH[X_b].
   \end{align*}
@@ -433,7 +433,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
   \]
   with $\pi_0=0$. Since $\pi_{d-1}(x)$ can be obtained from $\pi_{d}(x)$ by applying a homomorphism, we obtain a sequence of the form~\eqref{g-seq}.
 
-  Now we apply \Cref{multidist-chain-rule-iter} with $I = \{1,\dots, m\}$ and $X_i :=  (X_{i,j})_{j = 1}^m$.  Using joint independence and Corollary \ref{add-entropy}, we find that
+  Now we apply \Cref{multidist-chain-rule-iter} with $I = \{1,\dots, m\}$ and $X_i :=  (X_{i,j})_{j = 1}^m$.  Using joint independence and \Cref{add-entropy}, we find that
   \[
     D[ X_{[m]} ] = \sum_{j=1}^m D[ (X_{i,j})_{1 \leq i \leq m} ].
   \]
@@ -479,7 +479,7 @@ Then
 \begin{proof}\uses{cor-multid, multidist-perm, cond-multidist-lower-II, first-useful, klm-3, sumset-lower, ruzsa-triangle, compare-sums, multidist-ruzsa-II}
   For each $j \in \{1,\dots,m\}$ we call the tuple $(X_{i,j})_{i = 1}^m$ a \emph{column} and for each $i \in \{1,\dots, m\}$ we call the tuple $(X_{i,j})_{j = 1}^m$ a \emph{row}. Hence, by hypothesis, each column is a permutation of $X_{[m]} = (X_i)_{i=1}^m$.
 
-From Corollary \ref{cor-multid} we have
+From \Cref{cor-multid} we have
 \begin{equation}\label{441} {\mathcal I} \leq \sum_{j=1}^{m-1} A_j + B,\end{equation}
 where
 \[
@@ -495,7 +495,7 @@ By \Cref{multidist-perm} and and our hypothesis on columns, we have
   D[ (X_{i, j})_{i = 1}^m ]= D[ (X_i)_{i=1}^m ] = k.
 \]
 Let $\sigma = \sigma_j \colon I \to I$ be a permutation such that $X_{i,j} = X_{\sigma(i)}$, and write $X'_i := X_{i,j}$ and $Y_i := X_{i,j} + \cdots + X_{i,m}$.
-Corollary \ref{cond-multidist-lower-II}, we have
+\Cref{cond-multidist-lower-II}, we have
 \begin{align}
   A_j & \leq \eta \sum_{i = 1}^m d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}].\label{54a}
 \end{align}
@@ -507,7 +507,7 @@ For $1 \leq i \leq m$, denote the sum of row $i$ by
 \[
   V_i := \sum_{j=1}^m X_{i,j};
 \]
-if we apply Corollary \ref{cond-multidist-lower-II} again, now with $X_{\sigma(i)} = X_{i,m}$, $X'_i := V_i$, and with the variable $Y_i$ being trivial, we obtain
+if we apply \Cref{cond-multidist-lower-II} again, now with $X_{\sigma(i)} = X_{i,m}$, $X'_i := V_i$, and with the variable $Y_i$ being trivial, we obtain
 \begin{equation}\label{55a}
   B \leq \eta \sum_{i = 1}^m d[X_{i,m}; V_i].
 \end{equation}

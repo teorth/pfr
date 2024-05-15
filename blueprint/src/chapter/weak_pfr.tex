@@ -11,7 +11,7 @@ Similarly
 \[\mathbb{H}(X,X-2Y_1)=\mathbb{H}(X)+\mathbb{H}(2Y_1)=\mathbb{H}(X)+\mathbb{H}(Y).\]
 Furthermore
 \[\mathbb{H}(Y_1-Y_2,X-2Y_1)=\mathbb{H}(Y_1-Y_2,X-Y_1-Y_2)\leq \mathbb{H}(Y_1-Y_2)+\mathbb{H}(X-Y_1-Y_2).\]
-By submodularity (Corollary \ref{alt-submodularity})
+By submodularity (\Cref{alt-submodularity})
 \[\mathbb{H}(X,Y_1,Y_2,X-2Y_1)+\mathbb{H}(X-2Y_1)\leq \mathbb{H}(X,X-2Y_1)+\mathbb{H}(Y_1-Y_2,X-2Y_1).\]
 Combining these inequalities
 \[\mathbb{H}(X-2Y_1)\leq \mathbb{H}(Y_1-Y_2)+\mathbb{H}(X-Y_1-Y_2)-\mathbb{H}(Y).\]
@@ -20,7 +20,7 @@ Similarly we have
 \[\mathbb{H}(Y_1,X-Y_1-Y_2)=\mathbb{H}(Y)+\mathbb{H}(X-Y_2),\]
 and
 \[\mathbb{H}(Y_2,X-Y_1-Y_2)=\mathbb{H}(Y)+\mathbb{H}(X-Y_1)\]
-and by submodularity (Corollary \ref{alt-submodularity}) again
+and by submodularity (\Cref{alt-submodularity}) again
 \[\mathbb{H}(Y_1,Y_2,X-Y_1-Y_2)+ \mathbb{H}(X-Y_1-Y_2)\leq \mathbb{H}(Y_1,X-Y_1-Y_2)+\mathbb{H}(Y_2,X-Y_1-Y_2).\]
 Combining these inequalities (and recalling the definition of Ruzsa distance) gives
 \[\mathbb{H}(X-Y_1-Y_2)\leq \mathbb{H}(X-Y_1)+\mathbb{H}(X-Y_2)-\mathbb{H}(X)=2d[X;Y]+\mathbb{H}(Y).\]
@@ -44,7 +44,7 @@ If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and $\p
 \end{lemma}
 \begin{proof}
 \uses{fibring-ineq, torsion-free-doubling, dist-zero}\leanok
-By Corollary \ref{fibring-ineq} and \Cref{torsion-free-doubling} we have
+By \Cref{fibring-ineq} and \Cref{torsion-free-doubling} we have
 \[d[\phi(X);\phi(2Y)]\leq d[X;2Y]\leq 5d[X;Y]\]
 and $\phi(2Y)=2\phi(Y)\equiv 0$ so the left-hand side is equal to $d[\phi(X);0]=\mathbb{H}(\phi(X))/2$ (using \Cref{dist-zero}).
 \end{proof}
