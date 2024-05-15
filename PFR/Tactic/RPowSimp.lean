@@ -155,7 +155,7 @@ theorem inv_congr (_ : a = a') (_ : a' ^ (-1 : ℝ) = b) : (a⁻¹ : ℝ) = b :=
   subst_vars; simp [rpow_neg_one]
 
 theorem npow_congr {b : ℕ} (_ : a = a') (_ : a' ^ (b : ℝ) = c) : Monoid.npow b a = c := by
-  subst_vars; simp [rpow_nat_cast]
+  subst_vars; simp [rpow_natCast]
 
 partial def eval (e : Q(ℝ)) : AtomM (Result ExProd e) := Lean.withIncRecDepth do
   let els := evalAtom e
@@ -300,7 +300,7 @@ open Lean Parser Tactic
 macro "rpow_simp" extras:(simpArgs)? loc:(location)? : tactic => `(tactic|
   ((((simp (config := {failIfUnchanged := false}) (discharger := positivity) only
       [abs_one, abs_mul, abs_inv, abs_div, abs_abs, abs_zero, mul_rpow, ← rpow_mul, div_rpow,
-       ← rpow_nat_cast, abs_rpow_of_nonneg, rpow_one, ← rpow_add, ← rpow_sub, zero_rpow, one_rpow,
+       ← rpow_natCast, abs_rpow_of_nonneg, rpow_one, ← rpow_add, ← rpow_sub, zero_rpow, one_rpow,
        rpow_one, inv_rpow', rpow_inv] $(loc)? <;> try push_cast) <;>
    try rpow_ring) <;> try field_simp only $(extras)? $(loc)?) <;> try ring_nf (config:={}) $(loc)?) <;>
    try simp (discharger := positivity) only [abs_one, abs_zero, one_rpow, rpow_one, rpow_zero, mul_zero, zero_mul, mul_one, one_mul,
