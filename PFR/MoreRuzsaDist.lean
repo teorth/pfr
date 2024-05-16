@@ -101,11 +101,11 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
     d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
   obtain ⟨ν, X', Y', ⟨hν, hX', hY', h_indep, hXX', hYY'⟩⟩ := independent_copies hX hY μ μ'
   rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
-  have := condIndep_copies (⟨X', Y'⟩) (X' - Y') ?_ ?_ ν
-  ·
-    sorry
-  · exact Measurable.prod_mk hX' hY'
   sorry
+  -- have := condIndep_copies (⟨X', Y'⟩) (X' - Y') ?_ ?_ ν
+  -- ·
+  --   sorry
+  -- · exact Measurable.prod_mk hX' hY'
 
 -- #check ProbabilityTheory.IdentDistrib.rdist_eq
 -- #check ProbabilityTheory.independent_copies
