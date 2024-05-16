@@ -83,13 +83,6 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
--- Mathlib PR #12918 has been merged.
-@[to_additive]
-lemma ProbabilityTheory.IdentDistrib.inv {α : Type*} {β : Type*} {γ : Type*}
-    [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ] {μ : Measure α} {ν : Measure β}
-    {f : α → γ} {g : β → γ} [Inv γ] [MeasurableInv γ] (h : IdentDistrib f g μ ν) :
-    IdentDistrib f⁻¹ g⁻¹ μ ν := h.comp measurable_inv
-
 /--   If $X,Y$ are $G$-valued, then
   $$  d[X ; -Y]  \leq 3 d[X;Y].$$ -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
