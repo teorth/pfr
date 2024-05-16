@@ -16,7 +16,7 @@ lemma setIntegral_eq_sum (μ : Measure α) [IsFiniteMeasure μ] (s : Finset α) 
 lemma integral_eq_sum' (μ : Measure α) [IsFiniteMeasure μ] {s : Finset α} (hs : μ sᶜ = 0)
     (f : α → E) : ∫ x, f x ∂μ = ∑ x in s, (μ {x}).toReal • f x := by
   have hA' : (s : Set α) =ᵐ[μ] Set.univ := by rwa [MeasureTheory.ae_eq_univ]
-  rw [← integral_univ, ← set_integral_congr_set_ae hA']
+  rw [← integral_univ, ← setIntegral_congr_set_ae hA']
   exact setIntegral_eq_sum μ s f
 
 end MeasureTheory

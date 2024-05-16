@@ -11,6 +11,8 @@ noncomputable section
 open MeasureTheory Measure Filter Set
 open scoped Topology BigOperators MeasureTheory ENNReal NNReal
 
+attribute [symm] ProbabilityTheory.IdentDistrib.symm
+
 variable {α β γ δ : Type*} [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ]
   [MeasurableSpace δ]
 
@@ -175,7 +177,7 @@ lemma identDistrib_comp_fst {X : Ω → α} (hX : Measurable X) (μ : Measure Ω
 
 /-- A random variable is identically distributed to its lift to a product space (in the second factor). -/
 lemma identDistrib_comp_snd {X : Ω → α} (hX : Measurable X) (μ : Measure Ω) (μ' : Measure Ω')
-  [SigmaFinite μ][IsProbabilityMeasure μ'] : IdentDistrib (X ∘ Prod.snd) X (μ'.prod μ) μ where
+  [SigmaFinite μ] [IsProbabilityMeasure μ'] : IdentDistrib (X ∘ Prod.snd) X (μ'.prod μ) μ where
   aemeasurable_fst := (hX.comp measurable_snd).aemeasurable
   aemeasurable_snd := hX.aemeasurable
   map_eq := by

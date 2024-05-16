@@ -28,18 +28,15 @@ lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
   refine ⟨H, Subtype.instMeasurableSpace, (fun x ↦ x),
       (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, Measure.dirac i, ?_, measurable_subtype_coe, ?_, fun x ↦ x.2, ?_⟩
   · constructor
-    simp only [Finset.univ_eq_attach, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
-      Measure.coe_finset_sum, Pi.smul_apply, Finset.sum_apply, MeasurableSet.univ,
-      Measure.dirac_apply', mem_univ, indicator_of_mem, Pi.one_apply, Finset.sum_const,
-      Finset.card_attach, nsmul_eq_mul, mul_one, smul_eq_mul]
+    simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finset_sum, Finset.sum_apply,
+      measure_univ, Finset.sum_const, Finset.card_attach, nsmul_eq_mul, mul_one, smul_eq_mul]
     rw [ENNReal.inv_mul_cancel]
     · simpa using h.ne_empty
     · simp
   · constructor
     · intro x y hx hy
-      simp only [Finset.univ_eq_attach, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
-        Measure.coe_finset_sum, Pi.smul_apply, Finset.sum_apply, mem_preimage, mem_singleton_iff,
-        Measure.dirac_apply, smul_eq_mul]
+      simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finset_sum,
+        Finset.sum_apply, Measure.dirac_apply, smul_eq_mul]
       rw [Finset.sum_eq_single ⟨x, hx⟩, Finset.sum_eq_single ⟨y, hy⟩]
       · simp
       · rintro ⟨b, bH⟩ _hb h'b
@@ -213,7 +210,7 @@ $H'$ on $H' \cap H$. -/
 lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) (H' : Set S) :
     IsUniform (H' ∩ H) X (μ[|X ⁻¹' H']) where
   eq_of_mem := fun x y hx hy ↦ by
-    show _ * _ = _ * _
+    simp only [cond, Measure.smul_apply, smul_eq_mul]
     rw [μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hx.1)),
       μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hy.1)), h.eq_of_mem x y hx.2 hy.2]
   measure_preimage_compl := le_zero_iff.mp <| by
@@ -221,11 +218,11 @@ lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) 
     calc
       _ ≤ (μ[|X ⁻¹' H']) (X ⁻¹' H'ᶜ) + (μ[|X ⁻¹' H']) (X ⁻¹' Hᶜ) := measure_union_le _ _
       _ = (μ[|X ⁻¹' H']) (X ⁻¹' H'ᶜ) + 0 := congrArg _ <| by
-        show _ * _ = _
+        simp only [cond, Measure.smul_apply, smul_eq_mul]
         rw [le_zero_iff.mp <| h.measure_preimage_compl.trans_ge <| Measure.restrict_apply_le _ _,
           mul_zero]
       _ = 0 := by
-        show _ * _ + 0 = 0
+        simp only [cond, Measure.smul_apply, smul_eq_mul]
         rw [add_zero, Set.preimage_compl, Measure.restrict_apply <|
           MeasurableSet.compl (measurableSet_preimage hX (measurableSet_discrete H')),
           compl_inter_self, measure_empty, mul_zero]

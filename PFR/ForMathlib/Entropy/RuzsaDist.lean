@@ -1,6 +1,5 @@
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
-import LeanAPAP.Mathlib.Algebra.BigOperators.Basic
 import PFR.ForMathlib.Elementary
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
@@ -27,10 +26,17 @@ Here we define Ruzsa distance and establish its basic properties.
   $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]$$
 -/
 
+section
+variable {G : Type*} [Group G] (H : Subgroup G)
+
+-- FIXME: Why is this instance necessary? Reported at
+-- https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/Subgroups.20are.20empty
+@[to_additive] instance : Nonempty H := One.instNonempty
+
+end
+
 open Filter Function MeasureTheory Measure ProbabilityTheory
 open scoped BigOperators
-
-attribute [symm] ProbabilityTheory.IdentDistrib.symm
 
 variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
@@ -281,15 +287,15 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
           fun ω hω ↦ Classical.byContradiction fun h ↦ by simp_all [not_or, T, U, H_x, π']
         refine MeasureTheory.mem_ae_iff.mpr (le_zero_iff.mp ?_)
         calc
-          _ ≤ (ν' T) + (ν' U) := (measure_mono h_subset).trans (measure_union_le T U)
-          _ = (ν' T) + 0 := congrArg _ <| by
-            show _ * _ = 0
+          _ ≤ ν' T + ν' U := (measure_mono h_subset).trans (measure_union_le T U)
+          _ = ν' T + 0 := congrArg _ <| by
+            simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
             rw [le_zero_iff.mp <| (restrict_apply_le _ U).trans_eq hunif.measure_preimage_compl,
               mul_zero]
           _ = 0 := (add_zero _).trans <| by
             have : restrict ν (π ∘ X' ⁻¹' {x}) T = 0 := by
               simp [restrict_apply (measurableSet_discrete T), T, π', π]
-            show _ * _ = 0
+            simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
             rw [this, mul_zero]
       convert entropy_le_log_card_of_mem (Measurable.sub hX' hUH') h
       simp_rw [hunif.entropy_eq' hUH', H_x, Set.Finite.mem_toFinset, h_card, SetLike.coe_sort_coe]
@@ -621,8 +627,8 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
   rw [← mul_assoc]
   have A : (fun a ↦ (W' a, W a)) ⁻¹' {(w', w)} = W' ⁻¹' {w'} ∩ W⁻¹' {w} := by ext; simp
   congr 1
-  · simp only [ProbabilityTheory.cond, smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply,
-      smul_eq_mul, ENNReal.toReal_mul, A, restrict_apply (hW' (MeasurableSet.singleton w'))]
+  · simp only [A, ProbabilityTheory.cond, smul_apply, restrict_apply (hW' (.singleton w')),
+      smul_eq_mul, ENNReal.toReal_mul]
     rcases eq_bot_or_bot_lt (μ' (W ⁻¹' {w})) with hw|hw
     · have : μ' (W' ⁻¹' {w'} ∩ W ⁻¹' {w}) = 0 :=
         le_antisymm (le_trans (measure_mono (Set.inter_subset_right _ _)) hw.le) bot_le
@@ -744,6 +750,7 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
         (fun x ↦ x.1 - x.2) measurable_sub := by
     filter_upwards [h_indep] with y hy
     conv_rhs => rw [kernel.map_apply, hy]
+    rfl
   rw [kernel.entropy_congr this]
   have : kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2) measurable_sub
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=

@@ -295,7 +295,7 @@ lemma iIndepFun.prod (h : iIndepFun n f μ) :
     intro x y hxy
     have : ¬(Disjoint on ST) x.fst y.fst := by
       refine not_forall.mpr ⟨{g y}, ?_⟩
-      rewrite [not_imp, not_imp]
+      rewrite [_root_.not_imp, _root_.not_imp]
       repeat' apply And.intro
       · exact Finset.singleton_subset_iff.mpr (by rewrite [← hxy] ; exact Finset.coe_mem x.snd)
       · exact Finset.singleton_subset_iff.mpr (Finset.coe_mem y.snd)

@@ -27,9 +27,9 @@ import PFR.HomPFR
 import PFR.HundredPercent
 import PFR.ImprovedPFR
 import PFR.Main
+import PFR.Mathlib.Algebra.Group.Subgroup.Pointwise
 import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Data.Set.Pointwise.SMul
-import PFR.Mathlib.GroupTheory.Subgroup.Pointwise
 import PFR.Mathlib.GroupTheory.Torsion
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
@@ -52,10 +52,11 @@ import PFR.Mathlib.Probability.Kernel.Composition
 import PFR.Mathlib.Probability.Kernel.Disintegration
 import PFR.Mathlib.Probability.Kernel.MeasureCompProd
 import PFR.Mathlib.SetTheory.Cardinal.Finite
+import PFR.MoreRuzsaDist
+import PFR.MultiTauFunctional
 import PFR.SecondEstimate
 import PFR.Tactic.Finiteness
 import PFR.Tactic.Finiteness.Attr
 import PFR.Tactic.RPowSimp
 import PFR.TauFunctional
 import PFR.WeakPFR
-import PFR.MoreRuzsaDist

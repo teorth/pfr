@@ -678,10 +678,10 @@ lemma weak_PFR_quotient_prelim :
     simp_rw [map_zsmul, Finsupp.mapRange_apply, Finsupp.coe_smul, Pi.smul_apply, smul_eq_mul,
       Int.cast_mul, Int.cast_ofNat, Finsupp.coe_zero, Pi.zero_apply, mul_eq_zero]
     left
-    exact ZMod.nat_cast_self 2
+    exact ZMod.natCast_self 2
   let g : H →+ (B →₀ ZMod 2) := QuotientAddGroup.lift G₂ (AddMonoidHom.comp mod f) hker
   have hsur : Function.Surjective g := by
-    have h1 : Function.Surjective mod := Finsupp.mapRange_surjective (Int.castAddHom (ZMod 2)) (map_zero _) ZMod.int_cast_surjective
+    have h1 : Function.Surjective mod := Finsupp.mapRange_surjective (Int.castAddHom (ZMod 2)) (map_zero _) ZMod.intCast_surjective
     have h2 := h1.comp bG.repr.surjective
     have h3 : mod ∘ bG.repr = g ∘ (QuotientAddGroup.mk' G₂) := by
       ext x b
@@ -699,7 +699,7 @@ lemma weak_PFR_quotient_prelim :
     rw [QuotientAddGroup.lift_mk] at hx
     simp_rw [AddMonoidHom.coe_comp, Function.comp_apply, mod, Finsupp.mapRange.addMonoidHom_apply,
       Int.coe_castAddHom, DFunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,
-      ZMod.int_cast_zmod_eq_zero_iff_dvd] at hx
+      ZMod.intCast_zmod_eq_zero_iff_dvd] at hx
     replace hx := fun x ↦ Int.mul_ediv_cancel' (hx x)
     let z (b : B) := ((Module.Free.chooseBasis ℤ G).repr y) b / 2
     let z' := (Finsupp.equivFunOnFinite).symm z
@@ -727,7 +727,7 @@ lemma weak_PFR_quotient_prelim :
       map_add' := AddMonoidHom.map_add _
       map_smul' := by
         intro r x
-        rcases ZMod.int_cast_surjective r with ⟨ n, rfl ⟩
+        rcases ZMod.intCast_surjective r with ⟨ n, rfl ⟩
         change g ((n : ZMod 2) • x) = (n : ZMod 2) • g x
         rw [intCast_smul, intCast_smul]
         exact AddMonoidHom.map_zsmul g x n
