@@ -87,13 +87,13 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [Finite
 lemma rdist_of_neg_le : d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by sorry
 
 
-open Classical in
+--open Classical in
 /--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ H[X + \sum_{i=1}^n Y_i] - H[X] \leq \sum_{i=1}^n H[X+Y_i] - \bbH[X].$$
 The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
 lemma kvm_ineq_I {I:Type*} {i₀: I} {s: Finset I} (hs: ¬ i₀ ∈ s) (Y: I → Ω → G) (hY: (i:I) → Measurable (Y i))
                  (hindep: iIndepFun (fun (i:I) => hG) Y μ )
-                : H[ ∑ i in (insert i₀ s), Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
+                : H[ Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
 
 /--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
   $$ d[X; \sum_{i=1}^n Y_i] \leq 2 \sum_{i=1}^n d[X; Y_i].$$
