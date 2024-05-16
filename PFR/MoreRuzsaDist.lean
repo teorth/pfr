@@ -103,7 +103,8 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
   have := condIndep_copies (⟨X', Y'⟩) (X' - Y') ?_ ?_ ν
   ·
-    exact?
+    sorry
+  · exact Measurable.prod_mk hX' hY'
   sorry
 
 -- #check ProbabilityTheory.IdentDistrib.rdist_eq
