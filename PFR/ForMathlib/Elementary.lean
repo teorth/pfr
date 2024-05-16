@@ -191,7 +191,7 @@ lemma exists_finsupp {G : Type*} [AddCommGroup G] {n : ℕ}
   generalize w g = r
   have : ∃ k : ℤ, (ZMod.cast (r : ZMod (n+1)) : ℤ) = r + k*(n+1) := by
     use -(r / (n+1))
-    rw_mod_cast [ZMod.coe_int_cast, Int.mod_eq, sub_eq_add_neg, neg_mul]
+    rw_mod_cast [ZMod.coe_intCast, Int.mod_eq, sub_eq_add_neg, neg_mul]
   rcases this with ⟨k, hk⟩
   rw [hk, add_smul]
   norm_cast

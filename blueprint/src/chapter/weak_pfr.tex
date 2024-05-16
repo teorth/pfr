@@ -11,7 +11,7 @@ Similarly
 \[\mathbb{H}(X,X-2Y_1)=\mathbb{H}(X)+\mathbb{H}(2Y_1)=\mathbb{H}(X)+\mathbb{H}(Y).\]
 Furthermore
 \[\mathbb{H}(Y_1-Y_2,X-2Y_1)=\mathbb{H}(Y_1-Y_2,X-Y_1-Y_2)\leq \mathbb{H}(Y_1-Y_2)+\mathbb{H}(X-Y_1-Y_2).\]
-By submodularity (Corollary \ref{alt-submodularity})
+By submodularity (\Cref{alt-submodularity})
 \[\mathbb{H}(X,Y_1,Y_2,X-2Y_1)+\mathbb{H}(X-2Y_1)\leq \mathbb{H}(X,X-2Y_1)+\mathbb{H}(Y_1-Y_2,X-2Y_1).\]
 Combining these inequalities
 \[\mathbb{H}(X-2Y_1)\leq \mathbb{H}(Y_1-Y_2)+\mathbb{H}(X-Y_1-Y_2)-\mathbb{H}(Y).\]
@@ -20,7 +20,7 @@ Similarly we have
 \[\mathbb{H}(Y_1,X-Y_1-Y_2)=\mathbb{H}(Y)+\mathbb{H}(X-Y_2),\]
 and
 \[\mathbb{H}(Y_2,X-Y_1-Y_2)=\mathbb{H}(Y)+\mathbb{H}(X-Y_1)\]
-and by submodularity (Corollary \ref{alt-submodularity}) again
+and by submodularity (\Cref{alt-submodularity}) again
 \[\mathbb{H}(Y_1,Y_2,X-Y_1-Y_2)+ \mathbb{H}(X-Y_1-Y_2)\leq \mathbb{H}(Y_1,X-Y_1-Y_2)+\mathbb{H}(Y_2,X-Y_1-Y_2).\]
 Combining these inequalities (and recalling the definition of Ruzsa distance) gives
 \[\mathbb{H}(X-Y_1-Y_2)\leq \mathbb{H}(X-Y_1)+\mathbb{H}(X-Y_2)-\mathbb{H}(X)=2d[X;Y]+\mathbb{H}(Y).\]
@@ -33,9 +33,9 @@ d[X;2Y]
 &\leq \mathbb{H}(Y_1-Y_2)+2d[X;Y]-\mathbb{H}(X)/2-\mathbb{H}(Y)/2\\
 &= d[Y_1;Y_2]+\frac{\mathbb{H}(Y)-\mathbb{H}(X)}{2}+2d[X;Y].
 \end{align*}
-Finally note that by the triangle inequality (Lemma \ref{ruzsa-triangle}) we have
+Finally note that by the triangle inequality (\Cref{ruzsa-triangle}) we have
 \[d[Y_1;Y_2]\leq d[Y_1;X]+d[X;Y_2]=2d[X;Y].\]
-The result follows from $(\mathbb{H}(Y)-\mathbb{H}(X))/2\leq d[X;Y]$ (Lemma \ref{ruzsa-diff}).
+The result follows from $(\mathbb{H}(Y)-\mathbb{H}(X))/2\leq d[X;Y]$ (\Cref{ruzsa-diff}).
 \end{proof}
 
 \begin{lemma}\label{torsion-dist-shrinking}\lean{torsion_dist_shrinking}\leanok
@@ -44,9 +44,9 @@ If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and $\p
 \end{lemma}
 \begin{proof}
 \uses{fibring-ineq, torsion-free-doubling, dist-zero}\leanok
-By Corollary \ref{fibring-ineq} and Lemma \ref{torsion-free-doubling} we have
+By \Cref{fibring-ineq} and \Cref{torsion-free-doubling} we have
 \[d[\phi(X);\phi(2Y)]\leq d[X;2Y]\leq 5d[X;Y]\]
-and $\phi(2Y)=2\phi(Y)\equiv 0$ so the left-hand side is equal to $d[\phi(X);0]=\mathbb{H}(\phi(X))/2$ (using Lemma \ref{dist-zero}).
+and $\phi(2Y)=2\phi(Y)\equiv 0$ so the left-hand side is equal to $d[\phi(X);0]=\mathbb{H}(\phi(X))/2$ (using \Cref{dist-zero}).
 \end{proof}
 
 \begin{lemma}\label{app-ent-pfr}\lean{app_ent_PFR}\leanok
@@ -60,13 +60,13 @@ where $\psi:G\to G/H$ is the natural projection homomorphism.
 \end{lemma}
 \begin{proof}
 \uses{entropy-pfr-improv, ruzsa-diff, dist-projection, ruzsa-nonneg}\leanok
-By Theorem \ref{entropy-pfr-improv} there exists a subgroup $H$ such that
-$d[X;U_H] + d[Y;U_H] \leq 10 d[X;Y]$. Using Lemma \ref{dist-projection} we
+By \Cref{entropy-pfr-improv} there exists a subgroup $H$ such that
+$d[X;U_H] + d[Y;U_H] \leq 10 d[X;Y]$. Using \Cref{dist-projection} we
 deduce that $\mathbb{H}(\psi(X)) + \mathbb{H}(\psi(X)) \leq 20 d[X;Y]$. The
 second claim follows adding these inequalities and using the assumption on
 $\mathbb{H}(X)+\mathbb{H}(Y)$.
 
-Furthermore we have by Lemma \ref{ruzsa-diff}
+Furthermore we have by \Cref{ruzsa-diff}
 \[\log \lvert H \rvert-\mathbb{H}(X)\leq 2d[X;U_H]\]
 and similarly for $Y$ and thus
 \begin{align*}
@@ -79,7 +79,7 @@ and similarly for $Y$ and thus
 \end{align*}
 Finally note that if $H$
 were trivial then $\psi(X)=X$ and $\psi(Y)=Y$ and hence
-$\mathbb{H}(X)+\mathbb{H}(Y)=0$, which contradicts Lemma \ref{ruzsa-nonneg}.
+$\mathbb{H}(X)+\mathbb{H}(Y)=0$, which contradicts \Cref{ruzsa-nonneg}.
 \end{proof}
 
 
@@ -145,7 +145,7 @@ Let $\phi:G\to H$ be a homomorphism and $A,B\subseteq G$ be finite subsets. If $
 \end{lemma}
 \begin{proof}
 \uses{fibring-ident}\leanok
-The random variables $(U_A\mid \phi(U_A)=x)$ and $(U_B\mid \phi(U_B)=y)$ are equal in distribution to $U_{A_x}$ and $U_{B_y}$ respectively (both are uniformly distributed over their respective fibres). It follows from Lemma \ref{fibring-ident} that
+The random variables $(U_A\mid \phi(U_A)=x)$ and $(U_B\mid \phi(U_B)=y)$ are equal in distribution to $U_{A_x}$ and $U_{B_y}$ respectively (both are uniformly distributed over their respective fibres). It follows from \Cref{fibring-ident} that
 \begin{align*}
 \sum_{x,y\in H}\frac{\lvert A_x\rvert\lvert B_y\rvert}{\lvert A\rvert\lvert B\rvert}d[U_{A_x};U_{B_y}]
 &=d[U_A\mid \phi(U_A); U_B\mid \phi(U_B)]\\
@@ -176,16 +176,16 @@ such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$.
 \uses{torsion-dist-shrinking, pfr-projection, single-fibres, dimension-def}\leanok
 Without loss of generality we can assume that $A$ and $B$ are not both inside (possibly distinct) cosets of the same subgroup of $\mathbb{Z}^d$, or we just replace $\mathbb{Z}^d$ with that subgroup. We prove the result by induction on $\lvert A\rvert+\lvert B\rvert$.
 
-Let $\phi:\mathbb{Z}^d\to \mathbb{F}_2^d$ be the natural mod-2 homomorphism. By Lemma \ref{torsion-dist-shrinking}
+Let $\phi:\mathbb{Z}^d\to \mathbb{F}_2^d$ be the natural mod-2 homomorphism. By \Cref{torsion-dist-shrinking}
 \[\max(\mathbb{H}(\phi(U_A)),\mathbb{H}(\phi(U_B)))\leq 10d[U_A;U_B].\]
-We now apply Lemma \ref{pfr-projection}, obtaining some subgroup $H\leq \mathbb{F}_2^d$ such that
+We now apply \Cref{pfr-projection}, obtaining some subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 40d[U_A;U_B]\]
 and
 \[\mathbb{H}(\tilde{\phi}(U_A))+\mathbb{H}(\tilde{\phi}(U_B))\leq 34 d[\tilde{\phi}(U_A);\tilde{\phi}(U_B)]\]
 where $\tilde{\phi}:\mathbb{Z}^d\to \mathbb{F}_2^d/H$ is $\phi$ composed with the projection onto $\mathbb{F}_2^d/H$.
 
 
-By Lemma \ref{single-fibres} there exist $x,y\in \mathbb{F}_2^d/H$ such that, with $A_x=A\cap \tilde{\phi}^{-1}(x)$ and similarly for $B_y$,
+By \Cref{single-fibres} there exist $x,y\in \mathbb{F}_2^d/H$ such that, with $A_x=A\cap \tilde{\phi}^{-1}(x)$ and similarly for $B_y$,
 \[\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}\leq 34(d[U_A;U_B]-d[U_{A_x};U_{B_y}]).\]
 Suppose first that $\lvert A_x\rvert+\lvert B_y\rvert=\lvert A\rvert+\lvert B\rvert$. This means that $\tilde{\phi}(A)=\{x\}$ and $\tilde{\phi}(B)=\{y\}$, and hence both $A$ and $B$ are in cosets of $\ker \tilde{\phi}$. Since by assumption $A,B$ are not in cosets of a proper subgroup of $\mathbb{Z}^d$ this means $\ker\tilde{\phi}=\mathbb{Z}^d$, and so (examining the definition of $\tilde{\phi}$) we must have $H=\mathbb{F}_2^d$. Then our bound on $\log\lvert H\rvert$ forces $d\leq \frac{40}{\log 2}d[U_A;U_B]$ and we are done with $A'=A$ and $B'=B$.
 
@@ -207,7 +207,7 @@ and $\dim A'\leq \frac{40}{\log 2} \log K$.
 \end{theorem}
 \begin{proof}
 \uses{weak-pfr-asymm,dimension-def}\leanok
-Immediate from Theorem \ref{weak-pfr-asymm} and rearranging.
+Immediate from \Cref{weak-pfr-asymm} and rearranging.
 \end{proof}
 
 \begin{theorem}\label{weak-pfr-int}\lean{weak_PFR_int}\leanok
@@ -217,5 +217,5 @@ A\rvert$ and $\dim A' \leq \frac{40}{\log 2}\log K$.
 \end{theorem}
 \begin{proof}\leanok
 \uses{weak-pfr-symm,dimension-def}
-As in the beginning of Theorem \ref{pfr} the doubling condition forces $d[U_A;U_A]\leq \log K$, and then we apply Theorem \ref{weak-pfr-symm}.
+As in the beginning of \Cref{pfr} the doubling condition forces $d[U_A;U_A]\leq \log K$, and then we apply \Cref{weak-pfr-symm}.
 \end{proof}

@@ -66,7 +66,7 @@ lemma graph_add [AddGroup G] [AddCommGroup G'] {f : G →+ G'} {c : G × G'} :
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G'] [DecidableEq G]
   [DecidableEq G']
 
-lemma equiv_filter_graph (f : G → G') :
+def equivFilterGraph (f : G → G') :
     let A := (Set.graph f).toFinite.toFinset
     (A ×ˢ A).filter (fun (a, a') ↦ a + a' ∈ A) ≃ {x : G × G | f (x.1 + x.2) = f x.1 + f x.2} where
   toFun := fun ⟨a, ha⟩ ↦ by

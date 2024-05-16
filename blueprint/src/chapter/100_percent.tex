@@ -20,13 +20,13 @@ If $X$ is a $G$-valued random variable, then $\mathrm{Sym}[X]$ is a subgroup of 
 
 \begin{proof}
   \uses{ruz-indep, ruz-copy, relabeled-entropy-cond,vanish-entropy, alternative-mutual, independent-exist,sym-group-def}\leanok
-   Let $X_1,X_2$ be independent copies of $X$ (from Lemma \ref{independent-exist}). Let $A$ denote the range of $X$.  From Lemma \ref{ruz-indep} and Lemma \ref{ruz-copy} we have
+   Let $X_1,X_2$ be independent copies of $X$ (from \Cref{independent-exist}). Let $A$ denote the range of $X$.  From \Cref{ruz-indep} and \Cref{ruz-copy} we have
   $$ \bbH[X_1-X_2] = \bbH[X_1].$$
-Observe from Lemma \ref{relabeled-entropy-cond} that
+Observe from \Cref{relabeled-entropy-cond} that
 $$ \bbH[X_1-X_2|X_2] = \bbH[X_1|X_2] = \bbH[X_1]$$
-and hence by Lemma \ref{alternative-mutual}
+and hence by \Cref{alternative-mutual}
 $$ \bbI[X_1-X_2 : X_1] = 0.$$
-By Corollary \ref{vanish-entropy}, $X_1-X_2$ and $X_1$ are therefore independent, thus the law of $(X_1-X_2|X_1=x)$ does not depend on $x \in A$. The claim follows.
+By \Cref{vanish-entropy}, $X_1-X_2$ and $X_1$ are therefore independent, thus the law of $(X_1-X_2|X_1=x)$ does not depend on $x \in A$. The claim follows.
 \end{proof}
 
 \begin{lemma}[Translate is uniform on symmetry group]\label{sym-zero}
@@ -45,7 +45,7 @@ By Corollary \ref{vanish-entropy}, $X_1-X_2$ and $X_1$ are therefore independent
 \end{lemma}
 
 \begin{proof}\uses{sym-group, sym-zero}\leanok
-Take $H$ to be the symmetry group of $X$, which is a group by Lemma \ref{sym-group}. From Lemma \ref{sym-zero}, $X-x_0$ is uniform on $H$, and $d[X ;X-x_0] = d[X ;X] \leq 0$, and the claim follows.
+Take $H$ to be the symmetry group of $X$, which is a group by \Cref{sym-group}. From \Cref{sym-zero}, $X-x_0$ is uniform on $H$, and $d[X ;X-x_0] = d[X ;X] \leq 0$, and the claim follows.
 \end{proof}
 
 \begin{corollary}[General 100\% inverse theorem]\label{lem:100pc}
@@ -55,5 +55,5 @@ Take $H$ to be the symmetry group of $X$, which is a group by Lemma \ref{sym-gro
 \end{corollary}
 
 \begin{proof}\uses{lem:100pc-self,ruzsa-triangle, ruzsa-nonneg}\leanok
-Using Lemma \ref{ruzsa-triangle} and Lemma \ref{ruzsa-nonneg} we have $d[X_1;X_1]=0$, hence by Lemma \ref{lem:100pc-self} $d[X_1;U_H]=0$ for some subgroup $H$.  By Lemma \ref{ruzsa-triangle} and Lemma \ref{ruzsa-nonneg} again we also have $d[X_2;U_H]$ as required.
+Using \Cref{ruzsa-triangle} and \Cref{ruzsa-nonneg} we have $d[X_1;X_1]=0$, hence by \Cref{lem:100pc-self} $d[X_1;U_H]=0$ for some subgroup $H$.  By \Cref{ruzsa-triangle} and \Cref{ruzsa-nonneg} again we also have $d[X_2;U_H]$ as required.
 \end{proof}

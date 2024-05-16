@@ -17,7 +17,7 @@ Here we apply PFR to show that almost homomorphisms f from a 2-group to a 2-grou
 -/
 
 open Finset
-open scoped BigOperators Classical Pointwise
+open scoped BigOperators Classical Pointwise Combinatorics.Additive
 
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
   [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2] (A : Finset G)
@@ -36,9 +36,9 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   have h_cs : ((A ×ˢ A).filter (fun (a, a') ↦ a + a' ∈ A) |>.card : ℝ) ^ 2 ≤
       Finset.card A * E[A] := by
     norm_cast
-    convert card_sq_le_card_mul_additiveEnergy A A A
+    convert card_sq_le_card_mul_addEnergy A A A
   rewrite [← Nat.card_eq_finsetCard, ← Nat.card_eq_finsetCard,
-    Nat.card_congr (Set.equiv_filter_graph f)] at h_cs
+    Nat.card_congr (Set.equivFilterGraph f)] at h_cs
 
   have hA : Nat.card A = Nat.card G := by
     rewrite [← Set.card_graph f, Nat.card_eq_finsetCard, Set.Finite.card_toFinset]; simp
@@ -195,7 +195,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   push_cast
   rw [mul_inv_cancel <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, one_mul, ← sq,
     ← Real.rpow_two, ← Real.rpow_mul (by positivity), Real.mul_rpow (by positivity) (by positivity)]
-  have : K ^ (12 : ℕ) = K ^ (12 : ℝ) := (Real.rpow_nat_cast K 12).symm
+  have : K ^ (12 : ℕ) = K ^ (12 : ℝ) := (Real.rpow_natCast K 12).symm
   rw [this, ← Real.rpow_mul (by positivity)]
   norm_num
-  exact Real.rpow_nat_cast K 144
+  exact Real.rpow_natCast K 144

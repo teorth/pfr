@@ -114,7 +114,7 @@ lemma _root_.ProbabilityTheory.entropy_of_discreteUniform : measureEntropy (disc
     _ = ∑' s, if s ∈ H then negMulLog (1 / (Nat.card H)) else 0 := by
       congr with s
       by_cases h: s ∈ H
-      all_goals simp [h]
+      all_goals simp [h, Finset.filter_true_of_mem]
     _ = ∑ s in H.toFinite.toFinset, negMulLog (1 / (Nat.card H)) := by
       convert tsum_eq_sum (s := H.toFinite.toFinset) ?_ using 2 with s hs
       . simp at hs; simp [hs]

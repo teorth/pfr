@@ -1,4 +1,4 @@
-import Mathlib.GroupTheory.Subgroup.Pointwise
+import Mathlib.Algebra.Group.Subgroup.Pointwise
 
 open Set
 open scoped Pointwise

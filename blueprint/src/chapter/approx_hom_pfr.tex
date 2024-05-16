@@ -34,14 +34,14 @@ such that $f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {172} * K ^ {146})$ values
 \begin{proof}\uses{goursat, cs-bound, bsg, pfr_aux-improv}\leanok Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have $a+a' \in A$ for at least
-$|A|^2/K$ pairs $(a,a') \in A^2$. By Lemma \ref{cs-bound}, this implies that
-$E(A) \geq |A|^3/K^2$.  Applying Lemma \ref{bsg}, we conclude that there
+$|A|^2/K$ pairs $(a,a') \in A^2$. By \Cref{cs-bound}, this implies that
+$E(A) \geq |A|^3/K^2$.  Applying \Cref{bsg}, we conclude that there
 exists a subset $A' \subset A$ with $|A'| \geq |A|/C_1 K^{2C_2}$ and $|A'+A'|
-\leq C_1C_3 K^{2(C_2+C_4)} |A'|$. Applying Lemma \ref{pfr_aux-improv}, we may
+\leq C_1C_3 K^{2(C_2+C_4)} |A'|$. Applying \Cref{pfr_aux-improv}, we may
 find a subspace $H \subset G \times G'$ such that $|H| / |A'| \in [L^{-10},
 L^{10}$ and a subset $c$ of cardinality at most $L^6 |A'|^{1/2} / |H|^{1/2}$
 such that $A' \subseteq c + H$, where $L =  C_1C_3 K^{2(C_2+C_4)}$. If we let
-$H_0,H_1$ be as in Lemma \ref{goursat}, this implies on taking projections
+$H_0,H_1$ be as in \Cref{goursat}, this implies on taking projections
 the projection of $A'$ to $G$ is covered by at most $|c|$ translates of
 $H_0$.  This implies that
 $$ |c| |H_0| \geq |A'|;$$
