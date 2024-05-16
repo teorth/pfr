@@ -13,7 +13,7 @@ $$ H := \{ (x, \phi(x) + y): x \in H_0, y \in H_1 \}.$$
 In particular, $|H| = |H_0| |H_1|$.
 \end{lemma}
 
-\begin{proof}\uses{hb-thm}\leanok We can take $H_0$ to be the projection of $H$ to $G$, and $H_1$ to be the slice $H_1 := \{ y: (0,y) \in H \}$.  One can construct $\phi$ on $H_0$ one generator at a time by the greedy algorithm, and then extend to $G$ by Lemma \ref{hb-thm}.  The cardinality bound is clear from direct counting.
+\begin{proof}\uses{hb-thm}\leanok We can take $H_0$ to be the projection of $H$ to $G$, and $H_1$ to be the slice $H_1 := \{ y: (0,y) \in H \}$.  One can construct $\phi$ on $H_0$ one generator at a time by the greedy algorithm, and then extend to $G$ by \Cref{hb-thm}.  The cardinality bound is clear from direct counting.
 \end{proof}
 
 \begin{theorem}[Homomorphism form of PFR]\label{hom-pfr}\lean{homomorphism_pfr}\leanok  Let $f: G \to G'$ be a function, and let $S$ denote the set
@@ -27,10 +27,10 @@ Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have
 $$ A+A \subset \{ (x,f(x)+s): x \in G, s \in S\}$$
-and hence $|A+A| \leq |S| |A|$.  Applying Lemma \ref{pfr_aux-improv}, we may
+and hence $|A+A| \leq |S| |A|$.  Applying \Cref{pfr_aux-improv}, we may
 find a subspace $H \subset G \times G'$ such that $|H|/ |A| \in [K^{-10},
 K^{10}]$ and $A$ is covered by $c + H$ with $|c| \le |S|^6|A|^{1/2} /
-|H|^{1/2}$. If we let $H_0, H_1$ be as in Lemma \ref{goursat}, this implies
+|H|^{1/2}$. If we let $H_0, H_1$ be as in \Cref{goursat}, this implies
 on taking projections that $G$ is covered by at most $|c|$ translates of
 $H_0$. This implies that
 $$ |c| |H_0| \geq |G|;$$

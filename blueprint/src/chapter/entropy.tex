@@ -29,7 +29,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
 \end{lemma}
 
 \begin{proof}\uses{jensen}\leanok
-  This is a direct consequence of Lemma \ref{jensen}.
+  This is a direct consequence of \Cref{jensen}.
 \end{proof}
 
 \begin{definition}[Uniform distribution]\label{uniform-def}\leanok
@@ -52,7 +52,7 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   If $X$ is $S$-valued random variable, then $\bbH[X] = \log |S|$ if and only if $X$ is uniformly distributed on $S$.
 \end{lemma}
 
-\begin{proof} \uses{converse-jensen}\leanok Direct computation in one direction.  Converse direction needs Lemma \ref{converse-jensen}.
+\begin{proof} \uses{converse-jensen}\leanok Direct computation in one direction.  Converse direction needs \Cref{converse-jensen}.
 \end{proof}
 
 \begin{lemma}[Entropy of uniform random variable, II]\label{uniform-entropy-II}
@@ -88,7 +88,7 @@ We use $X,Y$ to denote the pair $\omega \mapsto (X(\omega),Y(\omega)$).
 \begin{proof}
   \leanok
   \uses{relabeled-entropy}
-  Set up an injection from $(X,Y)$ to $(Y,X)$ and use Lemma \ref{relabeled-entropy} for the first claim. Similarly for the second claim.
+  Set up an injection from $(X,Y)$ to $(Y,X)$ and use \Cref{relabeled-entropy} for the first claim. Similarly for the second claim.
 \end{proof}
 
 
@@ -120,7 +120,7 @@ Note: it may happen that $E$ has zero measure.  In which case, the ambient proba
 
 \begin{proof}
   \uses{relabeled-entropy}\leanok
-  For the first part, use Definition \ref{conditional-entropy-def} and then Lemma \ref{relabeled-entropy}.  The second part is a direct computation.
+  For the first part, use \Cref{conditional-entropy-def} and then \Cref{relabeled-entropy}.  The second part is a direct computation.
 \end{proof}
 
 
@@ -143,7 +143,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{lemma}
 
 \begin{proof}  \uses{chain-rule}\leanok
-   For each $z \in U$, we can apply Lemma \ref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
+   For each $z \in U$, we can apply \Cref{chain-rule} to the random variables $(X|Z=z)$ and $(Y|Z=z)$ to obtain
   $$ \bbH[(X|Z=z),(Y|Z=z)] = \bbH[Y|Z=z] + \bbH[(X|Z=z)|(Y|Z=z)].$$
   Now multiply by $\bbP[Z=z]$ and sum.  Some helper lemmas may be needed to get to the form above.  This sort of ``average over conditioning'' argument to get conditional entropy inequalities from unconditional ones is commonly used in this paper.
 \end{proof}
@@ -181,7 +181,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   We have $\bbI[X:Y] \geq 0$.
 \end{lemma}
 
-\begin{proof}  \uses{jensen, alternative-mutual}\leanok An application of Lemma \ref{jensen} and Lemma \ref{alternative-mutual}.
+\begin{proof}  \uses{jensen, alternative-mutual}\leanok An application of \Cref{jensen} and \Cref{alternative-mutual}.
 \end{proof}
 
 \begin{corollary}[Subadditivity]
@@ -194,7 +194,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{proof}
   \uses{mutual-nonneg, alternative-mutual}
   \leanok
-  Use Lemma \ref{mutual-nonneg}.
+  Use \Cref{mutual-nonneg}.
 \end{proof}
 
 \begin{corollary}[Conditioning reduces entropy]
@@ -206,7 +206,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \begin{proof}
   \uses{mutual-nonneg, alternative-mutual}
   \leanok
-  Combine Lemma \ref{mutual-nonneg} with Lemma \ref{alternative-mutual}.
+  Combine \Cref{mutual-nonneg} with \Cref{alternative-mutual}.
 \end{proof}
 
 \begin{corollary}[Submodularity]\label{submodularity}
@@ -214,7 +214,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   With three random variables $X,Y,Z$, one has $\bbH[X|Y,Z] \leq \bbH[X|Z]$.
 \end{corollary}
 
-\begin{proof} \uses{cond-reduce}\leanok Apply the ``averaging over conditioning'' argument to Corollary \ref{cond-reduce}.
+\begin{proof} \uses{cond-reduce}\leanok Apply the ``averaging over conditioning'' argument to \Cref{cond-reduce}.
 \end{proof}
 
 \begin{corollary}[Alternate form of submodularity]\label{alt-submodularity}
@@ -223,7 +223,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   $$ \bbH[X,Y,Z] + \bbH[Z] \leq \bbH[X,Z] + \bbH[Y,Z].$$
 \end{corollary}
 
-\begin{proof}  \uses{submodularity,chain-rule} \leanok Apply Corollary \ref{submodularity} and Lemma \ref{chain-rule}.
+\begin{proof}  \uses{submodularity,chain-rule} \leanok Apply \Cref{submodularity} and \Cref{chain-rule}.
 \end{proof}
 
 \begin{definition}[Independent random variables]
@@ -242,7 +242,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   \end{lemma}
 
   \begin{proof} \uses{converse-jensen}\leanok
-    An application of the equality case of Jensen's inequality, Lemma \ref{converse-jensen}.
+    An application of the equality case of Jensen's inequality, \Cref{converse-jensen}.
   \end{proof}
 
 \begin{corollary}[Additivity of entropy]\label{add-entropy}
@@ -252,7 +252,7 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
 \end{corollary}
 
 \begin{proof} \uses{vanish-entropy}\leanok
-  Direct from Lemma \ref{vanish-entropy}.
+  Direct from \Cref{vanish-entropy}.
 \end{proof}
 
 \begin{definition}[Conditional mutual information]
@@ -286,7 +286,7 @@ If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] \ge 0$.
 \begin{proof}
 \uses{submodularity}
 \leanok
-Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
+Use \Cref{conditional-mutual-def} and \Cref{submodularity}.
 \end{proof}
 
 \begin{definition}[Conditionally independent random variables]
@@ -301,7 +301,7 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
   If $X,Y,Z$ are random variables, then $\bbI[X:Y|Z] = 0$ iff $X,Y$ are conditionally independent over $Z$.
 \end{lemma}
 
-\begin{proof} \uses{vanish-entropy, conditional-independent-def}\leanok Immediate from Lemma \ref{vanish-entropy} and Definition \ref{conditional-independent-def}.
+\begin{proof} \uses{vanish-entropy, conditional-independent-def}\leanok Immediate from \Cref{vanish-entropy} and \Cref{conditional-independent-def}.
 \end{proof}
 
 \begin{corollary}[Entropy of conditionally independent variables]\label{cond-trial-ent}
@@ -310,5 +310,5 @@ Use Definition \ref{conditional-mutual-def} and Lemma \ref{submodularity}.
   $$ \bbH[X,Y,Z] =\bbH[X,Z] + \bbH[Y,Z] - \bbH[Z].$$
 \end{corollary}
 
-\begin{proof} \uses{conditional-vanish, conditional-mutual-alt}\leanok Immediate from Lemma \ref{conditional-vanish} and Lemma \ref{conditional-mutual-alt}.
+\begin{proof} \uses{conditional-vanish, conditional-mutual-alt}\leanok Immediate from \Cref{conditional-vanish} and \Cref{conditional-mutual-alt}.
 \end{proof}

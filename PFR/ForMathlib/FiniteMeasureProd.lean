@@ -48,7 +48,7 @@ lemma prod_zero : μ.prod (0 : FiniteMeasure β) = 0 := by
   apply Subtype.ext
   simp only [val_eq_toMeasure, toMeasure_map, toMeasure_prod, Measure.map_fst_prod]
   ext s _
-  simp only [Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul]
+  simp only [Measure.smul_apply, smul_eq_mul]
   have aux := @coeFn_smul_apply α _ ℝ≥0 _ _ _ _ _ (ν univ) μ s
   simpa using congr_arg ENNReal.ofNNReal aux.symm
 

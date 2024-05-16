@@ -11,6 +11,8 @@ noncomputable section
 open MeasureTheory Measure Filter Set
 open scoped Topology BigOperators MeasureTheory ENNReal NNReal
 
+attribute [symm] ProbabilityTheory.IdentDistrib.symm
+
 variable {α β γ δ : Type*} [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ]
   [MeasurableSpace δ]
 

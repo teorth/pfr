@@ -75,9 +75,7 @@ namespace MeasureTheory
 variable {α : Type*} {β : Type*} {_ : MeasurableSpace α} [MeasurableSpace β] (μ : Measure α)
 
 /-- The real-valued version of a measure. Maps infinite measure sets to zero. Use as `μ.real s`. -/
-@[pp_dot]
-protected def Measure.real (s : Set α) : ℝ :=
-  (μ s).toReal
+protected def Measure.real (s : Set α) : ℝ := (μ s).toReal
 
 theorem measureReal_def (s : Set α) : μ.real s = (μ s).toReal := rfl
 
