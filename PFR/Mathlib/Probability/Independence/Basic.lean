@@ -232,9 +232,7 @@ lemma iIndepFun.pi
 
   rw [iIndepSets_iff]
   intro s E hE
-  simp? at hE
-    says simp only [mem_image, mem_pi, mem_univ, mem_setOf_eq, forall_true_left,
-      exists_exists_and_eq_and] at hE
+  simp only [mem_image, mem_pi, mem_univ, true_implies, exists_exists_and_eq_and] at hE
   have hE' (k : s) := hE k (Finset.coe_mem k)
   classical
   obtain ⟨sets, h_sets⟩ := Classical.axiomOfChoice hE'
