@@ -83,13 +83,34 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
-/--   If $X,Y$ are $G$-valued, then
-  $$  d[X ; -Y]  \leq 3 d[X;Y].$$ -/
+-- Mathlib PR #12918 has been merged.
+@[to_additive]
+lemma ProbabilityTheory.IdentDistrib.inv {α : Type*} {β : Type*} {γ : Type*}
+    [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ] {μ : Measure α} {ν : Measure β}
+    {f : α → γ} {g : β → γ} [Inv γ] [MeasurableInv γ] (h : IdentDistrib f g μ ν) :
+    IdentDistrib f⁻¹ g⁻¹ μ ν := h.comp measurable_inv
+
+
+-- lemma canonical_copy (hX : Measurable X) (μ : Measure Ω) :
+--     ∃ ν : Measure (FiniteRange.fintype ), ∃ X' : (Set.range X) → G, Measurable X' ∧
+--       IdentDistrib X X' μ ν := by sorry
+
+/-TODO: we had to add the hp `Fintype G` to the following lemma in order to use `condIndep_copies`,
+which requires it. Actually, we already have `FiniteRange X` and `FiniteRange Y`, so it should be
+possible to remove it, or to gneralize the lemma to the case where `G` is not finite but the
+random variables have finite range. One way to do it may be to write a lemma that tells us that
+given a r.v., we can construct another r.v. that is identically distributed, which is defined the
+immersion of the range of the initial r.v. inside the codomain (this would be a sort of canonical
+version)-/
+
+/--   If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
-    (hY : Measurable Y) :
+    (hY : Measurable Y) [Fintype G] :
     d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
-  obtain ⟨ν, X', Y', ⟨hν, hX', hY', h_indep, hXX', hYY'⟩⟩ := independent_copies hX hY μ μ'
   rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
+  have := condIndep_copies (⟨X', Y'⟩) (X' - Y') ?_ ?_ ν
+  ·
+    exact?
   sorry
 
 -- #check ProbabilityTheory.IdentDistrib.rdist_eq
@@ -97,7 +118,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 -- #check ProbabilityTheory.independent_copies'
 -- #check ProbabilityTheory.independent_copies_two
 -- #check ProbabilityTheory.independent_copies3_nondep
--- #check ProbabilityTheory.condIndep_copies
+#check ProbabilityTheory.condIndep_copies
 -- #check ProbabilityTheory.entropy_triple_add_entropy_le
 -- #check ProbabilityTheory.IndepFun.rdist_eq
 -- #check ProbabilityTheory.entropy_neg
