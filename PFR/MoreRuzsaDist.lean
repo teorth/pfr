@@ -234,14 +234,14 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 #check ProbabilityTheory.condIndep_copies
 #check ProbabilityTheory.entropy_submodular
 #check ProbabilityTheory.condEntropy_comp_ge
--- #check ProbabilityTheory.entropy_triple_add_entropy_le
--- #check ProbabilityTheory.IndepFun.rdist_eq
--- #check ProbabilityTheory.entropy_neg
--- #check ProbabilityTheory.entropy_comp_of_injective
--- #check ProbabilityTheory.entropy_of_comp_eq_of_comp
--- #check ProbabilityTheory.entropy_pair_eq_add
--- #check ProbabilityTheory.entropy_pair_le_add
--- #check ProbabilityTheory.entropy_comp_le
+#check ProbabilityTheory.entropy_triple_add_entropy_le
+#check ProbabilityTheory.IndepFun.rdist_eq
+#check ProbabilityTheory.entropy_neg
+#check ProbabilityTheory.entropy_comp_of_injective
+#check ProbabilityTheory.entropy_of_comp_eq_of_comp
+#check ProbabilityTheory.entropy_pair_eq_add
+#check ProbabilityTheory.entropy_pair_le_add
+#check ProbabilityTheory.entropy_comp_le
 
 --open Classical in
 /--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then

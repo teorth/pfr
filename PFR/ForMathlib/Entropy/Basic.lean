@@ -142,8 +142,10 @@ lemma entropy_cond_eq_sum_finiteRange (hX : Measurable X) (μ : Measure Ω) [IsP
   · have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure _ hy
     rw [entropy_eq_sum_finiteRange hX]
 
-/-- If $X$, $Y$ are $S$-valued and $T$-valued random variables, and $Y = f(X)$ for
-some injection $f : S \to T$, then $H[Y] = H[X]$. One can also use `entropy_of_comp_eq_of_comp` as an alternative if verifying injectivity is fiddly. For the upper bound only, see `entropy_comp_le`. -/
+/-- If `X`, `Y` are `S`-valued and `T`-valued random variables, and `Y = f(X)` for
+some injection `f : S \to T`, then `H[Y] = H[X]`.
+One can also use `entropy_of_comp_eq_of_comp` as an alternative if verifying injectivity is fiddly.
+For the upper bound only, see `entropy_comp_le`. -/
 lemma entropy_comp_of_injective
     (μ : Measure Ω) (hX : Measurable X) (f : S → T) (hf : Function.Injective f) :
     H[f ∘ X ; μ] = H[X ; μ] := by
@@ -604,8 +606,7 @@ lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
     H[⟨X, Y⟩ | Z ; μ] = H[Y | Z ; μ] + H[X | ⟨Y, Z⟩ ; μ] := by
     rw [condEntropy_comm hX hY, cond_chain_rule' _ hY hX hZ]
 
-/-- Data-processing inequality for the entropy :
-$$ H[f(X)] \leq H[X].$$
+/-- Data-processing inequality for the entropy: `H[f(X)] \leq H[X]`.
 To upgrade this to equality, see `entropy_of_comp_eq_of_comp` or `entropy_comp_of_injective`. -/
 lemma entropy_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → U) [FiniteRange X]:
     H[f ∘ X ; μ] ≤ H[X ; μ] := by
@@ -742,7 +743,7 @@ lemma IndepFun.condEntropy_eq_entropy {μ : Measure Ω} (h : IndepFun X Y μ)
   rw [mutualInfo_eq_entropy_sub_condEntropy hX hY] at this
   linarith
 
-/-- $H[X, Y] = H[X] + H[Y]$ if and only if $X, Y$ are independent. -/
+/-- `H[X, Y] = H[X] + H[Y]` if and only if `X, Y` are independent. -/
 lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
     [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[⟨X, Y⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by

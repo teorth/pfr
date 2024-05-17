@@ -87,8 +87,8 @@ lemma entropy_div_left' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω
     H[⟨X / Y, Y⟩; μ] = H[⟨X, Y⟩ ; μ] :=
   (entropy_comm (hX.div hY) hY _).trans $ (entropy_div_right' hY hX _).trans $ entropy_comm hY hX _
 
-/-- If $X$ is $G$-valued, then $H[X⁻¹]=H[X]$. -/
-@[to_additive "If $X$ is $G$-valued, then $H[-X]=H[X]$."]
+/-- If `X` is `G`-valued, then `H[X⁻¹]=H[X]`. -/
+@[to_additive "If `X` is `G`-valued, then `H[-X]=H[X]`."]
 lemma entropy_inv (hX : Measurable X) : H[X⁻¹ ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (·⁻¹) inv_injective
 
