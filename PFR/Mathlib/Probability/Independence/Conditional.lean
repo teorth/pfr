@@ -260,7 +260,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     apply identDistrib_map hX measurable_id
   exact (h1.trans h2).trans (h3 y)
 
-/-- For $X, Y$ random variables, there exist conditionally independent trials $X_1, X_2, Y'$. -/
+/-- For `X, Y` random variables, there exist conditionally independent trials `X₁, X₂, Y'`. -/
 lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY : Measurable Y)
     (μ : Measure Ω) [IsProbabilityMeasure μ] (p : α → β → Prop) (hp : Measurable (uncurry p))
     (hp' : ∀ᵐ ω ∂μ, p (X ω) (Y ω)) :
