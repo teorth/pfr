@@ -885,17 +885,17 @@ section IsProbabilityMeasure
 variable (μ : Measure Ω) [IsProbabilityMeasure μ] [MeasurableSingletonClass S]
   [MeasurableSingletonClass T]
 
-/-- $$ H[X] - H[X|Y] = I[X : Y] $$ -/
+/-- `H[X] - H[X|Y] = I[X : Y]` -/
 lemma entropy_sub_condEntropy (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y] :
     H[X ; μ] - H[X | Y ; μ] = I[X : Y ; μ] := by
   rw [mutualInfo_def, chain_rule _ hX hY, add_comm, add_sub_add_left_eq_sub]
 
-/-- $$ H[X|Y] ≤ H[X] $$ -/
+/-- `H[X | Y] ≤ H[X]`.-/
 lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[X | Y ; μ] ≤ H[X ; μ] :=
   sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInfo_nonneg hX hY _
 
-/-- $H[X | Y, Z] \leq H[X | Z]$ -/
+/-- `H[X | Y, Z] ≤ H[X | Z]`. -/
 lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
     H[X | ⟨Y, Z⟩ ; μ] ≤ H[X | Z ; μ] := by
   rw [condEntropy_eq_kernel_entropy hX hZ, condEntropy_two_eq_kernel_entropy hX hY hZ]
@@ -921,8 +921,7 @@ lemma condEntropy_comp_ge [FiniteRange X] [FiniteRange Y] (μ : Measure Ω) [IsP
     ← chain_rule'' μ hY (Measurable.prod (by exact hX) (by exact hZ))]
   exact entropy_submodular μ hY hX hZ
 
-/-- The submodularity inequality:
-$$ H[X, Y, Z] + H[Z] \leq H[X, Z] + H[Y, Z].$$ -/
+/-- The submodularity inequality: `H[X, Y, Z] + H[Z] ≤ H[X, Z] + H[Y, Z]`. -/
 lemma entropy_triple_add_entropy_le (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
     H[⟨X, ⟨Y, Z⟩⟩ ; μ] + H[Z ; μ] ≤ H[⟨X, Z⟩ ; μ] + H[⟨Y, Z⟩ ; μ] := by
   rw [chain_rule _ hX (hY.prod_mk hZ), chain_rule _ hX hZ, chain_rule _ hY hZ]
