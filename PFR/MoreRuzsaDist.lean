@@ -107,6 +107,11 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 
   sorry
 
+  -- Riuscire a dire a Mathlib che le variabili aleatorie siano misurabili
+  -- test `measurability`
+  -- measurable_sub
+  -- Funprop (import something)
+
 -- #check ProbabilityTheory.IdentDistrib.rdist_eq
 -- #check ProbabilityTheory.independent_copies
 -- #check ProbabilityTheory.independent_copies'
