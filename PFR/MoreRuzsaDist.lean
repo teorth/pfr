@@ -1,4 +1,3 @@
--- theorem foo (n : Nat) : 0 ≤ n := by exact? -- trick to make exact? work TODO : erase this when we are done
 import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
