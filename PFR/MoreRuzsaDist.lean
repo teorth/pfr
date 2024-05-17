@@ -270,16 +270,16 @@ lemma kvm_ineq_III {I:Type*} {i₀ : I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': 
 -/
 lemma ent_of_sum_le_ent_of_sum : 0 = 1 := by sorry
 
-/-- Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
-$$H[X-(a+1)Y] \leq H[X-aY] + H[X-Y-X'] - H[X]$$ -/
+/-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`, and
+let `a` be an integer.  Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
 lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X'] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X') (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a:ℤ} : H[X - (a+1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by sorry
 
-/-- Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
-$$H[X-(a-1)Y] \leq H[X-aY] + H[X-Y-X'] - H[X]$$ -/
+/-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
+and let `a` be an integer.  Then `H[X - (a-1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]`. -/
 lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X'] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X') (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a:ℤ} : H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by sorry
 
-/--  Let $X,Y$ be independent $G$-valued random variables, and let $a$ be an integer.  Then
-  $$H[X-aY] - H[X] \leq 4 |a| d[X;Y].$$ -/
+/--  Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer.  Then
+  `H[X - aY] - H[X] ≤ 4 |a| d[X ; Y]`. -/
 lemma ent_of_sub_smul_le {Y : Ω → G} [FiniteRange Y] (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a:ℤ} : H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by sorry
 
 section multiDistance
