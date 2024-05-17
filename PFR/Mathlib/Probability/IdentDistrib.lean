@@ -185,7 +185,7 @@ lemma identDistrib_comp_snd {X : Ω → α} (hX : Measurable X) (μ : Measure Ω
     congr
     simp
 
-/-- For $X, Y$ random variables, one can find independent copies $X', Y'$ of $X, Y$. -/
+/-- For `X, Y` random variables, one can find independent copies `X', Y'` of `X, Y`. -/
 lemma independent_copies {X : Ω → α} {Y : Ω' → β} (hX : Measurable X) (hY : Measurable Y)
     (μ : Measure Ω) (μ' : Measure Ω') [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     ∃ ν : Measure (α × β), ∃ X' : α × β → α, ∃ Y' : α × β → β, IsProbabilityMeasure ν
@@ -197,7 +197,7 @@ lemma independent_copies {X : Ω → α} {Y : Ω' → β} (hX : Measurable X) (h
     indepFun_fst_snd, ⟨measurable_fst.aemeasurable, hX.aemeasurable, by simp⟩,
     measurable_snd.aemeasurable, hY.aemeasurable, by simp⟩
 
-/-- For $X, Y$ random variables, one can find independent copies $X', Y'$ of $X, Y$. Version
+/-- For `X, Y` random variables, one can find independent copies `X', Y'` of `X, Y`. Version
 formulated in spaces with a canonical measures. -/
 lemma independent_copies_two {Ω : Type u} {Ω' : Type v} [MeasureSpace Ω] [MeasureSpace Ω']
     [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
@@ -215,9 +215,9 @@ lemma independent_copies_two {Ω : Type u} {Ω' : Type v} [MeasureSpace Ω] [Mea
     have : (ℙ : Measure (Ω × Ω')) = (ℙ : Measure Ω).prod (ℙ : Measure Ω') := rfl
     simp [← Measure.map_map hY measurable_snd, this]
 
-/-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.
-Then there exist jointly independent random variables $X'_i : \Omega' \to S_i$ for $i=1,\dots,k$
-such that each $X'_i$ is a copy of $X_i$. -/
+/-- Let `Xᵢ : Ωᵢ → Sᵢ` be random variables for `i = 1,...,k`.
+Then there exist jointly independent random variables `Xᵢ' : Ω' → Sᵢ` for `i=1,...,k`
+such that each `Xᵢ'` is a copy of `Xᵢ`. -/
 lemma independent_copies' {I : Type u} [Fintype I] {α : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (α i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → α i) (hX : ∀ i : I, Measurable (X i))
