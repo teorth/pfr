@@ -99,25 +99,141 @@ version)-/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
     (hY : Measurable Y) [Fintype G] :
     d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
-  obtain ⟨ν, X', Y', ⟨hν, hX', hY', h_indep', hXX', hYY'⟩⟩ := independent_copies hX hY μ μ'
+  obtain ⟨ν, X', Y', hν, hX', hY', h_indep', hXX', hYY'⟩ := independent_copies hX hY μ μ'
   rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
-  obtain this := condIndep_copies (⟨X', Y'⟩) (X' - Y') (hX'.prod_mk hY') (hX'.sub' hY') ν
-  obtain ⟨Ω₀, mΩ₀, XY₁, XY₂, XsubY, ν₀, hν₀, hXY₁, hXY₂, hXsubY, h_indep12sub, h_id1sub, h_id2sub⟩
-    := condIndep_copies (⟨X', Y'⟩) (X' - Y') (hX'.prod_mk hY') (hX'.sub' hY') ν
+  -- simp_rw [rdist]
 
-  sorry
+  -- obtain ⟨Ω₀, mΩ₀, XY₁, XY₂, XsubY, ν₀, hν₀, hXY₁, hXY₂, hXsubY, h_indep12sub, h_id1sub, h_id2sub⟩
+  --   := condIndep_copies (⟨X', Y'⟩) (X' - Y') (hX'.prod_mk hY') (hX'.sub' hY') ν
+  -- have := independent_copies'
 
-  -- Riuscire a dire a Mathlib che le variabili aleatorie siano misurabili
-  -- test `measurability`
-  -- measurable_sub
-  -- Funprop (import something)
+  let XY'vec := ![X', Y', X', Y', X', Y']
+  have hh := independent_copies' XY'vec ?_
+  swap; measurability
+
+  -- this is to unpack `hh`
+  let νvec := fun (_ : Fin 6) ↦ ν
+  have (i : Fin 6) : IsProbabilityMeasure (νvec i) := by
+    unfold_let
+    dsimp
+    exact hν
+  replace hh := @hh νvec this
+  obtain ⟨Ω₀, mΩ₀, ν₀, XYvec, hν₀, h_indep, h_temp⟩ := hh
+  rw [forall_and] at h_temp
+  rcases h_temp with ⟨h_meas, h_ident⟩
+  let X₁ := XYvec 0
+  let Y₁ := XYvec 1
+  let X₂ := XYvec 2
+  let Y₂ := XYvec 3
+  let X₃ := XYvec 4
+  let Y₃ := XYvec 5
+  --
+
+  --first inequality, from Lemma 2.21
+  have in1 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀] + H[X₃ + Y₃; ν₀]
+      ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀] + H[⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩ ; ν₀] := by
+    sorry
+
+  have eq2 : H[X₃ + Y₃; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # -Y'; ν] := by
+    sorry
+
+  have eq3 : H[⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩; ν₀] = H[X'; ν] + H[Y'; ν] := by
+    sorry
+
+  have eq3' : H[⟨X₃, Y₃⟩; ν₀] = H[X'; ν] + H[Y'; ν] := by
+    sorry
+
+  have eq4 : X₃ + Y₃ = (X₃ - Y₂) - (X₁ - Y₃) + (X₂ + Y₁) := by
+    sorry
+
+  have eq5 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀]
+      = H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩ ; ν₀] := by
+    sorry
+
+  have in6 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀]
+      ≤ H[X₃ - Y₂; ν₀] + H[X₁ - Y₃; ν₀] + H[X₂; ν₀] + H[Y₁; ν₀] := by
+    sorry
+
+  have eq7 : H[X₃ - Y₂; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # Y'; ν] := by
+    sorry
+
+  have eq8 : H[X₁ - Y₃; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # Y'; ν] := by
+    sorry
+
+  have in9 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀]
+      ≤ 2 * H[X'; ν] + 2 * H[Y'; ν] + 2 * d[X'; ν # Y'; ν] := by
+    sorry
+
+  have in10 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀]
+      ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀] := by
+    sorry
+
+  have eq11 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀]
+      = H[⟨X₁, ⟨Y₁, X₁ - Y₁⟩⟩ ; ν₀] + H[⟨X₂, ⟨Y₂, X₂ - Y₂⟩⟩ ; ν₀]
+        - H[X₁ - Y₁; ν₀] + H[⟨X₃, Y₃⟩ ; ν₀] := by
+    sorry
+
+  have eq12 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀]
+      = 5/2 * H[X'; ν] + 5/2 * H[Y'; ν] - d[X'; ν # Y'; ν] := by
+    sorry
+
+  have in13 : 5 / 2 * (H[X' ; ν] + H[Y' ; ν]) - d[X' ; ν # Y' ; ν] --typo
+      ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀] := by
+    sorry --in10 + eq12
+
+  suffices h : 3 * (H[X'; ν] + H[Y'; ν]) - d[X'; ν # Y'; ν] + d[X'; ν # -Y'; ν] ≤ 3 * (H[X'; ν] + H[Y'; ν]) + 2 * d[X'; ν # Y'; ν] by
+    simp only [sub_eq_add_neg, add_assoc, add_le_add_iff_left, neg_add_le_iff_le_add] at h
+    ring_nf at *
+    exact h
+
+  calc
+    _ = 5 / 2 * (H[X' ; ν] + H[Y' ; ν]) - d[X' ; ν # Y' ; ν]
+        + 1 / 2 * (H[X' ; ν] + H[Y' ; ν]) + d[X' ; ν # -Y' ; ν] := by
+      ring
+    _ ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀]
+        + 1 / 2 * (H[X' ; ν] + H[Y' ; ν]) + d[X' ; ν # -Y' ; ν] := by
+      simp only [one_div, add_le_add_iff_right, in13]
+    _ = H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀] + H[X₃ + Y₃ ; ν₀] := by
+      simp only [one_div, eq2]
+      ring
+    _ ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀] + H[⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩ ; ν₀] := in1
+    _ ≤ 2 * (H[X' ; ν] + H[Y' ; ν]) + 2 * d[X' ; ν # Y' ; ν] + H[⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩ ; ν₀] := by
+      gcongr
+      ring_nf at *
+      simp only [in9]
+    _ = 2 * (H[X' ; ν] + H[Y' ; ν]) + 2 * d[X' ; ν # Y' ; ν] + H[X' ; ν] + H[Y' ; ν] := by
+      simp only [eq3]
+      ring
+    _ = 3 * (H[X' ; ν] + H[Y' ; ν]) + 2 * d[X' ; ν # Y' ; ν] := by
+      ring
+
+
+
+
+-- \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3, Y_3, X_3+Y_3] + \bbH[X_3+Y_3] \leq \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] + \bbH[X_3, Y_3, X_3+Y_3]
+-- \bbH[X_3+Y_3] = \frac{1}{2} \bbH[X] + \frac{1}{2} \bbH[Y] + d[X;-Y]
+-- \bbH[X_3,Y_3,X_3+Y_3] = \bbH[X]+\bbH[Y]
+-- X_3+Y_3 = (X_3-Y_2) - (X_1-Y_3) + (X_2+Y_1)
+-- \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] = \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1]
+-- \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] \leq \bbH[X_3-Y_2] + \bbH[X_1-Y_3] + \bbH[X_2] + \bbH[Y_1]
+-- \bbH[X_3-Y_2] = \frac{1}{2} \bbH[X] + \frac{1}{2} \bbH[Y] + d[X; Y]
+-- \bbH[X_1-Y_3] = \frac{1}{2} \bbH[X] + \frac{1}{2} \bbH[Y] + d[X; Y]
+-- \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3+Y_3] \leq 2\bbH[X] + 2\bbH[Y] + 2d[X; Y]
+-- \bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] \leq \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3, Y_3, X_3+Y_3]
+-- \bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X_1,Y_1,X_1-Y_1] + \bbH[X_2,Y_2,X_2-Y_2] - \bbH[X_1-Y_1] + \bbH[X_3,Y_3]
+-- \bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X] + \bbH[Y] + \bbH[X] + \bbH[Y] -(\frac{1}{2}\bbH[X] + \frac{5}{1}\bbH[Y] - d[X; Y]) + \bbH[X] + \bbH[Y]
+
+
+
 
 -- #check ProbabilityTheory.IdentDistrib.rdist_eq
--- #check ProbabilityTheory.independent_copies
--- #check ProbabilityTheory.independent_copies'
--- #check ProbabilityTheory.independent_copies_two
--- #check ProbabilityTheory.independent_copies3_nondep
+#check ProbabilityTheory.independent_copies
+#check ProbabilityTheory.independent_copies'
+#check ProbabilityTheory.independent_copies_two
+#check ProbabilityTheory.independent_copies3_nondep
 #check ProbabilityTheory.condIndep_copies
+#check ProbabilityTheory.entropy_submodular
+#check ProbabilityTheory.condEntropy_comp_ge
 -- #check ProbabilityTheory.entropy_triple_add_entropy_le
 -- #check ProbabilityTheory.IndepFun.rdist_eq
 -- #check ProbabilityTheory.entropy_neg
