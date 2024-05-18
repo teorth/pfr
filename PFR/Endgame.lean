@@ -88,7 +88,7 @@ private lemma hmeas2 :
       · apply measurable_pi_apply
     · apply measurable_pi_apply
 
-/-- The quantity $I_3 = I[V:W|S]$ is equal to $I_2$. -/
+/-- The quantity `I_3 = I[V:W|S]` is equal to `I_2`. -/
 lemma I₃_eq : I[V : W | S] = I₂ := by
   have h_indep2 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁, X₂'] := by
     exact h_indep.reindex_four_cbad
@@ -142,9 +142,8 @@ lemma I₃_eq : I[V : W | S] = I₂ := by
 
 
 /--
-$$ I(U : V | S) + I(V : W | S) + I(W : U | S) $$
-is less than or equal to
-$$ 6 \eta k - \frac{1 - 5 \eta}{1-\eta} (2 \eta k - I_1).$$
+`I[U : V | S] + I[V : W | S] + I[W : U | S]` is less than or equal to
+`6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁)`.
 -/
 lemma sum_condMutual_le :
     I[U : V | S] + I[V : W | S] + I[W : U | S]
@@ -326,7 +325,7 @@ lemma sum_dist_diff_le :
         sub_le_sub_right ineq8 _
      _ = (6 - 3 * p.η)*k + 3 * (2*p.η*k - I₁) := by ring
 
-/-- $U+V+W=0$. -/
+/-- `U + V + W = 0`. -/
 lemma sum_uvw_eq_zero : U+V+W = 0 := by
   rw [add_comm X₁' X₂, ElementaryAddCommGroup.sum_add_sum_add_sum_eq_zero]
 
@@ -475,7 +474,7 @@ lemma cond_construct_good :
 
 end construct_good
 
-/-- If $d[X_1;X_2] > 0$ then there are $G$-valued random variables $X'_1, X'_2$ such that
+/-- If `d[X₁ ; X₂] > 0` then there are `G`-valued random variables `X'₁, X'₂` such that
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases_aux (hpη: p.η = 1/9): d[X₁ # X₂] = 0 := by
   have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)
