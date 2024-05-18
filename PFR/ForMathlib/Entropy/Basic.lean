@@ -95,7 +95,7 @@ lemma entropy_le_log_card_of_mem {A : Finset S} {μ : Measure Ω} {X : Ω → S}
   apply measureEntropy_le_log_card_of_mem
   rwa [Measure.map_apply hX (measurableSet_discrete _)]
 
-/-- $H[X] = \sum_s P[X=s] \log \frac{1}{P[X=s]}$. -/
+/-- `H[X] = ∑ₛ P[X=s] log 1 / P[X=s]`. -/
 lemma entropy_eq_sum (hX : Measurable X) (μ : Measure Ω) [IsProbabilityMeasure μ] :
     entropy X μ = ∑' x, negMulLog (μ.map X {x}).toReal := by
   have : IsProbabilityMeasure (Measure.map X μ) := isProbabilityMeasure_map hX.aemeasurable
