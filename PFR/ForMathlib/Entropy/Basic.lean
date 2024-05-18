@@ -600,13 +600,13 @@ lemma cond_chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ]
     · rw [condEntropy_two_eq_kernel_entropy hY hX hZ]
   exact kernel.aefiniteKernelSupport_condDistrib _ _ μ (by measurability) (by measurability)
 
-/-- $$ H[X, Y | Z] = H[Y | Z] + H[X|Y, Z].$$ -/
+/-- `H[X, Y | Z] = H[Y | Z] + H[X | Y, Z]`. -/
 lemma cond_chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y] [FiniteRange Z]:
     H[⟨X, Y⟩ | Z ; μ] = H[Y | Z ; μ] + H[X | ⟨Y, Z⟩ ; μ] := by
     rw [condEntropy_comm hX hY, cond_chain_rule' _ hY hX hZ]
 
-/-- Data-processing inequality for the entropy: `H[f(X)] \leq H[X]`.
+/-- Data-processing inequality for the entropy: `H[f(X)] ≤ H[X]`.
 To upgrade this to equality, see `entropy_of_comp_eq_of_comp` or `entropy_comp_of_injective`. -/
 lemma entropy_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (f : S → U) [FiniteRange X]:
     H[f ∘ X ; μ] ≤ H[X ; μ] := by
@@ -637,7 +637,8 @@ end pair
 
 section mutualInfo
 
-/-- The mutual information $I[X : Y]$ of two random variables is defined to be $H[X] + H[Y] - H[X ; Y]$. -/
+/-- The mutual information `I[X : Y]` of two random variables
+is defined to be `H[X] + H[Y] - H[X ; Y]`. -/
 noncomputable
 def mutualInfo (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac) : ℝ :=
   H[X ; μ] + H[Y ; μ] - H[⟨X, Y⟩ ; μ]
@@ -648,21 +649,21 @@ def mutualInfo (X : Ω → S) (Y : Ω → T) (μ : Measure Ω := by volume_tac) 
 lemma mutualInfo_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
   I[X : Y ; μ] = H[X ; μ] + H[Y ; μ] - H[⟨X, Y⟩ ; μ] := rfl
 
-/-- $I[X : Y] = I[Y : X]$. -/
+/-- `I[X : Y] = I[Y : X]`. -/
 lemma mutualInfo_comm (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     I[X : Y ; μ] = I[Y : X ; μ] := by simp_rw [mutualInfo, add_comm, entropy_comm hX hY]
 
 lemma entropy_add_entropy_sub_mutualInfo (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
     H[X ; μ] + H[Y ; μ] - I[X : Y ; μ] = H[⟨X, Y⟩ ; μ] := sub_sub_self _ _
 
-/-- $I[X : Y] = H[X] - H[X|Y]$. -/
+/-- `I[X : Y] = H[X] - H[X|Y]`. -/
 lemma mutualInfo_eq_entropy_sub_condEntropy (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
     [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
     I[X : Y ; μ] = H[X ; μ] - H[X | Y ; μ] := by
   rw [mutualInfo_def, chain_rule μ hX hY]
   abel
 
-/-- $I[X : Y] = H[Y] - H[Y | X]$. -/
+/-- `I[X : Y] = H[Y] - H[Y | X]`. -/
 lemma mutualInfo_eq_entropy_sub_condEntropy' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
     [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
     I[X : Y ; μ] = H[Y ; μ] - H[Y | X ; μ] := by
