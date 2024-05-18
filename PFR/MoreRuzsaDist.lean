@@ -129,15 +129,12 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   let Y₃ := XYvec 5
   --
 
-  --first inequality, from Lemma 2.21
-  -- X = X₃ - Y₂, X₁ - Y₃, X₂, Y₁
-  -- Y = X₃, Y₃
-  -- Z = X₃ + Y₃
   have in1 : H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, ⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩⟩ ; ν₀] + H[X₃ + Y₃; ν₀]
-      ≤ H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, X₃ + Y₃⟩ ; ν₀] + H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] := by
-    sorry
-    --works but it's slow, I leave the sorry teomporarily just to save time during the proof
-    -- refine entropy_triple_add_entropy_le _ (by measurability) (by measurability) (by measurability)
+      ≤ H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, X₃ + Y₃⟩ ; ν₀] + H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] :=
+    entropy_triple_add_entropy_le _
+      (((h_meas 4).sub (h_meas 3)).prod_mk <| ((h_meas 0).sub (h_meas 5)).prod_mk <|
+        (h_meas 2).prod_mk (h_meas 1))
+      ((h_meas 4).prod_mk (h_meas 5)) ((h_meas 4).add (h_meas 5))
   have hX3 : H[X' ; ν] = H[X₃ ; ν₀] := (IdentDistrib.entropy_eq (h_ident 4)).symm
   have hY3 : H[Y' ; ν] = H[Y₃ ; ν₀] := (IdentDistrib.entropy_eq (h_ident 5)).symm
   have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ :=
