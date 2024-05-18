@@ -501,13 +501,13 @@ lemma condEntropy_of_injective
   congr with y
   rw [entropy_comp_of_injective _ hX (f y) (hf y)]
 
-/-- A weaker version of the above lemma in which f is independent of Y. -/
+/-- A weaker version of the above lemma in which `f` is independent of `Y`. -/
 lemma condEntropy_comp_of_injective [MeasurableSingletonClass S] [MeasurableSingletonClass U]
     (μ : Measure Ω) (hX : Measurable X) (f : S → U) (hf : Injective f) :
     H[f ∘ X | Y ; μ] = H[X | Y ; μ] :=
   integral_congr_ae (ae_of_all _ (fun _ ↦ entropy_comp_of_injective _ hX f hf))
 
-/-- $H[X, Y| Z] = H[Y, X| Z]$. -/
+/-- `H[X, Y| Z] = H[Y, X| Z]`. -/
 lemma condEntropy_comm {Z : Ω → U}
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y⟩ | Z ; μ] = H[⟨Y, X⟩ | Z; μ] := by
@@ -518,7 +518,7 @@ end condEntropy
 
 section pair
 
-/-- One form of the chain rule : $H[X, Y] = H[X] + H[Y|X]. -/
+/-- One form of the chain rule : `H[X, Y] = H[X] + H[Y | X]`. -/
 lemma chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
     [FiniteRange X] [FiniteRange Y] :
     H[⟨X, Y⟩ ; μ] = H[X ; μ] + H[Y | X ; μ] := by
@@ -545,13 +545,13 @@ lemma chain_rule' (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X
   · apply kernel.FiniteKernelSupport.aefiniteKernelSupport
     exact kernel.finiteKernelSupport_of_const _
 
-/-- Another form of the chain rule : $H[X, Y] = H[Y] + H[X|Y]$. -/
+/-- Another form of the chain rule : `H[X, Y] = H[Y] + H[X | Y]`. -/
 lemma chain_rule (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
    [FiniteRange X] [FiniteRange Y] :
     H[⟨X, Y⟩ ; μ] = H[Y ; μ] + H[X | Y ; μ] := by
   rw [entropy_comm hX hY, chain_rule' μ hY hX]
 
-/-- Another form of the chain rule : $H[X|Y] = H[X, Y] - H[Y]$. -/
+/-- Another form of the chain rule : `H[X | Y] = H[X, Y] - H[Y]`. -/
 lemma chain_rule'' (μ : Measure Ω) [IsProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y] :
     H[X | Y ; μ] = H[⟨X, Y⟩ ; μ] - H[Y ; μ] := by
@@ -568,9 +568,8 @@ lemma IdentDistrib.condEntropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {X : Ω �
   have : IdentDistrib Y Y' μ μ' := h.comp measurable_snd
   rw [chain_rule'' _ hX hY, chain_rule'' _ hX' hY', h.entropy_eq, this.entropy_eq]
 
-/-- If $X : \Omega \to S$ and $Y : \Omega \to T$ are random variables, and $f : T \to U$ is an
-injection then $H[X|f(Y)] = H[X|Y]$.
- -/
+/-- If `X : Ω → S` and `Y : Ω → T` are random variables, and `f : T → U` is an
+injection then `H[X | f(Y)] = H[X | Y]`. -/
 lemma condEntropy_of_injective' [MeasurableSingletonClass S] (μ : Measure Ω)
     [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (f : T → U) (hf : Injective f)
     (hfY : Measurable (f ∘ Y)) [FiniteRange X] [FiniteRange Y] :
@@ -581,7 +580,7 @@ lemma condEntropy_of_injective' [MeasurableSingletonClass S] (μ : Measure Ω)
     exact condEntropy_comp_of_injective μ hY f hf
   exact entropy_comp_of_injective μ hY f hf
 
-/-- $H[X|f(X)] = H[X] - H[f(X)]$. -/
+/-- `H[X | f(X)] = H[X] - H[f(X)]`. -/
 lemma condEntropy_comp_self [IsProbabilityMeasure μ] (hX : Measurable X) {f : S → U}
     (hf : Measurable f) [FiniteRange X] : H[X | f ∘ X ; μ] = H[X ; μ] - H[f ∘ X ; μ] := by
   rw [chain_rule'' μ hX (hf.comp hX), entropy_prod_comp hX _ f]
@@ -669,13 +668,13 @@ lemma mutualInfo_eq_entropy_sub_condEntropy' (hX : Measurable X) (hY : Measurabl
     I[X : Y ; μ] = H[Y ; μ] - H[Y | X ; μ] := by
   rw [mutualInfo_comm hX hY, mutualInfo_eq_entropy_sub_condEntropy hY hX]
 
-/-- $H[X] - I[X : Y] = H[X | Y]$. -/
+/-- `H[X] - I[X : Y] = H[X | Y]`. -/
 lemma entropy_sub_mutualInfo_eq_condEntropy (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
     [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
     H[X ; μ] - I[X : Y ; μ] = H[X | Y ; μ] := by
   rw [mutualInfo_eq_entropy_sub_condEntropy hX hY, sub_sub_self]
 
-/-- $H[Y] - I[X : Y] = H[Y | X]$. -/
+/-- `H[Y] - I[X : Y] = H[Y | X]`. -/
 lemma entropy_sub_mutualInfo_eq_condEntropy' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
     [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
     H[Y ; μ] - I[X : Y ; μ] = H[Y | X ; μ] := by
@@ -708,7 +707,7 @@ lemma entropy_pair_le_add (hX : Measurable X) (hY : Measurable Y) (μ : Measure 
     H[⟨X, Y⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
   sub_nonneg.1 $ mutualInfo_nonneg hX hY _
 
-/-- $I[X : Y] = 0$ iff $X, Y$ are independent. -/
+/-- `I[X : Y] = 0` iff `X, Y` are independent. -/
 lemma mutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
     [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     I[X : Y ; μ] = 0 ↔ IndepFun X Y μ := by
@@ -750,7 +749,7 @@ lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure 
     H[⟨X, Y⟩ ; μ] = H[X ; μ] + H[Y ; μ] ↔ IndepFun X Y μ := by
   rw [eq_comm, ← sub_eq_zero, ← mutualInfo_eq_zero hX hY]; rfl
 
-/-- If $X, Y$ are independent, then $H[X, Y] = H[X] + H[Y]$. -/
+/-- If `X, Y` are independent, then `H[X, Y] = H[X] + H[Y]`. -/
 protected alias ⟨_, IndepFun.entropy_pair_eq_add⟩ := entropy_pair_eq_add
 
 /-- The conditional mutual information $I[X : Y| Z]$ is the mutual information of $X| Z=z$ and
@@ -820,7 +819,7 @@ lemma condMutualInfo_eq_sum' [IsFiniteMeasure μ] (hZ : Measurable Z) [Fintype U
     simp [hz]
   simp [this]
 
-/-- $I[X : Y | Z] = I[Y : X | Z]$. -/
+/-- `I[X : Y | Z] = I[Y : X | Z]`. -/
 lemma condMutualInfo_comm
     (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω) :
     I[X : Y | Z ; μ] = I[Y : X | Z ; μ] := by
@@ -834,7 +833,7 @@ lemma condMutualInfo_nonneg
   refine integral_nonneg (fun z ↦ ?_)
   exact mutualInfo_nonneg hX hY _
 
-/-- $$ I[X : Y| Z] = H[X| Z] + H[Y| Z] - H[X, Y| Z].$$ -/
+/-- `I[X : Y| Z] = H[X| Z] + H[Y| Z] - H[X, Y| Z]`. -/
 lemma condMutualInfo_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange Z] :
     I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by
@@ -844,14 +843,14 @@ lemma condMutualInfo_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable
     condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hZ,
     condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ]
 
-/-- $$ I[X : Y| Z] = H[X| Z] - H[X|Y, Z].$$ -/
+/-- `I[X : Y| Z] = H[X| Z] - H[X|Y, Z]`. -/
 lemma condMutualInfo_eq' (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
     I[X : Y | Z ; μ] = H[X | Z ; μ] - H[X | ⟨Y, Z⟩ ; μ] := by
   rw [condMutualInfo_eq hX hY hZ, cond_chain_rule _ hX hY hZ]
   ring
 
-/-- If $f(Z, X)$ is injective for each fixed $Z$, then $I[f(Z, X) : Y| Z] = I[X : Y| Z]$.-/
+/-- If `f(Z, X)` is injective for each fixed `Z`, then `I[f(Z, X) : Y| Z] = I[X : Y| Z]`.-/
 lemma condMutualInfo_of_inj_map [IsProbabilityMeasure μ]
   (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
   {V : Type*} [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V] [Countable V]
@@ -907,8 +906,7 @@ lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
     all_goals measurability
   exact kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ _)
 
-/-- Data-processing inequality for the conditional entropy:
-$$ H[Y|f(X)] \geq H[Y|X]$$
+/-- Data-processing inequality for the conditional entropy: `H[Y|f(X)] ≥ H[Y|X]`
 To upgrade this to equality, see `condEntropy_of_injective'` -/
 lemma condEntropy_comp_ge [FiniteRange X] [FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (f : S → U) : H[Y | f ∘ X ; μ] ≥ H[Y | X; μ] := by
@@ -932,7 +930,7 @@ lemma entropy_triple_add_entropy_le (hX : Measurable X) (hY : Measurable Y) (hZ 
 
 variable {μ : Measure Ω}
 
-/-- $I[X : Y| Z]=0$ iff $X, Y$ are conditionally independent over $Z$. -/
+/-- `I[X : Y| Z]=0` iff `X, Y` are conditionally independent over `Z`. -/
 lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
     I[X : Y | Z ; μ] = 0 ↔ CondIndepFun X Y Z μ := by
@@ -958,7 +956,7 @@ lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) (hZ : Measu
   simp
   exact integrable_of_finiteSupport _
 
-/-- If $X, Y$ are conditionally independent over $Z$, then $H[X, Y, Z] = H[X, Z] + H[Y, Z] - H[Z]$. -/
+/-- If `X, Y` are conditionally independent over `Z`, then `H[X, Y, Z] = H[X, Z] + H[Y, Z] - H[Z]`. -/
 lemma ent_of_cond_indep (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
      (h : CondIndepFun X Y Z μ) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
      H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨X, Z⟩; μ] + H[⟨Y, Z⟩; μ] - H[Z; μ] := by
