@@ -87,6 +87,8 @@ variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [Finite
 --     ∃ ν : Measure (FiniteRange.fintype ), ∃ X' : (Set.range X) → G, Measurable X' ∧
 --       IdentDistrib X X' μ ν := by sorry
 
+#check IndepFun.comp
+
 /-TODO: we had to add the hp `Fintype G` to the following lemma in order to use `condIndep_copies`,
 which requires it. Actually, we already have `FiniteRange X` and `FiniteRange Y`, so it should be
 possible to remove it, or to gneralize the lemma to the case where `G` is not finite but the
@@ -130,55 +132,72 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   --
 
   --first inequality, from Lemma 2.21
-  have in1 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀] + H[X₃ + Y₃; ν₀]
-      ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀] + H[⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩ ; ν₀] := by
+  -- X = X₃ - Y₂, X₁ - Y₃, X₂, Y₁
+  -- Y = X₃, Y₃
+  -- Z = X₃ + Y₃
+  have in1 : H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, ⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩⟩ ; ν₀] + H[X₃ + Y₃; ν₀]
+      ≤ H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, X₃ + Y₃⟩ ; ν₀] + H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] := by
     sorry
-
+    --works but it's slow, I leave the sorry teomporarily just to save time during the proof
+    -- refine entropy_triple_add_entropy_le _ (by measurability) (by measurability) (by measurability)
+  have hX3 : H[X' ; ν] = H[X₃ ; ν₀] := (IdentDistrib.entropy_eq (h_ident 4)).symm
+  have hY3 : H[Y' ; ν] = H[Y₃ ; ν₀] := (IdentDistrib.entropy_eq (h_ident 5)).symm
+  have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ :=
+    iIndepFun.indepFun h_indep (show 4 ≠ 5 by simp)
+  have iX₃negY₃ : IndepFun X₃ (-Y₃) ν₀ :=
+    iX₃Y₃.comp measurable_id measurable_neg
   have eq2 : H[X₃ + Y₃; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # -Y'; ν] := by
+    have dXY3 : d[X' ; ν # -Y' ; ν] = d[X₃ ; ν₀ # -Y₃ ; ν₀] :=
+      (IdentDistrib.rdist_eq (h_ident 4) (h_ident 5).neg).symm
+    have hYY : H[Y₃ ; ν₀] = H[-Y₃ ; ν₀] := (entropy_neg (h_meas 5)).symm
+    rw [hX3, hY3, dXY3, hYY, IndepFun.rdist_eq iX₃negY₃ (h_meas 4) (h_meas 5).neg, sub_neg_eq_add]
+    ring
+  have eq3' : H[⟨X₃, Y₃⟩; ν₀] = H[X'; ν] + H[Y'; ν] := --hidden
+    hX3.symm ▸ hY3.symm ▸ (entropy_pair_eq_add (h_meas 4) (h_meas 5)).mpr iX₃Y₃
+  have eq3 : H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] = H[X'; ν] + H[Y'; ν] :=
+    eq3' ▸ entropy_of_comp_eq_of_comp ν₀
+      ((h_meas 4).prod_mk (h_meas 5) |>.prod_mk <| (h_meas 4).add (h_meas 5))
+      ((h_meas 4).prod_mk (h_meas 5)) (fun ((x3, y3), xy3) ↦ (x3, y3))
+      (fun (x3, y3) ↦ ((x3, y3), x3 + y3)) rfl rfl
+
+
+
+  have eq4 : X₃ + Y₃ = (X₃ - Y₂) - (X₁ - Y₃) + (X₂ + Y₁) := by --hidden
     sorry
 
-  have eq3 : H[⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩; ν₀] = H[X'; ν] + H[Y'; ν] := by
-    sorry
-
-  have eq3' : H[⟨X₃, Y₃⟩; ν₀] = H[X'; ν] + H[Y'; ν] := by
-    sorry
-
-  have eq4 : X₃ + Y₃ = (X₃ - Y₂) - (X₁ - Y₃) + (X₂ + Y₁) := by
-    sorry
-
-  have eq5 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀]
+  have eq5 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀] --hidden
       = H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩ ; ν₀] := by
     sorry
 
-  have in6 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀]
+  have in6 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀] --hidden
       ≤ H[X₃ - Y₂; ν₀] + H[X₁ - Y₃; ν₀] + H[X₂; ν₀] + H[Y₁; ν₀] := by
     sorry
 
-  have eq7 : H[X₃ - Y₂; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # Y'; ν] := by
+  have eq7 : H[X₃ - Y₂; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # Y'; ν] := by --hidden
     sorry
 
-  have eq8 : H[X₁ - Y₃; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # Y'; ν] := by
+  have eq8 : H[X₁ - Y₃; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # Y'; ν] := by --hidden
     sorry
 
-  have in9 : H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀]
+  have in9 : H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, X₃ + Y₃⟩ ; ν₀]
       ≤ 2 * H[X'; ν] + 2 * H[Y'; ν] + 2 * d[X'; ν # Y'; ν] := by
     sorry
 
-  have in10 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀]
+  have in10 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀] --hidden
       ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀] := by
     sorry
 
-  have eq11 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀]
+  have eq11 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀] --hidden
       = H[⟨X₁, ⟨Y₁, X₁ - Y₁⟩⟩ ; ν₀] + H[⟨X₂, ⟨Y₂, X₂ - Y₂⟩⟩ ; ν₀]
         - H[X₁ - Y₁; ν₀] + H[⟨X₃, Y₃⟩ ; ν₀] := by
     sorry
 
-  have eq12 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀]
+  have eq12 : H[⟨X₁, ⟨Y₁, ⟨X₂, ⟨Y₂, ⟨X₃, Y₃⟩⟩⟩⟩⟩ ; ν₀] --hidden
       = 5/2 * H[X'; ν] + 5/2 * H[Y'; ν] - d[X'; ν # Y'; ν] := by
     sorry
 
   have in13 : 5 / 2 * (H[X' ; ν] + H[Y' ; ν]) - d[X' ; ν # Y' ; ν] --typo
-      ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀] := by
+      ≤ H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, ⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩⟩ ; ν₀] := by
     sorry --in10 + eq12
 
   suffices h : 3 * (H[X'; ν] + H[Y'; ν]) - d[X'; ν # Y'; ν] + d[X'; ν # -Y'; ν] ≤ 3 * (H[X'; ν] + H[Y'; ν]) + 2 * d[X'; ν # Y'; ν] by
@@ -190,14 +209,14 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
     _ = 5 / 2 * (H[X' ; ν] + H[Y' ; ν]) - d[X' ; ν # Y' ; ν]
         + 1 / 2 * (H[X' ; ν] + H[Y' ; ν]) + d[X' ; ν # -Y' ; ν] := by
       ring
-    _ ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀]
+    _ ≤ H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, ⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩⟩ ; ν₀]
         + 1 / 2 * (H[X' ; ν] + H[Y' ; ν]) + d[X' ; ν # -Y' ; ν] := by
       simp only [one_div, add_le_add_iff_right, in13]
-    _ = H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, ⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩⟩⟩⟩⟩ ; ν₀] + H[X₃ + Y₃ ; ν₀] := by
+    _ = H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, ⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩⟩ ; ν₀] + H[X₃ + Y₃ ; ν₀] := by
       simp only [one_div, eq2]
       ring
-    _ ≤ H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, ⟨Y₁, X₃ + Y₃⟩⟩⟩⟩ ; ν₀] + H[⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩ ; ν₀] := in1
-    _ ≤ 2 * (H[X' ; ν] + H[Y' ; ν]) + 2 * d[X' ; ν # Y' ; ν] + H[⟨X₃, ⟨Y₃, X₃ + Y₃⟩⟩ ; ν₀] := by
+    _ ≤ H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, X₃ + Y₃⟩ ; ν₀] + H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] := in1
+    _ ≤ 2 * (H[X' ; ν] + H[Y' ; ν]) + 2 * d[X' ; ν # Y' ; ν] + H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] := by
       gcongr
       ring_nf at *
       simp only [in9]
@@ -227,21 +246,21 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 
 
 -- #check ProbabilityTheory.IdentDistrib.rdist_eq
-#check ProbabilityTheory.independent_copies
-#check ProbabilityTheory.independent_copies'
-#check ProbabilityTheory.independent_copies_two
-#check ProbabilityTheory.independent_copies3_nondep
-#check ProbabilityTheory.condIndep_copies
-#check ProbabilityTheory.entropy_submodular
-#check ProbabilityTheory.condEntropy_comp_ge
-#check ProbabilityTheory.entropy_triple_add_entropy_le
-#check ProbabilityTheory.IndepFun.rdist_eq
-#check ProbabilityTheory.entropy_neg
-#check ProbabilityTheory.entropy_comp_of_injective
-#check ProbabilityTheory.entropy_of_comp_eq_of_comp
-#check ProbabilityTheory.entropy_pair_eq_add
-#check ProbabilityTheory.entropy_pair_le_add
-#check ProbabilityTheory.entropy_comp_le
+-- #check ProbabilityTheory.independent_copies
+-- #check ProbabilityTheory.independent_copies'
+-- #check ProbabilityTheory.independent_copies_two
+-- #check ProbabilityTheory.independent_copies3_nondep
+-- #check ProbabilityTheory.condIndep_copies
+-- #check ProbabilityTheory.entropy_submodular
+-- #check ProbabilityTheory.condEntropy_comp_ge
+-- #check ProbabilityTheory.entropy_triple_add_entropy_le
+-- #check ProbabilityTheory.IndepFun.rdist_eq
+-- #check ProbabilityTheory.entropy_neg
+-- #check ProbabilityTheory.entropy_comp_of_injective
+#check ProbabilityTheory.entropy_of_comp_eq_of_comp --eq3
+#check ProbabilityTheory.entropy_pair_eq_add --eq3'
+-- #check ProbabilityTheory.entropy_pair_le_add
+-- #check ProbabilityTheory.entropy_comp_le
 
 --open Classical in
 /--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
