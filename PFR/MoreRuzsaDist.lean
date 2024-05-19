@@ -41,8 +41,8 @@ lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurabl
   exact condEntropy_comp_ge μ hX hY f
 
 /--
- Let $X,Y$ be random variables. For any functions $f, g$ on the ranges of $X, Y$ respectively, we
- have $\bbI[f(X) : g(Y)] \leq \bbI[X : Y]$.
+Let `X, Y` be random variables. For any functions `f, g` on the ranges of `X, Y` respectively,
+we have `I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ]`.
  -/
 lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     (hY : Measurable Y) (f : S → U) (g : T → V) (hg : Measurable g)
@@ -55,8 +55,8 @@ lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Meas
     _ = I[X : Y ; μ] := mutualInfo_comm hY hX μ
 
 /--
-Let $X,Y,Z$. For any functions $f, g$
-on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X :Y |Z]$.
+Let `X, Y, Z`. For any functions `f, g` on the ranges of `X, Y` respectively,
+we have `I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ]`.
 -/
 lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
   (f : S → V) (g : T → W) [FiniteRange X] [FiniteRange Y]:
