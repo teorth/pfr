@@ -121,35 +121,69 @@ lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t) (
 and let `a` be an integer. Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
 lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X']
     [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X')
-    (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a:ℤ} :
+    (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a : ℤ} :
     H[X - (a+1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
   rw [add_smul, one_smul, add_comm, sub_add_eq_sub_sub]
-  have iX'Y : IndepFun X' Y μ := iIndepFun.indepFun hindep (show 2 ≠ 1 by simp)
-  have iXY : IndepFun X Y μ := iIndepFun.indepFun hindep (show 0 ≠ 1 by simp)
-  have hindep' : IdentDistrib (X' - a • Y) (X - a • Y) μ μ := by
+  have iX'Y : IndepFun X' Y μ := hindep.indepFun (show 2 ≠ 1 by simp)
+  have iXY : IndepFun X Y μ := hindep.indepFun (show 0 ≠ 1 by simp)
+  have hident' : IdentDistrib (X' - a • Y) (X - a • Y) μ μ := by
     simp_rw [sub_eq_add_neg]
-    apply IdentDistrib.add hident.symm (IdentDistrib.refl (hY.const_smul a).neg.aemeasurable)
-    · convert IndepFun.comp iX'Y measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
-    · convert IndepFun.comp iXY measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
+    apply hident.symm.add (IdentDistrib.refl (hY.const_smul a).neg.aemeasurable)
+    · convert iX'Y.comp measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
+    · convert iXY.comp measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
   have iXY_X' : IndepFun (⟨X, Y⟩) X' μ :=
-    iIndepFun.indepFun_prod_mk hindep (fun i ↦ (by fin_cases i <;> assumption)) 0 1 2
+    hindep.indepFun_prod_mk (fun i ↦ (by fin_cases i <;> assumption)) 0 1 2
       (show 0 ≠ 2 by simp) (show 1 ≠ 2 by simp)
   calc
     _ ≤ H[X - Y - X' ; μ] + H[X' - a • Y ; μ] - H[X' ; μ] := by
       refine ent_of_diff_le _ _ _ (hX.sub hY) (hY.const_smul a) hX' ?_
-      exact IndepFun.comp (φ := fun (x, y) ↦ (x - y, a • y)) iXY_X'
-        (measurable_discrete _) measurable_id
+      exact iXY_X'.comp (φ := fun (x, y) ↦ (x - y, a • y)) (measurable_discrete _) measurable_id
     _ = _ := by
-      rw [IdentDistrib.entropy_eq hident]
+      rw [hident.entropy_eq]
       simp only [add_comm, sub_left_inj, _root_.add_left_inj]
-      exact IdentDistrib.entropy_eq hindep'
+      exact hident'.entropy_eq
 
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
 and let `a` be an integer. Then `H[X - (a-1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
 lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X']
-    (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X')
-    (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a:ℤ} :
-    H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by sorry
+    [IsProbabilityMeasure μ] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X')
+    (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a : ℤ} :
+    H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
+  rw [sub_smul, one_smul, sub_eq_add_neg, neg_sub, add_sub]
+  have iX'Y : IndepFun X' Y μ := hindep.indepFun (show 2 ≠ 1 by simp)
+  have iXY : IndepFun X Y μ := hindep.indepFun (show 0 ≠ 1 by simp)
+  have hident' : IdentDistrib (X' - a • Y) (X - a • Y) μ μ := by
+    simp_rw [sub_eq_add_neg]
+    apply hident.symm.add (IdentDistrib.refl (hY.const_smul a).neg.aemeasurable)
+    · convert iX'Y.comp measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
+    · convert iXY.comp measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
+  have hident'' : IdentDistrib (-(X + Y - X')) (X - Y - X') μ μ := by
+    simp_rw [neg_sub, ← sub_sub, sub_eq_add_neg, add_assoc]
+    refine hident.symm.add ?_ ?_ ?_
+    rotate_left
+    . rw [← neg_add]
+      apply IndepFun.comp _ measurable_id measurable_neg
+      refine hindep.indepFun_add_right (fun i ↦ (by fin_cases i <;> assumption))
+        2 0 1 (by simp) (by simp)
+    . rw [← neg_add]
+      apply IndepFun.comp _ measurable_id measurable_neg
+      refine hindep.indepFun_add_right (fun i ↦ (by fin_cases i <;> assumption))
+        0 1 2 (by simp) (by simp)
+    rw [add_comm, ← neg_add, ← neg_add]
+    exact (IdentDistrib.refl hY.aemeasurable).add hident iXY.symm iX'Y.symm |>.neg
+  have iXY_X' : IndepFun (⟨X, Y⟩) X' μ :=
+    hindep.indepFun_prod_mk (fun i ↦ (by fin_cases i <;> assumption)) 0 1 2
+      (show 0 ≠ 2 by simp) (show 1 ≠ 2 by simp)
+  calc
+    _ ≤ H[X + Y - X' ; μ] + H[X' - a • Y ; μ] - H[X' ; μ] := by
+      refine ent_of_diff_le _ _ _ (hX.add hY) (hY.const_smul a) hX' ?_
+      exact iXY_X'.comp (φ := fun (x, y) ↦ (x + y, a • y)) (measurable_discrete _) measurable_id
+    _ = H[- (X + Y - X') ; μ] + H[X - a • Y ; μ] - H[X ; μ] := by
+      rw [hident.entropy_eq]
+      simp only [hident'.entropy_eq, add_comm, sub_left_inj, _root_.add_right_inj]
+      exact entropy_neg (hX.add hY |>.sub hX') |>.symm
+    _ = _ := by
+      rw [add_comm, hident''.entropy_eq]
 
 /--  Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer. Then
   `H[X-aY] - H[X] \leq 4 |a| d[X;Y]`. -/
