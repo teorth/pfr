@@ -82,7 +82,7 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
 
 variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
-/-TODO: we had to add the hp `Fintype G` to the following lemma in order to use `condIndep_copies`,
+/-`TODO`: we had to add the hp `Fintype G` to the following lemma in order to use `condIndep_copies`,
 which requires it. Actually, we already have `FiniteRange X` and `FiniteRange Y`, so it should be
 possible to remove it, or to gneralize the lemma to the case where `G` is not finite but the
 random variables have finite range. One way to do it may be to write a lemma that tells us that
