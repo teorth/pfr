@@ -41,8 +41,8 @@ lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurabl
   exact condEntropy_comp_ge μ hX hY f
 
 /--
- Let $X,Y$ be random variables. For any functions $f, g$ on the ranges of $X, Y$ respectively, we
- have $\bbI[f(X) : g(Y)] \leq \bbI[X : Y]$.
+Let `X, Y` be random variables. For any functions `f, g` on the ranges of `X, Y` respectively,
+we have `I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ]`.
  -/
 lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     (hY : Measurable Y) (f : S → U) (g : T → V) (hg : Measurable g)
@@ -55,8 +55,8 @@ lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Meas
     _ = I[X : Y ; μ] := mutualInfo_comm hY hX μ
 
 /--
-Let $X,Y,Z$. For any functions $f, g$
-on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X :Y |Z]$.
+Let `X, Y, Z`. For any functions `f, g` on the ranges of `X, Y` respectively,
+we have `I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ]`.
 -/
 lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
   (f : S → V) (g : T → W) [FiniteRange X] [FiniteRange Y]:
@@ -88,22 +88,22 @@ lemma rdist_of_neg_le : d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by s
 
 
 --open Classical in
-/--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
-  $$ H[X + \sum_{i=1}^n Y_i] - H[X] \leq \sum_{i=1}^n H[X+Y_i] - \bbH[X].$$
+/--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
+then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
 lemma kvm_ineq_I {I:Type*} {i₀: I} {s: Finset I} (hs: ¬ i₀ ∈ s) (Y: I → Ω → G) (hY: (i:I) → Measurable (Y i))
                  (hindep: iIndepFun (fun (i:I) => hG) Y μ )
                 : H[ Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
 
-/--  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
-  $$ d[X; \sum_{i=1}^n Y_i] \leq 2 \sum_{i=1}^n d[X; Y_i].$$
+/--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
+then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
 -/
 lemma kvm_ineq_II {I:Type*} {i₀: I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': Finset.Nonempty s) (Y: I → Ω → G)
                  (hY: (i:I) → Measurable (Y i)) (hindep: iIndepFun (fun (i:I) => hG) Y μ )
                 : d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by sorry
 
-/-- If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
-  $$ d[X; \sum_{i=1}^n Y_i] \leq d[X; Y_1] + \frac{1}{2}(\bbH[ \sum_{i=1}^n Y_i ] - \bbH[Y_1]).$$
+/-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
+then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2:ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
 -/
 lemma kvm_ineq_III {I:Type*} {i₀ : I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': Finset.Nonempty s) (Y: I → Ω → G)
                  (hY: (i:I) → Measurable (Y i)) (hindep: iIndepFun (fun (i:I) => hG) Y μ ) (i₁ : I)
@@ -111,22 +111,82 @@ lemma kvm_ineq_III {I:Type*} {i₀ : I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': 
 
 open Classical in
 /-- Let $(X_i)_{1 \leq i \leq m}$ and $(Y_j)_{1 \leq j \leq l}$ be tuples of jointly independent random variables (so the $X$'s and $Y$'s are also independent of each other), and let $f: \{1,\dots,l\} \to \{1,\dots,m\}$ be a function, then
-  $$ \bbH[\sum_{j=1}^l Y_j] \leq \bbH[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\bbH[ Y_j - X_{f(j)}] - \bbH[X_{f(j)}]).$$
+  $$ \mathbb{H}[\sum_{j=1}^l Y_j] \leq \mathbb{H}[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\mathbb{H}[ Y_j - X_{f(j)}] - \mathbb{H}[X_{f(j)}]).$$
 -/
 lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t) (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X: I → Ω → G)
   (hX: (i:I) → Measurable (X i)) (hindep: iIndepFun (fun (i:I) => hG) X μ ) (f: I → I) (hf: Finset.image f t ⊆ s)
                 : H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by sorry
 
-/-- Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
-$$H[X-(a+1)Y] \leq H[X-aY] + H[X-Y-X'] - H[X]$$ -/
-lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X'] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X') (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a:ℤ} : H[X - (a+1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by sorry
+/-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
+and let `a` be an integer. Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
+lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X']
+    [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X')
+    (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a : ℤ} :
+    H[X - (a+1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
+  rw [add_smul, one_smul, add_comm, sub_add_eq_sub_sub]
+  have iX'Y : IndepFun X' Y μ := hindep.indepFun (show 2 ≠ 1 by simp)
+  have iXY : IndepFun X Y μ := hindep.indepFun (show 0 ≠ 1 by simp)
+  have hident' : IdentDistrib (X' - a • Y) (X - a • Y) μ μ := by
+    simp_rw [sub_eq_add_neg]
+    apply hident.symm.add (IdentDistrib.refl (hY.const_smul a).neg.aemeasurable)
+    · convert iX'Y.comp measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
+    · convert iXY.comp measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
+  have iXY_X' : IndepFun (⟨X, Y⟩) X' μ :=
+    hindep.indepFun_prod_mk (fun i ↦ (by fin_cases i <;> assumption)) 0 1 2
+      (show 0 ≠ 2 by simp) (show 1 ≠ 2 by simp)
+  calc
+    _ ≤ H[X - Y - X' ; μ] + H[X' - a • Y ; μ] - H[X' ; μ] := by
+      refine ent_of_diff_le _ _ _ (hX.sub hY) (hY.const_smul a) hX' ?_
+      exact iXY_X'.comp (φ := fun (x, y) ↦ (x - y, a • y)) (measurable_discrete _) measurable_id
+    _ = _ := by
+      rw [hident.entropy_eq]
+      simp only [add_comm, sub_left_inj, _root_.add_left_inj]
+      exact hident'.entropy_eq
 
-/-- Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
-$$H[X-(a-1)Y] \leq H[X-aY] + H[X-Y-X'] - H[X]$$ -/
-lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X'] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X') (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a:ℤ} : H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by sorry
+/-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
+and let `a` be an integer. Then `H[X - (a-1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
+lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X']
+    [IsProbabilityMeasure μ] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X')
+    (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a : ℤ} :
+    H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
+  rw [sub_smul, one_smul, sub_eq_add_neg, neg_sub, add_sub]
+  have iX'Y : IndepFun X' Y μ := hindep.indepFun (show 2 ≠ 1 by simp)
+  have iXY : IndepFun X Y μ := hindep.indepFun (show 0 ≠ 1 by simp)
+  have hident' : IdentDistrib (X' - a • Y) (X - a • Y) μ μ := by
+    simp_rw [sub_eq_add_neg]
+    apply hident.symm.add (IdentDistrib.refl (hY.const_smul a).neg.aemeasurable)
+    · convert iX'Y.comp measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
+    · convert iXY.comp measurable_id (measurable_discrete fun y ↦ -(a • y)) using 1
+  have hident'' : IdentDistrib (-(X + Y - X')) (X - Y - X') μ μ := by
+    simp_rw [neg_sub, ← sub_sub, sub_eq_add_neg, add_assoc]
+    refine hident.symm.add ?_ ?_ ?_
+    rotate_left
+    . rw [← neg_add]
+      apply IndepFun.comp _ measurable_id measurable_neg
+      refine hindep.indepFun_add_right (fun i ↦ (by fin_cases i <;> assumption))
+        2 0 1 (by simp) (by simp)
+    . rw [← neg_add]
+      apply IndepFun.comp _ measurable_id measurable_neg
+      refine hindep.indepFun_add_right (fun i ↦ (by fin_cases i <;> assumption))
+        0 1 2 (by simp) (by simp)
+    rw [add_comm, ← neg_add, ← neg_add]
+    exact (IdentDistrib.refl hY.aemeasurable).add hident iXY.symm iX'Y.symm |>.neg
+  have iXY_X' : IndepFun (⟨X, Y⟩) X' μ :=
+    hindep.indepFun_prod_mk (fun i ↦ (by fin_cases i <;> assumption)) 0 1 2
+      (show 0 ≠ 2 by simp) (show 1 ≠ 2 by simp)
+  calc
+    _ ≤ H[X + Y - X' ; μ] + H[X' - a • Y ; μ] - H[X' ; μ] := by
+      refine ent_of_diff_le _ _ _ (hX.add hY) (hY.const_smul a) hX' ?_
+      exact iXY_X'.comp (φ := fun (x, y) ↦ (x + y, a • y)) (measurable_discrete _) measurable_id
+    _ = H[- (X + Y - X') ; μ] + H[X - a • Y ; μ] - H[X ; μ] := by
+      rw [hident.entropy_eq]
+      simp only [hident'.entropy_eq, add_comm, sub_left_inj, _root_.add_right_inj]
+      exact entropy_neg (hX.add hY |>.sub hX') |>.symm
+    _ = _ := by
+      rw [add_comm, hident''.entropy_eq]
 
-/--  Let $X,Y$ be independent $G$-valued random variables, and let $a$ be an integer.  Then
-  $$H[X-aY] - H[X] \leq 4 |a| d[X;Y].$$ -/
+/--  Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer. Then
+  `H[X-aY] - H[X] \leq 4 |a| d[X;Y]`. -/
 lemma ent_of_sub_smul_le {Y : Ω → G} [FiniteRange Y] (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a:ℤ} : H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by sorry
 
 section multiDistance
@@ -140,7 +200,7 @@ variable {G : Type*}
 
 /--  Let $X_{[m]} = (X_i)_{1 \leq i \leq m}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
 \[
-  D[X_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i] - \frac{1}{m} \sum_{i=1}^m \bbH[\tilde X_i],
+  D[X_{[m]}] := \mathbb{H}[\sum_{i=1}^m \tilde X_i] - \frac{1}{m} \sum_{i=1}^m \mathbb{H}[\tilde X_i],
 \]
 where the $\tilde X_i$ are independent copies of the $X_i$.-/
 noncomputable
@@ -174,7 +234,7 @@ lemma multidist_eq_zero : 0 = 1 := by sorry
 
 /-- If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
   \begin{equation}\label{multi-def-cond}
-  D[ X_{[m]} | Y_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i \big| (\tilde Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \bbH[ \tilde X_i | \tilde Y_i]
+  D[ X_{[m]} | Y_{[m]}] := \mathbb{H}[\sum_{i=1}^m \tilde X_i \big| (\tilde Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \mathbb{H}[ \tilde X_i | \tilde Y_i]
     \end{equation}
   where $(\tilde X_i,\tilde Y_i)$, $1 \leq i \leq m$ are independent copies of $(X_i,Y_i), 1 \leq i \leq m$ (but note here that we do \emph{not} assume $X_i$ are independent of $Y_i$, or $\tilde X_i$ independent of $\tilde Y_i$). -/
 noncomputable

@@ -179,7 +179,11 @@ Furthermore by \Cref{ruzsa-diff}
 Adding these inequalities gives the result.
 \end{proof}
 
-\begin{lemma}[Improved Ruzsa triangle inequality]\label{ruzsa-triangle-improved}\leanok  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Y)$ independent of $Z$, then
+\begin{lemma}[Improved Ruzsa triangle inequality]
+  \label{ruzsa-triangle-improved}
+  \lean{ent_of_diff_le}
+  \leanok
+  If $X,Y,Z$ are $G$-valued random variables on $\Omega$ with $(X,Y)$ independent of $Z$, then
   \begin{equation}\label{submod-explicit} \bbH[X - Y] \leq \bbH[X-Z] + \bbH[Z-Y] - \bbH[Z]\end{equation}
 \end{lemma}
 
