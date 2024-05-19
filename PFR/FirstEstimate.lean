@@ -86,7 +86,7 @@ lemma condRuzsaDist_of_sums_ge :
         - p.η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
   condRuzsaDistance_ge_of_min _ h_min hX₁ hX₂ _ _ (by measurability) (by measurability)
 
-/-- $$d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1] \leq \tfrac{1}{2} k + \tfrac{1}{4} \bbH[X_2] - \tfrac{1}{4} \bbH[X_1].$$ -/
+/--`d[X₀₁ # X₁ + X₂'] - d[X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4`. -/
 lemma diff_rdist_le_1 : d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
   have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide)
   convert condRuzsaDist_diff_le' ℙ p.hmeas1 hX₁ hX₂' h using 4
