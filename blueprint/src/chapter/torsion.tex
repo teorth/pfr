@@ -337,7 +337,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 
 \subsection{The multidistance chain rule}
 
-\begin{lemma}[Multidistance chain rule]\label{multidist-chain-rule}  Let $\pi \colon G \to H$ be a homomorphism of abelian groups and let $X_{[m]}$ be a tuple of jointly independent $G$-valued random variables.  Then $D[X_{[m]}]$ is equal to
+\begin{lemma}[Multidistance chain rule]\label{multidist-chain-rule}\lean{multiDist_chainRule}  Let $\pi \colon G \to H$ be a homomorphism of abelian groups and let $X_{[m]}$ be a tuple of jointly independent $G$-valued random variables.  Then $D[X_{[m]}]$ is equal to
   \begin{equation}
       D[ X_{[m]} | \pi(X_{[m]}) ]  +D[ \pi(X_{[m]}) ]  + \bbI[ \sum_{i=1}^m X_i  : \pi(X_{[m]}) \; \big| \; \pi\bigl(\sum_{i=1}^m X_i\bigr) ]
     \label{chain-eq}
@@ -367,7 +367,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 
   We will need to iterate the multidistance chain rule, so it is convenient to observe a conditional version of this rule, as follows.
 
-  \begin{lemma}[Conditional multidistance chain rule]\label{multidist-chain-rule-cond}
+  \begin{lemma}[Conditional multidistance chain rule]\label{multidist-chain-rule-cond}\lean{cond_multiDist_chainRule}
     Let $\pi \colon G \to H$ be a homomorphism of abelian groups.
     Let $I$ be a finite index set and let $X_{[m]}$ be a tuple of $G$-valued random variables.
     Let $Y_{[m]}$ be another tuple of random variables (not necessarily $G$-valued).
@@ -385,7 +385,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 
   We can iterate the above lemma as follows.
 
-  \begin{lemma}\label{multidist-chain-rule-iter}  Let $m$ be a positive integer.
+  \begin{lemma}\label{multidist-chain-rule-iter}\lean{iter_multiDist_chainRule,iter_multiDist_chainRule'}  Let $m$ be a positive integer.
     Suppose one has a sequence
     \begin{equation}\label{g-seq}
       G_m \to G_{m-1} \to \dots \to G_1 \to G_0 = \{0\}
@@ -417,7 +417,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 
   In our application we will need the following special case of the above lemma.
 
-  \begin{corollary}\label{cor-multid} Let $G$ be an abelian group and let $m \geq 2$.  Suppose that $X_{i,j}$, $1 \leq i, j \leq m$, are independent $G$-valued random variables.
+  \begin{corollary}\label{cor-multid}\lean{cor_multiDist_chainRule} Let $G$ be an abelian group and let $m \geq 2$.  Suppose that $X_{i,j}$, $1 \leq i, j \leq m$, are independent $G$-valued random variables.
     Then
     \begin{align*}
       &\bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m} : \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i = 1}^m \; \big| \; \sum_{i=1}^m \sum_{j = 1}^m  X_{i,j} ] \\
