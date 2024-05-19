@@ -156,7 +156,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ := iIndepFun.indepFun h_indep (show 4 ≠ 5 by simp)
   have iX₃negY₃ : IndepFun X₃ (-Y₃) ν₀ := iX₃Y₃.comp measurable_id measurable_neg
 
-  -- `PROBLEM 2`
+  -- `PROBLEM 1`
   have i112233 : IndepFun (⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩) (⟨X₃, Y₃⟩) ν₀ := by sorry
 
   have hX1 : H[X' ; ν] = H[X₁ ; ν₀] := (IdentDistrib.entropy_eq (h_ident 0)).symm
@@ -207,7 +207,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       (meas33 |>.prod_mk <| (h_meas 4).add (h_meas 5))
       (meas33) (fun ((x3, y3), xy3) ↦ (x3, y3))
       (fun (x3, y3) ↦ ((x3, y3), x3 + y3)) rfl rfl
-   -- `PROBLEM 1`
+   -- `PROBLEM 2`
   have eq4' : X₁ - Y₁ = X₂ - Y₂ := by
     sorry
   have eq4 : X₃ + Y₃ = (X₃ - Y₂) - (X₁ - Y₃) + X₂ + Y₁ := by
