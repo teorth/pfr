@@ -15,35 +15,30 @@ Definition of the tau functional and basic facts
 open MeasureTheory ProbabilityTheory
 universe uG
 
-variable (Ω₀ : Type*) [MeasureSpace Ω₀]
-[IsProbabilityMeasure (ℙ : Measure Ω₀)]
-variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
-
 /-- A structure that packages all the fixed information in the main argument.  -/
 structure multiRefPackage :=
+  G: Type uG
+  hG : AddCommGroup G
+  hGf : Fintype G
+  hGm : MeasurableSpace G
+  Ω₀ : Type*
+  hΩ₀ : MeasureSpace Ω₀
+  hprob: IsProbabilityMeasure (ℙ : Measure Ω₀)
   X₀ : Ω₀ → G
   hmeas : Measurable X₀
   m : ℕ
   η : ℝ
   hη : 0 < η
 
-variable (p : multiRefPackage Ω₀ G)
-variable {Ω₀ G}
-
-variable {Ω₁ Ω₂ Ω'₁ Ω'₂ : Type*} [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {Ω : Fin p.m → Type*}
-
-
 /-- If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 -/
-noncomputable def multiTau (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) : ℝ := sorry
+noncomputable def multiTau (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) : ℝ := sorry
 
--- TODO: This notation is broken because it can't infer `Ω`
--- @[inherit_doc multiTau]
--- notation3:max "τ[" X " ; " hΩ " | " p"]" => multiTau p X hΩ
+-- I can't figure out how to make a τ notation due to the dependent types in the arguments.  But perhaps we don't need one.  Also it may be better to define multiTau in terms of probability measures on G, rather than G-valued random variables, again to avoid dependent type issues.
 
 /-- A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables. -/
-def MultiTauMinimizes (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) : Prop := sorry
+def MultiTauMinimizes (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) : Prop := ∀ (Ω' : Fin p.m → Type*) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (X': ∀ i, Ω' i → p.G), multiTau p Ω hΩ X ≤ multiTau p Ω' hΩ' X'
 
 /-- If $G$ is finite, then a $\tau$-minimizer exists. -/
 lemma multiTau_min_exists : 0 = 1 := by sorry
