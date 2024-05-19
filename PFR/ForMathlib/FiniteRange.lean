@@ -68,7 +68,7 @@ instance {Ω Ω' G : Type*} (X : Ω → G) (f : Ω' → Ω) [hX: FiniteRange X] 
   exact FiniteRange.mem X (f ω)
 
 /-- If X, Y have finite range, then so does the pair ⟨X, Y⟩. -/
-instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY: FiniteRange Y]:
+instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY: FiniteRange Y] :
     FiniteRange (⟨X, Y⟩) where
   finite := by
     have : Set.range (⟨X, Y⟩) ⊆ (Set.range X) ×ˢ (Set.range Y) := by
