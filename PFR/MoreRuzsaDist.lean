@@ -90,33 +90,6 @@ given a r.v., we can construct another r.v. that is identically distributed, whi
 immersion of the range of the initial r.v. inside the codomain (this would be a sort of canonical
 version)-/
 
--- #check ProbabilityTheory.IndepFun.comp
--- lemma ProbabilityTheory.iIndepFun.indepFun_finset_comp {Ω : Type u_1}  {ι : Type u_2}
---     {mΩ : MeasurableSpace Ω} {μ : MeasureTheory.Measure Ω}  {β : ι → Type u_10} {γ γ' : Type*}
---     [MeasurableSpace γ] [MeasurableSpace γ']
---     {m : (i : ι) → MeasurableSpace (β i)}  {f : (i : ι) → Ω → β i}  (S : Finset ι) (T : Finset ι)
---     (hST : Disjoint S T) (hf_Indep : ProbabilityTheory.iIndepFun m f μ)
---     (hf_meas : ∀ (i : ι), Measurable (f i)) {φ : S.prod (fun i ↦ β i) → γ} {ψ : T.prod (fun i ↦ β i) → γ'} (hφ_meas : Measurable φ) (hψ_meas : Measurable ψ) :
---   ProbabilityTheory.IndepFun (fun (a : Ω) (i : { x : ι // x ∈ S }) => f (↑i) a)
---     (fun (a : Ω) (i : { x : ι // x ∈ T }) => f (↑i) a) μ
-
--- #check ProbabilityTheory.IdentDistrib.rdist_eq
--- #check ProbabilityTheory.independent_copies
--- #check ProbabilityTheory.independent_copies'
--- #check ProbabilityTheory.independent_copies_two
--- #check ProbabilityTheory.independent_copies3_nondep
--- #check ProbabilityTheory.condIndep_copies
--- #check ProbabilityTheory.entropy_submodular
--- #check ProbabilityTheory.condEntropy_comp_ge
--- #check ProbabilityTheory.entropy_triple_add_entropy_le
--- #check ProbabilityTheory.IndepFun.rdist_eq
--- #check ProbabilityTheory.entropy_neg
--- #check ProbabilityTheory.entropy_comp_of_injective
--- #check ProbabilityTheory.entropy_of_comp_eq_of_comp --eq3
--- #check ProbabilityTheory.entropy_pair_eq_add --eq3'
--- #check ProbabilityTheory.entropy_pair_le_add
--- #check ProbabilityTheory.entropy_comp_le
-
 /--   If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
     (hY : Measurable Y) [Fintype G] :
