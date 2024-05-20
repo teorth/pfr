@@ -78,7 +78,7 @@ variable {G : Type u} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonC
   (μ : Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac)
   [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
-/-- If $G$ is torsion-free and $X,Y$ are $G$-valued random variables then $d[X;2Y]\leq 5d[X;Y]$.  -/
+/-- If `G` is torsion-free and `X, Y` are `G`-valued random variables then `d[X ; 2Y] ≤ 5d[X ; Y]`.  -/
 lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
     (hX : Measurable X) (hY : Measurable Y) (hG : AddMonoid.IsTorsionFree G) :
     d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X; μ # Y ; μ'] := by
@@ -200,9 +200,8 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
   rw [← two_nsmul]
   linarith [abs_le.mp <| diff_ent_le_rdist hX hY (μ := μ) (μ' := μ')]
 
-/-- If $G$ is a torsion-free group and $X,Y$ are $G$-valued random variables and
-$\phi : G\to \mathbb{F}_2^d$ is a homomorphism then
-\[\mathbb{H}(\phi(X))\leq 10d[X;Y].\] -/
+/-- If `G` is a torsion-free group and `X, Y` are `G`-valued random variables and
+`φ : G → 𝔽₂^d` is a homomorphism then `H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ']`. -/
 lemma torsion_dist_shrinking {H : Type u} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
   (hY : Measurable Y) [AddCommGroup H] [ElementaryAddCommGroup H 2]
   [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H]
@@ -229,7 +228,7 @@ open Real ProbabilityTheory MeasureTheory
 variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
 [MeasurableSingletonClass G] {Ω Ω' : Type*}
 
-/-- Let $G=\mathbb{F}_2^n$ and $X,Y$ be $G$-valued random variables such that
+/-- Let $G=\mathbb{F}_2^n$ and `X, Y` be `G`-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> (20/\alpha) d[X;Y],\]
 for some $\alpha > 0$.
 There is a non-trivial subgroup $H\leq G$ such that
@@ -291,7 +290,7 @@ lemma app_ent_PFR (α : ℝ) (hent: 20 * d[X;μ # Y;μ'] < α * (H[X; μ] + H[Y;
   @app_ent_PFR' _ _ _ _ _ _ _ _ (MeasureSpace.mk μ) (MeasureSpace.mk μ') _ _ _ _ α hent hX hY
 
 set_option maxHeartbeats 300000 in
-/-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables and $\alpha < 1$ then there is
+/-- If $G=\mathbb{F}_2^d$ and `X, Y` are `G`-valued random variables and $\alpha < 1$ then there is
 a subgroup  $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq (1 + α) / (2 * (1 - α)) * (\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
@@ -395,7 +394,7 @@ lemma PFR_projection'
       exact hE ⟨1, by norm_num, by
         norm_num; exact add_le_add (entropy_comp_le μ hX _) (entropy_comp_le μ' hY _)⟩
 
-/-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is
+/-- If $G=\mathbb{F}_2^d$ and `X, Y` are `G`-valued random variables then there is
 a subgroup  $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2 * (\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then

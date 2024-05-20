@@ -127,9 +127,9 @@ lemma I₃_eq : I[V : W | S] = I₂ := by
         · apply measurable_pi_apply
       · apply measurable_pi_apply
   have hUVS : IdentDistrib (prod U S) (prod V S) := by
-    convert (IdentDistrib.comp hident hmeas1); simp; abel
+    convert (hident.comp hmeas1); simp; abel
   have hUVWS : IdentDistrib (prod (prod U W) S) (prod (prod V W) S) := by
-    convert (IdentDistrib.comp hident hmeas2) <;> simp <;> abel
+    convert (hident.comp hmeas2) <;> simp <;> abel
   have hU : Measurable U := Measurable.add hX₁ hX₂
   have hV : Measurable V := Measurable.add hX₁' hX₂
   have hW : Measurable W := Measurable.add hX₁' hX₁
@@ -170,18 +170,18 @@ local notation3:max "c[" A " # " B "]" =>
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
 lemma hU : H[U] = H[X₁' + X₂'] :=
-  IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁ h₂
-    (iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 1 by norm_cast))
-     (iIndepFun.indepFun h_indep (show (2 : Fin 4) ≠ 3 by norm_cast)))
+  IdentDistrib.entropy_eq (h₁.add h₂
+    (h_indep.indepFun (show (0 : Fin 4) ≠ 1 by norm_cast))
+     (h_indep.indepFun (show (2 : Fin 4) ≠ 3 by norm_cast)))
 
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] :=
   h_indep.apply_two_last hX₁ hX₂ hX₁' hX₂' measurable_add
 
 lemma hV : H[V] = H[X₁ + X₂'] :=
-IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁.symm h₂
-  (iIndepFun.indepFun h_indep (show (2 : Fin 4) ≠ 1 by norm_cast))
-  (iIndepFun.indepFun h_indep (show (0 : Fin 4) ≠ 3 by norm_cast)))
+IdentDistrib.entropy_eq (h₁.symm.add h₂
+  (h_indep.indepFun (show (2 : Fin 4) ≠ 1 by norm_cast))
+  (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by norm_cast)))
 
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition2 : iIndepFun (fun _ ↦ hG) ![X₂, X₁, X₁' + X₂'] :=
@@ -376,7 +376,8 @@ lemma construct_good_prelim :
 
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2) := by
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
-      simp [sum2, integral_sub (.of_finite _ _) (.of_finite _ _), sum2]
+      simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const, measure_univ,
+        ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum2]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
@@ -385,7 +386,8 @@ lemma construct_good_prelim :
 
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2) := by
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
-      simp [sum3, integral_sub (.of_finite _ _) (.of_finite _ _)]
+      simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const, measure_univ,
+        ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum3]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr

@@ -63,7 +63,7 @@ lemma rdist_add_rdist_add_condMutual_eq : d[X₁ + X₂' # X₂ + X₁'] + d[X�
   rw [h0, h1, h2, h3] at h
   have heq : d[X₂' # X₁'] = k := by
     rw [rdist_symm]
-    apply ProbabilityTheory.IdentDistrib.rdist_eq h₁.symm h₂.symm
+    apply h₁.symm.rdist_eq h₂.symm
   rw [heq] at h
   convert h.symm using 1
   · congr 2 <;> abel
@@ -90,7 +90,7 @@ lemma condRuzsaDist_of_sums_ge :
 lemma diff_rdist_le_1 : d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
   have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide)
   convert condRuzsaDist_diff_le' ℙ p.hmeas1 hX₁ hX₂' h using 4
-  · exact ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂
+  · exact (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂
   · exact h₂.entropy_eq
 
 /-- $$ d[X^0_2;X_2+\tilde X_1] - d[X^0_2; X_2] \leq \tfrac{1}{2} k + \tfrac{1}{4} \mathbb{H}[X_1] - \tfrac{1}{4} \mathbb{H}[X_2].$$ -/
