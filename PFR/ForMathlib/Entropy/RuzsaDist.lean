@@ -320,9 +320,8 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
   have : H[X' - UH' ; ν] = H[π ∘ X' ; ν] + H[UH' ; ν] := by calc
     _ = H[⟨X' - UH', π ∘ (X' - UH')⟩ ; ν] := (entropy_prod_comp (hX'.sub hUH') ν π).symm
     _ = H[⟨X' - UH', π ∘ X'⟩ ; ν] := by
-      apply IdentDistrib.entropy_eq
-      apply IdentDistrib.of_ae_eq (Measurable.aemeasurable (measurable_discrete _))
-      apply MeasureTheory.mem_ae_iff.mpr
+      apply IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq (Measurable.aemeasurable
+        (measurable_discrete _)) <| MeasureTheory.mem_ae_iff.mpr _
       convert hunif.measure_preimage_compl
       ext; simp [π]
     _ = H[π ∘ X' ; ν] + H[UH' ; ν] := by
