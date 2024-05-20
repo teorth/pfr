@@ -90,6 +90,8 @@ given a r.v., we can construct another r.v. that is identically distributed, whi
 immersion of the range of the initial r.v. inside the codomain (this would be a sort of canonical
 version)-/
 
+#check IdentDistrib.ae_snd
+#check independent_copies
 /--   If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
     (hY : Measurable Y) [Fintype G] :
@@ -97,53 +99,72 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   obtain ⟨ν, X', Y', hν, hX', hY', h_indep', hXX', hYY'⟩ := independent_copies hX hY μ μ'
   rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
 
-  obtain ⟨Ω₀, mΩ₀, XY₁, XY₂, Z, ν₀, hν₀, hXY₁, hXY₂, hZ, h_indep12sub, h_id1sub, h_id2sub⟩
+  obtain ⟨Ω₀, mΩ₀, XY'₁, XY'₂, Z', ν'₀, hν'₀, hXY'₁, hXY'₂, hZ', h_indep12sub, h_id1sub, h_id2sub⟩
     := condIndep_copies (⟨X', Y'⟩) (X' - Y') (hX'.prod_mk hY') (hX'.sub' hY') ν
-  let X₁ := fun ω ↦ (XY₁ ω).fst
-  let Y₁ := fun ω ↦ (XY₁ ω).snd
-  let X₂ := fun ω ↦ (XY₂ ω).fst
-  let Y₂ := fun ω ↦ (XY₂ ω).snd
-  have Zeq1 : Z = X₁ - Y₁ := by
-    sorry
-  have Zeq2 : Z = X₂ - Y₂ := by
-    sorry
+  let X'₁ := fun ω ↦ (XY'₁ ω).fst
+  let Y'₁ := fun ω ↦ (XY'₁ ω).snd
+  let X'₂ := fun ω ↦ (XY'₂ ω).fst
+  let Y'₂ := fun ω ↦ (XY'₂ ω).snd
+  -- have Zeq1 : Z =ᵐ[ν₀] X₁ - Y₁ := by
+  --   sorry
+  -- have Zeq2 : Z =ᵐ[ν₀] X₂ - Y₂ := by
+  --   sorry
 
-  have hidX₁ : IdentDistrib X₁ X' ν₀ ν := by
-    exact h_id1sub.comp (measurable_discrete (fun ((x,y), z) ↦ x))
-  have hidY₁ : IdentDistrib Y₁ Y' ν₀ ν := by
-    exact h_id1sub.comp (measurable_discrete (fun ((x,y), z) ↦ y))
-  have hidX₂ : IdentDistrib X₂ X' ν₀ ν := by
-    exact h_id2sub.comp (measurable_discrete (fun ((x,y), z) ↦ x))
-  have hidY₂ : IdentDistrib Y₂ Y' ν₀ ν := by
-    exact h_id2sub.comp (measurable_discrete (fun ((x,y), z) ↦ y))
+  -- have hidX₁ : IdentDistrib X₁ X' ν₀ ν := by
+  --   exact h_id1sub.comp (measurable_discrete (fun ((x,y), z) ↦ x))
+  -- have hidY₁ : IdentDistrib Y₁ Y' ν₀ ν := by
+  --   exact h_id1sub.comp (measurable_discrete (fun ((x,y), z) ↦ y))
+  -- have hidX₂ : IdentDistrib X₂ X' ν₀ ν := by
+  --   exact h_id2sub.comp (measurable_discrete (fun ((x,y), z) ↦ x))
+  -- have hidY₂ : IdentDistrib Y₂ Y' ν₀ ν := by
+  --   exact h_id2sub.comp (measurable_discrete (fun ((x,y), z) ↦ y))
 
+  obtain ⟨ν₀, XY₁XY₂Z, XY₃, hν₀, hXY₁XY₂Z, hXY₃, h_indep, h_idXY₁XY₂Z, h_idXY₃⟩ :=
+    independent_copies (hXY'₁.prod_mk hXY'₂ |>.prod_mk hZ') (hX'.prod_mk hY') ν'₀ ν
 
-  let XY'vec := ![X', Y', X', Y', X', Y']
-  have hh := independent_copies' XY'vec ?_
-  swap; simp only [measurable_discrete, implies_true]
+  let X₁ := fun ω ↦ (XY₁XY₂Z ω).fst.fst.fst
+  let Y₁ := fun ω ↦ (XY₁XY₂Z ω).fst.fst.snd
+  let X₂ := fun ω ↦ (XY₁XY₂Z ω).fst.snd.fst
+  let Y₂ := fun ω ↦ (XY₁XY₂Z ω).fst.snd.snd
+  let Z := fun ω ↦ (XY₁XY₂Z ω).snd
+  let X₃ := fun ω ↦ (XY₃ ω).fst
+  let Y₃ := fun ω ↦ (XY₃ ω).snd
 
-  -- this is to unpack `hh`
-  let νvec := fun (_ : Fin 6) ↦ ν
-  have (i : Fin 6) : IsProbabilityMeasure (νvec i) := by
-    unfold_let
-    dsimp
-    exact hν
-  replace hh := @hh νvec this
-  obtain ⟨Ω₀, mΩ₀, ν₀, XYvec, hν₀, h_indep, h_temp⟩ := hh
-  rw [forall_and] at h_temp
-  rcases h_temp with ⟨h_meas, h_ident⟩
+  -- let XY'vec := ![X', Y', X', Y', X', Y']
+  -- have hh := independent_copies' XY'vec ?_
+  -- swap; simp only [measurable_discrete, implies_true]
 
-  let X₁ := XYvec 0
-  let Y₁ := XYvec 1
-  let X₂ := XYvec 2
-  let Y₂ := XYvec 3
-  let X₃ := XYvec 4
-  let Y₃ := XYvec 5
+  -- -- this is to unpack `hh`
+  -- let νvec := fun (_ : Fin 6) ↦ ν
+  -- have (i : Fin 6) : IsProbabilityMeasure (νvec i) := by
+  --   unfold_let
+  --   dsimp
+  --   exact hν
+  -- replace hh := @hh νvec this
+  -- obtain ⟨Ω₀, mΩ₀, ν₀, XYvec, hν₀, h_indep, h_temp⟩ := hh
+  -- rw [forall_and] at h_temp
+  -- rcases h_temp with ⟨h_meas, h_ident⟩
+
+  -- let X₁ := XYvec 0
+  -- let Y₁ := XYvec 1
+  -- let X₂ := XYvec 2
+  -- let Y₂ := XYvec 3
+  -- let X₃ := XYvec 4
+  -- let Y₃ := XYvec 5
+
+  have iX₁Y₃ : IndepFun X₁ Y₃ ν₀ := by
+    convert IndepFun.comp h_indep (show Measurable (fun x ↦ x.1.1.1) by measurability)
+      (show Measurable (fun x ↦ x.2) by measurability)
+  have iX₃Y₂ : IndepFun X₃ Y₂ ν₀ := by
+    convert IndepFun.comp h_indep.symm (show Measurable (fun x ↦ x.1) by measurability)
+      (show Measurable (fun x ↦ x.1.2.2) by measurability)
 
   have iX₁Y₁ : IndepFun X₁ Y₁ ν₀ := iIndepFun.indepFun h_indep (show 0 ≠ 1 by simp)
+
   have iX₂Y₂ : IndepFun X₂ Y₂ ν₀ := iIndepFun.indepFun h_indep (show 2 ≠ 3 by simp)
-  have iX₁Y₃ : IndepFun X₁ Y₃ ν₀ := iIndepFun.indepFun h_indep (show 0 ≠ 5 by simp)
-  have iX₃Y₂ : IndepFun X₃ Y₂ ν₀ := iIndepFun.indepFun h_indep (show 4 ≠ 3 by simp)
+
+  -- iIndepFun.indepFun h_indep (show 0 ≠ 5 by simp)
+
   have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ := iIndepFun.indepFun h_indep (show 4 ≠ 5 by simp)
   have iX₃negY₃ : IndepFun X₃ (-Y₃) ν₀ := iX₃Y₃.comp measurable_id measurable_neg
 
