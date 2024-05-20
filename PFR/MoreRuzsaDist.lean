@@ -218,9 +218,10 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
     convert h_indep.symm.comp (measurable_discrete fun x ↦ x.1)
       (measurable_discrete fun x ↦ x.1.2.2)
 
-  have iX₁Y₁ : IndepFun X₁ Y₁ ν₀ := sorry -- https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/.60IndepFun.60.20of.20.60IdentDistrib.60.20pairs/near/439623241
-  have iX₂Y₂ : IndepFun X₂ Y₂ ν₀ := sorry -- https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/.60IndepFun.60.20of.20.60IdentDistrib.60.20pairs/near/439623241
-  have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ := sorry -- https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/.60IndepFun.60.20of.20.60IdentDistrib.60.20pairs/near/439623241
+  -- For the following sorries see: https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/.60IndepFun.60.20of.20.60IdentDistrib.60.20pairs/near/439623241
+  have iX₁Y₁ : IndepFun X₁ Y₁ ν₀ := sorry
+  have iX₂Y₂ : IndepFun X₂ Y₂ ν₀ := sorry
+  have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ := sorry
 
   have iX₃negY₃ : IndepFun X₃ (-Y₃) ν₀ := iX₃Y₃.comp measurable_id measurable_neg
   have i112233 : IndepFun (⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩) (⟨X₃, Y₃⟩) ν₀ :=
@@ -233,23 +234,23 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   have hY3 : H[Y' ; ν] = H[Y₃ ; ν₀] := idY₃.entropy_eq.symm
   have hnegY3 : H[Y₃ ; ν₀] = H[-Y₃ ; ν₀] := (entropy_neg mY₃).symm
   have hX1Y1 : H[⟨X₁, Y₁⟩; ν₀] = H[X'; ν] + H[Y'; ν] :=
-    hX1.symm ▸ hY1.symm ▸ (entropy_pair_eq_add (mX₁) mY₁).mpr iX₁Y₁
+    hX1.symm ▸ hY1.symm ▸ (entropy_pair_eq_add mX₁ mY₁).mpr iX₁Y₁
   have hX2Y2 : H[⟨X₂, Y₂⟩; ν₀] = H[X'; ν] + H[Y'; ν] :=
-    hX2.symm ▸ hY2.symm ▸ (entropy_pair_eq_add (mX₂) (mY₂)).mpr iX₂Y₂
+    hX2.symm ▸ hY2.symm ▸ (entropy_pair_eq_add mX₂ mY₂).mpr iX₂Y₂
   have hX3Y3 : H[⟨X₃, Y₃⟩; ν₀] = H[X'; ν] + H[Y'; ν] :=
-    hX3.symm ▸ hY3.symm ▸ (entropy_pair_eq_add (mX₃) (mY₃)).mpr iX₃Y₃
+    hX3.symm ▸ hY3.symm ▸ (entropy_pair_eq_add mX₃ mY₃).mpr iX₃Y₃
   have dX3negY3 : d[X' ; ν # -Y' ; ν] = d[X₃ ; ν₀ # -Y₃ ; ν₀] :=
-    (IdentDistrib.rdist_eq (idX₃) (idY₃).neg).symm
+    (idX₃.rdist_eq idY₃.neg).symm
   have dX1Y1 : d[X' ; ν # Y' ; ν] = d[X₁ ; ν₀ # Y₁ ; ν₀] :=
-    (IdentDistrib.rdist_eq (idX₁) (idY₁)).symm
+    (idX₁.rdist_eq idY₁).symm
   have dX1Y3 : d[X' ; ν # Y' ; ν] = d[X₁ ; ν₀ # Y₃ ; ν₀] :=
-    (IdentDistrib.rdist_eq (idX₁) (idY₃)).symm
+    (idX₁.rdist_eq idY₃).symm
   have dX3Y2 : d[X' ; ν # Y' ; ν] = d[X₃ ; ν₀ # Y₂ ; ν₀] :=
-    (IdentDistrib.rdist_eq (idX₃) (idY₂)).symm
+    (idX₃.rdist_eq idY₂).symm
   have meas1321 : Measurable (⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩) :=
-    ((mX₁).sub (mY₃)).prod_mk <| (mX₂).prod_mk (mY₁)
+    (mX₁.sub mY₃).prod_mk <| mX₂.prod_mk mY₁
   have meas321321 : Measurable (⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩) :=
-    ((mX₃).sub (mY₂)).prod_mk meas1321
+    (mX₃.sub mY₂).prod_mk meas1321
   have meas11 : Measurable (⟨X₁, Y₁⟩) := (mX₁).prod_mk (mY₁)
   have meas22 : Measurable (⟨X₂, Y₂⟩) := (mX₂).prod_mk (mY₂)
   have meas1122 : Measurable (⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩) := meas11.prod_mk meas22
@@ -259,17 +260,14 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   have in1 : H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, ⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩⟩ ; ν₀] + H[X₃ + Y₃; ν₀]
       ≤ H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, X₃ + Y₃⟩ ; ν₀] + H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] :=
     entropy_triple_add_entropy_le _
-      (((mX₃).sub (mY₂)).prod_mk <| ((mX₁).sub (mY₃)).prod_mk <|
-        (mX₂).prod_mk (mY₁))
-      (meas33) ((mX₃).add (mY₃))
+      ((mX₃.sub mY₂).prod_mk <| (mX₁.sub mY₃).prod_mk <| mX₂.prod_mk mY₁)
+      (meas33) (mX₃.add mY₃)
   have eq2 : H[X₃ + Y₃; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # -Y'; ν] := by
-    rw [hX3, hY3, dX3negY3, hnegY3, IndepFun.rdist_eq iX₃negY₃ (mX₃) (mY₃).neg, sub_neg_eq_add]
+    rw [hX3, hY3, dX3negY3, hnegY3, IndepFun.rdist_eq iX₃negY₃ mX₃ mY₃.neg, sub_neg_eq_add]
     ring
   have eq3 : H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] = H[X'; ν] + H[Y'; ν] :=
-    hX3Y3 ▸ entropy_of_comp_eq_of_comp ν₀
-      (meas33 |>.prod_mk <| (mX₃).add (mY₃))
-      (meas33) (fun ((x3, y3), xy3) ↦ (x3, y3))
-      (fun (x3, y3) ↦ ((x3, y3), x3 + y3)) rfl rfl
+    hX3Y3 ▸ entropy_of_comp_eq_of_comp ν₀ (meas33 |>.prod_mk <| mX₃.add mY₃) (meas33)
+      (fun ((x3, y3), xy3) ↦ (x3, y3)) (fun (x3, y3) ↦ ((x3, y3), x3 + y3)) rfl rfl
   have eq4' : X₁ =ᵐ[ν₀] X₂ - Y₂ + Y₁ := by
     filter_upwards [Zeq1, Zeq2] with ω hZ hZ'
     simp only [Pi.add_apply, ← hZ', hZ, Pi.sub_apply, sub_add_cancel]
@@ -285,7 +283,8 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
         filter_upwards [eq4] with ω h
         simp only [Prod.mk.injEq, h, Pi.add_apply, Pi.sub_apply, and_self]
       _ = _ := by
-        refine entropy_of_comp_eq_of_comp ν₀ (meas321321.prod_mk <| (((mX₃.sub mY₂).sub (mX₁.sub mY₃)).add mX₂).add mY₁) meas321321
+        refine entropy_of_comp_eq_of_comp ν₀ (meas321321.prod_mk <|
+          (((mX₃.sub mY₂).sub (mX₁.sub mY₃)).add mX₂).add mY₁) meas321321
           (fun ((x3y2, (x1y3, (x2, y1))), x3y3) ↦ (x3y2, (x1y3, (x2, y1))))
           (fun (x3y2, (x1y3, (x2, y1))) ↦ ((x3y2, (x1y3, (x2, y1))), x3y2 - x1y3 + x2 + y1))
           rfl rfl
@@ -299,7 +298,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
     · exact (mX₁.sub mY₃)
     · exact (mX₂.prod_mk mY₁)
     simp only [add_assoc, add_le_add_iff_left]
-    exact entropy_pair_le_add (mX₂) (mY₁) ν₀
+    exact entropy_pair_le_add mX₂ mY₁ ν₀
   have eq7 : H[X₃ - Y₂; ν₀] = 1/2 * (H[X'; ν] + H[Y'; ν]) + d[X'; ν # Y'; ν] := by
     rw [dX3Y2, IndepFun.rdist_eq iX₃Y₂ mX₃ mY₂, hX3, hY2]
     ring_nf
@@ -325,17 +324,13 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       = H[⟨X₁, ⟨Y₁, X₁ - Y₁⟩⟩ ; ν₀] + H[⟨X₂, ⟨Y₂, X₂ - Y₂⟩⟩ ; ν₀]
         - H[X₁ - Y₁; ν₀] + H[⟨X₃, Y₃⟩ ; ν₀] := by
     calc
-      _ = H[⟨⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩, ⟨X₃, Y₃⟩⟩ ; ν₀] :=
-        entropy_of_comp_eq_of_comp ν₀
-          ((mX₁).prod_mk <| (mY₁).prod_mk <| (mX₂).prod_mk <|
-            (mY₂.prod_mk <| meas33)
+      _ = H[⟨⟨X'₁, Y'₁⟩, ⟨X'₂, Y'₂⟩⟩ ; ν'₀] + H[⟨X₃, Y₃⟩ ; ν₀] := by
+        rw [← idXY₁₂XY'₁₂.entropy_eq, ← (entropy_pair_eq_add meas1122 meas33).mpr i112233]
+        exact entropy_of_comp_eq_of_comp ν₀
+          (mX₁.prod_mk <| mY₁.prod_mk <| mX₂.prod_mk <| mY₂.prod_mk <| meas33)
           (meas1122.prod_mk meas33)
           (fun (x1, (y1, (x2, (y2, (x3, y3))))) ↦ (((x1, y1), (x2, y2)), (x3, y3)))
           (fun (((x1, y1), (x2, y2)), (x3, y3)) ↦ (x1, (y1, (x2, (y2, (x3, y3)))))) rfl rfl
-      _ = H[⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩ ; ν₀] + H[⟨X₃, Y₃⟩ ; ν₀] :=
-        (entropy_pair_eq_add meas1122 meas33).mpr i112233
-      _ = H[⟨⟨X'₁, Y'₁⟩, ⟨X'₂, Y'₂⟩⟩ ; ν'₀] + H[⟨X₃, Y₃⟩ ; ν₀] := by
-        rw [idXY₁₂XY'₁₂.entropy_eq]
       _ = H[⟨⟨X'₁, Y'₁⟩, ⟨⟨X'₂, Y'₂⟩, X'₁ - Y'₁⟩⟩ ; ν'₀] + H[⟨X₃, Y₃⟩ ; ν₀] := by
         congr 1
         exact entropy_of_comp_eq_of_comp ν'₀ (hXY'₁.prod_mk hXY'₂)
@@ -358,10 +353,12 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
           + H[⟨X₃, Y₃⟩ ; ν₀] := by
         rw [IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq mZ.aemeasurable Zeq1]
         congr 3
-        · refine IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq ((mX₁.prod_mk mY₁).prod_mk mZ).aemeasurable ?_
+        · refine IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq
+            ((mX₁.prod_mk mY₁).prod_mk mZ).aemeasurable ?_
           filter_upwards [Zeq1] with ω h
           simp only [Prod.mk.injEq, h, Pi.sub_apply, and_self]
-        · refine IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq ((mX₂.prod_mk mY₂).prod_mk mZ).aemeasurable ?_
+        · refine IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq
+            ((mX₂.prod_mk mY₂).prod_mk mZ).aemeasurable ?_
           filter_upwards [Zeq2] with ω h
           simp only [Prod.mk.injEq, h, Pi.sub_apply, and_self]
       _ = H[⟨X₁, ⟨Y₁, X₁ - Y₁⟩⟩ ; ν₀] + H[⟨X₂, ⟨Y₂, X₂ - Y₂⟩⟩ ; ν₀]
@@ -377,7 +374,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
             rfl rfl
   have eq12_aux1 : H[⟨X₁, ⟨Y₁, X₁ - Y₁⟩⟩ ; ν₀] = H[⟨X₁, Y₁⟩ ; ν₀] :=
     entropy_of_comp_eq_of_comp ν₀
-      ((mX₁).prod_mk <| (mY₁).prod_mk <| (mX₁).sub (mY₁)) meas11
+      (mX₁.prod_mk <| mY₁.prod_mk <| mX₁.sub mY₁) meas11
       (fun (x1, (y1, x1y1)) ↦ (x1, y1)) (fun (x1, y1) ↦ (x1, (y1, x1 - y1))) rfl rfl
   have eq12_aux2 : H[⟨X₂, ⟨Y₂, X₂ - Y₂⟩⟩ ; ν₀] = H[⟨X₂, Y₂⟩ ; ν₀] :=
     entropy_of_comp_eq_of_comp ν₀
