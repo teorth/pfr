@@ -698,9 +698,7 @@ lemma condRuzsaDist_of_indep
     condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hW]
   swap; · exact hX.sub hY
   congr 2
-  have hZW : IndepFun Z W μ := by
-    have h' := IndepFun.comp h measurable_snd measurable_snd
-    exact h'
+  have hZW : IndepFun Z W μ := h.comp measurable_snd measurable_snd
   have hZW_map : μ.map (⟨Z, W⟩) = (μ.map Z).prod (μ.map W) :=
     (indepFun_iff_map_prod_eq_prod_map_map hZ.aemeasurable hW.aemeasurable).mp hZW
   rw [← hZW_map]
