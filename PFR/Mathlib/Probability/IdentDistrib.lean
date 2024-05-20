@@ -432,7 +432,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
     rcases identDistrib_of_finiteRange hX₄ hId₄.symm with ⟨X₄'', hX₄'', hX₄''_finite, hX₄''_eq⟩
     use A, mA, μA, X₁'', X₂'', X₃'', X₄''
     refine ⟨hμA, ?_, hX₁'', hX₂'', hX₃'', hX₄'', ?_, ?_, ?_, ?_, hX₁''_finite, hX₂''_finite, hX₃''_finite, hX₄''_finite⟩
-    . apply iIndepFun.ae_eq hind
+    . apply hind.ae_eq
       intro i; fin_cases i
       all_goals simp [hX₁''_eq.symm, hX₂''_eq.symm, hX₃''_eq.symm, hX₄''_eq.symm]
     . convert IdentDistrib.trans _ hId₁
