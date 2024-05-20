@@ -90,49 +90,25 @@ given a r.v., we can construct another r.v. that is identically distributed, whi
 immersion of the range of the initial r.v. inside the codomain (this would be a sort of canonical
 version)-/
 
--- lemma IndepFun.identDistrib
-
-#check IdentDistrib.ae_snd
-#check independent_copies
 /--   If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
     (hY : Measurable Y) [Fintype G] :
     d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
   obtain ⟨ν, X', Y', hν, hX', hY', h_indep', hXX', hYY'⟩ := independent_copies hX hY μ μ'
   rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
-
   obtain ⟨Ω₀, mΩ₀, XY'₁, XY'₂, Z', ν'₀, hν'₀, hXY'₁, hXY'₂, hZ', h_condIndep, h_id1sub, h_id2sub⟩
     := condIndep_copies (⟨X', Y'⟩) (X' - Y') (hX'.prod_mk hY') (hX'.sub' hY') ν
   let X'₁ := fun ω ↦ (XY'₁ ω).fst
   let Y'₁ := fun ω ↦ (XY'₁ ω).snd
   let X'₂ := fun ω ↦ (XY'₂ ω).fst
   let Y'₂ := fun ω ↦ (XY'₂ ω).snd
-
-  have mX'₁ : Measurable X'₁ := by
-    exact (measurable_discrete fun x ↦ x.1).comp hXY'₁
-  have mY'₁ : Measurable Y'₁ := by
-    exact (measurable_discrete fun x ↦ x.2).comp hXY'₁
-
+  have mX'₁ : Measurable X'₁ := by exact (measurable_discrete fun x ↦ x.1).comp hXY'₁
+  have mY'₁ : Measurable Y'₁ := by exact (measurable_discrete fun x ↦ x.2).comp hXY'₁
   have Z'eq1 : Z' =ᵐ[ν'₀] X'₁ - Y'₁ := by
     exact IdentDistrib.ae_snd h_id1sub.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
       (eventually_of_forall fun ω ↦ rfl)
-  have Z'eq2 : Z' =ᵐ[ν'₀] X'₂ - Y'₂ := by
-    exact IdentDistrib.ae_snd h_id2sub.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
-      (eventually_of_forall fun ω ↦ rfl)
-
-  have : Measurable (⟨⟨X'₁, Y'₁⟩, ⟨X'₂, Y'₂⟩⟩) := hXY'₁.prod_mk hXY'₂
-  -- have hidX₁ : IdentDistrib X₁ X' ν₀ ν := by
-  --   exact h_id1sub.comp (measurable_discrete (fun ((x,y), z) ↦ x))
-  -- have hidY₁ : IdentDistrib Y₁ Y' ν₀ ν := by
-  --   exact h_id1sub.comp (measurable_discrete (fun ((x,y), z) ↦ y))
-  -- have hidX₂ : IdentDistrib X₂ X' ν₀ ν := by
-  --   exact h_id2sub.comp (measurable_discrete (fun ((x,y), z) ↦ x))
-  -- have hidY₂ : IdentDistrib Y₂ Y' ν₀ ν := by
-  --   exact h_id2sub.comp (measurable_discrete (fun ((x,y), z) ↦ y))
-
   obtain ⟨ν₀, XY₁XY₂Z, XY₃, hν₀, hXY₁XY₂Z, hXY₃, h_indep, h_idXY₁XY₂Z, h_idXY₃⟩ :=
     independent_copies (hXY'₁.prod_mk hXY'₂ |>.prod_mk hZ') (hX'.prod_mk hY') ν'₀ ν
-
   let X₁ := fun ω ↦ (XY₁XY₂Z ω).fst.fst.fst
   let Y₁ := fun ω ↦ (XY₁XY₂Z ω).fst.fst.snd
   let X₂ := fun ω ↦ (XY₁XY₂Z ω).fst.snd.fst
@@ -140,49 +116,18 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   let Z := fun ω ↦ (XY₁XY₂Z ω).snd
   let X₃ := fun ω ↦ (XY₃ ω).fst
   let Y₃ := fun ω ↦ (XY₃ ω).snd
-
-  -- let XY'vec := ![X', Y', X', Y', X', Y']
-  -- have hh := independent_copies' XY'vec ?_
-  -- swap; simp only [measurable_discrete, implies_true]
-
-  -- -- this is to unpack `hh`
-  -- let νvec := fun (_ : Fin 6) ↦ ν
-  -- have (i : Fin 6) : IsProbabilityMeasure (νvec i) := by
-  --   unfold_let
-  --   dsimp
-  --   exact hν
-  -- replace hh := @hh νvec this
-  -- obtain ⟨Ω₀, mΩ₀, ν₀, XYvec, hν₀, h_indep, h_temp⟩ := hh
-  -- rw [forall_and] at h_temp
-  -- rcases h_temp with ⟨h_meas, h_ident⟩
-
-  -- let X₁ := XYvec 0
-  -- let Y₁ := XYvec 1
-  -- let X₂ := XYvec 2
-  -- let Y₂ := XYvec 3
-  -- let X₃ := XYvec 4
-  -- let Y₃ := XYvec 5
-
-  have mX₁ : Measurable X₁ := by
-    exact (measurable_discrete fun x ↦ x.1.1.1).comp hXY₁XY₂Z
-  have mY₁ : Measurable Y₁ := by
-    exact (measurable_discrete fun x ↦ x.1.1.2).comp hXY₁XY₂Z
-  have mX₂ : Measurable X₂ := by
-    exact (measurable_discrete fun x ↦ x.1.2.1).comp hXY₁XY₂Z
-  have mY₂ : Measurable Y₂ := by
-    exact (measurable_discrete fun x ↦ x.1.2.2).comp hXY₁XY₂Z
-  have mX₃ : Measurable X₃ := by
-    exact (measurable_discrete fun x ↦ x.1).comp hXY₃
-  have mY₃ : Measurable Y₃ := by
-    exact (measurable_discrete fun x ↦ x.2).comp hXY₃
+  have mX₁ : Measurable X₁ := by exact (measurable_discrete fun x ↦ x.1.1.1).comp hXY₁XY₂Z
+  have mY₁ : Measurable Y₁ := by exact (measurable_discrete fun x ↦ x.1.1.2).comp hXY₁XY₂Z
+  have mX₂ : Measurable X₂ := by exact (measurable_discrete fun x ↦ x.1.2.1).comp hXY₁XY₂Z
+  have mY₂ : Measurable Y₂ := by exact (measurable_discrete fun x ↦ x.1.2.2).comp hXY₁XY₂Z
+  have mX₃ : Measurable X₃ := by exact (measurable_discrete fun x ↦ x.1).comp hXY₃
+  have mY₃ : Measurable Y₃ := by exact (measurable_discrete fun x ↦ x.2).comp hXY₃
   have mZ : Measurable Z := by
     exact (measurable_discrete fun x ↦ x.2).comp hXY₁XY₂Z
-
   have idXY₁Z : IdentDistrib (⟨⟨X₁, Y₁⟩, Z⟩) (⟨⟨X', Y'⟩, X' - Y'⟩) ν₀ ν :=
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ (x.1.1, x.2)) |>.trans h_id1sub
   have idXY₂Z : IdentDistrib (⟨⟨X₂, Y₂⟩, Z⟩) (⟨⟨X', Y'⟩, X' - Y'⟩) ν₀ ν :=
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ (x.1.2, x.2)) |>.trans h_id2sub
-
   have idXY₁ : IdentDistrib (⟨X₁, Y₁⟩) (⟨X', Y'⟩) ν₀ ν := by
     convert h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ x.1.1) |>.trans ?_
     exact h_id1sub.comp (measurable_discrete fun ((x, y), z) ↦ (x, y))
@@ -196,33 +141,28 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   have idY₂ : IdentDistrib Y₂ Y' ν₀ ν := idXY₂.comp (measurable_discrete fun (x, y) ↦ y)
   have idX₃ : IdentDistrib X₃ X' ν₀ ν := idXY₃.comp (measurable_discrete fun (x, y) ↦ x)
   have idY₃ : IdentDistrib Y₃ Y' ν₀ ν := idXY₃.comp (measurable_discrete fun (x, y) ↦ y)
-
   have idXY₁₂XY'₁₂ : IdentDistrib (⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩) (⟨⟨X'₁, Y'₁⟩, ⟨X'₂, Y'₂⟩⟩) ν₀ ν'₀ :=
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ x.1)
-
   have idXY₁ZXY'₁Z' : IdentDistrib (⟨⟨X₁, Y₁⟩, Z⟩) (⟨⟨X'₁, Y'₁⟩, Z'⟩) ν₀ ν'₀ :=
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ (x.1.1, x.2))
   have idXY₂ZXY'₂Z' : IdentDistrib (⟨⟨X₂, Y₂⟩, Z⟩) (⟨⟨X'₂, Y'₂⟩, Z'⟩) ν₀ ν'₀ :=
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ (x.1.2, x.2))
-  have idZZ' : IdentDistrib Z Z' ν₀ ν'₀ :=
-    h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ x.2)
-
+  have idZZ' : IdentDistrib Z Z' ν₀ ν'₀ := h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ x.2)
   have Zeq1 : Z =ᵐ[ν₀] X₁ - Y₁ := by
-    exact IdentDistrib.ae_snd idXY₁Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2}) (eventually_of_forall fun ω ↦ rfl)
+    exact IdentDistrib.ae_snd idXY₁Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
+      (eventually_of_forall fun ω ↦ rfl)
   have Zeq2 : Z =ᵐ[ν₀] X₂ - Y₂ := by
-    exact IdentDistrib.ae_snd idXY₂Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2}) (eventually_of_forall fun ω ↦ rfl)
-
+    exact IdentDistrib.ae_snd idXY₂Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
+      (eventually_of_forall fun ω ↦ rfl)
   have iX₁Y₃ : IndepFun X₁ Y₃ ν₀ := by
     convert h_indep.comp (measurable_discrete fun x ↦ x.1.1.1) (measurable_discrete fun x ↦ x.2)
   have iX₃Y₂ : IndepFun X₃ Y₂ ν₀ := by
     convert h_indep.symm.comp (measurable_discrete fun x ↦ x.1)
       (measurable_discrete fun x ↦ x.1.2.2)
-
   -- For the following sorries see: https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/.60IndepFun.60.20of.20.60IdentDistrib.60.20pairs/near/439623241
   have iX₁Y₁ : IndepFun X₁ Y₁ ν₀ := sorry
   have iX₂Y₂ : IndepFun X₂ Y₂ ν₀ := sorry
   have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ := sorry
-
   have iX₃negY₃ : IndepFun X₃ (-Y₃) ν₀ := iX₃Y₃.comp measurable_id measurable_neg
   have i112233 : IndepFun (⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩) (⟨X₃, Y₃⟩) ν₀ :=
     h_indep.comp (measurable_discrete fun (xy, z) ↦ xy) measurable_id
@@ -239,29 +179,21 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
     hX2.symm ▸ hY2.symm ▸ (entropy_pair_eq_add mX₂ mY₂).mpr iX₂Y₂
   have hX3Y3 : H[⟨X₃, Y₃⟩; ν₀] = H[X'; ν] + H[Y'; ν] :=
     hX3.symm ▸ hY3.symm ▸ (entropy_pair_eq_add mX₃ mY₃).mpr iX₃Y₃
-  have dX3negY3 : d[X' ; ν # -Y' ; ν] = d[X₃ ; ν₀ # -Y₃ ; ν₀] :=
-    (idX₃.rdist_eq idY₃.neg).symm
-  have dX1Y1 : d[X' ; ν # Y' ; ν] = d[X₁ ; ν₀ # Y₁ ; ν₀] :=
-    (idX₁.rdist_eq idY₁).symm
-  have dX1Y3 : d[X' ; ν # Y' ; ν] = d[X₁ ; ν₀ # Y₃ ; ν₀] :=
-    (idX₁.rdist_eq idY₃).symm
-  have dX3Y2 : d[X' ; ν # Y' ; ν] = d[X₃ ; ν₀ # Y₂ ; ν₀] :=
-    (idX₃.rdist_eq idY₂).symm
-  have meas1321 : Measurable (⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩) :=
-    (mX₁.sub mY₃).prod_mk <| mX₂.prod_mk mY₁
-  have meas321321 : Measurable (⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩) :=
-    (mX₃.sub mY₂).prod_mk meas1321
+  have dX3negY3 : d[X' ; ν # -Y' ; ν] = d[X₃ ; ν₀ # -Y₃ ; ν₀] := (idX₃.rdist_eq idY₃.neg).symm
+  have dX1Y1 : d[X' ; ν # Y' ; ν] = d[X₁ ; ν₀ # Y₁ ; ν₀] := (idX₁.rdist_eq idY₁).symm
+  have dX1Y3 : d[X' ; ν # Y' ; ν] = d[X₁ ; ν₀ # Y₃ ; ν₀] := (idX₁.rdist_eq idY₃).symm
+  have dX3Y2 : d[X' ; ν # Y' ; ν] = d[X₃ ; ν₀ # Y₂ ; ν₀] := (idX₃.rdist_eq idY₂).symm
+  have meas1321 : Measurable (⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩) := (mX₁.sub mY₃).prod_mk <| mX₂.prod_mk mY₁
+  have meas321321 : Measurable (⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩) := (mX₃.sub mY₂).prod_mk meas1321
   have meas11 : Measurable (⟨X₁, Y₁⟩) := (mX₁).prod_mk (mY₁)
   have meas22 : Measurable (⟨X₂, Y₂⟩) := (mX₂).prod_mk (mY₂)
   have meas1122 : Measurable (⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩) := meas11.prod_mk meas22
   have meas33 : Measurable (⟨X₃, Y₃⟩) := (mX₃).prod_mk (mY₃)
   have meas1neg1 : Measurable (X₁ - Y₁) := (mX₁).sub (mY₁)
-
   have in1 : H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, ⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩⟩ ; ν₀] + H[X₃ + Y₃; ν₀]
       ≤ H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, X₃ + Y₃⟩ ; ν₀] + H[⟨⟨X₃, Y₃⟩, X₃ + Y₃⟩ ; ν₀] :=
     entropy_triple_add_entropy_le _
-      ((mX₃.sub mY₂).prod_mk <| (mX₁.sub mY₃).prod_mk <| mX₂.prod_mk mY₁)
-      (meas33) (mX₃.add mY₃)
+      ((mX₃.sub mY₂).prod_mk <| (mX₁.sub mY₃).prod_mk <| mX₂.prod_mk mY₁) (meas33) (mX₃.add mY₃)
   have eq2 : H[X₃ + Y₃; ν₀] = 1/2 * H[X'; ν] + 1/2 * H[Y'; ν] + d[X'; ν # -Y'; ν] := by
     rw [hX3, hY3, dX3negY3, hnegY3, IndepFun.rdist_eq iX₃negY₃ mX₃ mY₃.neg, sub_neg_eq_add]
     ring
@@ -279,12 +211,13 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       = H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩ ; ν₀] :=
     calc
       _ = H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, (X₃ - Y₂) - (X₁ - Y₃) + X₂ + Y₁⟩ ; ν₀] := by
-        refine IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq (meas321321.prod_mk <| mX₃.add mY₃).aemeasurable ?_
+        refine IdentDistrib.entropy_eq <|
+        IdentDistrib.of_ae_eq (meas321321.prod_mk <| mX₃.add mY₃).aemeasurable ?_
         filter_upwards [eq4] with ω h
         simp only [Prod.mk.injEq, h, Pi.add_apply, Pi.sub_apply, and_self]
       _ = _ := by
-        refine entropy_of_comp_eq_of_comp ν₀ (meas321321.prod_mk <|
-          (((mX₃.sub mY₂).sub (mX₁.sub mY₃)).add mX₂).add mY₁) meas321321
+        refine entropy_of_comp_eq_of_comp ν₀
+          (meas321321.prod_mk <| (((mX₃.sub mY₂).sub (mX₁.sub mY₃)).add mX₂).add mY₁) meas321321
           (fun ((x3y2, (x1y3, (x2, y1))), x3y3) ↦ (x3y2, (x1y3, (x2, y1))))
           (fun (x3y2, (x1y3, (x2, y1))) ↦ ((x3y2, (x1y3, (x2, y1))), x3y2 - x1y3 + x2 + y1))
           rfl rfl
@@ -343,12 +276,10 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
           (hXY'₁.prod_mk <| hXY'₂.prod_mk <| mX'₁.sub mY'₁).aemeasurable ?_
         filter_upwards [Z'eq1] with ω h
         simp only [Prod.mk.injEq, Pi.sub_apply, h, and_self]
-      _ = H[⟨⟨X'₁, Y'₁⟩, Z'⟩ ; ν'₀] + H[⟨⟨X'₂, Y'₂⟩, Z'⟩ ; ν'₀] - H[Z' ; ν'₀]
-          + H[⟨X₃, Y₃⟩ ; ν₀] := by
-        rw [ent_of_cond_indep (μ := ν'₀) hXY'₁ hXY'₂ hZ' h_condIndep]
       _ = H[⟨⟨X₁, Y₁⟩, Z⟩ ; ν₀] + H[⟨⟨X₂, Y₂⟩, Z⟩ ; ν₀] - H[Z ; ν₀]
           + H[⟨X₃, Y₃⟩ ; ν₀] := by
-        rw [idXY₁ZXY'₁Z'.entropy_eq, idXY₂ZXY'₂Z'.entropy_eq, idZZ'.entropy_eq]
+        rw [ent_of_cond_indep (μ := ν'₀) hXY'₁ hXY'₂ hZ' h_condIndep, idXY₁ZXY'₁Z'.entropy_eq,
+          idXY₂ZXY'₂Z'.entropy_eq, idZZ'.entropy_eq]
       _ = H[⟨⟨X₁, Y₁⟩, X₁ - Y₁⟩ ; ν₀] + H[⟨⟨X₂, Y₂⟩, X₂ - Y₂⟩ ; ν₀] - H[X₁ - Y₁ ; ν₀]
           + H[⟨X₃, Y₃⟩ ; ν₀] := by
         rw [IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq mZ.aemeasurable Zeq1]
