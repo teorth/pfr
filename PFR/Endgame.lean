@@ -170,7 +170,7 @@ local notation3:max "c[" A " # " B "]" =>
 local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
 lemma hU : H[U] = H[X₁' + X₂'] :=
-  IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁ h₂
+  IdentDistrib.entropy_eq (h₁.add h₂
     (h_indep.indepFun (show (0 : Fin 4) ≠ 1 by norm_cast))
      (h_indep.indepFun (show (2 : Fin 4) ≠ 3 by norm_cast)))
 
@@ -179,7 +179,7 @@ lemma independenceCondition1 : iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X�
   h_indep.apply_two_last hX₁ hX₂ hX₁' hX₂' measurable_add
 
 lemma hV : H[V] = H[X₁ + X₂'] :=
-IdentDistrib.entropy_eq (ProbabilityTheory.IdentDistrib.add h₁.symm h₂
+IdentDistrib.entropy_eq (h₁.symm.add h₂
   (h_indep.indepFun (show (2 : Fin 4) ≠ 1 by norm_cast))
   (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by norm_cast)))
 
