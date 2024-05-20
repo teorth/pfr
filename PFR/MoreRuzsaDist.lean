@@ -97,8 +97,26 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   obtain ⟨ν, X', Y', hν, hX', hY', h_indep', hXX', hYY'⟩ := independent_copies hX hY μ μ'
   rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
 
-  -- obtain ⟨Ω₀, mΩ₀, XY₁, XY₂, XsubY, ν₀, hν₀, hXY₁, hXY₂, hXsubY, h_indep12sub, h_id1sub, h_id2sub⟩
-  --   := condIndep_copies (⟨X', Y'⟩) (X' - Y') (hX'.prod_mk hY') (hX'.sub' hY') ν
+  obtain ⟨Ω₀, mΩ₀, XY₁, XY₂, Z, ν₀, hν₀, hXY₁, hXY₂, hZ, h_indep12sub, h_id1sub, h_id2sub⟩
+    := condIndep_copies (⟨X', Y'⟩) (X' - Y') (hX'.prod_mk hY') (hX'.sub' hY') ν
+  let X₁ := fun ω ↦ (XY₁ ω).fst
+  let Y₁ := fun ω ↦ (XY₁ ω).snd
+  let X₂ := fun ω ↦ (XY₂ ω).fst
+  let Y₂ := fun ω ↦ (XY₂ ω).snd
+  have Zeq1 : Z = X₁ - Y₁ := by
+    sorry
+  have Zeq2 : Z = X₂ - Y₂ := by
+    sorry
+
+  have hidX₁ : IdentDistrib X₁ X' ν₀ ν := by
+    exact h_id1sub.comp (measurable_discrete (fun ((x,y), z) ↦ x))
+  have hidY₁ : IdentDistrib Y₁ Y' ν₀ ν := by
+    exact h_id1sub.comp (measurable_discrete (fun ((x,y), z) ↦ y))
+  have hidX₂ : IdentDistrib X₂ X' ν₀ ν := by
+    exact h_id2sub.comp (measurable_discrete (fun ((x,y), z) ↦ x))
+  have hidY₂ : IdentDistrib Y₂ Y' ν₀ ν := by
+    exact h_id2sub.comp (measurable_discrete (fun ((x,y), z) ↦ y))
+
 
   let XY'vec := ![X', Y', X', Y', X', Y']
   have hh := independent_copies' XY'vec ?_
