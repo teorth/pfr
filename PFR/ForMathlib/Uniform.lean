@@ -32,21 +32,23 @@ lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
       measure_univ, Finset.sum_const, Finset.card_attach, nsmul_eq_mul, mul_one, smul_eq_mul]
     rw [ENNReal.inv_mul_cancel]
     · simpa using h.ne_empty
-    · simp
+    · simp only [ne_eq, ENNReal.natCast_ne_top, not_false_eq_true]
   · constructor
     · intro x y hx hy
       simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finset_sum,
         Finset.sum_apply, Measure.dirac_apply, smul_eq_mul]
       rw [Finset.sum_eq_single ⟨x, hx⟩, Finset.sum_eq_single ⟨y, hy⟩]
-      · simp
+      · simp only [mem_preimage, mem_singleton_iff, indicator_of_mem, Pi.one_apply, mul_one]
       · rintro ⟨b, bH⟩ _hb h'b
         simp only [ne_eq, Subtype.mk.injEq] at h'b
-        simp [h'b]
-      · simp
+        simp only [mem_preimage, mem_singleton_iff, h'b, not_false_eq_true, indicator_of_not_mem]
+      · simp only [Finset.mem_attach, not_true_eq_false, mem_preimage, mem_singleton_iff,
+        indicator_of_mem, Pi.one_apply, one_ne_zero, imp_self]
       · rintro ⟨b, bH⟩ _hb h'b
         simp only [ne_eq, Subtype.mk.injEq] at h'b
-        simp [h'b]
-      · simp
+        simp only [mem_preimage, mem_singleton_iff, h'b, not_false_eq_true, indicator_of_not_mem]
+      · simp only [Finset.mem_attach, not_true_eq_false, mem_preimage, mem_singleton_iff,
+        indicator_of_mem, Pi.one_apply, one_ne_zero, imp_self]
     · simp
   apply finiteRange_of_finset _ H _
   simp
@@ -56,7 +58,7 @@ lemma IsUniform.comp [DecidableEq T] {H: Finset S} (h : IsUniform H X μ) {f : S
     IsUniform (Finset.image f H) (f ∘ X) μ where
   eq_of_mem := by
     intro x y hx hy
-    simp at hx hy
+    simp only [Finset.coe_image, mem_image, Finset.mem_coe] at hx hy
     rcases hx with ⟨x, hx, rfl⟩
     rcases hy with ⟨y, hy, rfl⟩
     have A z : f ⁻¹' {f z} = {z} := by ext; simp [hf.eq_iff]

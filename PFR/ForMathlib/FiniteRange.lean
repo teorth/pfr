@@ -30,34 +30,29 @@ lemma finiteRange_of_finset {Ω G : Type*} (f: Ω → G) (A : Finset G) (h : ∀
   constructor
   apply Set.Finite.subset (Finset.finite_toSet A)
   intro y hy
-  simp at hy
+  simp only [Set.mem_range] at hy
   rcases hy with ⟨ω, rfl⟩
   exact h ω
 
 lemma FiniteRange.range {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] :
-    Set.range X = FiniteRange.toFinset X := by
-  simp [FiniteRange.toFinset]
+    Set.range X = FiniteRange.toFinset X := by simp only [toFinset, Set.coe_toFinset]
 
 lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) :
     X ω ∈ FiniteRange.toFinset X := by
-  rw [← Finset.mem_coe, ← FiniteRange.range X]
-  simp
+    simp_rw [← Finset.mem_coe, ← FiniteRange.range X, Set.mem_range, exists_apply_eq_apply]
 
 @[simp]
 lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) : x ∈ FiniteRange.toFinset X ↔ ∃ ω, X ω = x := by
-  rw [← Finset.mem_coe, ← FiniteRange.range X]
-  simp
+  simp_rw [← Finset.mem_coe, ← FiniteRange.range X, Set.mem_range]
 
 /-- Constants have finite range -/
 instance {Ω G : Type*} (c : G) : FiniteRange (fun _ : Ω ↦ c) := by
   apply finiteRange_of_finset _ { c }
-  simp
+  simp only [Finset.mem_singleton, implies_true]
 
 /-- If X has finite range, then any function of X has finite range.  -/
 instance {Ω G H : Type*} (X : Ω → G) (f : G → H) [hX: FiniteRange X] : FiniteRange (f ∘ X) where
-  finite := by
-    rw [Set.range_comp f X]
-    exact Set.Finite.image f hX.finite
+  finite := (Set.range_comp f X) ▸ Set.Finite.image f hX.finite
 
 /-- If X has finite range, then X of any function has finite range.  -/
 instance {Ω Ω' G : Type*} (X : Ω → G) (f : Ω' → Ω) [hX: FiniteRange X] : FiniteRange (X ∘ f) := by

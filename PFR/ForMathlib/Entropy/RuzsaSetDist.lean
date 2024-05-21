@@ -49,14 +49,14 @@ variable [Nonempty H]
 
 instance discreteUniform.isProbabilityMeasure  : IsProbabilityMeasure (discreteUniform H) := by
   rw [isProbabilityMeasure_iff, discreteUniform_apply, Set.univ_inter, ENNReal.div_self]
-  . simp [Nat.pos_iff_ne_zero.mp Nat.card_pos]
+  . simp only [ne_eq, Nat.cast_eq_zero, Nat.pos_iff_ne_zero.mp Nat.card_pos, not_false_eq_true]
   simp
 
 /--  injective map of discrete uniform is discrete uniform -/
 lemma map_discreteUniform_of_inj {T: Type*} [MeasurableSpace T] [MeasurableSingletonClass T] {f : S → T} (hmes : Measurable f) (hf : Function.Injective f) : (discreteUniform H).map f = discreteUniform (f '' H) := by
   ext A hA
   simp_rw [map_apply hmes hA, discreteUniform_apply, Nat.card_image_of_injective hf, Set.Nat.card_coe_set_eq, <-Set.ncard_image_of_injective (f⁻¹' A ∩ H) hf]
-  congr; ext t; simp
+  congr; ext t; simp only [Set.mem_image, Set.mem_inter_iff, Set.mem_preimage]
   constructor
   . rintro ⟨ s, ⟨ hs, hs' ⟩, hs'' ⟩
     exact ⟨ hs'' ▸ hs, ⟨ s, hs', hs'' ⟩ ⟩
@@ -90,7 +90,7 @@ lemma isUniform_iff_uniform_dist {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ: Me
           simp only [Set.Finite.mem_toFinset, Set.mem_inter_iff, AHf] at hx
           simp [hx]
         intro x hx
-        simp at hx
+        simp only [Set.Finite.mem_toFinset, Set.mem_inter_iff, not_and] at hx
         simpa
       _ = (Nat.card (A ∩ H:Set S)) / (Nat.card H) := by
         simp [Finset.sum_const, <-Set.ncard_eq_toFinset_card (A ∩ H), Set.Nat.card_coe_set_eq]
@@ -119,11 +119,12 @@ lemma _root_.ProbabilityTheory.entropy_of_discreteUniform : measureEntropy (disc
       convert tsum_eq_sum (s := H.toFinite.toFinset) ?_ using 2 with s hs
       . simp at hs; simp [hs]
       intro s hs
-      simp at hs; simp [hs]
+      simp only [Set.Finite.mem_toFinset] at hs; simp [hs]
     _ = (Nat.card H) * negMulLog (1 / (Nat.card H)) := by
-      simp [<-Set.ncard_coe_Finset, Set.Nat.card_coe_set_eq]
+      simp only [Set.Nat.card_coe_set_eq, one_div, Finset.sum_const, ← Set.ncard_coe_Finset,
+        Set.Finite.coe_toFinset, nsmul_eq_mul]
     _ = log (Nat.card H) := by
-      simp [negMulLog, Nat.card_pos, <-mul_assoc]
+      simp only [negMulLog, one_div, log_inv, mul_neg, neg_mul, neg_neg, ← mul_assoc]
       rw [mul_inv_cancel, one_mul]
       simp only [ne_eq, Nat.cast_eq_zero, Nat.card_ne_zero]
       exact ⟨ ‹_›, ‹_› ⟩
@@ -189,9 +190,11 @@ lemma rdist_set_add_const (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [None
   . exact Set.Nonempty.to_subtype (Set.Nonempty.add (Set.nonempty_coe_sort.mp ‹_›) (Set.singleton_nonempty _))
   . exact Set.Nonempty.to_subtype (Set.Nonempty.add (Set.nonempty_coe_sort.mp ‹_›) (Set.singleton_nonempty _))
   . convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) (add_left_injective c) using 1
-    simp
+    simp only [Set.add_singleton, Set.image_add_right, Finset.image_add_right, Finset.coe_preimage,
+      Set.Finite.coe_toFinset]
   . convert IsUniform.comp (B.toFinite.coe_toFinset.symm ▸ hUB_unif) (add_left_injective c') using 1
-    simp
+    simp only [Set.add_singleton, Set.image_add_right, Finset.image_add_right, Finset.coe_preimage,
+      Set.Finite.coe_toFinset]
   . measurability
   measurability
 
@@ -204,9 +207,9 @@ lemma rdist_set_of_inj (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempt
   classical
   convert rdist_set_eq_rdist (A := φ '' A) (B := φ '' B) hμ hμ' ?_ ?_ ?_ ?_
   . convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) hφ using 1
-    ext x; simp
+    ext x; simp only [Set.mem_image, Finset.coe_image, Set.Finite.coe_toFinset]
   . convert IsUniform.comp (B.toFinite.coe_toFinset.symm ▸ hUB_unif) hφ using 1
-    ext x; simp
+    ext x; simp only [Set.mem_image, Finset.coe_image, Set.Finite.coe_toFinset]
   . measurability
   measurability
 
