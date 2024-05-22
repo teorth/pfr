@@ -66,7 +66,7 @@ $$ \bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] \leq \bbH[X_3-Y_2, X_1-Y_3, X_2, Y_1, X_3, Y_3,
 From \Cref{add-entropy} followed by \Cref{cond-trial-ent}, we have
 $$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X_1,Y_1,X_1-Y_1] + \bbH[X_2,Y_2,X_2-Y_2] - \bbH[X_1-Y_1] + \bbH[X_3,Y_3]$$
 and thus by \Cref{ruz-indep}, \Cref{ruz-copy}, \Cref{relabeled-entropy}, \Cref{add-entropy}
-$$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X] + \bbH[Y] + \bbH[X] + \bbH[Y] -(\frac{1}{2}\bbH[X] + \frac{5}{1}\bbH[Y] - d[X; Y]) + \bbH[X] + \bbH[Y].$$
+$$\bbH[X_1,Y_1,X_2,Y_2,X_3,Y_3] = \bbH[X] + \bbH[Y] + \bbH[X] + \bbH[Y] -\left(\frac{1}{2}\bbH[X] + \frac{1}{2}\bbH[Y] + d[X; Y]\right) + \bbH[X] + \bbH[Y].$$
 Applying all of these estimates, the claim now follows from linear arithmetic.
 \end{proof}
 

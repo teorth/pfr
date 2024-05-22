@@ -26,11 +26,12 @@ instance {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X where
 example {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X := by infer_instance
 
 /-- Functions ranging in a Finset have finite range -/
-lemma finiteRange_of_finset {Ω G : Type*} (f: Ω → G) (A : Finset G) (h : ∀ ω, f ω ∈ A) : FiniteRange f := by
+lemma finiteRange_of_finset {Ω G : Type*} (f: Ω → G) (A : Finset G) (h : ∀ ω, f ω ∈ A) :
+    FiniteRange f := by
   constructor
   apply Set.Finite.subset (Finset.finite_toSet A)
   intro y hy
-  simp at hy
+  simp only [Set.mem_range] at hy
   rcases hy with ⟨ω, rfl⟩
   exact h ω
 
@@ -44,7 +45,8 @@ lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) :
   simp
 
 @[simp]
-lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) : x ∈ FiniteRange.toFinset X ↔ ∃ ω, X ω = x := by
+lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) :
+    x ∈ FiniteRange.toFinset X ↔ ∃ ω, X ω = x := by
   rw [← Finset.mem_coe, ← FiniteRange.range X]
   simp
 
@@ -71,7 +73,7 @@ instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY:
   finite := by
     have : Set.range (⟨X, Y⟩) ⊆ (Set.range X) ×ˢ (Set.range Y) := by
       intro ⟨x, y⟩ hz
-      simp [Set.mem_range] at hz ⊢
+      simp only [Set.mem_range, Prod.mk.injEq, Set.mem_prod] at hz ⊢
       rcases hz with ⟨ω, hω⟩
       exact ⟨⟨ω, hω.1⟩, ω, hω.2⟩
     exact Set.Finite.subset (Set.Finite.prod hX.finite hY.finite) this
@@ -107,7 +109,9 @@ instance FiniteRange.pow {Ω G : Type*} (X : Ω → G) [Pow G ℤ] [hX: FiniteRa
 
 open MeasureTheory
 
-lemma FiniteRange.full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G] [MeasurableSingletonClass G] {X : Ω → G} (hX: Measurable X) [FiniteRange X] (μ: Measure Ω) : (μ.map X) (FiniteRange.toFinset X) = μ Set.univ := by
+lemma FiniteRange.full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
+    [MeasurableSingletonClass G] {X : Ω → G} (hX: Measurable X) [FiniteRange X] (μ: Measure Ω) :
+    (μ.map X) (FiniteRange.toFinset X) = μ Set.univ := by
   rw [Measure.map_apply hX]
   congr
   ext ω; simp
