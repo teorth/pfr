@@ -135,14 +135,13 @@ lemma continuous_rdist_restrict_probabilityMeasure₁' [Fintype G]
   simp only [@rdist_eq_rdist_id_map Ω G G mΩ P hG, Measure.map_id]
   exact continuous_rdist_restrict_probabilityMeasure₁ _ _ X_mble
 
-/-- If $X', Y'$ are copies of $X, Y$ respectively then $d[X' ; Y']=d[X ; Y]$. -/
+/-- If `X', Y'` are copies of `X, Y` respectively then `d[X' ; Y'] = d[X ; Y]`. -/
 lemma ProbabilityTheory.IdentDistrib.rdist_eq {X' : Ω'' → G} {Y' : Ω''' →G}
     (hX : IdentDistrib X X' μ μ'') (hY : IdentDistrib Y Y' μ' μ''') :
     d[X ; μ # Y ; μ'] = d[X' ; μ'' # Y' ; μ'''] := by
   simp [rdist, hX.map_eq, hY.map_eq, hX.entropy_eq, hY.entropy_eq]
 
-/-- If $X, Y$ are independent $G$-random variables then
-$$ d[X ; Y] := H[X - Y] - H[X]/2 - H[Y]/2$$-/
+/-- If `X, Y` are independent `G`-random variables then `d[X ; Y] := H[X - Y] - H[X]/2 - H[Y]/2`.-/
 lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
     {Y : Ω → G} (h : IndepFun X Y μ) (hX : Measurable X) (hY : Measurable Y) :
     d[X ; μ # Y ; μ] = H[X - Y ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
@@ -321,9 +320,8 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
   have : H[X' - UH' ; ν] = H[π ∘ X' ; ν] + H[UH' ; ν] := by calc
     _ = H[⟨X' - UH', π ∘ (X' - UH')⟩ ; ν] := (entropy_prod_comp (hX'.sub hUH') ν π).symm
     _ = H[⟨X' - UH', π ∘ X'⟩ ; ν] := by
-      apply IdentDistrib.entropy_eq
-      apply IdentDistrib.of_ae_eq (Measurable.aemeasurable (measurable_discrete _))
-      apply MeasureTheory.mem_ae_iff.mpr
+      apply IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq (Measurable.aemeasurable
+        (measurable_discrete _)) <| MeasureTheory.mem_ae_iff.mpr _
       convert hunif.measure_preimage_compl
       ext; simp [π]
     _ = H[π ∘ X' ; ν] + H[UH' ; ν] := by

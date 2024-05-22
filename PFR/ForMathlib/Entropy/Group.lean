@@ -21,34 +21,34 @@ lemma entropy_mul_const (hX : Measurable X) (c : G) :
     H[X * fun _ ↦ c; μ] = H[X ; μ] := by
   apply entropy_comp_of_injective μ hX _ $ mul_left_injective c
 
-/-- $H[X, X * Y] = H[X, Y]$ -/
-@[to_additive "$H[X, X + Y] = H[X, Y]$"]
+/-- `H[X, X * Y] = H[X, Y]`. -/
+@[to_additive "`H[X, X + Y] = H[X, Y]`"]
 lemma entropy_mul_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, X * Y⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.mulLeft ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk hY) _ $ Equiv.injective _
 
-/-- $H[X, Y * X] = H[X, Y]$ -/
-@[to_additive "$H[X, Y + X] = H[X, Y]$"]
+/-- `H[X, Y * X] = H[X, Y]` -/
+@[to_additive "`H[X, Y + X] = H[X, Y]`"]
 lemma entropy_mul_right' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y * X⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.mulRight ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
   exact entropy_comp_of_injective μ (hX.prod_mk hY) _ $ Equiv.injective _
 
-/-- $H[Y * X, Y] = H[X, Y]$ -/
-@[to_additive "$H[Y + X, Y] = H[X, Y]$"]
+/-- `H[Y * X, Y] = H[X, Y]` -/
+@[to_additive "`H[Y + X, Y] = H[X, Y]`"]
 lemma entropy_mul_left (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨Y * X, Y⟩; μ] = H[⟨X, Y⟩ ; μ] :=
   (entropy_comm (hY.mul hX) hY _).trans $ (entropy_mul_right hY hX _).trans $ entropy_comm hY hX _
 
-/-- $H[X * Y, Y] = H[X, Y]$ -/
-@[to_additive "$H[X + Y, Y] = H[X, Y]$"]
+/-- `H[X * Y, Y] = H[X, Y]` -/
+@[to_additive "`H[X + Y, Y] = H[X, Y]`"]
 lemma entropy_mul_left' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X * Y, Y⟩; μ] = H[⟨X, Y⟩ ; μ] :=
   (entropy_comm (hX.mul hY) hY _).trans $ (entropy_mul_right' hY hX _).trans $ entropy_comm hY hX _
 
-/-- $H[X, Y⁻¹] = H[X, Y]$ -/
-@[to_additive "$H[X, -Y] = H[X, Y]$"]
+/-- `H[X, Y⁻¹] = H[X, Y]` -/
+@[to_additive "`H[X, -Y] = H[X, Y]`"]
 lemma entropy_inv_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y⁻¹⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodCongr (Equiv.inv _) ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
@@ -87,8 +87,8 @@ lemma entropy_div_left' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω
     H[⟨X / Y, Y⟩; μ] = H[⟨X, Y⟩ ; μ] :=
   (entropy_comm (hX.div hY) hY _).trans $ (entropy_div_right' hY hX _).trans $ entropy_comm hY hX _
 
-/-- If $X$ is $G$-valued, then $H[X⁻¹]=H[X]$. -/
-@[to_additive "If $X$ is $G$-valued, then $H[-X]=H[X]$."]
+/-- If `X` is `G`-valued, then `H[X⁻¹]=H[X]`. -/
+@[to_additive "If `X` is `G`-valued, then `H[-X]=H[X]`."]
 lemma entropy_inv (hX : Measurable X) : H[X⁻¹ ; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (·⁻¹) inv_injective
 
