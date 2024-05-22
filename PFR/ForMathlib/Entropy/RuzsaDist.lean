@@ -622,10 +622,9 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
     . intro (t, t')
       simp only [FiniteRange.mem_iff, Prod.mk.injEq, Finset.mem_product, forall_exists_index,
         and_imp]
-      intro ω h1 h2
-      exact ⟨⟨ω, h1⟩, ⟨ω, h2⟩⟩
+      exact fun ω h1 h2 ↦ ⟨⟨ω, h1⟩, ⟨ω, h2⟩⟩
     intro (t, t') _ ht
-    simp at ht
+    simp only [FiniteRange.mem_iff, Prod.mk.injEq, not_exists, not_and] at ht
     have : (fun a => (W' a, W a)) ⁻¹' {(t, t')} = ∅ := by
       ext ω
       simp only [Set.mem_preimage, Set.mem_singleton_iff, Prod.mk.injEq, Set.mem_empty_iff_false,
