@@ -90,6 +90,21 @@ given a r.v., we can construct another r.v. that is identically distributed, whi
 immersion of the range of the initial r.v. inside the codomain (this would be a sort of canonical
 version)-/
 
+--PRed to Mathlib, see #13125. When we bump, remove this.
+lemma ProbabilityTheory.indepFun_of_identDistrib_pair {Ω Ω' α β : Type*}
+    [MeasurableSpace Ω] [MeasurableSpace Ω'] [MeasurableSpace α] [MeasurableSpace β]
+    {μ : Measure Ω} {μ' : Measure Ω'} [IsFiniteMeasure μ] [IsFiniteMeasure μ']
+    {X : Ω → α} {X' : Ω' → α} {Y : Ω → β} {Y' : Ω' → β} (hX : AEMeasurable X μ)
+    (hX' : AEMeasurable X' μ') (hY : AEMeasurable Y μ) (hY' : AEMeasurable Y' μ')
+    (h_indep : IndepFun X Y μ)
+    (h_ident : IdentDistrib (fun ω ↦ (X ω, Y ω)) (fun ω ↦ (X' ω, Y' ω)) μ μ') :
+    IndepFun X' Y' μ' := by
+  apply (indepFun_iff_map_prod_eq_prod_map_map hX' hY').mpr
+  have iX : IdentDistrib X X' μ μ' := h_ident.comp measurable_fst
+  have iY : IdentDistrib Y Y' μ μ' := h_ident.comp measurable_snd
+  rw [← h_ident.map_eq, ← iX.map_eq, ← iY.map_eq]
+  exact indepFun_iff_map_prod_eq_prod_map_map hX hY |>.mp h_indep
+
 /--   If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
     (hY : Measurable Y) [Fintype G] :
