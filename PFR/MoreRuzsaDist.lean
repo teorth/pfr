@@ -174,10 +174,15 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   have iX₃Y₂ : IndepFun X₃ Y₂ ν₀ := by
     convert h_indep.symm.comp (measurable_discrete fun x ↦ x.1)
       (measurable_discrete fun x ↦ x.1.2.2)
-  -- For the following sorries see: https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/.60IndepFun.60.20of.20.60IdentDistrib.60.20pairs/near/439623241
-  have iX₁Y₁ : IndepFun X₁ Y₁ ν₀ := sorry
-  have iX₂Y₂ : IndepFun X₂ Y₂ ν₀ := sorry
-  have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ := sorry
+  have iX₁Y₁ : IndepFun X₁ Y₁ ν₀ :=
+    indepFun_of_identDistrib_pair mX'.aemeasurable mX₁.aemeasurable mY'.aemeasurable
+      mY₁.aemeasurable h_indep' idXY₁.symm
+  have iX₂Y₂ : IndepFun X₂ Y₂ ν₀ :=
+    indepFun_of_identDistrib_pair mX'.aemeasurable mX₂.aemeasurable mY'.aemeasurable
+      mY₂.aemeasurable h_indep' idXY₂.symm
+  have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ :=
+    indepFun_of_identDistrib_pair mX'.aemeasurable mX₃.aemeasurable mY'.aemeasurable
+      mY₃.aemeasurable h_indep' idXY₃.symm
   have iX₃negY₃ : IndepFun X₃ (-Y₃) ν₀ := iX₃Y₃.comp measurable_id measurable_neg
   have i112233 : IndepFun (⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩) (⟨X₃, Y₃⟩) ν₀ :=
     h_indep.comp (measurable_discrete fun (xy, z) ↦ xy) measurable_id
