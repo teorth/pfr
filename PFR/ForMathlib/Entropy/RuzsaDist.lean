@@ -696,9 +696,7 @@ lemma condRuzsaDist_of_indep
     condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hW]
   swap; · exact hX.sub hY
   congr 2
-  have hZW : IndepFun Z W μ := by
-    have h' := IndepFun.comp h measurable_snd measurable_snd
-    exact h'
+  have hZW : IndepFun Z W μ := h.comp measurable_snd measurable_snd
   have hZW_map : μ.map (⟨Z, W⟩) = (μ.map Z).prod (μ.map W) :=
     (indepFun_iff_map_prod_eq_prod_map_map hZ.aemeasurable hW.aemeasurable).mp hZW
   rw [← hZW_map]
@@ -1247,8 +1245,8 @@ lemma condRuzsaDist_le {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω' �
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange W] :
       d[X | Z ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[X : Z ; μ]/2 + I[Y : W ; μ']/2 := by
-  have hXZ : Measurable (⟨X, Z⟩ : Ω → G × S):= Measurable.prod_mk hX hZ
-  have hYW : Measurable (⟨Y, W⟩ : Ω' → G × T):= Measurable.prod_mk hY hW
+  have hXZ : Measurable (⟨X, Z⟩ : Ω → G × S):= hX.prod_mk hZ
+  have hYW : Measurable (⟨Y, W⟩ : Ω' → G × T):= hY.prod_mk hW
   obtain ⟨ν, XZ', YW', _, hXZ', hYW', hind, hIdXZ, hIdYW, _, _⟩ :=
     independent_copies_finiteRange hXZ hYW μ μ'
   let X' := Prod.fst ∘ XZ'

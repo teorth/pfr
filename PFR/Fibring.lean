@@ -70,7 +70,7 @@ lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H}
   rw [← hi1.rdist_eq hi2, ← (hi1.comp hπ).rdist_eq (hi2.comp hπ),
     rdist_of_indep_eq_sum_fibre π hi m1 m2,
     condRuzsaDist_of_copy h1 (hπ.comp h1) h2 (hπ.comp h2) m1 (hπ.comp m1) m2 (hπ.comp m2) hπ1 hπ2]
-  exact le_add_of_nonneg_right (condMutualInfo_nonneg (by measurability) (Measurable.prod_mk (hπ.comp m1) (hπ.comp m2)) _ _)
+  exact le_add_of_nonneg_right (condMutualInfo_nonneg (by measurability) ((hπ.comp m1).prod_mk (hπ.comp m2)) _ _)
 
 /-- \[d[X;Y]\geq d[\pi(X);\pi(Y)].\] -/
 lemma rdist_of_hom_le {Z_1 : Ω → H} {Z_2 : Ω' → H}

@@ -158,10 +158,10 @@ lemma sumset_eq_sub : A + A = A - A := by
   show a + b = a - b
   simp
 
-/-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
-an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
-such that $A$ can be covered by at most $K^{13/2} |A|^{1/2} / |H|^{1/2}$ cosets of $H$, and $H$ has
-the same cardinality as $A$ up to a multiplicative factor $K^11$. -/
+/-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of
+an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup `H`
+such that `A` can be covered by at most `K^(13/2) |A|^(1/2) / |H|^(1/2)` cosets of `H`, and `H` has
+the same cardinality as `A` up to a multiplicative factor `K^11`. -/
 lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
@@ -275,9 +275,9 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 
-/-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
-2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{12}$ cosets of
-a subgroup of cardinality at most $|A|$. -/
+/-- The polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of an elementary abelian
+2-group of doubling constant at most `K`, then `A` can be covered by at most `2 * K ^ 12` cosets of
+a subgroup of cardinality at most `|A|`. -/
 theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
      ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
@@ -336,7 +336,7 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
         norm_num
 
 /-- Corollary of `PFR_conjecture` in which the ambient group is not required to be finite (but) then
-$H$ and $c$ are finite. -/
+`H` and `c` are finite. -/
 theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
