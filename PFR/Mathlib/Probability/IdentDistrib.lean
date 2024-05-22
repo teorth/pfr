@@ -177,7 +177,7 @@ lemma identDistrib_comp_fst {X : Ω → α} (hX : Measurable X) (μ : Measure Ω
 
 /-- A random variable is identically distributed to its lift to a product space (in the second factor). -/
 lemma identDistrib_comp_snd {X : Ω → α} (hX : Measurable X) (μ : Measure Ω) (μ' : Measure Ω')
-  [SigmaFinite μ][IsProbabilityMeasure μ'] : IdentDistrib (X ∘ Prod.snd) X (μ'.prod μ) μ where
+  [SigmaFinite μ] [IsProbabilityMeasure μ'] : IdentDistrib (X ∘ Prod.snd) X (μ'.prod μ) μ where
   aemeasurable_fst := (hX.comp measurable_snd).aemeasurable
   aemeasurable_snd := hX.aemeasurable
   map_eq := by
@@ -185,7 +185,7 @@ lemma identDistrib_comp_snd {X : Ω → α} (hX : Measurable X) (μ : Measure Ω
     congr
     simp
 
-/-- For $X, Y$ random variables, one can find independent copies $X', Y'$ of $X, Y$. -/
+/-- For `X, Y` random variables, one can find independent copies `X', Y'` of `X, Y`. -/
 lemma independent_copies {X : Ω → α} {Y : Ω' → β} (hX : Measurable X) (hY : Measurable Y)
     (μ : Measure Ω) (μ' : Measure Ω') [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     ∃ ν : Measure (α × β), ∃ X' : α × β → α, ∃ Y' : α × β → β, IsProbabilityMeasure ν
@@ -197,7 +197,7 @@ lemma independent_copies {X : Ω → α} {Y : Ω' → β} (hX : Measurable X) (h
     indepFun_fst_snd, ⟨measurable_fst.aemeasurable, hX.aemeasurable, by simp⟩,
     measurable_snd.aemeasurable, hY.aemeasurable, by simp⟩
 
-/-- For $X, Y$ random variables, one can find independent copies $X', Y'$ of $X, Y$. Version
+/-- For `X, Y` random variables, one can find independent copies `X', Y'` of `X, Y`. Version
 formulated in spaces with a canonical measures. -/
 lemma independent_copies_two {Ω : Type u} {Ω' : Type v} [MeasureSpace Ω] [MeasureSpace Ω']
     [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
@@ -215,9 +215,9 @@ lemma independent_copies_two {Ω : Type u} {Ω' : Type v} [MeasureSpace Ω] [Mea
     have : (ℙ : Measure (Ω × Ω')) = (ℙ : Measure Ω).prod (ℙ : Measure Ω') := rfl
     simp [← Measure.map_map hY measurable_snd, this]
 
-/-- Let $X_i : \Omega_i \to S_i$ be random variables for $i=1,\dots,k$.
-Then there exist jointly independent random variables $X'_i : \Omega' \to S_i$ for $i=1,\dots,k$
-such that each $X'_i$ is a copy of $X_i$. -/
+/-- Let `Xᵢ : Ωᵢ → Sᵢ` be random variables for `i = 1,...,k`.
+Then there exist jointly independent random variables `Xᵢ' : Ω' → Sᵢ` for `i=1,...,k`
+such that each `Xᵢ'` is a copy of `Xᵢ`. -/
 lemma independent_copies' {I : Type u} [Fintype I] {α : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (α i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → α i) (hX : ∀ i : I, Measurable (X i))
@@ -432,7 +432,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
     rcases identDistrib_of_finiteRange hX₄ hId₄.symm with ⟨X₄'', hX₄'', hX₄''_finite, hX₄''_eq⟩
     use A, mA, μA, X₁'', X₂'', X₃'', X₄''
     refine ⟨hμA, ?_, hX₁'', hX₂'', hX₃'', hX₄'', ?_, ?_, ?_, ?_, hX₁''_finite, hX₂''_finite, hX₃''_finite, hX₄''_finite⟩
-    . apply iIndepFun.ae_eq hind
+    . apply hind.ae_eq
       intro i; fin_cases i
       all_goals simp [hX₁''_eq.symm, hX₂''_eq.symm, hX₃''_eq.symm, hX₄''_eq.symm]
     . convert IdentDistrib.trans _ hId₁
