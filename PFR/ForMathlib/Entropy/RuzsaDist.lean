@@ -152,7 +152,7 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
   rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
   rfl
 
-/-- $d[X;Y] ≤ H[X]/2 + H[Y]/2$. -/
+/-- `d[X;Y] ≤ H[X]/2 + H[Y]/2`. -/
 lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRange Y] (hX: Measurable X) (hY: Measurable Y) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     d[X ; μ # Y ; μ'] ≤ (H[X ; μ] + H[Y ; μ'])/2 := by
   rcases ProbabilityTheory.independent_copies_finiteRange hX hY μ μ' with ⟨ν, X', Y', hprob, hX', hY', hindep, hidentX, hidentY, hfinX, hfinY⟩
@@ -1064,7 +1064,7 @@ lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabili
   · exact hB.prod_mk hC
   simp [μ']
 
-/-- The **Kaimanovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+ Z] - H[Y]$$ -/
+/-- The **Kaimanovich-Vershik inequality**. `H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y]`. -/
 lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ]
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
