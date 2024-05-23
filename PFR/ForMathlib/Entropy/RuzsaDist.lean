@@ -153,8 +153,8 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
   rfl
 
 /-- `d[X ; Y] ≤ H[X]/2 + H[Y]/2`. -/
-lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRange Y] (hX: Measurable X)
-  (hY: Measurable Y) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
+lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
+    (hY : Measurable Y) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
   [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     d[X ; μ # Y ; μ'] ≤ (H[X ; μ] + H[Y ; μ'])/2 := by
   rcases ProbabilityTheory.independent_copies_finiteRange hX hY μ μ'
