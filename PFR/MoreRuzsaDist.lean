@@ -113,11 +113,11 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   let Y'₁ := fun ω ↦ (XY'₁ ω).snd
   let X'₂ := fun ω ↦ (XY'₂ ω).fst
   let Y'₂ := fun ω ↦ (XY'₂ ω).snd
-  have mX'₁ : Measurable X'₁ := by exact (measurable_discrete fun x ↦ x.1).comp hXY'₁
-  have mY'₁ : Measurable Y'₁ := by exact (measurable_discrete fun x ↦ x.2).comp hXY'₁
-  have Z'eq1 : Z' =ᵐ[ν'₀] X'₁ - Y'₁ := by
-    exact IdentDistrib.ae_snd h_id1sub.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
-      (eventually_of_forall fun ω ↦ rfl)
+  have mX'₁ : Measurable X'₁ := ((measurable_discrete fun x ↦ x.1).comp hXY'₁ :)
+  have mY'₁ : Measurable Y'₁ := ((measurable_discrete fun x ↦ x.2).comp hXY'₁ :)
+  have Z'eq1 : Z' =ᵐ[ν'₀] X'₁ - Y'₁ :=
+    (IdentDistrib.ae_snd h_id1sub.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
+      (eventually_of_forall fun ω ↦ rfl) :)
   obtain ⟨ν₀, XY₁XY₂Z, XY₃, hν₀, hXY₁XY₂Z, hXY₃, h_indep, h_idXY₁XY₂Z, h_idXY₃⟩ :=
     independent_copies (hXY'₁.prod_mk hXY'₂ |>.prod_mk hZ') (mX'.prod_mk mY') ν'₀ ν
   let X₁ := fun ω ↦ (XY₁XY₂Z ω).fst.fst.fst
@@ -127,14 +127,13 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   let Z := fun ω ↦ (XY₁XY₂Z ω).snd
   let X₃ := fun ω ↦ (XY₃ ω).fst
   let Y₃ := fun ω ↦ (XY₃ ω).snd
-  have mX₁ : Measurable X₁ := by exact (measurable_discrete fun x ↦ x.1.1.1).comp hXY₁XY₂Z
-  have mY₁ : Measurable Y₁ := by exact (measurable_discrete fun x ↦ x.1.1.2).comp hXY₁XY₂Z
-  have mX₂ : Measurable X₂ := by exact (measurable_discrete fun x ↦ x.1.2.1).comp hXY₁XY₂Z
-  have mY₂ : Measurable Y₂ := by exact (measurable_discrete fun x ↦ x.1.2.2).comp hXY₁XY₂Z
-  have mX₃ : Measurable X₃ := by exact (measurable_discrete fun x ↦ x.1).comp hXY₃
-  have mY₃ : Measurable Y₃ := by exact (measurable_discrete fun x ↦ x.2).comp hXY₃
-  have mZ : Measurable Z := by
-    exact (measurable_discrete fun x ↦ x.2).comp hXY₁XY₂Z
+  have mX₁ : Measurable X₁ := ((measurable_discrete fun x ↦ x.1.1.1).comp hXY₁XY₂Z :)
+  have mY₁ : Measurable Y₁ := ((measurable_discrete fun x ↦ x.1.1.2).comp hXY₁XY₂Z :)
+  have mX₂ : Measurable X₂ := ((measurable_discrete fun x ↦ x.1.2.1).comp hXY₁XY₂Z :)
+  have mY₂ : Measurable Y₂ := ((measurable_discrete fun x ↦ x.1.2.2).comp hXY₁XY₂Z :)
+  have mX₃ : Measurable X₃ := ((measurable_discrete fun x ↦ x.1).comp hXY₃ :)
+  have mY₃ : Measurable Y₃ := ((measurable_discrete fun x ↦ x.2).comp hXY₃ :)
+  have mZ : Measurable Z := ((measurable_discrete fun x ↦ x.2).comp hXY₁XY₂Z :)
   have idXY₁Z : IdentDistrib (⟨⟨X₁, Y₁⟩, Z⟩) (⟨⟨X', Y'⟩, X' - Y'⟩) ν₀ ν :=
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ (x.1.1, x.2)) |>.trans h_id1sub
   have idXY₂Z : IdentDistrib (⟨⟨X₂, Y₂⟩, Z⟩) (⟨⟨X', Y'⟩, X' - Y'⟩) ν₀ ν :=
@@ -159,12 +158,11 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   have idXY₂ZXY'₂Z' : IdentDistrib (⟨⟨X₂, Y₂⟩, Z⟩) (⟨⟨X'₂, Y'₂⟩, Z'⟩) ν₀ ν'₀ :=
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ (x.1.2, x.2))
   have idZZ' : IdentDistrib Z Z' ν₀ ν'₀ := h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ x.2)
-  have Zeq1 : Z =ᵐ[ν₀] X₁ - Y₁ := by
-    exact IdentDistrib.ae_snd idXY₁Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
-      (eventually_of_forall fun ω ↦ rfl)
-  have Zeq2 : Z =ᵐ[ν₀] X₂ - Y₂ := by
-    exact IdentDistrib.ae_snd idXY₂Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
-      (eventually_of_forall fun ω ↦ rfl)
+  have Zeq1 : Z =ᵐ[ν₀] X₁ - Y₁ := (IdentDistrib.ae_snd idXY₁Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
+      (eventually_of_forall fun ω ↦ rfl) :)
+  have Zeq2 : Z =ᵐ[ν₀] X₂ - Y₂ :=
+    (IdentDistrib.ae_snd idXY₂Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
+      (eventually_of_forall fun ω ↦ rfl) :)
   have iX₁Y₃ : IndepFun X₁ Y₃ ν₀ := by
     convert h_indep.comp (measurable_discrete fun x ↦ x.1.1.1) (measurable_discrete fun x ↦ x.2)
   have iX₃Y₂ : IndepFun X₃ Y₂ ν₀ := by
