@@ -212,7 +212,7 @@ lemma rdist_zero_eq_half_ent [IsFiniteMeasure μ] [IsProbabilityMeasure μ'] :
               measurability
               measurability
     simp [entropy_def, h]
-  simp only [rdist_def, aux, entropy_const (0 : G), zero_div, sub_zero]
+  simp [rdist_def, entropy_const (0 : G), aux]
   ring
 
 /-- `d[X ; Y] = d[Y ; X]` -/
@@ -495,7 +495,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
     all_goals {
       rw [Measure.map_apply ‹_›]
       convert measure_empty
-      simp only [← FiniteRange.range, Set.preimage_compl, Set.preimage_range, Set.compl_univ]
+      simp [← FiniteRange.range]
       measurability
     }
   rw [condRuzsaDist_def, kernel.rdist, integral_eq_sum' _ this]
