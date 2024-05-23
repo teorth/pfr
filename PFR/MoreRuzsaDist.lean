@@ -456,7 +456,68 @@ lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRan
 
 /--  Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer.  Then
   `H[X - aY] - H[X] ≤ 4 |a| d[X ; Y]`. -/
-lemma ent_of_sub_smul_le {Y : Ω → G} [FiniteRange Y] (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a:ℤ} : H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by sorry
+lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
+    (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a : ℤ} :
+    H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by
+
+  obtain ⟨Ω', mΩ', μ', nX'₁, Y', X'₂, hμ', hindep', hnX'₁, hY', hX'₂, idX₁, idY, idX₂⟩
+    := independent_copies3_nondep hX.neg hY hX  μ μ μ
+  let X'₁ := - nX'₁
+
+  have inX₁Y : IndepFun nX'₁ Y' μ' := hindep'.indepFun (show 0 ≠ 1 by simp)
+  have iYX₂ : IndepFun Y' X'₂ μ' := hindep'.indepFun (show 1 ≠ 2 by simp)
+  have inX₁X₂ : IndepFun nX'₁ X'₂ μ' := hindep'.indepFun (show 0 ≠ 2 by simp)
+  have iX₁Y : IndepFun X'₁ Y' μ' := inX₁Y.comp measurable_neg measurable_id
+  have iX₂nY : IndepFun X'₂ (-Y') μ' := iYX₂.symm.comp measurable_id measurable_neg
+
+  have idX₁X₂' : IdentDistrib X'₁ X'₂ μ' μ' := by
+    refine IdentDistrib.trans ?_ idX₂.symm
+    rw [← neg_neg X]
+    simp_rw [X'₁]
+    exact IdentDistrib.neg idX₁
+
+  have hX'₁ : Measurable X'₁ := hnX'₁.neg
+
+  have h1 : H[Y' - X'₁ + X'₂; μ'] - H[Y' - X'₁; μ'] ≤ H[Y' + X'₂; μ'] - H[Y'; μ'] := by
+    simp_rw [X'₁, sub_neg_eq_add, add_comm Y' nX'₁]
+    exact kaimanovich_vershik hindep' hnX'₁ hY' hX'₂
+  have h2 : H[X'₁ - Y' - X'₂; μ'] - H[X'₁; μ'] ≤ d[X'₁ ; μ' # Y' ; μ'] + d[X'₁ ; μ' # -Y' ; μ'] := by
+    rw [IdentDistrib.rdist_eq idX₁X₂' (IdentDistrib.refl hY'.aemeasurable).neg,
+      IndepFun.rdist_eq iX₁Y hX'₁ hY', IndepFun.rdist_eq iX₂nY hX'₂ hY'.neg, entropy_neg hY',
+      idX₁X₂'.entropy_eq.symm]
+    rw [show H[X'₁ - Y' - X'₂; μ'] = H[-(X'₁ - Y' - X'₂); μ']
+      from entropy_neg (hX'₁.sub hY' |>.sub hX'₂) |>.symm]
+    rw [show H[X'₁ - Y'; μ'] = H[-(X'₁ - Y'); μ'] from entropy_neg (hX'₁.sub hY') |>.symm]
+    ring_nf
+    rw [sub_eq_add_neg, add_comm, add_assoc, sub_neg_eq_add]
+    gcongr
+    convert sub_le_iff_le_add'.mp h1 using 1
+    · simp [sub_eq_add_neg, add_comm]
+    · simp only [sub_eq_add_neg, neg_add_rev, neg_neg, add_comm, add_assoc]
+      linarith
+  have h3 : H[X'₁ - Y' - X'₂ ; μ'] - H[X'₁; μ'] ≤ 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+
+    sorry
+
+  have h4 : H[X'₁ - (a + 1) • Y'; μ'] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+    sorry
+
+  have h4' : H[X'₁ - (a - 1) • Y'; μ'] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+    sorry
+
+  sorry
+
+-- This should be a straightforward consequence of `ent_of_sub_smul`, `ent_of_sub_smul'` and induction.
+
+-- From `kaimanovich_vershik` (3.21) one has
+--   `H[Y - X + X'] - H[Y - X] ≤ H[Y + X'] - H[Y]`
+--   which by `IndepFun.rdist_eq` (Lemma 3.11) gives
+--   `H[X - Y - X'] - H[X] ≤ d[X ; Y] + d[X ; -Y]`
+--   and hence by `rdist_of_neg_le` (Lemma 12.5)
+--   `H[X - Y - X'] - H[X] ≤ 4d[X ; Y]`
+--   From `ent_of_sub_smul`, `ent_of_sub_smul'` (12.10) we then have
+--   `H[X - (a ± 1) Y] ≤ H[X - a * Y] + 4 d[X ; Y]`
+-- and the claim now follows by an `induction` on `|a|`.
 
 section multiDistance
 
