@@ -49,7 +49,7 @@ lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) 
 /-- Constants have finite range -/
 instance {Ω G : Type*} (c : G) : FiniteRange (fun _ : Ω ↦ c) := by
   apply finiteRange_of_finset _ { c }
-  simp only [Finset.mem_singleton, implies_true]
+  simp
 
 /-- If X has finite range, then any function of X has finite range.  -/
 instance {Ω G H : Type*} (X : Ω → G) (f : G → H) [hX: FiniteRange X] : FiniteRange (f ∘ X) where

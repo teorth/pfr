@@ -576,7 +576,7 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     . simp
     rw [Measure.map_apply ‹_›]
     convert measure_empty
-    simp only [← FiniteRange.range, Set.preimage_compl, Set.preimage_range, Set.compl_univ]
+    simp [← FiniteRange.range]
     measurability
   rw [condRuzsaDist'_def, kernel.rdist, integral_eq_sum' _ this]
   simp_rw [Measure.prod_apply_singleton, smul_eq_mul, Finset.sum_product]
@@ -673,7 +673,7 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
   have : (μ'.map W) (FiniteRange.toFinset W : Set T)ᶜ = 0 := by
     rw [Measure.map_apply ‹_›]
     convert measure_empty
-    simp only [← FiniteRange.range, Set.preimage_compl, Set.preimage_range, Set.compl_univ]
+    simp [← FiniteRange.range]
     measurability
   convert symm $ integral_eq_sum' (μ'.map W) this (fun w ↦ d[X ; μ # Y ; (μ'[|W ← w])])
   rw [Measure.map_apply hW (MeasurableSet.singleton _)]
