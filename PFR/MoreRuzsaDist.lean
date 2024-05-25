@@ -1,4 +1,5 @@
 import PFR.ForMathlib.Entropy.RuzsaDist
+import Mathlib.Tactic.FunProp.Measurable
 
 /-!
 # More results about Ruzsa distance
@@ -454,33 +455,35 @@ lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRan
     _ = _ := by
       rw [add_comm, hident''.entropy_eq]
 
+-- lemma ent_of_sub_smul_le_Aux1 {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
+--     (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a : ℤ} :
+--     H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by
+
 /--  Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer.  Then
   `H[X - aY] - H[X] ≤ 4 |a| d[X ; Y]`. -/
 lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
     (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a : ℤ} :
     H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by
 
-  obtain ⟨Ω', mΩ', μ', nX'₁, Y', X'₂, hμ', hindep', hnX'₁, hY', hX'₂, idX₁, idY, idX₂⟩
-    := independent_copies3_nondep hX.neg hY hX  μ μ μ
-  let X'₁ := - nX'₁
+  obtain ⟨Ω', mΩ', μ', X'₁, Y', X'₂, hμ', hindep', hX'₁, hY', hX'₂, idX₁, idY, idX₂⟩
+    := independent_copies3_nondep hX hY hX  μ μ μ
 
-  have inX₁Y : IndepFun nX'₁ Y' μ' := hindep'.indepFun (show 0 ≠ 1 by simp)
+  have iX₁Y : IndepFun X'₁ Y' μ' := hindep'.indepFun (show 0 ≠ 1 by simp)
   have iYX₂ : IndepFun Y' X'₂ μ' := hindep'.indepFun (show 1 ≠ 2 by simp)
-  have inX₁X₂ : IndepFun nX'₁ X'₂ μ' := hindep'.indepFun (show 0 ≠ 2 by simp)
-  have iX₁Y : IndepFun X'₁ Y' μ' := inX₁Y.comp measurable_neg measurable_id
+  have iX₁X₂ : IndepFun X'₁ X'₂ μ' := hindep'.indepFun (show 0 ≠ 2 by simp)
   have iX₂nY : IndepFun X'₂ (-Y') μ' := iYX₂.symm.comp measurable_id measurable_neg
 
-  have idX₁X₂' : IdentDistrib X'₁ X'₂ μ' μ' := by
-    refine IdentDistrib.trans ?_ idX₂.symm
-    rw [← neg_neg X]
-    simp_rw [X'₁]
-    exact IdentDistrib.neg idX₁
+  have inX₁YX₂ : iIndepFun (fun _ ↦ hG) ![-X'₁, Y', X'₂] μ' := by
+    convert hindep'.comp ![-id, id, id] (by measurability) with i
+    match i with | 0 => rfl | 1 => rfl | 2 => rfl
 
-  have hX'₁ : Measurable X'₁ := hnX'₁.neg
+  have idX₁X₂' : IdentDistrib X'₁ X'₂ μ' μ' := idX₁.trans idX₂.symm
+  have idX₁Y : IdentDistrib (⟨X, Y⟩) (⟨X'₁, Y'⟩) μ μ' :=
+    IdentDistrib.prod_mk idX₁.symm idY.symm hindep iX₁Y
 
   have h1 : H[Y' - X'₁ + X'₂; μ'] - H[Y' - X'₁; μ'] ≤ H[Y' + X'₂; μ'] - H[Y'; μ'] := by
-    simp_rw [X'₁, sub_neg_eq_add, add_comm Y' nX'₁]
-    exact kaimanovich_vershik hindep' hnX'₁ hY' hX'₂
+    simp_rw [sub_eq_add_neg Y', add_comm Y' (-X'₁)]
+    exact kaimanovich_vershik inX₁YX₂ hX'₁.neg hY' hX'₂
   have h2 : H[X'₁ - Y' - X'₂; μ'] - H[X'₁; μ'] ≤ d[X'₁ ; μ' # Y' ; μ'] + d[X'₁ ; μ' # -Y' ; μ'] := by
     rw [IdentDistrib.rdist_eq idX₁X₂' (IdentDistrib.refl hY'.aemeasurable).neg,
       IndepFun.rdist_eq iX₁Y hX'₁ hY', IndepFun.rdist_eq iX₂nY hX'₂ hY'.neg, entropy_neg hY',
@@ -495,30 +498,65 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
     · simp [sub_eq_add_neg, add_comm]
     · simp only [sub_eq_add_neg, neg_add_rev, neg_neg, add_comm, add_assoc]
       linarith
-  have h3 : H[X'₁ - Y' - X'₂ ; μ'] - H[X'₁; μ'] ≤ 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+  have h3 : H[X'₁ - Y' - X'₂ ; μ'] - H[X'₁; μ'] ≤ 4 * d[X'₁ ; μ' # Y' ; μ'] :=
+    calc
+      _ ≤ d[X'₁ ; μ' # Y' ; μ'] + d[X'₁ ; μ' # -Y' ; μ'] := h2
+      _ ≤ d[X'₁ ; μ' # Y' ; μ'] + 3 * d[X'₁ ; μ' # Y' ; μ'] := by
+        gcongr
+        exact rdist_of_neg_le hX'₁ hY'
+      _ = _ := by ring_nf
+  have h4 : H[X - (a + 1) • Y; μ] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+    calc
+      _ = H[X'₁ - (a + 1) • Y'; μ'] :=
+        IdentDistrib.entropy_eq <|
+          idX₁Y.comp (show Measurable (fun xy ↦ (xy.1 - (a + 1) • xy.2)) by fun_prop)
+      _ ≤ H[X'₁ - a • Y'; μ'] + H[X'₁ - Y' - X'₂; μ'] - H[X'₁; μ'] :=
+        ent_of_sub_smul hX'₁ hY' hX'₂ hindep' idX₁X₂'
+      _ ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+        rw [add_sub_assoc]
+        gcongr
+  have h4' : H[X - (a - 1) • Y; μ] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+    calc
+      _ = H[X'₁ - (a - 1) • Y'; μ'] :=
+        IdentDistrib.entropy_eq <|
+          idX₁Y.comp (show Measurable (fun xy ↦ (xy.1 - (a - 1) • xy.2)) by fun_prop)
+      _ ≤ H[X'₁ - a • Y'; μ'] + H[X'₁ - Y' - X'₂; μ'] - H[X'₁; μ'] :=
+        ent_of_sub_smul' hX'₁ hY' hX'₂ hindep' idX₁X₂'
+      _ ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+        rw [add_sub_assoc]
+        gcongr
+  have : H[X'₁ - a • Y'; μ'] = H[X - a • Y; μ] :=
+    idX₁Y.symm.comp (show Measurable (fun xy ↦ (xy.1 - a • xy.2)) by fun_prop) |>.entropy_eq
+  rw [IdentDistrib.rdist_eq idX₁ idY, this] at h4 h4'
 
-    sorry
+  set! n := |a| with ha
+  have hn : 0 ≤ n := by simp [ha]
 
-  have h4 : H[X'₁ - (a + 1) • Y'; μ'] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
-    sorry
+  lift n to ℕ using hn with n
 
-  have h4' : H[X'₁ - (a - 1) • Y'; μ'] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
-    sorry
+  induction' n with n ih generalizing a h4 h4'
+  · rw [← ha, abs_eq_zero.mp ha.symm]
+    simp
+  · rename_i m _
+    have : a ≠ 0 := by
+      rw [ne_eq, ← abs_eq_zero, ← ha]
+      exact NeZero.natCast_ne (m + 1) ℤ
 
-  sorry
-
--- This should be a straightforward consequence of `ent_of_sub_smul`, `ent_of_sub_smul'` and induction.
-
--- From `kaimanovich_vershik` (3.21) one has
---   `H[Y - X + X'] - H[Y - X] ≤ H[Y + X'] - H[Y]`
---   which by `IndepFun.rdist_eq` (Lemma 3.11) gives
---   `H[X - Y - X'] - H[X] ≤ d[X ; Y] + d[X ; -Y]`
---   and hence by `rdist_of_neg_le` (Lemma 12.5)
---   `H[X - Y - X'] - H[X] ≤ 4d[X ; Y]`
---   From `ent_of_sub_smul`, `ent_of_sub_smul'` (12.10) we then have
---   `H[X - (a ± 1) Y] ≤ H[X - a * Y] + 4 d[X ; Y]`
--- and the claim now follows by an `induction` on `|a|`.
-
+    have : m = |a - 1| ∨ m = |a + 1| := by
+      rcases lt_or_gt_of_ne this with h | h
+      · right
+        rw [abs_of_neg h] at ha
+        rw [abs_of_nonpos (by exact h), neg_add, ← ha]
+        norm_num
+      · left
+        rw [abs_of_pos h] at ha
+        rw [abs_of_nonneg ?_, ← ha]
+        swap; exact Int.sub_nonneg_of_le h
+        norm_num
+    rcases this with h | h
+    · --specialize ih (a - 1)
+      sorry
+    · sorry
 section multiDistance
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
