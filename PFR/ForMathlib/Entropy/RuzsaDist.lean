@@ -877,8 +877,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     simp only [A]
     rw [Measure.map_apply ‹_›]
     convert measure_empty
-    simp only [Finset.coe_union, ← FiniteRange.range, Set.compl_union, Set.preimage_inter,
-      Set.preimage_compl, Set.preimage_range, Set.compl_univ, Set.empty_inter]
+    simp [← FiniteRange.range]
     measurability
   have hfull' : Measure.prod (dirac ()) (μ'''.map W')
       ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
