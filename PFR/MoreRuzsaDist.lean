@@ -478,10 +478,10 @@ def multiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
 /-- For any such tuple, we have $D[X_{[m]}] \geq 0$. -/
-lemma multiDist_nonneg : 0 = 1 := by sorry
+lemma multiDist_nonneg {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) : D[ X ; hΩ ] ≥ 0 := by sorry
 
 /--  If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$. -/
-lemma multiDist_of_perm : 0 = 1 := by sorry
+lemma multiDist_of_perm {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) (φ: Equiv.Perm (Fin m)): D[ X ; hΩ ] = D[ fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by sorry
 
 /-- Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
   $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$ -/

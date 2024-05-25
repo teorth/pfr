@@ -168,7 +168,7 @@ We continue to let $G$ be an abelian group.
 where the $\tilde X_i$ are independent copies of the $X_i$.
 \end{definition}
 
-\begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}  For any such tuple, we have $D[X_{[m]}] \geq 0$.
+\begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}\leanok  For any such tuple, we have $D[X_{[m]}] \geq 0$.
 \end{lemma}
 
 \begin{proof}\uses{sumset-lower}  From \Cref{sumset-lower} one has
@@ -176,7 +176,7 @@ $$ \bbH[\sum_{i =1}^m \tilde X_i] \geq \bbH[\tilde X_i]$$
 for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Relabeling]\label{multidist-perm}\lean{multiDist_of_perm}\uses{multidist-def} If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$.
+\begin{lemma}[Relabeling]\label{multidist-perm}\lean{multiDist_of_perm}\uses{multidist-def}\leanok If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$.
 \end{lemma}
 
 \begin{proof} Trivial.
