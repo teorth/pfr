@@ -817,8 +817,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
     all_goals {
       rw [Measure.map_apply ‹_›]
       convert measure_empty
-      simp only [Finset.coe_union, ← FiniteRange.range, Set.compl_union, Set.preimage_inter,
-        Set.preimage_compl, Set.preimage_range, Set.compl_univ, Set.inter_empty]
+      simp [← FiniteRange.range]
       measurability
     }
   rw [condRuzsaDist_def, condRuzsaDist_def, kernel.rdist, kernel.rdist,

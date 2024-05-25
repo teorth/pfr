@@ -49,8 +49,8 @@ variable [Nonempty H]
 
 instance discreteUniform.isProbabilityMeasure  : IsProbabilityMeasure (discreteUniform H) := by
   rw [isProbabilityMeasure_iff, discreteUniform_apply, Set.univ_inter, ENNReal.div_self]
-  . simp only [ne_eq, Nat.cast_eq_zero, Nat.pos_iff_ne_zero.mp Nat.card_pos, not_false_eq_true]
-  simp
+  . simp [Nat.pos_iff_ne_zero.mp Nat.card_pos]
+    simp
 
 /--  injective map of discrete uniform is discrete uniform -/
 lemma map_discreteUniform_of_inj {T: Type*} [MeasurableSpace T] [MeasurableSingletonClass T] {f : S → T} (hmes : Measurable f) (hf : Function.Injective f) : (discreteUniform H).map f = discreteUniform (f '' H) := by
@@ -90,7 +90,7 @@ lemma isUniform_iff_uniform_dist {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ: Me
           simp only [Set.Finite.mem_toFinset, Set.mem_inter_iff, AHf] at hx
           simp [hx]
         intro x hx
-        simp only [Set.Finite.mem_toFinset, Set.mem_inter_iff, not_and] at hx
+        simp at hx
         simpa
       _ = (Nat.card (A ∩ H:Set S)) / (Nat.card H) := by
         simp [Finset.sum_const, <-Set.ncard_eq_toFinset_card (A ∩ H), Set.Nat.card_coe_set_eq]
