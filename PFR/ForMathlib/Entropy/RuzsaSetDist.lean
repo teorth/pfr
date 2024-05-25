@@ -50,7 +50,7 @@ variable [Nonempty H]
 instance discreteUniform.isProbabilityMeasure  : IsProbabilityMeasure (discreteUniform H) := by
   rw [isProbabilityMeasure_iff, discreteUniform_apply, Set.univ_inter, ENNReal.div_self]
   . simp [Nat.pos_iff_ne_zero.mp Nat.card_pos]
-    simp
+  simp
 
 /--  injective map of discrete uniform is discrete uniform -/
 lemma map_discreteUniform_of_inj {T: Type*} [MeasurableSpace T] [MeasurableSingletonClass T] {f : S → T} (hmes : Measurable f) (hf : Function.Injective f) : (discreteUniform H).map f = discreteUniform (f '' H) := by
