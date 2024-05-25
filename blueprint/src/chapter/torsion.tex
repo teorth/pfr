@@ -168,6 +168,18 @@ We continue to let $G$ be an abelian group.
 where the $\tilde X_i$ are independent copies of the $X_i$.
 \end{definition}
 
+\begin{lemma}[Multidistance of copy]\label{multidist-copy}\lean{multiDist_copy}\leanok  If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are such that $X_i$ and $Y_i$ have the same distribution for each $i$, then $D[X_{[m]}] = D[Y_{[m]}]$.
+\end{lemma}
+
+\begin{proof}\uses{multidist-def} Clear from Lemma \ref{copy-ent}.
+\end{proof}
+
+\begin{lemma}[Multidistance of independent variables]\label{multidist-indep}\lean{multiDist_indep}\leanok  If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ are jointly independent, then $D[X_{[m]}] = \bbH[\sum_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$.
+\end{lemma}
+
+\begin{proof} Clear from definition.
+\end{proof}
+
 \begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}\leanok  For any such tuple, we have $D[X_{[m]}] \geq 0$.
 \end{lemma}
 
@@ -187,8 +199,8 @@ for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
   $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$
 \end{lemma}
 
-\begin{proof}\uses{ruz-copy, sumset-lower, ruz-indep}
-By \Cref{ruz-copy} we may take the $X_i$ to be jointly independent.  From \Cref{sumset-lower}, we see that for any distinct $1 \leq j,k \leq m$, we have
+\begin{proof}\uses{ruz-copy, sumset-lower, ruz-indep, multidist-indep, multidist-copy}
+By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly independent.  From \Cref{sumset-lower}, we see that for any distinct $1 \leq j,k \leq m$, we have
   \[
     \bbH[X_j+X_k] \leq \bbH[\sum_{i=1}^m X_i],
   \]
@@ -196,7 +208,7 @@ By \Cref{ruz-copy} we may take the $X_i$ to be jointly independent.  From \Cref{
   \[
     d[X_j;-X_k] \leq \bbH[\sum_{i=1}^m X_i] - \frac{1}{2} \bbH[X_j] - \frac{1}{2} \bbH[X_k].
   \]
-  Summing this over all pairs $(j,k)$, $j \neq k$, we obtain the claim.
+  Summing this over all pairs $(j,k)$, $j \neq k$ and using Lemma \ref{multidist-indep}, we obtain the claim.
 \end{proof}
 
 \begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}\lean{multidist_ruzsa_II}\uses{multidist-def}
@@ -212,8 +224,8 @@ From \Cref{ruzsa-triangle} we have $\dist{X_j}{X_j} \leq 2 \dist{X_j}{-X_k}$, an
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_{[m]}] \leq m d[X_i;X_i]$ for any $1 \leq i \leq m$.
 \end{lemma}
 
-\begin{proof}\uses{klm-1, neg-ent, ruz-indep, sumset-lower}
-  We may take the $X_i$ to be independent.  Let $X_0$ be a further independent copy of the $X_i$.
+\begin{proof}\uses{klm-1, neg-ent, ruz-indep, sumset-lower, ruz-copy, multidist-copy}
+  By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly independent.    Let $X_0$ be a further independent copy of the $X_i$.
 From \Cref{klm-1}, we have
 $$ \bbH[-X_0 + \sum_{i=1}^m X_i] - \bbH[-X_0] \leq \sum_{i=1}^m \bbH[X_0 - X_i] - \bbH[-X_0]$$
 and hence by \Cref{neg-ent} and \Cref{ruz-indep}

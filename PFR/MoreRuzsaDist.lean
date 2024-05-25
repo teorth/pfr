@@ -477,7 +477,13 @@ def multiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω
 
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
-/-- For any such tuple, we have $D[X_{[m]}] \geq 0$. -/
+/-- If $X_i$ has the same distribution as $Y_i$ for each $i$, then $D[X_{[m]}] = D[Y_{[m]}]$. -/
+lemma multiDist_copy {m:ℕ} {Ω: Fin m → Type*} {Ω': Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (hΩ': (i:Fin m) → MeasureSpace (Ω' i)) (X : (i:Fin m) → (Ω i) → G) (X' : (i:Fin m) → (Ω' i) → G) (hident: ∀ i, IdentDistrib (X i) (X' i) (hΩ i).volume (hΩ' i).volume): D[ X ; hΩ ] = D[ X' ; hΩ' ] := by sorry
+
+/-- If $X_i$ are independent, then $D[X_{[m]}] = D[Y_{[m]}]$. -/
+lemma multiDist_indep {m:ℕ} {Ω: Type*} (hΩ: MeasureSpace Ω)(X : Fin m → Ω → G) (hindep: iIndepFun (fun _ ↦ hG) X hΩ.volume) : D[ X ; fun _ ↦ hΩ ] = H[ ∑ i, X i ; hΩ.volume ] - (∑ i, H[ X i; hΩ.volume ]) / m := by sorry
+
+/-- We have $D[X_{[m]}] \geq 0$. -/
 lemma multiDist_nonneg {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) : D[ X ; hΩ ] ≥ 0 := by sorry
 
 /--  If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$. -/
