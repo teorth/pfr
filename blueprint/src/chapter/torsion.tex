@@ -141,11 +141,11 @@ which (when combined with \Cref{neg-ent}) gives the second inequality.
 \end{lemma}
 
 \begin{proof}\uses{kv, ruz-indep, sign-flip, sum-dilate-I} From \Cref{kv} one has
-  $$ \bbH[Y-X'+X] - \bbH[Y-X'] \leq \bbH[Y+X] - \bbH[Y]$$
+  $$\bbH[Y-X+X'] - \bbH[Y-X] \leq \bbH[Y+X'] - \bbH[Y] = \bbH[Y+X] - \bbH[Y]$$
   which by \Cref{ruz-indep} gives
-  $$ \bbH[X-Y-X'] -\bbH[X] \leq d[X;Y] + d[X;-Y]$$
+  $$\bbH[X-Y-X'] -\bbH[X] \leq d[X;Y] + d[X;-Y]$$
   and hence by \Cref{sign-flip}
-  $$ \bbH[X-Y-X'] -\bbH[X] \leq 4d[X;Y].$$
+  $$\bbH[X-Y-X'] - \bbH[X] \leq 4d[X;Y].$$
   From \Cref{sum-dilate-I} we then have
   $$\bbH[X-(a\pm 1)Y] \leq \bbH[X-aY] + 4 d[X;Y]$$
 and the claim now follows by an induction on $|a|$.
