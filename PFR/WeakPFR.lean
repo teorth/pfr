@@ -1243,7 +1243,7 @@ theorem weak_PFR_int {A : Set G} [Finite A] (hnA : A.Nonempty) {K : ℝ} (hK : 0
   rw [← log_mul (by positivity) _]
   . apply log_le_log _ hA
     norm_cast
-    have : Nonempty (A-A) := Set.Nonempty.coe_sort (Set.Nonempty.sub hnA hnA)
+    have : Nonempty (A - A) := (hnA.sub hnA).coe_sort
     apply Nat.card_pos
   norm_cast
   apply ne_of_gt (@Nat.card_pos _ hnA.to_subtype _)
