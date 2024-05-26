@@ -187,8 +187,7 @@ lemma rdist_of_inj  {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass
         (measurable_of_countable _), ← MeasureTheory.Measure.map_map (measurable_of_countable _) hX,
         ← MeasureTheory.Measure.map_map (measurable_of_countable _) hY]
       congr
-      convert MeasureTheory.Measure.map_prod_map _ _ (measurable_of_countable _)
-        (measurable_of_countable _)
+      convert Measure.map_prod_map _ _ Measurable.of_countable Measurable.of_countable
       . exact instSFiniteMap μ X
       . exact instSFiniteMap μ' Y
       all_goals infer_instance
