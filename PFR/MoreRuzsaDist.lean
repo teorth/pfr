@@ -56,7 +56,7 @@ lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Meas
 /-- Let `X, Y, Z`. For any functions `f, g` on the ranges of `X, Y` respectively,
 we have `I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ]`. -/
 lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) [FiniteRange X] [FiniteRange Y]:
+  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) [FiniteRange X] [FiniteRange Y] :
     I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by sorry
 
 end ProbabilityTheory
