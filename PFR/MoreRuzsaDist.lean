@@ -455,10 +455,6 @@ lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRan
     _ = _ := by
       rw [add_comm, hident''.entropy_eq]
 
--- lemma ent_of_sub_smul_le_Aux1 {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
---     (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a : ℤ} :
---     H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by
-
 /--  Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer.  Then
   `H[X - aY] - H[X] ≤ 4 |a| d[X ; Y]`. -/
 lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
@@ -470,7 +466,6 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
 
   have iX₁Y : IndepFun X'₁ Y' μ' := hindep'.indepFun (show 0 ≠ 1 by simp)
   have iYX₂ : IndepFun Y' X'₂ μ' := hindep'.indepFun (show 1 ≠ 2 by simp)
-  have iX₁X₂ : IndepFun X'₁ X'₂ μ' := hindep'.indepFun (show 0 ≠ 2 by simp)
   have iX₂nY : IndepFun X'₂ (-Y') μ' := iYX₂.symm.comp measurable_id measurable_neg
 
   have inX₁YX₂ : iIndepFun (fun _ ↦ hG) ![-X'₁, Y', X'₂] μ' := by
@@ -505,7 +500,7 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
         gcongr
         exact rdist_of_neg_le hX'₁ hY'
       _ = _ := by ring_nf
-  have h4 : H[X - (a + 1) • Y; μ] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+  have h4 (a : ℤ) : H[X - (a + 1) • Y; μ] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
     calc
       _ = H[X'₁ - (a + 1) • Y'; μ'] :=
         IdentDistrib.entropy_eq <|
@@ -515,7 +510,7 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
       _ ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
         rw [add_sub_assoc]
         gcongr
-  have h4' : H[X - (a - 1) • Y; μ] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
+  have h4' (a : ℤ) : H[X - (a - 1) • Y; μ] ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
     calc
       _ = H[X'₁ - (a - 1) • Y'; μ'] :=
         IdentDistrib.entropy_eq <|
@@ -525,16 +520,16 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
       _ ≤ H[X'₁ - a • Y'; μ'] + 4 * d[X'₁ ; μ' # Y' ; μ'] := by
         rw [add_sub_assoc]
         gcongr
-  have : H[X'₁ - a • Y'; μ'] = H[X - a • Y; μ] :=
+  have (a : ℤ) : H[X'₁ - a • Y'; μ'] = H[X - a • Y; μ] :=
     idX₁Y.symm.comp (show Measurable (fun xy ↦ (xy.1 - a • xy.2)) by fun_prop) |>.entropy_eq
-  rw [IdentDistrib.rdist_eq idX₁ idY, this] at h4 h4'
+  simp_rw [IdentDistrib.rdist_eq idX₁ idY, this] at h4 h4'
 
   set! n := |a| with ha
   have hn : 0 ≤ n := by simp [ha]
 
   lift n to ℕ using hn with n
 
-  induction' n with n ih generalizing a h4 h4'
+  induction' n with n ih generalizing a
   · rw [← ha, abs_eq_zero.mp ha.symm]
     simp
   · rename_i m _
@@ -554,9 +549,30 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
         swap; exact Int.sub_nonneg_of_le h
         norm_num
     rcases this with h | h
-    · --specialize ih (a - 1)
-      sorry
-    · sorry
+    · calc
+        _ ≤ H[X - (a - 1) • Y; μ] - H[X; μ] + 4 * d[X ; μ # Y ; μ] := by
+          nth_rw 1 [(a.sub_add_cancel 1).symm, sub_add_eq_add_sub _ H[X; μ]]
+          gcongr
+          exact h4 (a - 1)
+        _ ≤ 4 * |a - 1| * d[X ; μ # Y ; μ] + 4 * d[X ; μ # Y ; μ] := by
+          gcongr
+          exact ih h h
+        _ = 4 * |a| * d[X ; μ # Y ; μ] := by
+          nth_rw 2 [← mul_one 4]
+          rw [← add_mul, ← mul_add, ← ha, ← h]
+          norm_num
+    · calc
+        _ ≤ H[X - (a + 1) • Y; μ] - H[X; μ] + 4 * d[X ; μ # Y ; μ] := by
+          nth_rw 1 [(a.add_sub_cancel 1).symm, sub_add_eq_add_sub _ H[X; μ]]
+          gcongr
+          exact h4' (a + 1)
+        _ ≤ 4 * |a + 1| * d[X ; μ # Y ; μ] + 4 * d[X ; μ # Y ; μ] := by
+          gcongr
+          exact ih h h
+        _ = 4 * |a| * d[X ; μ # Y ; μ] := by
+          nth_rw 2 [← mul_one 4]
+          rw [← add_mul, ← mul_add, ← ha, ← h]
+          norm_num
 section multiDistance
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
