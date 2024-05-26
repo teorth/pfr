@@ -115,9 +115,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   let X'₂ := fun ω ↦ (XY'₂ ω).fst
   let Y'₂ := fun ω ↦ (XY'₂ ω).snd
   have mX'₁ : Measurable X'₁ := by fun_prop
-  -- ((measurable_discrete fun x ↦ x.1).comp hXY'₁ :)
   have mY'₁ : Measurable Y'₁ := by fun_prop
-  -- ((measurable_discrete fun x ↦ x.2).comp hXY'₁ :)
   have Z'eq1 : Z' =ᵐ[ν'₀] X'₁ - Y'₁ :=
     (IdentDistrib.ae_snd h_id1sub.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
       (eventually_of_forall fun ω ↦ rfl) :)
