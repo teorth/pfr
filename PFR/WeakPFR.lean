@@ -997,8 +997,7 @@ lemma conclusion_transfers {A B : Set G}
   set f : G' → G := fun a ↦ (a : G) + x
   have hf : Function.Injective f := by
     intro y z hyz
-    simp only [add_left_inj, SetLike.coe_eq_coe, f] at hyz
-    exact hyz
+    simpa [f] using hyz
   have hA' : A = f '' A' := by
     simp_rw [hA, ← Set.image_vadd, Set.image_image, vadd_eq_add, f, add_comm]; rfl
   rcases hB with ⟨ y, hB ⟩
