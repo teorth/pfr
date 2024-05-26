@@ -775,8 +775,7 @@ lemma single {Ω : Type u} [MeasurableSpace Ω] [DiscreteMeasurableSpace Ω] (μ
   replace this := measureReal_union (μ := μ) this (measurableSet_discrete _)
   simp only [singleton_union, hA] at this
   have h := measureReal_mono (μ := μ) (show insert z A ⊆ Set.univ by simp)
-  simp only [this, IsProbabilityMeasure.measureReal_univ, add_le_iff_nonpos_left] at h
-  assumption
+  simpa [this] using h
 
 /-- Given two non-empty finite subsets A, B of a rank n free Z-module G, there exists a subgroup N and points x, y in G/N such that the fibers Ax, By of A, B over x, y respectively are non-empty, one has the inequality
 $$ \log \frac{|A| |B|}{|A_x| |B_y|} ≤ 34 (d[U_A; U_B] - d[U_{A_x}; U_{B_y}])$$
@@ -983,7 +982,7 @@ lemma dimension_of_shift {G: Type u} [AddCommGroup G]
   rcases ha with ⟨ b, ⟨ hb, hb'⟩ ⟩
   rw [Submodule.mem_map]
   use b - v, hshift b hb
-  simp only [map_sub, AddMonoidHom.coe_toIntLinearMap, AddSubgroup.coeSubtype, ← hb']
+  simp [← hb']
   abel
 
 lemma conclusion_transfers {A B : Set G}

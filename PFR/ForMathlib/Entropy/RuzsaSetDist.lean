@@ -190,11 +190,9 @@ lemma rdist_set_add_const (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [None
   . exact Set.Nonempty.to_subtype (Set.Nonempty.add (Set.nonempty_coe_sort.mp ‹_›) (Set.singleton_nonempty _))
   . exact Set.Nonempty.to_subtype (Set.Nonempty.add (Set.nonempty_coe_sort.mp ‹_›) (Set.singleton_nonempty _))
   . convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) (add_left_injective c) using 1
-    simp only [Set.add_singleton, Set.image_add_right, Finset.image_add_right, Finset.coe_preimage,
-      Set.Finite.coe_toFinset]
+    simp
   . convert IsUniform.comp (B.toFinite.coe_toFinset.symm ▸ hUB_unif) (add_left_injective c') using 1
-    simp only [Set.add_singleton, Set.image_add_right, Finset.image_add_right, Finset.coe_preimage,
-      Set.Finite.coe_toFinset]
+    simp
   . measurability
   measurability
 
