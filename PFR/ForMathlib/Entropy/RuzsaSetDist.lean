@@ -121,8 +121,7 @@ lemma _root_.ProbabilityTheory.entropy_of_discreteUniform : measureEntropy (disc
       intro s hs
       simp only [Set.Finite.mem_toFinset] at hs; simp [hs]
     _ = (Nat.card H) * negMulLog (1 / (Nat.card H)) := by
-      simp only [Set.Nat.card_coe_set_eq, one_div, Finset.sum_const, ← Set.ncard_coe_Finset,
-        Set.Finite.coe_toFinset, nsmul_eq_mul]
+      simp [← Set.ncard_coe_Finset, Set.Nat.card_coe_set_eq]
     _ = log (Nat.card H) := by
       simp only [negMulLog, one_div, log_inv, mul_neg, neg_mul, neg_neg, ← mul_assoc]
       rw [mul_inv_cancel, one_mul]
@@ -205,9 +204,9 @@ lemma rdist_set_of_inj (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempt
   classical
   convert rdist_set_eq_rdist (A := φ '' A) (B := φ '' B) hμ hμ' ?_ ?_ ?_ ?_
   . convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) hφ using 1
-    ext x; simp only [Set.mem_image, Finset.coe_image, Set.Finite.coe_toFinset]
+    ext x; simp
   . convert IsUniform.comp (B.toFinite.coe_toFinset.symm ▸ hUB_unif) hφ using 1
-    ext x; simp only [Set.mem_image, Finset.coe_image, Set.Finite.coe_toFinset]
+    ext x; simp
   . measurability
   measurability
 
