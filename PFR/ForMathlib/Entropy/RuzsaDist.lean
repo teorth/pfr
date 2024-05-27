@@ -1073,7 +1073,7 @@ lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabili
   · exact hB.prod_mk hC
   simp [μ']
 
-/-- The **Kaimanovich-Vershik inequality**. $$H[X + Y + Z] - H[X + Y] \leq H[Y+ Z] - H[Y]$$ -/
+/-- The **Kaimanovich-Vershik inequality**. `H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y]`. -/
 lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [IsProbabilityMeasure μ]
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
