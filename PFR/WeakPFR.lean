@@ -618,25 +618,25 @@ end dim
 
 variable {G : Type u} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
 
-open Real MeasureTheory ProbabilityTheory Pointwise Set
+open Real MeasureTheory ProbabilityTheory Pointwise Set Function
 
 /-- Move to Mathlib? `Finsupp.mapRange` of a surjective function is surjective. -/
 lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} [Zero M] [Zero N] (f : M → N) (hf : f 0 = 0)
-  (hs : Function.Surjective f) : Function.Surjective (Finsupp.mapRange (α := α) f hf) := by
+  (hs : Surjective f) : Surjective (Finsupp.mapRange (α := α) f hf) := by
   classical
-  let g (n : N) : M := if n = 0 then 0 else Function.surjInv hs n
-  have : Function.RightInverse g f := by
+  let g (n : N) : M := if n = 0 then 0 else surjInv hs n
+  have : RightInverse g f := by
     intro n
     by_cases h : n = 0
     . simp [g, h, hf]
-    · simp [g, h, Function.surjInv_eq hs n]
+    · simp [g, h, surjInv_eq hs n]
   have hg : g 0 = 0 := by simp [g]
   have hfg : (f ∘ g) 0 = 0 := by simp [hf, hg]
   intro F
   use Finsupp.mapRange g hg F
   rw [← Finsupp.mapRange_comp (h := hfg)]
   convert Finsupp.mapRange_id F
-  convert Function.RightInverse.id this
+  convert RightInverse.id this
 
 /-- A free Z-module is torsion-free. Move to Mathlib? -/
 lemma torsion_free : AddMonoid.IsTorsionFree G := by
@@ -672,7 +672,7 @@ lemma weak_PFR_quotient_prelim :
   have hker : G₂ ≤ AddMonoidHom.ker (AddMonoidHom.comp mod f) := by
     intro x hx
     simp only [AddMonoidHom.mem_range, G₂, ψ, zsmulAddGroupHom_apply] at hx
-    simp_rw [AddMonoidHom.mem_ker, AddMonoidHom.coe_comp, Function.comp_apply, mod,
+    simp_rw [AddMonoidHom.mem_ker, AddMonoidHom.coe_comp, comp_apply, mod,
       Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom]
     rcases hx with ⟨y, rfl⟩
     ext b
@@ -681,24 +681,24 @@ lemma weak_PFR_quotient_prelim :
     left
     exact ZMod.natCast_self 2
   let g : H →+ (B →₀ ZMod 2) := QuotientAddGroup.lift G₂ (AddMonoidHom.comp mod f) hker
-  have hsur : Function.Surjective g := by
-    have h1 : Function.Surjective mod := Finsupp.mapRange_surjective (Int.castAddHom (ZMod 2)) (map_zero _) ZMod.intCast_surjective
+  have hsur : Surjective g := by
+    have h1 : Surjective mod := Finsupp.mapRange_surjective (Int.castAddHom (ZMod 2)) (map_zero _) ZMod.intCast_surjective
     have h2 := h1.comp bG.repr.surjective
     have h3 : mod ∘ bG.repr = g ∘ (QuotientAddGroup.mk' G₂) := by
       ext x b
-      simp_rw [mod, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,
+      simp_rw [mod, comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,
         Finsupp.mapRange_apply, QuotientAddGroup.coe_mk', g]
       rw [QuotientAddGroup.lift_mk]
       simp [mod, f]
     rw [h3] at h2
-    apply Function.Surjective.of_comp h2
-  have hinj : Function.Injective g := by
+    apply Surjective.of_comp h2
+  have hinj : Injective g := by
     rw [injective_iff_map_eq_zero]
     intro x hx
     rcases QuotientAddGroup.mk'_surjective G₂ x with ⟨y, rfl⟩
     simp only [QuotientAddGroup.mk'_apply, g] at hx
     rw [QuotientAddGroup.lift_mk] at hx
-    simp_rw [AddMonoidHom.coe_comp, Function.comp_apply, mod, Finsupp.mapRange.addMonoidHom_apply,
+    simp_rw [AddMonoidHom.coe_comp, comp_apply, mod, Finsupp.mapRange.addMonoidHom_apply,
       Int.coe_castAddHom, DFunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,
       ZMod.intCast_zmod_eq_zero_iff_dvd] at hx
     replace hx := fun x ↦ Int.mul_ediv_cancel' (hx x)
@@ -716,7 +716,7 @@ lemma weak_PFR_quotient_prelim :
     congr
     ext b
     rw [Finsupp.smul_apply, ← hx b, smul_eq_mul]
-  rcases Function.bijective_iff_has_inverse.mp ⟨ hinj, hsur ⟩ with ⟨ g', hg' ⟩
+  rcases bijective_iff_has_inverse.mp ⟨ hinj, hsur ⟩ with ⟨ g', hg' ⟩
 
   have bH : Basis B (ZMod 2) H := by
     constructor
@@ -806,7 +806,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
   rcases (PFR_projection (φ.toFun ∘ UA) (φ.toFun ∘ UB) ℙ ℙ (by measurability) (by measurability)) with ⟨H', ⟨ hH1, hH2 ⟩ ⟩
   let N := AddSubgroup.comap φ H'
   set φ' := QuotientAddGroup.mk' N
-  have _cGN : Countable (G ⧸ N) := Function.Surjective.countable (QuotientAddGroup.mk'_surjective N)
+  have _cGN : Countable (G ⧸ N) := Surjective.countable (QuotientAddGroup.mk'_surjective N)
   have _msGN : MeasurableSingletonClass (G ⧸ N) := by
     constructor
     intro x
@@ -851,7 +851,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
 
     have ha : φ'.toFun ∘ UA = e.toFun ∘ X := by ext x; exact (he (UA x)).symm
     have hb : φ'.toFun ∘ UB = e.toFun ∘ Y := by ext x; exact (he (UB x)).symm
-    have he_inj : Function.Injective e.toFun := AddEquiv.injective e
+    have he_inj : Injective e.toFun := AddEquiv.injective e
     rw [ha, hb, entropy_comp_of_injective _ hX _ he_inj, entropy_comp_of_injective _ hY _ he_inj]
     have : d[e.toFun ∘ X # e.toFun ∘ Y] = d[X # Y] :=  rdist_of_inj hX hY e.toAddMonoidHom he_inj
     rwa [this]
@@ -993,31 +993,26 @@ lemma conclusion_transfers {A B : Set G}
   rcases h with ⟨A'', B'', hA'', hB'', hA''_non, hB''_non, hcard_ineq, hdim_ineq⟩
   rcases hA with ⟨ x, hA ⟩
   set f : G' → G := fun a ↦ (a : G) + x
-  have hf : Function.Injective f := by
-    intro y z hyz
-    simpa [f] using hyz
+  have hf : Injective f := by simp [Injective, f]
   have hA' : A = f '' A' := by
     simp_rw [hA, ← Set.image_vadd, Set.image_image, vadd_eq_add, f, add_comm]; rfl
   rcases hB with ⟨ y, hB ⟩
   set g : G' → G := fun a ↦ (a : G) + y
-  have hg : Function.Injective g := by
-    intro y z hyz
-    simp only [add_left_inj, SetLike.coe_eq_coe, g] at hyz
-    simpa [g] using hyz
+  have hg : Injective g := by simp [Injective, g]
+  have hB' : B = g '' B' := by
+    simp_rw [hB, ← Set.image_vadd, Set.image_image, vadd_eq_add, g, add_comm]; rfl
   use f '' A'', g '' B''
   have : dᵤ[A # B] = dᵤ[A' # B'] := by
     rw [<-rdist_set_of_inj _ _ (φ := G'.subtype) Subtype.val_injective, <-rdist_set_add_const (G'.subtype '' A') (G'.subtype '' B') x y]
     congr
     . rw [hA]
       ext y
-      simp only [SetLike.coe_sort_coe, mem_vadd_set, mem_image, Subtype.exists, exists_and_right,
-        exists_eq_right, vadd_eq_add, AddSubgroup.coeSubtype, add_singleton, image_add_right,
-        mem_preimage]
+      simp [Set.mem_vadd_set]
       constructor
       . rintro ⟨ z, ⟨ ⟨ w, hw ⟩, rfl ⟩ ⟩
         have : x + z + -x ∈ G' := by simp [w]
         use this
-        simp only [add_neg_cancel_comm]
+        simp
         convert hw
       rintro ⟨ h, ha ⟩
       use y + -x
@@ -1026,21 +1021,18 @@ lemma conclusion_transfers {A B : Set G}
       abel
     rw [hB]
     ext x
-    simp only [SetLike.coe_sort_coe, mem_vadd_set, mem_image, Subtype.exists, exists_and_right,
-      exists_eq_right, vadd_eq_add, AddSubgroup.coeSubtype, add_singleton, image_add_right,
-      mem_preimage]
+    simp [Set.mem_vadd_set]
     constructor
     . rintro ⟨ z, ⟨ ⟨ w, hw ⟩, rfl ⟩ ⟩
       have : y + z + -y ∈ G' := by simp [w]
       use this
-      simp only [add_neg_cancel_comm]
+      simp
       convert hw
     rintro ⟨ h, ha ⟩
     use x + -y
     constructor
     . use h
     abel
-
 
   refine ⟨ ?_, ?_, ?_, ?_, ?_, ?_ ⟩
   . simp [hA', hf, hA'']
@@ -1168,7 +1160,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     infer_instance
   simp only [this, Nat.cast_one, log_one, zero_add] at hdim
   rw [← le_div_iff' (by positivity)] at hdim
-  convert LE.le.trans ?_ hdim using 1
+  convert le_trans ?_ hdim using 1
   . field_simp
   simp only [Nat.cast_max, max_le_iff, Nat.cast_le]
   exact ⟨ dimension_le_rank A, dimension_le_rank B ⟩
