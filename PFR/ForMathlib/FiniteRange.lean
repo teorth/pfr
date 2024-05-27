@@ -40,7 +40,7 @@ lemma FiniteRange.range {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] :
 
 lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) :
     X ω ∈ FiniteRange.toFinset X := by
-    simp_rw [← Finset.mem_coe, ← FiniteRange.range X, Set.mem_range, exists_apply_eq_apply]
+  simp_rw [← Finset.mem_coe, ← FiniteRange.range X, Set.mem_range, exists_apply_eq_apply]
 
 @[simp]
 lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) : x ∈ FiniteRange.toFinset X ↔ ∃ ω, X ω = x := by
