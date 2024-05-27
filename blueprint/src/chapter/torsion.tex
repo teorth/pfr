@@ -177,7 +177,7 @@ where the $\tilde X_i$ are independent copies of the $X_i$.
 \begin{lemma}[Multidistance of independent variables]\label{multidist-indep}\lean{multiDist_indep}\leanok  If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ are jointly independent, then $D[X_{[m]}] = \bbH[\sum_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$.
 \end{lemma}
 
-\begin{proof} Clear from definition.
+\begin{proof}\uses{multidist-def}  Clear from definition.
 \end{proof}
 
 \begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}\leanok  For any such tuple, we have $D[X_{[m]}] \geq 0$.

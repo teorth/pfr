@@ -1,0 +1,189 @@
+\chapter{Further improvement to exponent}
+
+\subsection{Kullback--Liebler divergence}
+
+In the definitions below, $G$ is a set.
+
+\begin{definition}[Kullback--Liebler divergence]\label{kl-div} If $X,Y$ are two $G$-valued random variables, the Kullback--Liebler divergence is defined as
+  $$ D_{KL}(X||Y) := \sum_x \mathbf{P}(X=x) \log \frac{\mathbf{P}(X=x)}{\mathbf{P}(Y=x)}.$$
+\end{definition}
+
+\begin{lemma}[Kullback--Liebler divergence of copy]\label{kl-div-copy}  If $X'$ is a copy of $X$, and $Y'$ is a copy of $Y$, then $D_{KL}(X'||Y') = D_{KL}(X||Y)$.
+\end{lemma}
+
+\begin{proof}\uses{kl-div}  Clear from definition.
+\end{proof}
+
+\begin{lemma}[Gibbs inequality]\label{Gibbs}\uses{kl-div}  $D_{KL}(X||Y) \geq 0$.
+\end{lemma}
+
+\begin{proof} ...
+\end{proof}
+
+\begin{lemma}[Converse Gibbs inequality]\label{Gibbs-converse}  If $D_{KL}(X||Y) = 0$, then $Y$ is a copy of $X$.
+\end{lemma}
+
+\begin{proof} ...
+\end{proof}
+
+\begin{lemma}[Convexity of Kullback--Leibler]\label{kl-div-convex}  If ${\bf P}(X=x) = (1-\theta) {\bf P}(X_0=x) + \theta {\bf P}(X_1=x)$ for all $x$, then
+$$D_{KL}(X||Z) = (1-\theta) D_{KL}(X_0||Y) + \theta D_{KL}(X_1||Y).$$
+\end{lemma}
+
+\begin{proof}\uses{kl-div} Clear from definition.
+\end{proof}
+
+\begin{lemma}[Kullback--Liebler and injections]\label{kl-div-inj}  If $f:G \to H$ is an injection, then $D_{KL}(f(X)||f(Y)) = D_{KL}(X||Y)$.
+\end{lemma}
+
+\begin{proof}\uses{kl-div} Clear from definition.
+\end{proof}
+
+Now let $G$ be an additive group.
+
+\begin{lemma}[Kullback--Liebler and sums]\label{kl-sums} If $X, Y, Z$ are independent $G$-valued random variables, then
+  $$D_{KL}(X+Z||Y+Z) \leq D_{KL}(X||Y).$$
+\end{lemma}
+
+\begin{proof}
+  ...
+\end{proof}
+
+\begin{definition}[Conditional Kullback--Liebler divergence]\label{ckl-div}  If $X,Y,Z$ are random variables, with $X,Z$ defined on the same sample space, we define
+$$ D_{KL}(X|Z || Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) || Y).$$
+\end{definition}
+
+\begin{lemma}[Kullback--Liebler and conditioning]\label{kl-cond} If $X, Y, Z$ are independent $G$-valued random variables, and $W$ is another random variable defined on the same sample space as $X$, then
+  $$D_{KL}((X|W)||Y) = D_{KL}(X||Y) + {\bf H}(X) - {\bf H}(X|W).$$
+\end{lemma}
+
+\begin{proof} ...
+\end{proof}
+
+\begin{lemma}[Conditional Gibbs inequality]\label{Conditional-Gibbs}  $D_{KL}((X|W)||Y) \geq 0$.
+\end{lemma}
+
+\begin{proof}\uses{Gibbs, ckl-div}  Clear from Definition \ref{ckl-div} and Lemma \ref{Gibbs}.
+\end{proof}
+
+\section{Tau functionals}
+
+Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
+
+\begin{definition}[Tau minus]\label{tauminus-def}  For any $G$-valued random variable $X$, we define $\tau^-(X)$ to be the infimum of $D_{KL}(X || U_A + T)$, where $U_A$ is uniform on $A$ and $T$ ranges over $G$-valued random variables independent of $U_A$.
+\end{definition}
+
+\begin{definition}[Tau plus]\label{tauplus-def}  For any $G$-valued random variable $X$, we define $\tau^+(X) := \tau^-(X) + {\bf H}(X) - {\bf H}(U_A)$.
+\end{definition}
+
+\begin{lemma}[Tau minus non-negative]\label{tauminus-nonneg}  We have $\tau^-(X) \geq 0$.
+\end{lemma}
+
+\begin{proof} Clear from Lemma \ref{Conditional-Gibbs}.
+\end{proof}
+
+
+
+\begin{lemma}[Tau minus of subspace]\label{tauminus-subspace} If $V$ is a finite subgroup of $G$, then $\tau^-(U_V) = \log |A| - \log \max_t |A \cap (V+t)|$.
+\end{lemma}
+
+\begin{proof} ...
+\end{proof}
+
+\begin{corollary}[Tau plus of subspace]\label{tauplus-subspace} If $V$ is a finite subgroup of $G$, then $\tau^+(U_V) = \log |V| - \log \max_t |A \cap (V+T)|$.
+\end{corollary}
+
+\begin{proof}\uses{tauminus-subspace} ...
+\end{proof}
+
+\begin{definition}[Tau functional]  We define $\tau(X) := (\tau^+(X) + \tau^-(X))/2$.
+\end{definition}
+
+\begin{lemma}[Tau of subspace]\label{tau-subspace}  If $V$ is a finite subgroup of $G$, and $\tau(U_V) \leq 2r$, then there exists $t$ such that $|A \cap (V+t)| \geq 2^{-r} \max(|A|, |V|)$.
+\end{lemma}
+
+\begin{proof}\uses{tauminus-subspace, tauplus-subspace} ...
+\end{proof}
+
+\begin{lemma}[Tau invariant]\label{tau-invariant}  For any $s \in G$, $\tau(X+s) = \tau(X)$.
+\end{lemma}
+
+\begin{proof} Routine computation.
+\end{proof}
+
+\begin{lemma}[Tau continuous]\label{tau-cts} $\tau(X)$ depends continuously on the distribution of $X$.
+\end{lemma}
+
+\begin{proof}  Clear from definition.
+\end{proof}
+
+\begin{proof}\uses{tau-cts} Follows from Lemma \ref{cts} and compactness.
+\end{proof}
+
+\begin{lemma}[Tau and sums]\label{tau-sums}  If $X,Y$ are independent, one has
+  $$ \tau^-(X+Y) \leq \tau^-(X)$$
+  $$ \tau^+(X+Y) \leq \tau^+(X) + H(X+Y) - H(X)$$
+and
+  $$ \tau(X+Y) \leq \tau(X) + \frac{1}{2}( H(X+Y) - H(X) ).$$
+\end{lemma}
+
+\begin{proof}
+  ...
+\end{proof}
+
+
+\begin{definition}[Conditional Tau functional]  We define $\tau(X|Y) := \sum_y {\bf P}(Y=y) \tau(X|Y=y)$.
+\end{definition}
+
+\begin{lemma}[Tau and conditioning]  If $X,Z$ are defined on the same space, one has
+  $$ \tau^-(X|Z) \leq \tau^-(X) + H(X) - H(X|Z)$$
+  $$ \tau^+(X) \leq \tau^+(X)$$
+and
+  $$ \tau(X|Z) \leq \tau(X) + \frac{1}{2}( H(X) - H(X|Z) ).$$
+\end{lemma}
+
+\begin{proof}
+  ...
+\end{proof}
+
+
+\section{Studying a minimizer}
+
+Set $\eta < 1/8$.
+
+\begin{definition}  Given $G$-valued random variables $X,Y$, define
+$$ \phi[X;Y] := d[X;Y] + \eta(\tau(X) + \tau(Y))$$
+and define a \emph{$\phi$-minimizer} to be a pair of random variables $X,Y$ which minimizes $\phi[X;Y]$.
+\end{definition}
+
+\begin{lemma}[$\phi$-minimizers exist]\label{phi-min-exist}  There exists a $\phi$-minimizer.
+\end{lemma}
+
+\begin{proof} Clear from compactness.
+\end{proof}
+
+...
+
+\begin{proposition}  If $X,Y$ is a $\phi$-minimizer, then $d[X;Y] = 0$.
+\end{proposition}
+
+\begin{proof}
+  ...
+\end{proof}
+
+
+\begin{proposition}  For any random variables $X,Y$, there exist  a subspace $V$ such that
+  $$ \tau(U_V) + \tau(U_V) \leq \tau(X) + \tau(Y) + 8 d[X;Y].$$
+\end{proposition}
+
+\begin{proof}
+  ...
+\end{proof}
+
+
+\begin{theorem}[PFR with $C=9$]  If $A \subset {\bf F}_2^n$ is finite non-empty with $|A+A| \leq K|A|$, then there exists a subspace $V$ of ${\bf F}_2^n$ with $|V| \leq |A|$ such that $A$ can be covered by at most $2K^9$ translates of $V$.
+\end{theorem}
+
+\begin{proof}
+  ...
+\end{proof}
