@@ -14,7 +14,7 @@ $$ I[Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4].$$
 
 -/
 
-open MeasureTheory ProbabilityTheory
+open MeasureTheory ProbabilityTheory Function
 
 section GeneralFibring
 
@@ -121,8 +121,8 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
     I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - (Y 2 - Y 3) ; μ] by convert this using 2; abel
   symm
   have hm (f : G → G → G × G) {a b i j k l : Fin 4} :
-    Measurable (Function.uncurry f ∘ ⟨Y i - Y j - (Y k - Y l), Y a - Y b⟩) :=
-    (measurable_of_countable (Function.uncurry f)).comp
+    Measurable (uncurry f ∘ ⟨Y i - Y j - (Y k - Y l), Y a - Y b⟩) :=
+    (measurable_of_countable (uncurry f)).comp
     ((((h_meas _).sub (h_meas _)).sub ((h_meas _).sub (h_meas _))).prod_mk
     ((h_meas _).sub (h_meas _)))
   have hmf : Measurable fun ω ↦ ((Y 0 - Y 1) ω, (Y 0 - Y 1) ω - (Y 0 - Y 1 - (Y 2 - Y 3)) ω) :=
@@ -138,12 +138,12 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
     condMutualInfo_comm hmg hmf]
   . congr 1
     { ext ω
-      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] }
-      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
+      { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] }
+      { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] } }
     { rw [sub_sub, add_sub_left_comm, ← sub_sub]
       ext ω
-      { simp only [Function.comp_apply, Pi.sub_apply, add_sub_cancel] }
-      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
+      { simp only [comp_apply, Pi.sub_apply, add_sub_cancel] }
+      { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] } }
   . exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).2
   exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).1
 
