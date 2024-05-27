@@ -1003,9 +1003,7 @@ lemma conclusion_transfers {A B : Set G}
   have hg : Function.Injective g := by
     intro y z hyz
     simp only [add_left_inj, SetLike.coe_eq_coe, g] at hyz
-    exact hyz
-  have hB' : B = g '' B' := by
-    simp_rw [hB, ← Set.image_vadd, Set.image_image, vadd_eq_add, g, add_comm]; rfl
+    simpa [g] using hyz
   use f '' A'', g '' B''
   have : dᵤ[A # B] = dᵤ[A' # B'] := by
     rw [<-rdist_set_of_inj _ _ (φ := G'.subtype) Subtype.val_injective, <-rdist_set_add_const (G'.subtype '' A') (G'.subtype '' B') x y]
