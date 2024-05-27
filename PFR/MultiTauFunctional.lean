@@ -21,14 +21,18 @@ structure multiRefPackage :=
   hG : AddCommGroup G
   hGf : Fintype G
   hGm : MeasurableSpace G
+  hGsc: MeasurableSingletonClass G
+  m : ℕ
+  htorsion : ∀ x:G, m • x = 0
   Ω₀ : Type*
   hΩ₀ : MeasureSpace Ω₀
   hprob: IsProbabilityMeasure (ℙ : Measure Ω₀)
   X₀ : Ω₀ → G
   hmeas : Measurable X₀
-  m : ℕ
   η : ℝ
   hη : 0 < η
+
+-- May need a lemma here that  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] follows automatically from the given data
 
 /-- If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$

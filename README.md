@@ -3,7 +3,11 @@
 [![GitHub CI](https://github.com/teorth/pfr/actions/workflows/push.yml/badge.svg)](https://github.com/teorth/pfr/actions/workflows/push.yml)
 [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/teorth/pfr)
 
-The purpose of this repository is to hold a Lean4 formalization of [the proof of the Polynomial Freiman-Ruzsa (PFR) conjecture](https://arxiv.org/abs/2311.05762) (see also [this blog post](https://terrytao.wordpress.com/2023/11/13/on-a-conjecture-of-marton)).  The statement is as follows: if $A$ is a non-empty subset of ${\bf F}_2^n$ such that $|A+A| \leq K|A|$, then $A$ can be covered by at most $2K^{12}$ cosets of a subspace $H$ of ${\bf F}_2^n$ of cardinality at most $|A|$.  The proof relies on the theory of Shannon entropy, so in particular development of the Shannon entropy inequalities will be needed.
+The original purpose of this repository is to hold a Lean4 formalization of [the proof of the Polynomial Freiman-Ruzsa (PFR) conjecture](https://arxiv.org/abs/2311.05762) of Katalin Marton (see also [this blog post](https://terrytao.wordpress.com/2023/11/13/on-a-conjecture-of-marton)).  The statement is as follows: if $A$ is a non-empty subset of ${\bf F}_2^n$ such that $|A+A| \leq K|A|$, then $A$ can be covered by at most $2K^{12}$ cosets of a subspace $H$ of ${\bf F}_2^n$ of cardinality at most $|A|$.  The proof relies on the theory of Shannon entropy, so in particular development of the Shannon entropy inequalities was needed.
+
+After the primary purpose of the project was completed, a second stage of the project developed several consequences of PFR, as well as an argument of Jyun-Jie Liao that reduced the exponent $12$ to $11$.  This second stage has also been completed.
+
+Currently, the project is obtaining an extension of PFR to other bounded torsion groups, as well as formalizing a further refinement of Jyun-Jie Liao that improves the exponent further to $9$.
 
 * [Discussion of the project on Zulip](https://leanprover.zulipchat.com/#narrow/stream/412902-Polynomial-Freiman-Ruzsa-conjecture)
 * [Blueprint of the proof](https://teorth.github.io/pfr/blueprint)
@@ -48,10 +52,12 @@ then fix the LaTeX error, and run `inv dev` again.
 
 ## Moving material to mathlib
 
-The project is now over. As such, we are currently working towards stabilising the new results and contributing them to mathlib.
+As the first two phases of the project are completed, we are currently working towards stabilising the new results and contributing them to mathlib.
 
 ## Source reference
 
 `[GGMT]`: <https://arxiv.org/abs/2311.05762>
 
-[GGMT]: https://arxiv.org/abs/2311.05762
+`[L]` : <https://arxiv.org/abs/2404.09639>
+
+`[GGMT2]`: <https://arxiv.org/abs/2404.02244>

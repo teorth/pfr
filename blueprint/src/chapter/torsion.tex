@@ -1,6 +1,6 @@
 \chapter{The \texorpdfstring{$m$}{m}-torsion case}
 
-\subsection{Data processing inequality}
+\section{Data processing inequality}
 
 \begin{lemma}[Data processing for a single variable]\label{data-process-single}\lean{ProbabilityTheory.entropy_comp_le}\leanok  Let $X$ be a random variable.  Then for any function $f$ on the range of $X$, one has $\bbH[f(X)] \leq \bbH[X]$.
 \end{lemma}
@@ -32,7 +32,7 @@ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X 
 \begin{proof}\uses{data-process-unc, conditional-mutual-def}  Apply \Cref{data-process-unc} to $X,Y$ conditioned to the event $Z=z$, multiply by ${\bf P}[Z=z]$, and sum using \Cref{conditional-mutual-def}.
 \end{proof}
 
-\subsection{More Ruzsa distance estimates}
+\section{More Ruzsa distance estimates}
 
 Let $G$ be an additive group.
 
@@ -140,12 +140,12 @@ which (when combined with \Cref{neg-ent}) gives the second inequality.
   $$\bbH[X-aY] - \bbH[X] \leq 4 |a| d[X;Y].$$
 \end{lemma}
 
-\begin{proof}\uses{kv, ruz-indep, sign-flip, sum-dilate-I} From \Cref{kv} one has
-  $$ \bbH[Y-X'+X] - \bbH[Y-X'] \leq \bbH[Y+X] - \bbH[Y]$$
+\begin{proof}\uses{kv, ruz-indep, sign-flip, sum-dilate-I}\leanok From \Cref{kv} one has
+  $$\bbH[Y-X+X'] - \bbH[Y-X] \leq \bbH[Y+X'] - \bbH[Y] = \bbH[Y+X] - \bbH[Y]$$
   which by \Cref{ruz-indep} gives
-  $$ \bbH[X-Y-X'] -\bbH[X] \leq d[X;Y] + d[X;-Y]$$
+  $$\bbH[X-Y-X'] -\bbH[X] \leq d[X;Y] + d[X;-Y]$$
   and hence by \Cref{sign-flip}
-  $$ \bbH[X-Y-X'] -\bbH[X] \leq 4d[X;Y].$$
+  $$\bbH[X-Y-X'] - \bbH[X] \leq 4d[X;Y].$$
   From \Cref{sum-dilate-I} we then have
   $$\bbH[X-(a\pm 1)Y] \leq \bbH[X-aY] + 4 d[X;Y]$$
 and the claim now follows by an induction on $|a|$.
@@ -157,7 +157,7 @@ is also proven by a similar method.  This variant is superior for $|a| \geq 9$ (
 
 
 
-\subsection{Multidistance}
+\section{Multidistance}
 
 We continue to let $G$ be an abelian group.
 
@@ -168,7 +168,19 @@ We continue to let $G$ be an abelian group.
 where the $\tilde X_i$ are independent copies of the $X_i$.
 \end{definition}
 
-\begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}  For any such tuple, we have $D[X_{[m]}] \geq 0$.
+\begin{lemma}[Multidistance of copy]\label{multidist-copy}\lean{multiDist_copy}\leanok  If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are such that $X_i$ and $Y_i$ have the same distribution for each $i$, then $D[X_{[m]}] = D[Y_{[m]}]$.
+\end{lemma}
+
+\begin{proof}\uses{multidist-def} Clear from Lemma \ref{copy-ent}.
+\end{proof}
+
+\begin{lemma}[Multidistance of independent variables]\label{multidist-indep}\lean{multiDist_indep}\leanok  If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ are jointly independent, then $D[X_{[m]}] = \bbH[\sum_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$.
+\end{lemma}
+
+\begin{proof}\uses{multidist-def}  Clear from definition.
+\end{proof}
+
+\begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}\leanok  For any such tuple, we have $D[X_{[m]}] \geq 0$.
 \end{lemma}
 
 \begin{proof}\uses{sumset-lower}  From \Cref{sumset-lower} one has
@@ -176,7 +188,7 @@ $$ \bbH[\sum_{i =1}^m \tilde X_i] \geq \bbH[\tilde X_i]$$
 for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Relabeling]\label{multidist-perm}\lean{multiDist_of_perm}\uses{multidist-def} If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$.
+\begin{lemma}[Relabeling]\label{multidist-perm}\lean{multiDist_of_perm}\uses{multidist-def}\leanok If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$.
 \end{lemma}
 
 \begin{proof} Trivial.
@@ -187,8 +199,8 @@ for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
   $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$
 \end{lemma}
 
-\begin{proof}\uses{ruz-copy, sumset-lower, ruz-indep}
-By \Cref{ruz-copy} we may take the $X_i$ to be jointly independent.  From \Cref{sumset-lower}, we see that for any distinct $1 \leq j,k \leq m$, we have
+\begin{proof}\uses{ruz-copy, sumset-lower, ruz-indep, multidist-indep, multidist-copy}
+By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly independent.  From \Cref{sumset-lower}, we see that for any distinct $1 \leq j,k \leq m$, we have
   \[
     \bbH[X_j+X_k] \leq \bbH[\sum_{i=1}^m X_i],
   \]
@@ -196,7 +208,7 @@ By \Cref{ruz-copy} we may take the $X_i$ to be jointly independent.  From \Cref{
   \[
     d[X_j;-X_k] \leq \bbH[\sum_{i=1}^m X_i] - \frac{1}{2} \bbH[X_j] - \frac{1}{2} \bbH[X_k].
   \]
-  Summing this over all pairs $(j,k)$, $j \neq k$, we obtain the claim.
+  Summing this over all pairs $(j,k)$, $j \neq k$ and using Lemma \ref{multidist-indep}, we obtain the claim.
 \end{proof}
 
 \begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}\lean{multidist_ruzsa_II}\uses{multidist-def}
@@ -212,8 +224,8 @@ From \Cref{ruzsa-triangle} we have $\dist{X_j}{X_j} \leq 2 \dist{X_j}{-X_k}$, an
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_{[m]}] \leq m d[X_i;X_i]$ for any $1 \leq i \leq m$.
 \end{lemma}
 
-\begin{proof}\uses{klm-1, neg-ent, ruz-indep, sumset-lower}
-  We may take the $X_i$ to be independent.  Let $X_0$ be a further independent copy of the $X_i$.
+\begin{proof}\uses{klm-1, neg-ent, ruz-indep, sumset-lower, ruz-copy, multidist-copy}
+  By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly independent.    Let $X_0$ be a further independent copy of the $X_i$.
 From \Cref{klm-1}, we have
 $$ \bbH[-X_0 + \sum_{i=1}^m X_i] - \bbH[-X_0] \leq \sum_{i=1}^m \bbH[X_0 - X_i] - \bbH[-X_0]$$
 and hence by \Cref{neg-ent} and \Cref{ruz-indep}
@@ -254,7 +266,7 @@ If $D[X_{[m]}]=0$, then for each $1 \leq i \leq m$ there is a finite subgroup $H
 
 With more effort one can show that $H_i$ is independent of $i$, but we will not need to do so here.
 
-\subsection{The tau functional}
+\section{The tau functional}
 
 Fix $m \geq 2$, and a reference variable $X^0$ in $G$.
 
@@ -335,7 +347,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 \begin{proof}\uses{cond-multidist-lower, multidist-perm}  This follows from \Cref{cond-multidist-lower} and \Cref{multidist-perm}.
 \end{proof}
 
-\subsection{The multidistance chain rule}
+\section{The multidistance chain rule}
 
 \begin{lemma}[Multidistance chain rule]\label{multidist-chain-rule}\lean{multiDist_chainRule}  Let $\pi \colon G \to H$ be a homomorphism of abelian groups and let $X_{[m]}$ be a tuple of jointly independent $G$-valued random variables.  Then $D[X_{[m]}]$ is equal to
   \begin{equation}
@@ -459,7 +471,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
   and the claim follows by rearranging.
 \end{proof}
 
-\subsection{Bounding the mutual information}
+\section{Bounding the mutual information}
 
 As before, $G$ is an abelian group, and $m\geq 2$.  We let $X_{[m]} = (X_i)_{i =1}^m$ be a $\tau$-minimizer.
 
@@ -552,7 +564,7 @@ $$
 The claim \eqref{I-ineq} is now immediate from \Cref{multidist-ruzsa-II}.
 \end{proof}
 
-\subsection{Endgame}
+\section{Endgame}
 
 Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \leq i \leq m}$ be a $\tau$-minimizer.
 
@@ -832,7 +844,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
   and hence $k \leq 0$.  The claim now follows from \Cref{multidist-nonneg}.
 \end{proof}
 
-\subsection{Wrapping up}
+\section{Wrapping up}
 
 \begin{theorem}[Entropy form of PFR]\label{main-entropy} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
