@@ -169,7 +169,7 @@ lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRan
 /-- Applying an injective homomorphism does not affect Ruzsa distance. -/
 lemma rdist_of_inj  {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
   [MeasurableSub₂ H] [MeasurableAdd₂ H] [Countable H] (hX: Measurable X) (hY: Measurable Y)
-  (φ: G →+ H) (hφ: Function.Injective φ) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']:
+  (φ : G →+ H) (hφ : Injective φ) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ' ]:
     d[φ ∘ X ; μ # φ ∘ Y ; μ'] = d[X ; μ # Y ; μ'] := by
     rw [rdist_def, rdist_def]
     congr 2
@@ -948,12 +948,12 @@ lemma condRuzsaDist_of_inj_map {G' : Type*} [Countable G'] [AddCommGroup G']
   [MeasurableSpace G'] [MeasurableSingletonClass G'] [IsProbabilityMeasure μ]
   (Y : Fin 4 → Ω → G) (h_indep : IndepFun (⟨Y 0, Y 2⟩) (⟨Y 1, Y 3⟩) μ)
   (h_meas : ∀ i, Measurable (Y i)) (π : G × G →+ G')
-  (hπ : ∀ (h : G), Function.Injective (fun g ↦ π (g, h)))
+  (hπ : ∀ (h : G), Injective (fun g ↦ π (g, h)))
   [FiniteRange (Y 2)] [FiniteRange (Y 3)] :
     d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] = d[Y 0 | Y 2 ; μ # Y 1 | Y 3 ; μ] := by
   let f (h : G) (g : G) : G' := π (g, h)
   let f' : G × G → G → G' := fun (h1, h2) ↦ fun g ↦ π (g, h1 - h2)
-  have hf' (t : G × G) : Function.Injective (f' t) := fun _ _ h ↦ hπ _ h
+  have hf' (t : G × G) : Injective (f' t) := fun _ _ h ↦ hπ _ h
   let f'' : G × G → G' × G := fun (g, h) ↦ (π (g, h), h)
   have hf'' : Measurable f'' := measurable_of_countable _
   have hm1 : Measurable (Y 0 - Y 1) := (h_meas 0).sub (h_meas 1)
@@ -994,7 +994,7 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
         congr
         · ext1 ω; simp [π]
         · ext1 ω
-          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply, Pi.add_apply, π]
+          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, Pi.add_apply, π]
           abel
   _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] := by congr
   _ = d[-X | fun _ : Ω ↦ (0 : G) ; μ # C | B + C ; μ] := by
@@ -1004,7 +1004,7 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
           have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
             ext1 ω;
             simp only [ElementaryAddCommGroup.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
-              Function.comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
+              comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
               Matrix.cons_val_fin_one, true_and, Y]
             congr
           rw [h1, h2]
