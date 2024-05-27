@@ -636,7 +636,7 @@ lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} 
   use Finsupp.mapRange g hg F
   rw [← Finsupp.mapRange_comp (h := hfg)]
   convert Finsupp.mapRange_id F
-  convert RightInverse.id this
+  convert this.id
 
 /-- A free Z-module is torsion-free. Move to Mathlib? -/
 lemma torsion_free : AddMonoid.IsTorsionFree G := by
