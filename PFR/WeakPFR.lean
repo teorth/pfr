@@ -774,8 +774,7 @@ lemma single {Ω : Type u} [MeasurableSpace Ω] [DiscreteMeasurableSpace Ω] (μ
   have : Disjoint {z} A := by simp [hz]
   replace this := measureReal_union (μ := μ) this (measurableSet_discrete _)
   simp only [singleton_union, hA] at this
-  have h := measureReal_mono (μ := μ) (show insert z A ⊆ Set.univ by simp)
-  simpa [this] using h
+  simpa [this] using measureReal_mono (μ := μ) (show insert z A ⊆ Set.univ by simp)
 
 /-- Given two non-empty finite subsets A, B of a rank n free Z-module G, there exists a subgroup N and points x, y in G/N such that the fibers Ax, By of A, B over x, y respectively are non-empty, one has the inequality
 $$ \log \frac{|A| |B|}{|A_x| |B_y|} ≤ 34 (d[U_A; U_B] - d[U_{A_x}; U_{B_y}])$$
