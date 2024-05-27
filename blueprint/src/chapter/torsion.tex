@@ -1,6 +1,6 @@
 \chapter{The \texorpdfstring{$m$}{m}-torsion case}
 
-\subsection{Data processing inequality}
+\section{Data processing inequality}
 
 \begin{lemma}[Data processing for a single variable]\label{data-process-single}\lean{ProbabilityTheory.entropy_comp_le}\leanok  Let $X$ be a random variable.  Then for any function $f$ on the range of $X$, one has $\bbH[f(X)] \leq \bbH[X]$.
 \end{lemma}
@@ -32,7 +32,7 @@ on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X 
 \begin{proof}\uses{data-process-unc, conditional-mutual-def}  Apply \Cref{data-process-unc} to $X,Y$ conditioned to the event $Z=z$, multiply by ${\bf P}[Z=z]$, and sum using \Cref{conditional-mutual-def}.
 \end{proof}
 
-\subsection{More Ruzsa distance estimates}
+\section{More Ruzsa distance estimates}
 
 Let $G$ be an additive group.
 
@@ -157,7 +157,7 @@ is also proven by a similar method.  This variant is superior for $|a| \geq 9$ (
 
 
 
-\subsection{Multidistance}
+\section{Multidistance}
 
 We continue to let $G$ be an abelian group.
 
@@ -266,7 +266,7 @@ If $D[X_{[m]}]=0$, then for each $1 \leq i \leq m$ there is a finite subgroup $H
 
 With more effort one can show that $H_i$ is independent of $i$, but we will not need to do so here.
 
-\subsection{The tau functional}
+\section{The tau functional}
 
 Fix $m \geq 2$, and a reference variable $X^0$ in $G$.
 
@@ -347,7 +347,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 \begin{proof}\uses{cond-multidist-lower, multidist-perm}  This follows from \Cref{cond-multidist-lower} and \Cref{multidist-perm}.
 \end{proof}
 
-\subsection{The multidistance chain rule}
+\section{The multidistance chain rule}
 
 \begin{lemma}[Multidistance chain rule]\label{multidist-chain-rule}\lean{multiDist_chainRule}  Let $\pi \colon G \to H$ be a homomorphism of abelian groups and let $X_{[m]}$ be a tuple of jointly independent $G$-valued random variables.  Then $D[X_{[m]}]$ is equal to
   \begin{equation}
@@ -471,7 +471,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
   and the claim follows by rearranging.
 \end{proof}
 
-\subsection{Bounding the mutual information}
+\section{Bounding the mutual information}
 
 As before, $G$ is an abelian group, and $m\geq 2$.  We let $X_{[m]} = (X_i)_{i =1}^m$ be a $\tau$-minimizer.
 
@@ -564,7 +564,7 @@ $$
 The claim \eqref{I-ineq} is now immediate from \Cref{multidist-ruzsa-II}.
 \end{proof}
 
-\subsection{Endgame}
+\section{Endgame}
 
 Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \leq i \leq m}$ be a $\tau$-minimizer.
 
@@ -844,7 +844,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
   and hence $k \leq 0$.  The claim now follows from \Cref{multidist-nonneg}.
 \end{proof}
 
-\subsection{Wrapping up}
+\section{Wrapping up}
 
 \begin{theorem}[Entropy form of PFR]\label{main-entropy} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}

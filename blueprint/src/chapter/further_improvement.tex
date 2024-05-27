@@ -1,6 +1,6 @@
 \chapter{Further improvement to exponent}
 
-\subsection{Kullback--Liebler divergence}
+\section{Kullback--Liebler divergence}
 
 In the definitions below, $G$ is a set.
 
@@ -66,7 +66,7 @@ $$ D_{KL}(X|Z || Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) || Y).$$
 \begin{proof}\uses{Gibbs, ckl-div}  Clear from Definition \ref{ckl-div} and Lemma \ref{Gibbs}.
 \end{proof}
 
-\subsection{Tau functionals}
+\section{Tau functionals}
 
 Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 
@@ -117,9 +117,6 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{proof}  Clear from definition.
 \end{proof}
 
-\begin{proof}\uses{tau-cts} Follows from Lemma \ref{tau-cts} and compactness.
-\end{proof}
-
 \begin{lemma}[Tau and sums]\label{tau-sums}  If $X,Y$ are independent, one has
   $$ \tau^-(X+Y) \leq \tau^-(X)$$
   $$ \tau^+(X+Y) \leq \tau^+(X) + H(X+Y) - H(X)$$
@@ -147,7 +144,7 @@ and
 \end{proof}
 
 
-\subsection{Studying a minimizer}
+\section{Studying a minimizer}
 
 Set $\eta < 1/8$.
 
