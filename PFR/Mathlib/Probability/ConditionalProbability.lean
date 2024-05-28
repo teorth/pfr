@@ -10,6 +10,8 @@ namespace ProbabilityTheory
 open MeasureTheory Set
 open scoped BigOperators
 
+/- [TODO]: `sum_meas_smul_cond_fiber'` should substitute `sum_meas_smul_cond_fiber` in Mathlib once
+the definition of `FiniteRange` is in Mathlib.-/
 variable {Ω α : Type*} {m : MeasurableSpace Ω} (μ : Measure Ω)
  [MeasurableSpace α] [MeasurableSingletonClass α]
 
