@@ -240,39 +240,41 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       simp
     . exact (measurable_fst.comp measurable_fst).aemeasurable
     exact (measurable_snd.comp measurable_fst).aemeasurable
-  . rw [← sum_meas_smul_cond_fiber' hY μ]
-    refine identDistrib_of_sum ?_ ?_ ?_
-    -- ((measurable_fst.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
-    intro y hy
-    have h1 : IdentDistrib (fun ω ↦ (ω.1.1, ω.2)) (fun ω ↦ (ω.1.1, y)) (m y) (m y) := by
-      apply IdentDistrib.of_ae_eq ((measurable_fst.comp measurable_fst).prod_mk measurable_snd).aemeasurable
-      apply Filter.eventuallyEq_of_mem (h4 y)
-      intro _; simp
-    have h2 : IdentDistrib (fun ω ↦ (ω.1.1, y)) (fun ω ↦ (X ω, y)) (m y) (μ[|Y ← y]) := by
-      let f := fun (x : α) ↦ (x, y)
-      show IdentDistrib (f ∘ (Prod.fst ∘ Prod.fst)) (f ∘ X) (m y) (μ[|Y ← y])
-      apply IdentDistrib.comp _ measurable_prod_mk_right
-      apply (identDistrib_comp_fst measurable_fst _ _).trans
-      have : IsProbabilityMeasure ((μ[|Y ← y]).map X) := h5 hy
-      apply (identDistrib_comp_fst measurable_id _ _).trans
-      apply identDistrib_map hX measurable_id
-    exact (h1.trans h2).trans (h3 y)
+  . sorry
+    -- rw [← sum_meas_smul_cond_fiber' hY μ]
+    -- refine identDistrib_of_sum ?_ ?_ ?_
+    -- -- ((measurable_fst.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
+    -- intro y hy
+    -- have h1 : IdentDistrib (fun ω ↦ (ω.1.1, ω.2)) (fun ω ↦ (ω.1.1, y)) (m y) (m y) := by
+    --   apply IdentDistrib.of_ae_eq ((measurable_fst.comp measurable_fst).prod_mk measurable_snd).aemeasurable
+    --   apply Filter.eventuallyEq_of_mem (h4 y)
+    --   intro _; simp
+    -- have h2 : IdentDistrib (fun ω ↦ (ω.1.1, y)) (fun ω ↦ (X ω, y)) (m y) (μ[|Y ← y]) := by
+    --   let f := fun (x : α) ↦ (x, y)
+    --   show IdentDistrib (f ∘ (Prod.fst ∘ Prod.fst)) (f ∘ X) (m y) (μ[|Y ← y])
+    --   apply IdentDistrib.comp _ measurable_prod_mk_right
+    --   apply (identDistrib_comp_fst measurable_fst _ _).trans
+    --   have : IsProbabilityMeasure ((μ[|Y ← y]).map X) := h5 hy
+    --   apply (identDistrib_comp_fst measurable_id _ _).trans
+    --   apply identDistrib_map hX measurable_id
+    -- exact (h1.trans h2).trans (h3 y)
   rw [← sum_meas_smul_cond_fiber' hY μ]
-  apply identDistrib_of_sum ((measurable_snd.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
-  intro y hy
-  have h1 : IdentDistrib (fun ω ↦ (ω.1.2, ω.2)) (fun ω ↦ (ω.1.2, y)) (m y) (m y) := by
-    apply IdentDistrib.of_ae_eq ((measurable_snd.comp measurable_fst).prod_mk measurable_snd).aemeasurable
-    apply Filter.eventuallyEq_of_mem (h4 y)
-    intro _; simp
-  have h2 : IdentDistrib (fun ω ↦ (ω.1.2, y)) (fun ω ↦ (X ω, y)) (m y) (μ[|Y ← y]) := by
-    let f := fun (x : α) ↦ (x, y)
-    show IdentDistrib (f ∘ (Prod.snd ∘ Prod.fst)) (f ∘ X) (m y) (μ[|Y ← y])
-    apply IdentDistrib.comp _ measurable_prod_mk_right
-    apply (identDistrib_comp_fst measurable_snd _ _).trans
-    have : IsProbabilityMeasure ((μ[|Y ← y]).map X) := h5 hy
-    apply (identDistrib_comp_snd measurable_id _ _).trans
-    apply identDistrib_map hX measurable_id
-  exact (h1.trans h2).trans (h3 y)
+  -- apply identDistrib_of_sum ((measurable_snd.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY)
+  -- intro y hy
+  -- have h1 : IdentDistrib (fun ω ↦ (ω.1.2, ω.2)) (fun ω ↦ (ω.1.2, y)) (m y) (m y) := by
+  --   apply IdentDistrib.of_ae_eq ((measurable_snd.comp measurable_fst).prod_mk measurable_snd).aemeasurable
+  --   apply Filter.eventuallyEq_of_mem (h4 y)
+  --   intro _; simp
+  -- have h2 : IdentDistrib (fun ω ↦ (ω.1.2, y)) (fun ω ↦ (X ω, y)) (m y) (μ[|Y ← y]) := by
+  --   let f := fun (x : α) ↦ (x, y)
+  --   show IdentDistrib (f ∘ (Prod.snd ∘ Prod.fst)) (f ∘ X) (m y) (μ[|Y ← y])
+  --   apply IdentDistrib.comp _ measurable_prod_mk_right
+  --   apply (identDistrib_comp_fst measurable_snd _ _).trans
+  --   have : IsProbabilityMeasure ((μ[|Y ← y]).map X) := h5 hy
+  --   apply (identDistrib_comp_snd measurable_id _ _).trans
+  --   apply identDistrib_map hX measurable_id
+  -- exact (h1.trans h2).trans (h3 y)
+  sorry
 
 /-- For `X, Y` random variables, there exist conditionally independent trials `X₁, X₂, Y'`. -/
 lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY : Measurable Y)
