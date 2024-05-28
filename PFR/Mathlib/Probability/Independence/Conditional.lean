@@ -159,14 +159,17 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy
     exact isProbabilityMeasure_map hX.aemeasurable
 
-  refine ⟨(α × α) × β, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_, measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst, measurable_snd, ?_, ?_, ?_⟩
+  refine ⟨(α × α) × β, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_,
+    measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst,
+    measurable_snd, ?_, ?_, ?_⟩
   . constructor
     simp only [coe_finset_sum, smul_toOuterMeasure, OuterMeasure.coe_smul, Finset.sum_apply,
       Pi.smul_apply, smul_eq_mul, ν]
     have : ∑ y ∈ finY.toFinset, μ (Y ⁻¹' {y}) * 1 = 1 := by
       simp only [mul_one]
-      rw [sum_measure_preimage_singleton] <;>
-        simp [hY $ measurableSet_discrete _, measure_ne_top]
+      rw [sum_measure_preimage_singleton]
+      · rw [← FiniteRange.range Y, preimage_range, measure_univ]
+      · exact fun y _ ↦ hY <| measurableSet_singleton y
     rw [← this]
     congr with y
     rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
@@ -174,7 +177,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     congr 1
     have : IsProbabilityMeasure (m' y) := h5 hy
     simp
-  . rw [condIndepFun_iff, ae_iff_of_countable ]
+  . rw [condIndepFun_iff, ae_iff_of_countable]
     have h1 : ν.map Prod.snd = μ.map Y := by
       rw [← sum_meas_smul_cond_fiber hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
       simp only [_root_.map_sum, LinearMapClass.map_smul, ν]
