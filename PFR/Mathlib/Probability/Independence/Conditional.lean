@@ -120,37 +120,39 @@ end defs
 section copy
 universe u
 variable {Ω : Type*} {α β : Type u} [MeasurableSpace Ω] [MeasurableSpace α] [MeasurableSpace β]
-    [MeasurableSingletonClass β] [Fintype β]
+    [MeasurableSingletonClass β]
 
 open Function Set Measure
 
 /-- For `X, Y` random variables, there exist conditionally independent trials `X_1, X_2, Y'`. -/
 lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY : Measurable Y)
-    (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    [finY : FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ] :
     ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
       IsProbabilityMeasure ν ∧ Measurable X₁ ∧ Measurable X₂ ∧ Measurable Y' ∧
       CondIndepFun X₁ X₂ Y' ν ∧ IdentDistrib (⟨X₁, Y'⟩) (⟨X, Y⟩) ν μ ∧
       IdentDistrib (⟨X₂, Y'⟩) (⟨X, Y⟩) ν μ := by
   let m' := fun (y : β) ↦ ((μ[|Y ← y]).map X)
   let m := fun (y : β) ↦ ((m' y).prod (m' y)).prod (Measure.dirac y)
-  let ν : Measure ((α × α) × β) := ∑ y : β, ((μ (Y ⁻¹' {y})) • (m y))
+  let ν : Measure ((α × α) × β) := ∑ y ∈ finY.toFinset, ((μ (Y ⁻¹' {y})) • (m y))
 
   have h3' (y : β) : { ω : Ω | Y ω = y } ∈ ae (μ[|Y ← y]) := by
     rw [mem_ae_iff, ← cond_inter_self]
     . have : (Y ⁻¹' {y}) ∩ { ω : Ω | Y ω = y }ᶜ = ∅ := by
         ext _; simp
       simp [this]
-    exact hY $ measurableSet_discrete _
+    exact hY $ measurableSet_singleton y
 
   have h3 (y : β) : IdentDistrib (fun ω ↦ (X ω, y)) (⟨X, Y⟩) (μ[|Y ← y]) (μ[|Y ← y]) := by
     apply IdentDistrib.of_ae_eq (hX.prod_mk measurable_const).aemeasurable
     apply Filter.eventuallyEq_of_mem (h3' y)
-    intro ω; simp; exact fun a ↦ id a.symm
+    intro ω; simp only [mem_setOf_eq, Prod.mk.injEq, true_and]; exact fun a ↦ id a.symm
 
   have h4 (y : β) : { ω : (α × α) × β| ω.2 = y } ∈ ae (m y) := by
     rw [mem_ae_iff]
-    have : { ω : (α × α) × β | ω.2 = y}ᶜ = Prod.snd⁻¹' {t : β | t ≠ y} := by simp; rfl
-    rw [this, ← Measure.map_apply measurable_snd (measurableSet_discrete _)]
+    have : { ω : (α × α) × β | ω.2 = y}ᶜ = Prod.snd⁻¹' {y}ᶜ := by
+      simp only [preimage_compl, compl_inj_iff]
+      rfl
+    rw [this, ← Measure.map_apply measurable_snd (MeasurableSet.singleton y).compl]
     simp [m]
 
   have h5 {y : β} (hy : μ (Y ⁻¹' {y}) ≠ 0) : IsProbabilityMeasure (m' y) := by
@@ -161,8 +163,8 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
   . constructor
     simp only [coe_finset_sum, smul_toOuterMeasure, OuterMeasure.coe_smul, Finset.sum_apply,
       Pi.smul_apply, smul_eq_mul, ν]
-    have : ∑ y : β, μ (Y ⁻¹' {y})*1 = 1 := by
-      simp
+    have : ∑ y ∈ finY.toFinset, μ (Y ⁻¹' {y}) * 1 = 1 := by
+      simp only [mul_one]
       rw [sum_measure_preimage_singleton] <;>
         simp [hY $ measurableSet_discrete _, measure_ne_top]
     rw [← this]
