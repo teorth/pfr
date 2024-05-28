@@ -177,7 +177,8 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     congr 1
     have : IsProbabilityMeasure (m' y) := h5 hy
     simp
-  . rw [condIndepFun_iff, ae_iff_of_countable]
+  .
+    -- rw [condIndepFun_iff, ae_iff_of_countable]
     have h1 : ν.map Prod.snd = μ.map Y := by
       rw [← sum_meas_smul_cond_fiber hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
       simp only [_root_.map_sum, LinearMapClass.map_smul, ν]
