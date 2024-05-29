@@ -207,8 +207,8 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       have h3 : (m y) ((Prod.snd⁻¹' {y}) ∩ E) = (m y) E := by
         apply measure_congr
         apply inter_ae_eq_right_of_ae_eq_univ
-        rw [(show (Prod.snd⁻¹' {y})ᶜ = Prod.snd⁻¹' ({y}ᶜ) by rfl), ← map_apply measurable_snd (by simp)]
         simp only [ae_eq_univ]
+        rw [(show (Prod.snd⁻¹' {y})ᶜ = Prod.snd⁻¹' ({y}ᶜ) by rfl), ← map_apply measurable_snd (by simp)]
         simp [m]
       have h3' {x : β} (hx : x ≠ y) : (m x) ((Prod.snd⁻¹' {y}) ∩ E) = 0 := by
         apply measure_inter_null_of_null_left E
