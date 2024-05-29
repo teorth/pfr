@@ -149,10 +149,10 @@ lemma identDistrib_ulift_self {X : Ω → α} (hX : Measurable X) :
 
 /-- To show identical distribution of two random variables on a mixture of probability measures, it suffices to do so on each non-trivial component. -/
 -- in fact this is an if and only if
-lemma identDistrib_of_sum {X : Ω → α} {Y : Ω' → α} [Fintype T] {μ : T → Measure Ω}
-    {μ' : T → Measure Ω'} {w : T → ENNReal} (hX : Measurable X) (hY : Measurable Y)
+lemma identDistrib_of_sum {X : Ω → α} {Y : Ω' → α} {μ : T → Measure Ω}
+    {μ' : T → Measure Ω'} {w : T → ENNReal} (s : Finset T) (hX : Measurable X) (hY : Measurable Y)
     (h_ident : ∀ y, w y ≠ 0 → IdentDistrib X Y (μ y) (μ' y)) :
-    IdentDistrib X Y (∑ y : T, (w y) • (μ y)) (∑ y : T, (w y) • (μ' y)) where
+    IdentDistrib X Y (∑ y ∈ s, (w y) • (μ y)) (∑ y ∈ s, (w y) • (μ' y)) where
   aemeasurable_fst := hX.aemeasurable
   aemeasurable_snd := hY.aemeasurable
   map_eq := by
