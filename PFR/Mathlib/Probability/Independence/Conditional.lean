@@ -158,7 +158,8 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy
     exact isProbabilityMeasure_map hX.aemeasurable
   have h1 : ν.map Prod.snd = μ.map Y := by
-    rw [← sum_meas_smul_cond_fiber' hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd, ← Measure.mapₗ_apply_of_measurable hY]
+    rw [← sum_meas_smul_cond_fiber' hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd,
+      ← Measure.mapₗ_apply_of_measurable hY]
     simp only [_root_.map_sum, LinearMapClass.map_smul, ν]
     congr with y
     rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
@@ -169,10 +170,10 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     rw [Measure.mapₗ_apply_of_measurable measurable_snd, Measure.mapₗ_apply_of_measurable hY]
     simp only [map_snd_prod, measure_univ, one_smul, m]
     have := (μ[|Y ← y]).map_const y
-    simp at this; rw [← this]
+    simp only [measure_univ, one_smul] at this; rw [← this]
     apply Measure.map_congr
     apply Filter.eventuallyEq_of_mem (h3' y)
-    intro ω; simp; exact fun a ↦ id a.symm
+    intro ω; simp only [mem_setOf_eq]; exact fun a ↦ a.symm
   refine ⟨(α × α) × β, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_,
     measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst,
     measurable_snd, ?_, ?_, ?_⟩
@@ -206,18 +207,20 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       have h3 : (m y) ((Prod.snd⁻¹' {y}) ∩ E) = (m y) E := by
         apply measure_congr
         apply inter_ae_eq_right_of_ae_eq_univ
-        simp
         rw [(show (Prod.snd⁻¹' {y})ᶜ = Prod.snd⁻¹' ({y}ᶜ) by rfl), ← map_apply measurable_snd (by simp)]
+        simp only [ae_eq_univ]
         simp [m]
       have h3' {x : β} (hx : x ≠ y) : (m x) ((Prod.snd⁻¹' {y}) ∩ E) = 0 := by
         apply measure_inter_null_of_null_left E
         rw [← Measure.map_apply measurable_snd (by simp), MeasureTheory.Measure.map_snd_prod]
-        simp; right; exact hx
+        simp only [smul_apply, MeasurableSet.singleton, dirac_apply', smul_eq_mul, mul_eq_zero,
+          indicator_apply_eq_zero, Pi.one_apply,
+          one_ne_zero, imp_false]; right; exact hx
       simp only [coe_finset_sum, coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul, ν]
       rw [Finset.sum_eq_single_of_mem y ?_]
       . rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
         finiteness
-      · intro x _ hx
+      · intro _ _ hx
         rw [h3' hx]
         simp
       · convert FiniteRange.range Y ▸ Set.preimage_singleton_nonempty.mp (nonempty_of_measure_ne_zero hy'')
@@ -238,8 +241,6 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       apply Filter.eventuallyEq_of_mem (h4 y)
       intro _; simp
     have h2 : IdentDistrib (fun ω ↦ (ω.1.1, y)) (fun ω ↦ (X ω, y)) (m y) (μ[|Y ← y]) := by
-      let f := fun (x : α) ↦ (x, y)
-      show IdentDistrib (f ∘ (Prod.fst ∘ Prod.fst)) (f ∘ X) (m y) (μ[|Y ← y])
       apply IdentDistrib.comp _ measurable_prod_mk_right
       apply (identDistrib_comp_fst measurable_fst _ _).trans
       have : IsProbabilityMeasure ((μ[|Y ← y]).map X) := h5 hy
@@ -254,13 +255,10 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     apply Filter.eventuallyEq_of_mem (h4 y)
     intro _; simp
   have h2 : IdentDistrib (fun ω ↦ (ω.1.2, y)) (fun ω ↦ (X ω, y)) (m y) (μ[|Y ← y]) := by
-    let f := fun (x : α) ↦ (x, y)
-    show IdentDistrib (f ∘ (Prod.snd ∘ Prod.fst)) (f ∘ X) (m y) (μ[|Y ← y])
     apply IdentDistrib.comp _ measurable_prod_mk_right
     apply (identDistrib_comp_fst measurable_snd _ _).trans
     have : IsProbabilityMeasure ((μ[|Y ← y]).map X) := h5 hy
-    apply (identDistrib_comp_snd measurable_id _ _).trans
-    apply identDistrib_map hX measurable_id
+    exact (identDistrib_comp_snd measurable_id _ _).trans (identDistrib_map hX measurable_id _)
   exact (h1.trans h2).trans (h3 y)
 
 /-- For `X, Y` random variables, there exist conditionally independent trials `X₁, X₂, Y'`. -/
