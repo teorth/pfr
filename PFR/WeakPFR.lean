@@ -290,8 +290,6 @@ lemma app_ent_PFR (α : ℝ) (hent: 20 * d[X;μ # Y;μ'] < α * (H[X; μ] + H[Y;
   @app_ent_PFR' _ _ _ _ _ _ _ _ (MeasureSpace.mk μ) (MeasureSpace.mk μ') _ _ _ _ α hent hX hY
 
 set_option maxHeartbeats 300000 in
-variable (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac)
-
 /-- If $G=\mathbb{F}_2^d$ and `X, Y` are `G`-valued random variables and $\alpha < 1$ then there is
 a subgroup  $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq (1 + α) / (2 * (1 - α)) * (\mathbb{H}(X)+\mathbb{H}(Y))\]
