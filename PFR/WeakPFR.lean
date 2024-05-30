@@ -225,8 +225,8 @@ section F2_projection
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
-[MeasurableSingletonClass G] {Ω Ω' : Type*}
+variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G]
+ {Ω Ω' : Type u} /- [MeasurableSpace Ω] [MeasurableSpace Ω']  -/ [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' → G) (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac) [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
 
 /-- Let $G=\mathbb{F}_2^n$ and `X, Y` be `G`-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> (20/\alpha) d[X;Y],\]
@@ -253,48 +253,54 @@ lemma app_ent_PFR' [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' 
   let ψ := (QuotientAddGroup.mk' H)
   use H
   haveI : Finite H := Subtype.finite
-  -- Note that  H[ψ ∘ X] + H[ψ ∘ Y] ≤ 20 * d[X # Y]
-  have ent_le : H[ψ ∘ X] + H[ψ ∘ Y] ≤ 20 * d[X # Y] := calc
-    H[ψ ∘ X] + H[ψ ∘ Y] ≤ 2 * d[X # U] + 2 * d[Y # U] := by
-      gcongr
-      · exact ent_of_proj_le hX hUmeas hUunif
-      · exact ent_of_proj_le hY hUmeas hUunif
-    _ = 2 * (d[X # U] + d[Y # U]) := by ring
-    _ ≤ 2 * (10 * d[X # Y]) := by gcongr
-    _ = 20 * d[X # Y] := by ring
-  -- Note that (log (Nat.card H) - H[X]) + (log (Nat.card H) - H[Y]) ≤ 20 * d[X # Y]
-  have log_sub_le : (log (Nat.card H) - H[X]) + (log (Nat.card H) - H[Y]) ≤ 20 * d[X # Y] := calc
-    (log (Nat.card H) - H[X]) + (log (Nat.card H) - H[Y]) =
-      (H[U] - H[X]) + (H[U] - H[Y]) := by
-        rw [IsUniform.entropy_eq' hUunif hUmeas, SetLike.coe_sort_coe]
-    _ ≤ |(H[U] - H[X])| + |(H[U] - H[Y])| := by gcongr <;> exact le_abs_self _
-    _ ≤ 2 * d[X # U] + 2 * d[Y # U] := by
-      gcongr
-      · rw [rdist_symm]; exact diff_ent_le_rdist hUmeas hX
-      · rw [rdist_symm]; exact diff_ent_le_rdist hUmeas hY
-    _ = 2 * (d[X # U] + d[Y # U]) := by ring
-    _ ≤ 2 * (10 * d[X # Y]) := by gcongr
-    _ = 20 * d[X # Y] := by ring
-  -- then the conclusion follows from the assumption `hent` and basic inequality manipulations
-  exact ⟨by linarith, by linarith⟩
+  -- Note that  H[ψ ∘ X] ≤ 11*d[X # Y]
+  have ent_le₁ : H[ψ ∘ X] ≤ 11*d[X # Y] :=
+    calc H[ψ ∘ X] ≤ 2 * d[X # U] := ent_of_proj_le _ hX hUmeas hUunif H
+      _ ≤ 2 * (11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₁
+      _ = 11*d[X # Y] := by ring
+  -- similarly H[ψ ∘ Y] ≤ 11*d[X # Y]
+  have ent_le₂ : H[ψ ∘ Y] ≤ 11*d[X # Y] :=
+    calc H[ψ ∘ Y] ≤ 2 * d[Y # U] := ent_of_proj_le _ hY hUmeas hUunif H
+      _ ≤ 2 * (11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₂
+      _ = 11*d[X # Y] := by ring
+  -- Note that log (Nat.card H) - H[X] ≤ 11 * d[X # Y]
+  have log_sub_le₁ : log (Nat.card H) - H[X] ≤ 11 * d[X # Y] :=
+    calc log (Nat.card H) - H[X] = H[U] - H[X] := by rw [IsUniform.entropy_eq' hUunif hUmeas, SetLike.coe_sort_coe]
+      _ ≤ |(H[U] - H[X])| := le_abs_self _
+      _ ≤ 2*d[X # U] := by rw [rdist_symm] ; apply diff_ent_le_rdist hUmeas hX
+      _ ≤ 2*(11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₁
+      _ = 11 * d[X # Y] := by ring
+  -- and similarly for Y
+  have log_sub_le₂ : log (Nat.card H) - H[Y] ≤ 11 * d[X # Y] :=
+    calc log (Nat.card H) - H[Y] = H[U] - H[Y] :=  by rw [IsUniform.entropy_eq' hUunif hUmeas, SetLike.coe_sort_coe]
+      _ ≤ |(H[U] - H[Y])| := le_abs_self _
+      _ ≤ 2*d[Y # U] := by rw [rdist_symm] ; apply diff_ent_le_rdist hUmeas hY
+      _ ≤ 2*(11/2 * d[X # Y]) := (mul_le_mul_left two_pos).mpr ineq₂
+      _ = 11 * d[X # Y] := by ring
+  rw [sub_le_iff_le_add'] at log_sub_le₁ log_sub_le₂
+  -- the first half of the claim follows from adding the two previous inequlities and the assumption that H[X] + H[Y] > 44 * d[X # Y]
+  have log_lt :=
+    calc log (Nat.card H) = 1/2 * (log (Nat.card H) + log (Nat.card H)) := by ring
+      _ ≤ 1/2 * ((H[X] + 11*d[X # Y]) + (H[Y] + 11*d[X # Y])) := by
+        apply (mul_le_mul_left _).mpr (add_le_add log_sub_le₁ log_sub_le₂)
+        norm_num
+      _ = (H[X] + H[Y])/2 + 11*d[X # Y] := by ring
+      _ < (H[X] + H[Y])/2 + 11/44 * (H[X] + H[Y]) := by
+        apply add_lt_add_left
+        rwa [div_eq_mul_inv, mul_assoc, mul_lt_mul_left, ←div_eq_inv_mul, lt_div_iff, mul_comm]
+        all_goals norm_num
+      _ < H[X] + H[Y] := by
+        rw [div_eq_inv_mul, ←add_mul, mul_lt_iff_lt_one_left]
+        norm_num
+        apply lt_of_le_of_lt (mul_nonneg (by norm_num) (rdist_nonneg hX hY)) hent
+  refine ⟨log_lt, ?_⟩
+  -- the second claim follows from adding the inequalities ent_le₁ and ent_le₂, plus a bit of algebra and the assumption on H[X] + H[Y]
+  calc H[ψ ∘ X] + H[ψ ∘ Y] ≤ 11*d[X # Y] + 11*d[X # Y] := add_le_add ent_le₁ ent_le₂
+    _ = (44 * d[X # Y])/2 := by ring
+    _ < (H[X] + H[Y])/2 := by rwa [div_lt_div_right two_pos]
 
-variable [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
-(μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
-[IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
-
-lemma app_ent_PFR (α : ℝ) (hent: 20 * d[X;μ # Y;μ'] < α * (H[X; μ] + H[Y; μ'])) (hX : Measurable X)
-    (hY : Measurable Y) :
-    ∃ H : AddSubgroup G, log (Nat.card H) < (1 + α) / 2 * (H[X; μ] + H[Y;μ']) ∧
-    H[(QuotientAddGroup.mk' H) ∘ X; μ] + H[(QuotientAddGroup.mk' H) ∘ Y; μ']
-      < α * (H[ X; μ] + H[Y; μ']) :=
-  @app_ent_PFR' _ _ _ _ _ _ _ _ (MeasureSpace.mk μ) (MeasureSpace.mk μ') _ _ _ _ α hent hX hY
-
-set_option maxHeartbeats 300000 in
-variable (μ: Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac)
-
-/-- If $G=\mathbb{F}_2^d$ and `X, Y` are `G`-valued random variables and $\alpha < 1$ then there is
-a subgroup  $H\leq \mathbb{F}_2^d$ such that
-\[\log \lvert H\rvert \leq (1 + α) / (2 * (1 - α)) * (\mathbb{H}(X)+\mathbb{H}(Y))\]
+/-- If $G=\mathbb{F}_2^d$ and $X,Y$ are $G$-valued random variables then there is a subgroup $H\leq \mathbb{F}_2^d$ such that
+\[\log \lvert H\rvert \leq 2(\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 20/\alpha * d[\psi(X);\psi(Y)].\] -/
 lemma PFR_projection'
