@@ -56,8 +56,21 @@ lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Meas
 /-- Let `X, Y, Z`. For any functions `f, g` on the ranges of `X, Y` respectively,
 we have `I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ]`. -/
 lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) [FiniteRange X] [FiniteRange Y] :
-    I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by sorry
+  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) (hg : Measurable g) [FiniteRange X]
+  [FiniteRange Y] [FiniteRange Z] :
+    I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by
+  rw [condMutualInfo_eq_sum hZ, condMutualInfo_eq_sum hZ]
+  apply Finset.sum_le_sum
+  intro i _
+  by_cases h : 0 < (μ (Z ⁻¹' {i})).toReal
+  · rw [mul_le_mul_left h]
+    haveI : IsProbabilityMeasure (μ[|Z ← i]) := by
+      apply cond_isProbabilityMeasure_of_finite
+      · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).left
+      . exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).right
+    apply mutual_comp_comp_le _ hX hY f g hg
+  · suffices (μ (Z ⁻¹' {i})).toReal = 0 by simp only [this, zero_mul, le_refl]
+    apply le_antisymm (le_of_not_lt h) ENNReal.toReal_nonneg
 
 end ProbabilityTheory
 end dataProcessing
