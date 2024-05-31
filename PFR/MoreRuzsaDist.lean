@@ -370,6 +370,8 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
     have h : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
     replace IH := IH h
     have h_ind : iIndepFun (fun i ↦ hG) ![∑ j ∈ s, Y j , Y i₀, Y i] μ := by
+      -- maybe make a lemma stating that if we have iIndepFun with I, k : Fin n → Finset I
+      -- such that k i are pairwise disjoint, φ : Fin n
 
       sorry
     have measSum : Measurable (∑ j ∈ s, Y j) := by
@@ -383,9 +385,9 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
     · ring
 
-#check iIndepFun
-#check kaimanovich_vershik
-#check Nat.recOn
+-- #check iIndepFun
+-- #check kaimanovich_vershik
+-- #check Nat.recOn
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
