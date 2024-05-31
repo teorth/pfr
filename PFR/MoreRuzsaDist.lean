@@ -369,22 +369,22 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
-lemma kvm_ineq_I {I : Type*} {i₀ : I} {s: Finset I} (hs: ¬ i₀ ∈ s) (Y: I → Ω → G)
-    (hY: (i:I) → Measurable (Y i)) (hindep: iIndepFun (fun (i:I) => hG) Y μ ) :
-    H[ Y i₀ + ∑ i in s, Y i; μ] - H[ Y i₀; μ] ≤ ∑ i in s, (H[Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
+lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (Y : I → Ω → G)
+    (hY: (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ ) :
+    H[Y i₀ + ∑ i in s, Y i; μ] - H[ Y i₀; μ] ≤ ∑ i in s, (H[Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
 -/
-lemma kvm_ineq_II {I:Type*} {i₀: I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': Finset.Nonempty s)
-    (Y: I → Ω → G)  (hY: (i:I) → Measurable (Y i)) (hindep: iIndepFun (fun (i:I) => hG) Y μ) :
-    d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by sorry
+lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
+    (Y : I → Ω → G)  (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ) :
+    d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by sorry
 
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2:ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
 -/
-lemma kvm_ineq_III {I:Type*} {i₀ : I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': Finset.Nonempty s)
-    (Y: I → Ω → G) (hY: (i:I) → Measurable (Y i)) (hindep: iIndepFun (fun (i:I) => hG) Y μ)
+lemma kvm_ineq_III {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
+    (Y : I → Ω → G) (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ)
     (i₁ : I) : d[Y i₀; μ # ∑ i in s, Y i; μ]
       ≤ d[Y i₀; μ # Y i₁; μ] + (2:ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ]) := by sorry
 
@@ -392,9 +392,9 @@ open Classical in
 /-- Let `X₁, ..., Xₘ` and `Y₁, ..., Yₗ` be tuples of jointly independent random variables (so the
 `X`'s and `Y`'s are also independent of each other), and let `f: {1,..., l} → {1,... ,m}` be a
 function, then  `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
-lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I} (hdisj: Disjoint s t)
-    (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X: I → Ω → G) (hX: (i : I) → Measurable (X i))
-    (hX' : (i : I) → FiniteRange (X i)) (hindep: iIndepFun (fun (i:I) => hG) X μ ) (f : I → I)
+lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
+    (hs : Finset.Nonempty s) (ht : Finset.Nonempty t) (X : I → Ω → G) (hX : (i : I) → Measurable (X i))
+    (hX' : (i : I) → FiniteRange (X i)) (hindep : iIndepFun (fun (i : I) => hG) X μ ) (f : I → I)
     (hf: Finset.image f t ⊆ s) :
     H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
   sorry
@@ -590,28 +590,28 @@ Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'
 of the `X_i`.-/
 noncomputable
 def multiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i))
-  (X : (i:Fin m) → (Ω i) → G) : ℝ := sorry
+  (X : (i : Fin m) → (Ω i) → G) : ℝ := sorry
 
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
 /-- If `X_i` has the same distribution as `Y_i` for each `i`, then `D[X_[m]] = D[Y_[m]]`. -/
-lemma multiDist_copy {m:ℕ} {Ω: Fin m → Type*} {Ω': Fin m → Type*} (hΩ : (i:Fin m) → MeasureSpace (Ω i))
-    (hΩ': (i:Fin m) → MeasureSpace (Ω' i)) (X : (i:Fin m) → (Ω i) → G) (X' : (i:Fin m) → (Ω' i) → G)
+lemma multiDist_copy {m:ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (X : (i : Fin m) → (Ω i) → G) (X' : (i : Fin m) → (Ω' i) → G)
     (hident: ∀ i, IdentDistrib (X i) (X' i) (hΩ i).volume (hΩ' i).volume) :
     D[X ; hΩ] = D[X' ; hΩ'] := by sorry
 
 /-- If `X_i` are independent, then `D[X_[m]] = D[Y_[m]]`. -/
-lemma multiDist_indep {m:ℕ} {Ω: Type*} (hΩ: MeasureSpace Ω)(X : Fin m → Ω → G)
+lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
     (hindep: iIndepFun (fun _ ↦ hG) X hΩ.volume) :
     D[X ; fun _ ↦ hΩ] = H[∑ i, X i ; hΩ.volume] - (∑ i, H[X i; hΩ.volume]) / m := by sorry
 
 /-- We have `D[X_[m]] ≥ 0`. -/
-lemma multiDist_nonneg {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i))
-    (X : (i:Fin m) → (Ω i) → G) : D[X ; hΩ] ≥ 0 := by sorry
+lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ: (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G) : D[X ; hΩ] ≥ 0 := by sorry
 
 /-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
-lemma multiDist_of_perm {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i))
-    (X : (i:Fin m) → (Ω i) → G) (φ: Equiv.Perm (Fin m)) :
+lemma multiDist_of_perm {m:ℕ} {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
     D[X ; hΩ] = D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by sorry
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
@@ -641,8 +641,8 @@ with the `X_i` being `G`-valued (but the `Y_i` need not be), then we define
 where `(X_i', Y_i)`, `1 ≤ i ≤ m` are independent copies of `(X_i,Y_i), 1 ≤ i ≤ m` (but note here
 that we do *not* assume `X_i` are independent of `Y_i`, or `X_i'` independent of `Y_i`. -/
 noncomputable
-def condMultiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i))
-    (X : (i:Fin m) → (Ω i) → G) (Y : (i:Fin m) → (Ω i) → G) : ℝ := sorry
+def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → G) : ℝ := sorry
 
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
