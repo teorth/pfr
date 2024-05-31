@@ -357,19 +357,33 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 /--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
-lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (Y : I → Ω → G)
-    (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ ) :
-    H[Y i₀ + ∑ i in s, Y i ; μ ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
+lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (Y : I → Ω → G)
+    [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ ) :
+    H[Y i₀ + ∑ i in s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
   classical
   induction s using Finset.induction_on with
   | empty => simp
-  | insert s =>
+  | @insert i s hi IH =>
     refine ?_
-    simp
+    simp_rw [Finset.sum_insert hi]
     refine ?_
-    sorry
+    have h : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
+    replace IH := IH h
+    have h_ind : iIndepFun (fun i ↦ hG) ![∑ j ∈ s, Y j , Y i₀, Y i] μ := by
 
+      sorry
+    have measSum : Measurable (∑ j ∈ s, Y j) := by
+      convert Finset.measurable_sum s (fun j _ ↦ hY j)
+      simp
+    have hkv := kaimanovich_vershik h_ind measSum (hY i₀) (hY i)
+    convert add_le_add IH hkv using 1
+    · nth_rw 2 [add_comm (Y i₀)]
+      norm_num
+      congr 1
+      rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
+    · ring
 
+#check iIndepFun
 #check kaimanovich_vershik
 #check Nat.recOn
 
