@@ -353,8 +353,6 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       simp only [eq3]
       ring
 
-
-#check Nat.recOn
 --open Classical in
 /--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
@@ -362,8 +360,18 @@ The spelling here is tentative.  Feel free to modify it to make the proof easier
 lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (Y : I → Ω → G)
     (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ ) :
     H[Y i₀ + ∑ i in s, Y i ; μ ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
-  --induction
-  sorry
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | insert s =>
+    refine ?_
+    simp
+    refine ?_
+    sorry
+
+
+#check kaimanovich_vershik
+#check Nat.recOn
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
