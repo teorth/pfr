@@ -6,6 +6,7 @@ import Mathlib.Algebra.GroupPower.Basic
 import Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.ForMathlib.Pair
 
+open scoped BigOperators
 
 /-- The property of having a finite range. -/
 class FiniteRange {Ω G : Type*} (X : Ω → G) : Prop where
@@ -78,10 +79,10 @@ instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY:
       exact ⟨⟨ω, hω.1⟩, ω, hω.2⟩
     exact Set.Finite.subset (Set.Finite.prod hX.finite hY.finite) this
 
-/-- The product of functions of finite range, has finite range.   -/
+/-- The product of functions of finite range, has finite range. -/
 @[to_additive "The sum of functions of finite range, has finite range."]
 instance FiniteRange.prod {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [Mul G]
-    [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X*Y) := by
+    [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X * Y) := by
   show FiniteRange ((fun p ↦ p.1 * p.2) ∘ ⟨X, Y⟩)
   infer_instance
 
@@ -99,13 +100,30 @@ instance FiniteRange.inv {Ω G : Type*} (X : Ω → G) [Inv G] [hX: FiniteRange 
   show FiniteRange ((fun p ↦ p⁻¹) ∘ X)
   infer_instance
 
-/-- A function of finite range raised to a constant power, has finite range.  -/
+/-- A function of finite range raised to a constant power, has finite range. -/
 @[to_additive "The multiple of a function of finite range by a constant, has finite range."]
 instance FiniteRange.pow {Ω G : Type*} (X : Ω → G) [Pow G ℤ] [hX: FiniteRange X] (c : ℤ) :
     FiniteRange (X^c) := by
   show FiniteRange ((fun x ↦ x^c) ∘ X)
   infer_instance
 
+/-- The product of a finite number of functions with finite range, has finite range. -/
+@[to_additive "The sum of a finite number of functions with finite range, has finite range."]
+instance FiniteRange.finprod {Ω G I : Type*} [CommMonoid G] {s : Finset I} (X : I → Ω → G)
+    [∀ i, FiniteRange (X i)] :
+    FiniteRange (∏ i ∈ s, X i) := by
+  induction s using Finset.induction_on with
+  | empty =>
+    simp only [Finset.prod_empty]
+    change FiniteRange (fun _ ↦ 1)
+    infer_instance
+  | @insert k s hk IH =>
+    classical
+    have h_eq : ∏ j ∈ insert k s, X j = X k * ∏ j ∈ s, X j := Finset.prod_insert hk
+    suffices h : FiniteRange (X k * ∏ j ∈ s, X j) from by
+      convert h
+      exact h_eq
+    exact FiniteRange.prod (X k) (∏ j ∈ s, X j)
 
 open MeasureTheory
 
