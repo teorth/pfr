@@ -369,9 +369,8 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
-lemma kvm_ineq_I {I:Type*} {i₀: I} {s: Finset I} (hs: ¬ i₀ ∈ s) (Y: I → Ω → G) (hY: (i:I) → Measurable (Y i))
-                 (hindep: iIndepFun (fun (i:I) => hG) Y μ )
-                : H[ Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
+lemma kvm_ineq_I {I : Type*} {i₀ : I} {s: Finset I} (hs: ¬ i₀ ∈ s) (Y: I → Ω → G) (hY: (i:I) → Measurable (Y i))
+    (hindep: iIndepFun (fun (i:I) => hG) Y μ ) : H[ Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
@@ -388,13 +387,15 @@ lemma kvm_ineq_III {I:Type*} {i₀ : I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': 
                 : d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2:ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ]) := by sorry
 
 open Classical in
-
 /-- Let `X₁, ..., Xₘ` and `Y₁, ..., Yₗ` be tuples of jointly independent random variables (so the
 `X`'s and `Y`'s are also independent of each other), and let `f: {1,..., l} → {1,... ,m}` be a
 function, then  `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
-lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t) (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X: I → Ω → G)
-  (hX: (i:I) → Measurable (X i)) (hindep: iIndepFun (fun (i:I) => hG) X μ ) (f: I → I) (hf: Finset.image f t ⊆ s)
-                : H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by sorry
+lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I} (hdisj: Disjoint s t)
+    (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X: I → Ω → G) (hX: (i : I) → Measurable (X i))
+    (hX' : (i : I) → FiniteRange (X i))
+    (hindep: iIndepFun (fun (i:I) => hG) X μ ) (f : I → I) (hf: Finset.image f t ⊆ s) :
+    H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
+  sorry
 
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
 and let `a` be an integer. Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
@@ -599,7 +600,7 @@ lemma multiDist_indep {m:ℕ} {Ω: Type*} (hΩ: MeasureSpace Ω)(X : Fin m → �
 /-- We have `D[X_[m]] ≥ 0`. -/
 lemma multiDist_nonneg {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) : D[ X ; hΩ ] ≥ 0 := by sorry
 
-/--  If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
+/-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
 lemma multiDist_of_perm {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) (φ: Equiv.Perm (Fin m)): D[ X ; hΩ ] = D[ fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by sorry
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
@@ -634,10 +635,8 @@ def condMultiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
 /-- With the above notation, we have
-  \begin{equation}\label{multi-def-cond-alt}
-    D[ X_[m] | Y_[m]] = \sum_{(y_i)_{1 \leq i \leq m}} \biggl(\prod_{1 \leq i \leq m} p_{Y_i}(y_i)\biggr) D[ (X_i \,|\, Y_i \mathop{=}y_i)_{1 \leq i \leq m}]
-  \end{equation}
-  where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`. -/
+`D[ X_[m] | Y_[m]] = ∑_{(y_i)_{1 \leq i \leq m}} (∏ i, p_{Y_i}(y_i)) D[(X_i | Y_i = y_i)_{i=1}^m]`
+where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`. -/
 lemma condMultiDist_eq : 0 = 1 := by sorry
 
 end multiDistance
@@ -647,7 +646,7 @@ section multiDistance_chainRule
 /-- Let `π : G → H` be a homomorphism of abelian groups and let `X_[m]` be a tuple of jointly
 independent `G`-valued random variables. Then `D[X_[m]]` is equal to
 `D[X_[m] | π(X_[m])] + D[π(X_[m])] + I[∑ i, X_i : π(X_[m]) ; | ; π(∑ i, X_i)]`
-where `\pi(X_[m]) := (π(X_1), ..., π(X_m))`.
+where `π(X_[m]) := (π(X_1), ..., π(X_m))`.
 -/
 lemma multiDist_chainRule : 0 = 1 := by sorry
 
@@ -665,21 +664,20 @@ of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m
 (so for instance `π_m` is the identity homomorphism and `π_0` is the zero homomorphism).
 Let `X_[m] = (X_1, ..., X_m)` be a jointly independent tuple of `G_m`-valued random variables.
 Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
-` + ∑ (d=1, ..., m-1), I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
+` + ∑_{d=1}^{m-1}, I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
 lemma iter_multiDist_chainRule : 0 = 1 := by sorry
 
 /--Under the preceding hypotheses,
-`D[ X_[m]] ≥ ∑ d, D[πd(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
+`D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
 lemma iter_multiDist_chainRule' : 0 = 1 := by sorry
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
-`I[ (∑ i, X_{i,j})_j =1}^{m} : \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i = 1}^m \; \big| \; \sum_{i=1}^m \sum_{j = 1}^m  X_{i,j} ] $$
-  is less than
-  $$\sum_{j=1}^{m-1} \Bigl(D[(X_{i, j})_{i = 1}^m] - D[ (X_{i, j})_{i = 1}^m  \; \big| \; (X_{i,j} + \cdots + X_{i,m})_{i =1}^m ]\Bigr)$$
-  $$+  D[(X_{i,m})_{i=1}^m] - D[ \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i=1}^m ],$$
-  where all the multidistances here involve the indexing set $\{1,\dots, m\}$.
-  -/
+`I[(∑ i, X_{i,j})_{j=1}^m : (∑ j, X_{i,j})_{i=1}^m | ∑ i j, X_{i,j}]`
+is less than
+`∑_{j=1}^{m-1} (D[(X_{i, j})_{i=1}^m] - D[(X_{i, j})_{i = 1}^m | (X_{i,j} + ... + X_{i,m})_{i=1}^m])`
+`+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
+where all the multidistances here involve the indexing set `{1, ..., m}`. -/
 lemma cor_multiDist_chainRule : 0 = 1 := by sorry
 
 
