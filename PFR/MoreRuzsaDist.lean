@@ -393,9 +393,32 @@ open Classical in
   $$ \mathbb{H}[\sum_{j=1}^l Y_j] \leq \mathbb{H}[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\mathbb{H}[ Y_j - X_{f(j)}] - \mathbb{H}[X_{f(j)}]).$$
 -/
 
-lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t) (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X: I → Ω → G)
-  (hX: (i:I) → Measurable (X i)) (hindep: iIndepFun (fun (i:I) => hG) X μ ) (f: I → I) (hf: Finset.image f t ⊆ s)
-                : H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by sorry
+lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t)
+  (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X: I → Ω → G) (hX: (i:I) → Measurable (X i))
+  (hindep: iIndepFun (fun (i:I) => hG) X μ ) (f: I → I) (hf: Finset.image f t ⊆ s) :
+    H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by
+  set W := ∑ i in s, X i
+  set U := ∑ i in t, X i
+  haveI : FiniteRange U := sorry
+  haveI : FiniteRange W := sorry
+  have U_meas : Measurable U := by measurability
+  have W_meas : Measurable W := by measurability
+  calc
+    _ ≤ H[-W + U ; μ ] := by sorry
+      /-rw [neg_add_eq_sub]
+      apply le_trans (le_max_left H[U ; μ] H[W ; μ]) (ProbabilityTheory.max_entropy_le_entropy_sub U_meas W_meas _)
+      sorry-/
+    _ ≤ H[- W ; μ] + ∑ i in t, (H[-W + X i ; μ] - H[- W ; μ]) := by
+      sorry --apply kvm_ineq_I
+    _ ≤ H[- W ; μ] + ∑ i in t, (H[X i - X (f i) ; μ] - H[X (f i) ; μ]) := by
+      rw [add_le_add_iff_left]
+      apply Finset.sum_le_sum
+      intro i hi
+      sorry
+      --apply kaimanovich_vershik
+    _ = H[W ; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
+      rw [ProbabilityTheory.entropy_neg]
+      measurability
 
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
 and let `a` be an integer. Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
