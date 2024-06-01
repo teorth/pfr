@@ -56,7 +56,7 @@ lemma IsUniform.comp [DecidableEq T] {H: Finset S} (h : IsUniform H X μ) {f : S
     IsUniform (Finset.image f H) (f ∘ X) μ where
   eq_of_mem := by
     intro x y hx hy
-    simp at hx hy
+    simp only [Finset.coe_image, mem_image, Finset.mem_coe] at hx hy
     rcases hx with ⟨x, hx, rfl⟩
     rcases hy with ⟨y, hy, rfl⟩
     have A z : f ⁻¹' {f z} = {z} := by ext; simp [hf.eq_iff]
