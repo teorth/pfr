@@ -39,7 +39,8 @@ lemma IsShift.card_congr : IsShift A B → Nat.card A = Nat.card B := by rintro 
 subgroup -/
 def NotInCoset (A B : Set G) : Prop := AddSubgroup.closure ((A - A) ∪ (B - B)) = ⊤
 
-/-- Without loss of generality, one can move (up to translation and embedding) any pair A, B of non-empty sets into a subgroup where they are not in a coset. -/
+/-- Without loss of generality, one can move (up to translation and embedding) any pair A, B of
+non-empty sets into a subgroup where they are not in a coset. -/
 lemma wlog_notInCoset (hA : A.Nonempty) (hB : B.Nonempty) :
     ∃ (G' : AddSubgroup G) (A' B' : Set G'), IsShift A A' ∧ IsShift B B' ∧ NotInCoset A' B' := by
   obtain ⟨x, hx⟩ := hA
@@ -64,7 +65,8 @@ lemma wlog_notInCoset (hA : A.Nonempty) (hB : B.Nonempty) :
   convert AddSubgroup.closure_preimage_eq_top ((A - A) ∪ (B - B))
   simp_rw [preimage_union, hA.sub_self_congr, hB.sub_self_congr]
   rw [preimage_sub, preimage_sub]
-  simp [A', B', preimage_image_preimage]
+  simp only [AddSubgroup.coeSubtype, SetLike.coe_sort_coe, Subtype.image_preimage_coe,
+    preimage_inter, Subtype.coe_preimage_self, univ_inter, A', B']
   all_goals apply_rules [Subtype.coe_injective, (image_preimage_subset ..).trans, hxA, hyB]
 
 end AddCommGroup
@@ -464,10 +466,10 @@ lemma single_fibres {G H Ω Ω': Type u}
 
   haveI h_Ax (x : X) : Nonempty (A_ x.val) := by
     obtain ⟨ω, hω⟩ := (FiniteRange.mem_iff _ _).mp x.property
-    use UA ω; exact Set.mem_inter (hUA_mem ω) (by exact hω)
+    use UA ω; exact Set.mem_inter (hUA_mem ω) hω
   haveI h_By (y : Y) : Nonempty (B_ y.val) := by
     obtain ⟨ω, hω⟩ := (FiniteRange.mem_iff _ _).mp y.property
-    use UB ω; exact Set.mem_inter (hUB_mem ω) (by exact hω)
+    use UB ω; exact Set.mem_inter (hUB_mem ω) hω
   have h_AX (a : A) : φ.toFun a.val ∈ X := by
     obtain ⟨ω, hω⟩ := hUA_coe.nonempty_preimage_of_mem hUA' (A.toFinite.mem_toFinset.mpr a.property)
     exact (FiniteRange.mem_iff _ (φ.toFun a.val)).mpr ⟨ω, congr_arg _ hω⟩
@@ -616,25 +618,25 @@ end dim
 
 variable {G : Type u} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
 
-open Real MeasureTheory ProbabilityTheory Pointwise Set
+open Real MeasureTheory ProbabilityTheory Pointwise Set Function
 
 /-- Move to Mathlib? `Finsupp.mapRange` of a surjective function is surjective. -/
 lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} [Zero M] [Zero N] (f : M → N) (hf : f 0 = 0)
-  (hs : Function.Surjective f) : Function.Surjective (Finsupp.mapRange (α := α) f hf) := by
+  (hs : Surjective f) : Surjective (Finsupp.mapRange (α := α) f hf) := by
   classical
-  let g (n : N) : M := if n = 0 then 0 else Function.surjInv hs n
-  have : Function.RightInverse g f := by
+  let g (n : N) : M := if n = 0 then 0 else surjInv hs n
+  have : RightInverse g f := by
     intro n
     by_cases h : n = 0
     . simp [g, h, hf]
-    · simp [g, h, Function.surjInv_eq hs n]
+    · simp [g, h, surjInv_eq hs n]
   have hg : g 0 = 0 := by simp [g]
   have hfg : (f ∘ g) 0 = 0 := by simp [hf, hg]
   intro F
   use Finsupp.mapRange g hg F
   rw [← Finsupp.mapRange_comp (h := hfg)]
   convert Finsupp.mapRange_id F
-  convert Function.RightInverse.id this
+  convert this.id
 
 /-- A free Z-module is torsion-free. Move to Mathlib? -/
 lemma torsion_free : AddMonoid.IsTorsionFree G := by
@@ -670,7 +672,7 @@ lemma weak_PFR_quotient_prelim :
   have hker : G₂ ≤ AddMonoidHom.ker (AddMonoidHom.comp mod f) := by
     intro x hx
     simp only [AddMonoidHom.mem_range, G₂, ψ, zsmulAddGroupHom_apply] at hx
-    simp_rw [AddMonoidHom.mem_ker, AddMonoidHom.coe_comp, Function.comp_apply, mod,
+    simp_rw [AddMonoidHom.mem_ker, AddMonoidHom.coe_comp, comp_apply, mod,
       Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom]
     rcases hx with ⟨y, rfl⟩
     ext b
@@ -679,24 +681,24 @@ lemma weak_PFR_quotient_prelim :
     left
     exact ZMod.natCast_self 2
   let g : H →+ (B →₀ ZMod 2) := QuotientAddGroup.lift G₂ (AddMonoidHom.comp mod f) hker
-  have hsur : Function.Surjective g := by
-    have h1 : Function.Surjective mod := Finsupp.mapRange_surjective (Int.castAddHom (ZMod 2)) (map_zero _) ZMod.intCast_surjective
+  have hsur : Surjective g := by
+    have h1 : Surjective mod := Finsupp.mapRange_surjective (Int.castAddHom (ZMod 2)) (map_zero _) ZMod.intCast_surjective
     have h2 := h1.comp bG.repr.surjective
     have h3 : mod ∘ bG.repr = g ∘ (QuotientAddGroup.mk' G₂) := by
       ext x b
-      simp_rw [mod, Function.comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,
+      simp_rw [mod, comp_apply, Finsupp.mapRange.addMonoidHom_apply, Int.coe_castAddHom,
         Finsupp.mapRange_apply, QuotientAddGroup.coe_mk', g]
       rw [QuotientAddGroup.lift_mk]
       simp [mod, f]
     rw [h3] at h2
-    apply Function.Surjective.of_comp h2
-  have hinj : Function.Injective g := by
+    apply Surjective.of_comp h2
+  have hinj : Injective g := by
     rw [injective_iff_map_eq_zero]
     intro x hx
     rcases QuotientAddGroup.mk'_surjective G₂ x with ⟨y, rfl⟩
     simp only [QuotientAddGroup.mk'_apply, g] at hx
     rw [QuotientAddGroup.lift_mk] at hx
-    simp_rw [AddMonoidHom.coe_comp, Function.comp_apply, mod, Finsupp.mapRange.addMonoidHom_apply,
+    simp_rw [AddMonoidHom.coe_comp, comp_apply, mod, Finsupp.mapRange.addMonoidHom_apply,
       Int.coe_castAddHom, DFunLike.ext_iff,Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply,
       ZMod.intCast_zmod_eq_zero_iff_dvd] at hx
     replace hx := fun x ↦ Int.mul_ediv_cancel' (hx x)
@@ -714,7 +716,7 @@ lemma weak_PFR_quotient_prelim :
     congr
     ext b
     rw [Finsupp.smul_apply, ← hx b, smul_eq_mul]
-  rcases Function.bijective_iff_has_inverse.mp ⟨ hinj, hsur ⟩ with ⟨ g', hg' ⟩
+  rcases bijective_iff_has_inverse.mp ⟨ hinj, hsur ⟩ with ⟨ g', hg' ⟩
 
   have bH : Basis B (ZMod 2) H := by
     constructor
@@ -771,10 +773,8 @@ lemma single {Ω : Type u} [MeasurableSpace Ω] [DiscreteMeasurableSpace Ω] (μ
   contrapose! hz
   have : Disjoint {z} A := by simp [hz]
   replace this := measureReal_union (μ := μ) this (measurableSet_discrete _)
-  simp [hA] at this
-  have h := measureReal_mono (μ := μ) (show insert z A ⊆ Set.univ by simp)
-  simp [this] at h
-  assumption
+  simp only [singleton_union, hA] at this
+  simpa [this] using measureReal_mono (μ := μ) (show insert z A ⊆ Set.univ by simp)
 
 /-- Given two non-empty finite subsets A, B of a rank n free Z-module G, there exists a subgroup N and points x, y in G/N such that the fibers Ax, By of A, B over x, y respectively are non-empty, one has the inequality
 $$ \log \frac{|A| |B|}{|A_x| |B_y|} ≤ 34 (d[U_A; U_B] - d[U_{A_x}; U_{B_y}])$$
@@ -806,7 +806,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
   rcases (PFR_projection (φ.toFun ∘ UA) (φ.toFun ∘ UB) ℙ ℙ (by measurability) (by measurability)) with ⟨H', ⟨ hH1, hH2 ⟩ ⟩
   let N := AddSubgroup.comap φ H'
   set φ' := QuotientAddGroup.mk' N
-  have _cGN : Countable (G ⧸ N) := Function.Surjective.countable (QuotientAddGroup.mk'_surjective N)
+  have _cGN : Countable (G ⧸ N) := Surjective.countable (QuotientAddGroup.mk'_surjective N)
   have _msGN : MeasurableSingletonClass (G ⧸ N) := by
     constructor
     intro x
@@ -851,7 +851,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
 
     have ha : φ'.toFun ∘ UA = e.toFun ∘ X := by ext x; exact (he (UA x)).symm
     have hb : φ'.toFun ∘ UB = e.toFun ∘ Y := by ext x; exact (he (UB x)).symm
-    have he_inj : Function.Injective e.toFun := AddEquiv.injective e
+    have he_inj : Injective e.toFun := e.injective
     rw [ha, hb, entropy_comp_of_injective _ hX _ he_inj, entropy_comp_of_injective _ hY _ he_inj]
     have : d[e.toFun ∘ X # e.toFun ∘ Y] = d[X # Y] :=  rdist_of_inj hX hY e.toAddMonoidHom he_inj
     rwa [this]
@@ -889,11 +889,12 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
 
     have hxx : Ax = A := by
       have h : hnAx.some ∈ Ax := hnAx.some_mem
-      simp [hAx] at h ⊢
+      simp only [hAx, ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, mem_inter_iff, mem_preimage,
+        mem_singleton_iff, inter_eq_left] at h ⊢
       have := hAAx h.1
-      simp [h.2] at this
+      simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, h.2] at this
       intro z hz
-      simp [this]
+      simp only [this, mem_preimage, mem_singleton_iff]
       convert hAAx hz
 
     have hBBy {z : G} (hz : z ∈ B) : φ'.toFun z = y' := by
@@ -913,11 +914,12 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
 
     have hyy : By = B := by
       have h : hnBy.some ∈ By := hnBy.some_mem
-      simp [hBy] at h ⊢
+      simp only [hBy, ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, mem_inter_iff, mem_preimage,
+        mem_singleton_iff, inter_eq_left] at h ⊢
       have := hBBy h.1
-      simp [h.2] at this
+      simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, h.2] at this
       intro z hz
-      simp [this]
+      simp only [this, mem_preimage, mem_singleton_iff]
       convert hBBy hz
 
     simp [hxx, hyy]
@@ -991,18 +993,12 @@ lemma conclusion_transfers {A B : Set G}
   rcases h with ⟨A'', B'', hA'', hB'', hA''_non, hB''_non, hcard_ineq, hdim_ineq⟩
   rcases hA with ⟨ x, hA ⟩
   set f : G' → G := fun a ↦ (a : G) + x
-  have hf : Function.Injective f := by
-    intro y z hyz
-    simp [f] at hyz
-    exact hyz
+  have hf : Injective f := by simp [Injective, f]
   have hA' : A = f '' A' := by
     simp_rw [hA, ← Set.image_vadd, Set.image_image, vadd_eq_add, f, add_comm]; rfl
   rcases hB with ⟨ y, hB ⟩
   set g : G' → G := fun a ↦ (a : G) + y
-  have hg : Function.Injective g := by
-    intro y z hyz
-    simp [g] at hyz
-    exact hyz
+  have hg : Injective g := by simp [Injective, g]
   have hB' : B = g '' B' := by
     simp_rw [hB, ← Set.image_vadd, Set.image_image, vadd_eq_add, g, add_comm]; rfl
   use f '' A'', g '' B''
@@ -1037,7 +1033,6 @@ lemma conclusion_transfers {A B : Set G}
     constructor
     . use h
     abel
-
 
   refine ⟨ ?_, ?_, ?_, ?_, ?_, ?_ ⟩
   . simp [hA', hf, hA'']
@@ -1149,7 +1144,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     have : (A-A) ∪ (B-B) ⊆ N := by
       rw [← hAx_eq, ← hBy_eq, hAx, hBy]
       intro z hz
-      simp [Set.mem_sub] at hz
+      simp only [mk'_apply, mem_union, mem_sub, mem_setOf_eq] at hz
       convert (QuotientAddGroup.eq_zero_iff z).mp ?_
       . infer_instance
       rcases hz with ⟨ a, ⟨ -, ha⟩, a', ⟨-, ha'⟩, haa' ⟩ | ⟨ b, ⟨ -, hb⟩, b', ⟨ -,hb'⟩, hbb' ⟩
@@ -1163,11 +1158,11 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     . rw [hN]
       exact  QuotientAddGroup.subsingleton_quotient_top
     infer_instance
-  simp [this] at hdim
+  simp only [this, Nat.cast_one, log_one, zero_add] at hdim
   rw [← le_div_iff' (by positivity)] at hdim
-  convert LE.le.trans ?_ hdim using 1
+  convert le_trans ?_ hdim using 1
   . field_simp
-  simp
+  simp only [Nat.cast_max, max_le_iff, Nat.cast_le]
   exact ⟨ dimension_le_rank A, dimension_le_rank B ⟩
 
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
@@ -1236,8 +1231,7 @@ theorem weak_PFR_int {A : Set G} [Finite A] (hnA : A.Nonempty) {K : ℝ} (hK : 0
   rw [← log_mul (by positivity) _]
   . apply log_le_log _ hA
     norm_cast
-    have : Nonempty (A-A) := by
-      exact Set.Nonempty.coe_sort (Set.Nonempty.sub hnA hnA)
+    have : Nonempty (A - A) := (hnA.sub hnA).coe_sort
     apply Nat.card_pos
   norm_cast
   apply ne_of_gt (@Nat.card_pos _ hnA.to_subtype _)

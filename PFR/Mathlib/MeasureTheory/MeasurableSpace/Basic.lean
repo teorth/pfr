@@ -20,3 +20,6 @@ def prodMKLeft_unit_equiv (α : Type*) [MeasurableSpace α] : (Unit × α) ≃�
   measurable_invFun := measurable_prod_mk_left
 
 end MeasurableEquiv
+
+lemma Measurable.of_countable {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] [Countable α]
+  [MeasurableSingletonClass α] {f : α → β} : Measurable f := measurable_of_countable _
