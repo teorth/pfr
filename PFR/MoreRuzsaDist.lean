@@ -384,9 +384,9 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
     · ring
 
--- #check iIndepFun
--- #check kaimanovich_vershik
--- #check Nat.recOn
+#check iIndepFun
+#check kaimanovich_vershik
+#check Nat.recOn
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
