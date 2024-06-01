@@ -52,7 +52,7 @@ lemma exists_isUniform (H : Finset S) (h : H.Nonempty) :
   simp
 
 /-- The image of a uniform random variable under an injective map is uniform on the image. -/
-lemma IsUniform.comp [DecidableEq T] {H: Finset S} (h : IsUniform H X μ) {f : S → T} (hf : Injective f) :
+lemma IsUniform.comp [DecidableEq T] {H : Finset S} (h : IsUniform H X μ) {f : S → T} (hf : Injective f) :
     IsUniform (Finset.image f H) (f ∘ X) μ where
   eq_of_mem := by
     intro x y hx hy
@@ -89,7 +89,7 @@ lemma exists_isUniform_measureSpace' {S : Type u}  [MeasurableSpace S]
 lemma IsUniform.ae_mem (h : IsUniform H X μ) : ∀ᵐ ω ∂μ, X ω ∈ H := h.measure_preimage_compl
 
 /-- Uniform random variables only exist for non-empty sets H. -/
-lemma IsUniform.nonempty {H: Finset S} (h : IsUniform H X μ) [hμ : NeZero μ] : H.Nonempty := by
+lemma IsUniform.nonempty {H : Finset S} (h : IsUniform H X μ) [hμ : NeZero μ] : H.Nonempty := by
   rcases Finset.eq_empty_or_nonempty H with rfl|h'
   · have : μ univ = 0 := by convert h.measure_preimage_compl; simp
     simp at this
@@ -97,7 +97,7 @@ lemma IsUniform.nonempty {H: Finset S} (h : IsUniform H X μ) [hμ : NeZero μ] 
   · exact h'
 
 /-- A "unit test" for the definition of uniform distribution. -/
-lemma IsUniform.measure_preimage_of_mem {H: Finset S} (h : IsUniform H X μ) (hX : Measurable X)
+lemma IsUniform.measure_preimage_of_mem {H : Finset S} (h : IsUniform H X μ) (hX : Measurable X)
     {s : S} (hs : s ∈ H) :
     μ (X ⁻¹' {s}) = μ univ / Nat.card H := by
   have B : μ univ = (Nat.card H) * μ (X ⁻¹' {s}) := calc
@@ -126,13 +126,13 @@ lemma IsUniform.measure_preimage_of_mem {H: Finset S} (h : IsUniform H X μ) (hX
     · simp
 
 /-- A "unit test" for the definition of uniform distribution. -/
-lemma IsUniform.measureReal_preimage_of_mem {H: Finset S} [IsProbabilityMeasure μ]
+lemma IsUniform.measureReal_preimage_of_mem {H : Finset S} [IsProbabilityMeasure μ]
     (h : IsUniform H X μ) (hX : Measurable X) {s : S} (hs : s ∈ H) :
     μ.real (X ⁻¹' {s}) = 1 / Nat.card H := by
   rw [measureReal_def, h.measure_preimage_of_mem hX hs]
   simp [ENNReal.toReal_inv]
 
-lemma IsUniform.measureReal_preimage_of_mem' {H: Finset S} [IsProbabilityMeasure μ]
+lemma IsUniform.measureReal_preimage_of_mem' {H : Finset S} [IsProbabilityMeasure μ]
     (h : IsUniform H X μ) (hX : Measurable X) {s : S} (hs : s ∈ H) :
     (μ.map X).real {s} = 1 / Nat.card H := by
   rw [map_measureReal_apply hX (MeasurableSet.singleton s),
@@ -173,13 +173,13 @@ lemma IsUniform.measureReal_preimage {H : Finset S} (h : IsUniform H X μ) (hX :
     μ.real (X ⁻¹' H') = (μ.real univ) * (Nat.card (H' ∩ H.toSet).Elem) / Nat.card H := by
   simp [measureReal_def, h.measure_preimage hX H', ENNReal.toReal_div]
 
-lemma IsUniform.nonempty_preimage_of_mem [NeZero μ] {H: Finset S} (h : IsUniform H X μ)
+lemma IsUniform.nonempty_preimage_of_mem [NeZero μ] {H : Finset S} (h : IsUniform H X μ)
     (hX : Measurable X) {s : S} (hs : s ∈ H) : Set.Nonempty (X ⁻¹' {s}) := by
   apply MeasureTheory.nonempty_of_measure_ne_zero
   rewrite [h.measure_preimage_of_mem hX hs]
   simp [NeZero.ne]
 
-lemma IsUniform.full_measure (h : IsUniform H X μ) (hX: Measurable X) :
+lemma IsUniform.full_measure (h : IsUniform H X μ) (hX : Measurable X) :
     (μ.map X) H = μ Set.univ := by
     rw [Measure.map_apply hX (by measurability)]
     refine measure_eq_measure_of_null_diff (subset_univ _) ?h_nulldiff
@@ -227,7 +227,7 @@ lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) 
           MeasurableSet.compl (measurableSet_preimage hX (measurableSet_discrete H')),
           compl_inter_self, measure_empty, mul_zero]
 
-lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Finite H] {X: Ω → S} {X': Ω' → S} (hX: Measurable X) (hX': Measurable X') (hX_unif : IsUniform H X μ) (hX'_unif : IsUniform H X' μ') : IdentDistrib X X' μ μ' := by
+lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Finite H] {X: Ω → S} {X': Ω' → S} (hX : Measurable X) (hX': Measurable X') (hX_unif : IsUniform H X μ) (hX'_unif : IsUniform H X' μ') : IdentDistrib X X' μ μ' := by
   constructor
   . exact Measurable.aemeasurable hX
   . exact Measurable.aemeasurable hX'

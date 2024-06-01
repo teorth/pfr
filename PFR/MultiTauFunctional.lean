@@ -17,16 +17,16 @@ universe uG
 
 /-- A structure that packages all the fixed information in the main argument.  -/
 structure multiRefPackage :=
-  G: Type uG
+  G : Type uG
   hG : AddCommGroup G
   hGf : Fintype G
   hGm : MeasurableSpace G
-  hGsc: MeasurableSingletonClass G
+  hGsc : MeasurableSingletonClass G
   m : ℕ
-  htorsion : ∀ x:G, m • x = 0
+  htorsion : ∀ x : G, m • x = 0
   Ω₀ : Type*
   hΩ₀ : MeasureSpace Ω₀
-  hprob: IsProbabilityMeasure (ℙ : Measure Ω₀)
+  hprob : IsProbabilityMeasure (ℙ : Measure Ω₀)
   X₀ : Ω₀ → G
   hmeas : Measurable X₀
   η : ℝ

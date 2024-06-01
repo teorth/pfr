@@ -73,14 +73,14 @@ lemma mutualInfo_compProd {κ : kernel T S} [IsMarkovKernel κ]
 
 lemma mutualInfo_eq_snd_sub {κ : kernel T (S × U)} [IsMarkovKernel κ]
     {μ : Measure T} [IsProbabilityMeasure μ] [FiniteSupport μ]
-    (hκ: AEFiniteKernelSupport κ μ) :
+    (hκ : AEFiniteKernelSupport κ μ) :
     Ik[κ, μ] = Hk[snd κ, μ] - Hk[condKernel κ, μ ⊗ₘ (fst κ)]  := by
   rw [mutualInfo, chain_rule hκ]
   ring
 
 lemma mutualInfo_eq_fst_sub {κ : kernel T (S × U)} [IsMarkovKernel κ]
     {μ : Measure T} [IsProbabilityMeasure μ] [FiniteSupport μ]
-    (hκ: AEFiniteKernelSupport κ μ) :
+    (hκ : AEFiniteKernelSupport κ μ) :
     Ik[κ, μ] = Hk[fst κ, μ] - Hk[condKernel (swapRight κ), μ ⊗ₘ (snd κ)] := by
   rw [mutualInfo, chain_rule' hκ]
   ring
@@ -88,7 +88,7 @@ lemma mutualInfo_eq_fst_sub {κ : kernel T (S × U)} [IsMarkovKernel κ]
 @[simp]
 lemma mutualInfo_prod {κ : kernel T S} {η : kernel T U} [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) [IsProbabilityMeasure μ] [FiniteSupport μ]
-    (hκ: AEFiniteKernelSupport κ μ) (hη: AEFiniteKernelSupport η μ) :
+    (hκ : AEFiniteKernelSupport κ μ) (hη: AEFiniteKernelSupport η μ) :
     Ik[κ ×ₖ η, μ] = 0 := by
   rw [mutualInfo, snd_prod, fst_prod, entropy_prod hκ hη, sub_self]
 

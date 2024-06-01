@@ -21,14 +21,15 @@ class ElementaryAddCommGroup (G : Type*) [AddCommGroup G] (p : outParam ℕ) : P
 namespace ElementaryAddCommGroup
 
 @[simp]
-lemma torsion {G: Type*} [AddCommGroup G] (p: ℕ) [elem : ElementaryAddCommGroup G p] (x:G) : p • x = 0 := by
-  by_cases h: x = 0
+lemma torsion {G : Type*} [AddCommGroup G] (p : ℕ) [elem : ElementaryAddCommGroup G p] (x : G) : p • x = 0 := by
+  by_cases h : x = 0
   . simp [h]
   have := elem.orderOf_of_ne h
   rw [← this]
   exact addOrderOf_nsmul_eq_zero x
 
-lemma of_torsion {G: Type*} [AddCommGroup G] {p: ℕ} (hp: p.Prime) (h : ∀ x : G, p • x = 0) : ElementaryAddCommGroup G p := by
+lemma of_torsion {G : Type*} [AddCommGroup G] {p : ℕ} (hp : p.Prime) (h : ∀ x : G, p • x = 0) :
+    ElementaryAddCommGroup G p := by
   constructor
   intro x hx
   have := addOrderOf_dvd_of_nsmul_eq_zero (h x)

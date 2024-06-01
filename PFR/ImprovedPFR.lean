@@ -267,7 +267,7 @@ variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
 variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
 
-variable (h_min: tau_minimizes p X₁ X₂)
+variable (h_min : tau_minimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[X₁ # X₂]
@@ -886,8 +886,8 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have VA'unif := VAunif
   rw [← hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
-  let H' := (H:Set G).toFinite.toFinset
-  have hHH' : H' = (H:Set G) := Finite.coe_toFinset (toFinite (H:Set G))
+  let H' := (H : Set G).toFinite.toFinset
+  have hHH' : H' = (H : Set G) := Finite.coe_toFinset (toFinite (H : Set G))
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
 

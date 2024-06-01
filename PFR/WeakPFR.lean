@@ -284,7 +284,7 @@ variable [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → 
 (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
 [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
-lemma app_ent_PFR (α : ℝ) (hent: 20 * d[X;μ # Y;μ'] < α * (H[X; μ] + H[Y; μ'])) (hX : Measurable X)
+lemma app_ent_PFR (α : ℝ) (hent : 20 * d[X;μ # Y;μ'] < α * (H[X; μ] + H[Y; μ'])) (hX : Measurable X)
     (hY : Measurable Y) :
     ∃ H : AddSubgroup G, log (Nat.card H) < (1 + α) / 2 * (H[X; μ] + H[Y;μ']) ∧
     H[(QuotientAddGroup.mk' H) ∘ X; μ] + H[(QuotientAddGroup.mk' H) ∘ Y; μ']
@@ -323,7 +323,7 @@ lemma PFR_projection'
 
     obtain ⟨H', hlog', hup'⟩ := app_ent_PFR _ _ _ _ α hent ((measurable_discrete _).comp hX)
       ((measurable_discrete _).comp hY)
-    have H_ne_bot: H' ≠ ⊥ := by
+    have H_ne_bot : H' ≠ ⊥ := by
       by_contra!
       rcases this with rfl
       have inj : Function.Injective (QuotientAddGroup.mk' (⊥ : AddSubgroup G')) :=
@@ -444,10 +444,10 @@ lemma single_fibres {G H Ω Ω': Type u}
     [MeasureSpace Ω] [MeasureSpace Ω']
     [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')]
     (φ : G →+ H)
-    {A B : Set G} [Finite A] [Finite B] {UA : Ω → G} {UB: Ω' → G} (hA : A.Nonempty) (hB : B.Nonempty)
-    (hUA': Measurable UA) (hUB': Measurable UB) (hUA: IsUniform A UA) (hUB: IsUniform B UB)
+    {A B : Set G} [Finite A] [Finite B] {UA : Ω → G} {UB : Ω' → G} (hA : A.Nonempty) (hB : B.Nonempty)
+    (hUA': Measurable UA) (hUB': Measurable UB) (hUA : IsUniform A UA) (hUB : IsUniform B UB)
     (hUA_mem : ∀ ω, UA ω ∈ A) (hUB_mem : ∀ ω, UB ω ∈ B) :
-    ∃ (x y : H) (Ax By: Set G),
+    ∃ (x y : H) (Ax By : Set G),
     Ax = A ∩ φ.toFun ⁻¹' {x} ∧ By = B ∩ φ.toFun ⁻¹' {y} ∧ Ax.Nonempty ∧ By.Nonempty ∧
     d[φ.toFun ∘ UA # φ.toFun ∘ UB]
     * log ((Nat.card A) * (Nat.card B) / ((Nat.card Ax) * (Nat.card By))) ≤
@@ -783,8 +783,8 @@ $$ n \log 2 ≤ \log |G/N| + 40 d[U_A; U_B].$$
  -/
 lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempty) (hnB : B.Nonempty):
     ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G), Ax.Nonempty ∧ By.Nonempty ∧
-    Set.Finite Ax ∧ Set.Finite By ∧ Ax = {z:G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧
-    By = {z:G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧
+    Set.Finite Ax ∧ Set.Finite By ∧ Ax = {z : G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧
+    By = {z : G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧
     (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) +
       40 * dᵤ[ A # B ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By)
       ≤ 34 * (dᵤ[ A # B ] - dᵤ[ Ax # By ]) := by
@@ -962,13 +962,13 @@ def WeakPFRAsymmConclusion (A B : Set G) : Prop :=
   max (dimension A') (dimension B') ≤ (40 / log 2) * dᵤ[A # B]
 
 /-- The property of two sets A,B of a group G not being contained in cosets of the same proper subgroup -/
-def not_in_coset {G: Type u} [AddCommGroup G] (A B : Set G) : Prop := AddSubgroup.closure ((A-A) ∪ (B-B)) = ⊤
+def not_in_coset {G : Type u} [AddCommGroup G] (A B : Set G) : Prop := AddSubgroup.closure ((A-A) ∪ (B-B)) = ⊤
 
 
 /-- In fact one has equality here, but this is tricker to prove and not needed for the argument. -/
-lemma dimension_of_shift {G: Type u} [AddCommGroup G]
-  {H: AddSubgroup G} (A : Set H) (x : G) :
-  dimension ((fun a:H ↦ (a:G) + x) '' A) ≤ dimension A := by
+lemma dimension_of_shift {G : Type u} [AddCommGroup G]
+  {H : AddSubgroup G} (A : Set H) (x : G) :
+  dimension ((fun a : H ↦ (a : G) + x) '' A) ≤ dimension A := by
   classical
   rcases Nat.find_spec (exists_coset_cover A) with ⟨ S, v, hrank, hshift ⟩
   change FiniteDimensional.finrank ℤ S = dimension A at hrank
@@ -1054,8 +1054,13 @@ lemma conclusion_transfers {A B : Set G}
 /-- If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty $A'\subseteq A$ and $B'\subseteq B$ such that
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 34 d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
-lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB : B.Nonempty) : WeakPFRAsymmConclusion A B  := by
-  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G) (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G) (_hG_sing: MeasurableSingletonClass G) (A B: Set G) (_hA_fin: Finite A) (_hB_fin: Finite B) (_hA_non: A.Nonempty) (_hB_non: B.Nonempty) (_hM : (Nat.card A) + (Nat.card B) ≤ M), WeakPFRAsymmConclusion A B)
+lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB : B.Nonempty)
+  : WeakPFRAsymmConclusion A B := by
+  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
+    (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G)
+    (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B)
+    (_hA_non : A.Nonempty) (_hB_non : B.Nonempty)
+    (_hM : (Nat.card A) + (Nat.card B) ≤ M), WeakPFRAsymmConclusion A B)
   suffices ∀ M, (∀ M', M' < M → P M') → P M by
     set M := (Nat.card A) + (Nat.card B)
     have hM : (Nat.card A) + (Nat.card B) ≤ M := Nat.le_refl _
@@ -1064,7 +1069,8 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
   -- wlog we can assume A, B are not in cosets of a smaller subgroup
   suffices ∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
     (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G)
-    (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B) (_hA_non : A.Nonempty) (_hB_non : B.Nonempty) (_hM : Nat.card A + Nat.card B ≤ M)
+    (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B)
+      (_hA_non : A.Nonempty) (_hB_non : B.Nonempty) (_hM : Nat.card A + Nat.card B ≤ M)
     (_hnot : NotInCoset A B), WeakPFRAsymmConclusion A B by
     intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non hM
     obtain ⟨ G', A', B', hAA', hBB', hnot' ⟩ := wlog_notInCoset hA_non hB_non
@@ -1074,8 +1080,8 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     have hG'_free : Module.Free ℤ G' := by
       rcases Submodule.nonempty_basis_of_pid (Module.Free.chooseBasis ℤ G) (AddSubgroup.toIntSubmodule G') with ⟨ n, ⟨ b ⟩ ⟩
       exact Module.Free.of_basis b
-    have hAA'_card: Nat.card A = Nat.card A' := (Nat.card_image_of_injective Subtype.val_injective _) ▸ hAA'.card_congr
-    have hBB'_card: Nat.card B = Nat.card B' := (Nat.card_image_of_injective Subtype.val_injective _) ▸ hBB'.card_congr
+    have hAA'_card : Nat.card A = Nat.card A' := (Nat.card_image_of_injective Subtype.val_injective _) ▸ hAA'.card_congr
+    have hBB'_card : Nat.card B = Nat.card B' := (Nat.card_image_of_injective Subtype.val_injective _) ▸ hBB'.card_congr
     have hA_non' : Nonempty A := Set.nonempty_coe_sort.mpr hA_non
     have hB_non' : Nonempty B := Set.nonempty_coe_sort.mpr hB_non
 
@@ -1168,7 +1174,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
 $\lvert A'\rvert\geq K^{-17}\lvert A\rvert$
 and $\dim A'\leq \frac{40}{\log 2} \log K$. -/
-lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK: 0 < K) (hdist: dᵤ[A # A] ≤ log K):
+lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K) (hdist : dᵤ[A # A] ≤ log K):
     ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-17 : ℝ) * (Nat.card A)
     ∧ (dimension A') ≤ (40 / log 2) * log K := by
   rcases weak_PFR_asymm A A hA hA with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
@@ -1223,7 +1229,7 @@ max (dimension A') (dimension A'') := by
 There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-17}\lvert A\rvert$
 and $\dim A' \leq \frac{40}{\log 2} \log K$.-/
 theorem weak_PFR_int {A : Set G} [Finite A] (hnA : A.Nonempty) {K : ℝ} (hK : 0 < K)
-    (hA: Nat.card (A-A) ≤ K * Nat.card A) :
+    (hA : Nat.card (A-A) ≤ K * Nat.card A) :
     ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-17 : ℝ) * (Nat.card A) ∧
       dimension A' ≤ (40 / log 2) * log K := by
   apply weak_PFR hnA hK ((rdist_set_le A A hnA hnA).trans _)

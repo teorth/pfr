@@ -94,7 +94,7 @@ lemma finiteSupport_of_compProd {μ : Measure T} [IsFiniteMeasure μ] {κ : kern
   exact finiteSupport_of_compProd' hκ.finiteKernelSupport_mk
 
 lemma aefiniteKernelSupport_condDistrib (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) [IsFiniteMeasure μ]
-    (hX: Measurable X) (hY: Measurable Y) [FiniteRange X] [FiniteRange Y] :
+    (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y] :
     AEFiniteKernelSupport (condDistrib X Y μ) (μ.map Y) := by
   filter_upwards [condDistrib_ae_eq hX hY μ] with a ha
   rw [ha]
@@ -227,7 +227,7 @@ lemma entropy_compProd_aux [IsFiniteMeasure μ] {κ : kernel T S} [IsMarkovKerne
   rcases (local_support_of_finiteKernelSupport hκ A) with ⟨B, hB⟩
   rcases (local_support_of_finiteKernelSupport hη (A ×ˢ B)) with ⟨C, hC⟩
   rw [integral_eq_sum' _ (hB t ht)]
-  have hκη : ((κ ⊗ₖ η) t) (B ×ˢ C: Finset (S × U))ᶜ = 0 := by
+  have hκη : ((κ ⊗ₖ η) t) (B ×ˢ C : Finset (S × U))ᶜ = 0 := by
     rw [ProbabilityTheory.kernel.compProd_apply, lintegral_eq_sum' _ (hB t ht)]
     . apply Finset.sum_eq_zero
       intro s hs
@@ -308,7 +308,7 @@ lemma entropy_compProd_deterministic
     Hk[κ ⊗ₖ (deterministic f (measurable_of_countable f)), μ] = Hk[κ, μ] := by
   simp [entropy_compProd hκ ((finiteKernelSupport_of_deterministic f).aefiniteKernelSupport _)]
 
-lemma chain_rule {κ : kernel T (S × U)} [IsMarkovKernel κ] [hU: Nonempty U]
+lemma chain_rule {κ : kernel T (S × U)} [IsMarkovKernel κ] [hU : Nonempty U]
     {μ : Measure T} [IsProbabilityMeasure μ] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) :
     Hk[κ, μ] = Hk[fst κ, μ] + Hk[condKernel κ, μ ⊗ₘ (fst κ)] := by

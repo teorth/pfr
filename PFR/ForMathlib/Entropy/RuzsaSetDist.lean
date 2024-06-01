@@ -92,7 +92,7 @@ lemma isUniform_iff_uniform_dist {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ: Me
         intro x hx
         simp at hx
         simpa
-      _ = (Nat.card (A ∩ H:Set S)) / (Nat.card H) := by
+      _ = (Nat.card (A ∩ H :Set S)) / (Nat.card H) := by
         simp [Finset.sum_const, <-Set.ncard_eq_toFinset_card (A ∩ H), Set.Nat.card_coe_set_eq]
         rfl
   intro this
@@ -138,7 +138,7 @@ namespace ProbabilityTheory
 
 open MeasureTheory Pointwise Real
 
-variable {G:Type*} [Countable G]  [MeasurableSpace G] [MeasurableSingletonClass G]
+variable {G : Type*} [Countable G]  [MeasurableSpace G] [MeasurableSingletonClass G]
   [AddCommGroup G]
 
 /-- The Ruzsa distance between two subsets `A`, `B` of a group `G` is defined to be the Ruzsa distance between their uniform probability distributions.  Is only intended for use when `A`, `B` are finite and non-empty. -/
@@ -196,7 +196,7 @@ lemma rdist_set_add_const (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [None
   measurability
 
 /-- Ruzsa distance between sets is preserved by injective homomorphisms. -/
-lemma rdist_set_of_inj (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
+lemma rdist_set_of_inj (A B: Set G) [Finite A] [Finite B]  [Nonempty A] [Nonempty B] {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
  [Countable H] {φ: G →+ H} (hφ: Function.Injective φ) : dᵤ[φ '' A # φ '' B] = dᵤ[A # B] := by
   obtain ⟨ Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, - ⟩ := exists_isUniform_measureSpace' A
   obtain ⟨ Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, - ⟩ := exists_isUniform_measureSpace' B

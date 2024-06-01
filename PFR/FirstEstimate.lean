@@ -21,8 +21,8 @@ Assumptions:
 
 open MeasureTheory ProbabilityTheory
 
-variable {G : Type*} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
-  [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
+variable {G : Type*} [addgroup : AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+  [MeasurableSingletonClass G] [elem : ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
@@ -38,7 +38,7 @@ variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
 variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
 
-variable (h_min: tau_minimizes p X₁ X₂)
+variable (h_min : tau_minimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[X₁ # X₂]
@@ -88,14 +88,14 @@ lemma condRuzsaDist_of_sums_ge :
 
 /--`d[X₀₁ # X₁ + X₂'] - d[X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4`. -/
 lemma diff_rdist_le_1 : d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
-  have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide)
+  have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)
   convert condRuzsaDist_diff_le' ℙ p.hmeas1 hX₁ hX₂' h using 4
   · exact (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂
   · exact h₂.entropy_eq
 
 /-- $$ d[X^0_2;X_2+\tilde X_1] - d[X^0_2; X_2] \leq \tfrac{1}{2} k + \tfrac{1}{4} \mathbb{H}[X_1] - \tfrac{1}{4} \mathbb{H}[X_2].$$ -/
 lemma diff_rdist_le_2 : d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/2 + H[X₁]/4 - H[X₂]/4 := by
-  have h : IndepFun X₂ X₁' := by simpa using h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide)
+  have h : IndepFun X₂ X₁' := by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide)
   convert condRuzsaDist_diff_le' ℙ p.hmeas2 hX₂ hX₁' h using 4
   · rw [rdist_symm]
     exact (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁
@@ -104,7 +104,7 @@ lemma diff_rdist_le_2 : d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/
 /-- $$ d[X_1^0;X_1|X_1+\tilde X_2] - d[X_1^0;X_1] \leq
     \tfrac{1}{2} k + \tfrac{1}{4} \mathbb{H}[X_1] - \tfrac{1}{4} \mathbb{H}[X_2].$$ -/
 lemma diff_rdist_le_3 : d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₁]/4 - H[X₂]/4 := by
-  have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0:Fin 4) ≠ 2 by decide)
+  have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)
   convert condRuzsaDist_diff_le''' ℙ p.hmeas1 hX₁ hX₂' h using 3
   · rw [(IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
   · apply h₂.entropy_eq
@@ -112,7 +112,7 @@ lemma diff_rdist_le_3 : d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁]
 /-- $$ d[X_2^0; X_2|X_2+\tilde X_1] - d[X_2^0; X_2] \leq
     \tfrac{1}{2}k + \tfrac{1}{4} \mathbb{H}[X_2] - \tfrac{1}{4} \mathbb{H}[X_1].$$ -/
 lemma diff_rdist_le_4 : d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
-  have h : IndepFun X₂ X₁' := by simpa using h_indep.indepFun (show (1:Fin 4) ≠ 3 by decide)
+  have h : IndepFun X₂ X₁' := by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide)
   convert condRuzsaDist_diff_le''' ℙ p.hmeas2 hX₂ hX₁' h using 3
   · rw [rdist_symm, (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁]
   · apply h₁.entropy_eq
