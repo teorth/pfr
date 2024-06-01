@@ -371,8 +371,7 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
     replace IH := IH h
     have h_ind : iIndepFun (fun i ↦ hG) ![∑ j ∈ s, Y j , Y i₀, Y i] μ := by
       -- maybe make a lemma stating that if we have iIndepFun with I, k : Fin n → Finset I
-      -- such that k i are pairwise disjoint, φ : Fin n
-
+      -- such that k i are pairwise disjoint, φ : (i : Fin n) → k i → ...
       sorry
     have measSum : Measurable (∑ j ∈ s, Y j) := by
       convert Finset.measurable_sum s (fun j _ ↦ hY j)
