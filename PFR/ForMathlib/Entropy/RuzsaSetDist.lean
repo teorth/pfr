@@ -56,7 +56,7 @@ instance discreteUniform.isProbabilityMeasure  : IsProbabilityMeasure (discreteU
 lemma map_discreteUniform_of_inj {T: Type*} [MeasurableSpace T] [MeasurableSingletonClass T] {f : S → T} (hmes : Measurable f) (hf : Function.Injective f) : (discreteUniform H).map f = discreteUniform (f '' H) := by
   ext A hA
   simp_rw [map_apply hmes hA, discreteUniform_apply, Nat.card_image_of_injective hf, Set.Nat.card_coe_set_eq, <-Set.ncard_image_of_injective (f⁻¹' A ∩ H) hf]
-  congr; ext t; simp
+  congr; ext t; simp only [Set.mem_image, Set.mem_inter_iff, Set.mem_preimage]
   constructor
   . rintro ⟨ s, ⟨ hs, hs' ⟩, hs'' ⟩
     exact ⟨ hs'' ▸ hs, ⟨ s, hs', hs'' ⟩ ⟩
@@ -119,11 +119,11 @@ lemma _root_.ProbabilityTheory.entropy_of_discreteUniform : measureEntropy (disc
       convert tsum_eq_sum (s := H.toFinite.toFinset) ?_ using 2 with s hs
       . simp at hs; simp [hs]
       intro s hs
-      simp at hs; simp [hs]
+      simp only [Set.Finite.mem_toFinset] at hs; simp [hs]
     _ = (Nat.card H) * negMulLog (1 / (Nat.card H)) := by
-      simp [<-Set.ncard_coe_Finset, Set.Nat.card_coe_set_eq]
+      simp [← Set.ncard_coe_Finset, Set.Nat.card_coe_set_eq]
     _ = log (Nat.card H) := by
-      simp [negMulLog, Nat.card_pos, <-mul_assoc]
+      simp only [negMulLog, one_div, log_inv, mul_neg, neg_mul, neg_neg, ← mul_assoc]
       rw [mul_inv_cancel, one_mul]
       simp only [ne_eq, Nat.cast_eq_zero, Nat.card_ne_zero]
       exact ⟨ ‹_›, ‹_› ⟩
