@@ -353,6 +353,9 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       simp only [eq3]
       ring
 
+-- #check kernel.iIndepFun.iIndepFun_finsets_comp
+#check iIndepFun.finsets_comp
+
 --open Classical in
 /--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
@@ -369,9 +372,25 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
     refine ?_
     have h : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
     replace IH := IH h
-    have h_ind : iIndepFun (fun i ↦ hG) ![∑ j ∈ s, Y j , Y i₀, Y i] μ := by
+
+    let J := Fin 3
+    let S : J → Finset I := ![s, {i₀}, {i}]
+
+    have h_dis: Set.univ.PairwiseDisjoint S := by sorry
+
+    let φ : (j : J) → ((i : S j) → G) → G
+      | 0 => by
+        unfold_let S
+        dsimp
+        intro Ys
+        refine ∑ i ∈ s, Ys ⟨i, by sorry⟩
+      | 1 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
+      | 2 => fun Ys ↦ Ys ⟨i, by simp [S]⟩
+
+    have h_ind : iIndepFun (fun i ↦ hG) ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
       -- maybe make a lemma stating that if we have iIndepFun with I, k : Fin n → Finset I
       -- such that k i are pairwise disjoint, φ : (i : Fin n) → k i → ...
+
       sorry
     have measSum : Measurable (∑ j ∈ s, Y j) := by
       convert Finset.measurable_sum s (fun j _ ↦ hY j)
