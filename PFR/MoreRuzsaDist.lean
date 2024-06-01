@@ -370,21 +370,21 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
 lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (Y : I → Ω → G)
-    (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ ) :
+    (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ ) :
     H[Y i₀ + ∑ i in s, Y i; μ] - H[ Y i₀; μ] ≤ ∑ i in s, (H[Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
 -/
 lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
-    (Y : I → Ω → G)  (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ) :
+    (Y : I → Ω → G)  (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ) :
     d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by sorry
 
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
 -/
 lemma kvm_ineq_III {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
-    (Y : I → Ω → G) (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ)
+    (Y : I → Ω → G) (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ)
     (i₁ : I) : d[Y i₀; μ # ∑ i in s, Y i; μ]
       ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ]) := by sorry
 
@@ -394,7 +394,7 @@ open Classical in
 function, then  `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
 lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
     (hs : Finset.Nonempty s) (ht : Finset.Nonempty t) (X : I → Ω → G) (hX : (i : I) → Measurable (X i))
-    (hX' : (i : I) → FiniteRange (X i)) (hindep : iIndepFun (fun (i : I) => hG) X μ ) (f : I → I)
+    (hX' : (i : I) → FiniteRange (X i)) (hindep : iIndepFun (fun (i : I) ↦ hG) X μ ) (f : I → I)
     (hf : Finset.image f t ⊆ s) :
     H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
   sorry

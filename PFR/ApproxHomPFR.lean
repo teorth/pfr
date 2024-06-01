@@ -7,7 +7,9 @@ import PFR.HomPFR
 /-!
 # The approximate homomorphism form of PFR
 
-Here we apply PFR to show that almost homomorphisms f from a 2-group to a 2-group often coincide with a (shifted) actual homomorphisms.  Here, approximate is in the sense that f(x+y)=f(x)+f(y) is true for a positive proportion of x,y.
+Here we apply PFR to show that almost homomorphisms f from a 2-group to a 2-group often coincide
+with a (shifted) actual homomorphisms.  Here, approximate is in the sense that f(x+y)=f(x)+f(y)
+is true for a positive proportion of x,y.
 
 ## Main result
 
