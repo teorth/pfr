@@ -227,12 +227,16 @@ lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) 
           MeasurableSet.compl (measurableSet_preimage hX (measurableSet_discrete H')),
           compl_inter_self, measure_empty, mul_zero]
 
-lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Measure Ω'} [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Finite H] {X: Ω → S} {X': Ω' → S} (hX : Measurable X) (hX': Measurable X') (hX_unif : IsUniform H X μ) (hX'_unif : IsUniform H X' μ') : IdentDistrib X X' μ μ' := by
+lemma IdentDistrib.of_isUniform {Ω' : Type*}  [MeasurableSpace Ω'] {μ' : Measure Ω'}
+  [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Finite H] {X: Ω → S} {X': Ω' → S}
+  (hX : Measurable X) (hX': Measurable X') (hX_unif : IsUniform H X μ)
+  (hX'_unif : IsUniform H X' μ') : IdentDistrib X X' μ μ' := by
   constructor
   . exact Measurable.aemeasurable hX
   . exact Measurable.aemeasurable hX'
   ext E hE
-  rw [← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE, ← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
+  rw [← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE,
+    ← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
   congr! 4 with _ x
   rw [Measure.map_apply hX (MeasurableSet.singleton x), Measure.map_apply hX' (MeasurableSet.singleton x)]
   set Hf := H.toFinite.toFinset

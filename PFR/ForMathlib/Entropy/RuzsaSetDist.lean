@@ -31,7 +31,8 @@ lemma discreteUniform_apply (A : Set S) :
   discreteUniform H A = (Nat.card (A ∩ H : Set S)) / Nat.card H := by
     have : Fintype (A ∩ H : Set S) := Fintype.ofFinite (A ∩ H : Set S)
 
-    rw [discreteUniform, smul_apply, restrict_apply' (Set.Finite.measurableSet H.toFinite), count_apply (Set.Finite.measurableSet (A ∩ H).toFinite), tsum_eq_sum (s := Finset.univ)]
+    rw [discreteUniform, smul_apply, restrict_apply' (Set.Finite.measurableSet H.toFinite),
+      count_apply (Set.Finite.measurableSet (A ∩ H).toFinite), tsum_eq_sum (s := Finset.univ)]
     . simp [Finset.card_univ, ENNReal.div_eq_inv_mul, Set.Nat.card_coe_set_eq, Set.ncard_def]
       congr
       rw [<-ENat.coe_toNat (n := Set.encard H) _]

@@ -21,7 +21,8 @@ class ElementaryAddCommGroup (G : Type*) [AddCommGroup G] (p : outParam ℕ) : P
 namespace ElementaryAddCommGroup
 
 @[simp]
-lemma torsion {G : Type*} [AddCommGroup G] (p : ℕ) [elem : ElementaryAddCommGroup G p] (x : G) : p • x = 0 := by
+lemma torsion {G : Type*} [AddCommGroup G] (p : ℕ) [elem : ElementaryAddCommGroup G p] (x : G) :
+    p • x = 0 := by
   by_cases h : x = 0
   . simp [h]
   have := elem.orderOf_of_ne h

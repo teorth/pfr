@@ -10,7 +10,7 @@ open scoped Topology ENNReal NNReal BoundedContinuousFunction
 
 section measure_of_component
 
-/-- The measure of any connected component depends continuously on the `FiniteMeasure`. -/
+/-- The measure of any connected component depends continuously on the `FiniteMeasure`.-/
 lemma continuous_finiteMeasure_apply_of_isClopen
     {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
     {s : Set α} (s_clopen : IsClopen s) :
@@ -20,7 +20,7 @@ lemma continuous_finiteMeasure_apply_of_isClopen
   rw [integral_indicatorBCF _ s_clopen s_mble]
   rfl
 
-/-- The probability of any connected component depends continuously on the `ProbabilityMeasure`. -/
+/-- The probability of any connected component depends continuously on the `ProbabilityMeasure`.-/
 lemma continuous_probabilityMeasure_apply_of_isClopen
     {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
     {s : Set α} (s_clopen : IsClopen s) :
