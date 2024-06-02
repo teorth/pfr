@@ -80,7 +80,7 @@ indexed by `J` is iIndep. -/
 lemma iIndepFun.finsets_comp {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
     (hf_Indep : iIndepFun m f μ) (hf_meas : ∀ i, Measurable (f i))
-    (γ : J → Type*) {mγ : ∀ j, MeasurableSpace (γ j)}
+    {γ : J → Type*} {mγ : ∀ j, MeasurableSpace (γ j)}
     (φ : (j : J) → ((i : S j) → β i) → γ j) (hφ : ∀ j, Measurable (φ j)) :
     iIndepFun mγ (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) μ :=by
   have := hf_Indep.isProbabilityMeasure
