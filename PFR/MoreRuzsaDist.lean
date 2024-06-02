@@ -379,10 +379,7 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
   | @insert i s hi IH =>
     simp_rw [Finset.sum_insert hi]
     have his : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
-    -- have hii₀ : ¬ i = i₀ := by
-    --   have := Set.mem_insert_iff.mpr.mt hs
-    --   simp [Set.mem_insert_iff, hs]
-    -- have
+    have hii₀ : i ≠ i₀ := fun h ↦ hs (h ▸ Finset.mem_insert_self i s)
     let J := Fin 3
     let S : J → Finset I := ![s, {i₀}, {i}]
     have h_dis: Set.univ.PairwiseDisjoint S := by
@@ -390,13 +387,8 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       change Disjoint (S j) (S k)
       fin_cases j <;> fin_cases k <;> try exact (hjk rfl).elim
       all_goals
-      -- [TODO:] There is a non-finishing `simp_all` here. We need to find a way to do it without
-      -- the last `exact`. `simp_all` should be able to solve all the goals by itself.
-      -- Find a way to show `i ≠ i₀` before the `simp_all`, insert it into a `have` and finally pass
-      -- this to the `simp_all`.
         simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
           Finset.disjoint_singleton_right, S, his, hi, hjk, hs]
-      exact fun a ↦ hs (Eq.symm a)
     let φ : (j : J) → ((i : S j) → G) → G
       | 0 => by
         unfold_let S
