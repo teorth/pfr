@@ -366,9 +366,6 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       simp only [eq3]
       ring
 
--- #check kernel.iIndepFun.iIndepFun_finsets_comp
-#check iIndepFun.finsets_comp
-
 --open Classical in
 /--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
@@ -380,41 +377,49 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
   induction s using Finset.induction_on with
   | empty => simp
   | @insert i s hi IH =>
-    refine ?_
     simp_rw [Finset.sum_insert hi]
-    refine ?_
-    have h : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
-    replace IH := IH h
+    have his : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
+    -- have hii₀ : ¬ i = i₀ := by
+    --   have := Set.mem_insert_iff.mpr.mt hs
 
+    --   simp [Set.mem_insert_iff, hs]
+    -- have
     let J := Fin 3
     let S : J → Finset I := ![s, {i₀}, {i}]
-
-    have h_dis: Set.univ.PairwiseDisjoint S := by sorry
+    have h_dis: Set.univ.PairwiseDisjoint S := by
+      intro j _ k _ hjk
+      change Disjoint (S j) (S k)
+      fin_cases j <;> fin_cases k <;> try exact (hjk rfl).elim
+      all_goals
+        simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+          Finset.disjoint_singleton_right, S, his, hi, hjk, hs]
+      exact fun a ↦ hs (Eq.symm a) --here there is a nonfinishing simp_all here, find a way to do it without the last exact, simp_all should be able to solve all the goals by itself, find a way to show i ≠ i₀ before the simp all, put it into a have and pass this to the simp all
 
     let φ : (j : J) → ((i : S j) → G) → G
       | 0 => by
         unfold_let S
         dsimp
         intro Ys
-        refine ∑ i ∈ s, Ys ⟨i, by sorry⟩
+        refine ∑ i ∈ s, Ys ⟨i, ?_⟩
+        sorry
       | 1 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
       | 2 => fun Ys ↦ Ys ⟨i, by simp [S]⟩
-
+    have hφ : (j : J) → Measurable (φ j) := fun j ↦ measurable_discrete _
     have h_ind : iIndepFun (fun i ↦ hG) ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
-      -- maybe make a lemma stating that if we have iIndepFun with I, k : Fin n → Finset I
-      -- such that k i are pairwise disjoint, φ : (i : Fin n) → k i → ...
-
-      sorry
+      convert iIndepFun.finsets_comp S h_dis hindep hY φ hφ with j x
+      fin_cases j <;> simp [φ]
     have measSum : Measurable (∑ j ∈ s, Y j) := by
       convert Finset.measurable_sum s (fun j _ ↦ hY j)
       simp
     have hkv := kaimanovich_vershik h_ind measSum (hY i₀) (hY i)
-    convert add_le_add IH hkv using 1
+    convert add_le_add (IH his) hkv using 1
     · nth_rw 2 [add_comm (Y i₀)]
       norm_num
       congr 1
       rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
     · ring
+
+
 
 #check iIndepFun
 #check kaimanovich_vershik
