@@ -381,7 +381,6 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
     have his : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
     -- have hii₀ : ¬ i = i₀ := by
     --   have := Set.mem_insert_iff.mpr.mt hs
-
     --   simp [Set.mem_insert_iff, hs]
     -- have
     let J := Fin 3
@@ -391,10 +390,13 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       change Disjoint (S j) (S k)
       fin_cases j <;> fin_cases k <;> try exact (hjk rfl).elim
       all_goals
+      -- [TODO:] There is a non-finishing `simp_all` here. We need to find a way to do it without
+      -- the last `exact`. `simp_all` should be able to solve all the goals by itself.
+      -- Find a way to show `i ≠ i₀` before the `simp_all`, put it into a have and pass
+      -- this to the `simp_all`
         simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
           Finset.disjoint_singleton_right, S, his, hi, hjk, hs]
-      exact fun a ↦ hs (Eq.symm a) --here there is a nonfinishing simp_all here, find a way to do it without the last exact, simp_all should be able to solve all the goals by itself, find a way to show i ≠ i₀ before the simp all, put it into a have and pass this to the simp all
-
+      exact fun a ↦ hs (Eq.symm a)
     let φ : (j : J) → ((i : S j) → G) → G
       | 0 => by
         unfold_let S
@@ -418,12 +420,6 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       congr 1
       rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
     · ring
-
-
-
-#check iIndepFun
-#check kaimanovich_vershik
-#check Nat.recOn
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.-/
