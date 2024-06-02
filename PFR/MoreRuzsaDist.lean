@@ -392,8 +392,8 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       all_goals
       -- [TODO:] There is a non-finishing `simp_all` here. We need to find a way to do it without
       -- the last `exact`. `simp_all` should be able to solve all the goals by itself.
-      -- Find a way to show `i ≠ i₀` before the `simp_all`, put it into a have and pass
-      -- this to the `simp_all`
+      -- Find a way to show `i ≠ i₀` before the `simp_all`, insert it into a `have` and finally pass
+      -- this to the `simp_all`.
         simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
           Finset.disjoint_singleton_right, S, his, hi, hjk, hs]
       exact fun a ↦ hs (Eq.symm a)
