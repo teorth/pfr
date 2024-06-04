@@ -22,11 +22,6 @@ theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} 
 
 section iIndepFun
 
--- variable {Ω ι ι' : Type*} [MeasurableSpace Ω] {α β : ι → Type*}
---   [n : ∀ i, MeasurableSpace (α i)]
---   [m : ∀ i, MeasurableSpace (β i)] {f : ∀ i, Ω → α i}
---   {μ : Measure Ω}
-
 variable {β γ : ι → Type*} {m : ∀ i, MeasurableSpace (β i)} {mγ : ∀ i, MeasurableSpace (γ i)} {f : ∀ i, Ω → β i}
 
 lemma iIndepFun.comp (h : iIndepFun m f κ μ) (g : ∀ i, β i → γ i) (hg : ∀ i, Measurable (g i)) :
@@ -51,7 +46,6 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
     (hf_Indep : iIndepFun m f κ μ) (hf_meas : ∀ i, Measurable (f i)) :
     iIndepFun (fun _ ↦ pi) (fun (j : J) ↦ fun a (i : S j) ↦ f i a) κ μ := by
-
   sorry
 
 /-- If `f` is a family of mutually independent random variables, `(S j)ⱼ` are pairwise disjoint
