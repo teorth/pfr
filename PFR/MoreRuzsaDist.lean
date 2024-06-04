@@ -368,10 +368,10 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 
 --open Classical in
 /--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
-then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
+then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
 lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (Y : I → Ω → G)
-    [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ ) :
+    [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (_ : I) => hG) Y μ ) :
     H[Y i₀ + ∑ i in s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
   classical
   induction s using Finset.induction_on with
@@ -389,19 +389,14 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       all_goals
         simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
           Finset.disjoint_singleton_right, S, his, hi, hjk, hs]
-    let φ : (j : J) → ((i : S j) → G) → G
-      | 0 => by
-        unfold_let S
-        dsimp
-        intro Ys
-        refine ∑ i ∈ s, Ys ⟨i, ?_⟩
-        sorry
+    let φ : (j : J) → ((_ : S j) → G) → G
+      | 0 => fun Ys ↦ ∑ i : s, Ys ⟨i.1, i.2⟩
       | 1 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
       | 2 => fun Ys ↦ Ys ⟨i, by simp [S]⟩
     have hφ : (j : J) → Measurable (φ j) := fun j ↦ measurable_discrete _
-    have h_ind : iIndepFun (fun i ↦ hG) ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
+    have h_ind : iIndepFun (fun _ ↦ hG) ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
       convert iIndepFun.finsets_comp S h_dis hindep hY φ hφ with j x
-      fin_cases j <;> simp [φ]
+      fin_cases j <;> simp [φ, (s.sum_attach _).symm]
     have measSum : Measurable (∑ j ∈ s, Y j) := by
       convert Finset.measurable_sum s (fun j _ ↦ hY j)
       simp
