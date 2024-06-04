@@ -369,9 +369,11 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
 --open Classical in
 /--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
-The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
-lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (Y : I → Ω → G)
-    [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (_ : I) => hG) Y μ ) :
+The spelling here is tentative.
+Feel free to modify it to make the proof easier, or the application easier. -/
+lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
+    (Y : I → Ω → G) [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i))
+    (hindep : iIndepFun (fun (_ : I) => hG) Y μ ) :
     H[Y i₀ + ∑ i in s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
   classical
   induction s using Finset.induction_on with
