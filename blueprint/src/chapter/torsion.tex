@@ -71,13 +71,13 @@ Applying all of these estimates, the claim now follows from linear arithmetic.
 \end{proof}
 
 \begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}\lean{kvm_ineq_I}\leanok  If $n \geq 0$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
-  $$ \bbH[X + \sum_{i=1}^n Y_i] - \bbH[X] \leq \sum_{i=1}^n \bbH[X+Y_i] - \bbH[X].$$
+  $$\bbH\left[X + \sum_{i=1}^n Y_i\right] - \bbH[X] \leq \sum_{i=1}^n \left(\bbH[X+Y_i] - \bbH[X]\right).$$
 \end{lemma}
 
 \begin{proof}\uses{kv}  This is trivial for $n=0,1$, while the $n=2$ case is \Cref{kv}.  Now suppose inductively that $n > 2$, and the claim was already proven for $n-1$.  By a further application of \Cref{kv} one has
-$$  \bbH[X + \sum_{i=1}^n Y_i] -  \bbH[X + \sum_{i=1}^{n-1} Y_i] \leq \bbH[X+Y_n] - \bbH[X].$$
+$$  \bbH\left[X + \sum_{i=1}^n Y_i\right] -  \bbH\left[X + \sum_{i=1}^{n-1} Y_i\right] \leq \bbH[X+Y_n] - \bbH[X].$$
 By induction hypothesis one has
-$$ \bbH[X + \sum_{i=1}^{n-1} Y_i] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - \bbH[X].$$
+$$ \bbH\left[X + \sum_{i=1}^{n-1} Y_i\right] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - \bbH[X].$$
 Summing the two inequalities, we obtain the claim.
 \end{proof}
 

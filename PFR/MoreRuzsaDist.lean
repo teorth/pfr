@@ -366,16 +366,52 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       simp only [eq3]
       ring
 
-/--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
-then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
-The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
-lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (Y : I → Ω → G)
-    (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ ) :
-    H[Y i₀ + ∑ i in s, Y i; μ] - H[ Y i₀; μ] ≤ ∑ i in s, (H[Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
+--open Classical in
+/--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
+then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
+The spelling here is tentative.
+Feel free to modify it to make the proof easier, or the application easier. -/
+lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
+    (Y : I → Ω → G) [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i))
+    (hindep : iIndepFun (fun (_ : I) => hG) Y μ ) :
+    H[Y i₀ + ∑ i in s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert i s hi IH =>
+    simp_rw [Finset.sum_insert hi]
+    have his : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
+    have hii₀ : i ≠ i₀ := fun h ↦ hs (h ▸ Finset.mem_insert_self i s)
+    let J := Fin 3
+    let S : J → Finset I := ![s, {i₀}, {i}]
+    have h_dis: Set.univ.PairwiseDisjoint S := by
+      intro j _ k _ hjk
+      change Disjoint (S j) (S k)
+      fin_cases j <;> fin_cases k <;> try exact (hjk rfl).elim
+      all_goals
+        simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+          Finset.disjoint_singleton_right, S, his, hi, hjk, hs]
+    let φ : (j : J) → ((_ : S j) → G) → G
+      | 0 => fun Ys ↦ ∑ i : s, Ys ⟨i.1, i.2⟩
+      | 1 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
+      | 2 => fun Ys ↦ Ys ⟨i, by simp [S]⟩
+    have hφ : (j : J) → Measurable (φ j) := fun j ↦ measurable_discrete _
+    have h_ind : iIndepFun (fun _ ↦ hG) ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
+      convert iIndepFun.finsets_comp S h_dis hindep hY φ hφ with j x
+      fin_cases j <;> simp [φ, (s.sum_attach _).symm]
+    have measSum : Measurable (∑ j ∈ s, Y j) := by
+      convert Finset.measurable_sum s (fun j _ ↦ hY j)
+      simp
+    have hkv := kaimanovich_vershik h_ind measSum (hY i₀) (hY i)
+    convert add_le_add (IH his) hkv using 1
+    · nth_rw 2 [add_comm (Y i₀)]
+      norm_num
+      congr 1
+      rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
+    · ring
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
-then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
--/
+then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.-/
 lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
     (Y : I → Ω → G)  (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ) :
     d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by sorry
