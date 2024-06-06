@@ -372,7 +372,7 @@ then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[Y i₀; μ ] ≤ ∑ i in s, (H[ Y i�
 The spelling here is tentative.
 Feel free to modify it to make the proof easier, or the application easier. -/
 lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
-    (Y : I → Ω → G) [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i))
+    {Y : I → Ω → G} [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i))
     (hindep : iIndepFun (fun (_ : I) => hG) Y μ ) :
     H[Y i₀ + ∑ i in s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
   classical
@@ -410,11 +410,56 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
     · ring
 
+#check kvm_ineq_I -- 12.6
+#check entropy_neg -- 3.1
+#check ProbabilityTheory.IndepFun.rdist_eq -- 3.11
+#check max_entropy_le_entropy_add -- 3.5
+#check max_entropy_le_entropy_sub -- 3.5
+#check diff_ent_le_rdist -- 3.13
+
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.-/
-lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
-    (Y : I → Ω → G)  (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ) :
-    d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by sorry
+lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
+    (hs' : Finset.Nonempty s) {Y : I → Ω → G} [∀ i, FiniteRange (Y i)]
+    (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ) :
+    d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by
+  classical
+  let φ : I → G → G := fun i ↦ if i = i₀ then id else - id
+  have hφ : (i : I) → Measurable (φ i) := fun _ ↦ measurable_discrete _
+
+  let Y' : I → Ω → G := fun i ↦ (φ i) ∘ (Y i)
+  have mnY : (i : I) → Measurable (Y' i) := fun i ↦ (hφ i).comp (hY i)
+
+  have hindep' : iIndepFun (fun (i : I) => hG) Y' μ := hindep.comp φ hφ
+  have in1 := kvm_ineq_I hs mnY hindep'
+
+  have eq3 : ∑ i ∈ s, Y' i = - ∑ i ∈ s, Y i := by
+    simp_rw [Y', φ, ← Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun i hi ↦ ?_
+    rw [if_neg (ne_of_mem_of_not_mem hi hs)]
+    rfl
+  have eq4 : ∑ i ∈ s, (H[Y' i₀ + Y' i ; μ] - H[Y' i₀ ; μ])
+      = ∑ i ∈ s, (H[Y i₀ + -Y i ; μ] - H[Y i₀ ; μ]) := by
+    refine Finset.sum_congr rfl fun i hi ↦ ?_
+    simp_rw [Y', φ, if_neg (ne_of_mem_of_not_mem hi hs), if_pos]
+    rfl
+  simp_rw [Y', eq4, φ, if_pos, eq3, id_comp] at in1
+
+
+
+
+
+
+
+
+
+
+
+  have in2 : d[Y i₀; μ # ∑ i in s, Y i; μ] + 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ])
+      ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
+
+    sorry
+  sorry
 
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2:ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
