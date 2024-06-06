@@ -87,7 +87,7 @@ Summing the two inequalities, we obtain the claim.
 
 \begin{proof}\uses{klm-1, neg-ent, ruz-indep, sumset-lower, ruzsa-diff}
   Applying \Cref{klm-1} with all the $Y_i$ replaced by $-Y_i$, and using \Cref{neg-ent} and \Cref{ruz-indep}, we obtain after some rearranging
-$$ d[X; \sum_{i=1}^n Y_i] + \frac{1}{2} (\bbH[\sum_{i=1}^n Y_i] - \bbH[X]) \leq \sum_{i=1}^n d[X;Y_i] + \frac{1}{2} (\bbH[Y_i] - \bbH[X]).$$
+$$ d[X; \sum_{i=1}^n Y_i] + \frac{1}{2} (\bbH[\sum_{i=1}^n Y_i] - \bbH[X]) \leq \sum_{i=1}^n \left(d[X;Y_i] + \frac{1}{2} (\bbH[Y_i] - \bbH[X])\right).$$
 From \Cref{sumset-lower} we have
 $$ \bbH[\sum_{i=1}^n Y_i] \geq \bbH[Y_i]$$
 for all $i$; subtracting $\bbH[X]$ and averaging, we conclude that
