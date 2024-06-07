@@ -431,33 +431,23 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
   have mnY : (i : I) → Measurable (Y' i) := fun i ↦ (hφ i).comp (hY i)
 
   have hindep' : iIndepFun (fun (i : I) => hG) Y' μ := hindep.comp φ hφ
-  have in1 := kvm_ineq_I hs mnY hindep'
+  have ineq1 := kvm_ineq_I hs mnY hindep'
 
-  have eq3 : ∑ i ∈ s, Y' i = - ∑ i ∈ s, Y i := by
+  have eq2 : ∑ i ∈ s, Y' i = - ∑ i ∈ s, Y i := by
     simp_rw [Y', φ, ← Finset.sum_neg_distrib]
     refine Finset.sum_congr rfl fun i hi ↦ ?_
     rw [if_neg (ne_of_mem_of_not_mem hi hs)]
     rfl
-  have eq4 : ∑ i ∈ s, (H[Y' i₀ + Y' i ; μ] - H[Y' i₀ ; μ])
+
+  have eq3 : ∑ i ∈ s, (H[Y' i₀ + Y' i ; μ] - H[Y' i₀ ; μ])
       = ∑ i ∈ s, (H[Y i₀ + -Y i ; μ] - H[Y i₀ ; μ]) := by
     refine Finset.sum_congr rfl fun i hi ↦ ?_
     simp_rw [Y', φ, if_neg (ne_of_mem_of_not_mem hi hs), if_pos]
     rfl
-  simp_rw [Y', eq4, φ, if_pos, eq3, id_comp] at in1
+  simp_rw [Y', eq3, φ, if_pos, eq2, id_comp] at ineq1
 
-
-
-
-
-
-
-
-
-
-
-  have in2 : d[Y i₀; μ # ∑ i in s, Y i; μ] + 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ])
+  have ineq4 : d[Y i₀; μ # ∑ i in s, Y i; μ] + 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ])
       ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
-
     sorry
   sorry
 
