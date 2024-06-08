@@ -4,17 +4,10 @@ In this chapter, $h$ denotes the function $h(x) := x \log \frac{1}{x}$ for $x \i
 
 \begin{lemma}[Concavity]\label{concave}
   \lean{Real.strictConcaveOn_negMulLog}\leanok
-  $h$ is strictly concave on $[0,1]$.
+  $h$ is strictly concave on $[0,\infty)$.
 \end{lemma}
 
 \begin{proof} \leanok Check that $h'$ is strictly monotone decreasing.
-\end{proof}
-
-\begin{lemma}[Concavity]\label{concave-general}
-  $h$ is strictly concave on $[0,\infty)$.
-\end{lemma}
-\begin{proof}
-Same as \Cref{concave}.
 \end{proof}
 
 
@@ -36,20 +29,20 @@ If equality holds in the above lemma, then $p_s = \sum_{s \in S} w_s h(p_s)$ whe
 \end{proof}
 
 \begin{lemma}[log sum inequality]
-  \label{log-sum}
-  If $S$ is a finite set, and $a_s,b_s$ are non-negative for $s\in S$, then 
+  \label{log-sum}\lean{sum_mul_log_div_leq}\leanok
+  If $S$ is a finite set, and $a_s,b_s$ are non-negative for $s\in S$, then
   $$\sum_{s\in S} a_s \log\frac{a_s}{b_s}\ge \left(\sum_{s\in S}a_s\right)\log\frac{\sum_{s\in S} a_s}{\sum_{s\in S} b_s},$$
   with the convention $0\log\frac{0}{b}=0$ for any $b\ge 0$ and $0\log\frac{a}{0}=\infty$ for any $a>0$.
 \end{lemma}
 \begin{proof}
-  Let $B:=\sum_{s\in S} b_s$. Apply Jensen and \Cref{concave-general} to show that $\sum_{s\in S} \frac{b_s}{B} h(\frac{a_s}{b_s})\ge h(\frac{\sum_{s\in S} a_s}{B})$.
+  Let $B:=\sum_{s\in S} b_s$. Apply Jensen and \Cref{concave} to show that $\sum_{s\in S} \frac{b_s}{B} h(\frac{a_s}{b_s})\ge h(\frac{\sum_{s\in S} a_s}{B})$.
 \end{proof}
 
 \begin{lemma}[converse log sum]
-  \label{converse-log-sum}
+  \label{converse-log-sum}\lean{sum_mul_log_div_eq_iff}\leanok
 If equality holds in \Cref{log-sum}, then $a_s=r\cdot b_s$ for every $s\in S$, for some constant $r\in \mathbb{R}$.
 \end{lemma}
 
 \begin{proof}
-\uses{concave-general} By the fact that $h$ is strictly concave and the equality condition of Jensen.
+\uses{concave} By the fact that $h$ is strictly concave and the equality condition of Jensen.
 \end{proof}

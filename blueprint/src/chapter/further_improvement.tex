@@ -4,17 +4,17 @@
 
 In the definitions below, $G$ is a set.
 
-\begin{definition}[Kullback--Leibler divergence]\label{kl-div} If $X,Y$ are two $G$-valued random variables, the Kullback--Leibler divergence is defined as
+\begin{definition}[Kullback--Leibler divergence]\label{kl-div}\lean{KL_div}\leanok If $X,Y$ are two $G$-valued random variables, the Kullback--Leibler divergence is defined as
   $$ D_{KL}(X\Vert Y) := \sum_x \mathbf{P}(X=x) \log \frac{\mathbf{P}(X=x)}{\mathbf{P}(Y=x)}.$$
 \end{definition}
 
-\begin{lemma}[Kullback--Leibler divergence of copy]\label{kl-div-copy}  If $X'$ is a copy of $X$, and $Y'$ is a copy of $Y$, then $D_{KL}(X'\Vert Y') = D_{KL}(X\Vert Y)$.
+\begin{lemma}[Kullback--Leibler divergence of copy]\label{kl-div-copy}\lean{KL_div_eq_of_equiv}\leanok  If $X'$ is a copy of $X$, and $Y'$ is a copy of $Y$, then $D_{KL}(X'\Vert Y') = D_{KL}(X\Vert Y)$.
 \end{lemma}
 
 \begin{proof}\uses{kl-div}  Clear from definition.
 \end{proof}
 
-\begin{lemma}[Gibbs inequality]\label{Gibbs}\uses{kl-div}  $D_{KL}(X\Vert Y) \geq 0$.
+\begin{lemma}[Gibbs inequality]\label{Gibbs}\uses{kl-div}\lean{KL_div_nonneg}\leanok  $D_{KL}(X\Vert Y) \geq 0$.
 \end{lemma}
 
 \begin{proof}
@@ -22,7 +22,7 @@ In the definitions below, $G$ is a set.
   Apply \Cref{log-sum} on the definition.
 \end{proof}
 
-\begin{lemma}[Converse Gibbs inequality]\label{Gibbs-converse}  If $D_{KL}(X\Vert Y) = 0$, then $Y$ is a copy of $X$.
+\begin{lemma}[Converse Gibbs inequality]\label{Gibbs-converse}\lean{KL_div_eq_zero_iff_identDistrib}\leanok  If $D_{KL}(X\Vert Y) = 0$, then $Y$ is a copy of $X$.
 \end{lemma}
 
 \begin{proof}
