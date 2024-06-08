@@ -74,7 +74,7 @@ Applying all of these estimates, the claim now follows from linear arithmetic.
   $$ \bbH[X + \sum_{i=1}^n Y_i] - \bbH[X] \leq \sum_{i=1}^n \bbH[X+Y_i] - \bbH[X].$$
 \end{lemma}
 
-\begin{proof}\uses{kv}  This is trivial for $n=0,1$, while the $n=2$ case is \Cref{kv}.  Now suppose inductively that $n > 2$, and the claim was already proven for $n-1$.  By a further application of \Cref{kv} one has
+\begin{proof}\uses{kv}\leanok  This is trivial for $n=0,1$, while the $n=2$ case is \Cref{kv}.  Now suppose inductively that $n > 2$, and the claim was already proven for $n-1$.  By a further application of \Cref{kv} one has
 $$  \bbH[X + \sum_{i=1}^n Y_i] -  \bbH[X + \sum_{i=1}^{n-1} Y_i] \leq \bbH[X+Y_n] - \bbH[X].$$
 By induction hypothesis one has
 $$ \bbH[X + \sum_{i=1}^{n-1} Y_i] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - \bbH[X].$$
