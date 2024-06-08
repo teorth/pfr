@@ -355,7 +355,7 @@ lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ'']
     [FiniteSupport μ] [FiniteSupport μ'] [FiniteSupport μ'']
-    (hκ: FiniteKernelSupport κ) (hη: FiniteKernelSupport η) (hξ: FiniteKernelSupport ξ) :
+    (hκ : FiniteKernelSupport κ) (hη: FiniteKernelSupport η) (hξ: FiniteKernelSupport ξ) :
     dk[κ ; μ # ξ ; μ''] ≤ dk[κ ; μ # η ; μ'] + dk[η ; μ' # ξ ; μ''] := by
   rw [rdist_eq', rdist_eq', rdist_eq']
   have h := ent_of_diff_le (prodMkRight T' (prodMkRight T'' κ ×ₖ prodMkLeft T ξ))
