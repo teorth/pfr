@@ -56,8 +56,21 @@ lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Meas
 /-- Let `X, Y, Z`. For any functions `f, g` on the ranges of `X, Y` respectively,
 we have `I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ]`. -/
 lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) [FiniteRange X] [FiniteRange Y] :
-    I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by sorry
+  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) (hg : Measurable g) [FiniteRange X]
+  [FiniteRange Y] [FiniteRange Z] :
+    I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by
+  rw [condMutualInfo_eq_sum hZ, condMutualInfo_eq_sum hZ]
+  apply Finset.sum_le_sum
+  intro i _
+  by_cases h : 0 < (μ (Z ⁻¹' {i})).toReal
+  · rw [mul_le_mul_left h]
+    haveI : IsProbabilityMeasure (μ[|Z ← i]) := by
+      apply cond_isProbabilityMeasure_of_finite
+      · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).left
+      . exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).right
+    apply mutual_comp_comp_le _ hX hY f g hg
+  · suffices (μ (Z ⁻¹' {i})).toReal = 0 by simp only [this, zero_mul, le_refl]
+    apply le_antisymm (le_of_not_lt h) ENNReal.toReal_nonneg
 
 end ProbabilityTheory
 end dataProcessing
@@ -354,41 +367,79 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       ring
 
 --open Classical in
-/--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
-then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
-The spelling here is tentative.  Feel free to modify it to make the proof easier, or the application easier. -/
-lemma kvm_ineq_I {I:Type*} {i₀: I} {s: Finset I} (hs: ¬ i₀ ∈ s) (Y: I → Ω → G) (hY: (i:I) → Measurable (Y i))
-                 (hindep: iIndepFun (fun (i:I) => hG) Y μ )
-                : H[ Y i₀ + ∑ i in s, Y i; μ ] - H[ Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ]) := by sorry
+/--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
+then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
+The spelling here is tentative.
+Feel free to modify it to make the proof easier, or the application easier. -/
+lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
+    (Y : I → Ω → G) [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i))
+    (hindep : iIndepFun (fun (_ : I) => hG) Y μ ) :
+    H[Y i₀ + ∑ i in s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert i s hi IH =>
+    simp_rw [Finset.sum_insert hi]
+    have his : i₀ ∉ s := fun h ↦ hs (Finset.mem_insert_of_mem h)
+    have hii₀ : i ≠ i₀ := fun h ↦ hs (h ▸ Finset.mem_insert_self i s)
+    let J := Fin 3
+    let S : J → Finset I := ![s, {i₀}, {i}]
+    have h_dis: Set.univ.PairwiseDisjoint S := by
+      intro j _ k _ hjk
+      change Disjoint (S j) (S k)
+      fin_cases j <;> fin_cases k <;> try exact (hjk rfl).elim
+      all_goals
+        simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+          Finset.disjoint_singleton_right, S, his, hi, hjk, hs]
+    let φ : (j : J) → ((_ : S j) → G) → G
+      | 0 => fun Ys ↦ ∑ i : s, Ys ⟨i.1, i.2⟩
+      | 1 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
+      | 2 => fun Ys ↦ Ys ⟨i, by simp [S]⟩
+    have hφ : (j : J) → Measurable (φ j) := fun j ↦ measurable_discrete _
+    have h_ind : iIndepFun (fun _ ↦ hG) ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
+      convert iIndepFun.finsets_comp S h_dis hindep hY φ hφ with j x
+      fin_cases j <;> simp [φ, (s.sum_attach _).symm]
+    have measSum : Measurable (∑ j ∈ s, Y j) := by
+      convert Finset.measurable_sum s (fun j _ ↦ hY j)
+      simp
+    have hkv := kaimanovich_vershik h_ind measSum (hY i₀) (hY i)
+    convert add_le_add (IH his) hkv using 1
+    · nth_rw 2 [add_comm (Y i₀)]
+      norm_num
+      congr 1
+      rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
+    · ring
 
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
-then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.
--/
-lemma kvm_ineq_II {I:Type*} {i₀: I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': Finset.Nonempty s) (Y: I → Ω → G)
-                 (hY: (i:I) → Measurable (Y i)) (hindep: iIndepFun (fun (i:I) => hG) Y μ )
-                : d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by sorry
+then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.-/
+lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
+    (Y : I → Ω → G)  (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ) :
+    d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by sorry
 
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
-then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2:ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
+then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
 -/
-lemma kvm_ineq_III {I:Type*} {i₀ : I} {s: Finset I} (hs: ¬ i₀ ∈ s) (hs': Finset.Nonempty s) (Y: I → Ω → G)
-                 (hY: (i:I) → Measurable (Y i)) (hindep: iIndepFun (fun (i:I) => hG) Y μ ) (i₁ : I)
-                : d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2:ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ]) := by sorry
+lemma kvm_ineq_III {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
+    (Y : I → Ω → G) (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ)
+    (i₁ : I) : d[Y i₀; μ # ∑ i in s, Y i; μ]
+      ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ]) := by sorry
 
 open Classical in
-/-- Let $(X_i)_{1 \leq i \leq m}$ and $(Y_j)_{1 \leq j \leq l}$ be tuples of jointly independent random variables (so the $X$'s and $Y$'s are also independent of each other), and let $f: \{1,\dots,l\} \to \{1,\dots,m\}$ be a function, then
-  $$ \mathbb{H}[\sum_{j=1}^l Y_j] \leq \mathbb{H}[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\mathbb{H}[ Y_j - X_{f(j)}] - \mathbb{H}[X_{f(j)}]).$$
--/
-
-lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t) (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X: I → Ω → G)
-  (hX: (i:I) → Measurable (X i)) (hindep: iIndepFun (fun (i:I) => hG) X μ ) (f: I → I) (hf: Finset.image f t ⊆ s)
-                : H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by sorry
+/-- Let `X₁, ..., Xₘ` and `Y₁, ..., Yₗ` be tuples of jointly independent random variables (so the
+`X`'s and `Y`'s are also independent of each other), and let `f: {1,..., l} → {1,... ,m}` be a
+function, then  `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
+lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
+    (hs : Finset.Nonempty s) (ht : Finset.Nonempty t) (X : I → Ω → G) (hX : (i : I) → Measurable (X i))
+    (hX' : (i : I) → FiniteRange (X i)) (hindep : iIndepFun (fun (i : I) ↦ hG) X μ ) (f : I → I)
+    (hf : Finset.image f t ⊆ s) :
+    H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
+  sorry
 
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
 and let `a` be an integer. Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
 lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X']
     [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X')
-    (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a : ℤ} :
+    (hindep : iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident : IdentDistrib X X' μ μ) {a : ℤ} :
     H[X - (a+1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
   rw [add_smul, one_smul, add_comm, sub_add_eq_sub_sub]
   have iX'Y : IndepFun X' Y μ := hindep.indepFun (show 2 ≠ 1 by simp)
@@ -413,8 +464,8 @@ lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRang
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
 and let `a` be an integer. Then `H[X - (a-1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
 lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X']
-    [IsProbabilityMeasure μ] (hX: Measurable X) (hY: Measurable Y) (hX': Measurable X')
-    (hindep: iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident: IdentDistrib X X' μ μ) {a : ℤ} :
+    [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hX': Measurable X')
+    (hindep : iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident : IdentDistrib X X' μ μ) {a : ℤ} :
     H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
   rw [sub_smul, one_smul, sub_eq_add_neg, neg_sub, add_sub]
   have iX'Y : IndepFun X' Y μ := hindep.indepFun (show 2 ≠ 1 by simp)
@@ -455,7 +506,7 @@ lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRan
 /--  Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer.  Then
   `H[X - aY] - H[X] ≤ 4 |a| d[X ; Y]`. -/
 lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
-    (hX: Measurable X) (hY: Measurable Y) (hindep: IndepFun X Y μ) {a : ℤ} :
+    (hX : Measurable X) (hY : Measurable Y) (hindep : IndepFun X Y μ) {a : ℤ} :
     H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by
   obtain ⟨Ω', mΩ', μ', X'₁, Y', X'₂, hμ', hindep', hX'₁, hY', hX'₂, idX₁, idY, idX₂⟩
     := independent_copies3_nondep hX hY hX  μ μ μ
@@ -570,109 +621,111 @@ variable {G : Type*}
   [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G]
 
-/--  Let $X_{[m]} = (X_i)_{1 \leq i \leq m}$ non-empty finite tuple of $G$-valued random variables $X_i$. Then we define
-\[
-  D[X_{[m]}] := \mathbb{H}[\sum_{i=1}^m \tilde X_i] - \frac{1}{m} \sum_{i=1}^m \mathbb{H}[\tilde X_i],
-\]
-where the $\tilde X_i$ are independent copies of the $X_i$.-/
+/--  Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `X_i`.
+Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'` are independent copies
+of the `X_i`.-/
 noncomputable
-def multiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) : ℝ := sorry
+def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+  (X : (i : Fin m) → (Ω i) → G) : ℝ := sorry
 
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
-/-- If $X_i$ has the same distribution as $Y_i$ for each $i$, then $D[X_{[m]}] = D[Y_{[m]}]$. -/
-lemma multiDist_copy {m:ℕ} {Ω: Fin m → Type*} {Ω': Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (hΩ': (i:Fin m) → MeasureSpace (Ω' i)) (X : (i:Fin m) → (Ω i) → G) (X' : (i:Fin m) → (Ω' i) → G) (hident: ∀ i, IdentDistrib (X i) (X' i) (hΩ i).volume (hΩ' i).volume): D[ X ; hΩ ] = D[ X' ; hΩ' ] := by sorry
+/-- If `X_i` has the same distribution as `Y_i` for each `i`, then `D[X_[m]] = D[Y_[m]]`. -/
+lemma multiDist_copy {m :ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (X : (i : Fin m) → (Ω i) → G) (X' : (i : Fin m) → (Ω' i) → G)
+    (hident : ∀ i, IdentDistrib (X i) (X' i) (hΩ i).volume (hΩ' i).volume) :
+    D[X ; hΩ] = D[X' ; hΩ'] := by sorry
 
-/-- If $X_i$ are independent, then $D[X_{[m]}] = D[Y_{[m]}]$. -/
-lemma multiDist_indep {m:ℕ} {Ω: Type*} (hΩ: MeasureSpace Ω)(X : Fin m → Ω → G) (hindep: iIndepFun (fun _ ↦ hG) X hΩ.volume) : D[ X ; fun _ ↦ hΩ ] = H[ ∑ i, X i ; hΩ.volume ] - (∑ i, H[ X i; hΩ.volume ]) / m := by sorry
+/-- If `X_i` are independent, then `D[X_[m]] = D[Y_[m]]`. -/
+lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
+    (hindep : iIndepFun (fun _ ↦ hG) X hΩ.volume) :
+    D[X ; fun _ ↦ hΩ] = H[∑ i, X i ; hΩ.volume] - (∑ i, H[X i; hΩ.volume]) / m := by sorry
 
-/-- We have $D[X_{[m]}] \geq 0$. -/
-lemma multiDist_nonneg {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) : D[ X ; hΩ ] ≥ 0 := by sorry
+/-- We have `D[X_[m]] ≥ 0`. -/
+lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G) : D[X ; hΩ] ≥ 0 := by sorry
 
-/--  If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$. -/
-lemma multiDist_of_perm {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) (φ: Equiv.Perm (Fin m)): D[ X ; hΩ ] = D[ fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by sorry
+/-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
+lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
+    D[X ; hΩ] = D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by sorry
 
-/-- Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
-  $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$ -/
+/-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
+  `∑ (1 \≤ j, k ≤ m, j ≠ k), d[X_j; -X_k] ≤ m(m-1) D[X_[m]].` -/
 lemma multidist_ruzsa_I : 0 = 1 := by sorry
 
-/-- Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
-  $$\sum_{j=1}^m d[X_j;X_j] \leq 2 m D[X_{[m]}].$$ -/
+/-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
+  `∑ j, d[X_j;X_j] ≤ 2 m D[X_[m]]`. -/
 lemma multidist_ruzsa_II : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_{[m]}] \leq m d[X_i;X_i]$ for any $1 \leq i \leq m$. -/
+/-- Let `I` be an indexing set of size `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
+variables. If the `X_i` all have the same distribution, then `D[X_[m]] ≤ m d[X_i;X_i]` for any
+`1 \≤ i ≤ m`. -/
 lemma multidist_ruzsa_III : 0 = 1 := by sorry
 
-/-- Let $I$ be an indexing set of size $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i \in I} X_i$. Then
-  $$ d[W;-W] \leq 2 D[X_i].$$ -/
+/-- Let `I` be an indexing set of size `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
+variables. Let `W := ∑ (i ∈ I) X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
 lemma multidist_ruzsa_IV : 0 = 1 := by sorry
 
-/-- If $D[X_{[m]}]=0$, then for each $i \in I$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$. -/
+/-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
+`d[X_i; U_{H_i}] = 0`. -/
 lemma multidist_eq_zero : 0 = 1 := by sorry
 
-/-- If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
-  \begin{equation}\label{multi-def-cond}
-  D[ X_{[m]} | Y_{[m]}] := \mathbb{H}[\sum_{i=1}^m \tilde X_i \big| (\tilde Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \mathbb{H}[ \tilde X_i | \tilde Y_i]
-    \end{equation}
-  where $(\tilde X_i,\tilde Y_i)$, $1 \leq i \leq m$ are independent copies of $(X_i,Y_i), 1 \leq i \leq m$ (but note here that we do \emph{not} assume $X_i$ are independent of $Y_i$, or $\tilde X_i$ independent of $\tilde Y_i$). -/
+/-- If `X_[m] = (X_1, ..., X_m)` and `Y_[m] = (Y_1, ..., Y_m)` are tuples of random variables,
+with the `X_i` being `G`-valued (but the `Y_i` need not be), then we define
+`D[X_[m] | Y_[m]] := H[∑ i, X_i | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[X_i' | Y_i']`
+where `(X_i', Y_i)`, `1 ≤ i ≤ m` are independent copies of `(X_i,Y_i), 1 ≤ i ≤ m` (but note here
+that we do *not* assume `X_i` are independent of `Y_i`, or `X_i'` independent of `Y_i`. -/
 noncomputable
-def condMultiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω i)) (X : (i:Fin m) → (Ω i) → G) (Y : (i:Fin m) → (Ω i) → G) : ℝ := sorry
+def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → G) : ℝ := sorry
 
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
 /-- With the above notation, we have
-  \begin{equation}\label{multi-def-cond-alt}
-    D[ X_{[m]} | Y_{[m]} ] = \sum_{(y_i)_{1 \leq i \leq m}} \biggl(\prod_{1 \leq i \leq m} p_{Y_i}(y_i)\biggr) D[ (X_i \,|\, Y_i \mathop{=}y_i)_{1 \leq i \leq m}]
-  \end{equation}
-  where each $y_i$ ranges over the support of $p_{Y_i}$ for $1 \leq i \leq m$. -/
+`D[ X_[m] | Y_[m]] = ∑_{(y_i)_{1 \leq i \leq m}} (∏ i, p_{Y_i}(y_i)) D[(X_i | Y_i = y_i)_{i=1}^m]`
+where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`. -/
 lemma condMultiDist_eq : 0 = 1 := by sorry
 
 end multiDistance
 
 section multiDistance_chainRule
 
-/-- Let $\pi : G \to H$ be a homomorphism of abelian groups and let $X_{[m]}$ be a tuple of jointly independent $G$-valued random variables.  Then $D[X_{[m]}]$ is equal to
-$$ D[ X_{[m]} | \pi(X_{[m]}) ]  +D[ \pi(X_{[m]}) ]  + I[ \sum_{i=1}^m X_i  : \pi(X_{[m]}) \; | \; \pi(\sum_{i=1}^m X_i) ]$$
-  where $\pi(X_{[m]}) := (\pi(X_i))_{1 \leq i \leq m}$.
+/-- Let `π : G → H` be a homomorphism of abelian groups and let `X_[m]` be a tuple of jointly
+independent `G`-valued random variables. Then `D[X_[m]]` is equal to
+`D[X_[m] | π(X_[m])] + D[π(X_[m])] + I[∑ i, X_i : π(X_[m]) ; | ; π(∑ i, X_i)]`
+where `π(X_[m]) := (π(X_1), ..., π(X_m))`.
 -/
 lemma multiDist_chainRule : 0 = 1 := by sorry
 
-/-- Let $\pi : G \to H$ be a homomorphism of abelian groups.
-    Let $I$ be a finite index set and let $X_{[m]}$ be a tuple of $G$-valued random variables.
-    Let $Y_{[m]}$ be another tuple of random variables (not necessarily $G$-valued).
-    Suppose that the pairs $(X_i, Y_i)$ are jointly independent of one another (but $X_i$ need not be independent of $Y_i$).
-    Then
-$$  D[ X_{[m]} | Y_{[m]} ] =  D[ X_{[m]} \,|\, \pi(X_{[m]}), Y_{[m]}] + D[ \pi(X_{[m]}) \,|\, Y_{[m]}]$$
-$$+ I[ \sum_{i=1}^m X_i : \pi(X_{[m]}) \; | \;  \pi(\sum_{i=1}^m X_i \bigr), Y_{[m]} ]. -/
+/-- Let `π : G → H` be a homomorphism of abelian groups. Let `I` be a finite index set and let
+`X_[m]` be a tuple of `G`-valued random variables. Let `Y_[m]` be another tuple of random variables
+(not necessarily `G`-valued). Suppose that the pairs `(X_i, Y_i)` are jointly independent of one
+another (but `X_i` need not be independent of `Y_i`). Then
+`D[X_[m] | Y_[m]] = D[X_[m] ,|, π(X_[m]), Y_[m]] + D[π(X_[m]) ,| , Y_[m]]`
+`+ I[∑ i, X_i : π(X_[m]) ; | ;  π(∑ i, X_i), Y_[m] ]`. -/
 lemma cond_multiDist_chainRule : 0 = 1 := by sorry
 
-/-- Let $m$ be a positive integer.
-    Suppose one has a sequence
- $$     G_m \to G_{m-1} \to \dots \to G_1 \to G_0 = \{0\}
- $$
- of homomorphisms between abelian groups $G_0,\dots,G_m$, and for each $d=0,\dots,m$, let $\pi_d : G_m \to G_d$ be the homomorphism from $G_m$ to $G_d$ arising from this sequence by composition (so for instance $\pi_m$ is the identity homomorphism and $\pi_0$ is the zero homomorphism).
-    Let $X_{[m]} = (X_i)_{1 \leq i \leq m}$ be a jointly independent tuple of $G_m$-valued random variables.
-    Then
- $$       D[ X_{[m]} ] =  \sum_{d=1}^m D[ \pi_d(X_{[m]}) \,|\, \pi_{d-1}(X_{[m]})] $$
- $$ + \sum_{d=1}^{m-1} I[ \sum_i X_i : \pi_d(X_{[m]}) \; \big| \; \pi_d\big(\sum_i X_i\big), \pi_{d-1}(X_{[m]}) ].
- $$
-  -/
+/-- Let `m` be a positive integer. Suppose one has a sequence `G_m → G_{m-1} → ... → G_1 → G_0 = {0}`
+of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m`, let
+`π_d : G_m → G_d` be the homomorphism from `G_m` to `G_d` arising from this sequence by composition
+(so for instance `π_m` is the identity homomorphism and `π_0` is the zero homomorphism).
+Let `X_[m] = (X_1, ..., X_m)` be a jointly independent tuple of `G_m`-valued random variables.
+Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
+` + ∑_{d=1}^{m-1}, I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
 lemma iter_multiDist_chainRule : 0 = 1 := by sorry
 
-/-- Under the preceding hypotheses,
-$$ D[ X_{[m]} ] \geq  & \sum_{d=1}^m D[ \pi_d(X_{[m]})|\pi_{d-1}(X_{[m]}) ] $$
- $$+ I[ \sum_i X_i : \pi_1(X_{[m]}) \; \big| \; \pi_1\bigl(\sum_i X_i\bigr) ].$$
--/
+/--Under the preceding hypotheses,
+`D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
 lemma iter_multiDist_chainRule' : 0 = 1 := by sorry
 
-/-- Let $G$ be an abelian group and let $m \geq 2$.  Suppose that $X_{i,j}$, $1 \leq i, j \leq m$, are independent $G$-valued random variables.
-    Then
-  $$I[ l(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m} : \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i = 1}^m \; \big| \; \sum_{i=1}^m \sum_{j = 1}^m  X_{i,j} ] $$
-  is less than
-  $$\sum_{j=1}^{m-1} \Bigl(D[(X_{i, j})_{i = 1}^m] - D[ (X_{i, j})_{i = 1}^m  \; \big| \; (X_{i,j} + \cdots + X_{i,m})_{i =1}^m ]\Bigr)$$
-  $$+  D[(X_{i,m})_{i=1}^m] - D[ \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i=1}^m ],$$
-  where all the multidistances here involve the indexing set $\{1,\dots, m\}$.
-  -/
+/-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
+independent `G`-valued random variables. Then
+`I[(∑ i, X_{i,j})_{j=1}^m : (∑ j, X_{i,j})_{i=1}^m | ∑ i j, X_{i,j}]`
+is less than
+`∑_{j=1}^{m-1} (D[(X_{i, j})_{i=1}^m] - D[(X_{i, j})_{i = 1}^m | (X_{i,j} + ... + X_{i,m})_{i=1}^m])`
+`+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
+where all the multidistances here involve the indexing set `{1, ..., m}`. -/
 lemma cor_multiDist_chainRule : 0 = 1 := by sorry
 
 

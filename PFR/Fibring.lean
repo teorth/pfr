@@ -14,7 +14,7 @@ $$ I[Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4].$$
 
 -/
 
-open MeasureTheory ProbabilityTheory
+open MeasureTheory ProbabilityTheory Function
 
 section GeneralFibring
 
@@ -32,7 +32,7 @@ $$ d[\pi(Z_1);\pi(Z_2)] + d[Z_1|\pi(Z_1); Z_2 |\pi(Z_2)]$$
 plus
 $$I( Z_1 - Z_2 : (\pi(Z_1), \pi(Z_2)) | \pi(Z_1 - Z_2) ).$$
 -/
-lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
+lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2 : Ω → H} (h : IndepFun Z_1 Z_2 μ)
     (h1 : Measurable Z_1) (h2 : Measurable Z_2) [FiniteRange Z_1] [FiniteRange Z_2]:
     d[Z_1; μ # Z_2; μ] = d[π ∘ Z_1; μ # π ∘ Z_2; μ] + d[Z_1|π∘Z_1; μ # Z_2|π∘Z_2; μ] + I[Z_1-Z_2 : ⟨π∘Z_1, π∘Z_2⟩ | π∘(Z_1 - Z_2); μ] := by
   have hπ : Measurable π := measurable_of_countable _
@@ -52,14 +52,14 @@ lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2: Ω → H} (h : IndepFun Z_1 Z_2 μ)
       = H[Z_1 - Z_2|⟨↑π ∘ Z_1, ↑π ∘ Z_2⟩; μ] := by
     rw [map_comp_sub π]
     let f : H' × H' → (H' × H') × H' := fun (x,y) ↦ ((x,y), x - y)
-    have hf : Function.Injective f := fun _ _ h ↦ (Prod.ext_iff.1 h).1
+    have hf : Injective f := fun _ _ h ↦ (Prod.ext_iff.1 h).1
     have mf : Measurable f := measurable_id.prod_mk measurable_sub
     refine condEntropy_of_injective' μ m1 m2 f hf (mf.comp m2)
   rw [step1, condMutualInfo_eq' m1 m2 m3, entroplem,
     condRuzsaDist_of_indep h1 (hπ.comp h1) h2 (hπ.comp h2) μ h']
   ring_nf
 
-lemma rdist_le_sum_fibre {Z_1: Ω → H} {Z_2: Ω' → H}
+lemma rdist_le_sum_fibre {Z_1 : Ω → H} {Z_2 : Ω' → H}
   (h1 : Measurable Z_1) (h2 : Measurable Z_2) [FiniteRange Z_1] [FiniteRange Z_2] :
   d[π ∘ Z_1; μ # π ∘ Z_2; μ'] + d[Z_1|π∘Z_1; μ # Z_2|π∘Z_2; μ'] ≤ d[Z_1; μ # Z_2; μ']:= by
   obtain ⟨ν, W_1, W_2, hν, m1, m2, hi, hi1, hi2, _, _⟩ := ProbabilityTheory.independent_copies_finiteRange h1 h2 μ μ'
@@ -88,7 +88,7 @@ variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
 variable {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMeasure μ]
 
 /-- The conditional Ruzsa Distance step of `sum_of_rdist_eq` -/
-lemma sum_of_rdist_eq_step_condRuzsaDist {Y : Fin 4 → Ω → G} (h_indep: iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
+lemma sum_of_rdist_eq_step_condRuzsaDist {Y : Fin 4 → Ω → G} (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
   (h_meas : ∀ i, Measurable (Y i)) :
     d[⟨Y 0, Y 2⟩ | Y 0 - Y 2 ; μ # ⟨Y 1, Y 3⟩ | Y 1 - Y 3 ; μ] = d[Y 0 | Y 0 - Y 2 ; μ # Y 1 | Y 1 - Y 3 ; μ] := by
   let Y' : Fin 4 → Ω → G
@@ -116,13 +116,13 @@ lemma sum_of_rdist_eq_step_condRuzsaDist {Y : Fin 4 → Ω → G} (h_indep: iInd
 lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
   (h_meas : ∀ i, Measurable (Y i)) :
     I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
-    I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - Y 2 + Y 3;μ] := by
+    I[Y 0 - Y 1 : Y 1 - Y 3|Y 0 - Y 1 - Y 2 + Y 3;μ] := by
   suffices I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
-    I[Y 0 - Y 1:Y 1 - Y 3|Y 0 - Y 1 - (Y 2 - Y 3) ; μ] by convert this using 2; abel
+    I[Y 0 - Y 1 : Y 1 - Y 3|Y 0 - Y 1 - (Y 2 - Y 3) ; μ] by convert this using 2; abel
   symm
   have hm (f : G → G → G × G) {a b i j k l : Fin 4} :
-    Measurable (Function.uncurry f ∘ ⟨Y i - Y j - (Y k - Y l), Y a - Y b⟩) :=
-    (measurable_of_countable (Function.uncurry f)).comp
+    Measurable (uncurry f ∘ ⟨Y i - Y j - (Y k - Y l), Y a - Y b⟩) :=
+    (measurable_of_countable (uncurry f)).comp
     ((((h_meas _).sub (h_meas _)).sub ((h_meas _).sub (h_meas _))).prod_mk
     ((h_meas _).sub (h_meas _)))
   have hmf : Measurable fun ω ↦ ((Y 0 - Y 1) ω, (Y 0 - Y 1) ω - (Y 0 - Y 1 - (Y 2 - Y 3)) ω) :=
@@ -138,12 +138,12 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
     condMutualInfo_comm hmg hmf]
   . congr 1
     { ext ω
-      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] }
-      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
+      { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] }
+      { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] } }
     { rw [sub_sub, add_sub_left_comm, ← sub_sub]
       ext ω
-      { simp only [Function.comp_apply, Pi.sub_apply, add_sub_cancel] }
-      { simp only [Function.comp_apply, Pi.sub_apply, sub_sub_cancel] } }
+      { simp only [comp_apply, Pi.sub_apply, add_sub_cancel] }
+      { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] } }
   . exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).2
   exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).1
 
@@ -153,7 +153,7 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
 $$d[Y_1-Y_3; Y_2-Y_4] + d[Y_1|Y_1-Y_3; Y_2|Y_2-Y_4] $$
 $$ + I[Y_1-Y_2 : Y_2 - Y_4 | Y_1-Y_2-Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
 -/
-lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
+lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
   (h_meas : ∀ i, Measurable (Y i)) :
     d[Y 0; μ # Y 1; μ] + d[Y 2; μ # Y 3; μ]
       = d[(Y 0) - (Y 2); μ # (Y 1) - (Y 3); μ]
@@ -191,7 +191,7 @@ $$d[Y_1+Y_3; Y_2+Y_4] + d[Y_1|Y_1+Y_3; Y_2|Y_2+Y_4] $$
 $$ + I[Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
 -/
 lemma sum_of_rdist_eq_char_2
-  [ElementaryAddCommGroup G 2] (Y : Fin 4 → Ω → G) (h_indep: iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
+  [ElementaryAddCommGroup G 2] (Y : Fin 4 → Ω → G) (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
   (h_meas : ∀ i, Measurable (Y i)) :
     d[Y 0; μ # Y 1; μ] + d[Y 2; μ # Y 3; μ]
       = d[(Y 0) + (Y 2); μ # (Y 1) + (Y 3); μ]

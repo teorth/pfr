@@ -84,7 +84,7 @@ instance finiteSupport_of_mul {μ : Measure S} [FiniteSupport μ] (c : ℝ≥0�
   use μ.support
   simp [measure_compl_support]
 
-lemma finiteSupport_of_comp {μ : Measure Ω} [FiniteSupport μ] {X : Ω → S} (hX: Measurable X) :
+lemma finiteSupport_of_comp {μ : Measure Ω} [FiniteSupport μ] {X : Ω → S} (hX : Measurable X) :
     FiniteSupport (μ.map X) := by
   classical
   use Finset.image X μ.support
@@ -238,13 +238,13 @@ lemma measureEntropy_of_isProbabilityMeasure' (μ : Measure S) [IsProbabilityMea
     Hm[μ] = ∑' s, negMulLog (μ.real {s}) :=
   measureEntropy_of_isProbabilityMeasure μ
 
-lemma measureEntropy_of_isProbabilityMeasure_finite {μ : Measure S} {A : Finset S} (hA: μ Aᶜ = 0)
+lemma measureEntropy_of_isProbabilityMeasure_finite {μ : Measure S} {A : Finset S} (hA : μ Aᶜ = 0)
     [IsProbabilityMeasure μ] :
     Hm[ μ ] = ∑ s in A, negMulLog (μ {s}).toReal := by
   rw [measureEntropy_def_finite hA]
   simp
 
-lemma measureEntropy_of_isProbabilityMeasure_finite' {μ : Measure S} {A : Finset S} (hA: μ Aᶜ = 0)
+lemma measureEntropy_of_isProbabilityMeasure_finite' {μ : Measure S} {A : Finset S} (hA : μ Aᶜ = 0)
     [IsProbabilityMeasure μ] :
     Hm[ μ ] = ∑ s in A, negMulLog (μ.real {s}) :=
   measureEntropy_of_isProbabilityMeasure_finite hA
@@ -614,7 +614,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     rw [Finset.sum_product]
     simp [w, ← Finset.mul_sum]
     rw [← Finset.sum_mul]
-    rw [show (1:ℝ) = 1 * 1 by norm_num]
+    rw [show (1 : ℝ) = 1 * 1 by norm_num]
     congr
     convert hE1'
     simp
