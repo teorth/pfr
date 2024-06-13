@@ -431,6 +431,8 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
   have mnY : (i : I) → Measurable (Y' i) := fun i ↦ (hφ i).comp (hY i)
 
   have hindep' : iIndepFun (fun (i : I) => hG) Y' μ := hindep.comp φ hφ
+  have hindep2 : IndepFun (Y i₀) (∑ i ∈ s, Y i) μ :=
+    iIndepFun.indepFun_finset_sum_of_not_mem hindep (fun i ↦ hY i) hs |>.symm
   have ineq1 := kvm_ineq_I hs mnY hindep'
 
   have eq2 : ∑ i ∈ s, Y' i = - ∑ i ∈ s, Y i := by
@@ -444,11 +446,20 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
     refine Finset.sum_congr rfl fun i hi ↦ ?_
     simp_rw [Y', φ, if_neg (ne_of_mem_of_not_mem hi hs), if_pos]
     rfl
-  simp_rw [Y', eq3, φ, if_pos, eq2, id_comp] at ineq1
+  simp_rw [Y', eq3, φ, if_pos, eq2, id_comp, ← sub_eq_add_neg] at ineq1
 
-  have ineq4 : d[Y i₀; μ # ∑ i in s, Y i; μ] + 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ])
+  have ineq4 : d[Y i₀; μ # ∑ i in s, Y i; μ] + 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ]) -- the first inequality that appears in the blueprint proof
       ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
-    sorry
+    calc
+      _ = H[Y i₀ - ∑ i ∈ s, Y i ; μ] - H[Y i₀ ; μ] := by
+        rw [IndepFun.rdist_eq hindep2 (hY i₀) (s.measurable_sum' fun i _ ↦ hY i)]
+        ring
+      _ ≤ ∑ i ∈ s, (H[Y i₀ - Y i ; μ] - H[Y i₀ ; μ]) := ineq1
+      _ = _ := by
+        refine Finset.sum_congr rfl fun i hi ↦ ?_
+        rw [IndepFun.rdist_eq (hindep.indepFun (ne_of_mem_of_not_mem hi hs).symm) (hY i₀) (hY i)]
+        ring
+
   sorry
 
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
