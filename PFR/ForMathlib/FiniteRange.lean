@@ -17,7 +17,7 @@ noncomputable def FiniteRange.fintype {Ω G : Type*} (X : Ω → G) [hX : Finite
     Fintype (Set.range X) := hX.finite.fintype
 
 /-- The range of a finite range map, as a finset. -/
-noncomputable def FiniteRange.toFinset {Ω G : Type*} (X : Ω → G) [hX: FiniteRange X] : Finset G :=
+noncomputable def FiniteRange.toFinset {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] : Finset G :=
     @Set.toFinset _ _ hX.fintype
 
 /-- If the codomain of X is finite, then X has finite range.  -/
@@ -27,7 +27,7 @@ instance {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X where
 example {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X := by infer_instance
 
 /-- Functions ranging in a Finset have finite range -/
-lemma finiteRange_of_finset {Ω G : Type*} (f: Ω → G) (A : Finset G) (h : ∀ ω, f ω ∈ A) :
+lemma finiteRange_of_finset {Ω G : Type*} (f : Ω → G) (A : Finset G) (h : ∀ ω, f ω ∈ A) :
     FiniteRange f := by
   constructor
   apply Set.Finite.subset (Finset.finite_toSet A)
@@ -44,7 +44,8 @@ lemma FiniteRange.mem {Ω G : Type*} (X : Ω → G) [FiniteRange X] (ω : Ω) :
   simp_rw [← Finset.mem_coe, ← FiniteRange.range X, Set.mem_range, exists_apply_eq_apply]
 
 @[simp]
-lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) : x ∈ FiniteRange.toFinset X ↔ ∃ ω, X ω = x := by
+lemma FiniteRange.mem_iff {Ω G : Type*} (X : Ω → G) [FiniteRange X] (x : G) :
+    x ∈ FiniteRange.toFinset X ↔ ∃ ω, X ω = x := by
   simp_rw [← Finset.mem_coe, ← FiniteRange.range X, Set.mem_range]
 
 /-- Constants have finite range -/
@@ -53,17 +54,17 @@ instance {Ω G : Type*} (c : G) : FiniteRange (fun _ : Ω ↦ c) := by
   simp
 
 /-- If X has finite range, then any function of X has finite range.  -/
-instance {Ω G H : Type*} (X : Ω → G) (f : G → H) [hX: FiniteRange X] : FiniteRange (f ∘ X) where
+instance {Ω G H : Type*} (X : Ω → G) (f : G → H) [hX : FiniteRange X] : FiniteRange (f ∘ X) where
   finite := (Set.range_comp f X) ▸ Set.Finite.image f hX.finite
 
 /-- If X has finite range, then X of any function has finite range.  -/
-instance {Ω Ω' G : Type*} (X : Ω → G) (f : Ω' → Ω) [hX: FiniteRange X] : FiniteRange (X ∘ f) := by
+instance {Ω Ω' G : Type*} (X : Ω → G) (f : Ω' → Ω) [hX : FiniteRange X] : FiniteRange (X ∘ f) := by
   apply finiteRange_of_finset _ (FiniteRange.toFinset X)
   intro ω
   exact FiniteRange.mem X (f ω)
 
 /-- If X, Y have finite range, then so does the pair ⟨X, Y⟩. -/
-instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX: FiniteRange X] [hY: FiniteRange Y] :
+instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX : FiniteRange X] [hY : FiniteRange Y] :
     FiniteRange (⟨X, Y⟩) where
   finite := by
     have : Set.range (⟨X, Y⟩) ⊆ (Set.range X) ×ˢ (Set.range Y) := by
@@ -83,20 +84,20 @@ instance FiniteRange.prod {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [Mul G]
 /-- The quotient of two functions with finite range, has finite range. -/
 @[to_additive "The difference of functions of finite range, has finite range."]
 instance FiniteRange.div {Ω G : Type*} (X : Ω → G) (Y : Ω → G) [Div G]
-    [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X/Y) := by
+    [hX : FiniteRange X] [hY : FiniteRange Y] : FiniteRange (X/Y) := by
   show FiniteRange ((fun p ↦ p.1 / p.2) ∘ ⟨X, Y⟩)
   infer_instance
 
 /-- The inverse of a function of finite range, has finite range.-/
 @[to_additive "The negation of a function of finite range, has finite range."]
-instance FiniteRange.inv {Ω G : Type*} (X : Ω → G) [Inv G] [hX: FiniteRange X] :
+instance FiniteRange.inv {Ω G : Type*} (X : Ω → G) [Inv G] [hX : FiniteRange X] :
     FiniteRange X⁻¹ := by
   show FiniteRange ((fun p ↦ p⁻¹) ∘ X)
   infer_instance
 
 /-- A function of finite range raised to a constant power, has finite range. -/
 @[to_additive "The multiple of a function of finite range by a constant, has finite range."]
-instance FiniteRange.pow {Ω G : Type*} (X : Ω → G) [Pow G ℤ] [hX: FiniteRange X] (c : ℤ) :
+instance FiniteRange.pow {Ω G : Type*} (X : Ω → G) [Pow G ℤ] [hX : FiniteRange X] (c : ℤ) :
     FiniteRange (X^c) := by
   show FiniteRange ((fun x ↦ x^c) ∘ X)
   infer_instance
@@ -122,7 +123,7 @@ instance FiniteRange.finprod {Ω G I : Type*} [CommMonoid G] {s : Finset I} (X :
 open MeasureTheory
 
 lemma FiniteRange.full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
-    [MeasurableSingletonClass G] {X : Ω → G} (hX: Measurable X) [FiniteRange X] (μ: Measure Ω) :
+    [MeasurableSingletonClass G] {X : Ω → G} (hX : Measurable X) [FiniteRange X] (μ: Measure Ω) :
     (μ.map X) (FiniteRange.toFinset X) = μ Set.univ := by
   rw [Measure.map_apply hX]
   congr

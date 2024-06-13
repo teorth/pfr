@@ -267,7 +267,7 @@ variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
 variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
 
-variable (h_min: tau_minimizes p X₁ X₂)
+variable (h_min : tau_minimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[X₁ # X₂]
@@ -417,7 +417,8 @@ end aux
 open scoped BigOperators
 
 /--   $k$ is at most
-$$ \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta}{6}  \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B} (d[X^0_i;A|B,S] - d[X^0_i; X_i]).$$
+$$ \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta}{6}
+\sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B} (d[X^0_i;A|B,S] - d[X^0_i; X_i]).$$
 -/
 lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S])
     + (p.η / 6) * (((d[p.X₀₁ # U | ⟨V, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # U | ⟨W, S⟩] - d[p.X₀₁ # X₁])
@@ -812,7 +813,8 @@ d[X^0_1; U_H] and d[X^0_2; U_H] are at most 5/2 * d[X^0_1;X^0_2] -/
 theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1/8) :
     ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
-    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] ∧ d[p.X₀₁ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] ∧ d[p.X₀₂ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] := by
+    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] ∧ d[p.X₀₁ # U]
+      ≤ 11/2 * d[p.X₀₁ # p.X₀₂] ∧ d[p.X₀₂ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] := by
   obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, hP, htau_min, hdist⟩ := tau_minimizer_exists_rdist_eq_zero p
   obtain ⟨H, U, hU, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
   have : d[p.X₀₁ # p.X₀₂] = d[p.X₀₂ # p.X₀₁] := rdist_symm
@@ -886,8 +888,8 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have VA'unif := VAunif
   rw [← hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
-  let H' := (H:Set G).toFinite.toFinset
-  have hHH' : H' = (H:Set G) := Finite.coe_toFinset (toFinite (H:Set G))
+  let H' := (H : Set G).toFinite.toFinset
+  have hHH' : H' = (H : Set G) := Finite.coe_toFinset (toFinite (H : Set G))
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
 

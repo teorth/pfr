@@ -167,8 +167,8 @@ lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRan
   exact ((entropy_comp_le ν (by measurability) _).trans) (entropy_pair_le_add hX' hY' ν)
 
 /-- Applying an injective homomorphism does not affect Ruzsa distance. -/
-lemma rdist_of_inj  {H:Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
-  [MeasurableSub₂ H] [MeasurableAdd₂ H] [Countable H] (hX: Measurable X) (hY: Measurable Y)
+lemma rdist_of_inj  {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
+  [MeasurableSub₂ H] [MeasurableAdd₂ H] [Countable H] (hX : Measurable X) (hY : Measurable Y)
   (φ : G →+ H) (hφ : Injective φ) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ' ]:
     d[φ ∘ X ; μ # φ ∘ Y ; μ'] = d[X ; μ # Y ; μ'] := by
     rw [rdist_def, rdist_def]
@@ -260,7 +260,7 @@ $H\leq G$ is a finite subgroup then, with $\pi:G\to G/H$ the natural homomorphis
 (where $U_H$ is uniform on $H$) $\mathbb{H}(\pi(X))\leq 2d[X;U_H].$ -/
 lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange X] [FiniteRange UH]
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
-    (hX : Measurable X) (hU: Measurable UH) {H: AddSubgroup G} [Finite H] -- TODO: infer from [FiniteRange UH]?
+    (hX : Measurable X) (hU: Measurable UH) {H : AddSubgroup G} [Finite H] -- TODO: infer from [FiniteRange UH]?
     (hunif: IsUniform H UH μ')
     : H[(QuotientAddGroup.mk' H) ∘ X; μ] ≤ 2 * d[X; μ # UH ; μ'] := by
   obtain ⟨ν, X', UH', hν, hX', hUH', h_ind, h_id_X', h_id_UH', _, _⟩ :=

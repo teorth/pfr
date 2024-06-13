@@ -60,3 +60,5 @@ import PFR.Tactic.Finiteness.Attr
 import PFR.Tactic.RPowSimp
 import PFR.TauFunctional
 import PFR.WeakPFR
+import PFR.kullback
+
