@@ -240,11 +240,27 @@ lemma max_entropy_le_entropy_div (hX : Measurable X) (hY : Measurable Y) (h : In
 `H[Xᵢ] ≤ H[∏ j ∈ s, Xⱼ]`. -/
 @[to_additive "If `X₁, ..., Xₙ` are independent and `s ⊆ {1, ..., n}`, then for all `i ∈ s`,
 `H[Xᵢ] ≤ H[∑ j ∈ s, Xⱼ]`."]
-lemma max_entropy_le_entropy_prod [CommMonoid G] {I : Type*} {s : Finset I} {i₀ : I} (hi₀ : i₀ ∈ s)
-    {X : I → Ω → G} (hX : (i : I) → Measurable (X i)) (hindep : iIndepFun (fun (i : I) => hG) X μ) :
+lemma max_entropy_le_entropy_prod {G : Type*} [Countable G] [hG : MeasurableSpace G]
+    [MeasurableSingletonClass G] [CommGroup G] [MeasurableMul₂ G]
+    {I : Type*} {s : Finset I} {i₀ : I} (hi₀ : i₀ ∈ s) {X : I → Ω → G} [(i : I) → FiniteRange (X i)]
+    (hX : (i : I) → Measurable (X i)) (hindep : iIndepFun (fun (_ : I) => hG) X μ) :
     H[X i₀ ; μ] ≤ H[∏ i in s, X i ; μ] := by
-  --induction on `s`
-  sorry
+  have hs : s.Nonempty := ⟨i₀, hi₀⟩
+  induction' hs using Finset.Nonempty.cons_induction with i j s Hnot _ Hind
+  · simp_all
+  · rw [Finset.prod_cons]
+    rcases Finset.mem_cons.mp hi₀ with rfl | hi₀
+    · calc
+        _ ≤ max H[X i₀ ; μ] H[∏ i ∈ s, X i ; μ] := le_max_left _ _
+        _ ≤ H[X i₀ * ∏ i ∈ s, X i ; μ] := by
+          refine max_entropy_le_entropy_mul (hX i₀) (s.measurable_prod' fun i _ ↦ hX i) ?_
+          exact iIndepFun.indepFun_finset_prod_of_not_mem hindep hX Hnot |>.symm
+    · calc
+        _ ≤ H[∏ i ∈ s, X i ; μ] := Hind hi₀
+        _ ≤ max H[X j ; μ] H[∏ i ∈ s, X i ; μ] := le_max_right _ _
+        _ ≤ H[X j * ∏ x ∈ s, X x ; μ] := by
+          refine max_entropy_le_entropy_mul (hX j) (s.measurable_prod' fun i _ ↦ hX i) ?_
+          exact iIndepFun.indepFun_finset_prod_of_not_mem hindep hX Hnot |>.symm
 
 end IsProbabilityMeasure
 end ProbabilityTheory
