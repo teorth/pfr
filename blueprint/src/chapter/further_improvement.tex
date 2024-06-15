@@ -30,7 +30,7 @@ In the definitions below, $G$ is a set.
   Apply \Cref{converse-log-sum}.
 \end{proof}
 
-\begin{lemma}[Convexity of Kullback--Leibler]\label{kl-div-convex}\lean{KL_div_of_convex}  If $S$ is a finite set, $\sum_{s \in S} w_s = 1$ for some non-negative $w_s$, and ${\bf P}(X=x) = \sum_{s\in S} w_s  {\bf P}(X_s=x)$, ${\bf P}(Y=x) = \sum_{s\in S} w_s  {\bf P}(Y_s=x)$ for all $x$, then
+\begin{lemma}[Convexity of Kullback--Leibler]\label{kl-div-convex}\lean{KL_div_of_convex}\leanok  If $S$ is a finite set, $\sum_{s \in S} w_s = 1$ for some non-negative $w_s$, and ${\bf P}(X=x) = \sum_{s\in S} w_s  {\bf P}(X_s=x)$, ${\bf P}(Y=x) = \sum_{s\in S} w_s  {\bf P}(Y_s=x)$ for all $x$, then
 $$D_{KL}(X\Vert Y) \le \sum_{s\in S} w_s D_{KL}(X_s\Vert Y_s).$$
 \end{lemma}
 \begin{proof}
@@ -39,7 +39,7 @@ For each $x$, replace $\log \frac{\mathbf{P}(X_s=x)}{\mathbf{P}(Y_s=x)}$ in the 
 \end{proof}
 
 
-\begin{lemma}[Kullback--Leibler and injections]\label{kl-div-inj}\lean{KL_div_of_comp_inj}  If $f:G \to H$ is an injection, then $D_{KL}(f(X)\Vert f(Y)) = D_{KL}(X\Vert Y)$.
+\begin{lemma}[Kullback--Leibler and injections]\label{kl-div-inj}\lean{KL_div_of_comp_inj}\leanok  If $f:G \to H$ is an injection, then $D_{KL}(f(X)\Vert f(Y)) = D_{KL}(X\Vert Y)$.
 \end{lemma}
 
 \begin{proof}\uses{kl-div} Clear from definition.
@@ -47,7 +47,7 @@ For each $x$, replace $\log \frac{\mathbf{P}(X_s=x)}{\mathbf{P}(Y_s=x)}$ in the 
 
 Now let $G$ be an additive group.
 
-\begin{lemma}[Kullback--Leibler and sums]\label{kl-sums}\lean{KL_div_add_le_KL_div_of_indep} If $X, Y, Z$ are independent $G$-valued random variables, then
+\begin{lemma}[Kullback--Leibler and sums]\label{kl-sums}\lean{KL_div_add_le_KL_div_of_indep}\leanok If $X, Y, Z$ are independent $G$-valued random variables, then
   $$D_{KL}(X+Z\Vert Y+Z) \leq D_{KL}(X\Vert Y).$$
 \end{lemma}
 
