@@ -415,8 +415,9 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
 #check ProbabilityTheory.IndepFun.rdist_eq -- 3.11
 #check max_entropy_le_entropy_add -- 3.5
 #check max_entropy_le_entropy_sub -- 3.5
+#check max_entropy_le_entropy_prod -- corollary of 3.5
 #check diff_ent_le_rdist -- 3.13
-
+-- set_option maxHeartbeats 1000000 in
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.-/
 lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
@@ -459,6 +460,37 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
         refine Finset.sum_congr rfl fun i hi ↦ ?_
         rw [IndepFun.rdist_eq (hindep.indepFun (ne_of_mem_of_not_mem hi hs).symm) (hY i₀) (hY i)]
         ring
+  replace ineq4 : d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ]
+      + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) - 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ]) :=
+    le_tsub_of_add_le_right ineq4
+  have ineq5 (j : I) (hj : j ∈ s) : H[Y j ; μ] ≤ H[∑ i ∈ s, Y i; μ] :=
+    max_entropy_le_entropy_sum hj hY hindep
+  have ineq6 : (s.card : ℝ)⁻¹ * ∑ i ∈ s, (H[Y i; μ] - H[Y i₀; μ]) ≤ H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ] := by --third inequality in the blueprint
+    rw [inv_mul_le_iff (by exact_mod_cast Finset.card_pos.mpr hs'), ← smul_eq_mul,
+      ← nsmul_eq_smul_cast, ← Finset.sum_const]
+    refine Finset.sum_le_sum fun i hi ↦ ?_
+    gcongr
+    exact ineq5 i hi
+  have ineq7 : d[Y i₀; μ # ∑ i in s, Y i; μ]
+    ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / (2 * s.card) * (H[Y i; μ] - H[Y i₀; μ])) := by
+    calc
+      _ ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ]))
+          - 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ]) := ineq4
+      _ ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ]))
+          - 1/2 * ((s.card : ℝ)⁻¹ * ∑ i ∈ s, (H[Y i; μ] - H[Y i₀; μ])) := by gcongr
+      _ = ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])
+          - 1/2 * ((s.card : ℝ)⁻¹ * (H[Y i; μ] - H[Y i₀; μ]))) := by
+        rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
+      _ = ∑ i in s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / (2 * s.card) * (H[Y i; μ] - H[Y i₀; μ])) := by
+        refine Finset.sum_congr rfl fun i hi ↦ ?_
+        rw [add_sub_assoc, ← mul_assoc, ← sub_mul]
+        field_simp
+  have ineq8 (i : I) : H[Y i; μ] - H[Y i₀; μ] ≤ 2 * d[Y i₀; μ # Y i; μ] := by -- 4th inequality in the blueprint
+    calc
+      _ ≤ |H[Y i₀ ; μ] - H[Y i ; μ]| := by
+        rw [← neg_sub]
+        exact neg_le_abs _
+      _ ≤ 2 * d[Y i₀; μ # Y i; μ] := diff_ent_le_rdist (hY i₀) (hY i)
 
   sorry
 
