@@ -410,46 +410,32 @@ lemma kvm_ineq_I [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I}
       rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
     · ring
 
-#check kvm_ineq_I -- 12.6
-#check entropy_neg -- 3.1
-#check ProbabilityTheory.IndepFun.rdist_eq -- 3.11
-#check max_entropy_le_entropy_add -- 3.5
-#check max_entropy_le_entropy_sub -- 3.5
-#check max_entropy_le_entropy_prod -- corollary of 3.5
-#check diff_ent_le_rdist -- 3.13
--- set_option maxHeartbeats 1000000 in
 /--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.-/
 lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     (hs' : Finset.Nonempty s) {Y : I → Ω → G} [∀ i, FiniteRange (Y i)]
-    (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) => hG) Y μ) :
+    (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (_ : I) => hG) Y μ) :
     d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by
   classical
   let φ : I → G → G := fun i ↦ if i = i₀ then id else - id
   have hφ : (i : I) → Measurable (φ i) := fun _ ↦ measurable_discrete _
-
   let Y' : I → Ω → G := fun i ↦ (φ i) ∘ (Y i)
   have mnY : (i : I) → Measurable (Y' i) := fun i ↦ (hφ i).comp (hY i)
-
-  have hindep' : iIndepFun (fun (i : I) => hG) Y' μ := hindep.comp φ hφ
   have hindep2 : IndepFun (Y i₀) (∑ i ∈ s, Y i) μ :=
     iIndepFun.indepFun_finset_sum_of_not_mem hindep (fun i ↦ hY i) hs |>.symm
-  have ineq1 := kvm_ineq_I hs mnY hindep'
-
+  have ineq1 := kvm_ineq_I hs mnY (hindep.comp φ hφ)
   have eq2 : ∑ i ∈ s, Y' i = - ∑ i ∈ s, Y i := by
     simp_rw [Y', φ, ← Finset.sum_neg_distrib]
     refine Finset.sum_congr rfl fun i hi ↦ ?_
     rw [if_neg (ne_of_mem_of_not_mem hi hs)]
     rfl
-
   have eq3 : ∑ i ∈ s, (H[Y' i₀ + Y' i ; μ] - H[Y' i₀ ; μ])
       = ∑ i ∈ s, (H[Y i₀ + -Y i ; μ] - H[Y i₀ ; μ]) := by
     refine Finset.sum_congr rfl fun i hi ↦ ?_
     simp_rw [Y', φ, if_neg (ne_of_mem_of_not_mem hi hs), if_pos]
     rfl
   simp_rw [Y', eq3, φ, if_pos, eq2, id_comp, ← sub_eq_add_neg] at ineq1
-
-  have ineq4 : d[Y i₀; μ # ∑ i in s, Y i; μ] + 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ]) -- the first inequality that appears in the blueprint proof
+  have ineq4 : d[Y i₀; μ # ∑ i in s, Y i; μ] + 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ])
       ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
     calc
       _ = H[Y i₀ - ∑ i ∈ s, Y i ; μ] - H[Y i₀ ; μ] := by
@@ -465,7 +451,7 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
     le_tsub_of_add_le_right ineq4
   have ineq5 (j : I) (hj : j ∈ s) : H[Y j ; μ] ≤ H[∑ i ∈ s, Y i; μ] :=
     max_entropy_le_entropy_sum hj hY hindep
-  have ineq6 : (s.card : ℝ)⁻¹ * ∑ i ∈ s, (H[Y i; μ] - H[Y i₀; μ]) ≤ H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ] := by --third inequality in the blueprint
+  have ineq6 : (s.card : ℝ)⁻¹ * ∑ i ∈ s, (H[Y i; μ] - H[Y i₀; μ]) ≤ H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ] := by
     rw [inv_mul_le_iff (by exact_mod_cast Finset.card_pos.mpr hs'), ← smul_eq_mul,
       ← nsmul_eq_smul_cast, ← Finset.sum_const]
     refine Finset.sum_le_sum fun i hi ↦ ?_
@@ -482,17 +468,31 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
           - 1/2 * ((s.card : ℝ)⁻¹ * (H[Y i; μ] - H[Y i₀; μ]))) := by
         rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
       _ = ∑ i in s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / (2 * s.card) * (H[Y i; μ] - H[Y i₀; μ])) := by
-        refine Finset.sum_congr rfl fun i hi ↦ ?_
+        refine Finset.sum_congr rfl fun i _ ↦ ?_
         rw [add_sub_assoc, ← mul_assoc, ← sub_mul]
         field_simp
-  have ineq8 (i : I) : H[Y i; μ] - H[Y i₀; μ] ≤ 2 * d[Y i₀; μ # Y i; μ] := by -- 4th inequality in the blueprint
+  have ineq8 (i : I) : H[Y i; μ] - H[Y i₀; μ] ≤ 2 * d[Y i₀; μ # Y i; μ] := by
     calc
       _ ≤ |H[Y i₀ ; μ] - H[Y i ; μ]| := by
         rw [← neg_sub]
         exact neg_le_abs _
       _ ≤ 2 * d[Y i₀; μ # Y i; μ] := diff_ent_le_rdist (hY i₀) (hY i)
-
-  sorry
+  calc
+    _ ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / (2 * s.card) * (H[Y i; μ] - H[Y i₀; μ])) :=
+      ineq7
+    _ ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / s.card * d[Y i₀; μ # Y i; μ]) := by
+      simp_rw [div_eq_mul_inv, mul_inv, mul_comm (2 : ℝ)⁻¹, mul_assoc]
+      gcongr ∑ i ∈ s, (d[Y i₀ ; μ # Y i ; μ] + (s.card - 1) * ((s.card : ℝ)⁻¹ * ?_))
+      · simp only [sub_nonneg, Nat.one_le_cast]
+        exact Nat.one_le_iff_ne_zero.mpr <| Finset.card_ne_zero.mpr hs'
+      · exact (inv_mul_le_iff zero_lt_two).mpr (ineq8 _)
+    _ ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + d[Y i₀; μ # Y i; μ]) := by
+      gcongr ∑ i ∈ s, (d[Y i₀ ; μ # Y i ; μ] + ?_) with i
+      refine mul_le_of_le_one_left (rdist_nonneg (hY i₀) (hY i)) ?_
+      exact (div_le_one (Nat.cast_pos.mpr <| Finset.card_pos.mpr hs')).mpr (by simp)
+    _ = 2 * ∑ i ∈ s, d[Y i₀ ; μ # Y i ; μ] := by
+      ring_nf
+      exact (Finset.sum_mul _ _ _).symm
 
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
