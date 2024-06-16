@@ -704,7 +704,7 @@ Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'
 of the `X_i`.-/
 noncomputable
 def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-  (X : (i : Fin m) → (Ω i) → G) : ℝ := sorry
+  (X : (i : Fin m) → (Ω i) → G) : ℝ := H[ fun ω ↦ ∑ i, (X i) (ω i); .pi (fun i ↦ (hΩ i).volume)] - (m:ℝ)⁻¹ * ∑ i, H[X i; (hΩ i).volume]
 
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
