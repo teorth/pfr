@@ -497,9 +497,9 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
 -/
-lemma kvm_ineq_III {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
+lemma kvm_ineq_III {I : Type*} {i₀ : I} {s : Finset I} (hs₀ : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
     (Y : I → Ω → G) (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ)
-    (i₁ : I) : d[Y i₀; μ # ∑ i in s, Y i; μ]
+    {i₁ : I} (hs₀ : i₁ ∈ s) : d[Y i₀; μ # ∑ i in s, Y i; μ]
       ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ]) := by sorry
 
 open Classical in
