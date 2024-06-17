@@ -100,12 +100,12 @@ Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
 \end{proof}
 
 \begin{lemma}[Kaimonovich--Vershik--Madiman inequality, III]\label{klm-3}\lean{kvm_ineq_III}\leanok  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
-  $$ d[X; \sum_{i=1}^n Y_i] \leq d[X; Y_1] + \frac{1}{2}(\bbH[ \sum_{i=1}^n Y_i ] - \bbH[Y_1]).$$
+  $$d\left[X; \sum_{i=1}^n Y_i\right] \leq d\left[X; Y_1\right] + \frac{1}{2}\left(\bbH\left[ \sum_{i=1}^n Y_i\right] - \bbH[Y_1]\right).$$
 \end{lemma}
 
 \begin{proof}\uses{kv, ruz-indep}
   From \Cref{kv} one has
-  $$ \bbH[ -X + \sum_{i=1}^n Y_i ] \leq \bbH[ - X + Y_1 ] + \bbH[ \sum_{i=1}^n Y_i ] - \bbH[ \sum_{i=2}^n Y_i ].$$
+  $$ \bbH\left[-X + \sum_{i=1}^n Y_i\right] \leq \bbH[ - X + Y_1 ] + \bbH\left[ \sum_{i=1}^n Y_i \right] - \bbH[Y_1].$$
   The claim then follows from \Cref{ruz-indep} and some elementary algebra.
 \end{proof}
 
