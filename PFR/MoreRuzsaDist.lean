@@ -494,6 +494,20 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
       ring_nf
       exact (Finset.sum_mul _ _ _).symm
 
+lemma kvm_ineq_III_aux [IsProbabilityMeasure μ] {X Y Z : Ω → G} [FiniteRange X] [FiniteRange Y]
+    [FiniteRange Z] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (hindep : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ) :
+   d[X; μ # Y + Z; μ] ≤ d[X; μ # Y; μ] + (2 : ℝ)⁻¹ * (H[Y + Z; μ] - H[Y; μ]) := by
+  have hindep1 : IndepFun X (Y + Z) μ := by
+    convert hindep.indepFun_add_right (fun i ↦ ?_) 0 1 2 (by simp) (by simp)
+    fin_cases i <;> assumption
+  have hindep2 : IndepFun X Y μ := hindep.indepFun (show 0 ≠ 1 by simp)
+  rw [IndepFun.rdist_eq hindep1 hX (hY.add hZ), IndepFun.rdist_eq hindep2 hX hY]
+  simp only [tsub_le_iff_right, ge_iff_le]
+  ring_nf
+  rw [sub_add_eq_add_sub, add_sub_assoc, ← tsub_le_iff_left]
+  refine kaimanovich_vershik' hindep hX hY hZ
+
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
 -/
