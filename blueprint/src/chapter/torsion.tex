@@ -103,7 +103,7 @@ Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
   $$d\left[X; \sum_{i=1}^n Y_i\right] \leq d\left[X; Y_1\right] + \frac{1}{2}\left(\bbH\left[ \sum_{i=1}^n Y_i\right] - \bbH[Y_1]\right).$$
 \end{lemma}
 
-\begin{proof}\uses{kv, ruz-indep}
+\begin{proof}\uses{kv, ruz-indep}\leanok
   From \Cref{kv} one has
   $$ \bbH\left[-X + \sum_{i=1}^n Y_i\right] \leq \bbH[ - X + Y_1 ] + \bbH\left[ \sum_{i=1}^n Y_i \right] - \bbH[Y_1].$$
   The claim then follows from \Cref{ruz-indep} and some elementary algebra.
