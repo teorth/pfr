@@ -494,13 +494,46 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
       ring_nf
       exact (Finset.sum_mul _ _ _).symm
 
+lemma kvm_ineq_III_aux [IsProbabilityMeasure μ] {X Y Z : Ω → G} [FiniteRange X] [FiniteRange Y]
+    [FiniteRange Z] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (hindep : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ) :
+   d[X; μ # Y + Z; μ] ≤ d[X; μ # Y; μ] + (2 : ℝ)⁻¹ * (H[Y + Z; μ] - H[Y; μ]) := by
+  have hindep1 : IndepFun X (Y + Z) μ := by
+    convert hindep.indepFun_add_right (fun i ↦ ?_) 0 1 2 (by simp) (by simp)
+    fin_cases i <;> assumption
+  have hindep2 : IndepFun X Y μ := hindep.indepFun (show 0 ≠ 1 by simp)
+  rw [IndepFun.rdist_eq hindep1 hX (hY.add hZ), IndepFun.rdist_eq hindep2 hX hY]
+  simp only [tsub_le_iff_right, ge_iff_le]
+  ring_nf
+  rw [sub_add_eq_add_sub, add_sub_assoc, ← tsub_le_iff_left]
+  refine kaimanovich_vershik' hindep hX hY hZ
+
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
-then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ])`.
+then `d[Y i₀, ∑ i, Y i] ≤ d[Y i₀, Y i₁] + 2⁻¹ * (H[∑ i, Y i] - H[Y i₁])`.
 -/
-lemma kvm_ineq_III {I : Type*} {i₀ : I} {s : Finset I} (hs₀ : ¬ i₀ ∈ s) (hs' : Finset.Nonempty s)
-    (Y : I → Ω → G) (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun (i : I) ↦ hG) Y μ)
-    {i₁ : I} (hs₀ : i₁ ∈ s) : d[Y i₀; μ # ∑ i in s, Y i; μ]
-      ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * ∑ i in s, (H[Y i; μ] - H[Y i₁; μ]) := by sorry
+lemma kvm_ineq_III [IsProbabilityMeasure μ] {I : Type*} {i₀ i₁ : I} {s : Finset I} (hs₀ : ¬ i₀ ∈ s) (hs₁ : ¬ i₁ ∈ s) (h01 : i₀ ≠ i₁)
+    (Y : I → Ω → G) [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i)) (hindep : iIndepFun (fun _ ↦ hG) Y μ) :
+    d[Y i₀; μ # Y i₁ + ∑ i ∈ s, Y i; μ]
+      ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * (H[Y i₁ + ∑ i ∈ s, Y i; μ] - H[Y i₁; μ]) := by
+  let J := Fin 3
+  let S : J → Finset I := ![{i₀}, {i₁}, s]
+  have h_dis: Set.univ.PairwiseDisjoint S := by
+    intro j _ k _ hjk
+    change Disjoint (S j) (S k)
+    fin_cases j <;> fin_cases k <;> try exact (hjk rfl).elim
+    all_goals
+      simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+        Finset.disjoint_singleton_right, S, hs₀, hs₁, h01, h01.symm]
+  let φ : (j : J) → ((_ : S j) → G) → G
+    | 0 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
+    | 1 => fun Ys ↦ Ys ⟨i₁, by simp [S]⟩
+    | 2 => fun Ys ↦ ∑ i : s, Ys ⟨i.1, i.2⟩
+  have hφ : (j : J) → Measurable (φ j) := fun j ↦ measurable_discrete _
+  have hindep' : iIndepFun (fun _ ↦ hG) ![Y i₀, Y i₁, ∑ i ∈ s, Y i] μ := by
+    convert iIndepFun.finsets_comp S h_dis hindep hY φ hφ with j x
+    fin_cases j <;> simp [φ, (s.sum_attach _).symm]
+  exact kvm_ineq_III_aux (hY i₀) (hY i₁) (s.measurable_sum' fun i _ ↦ hY i) hindep'
+
 
 open Classical in
 /-- Let `X₁, ..., Xₘ` and `Y₁, ..., Yₗ` be tuples of jointly independent random variables (so the
