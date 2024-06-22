@@ -63,3 +63,4 @@ import PFR.WeakPFR
 import PFR.kullback
 import PFR.BoundingMutual
 import PFR.TorsionEndgame
+import PFR.RhoFunctional

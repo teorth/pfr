@@ -29,9 +29,11 @@ variable {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRange Y]
 
 /--  If `X, Y` are two `G`-valued random variables, the Kullback--Leibler divergence is defined as
   `KL(X ‖ Y) := ∑ₓ 𝐏(X = x) log(𝐏(X = x) / 𝐏(Y = x))`. -/
-noncomputable def KL_div (X : Ω → G) (Y: Ω' → G) (μ: Measure Ω) (μ' : Measure Ω') : ℝ := ∑' x, (μ.map X {x}).toReal * log ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal)
+noncomputable def KL_div (X : Ω → G) (Y: Ω' → G) (μ: Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ := ∑' x, (μ.map X {x}).toReal * log ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal)
 
 @[inherit_doc KL_div] notation3:max "KL[" X " ; " μ " # " Y " ; " μ' "]" => KL_div X Y μ μ'
+
+@[inherit_doc KL_div] notation3:max "KL[" X " # " Y "]" => KL_div X Y volume volume
 
 /-- If `X'` is a copy of `X`, and `Y'` is a copy of `Y`, then `KL(X' ‖ Y') = KL(X ‖ Y)`. -/
 lemma KL_div_eq_of_equiv (X' : Ω'' → G) (Y' : Ω''' → G) (hX : IdentDistrib X X' μ μ'') (hY : IdentDistrib Y Y' μ' μ''') :
