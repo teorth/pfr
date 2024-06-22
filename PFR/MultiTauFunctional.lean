@@ -65,3 +65,4 @@ lemma sub_condMultiDistance_le : 0 = 1 := by sorry
   \end{equation}
 for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$. -/
 lemma sub_condMultiDistance_le' : 0 = 1 := by sorry
+

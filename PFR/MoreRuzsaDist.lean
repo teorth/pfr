@@ -761,9 +761,11 @@ lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → M
     (X : (i : Fin m) → (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
     D[X ; hΩ] = D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by sorry
 
+-- The condition m ≥ 2 is likely not needed here.
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
-  `∑ (1 \≤ j, k ≤ m, j ≠ k), d[X_j; -X_k] ≤ m(m-1) D[X_[m]].` -/
-lemma multidist_ruzsa_I : 0 = 1 := by sorry
+  `∑ (1 ≤ j, k ≤ m, j ≠ k), d[X_j; -X_k] ≤ m(m-1) D[X_[m]].` -/
+lemma multidist_ruzsa_I {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G): ∑ j : Fin m, ∑ k : Fin m, (if j = k then (0:ℝ) else d[X j; (hΩ j).volume # X k; (hΩ k).volume]) ≤ m * (m-1) * D[X; hΩ] := by sorry
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ j, d[X_j;X_j] ≤ 2 m D[X_[m]]`. -/
