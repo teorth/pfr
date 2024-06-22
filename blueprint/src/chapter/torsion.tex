@@ -211,7 +211,7 @@ By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly in
   Summing this over all pairs $(j,k)$, $j \neq k$ and using Lemma \ref{multidist-indep}, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}\lean{multidist_ruzsa_II}\uses{multidist-def}
+\begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}\lean{multidist_ruzsa_II}\uses{multidist-def}\leanok
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
   $$\sum_{j=1}^m d[X_j;X_j] \leq 2 m D[X_{[m]}].$$
 \end{lemma}
@@ -220,7 +220,7 @@ By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly in
 From \Cref{ruzsa-triangle} we have $\dist{X_j}{X_j} \leq 2 \dist{X_j}{-X_k}$, and applying this to every summand in \Cref{multidist-ruzsa-I}, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, III]\label{multidist-ruzsa-III}\lean{multidist_ruzsa_III}\uses{multidist-def}
+\begin{lemma}[Multidistance and Ruzsa distance, III]\label{multidist-ruzsa-III}\lean{multidist_ruzsa_III}\uses{multidist-def}\leanok
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_{[m]}] \leq m d[X_i;X_i]$ for any $1 \leq i \leq m$.
 \end{lemma}
 
@@ -235,8 +235,8 @@ $$ \bbH[\sum_{i=1}^m X_i] \leq \bbH[-X_0 + \sum_{i=1}^m X_i]$$
 and the claim follows.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, IV]\label{multidist-ruzsa-IV}\lean{multidist_ruzsa_IV}\uses{multidist-def}
-  Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i=1}^m X_i$. Then
+\begin{lemma}[Multidistance and Ruzsa distance, IV]\label{multidist-ruzsa-IV}\lean{multidist_ruzsa_IV}\uses{multidist-def}\leanok
+  Let $m \ge 2$, and let $X_{[m]}$ be a tuple of independent $G$-valued random variables.  Let $W := \sum_{i=1}^m X_i$. Then
   $$ d[W;-W] \leq 2 D[X_i].$$
 \end{lemma}
 
@@ -257,7 +257,7 @@ and the claim follows.
   Averaging this over all choices of $(a,b)$ gives $\bbH[W] + 2 D[X_{[m]}]$, and the claim follows from \Cref{ruz-indep}.
 \end{proof}
 
-\begin{proposition}[Vanishing]\label{multi-zero}\lean{multidist_eq_zero}\uses{multidist-def}
+\begin{proposition}[Vanishing]\label{multi-zero}\lean{multidist_eq_zero}\uses{multidist-def}\leanok
 If $D[X_{[m]}]=0$, then for each $1 \leq i \leq m$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$.
 \end{proposition}
 

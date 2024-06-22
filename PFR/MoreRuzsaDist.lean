@@ -737,20 +737,20 @@ Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'
 of the `X_i`.-/
 noncomputable
 def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-  (X : (i : Fin m) → (Ω i) → G) : ℝ := H[ fun ω ↦ ∑ i, (X i) (ω i); .pi (fun i ↦ (hΩ i).volume)] - (m:ℝ)⁻¹ * ∑ i, H[X i; (hΩ i).volume]
+  (X : (i : Fin m) → (Ω i) → G) : ℝ := H[ fun ω ↦ ∑ i, (X i) (ω i); .pi (fun i ↦ (hΩ i).volume)] - (m:ℝ)⁻¹ * ∑ i, H[X i]
 
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
 /-- If `X_i` has the same distribution as `Y_i` for each `i`, then `D[X_[m]] = D[Y_[m]]`. -/
 lemma multiDist_copy {m :ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
     (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (X : (i : Fin m) → (Ω i) → G) (X' : (i : Fin m) → (Ω' i) → G)
-    (hident : ∀ i, IdentDistrib (X i) (X' i) (hΩ i).volume (hΩ' i).volume) :
+    (hident : ∀ i, IdentDistrib (X i) (X' i) ) :
     D[X ; hΩ] = D[X' ; hΩ'] := by sorry
 
 /-- If `X_i` are independent, then `D[X_[m]] = D[Y_[m]]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
-    (hindep : iIndepFun (fun _ ↦ hG) X hΩ.volume) :
-    D[X ; fun _ ↦ hΩ] = H[∑ i, X i ; hΩ.volume] - (∑ i, H[X i; hΩ.volume]) / m := by sorry
+    (hindep : iIndepFun (fun _ ↦ hG) X ) :
+    D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (∑ i, H[X i]) / m := by sorry
 
 /-- We have `D[X_[m]] ≥ 0`. -/
 lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
@@ -765,24 +765,27 @@ lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → M
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ (1 ≤ j, k ≤ m, j ≠ k), d[X_j; -X_k] ≤ m(m-1) D[X_[m]].` -/
 lemma multidist_ruzsa_I {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-    (X : (i : Fin m) → (Ω i) → G): ∑ j : Fin m, ∑ k : Fin m, (if j = k then (0:ℝ) else d[X j; (hΩ j).volume # X k; (hΩ k).volume]) ≤ m * (m-1) * D[X; hΩ] := by sorry
+    (X : (i : Fin m) → (Ω i) → G): ∑ j, ∑ k, (if j = k then (0:ℝ) else d[X j # X k]) ≤ m * (m-1) * D[X; hΩ] := by sorry
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ j, d[X_j;X_j] ≤ 2 m D[X_[m]]`. -/
-lemma multidist_ruzsa_II : 0 = 1 := by sorry
+lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G): ∑ j, d[X j # X j] ≤ 2 * m * D[X; hΩ] := by sorry
 
 /-- Let `I` be an indexing set of size `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. If the `X_i` all have the same distribution, then `D[X_[m]] ≤ m d[X_i;X_i]` for any
-`1 \≤ i ≤ m`. -/
-lemma multidist_ruzsa_III : 0 = 1 := by sorry
+`1 ≤ i ≤ m`. -/
+lemma multidist_ruzsa_III {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G) (hident: ∀ j k, IdentDistrib (X j) (X k)): ∀ i, D[X; hΩ] ≤ m * d[X i # X i] := by sorry
 
-/-- Let `I` be an indexing set of size `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
-variables. Let `W := ∑ (i ∈ I) X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
-lemma multidist_ruzsa_IV : 0 = 1 := by sorry
+/-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
+variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
+lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
+    (hindep : iIndepFun (fun _ ↦ hG) X ) : d[ ∑ i, X i # ∑ i, X i ] ≤ 2 * D[X; fun _ ↦ hΩ] := by sorry
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
 `d[X_i; U_{H_i}] = 0`. -/
-lemma multidist_eq_zero : 0 = 1 := by sorry
+lemma multidist_eq_zero {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (X : (i : Fin m) → (Ω i) → G) (hvanish: D[X; hΩ] = 0) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0  := by sorry
 
 /-- If `X_[m] = (X_1, ..., X_m)` and `Y_[m] = (Y_1, ..., Y_m)` are tuples of random variables,
 with the `X_i` being `G`-valued (but the `Y_i` need not be), then we define
