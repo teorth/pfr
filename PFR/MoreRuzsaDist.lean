@@ -239,7 +239,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
     calc
       _ = H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, (X₃ - Y₂) - (X₁ - Y₃) + X₂ + Y₁⟩ ; ν₀] := by
         refine IdentDistrib.entropy_eq <|
-        IdentDistrib.of_ae_eq (meas321321.prod_mk <| mX₃.add mY₃).aemeasurable ?_
+          IdentDistrib.of_ae_eq (meas321321.prod_mk <| mX₃.add mY₃).aemeasurable ?_
         filter_upwards [eq4] with ω h
         simp only [Prod.mk.injEq, h, Pi.add_apply, Pi.sub_apply, and_self]
       _ = _ := by
@@ -737,15 +737,23 @@ Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'
 of the `X_i`.-/
 noncomputable
 def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-  (X : (i : Fin m) → (Ω i) → G) : ℝ := H[ fun ω ↦ ∑ i, (X i) (ω i); .pi (fun i ↦ (hΩ i).volume)] - (m:ℝ)⁻¹ * ∑ i, H[X i]
+  (X : (i : Fin m) → (Ω i) → G) : ℝ :=
+  H[fun ω ↦ ∑ i, (X i) (ω i); .pi (fun i ↦ (hΩ i).volume)] - (m:ℝ)⁻¹ * ∑ i, H[X i]
 
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
+#check IdentDistrib.entropy_eq
+
 /-- If `X_i` has the same distribution as `Y_i` for each `i`, then `D[X_[m]] = D[Y_[m]]`. -/
-lemma multiDist_copy {m :ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+lemma multiDist_copy {m : ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
     (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (X : (i : Fin m) → (Ω i) → G) (X' : (i : Fin m) → (Ω' i) → G)
-    (hident : ∀ i, IdentDistrib (X i) (X' i) ) :
-    D[X ; hΩ] = D[X' ; hΩ'] := by sorry
+    (hident : ∀ i, IdentDistrib (X i) (X' i)) :
+    D[X ; hΩ] = D[X' ; hΩ'] := by
+  simp_rw [multiDist, IdentDistrib.entropy_eq (hident _)]
+  simp only [sub_left_inj]
+  refine IdentDistrib.entropy_eq ?_
+  refine ?_
+  sorry
 
 /-- If `X_i` are independent, then `D[X_[m]] = D[Y_[m]]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
