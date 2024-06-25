@@ -21,8 +21,8 @@ Assumptions:
 
 open MeasureTheory ProbabilityTheory ElementaryAddCommGroup
 
-variable {G : Type*} [addgroup: AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
-  [MeasurableSingletonClass G] [elem: ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
+variable {G : Type*} [addgroup : AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+  [MeasurableSingletonClass G] [elem : ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
@@ -38,7 +38,7 @@ variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
 variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₁', X₂'])
 
-variable (h_min: tau_minimizes p X₁ X₂)
+variable (h_min : tau_minimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[X₁ # X₂]

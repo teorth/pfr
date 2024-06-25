@@ -71,13 +71,13 @@ Applying all of these estimates, the claim now follows from linear arithmetic.
 \end{proof}
 
 \begin{lemma}[Kaimonovich--Vershik--Madiman inequality]\label{klm-1}\lean{kvm_ineq_I}\leanok  If $n \geq 0$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
-  $$ \bbH[X + \sum_{i=1}^n Y_i] - \bbH[X] \leq \sum_{i=1}^n \bbH[X+Y_i] - \bbH[X].$$
+  $$\bbH\left[X + \sum_{i=1}^n Y_i\right] - \bbH[X] \leq \sum_{i=1}^n \left(\bbH[X+Y_i] - \bbH[X]\right).$$
 \end{lemma}
 
-\begin{proof}\uses{kv}  This is trivial for $n=0,1$, while the $n=2$ case is \Cref{kv}.  Now suppose inductively that $n > 2$, and the claim was already proven for $n-1$.  By a further application of \Cref{kv} one has
-$$  \bbH[X + \sum_{i=1}^n Y_i] -  \bbH[X + \sum_{i=1}^{n-1} Y_i] \leq \bbH[X+Y_n] - \bbH[X].$$
+\begin{proof}\uses{kv}\leanok  This is trivial for $n=0,1$, while the $n=2$ case is \Cref{kv}.  Now suppose inductively that $n > 2$, and the claim was already proven for $n-1$.  By a further application of \Cref{kv} one has
+$$  \bbH\left[X + \sum_{i=1}^n Y_i\right] -  \bbH\left[X + \sum_{i=1}^{n-1} Y_i\right] \leq \bbH[X+Y_n] - \bbH[X].$$
 By induction hypothesis one has
-$$ \bbH[X + \sum_{i=1}^{n-1} Y_i] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - \bbH[X].$$
+$$ \bbH\left[X + \sum_{i=1}^{n-1} Y_i\right] - \bbH[X] \leq \sum_{i=1}^{n-1} \bbH[X+Y_i] - \bbH[X].$$
 Summing the two inequalities, we obtain the claim.
 \end{proof}
 
@@ -85,13 +85,13 @@ Summing the two inequalities, we obtain the claim.
   $$ d[X; \sum_{i=1}^n Y_i] \leq 2 \sum_{i=1}^n d[X; Y_i].$$
 \end{lemma}
 
-\begin{proof}\uses{klm-1, neg-ent, ruz-indep, sumset-lower, ruzsa-diff}
+\begin{proof}\uses{klm-1, neg-ent, ruz-indep, sumset-lower, ruzsa-diff}\leanok
   Applying \Cref{klm-1} with all the $Y_i$ replaced by $-Y_i$, and using \Cref{neg-ent} and \Cref{ruz-indep}, we obtain after some rearranging
-$$ d[X; \sum_{i=1}^n Y_i] + \frac{1}{2} (\bbH[\sum_{i=1}^n Y_i] - \bbH[X]) \leq \sum_{i=1}^n d[X;Y_i] + \frac{1}{2} (\bbH[Y_i] - \bbH[X]).$$
+$$ d[X; \sum_{i=1}^n Y_i] + \frac{1}{2} (\bbH[\sum_{i=1}^n Y_i] - \bbH[X]) \leq \sum_{i=1}^n \left(d[X;Y_i] + \frac{1}{2} (\bbH[Y_i] - \bbH[X])\right).$$
 From \Cref{sumset-lower} we have
 $$ \bbH[\sum_{i=1}^n Y_i] \geq \bbH[Y_i]$$
 for all $i$; subtracting $\bbH[X]$ and averaging, we conclude that
-$$ \bbH[\sum_{i=1}^n Y_i] - \bbH[X] \leq \frac{1}{n} \sum_{i=1}^n \bbH[Y_i] - \bbH[X]$$
+$$ \bbH[\sum_{i=1}^n Y_i] - \bbH[X] \geq \frac{1}{n} \sum_{i=1}^n \bbH[Y_i] - \bbH[X]$$
 and thus
 $$ d[X; \sum_{i=1}^n Y_i] \leq \sum_{i=1}^n d[X;Y_i] + \frac{n-1}{2n} (\bbH[Y_i] - \bbH[X]).$$
 From \Cref{ruzsa-diff} we have
@@ -100,12 +100,12 @@ Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
 \end{proof}
 
 \begin{lemma}[Kaimonovich--Vershik--Madiman inequality, III]\label{klm-3}\lean{kvm_ineq_III}\leanok  If $n \geq 1$ and $X, Y_1, \dots, Y_n$ are jointly independent $G$-valued random variables, then
-  $$ d[X; \sum_{i=1}^n Y_i] \leq d[X; Y_1] + \frac{1}{2}(\bbH[ \sum_{i=1}^n Y_i ] - \bbH[Y_1]).$$
+  $$d\left[X; \sum_{i=1}^n Y_i\right] \leq d\left[X; Y_1\right] + \frac{1}{2}\left(\bbH\left[ \sum_{i=1}^n Y_i\right] - \bbH[Y_1]\right).$$
 \end{lemma}
 
-\begin{proof}\uses{kv, ruz-indep}
+\begin{proof}\uses{kv, ruz-indep}\leanok
   From \Cref{kv} one has
-  $$ \bbH[ -X + \sum_{i=1}^n Y_i ] \leq \bbH[ - X + Y_1 ] + \bbH[ \sum_{i=1}^n Y_i ] - \bbH[ \sum_{i=2}^n Y_i ].$$
+  $$ \bbH\left[-X + \sum_{i=1}^n Y_i\right] \leq \bbH[ - X + Y_1 ] + \bbH\left[ \sum_{i=1}^n Y_i \right] - \bbH[Y_1].$$
   The claim then follows from \Cref{ruz-indep} and some elementary algebra.
 \end{proof}
 
@@ -161,7 +161,7 @@ is also proven by a similar method.  This variant is superior for $|a| \geq 9$ (
 
 We continue to let $G$ be an abelian group.
 
-\begin{definition}[Multidistance]\label{multidist-def}\lean{multiDist}  Let $m$ be a positive integer, and let $X_{[m]} = (X_i)_{1 \leq i \leq m}$ be an $m$-tuple of $G$-valued random variables $X_i$. Then we define
+\begin{definition}[Multidistance]\label{multidist-def}\lean{multiDist}\leanok  Let $m$ be a positive integer, and let $X_{[m]} = (X_i)_{1 \leq i \leq m}$ be an $m$-tuple of $G$-valued random variables $X_i$. Then we define
 \[
   D[X_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i] - \frac{1}{m} \sum_{i=1}^m \bbH[\tilde X_i],
 \]
@@ -194,7 +194,7 @@ for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
 \begin{proof} Trivial.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, I]\label{multidist-ruzsa-I}\lean{multidist_ruzsa_I}\uses{multidist-def}
+\begin{lemma}[Multidistance and Ruzsa distance, I]\label{multidist-ruzsa-I}\lean{multidist_ruzsa_I}\uses{multidist-def}\leanok
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
   $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$
 \end{lemma}
@@ -211,7 +211,7 @@ By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly in
   Summing this over all pairs $(j,k)$, $j \neq k$ and using Lemma \ref{multidist-indep}, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}\lean{multidist_ruzsa_II}\uses{multidist-def}
+\begin{lemma}[Multidistance and Ruzsa distance, II]\label{multidist-ruzsa-II}\lean{multidist_ruzsa_II}\uses{multidist-def}\leanok
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. Then
   $$\sum_{j=1}^m d[X_j;X_j] \leq 2 m D[X_{[m]}].$$
 \end{lemma}
@@ -220,7 +220,7 @@ By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly in
 From \Cref{ruzsa-triangle} we have $\dist{X_j}{X_j} \leq 2 \dist{X_j}{-X_k}$, and applying this to every summand in \Cref{multidist-ruzsa-I}, we obtain the claim.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, III]\label{multidist-ruzsa-III}\lean{multidist_ruzsa_III}\uses{multidist-def}
+\begin{lemma}[Multidistance and Ruzsa distance, III]\label{multidist-ruzsa-III}\lean{multidist_ruzsa_III}\uses{multidist-def}\leanok
   Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables. If the $X_i$ all have the same distribution, then $D[X_{[m]}] \leq m d[X_i;X_i]$ for any $1 \leq i \leq m$.
 \end{lemma}
 
@@ -235,8 +235,8 @@ $$ \bbH[\sum_{i=1}^m X_i] \leq \bbH[-X_0 + \sum_{i=1}^m X_i]$$
 and the claim follows.
 \end{proof}
 
-\begin{lemma}[Multidistance and Ruzsa distance, IV]\label{multidist-ruzsa-IV}\lean{multidist_ruzsa_IV}\uses{multidist-def}
-  Let $m \ge 2$, and let $X_{[m]}$ be a tuple of $G$-valued random variables.  Let $W := \sum_{i=1}^m X_i$. Then
+\begin{lemma}[Multidistance and Ruzsa distance, IV]\label{multidist-ruzsa-IV}\lean{multidist_ruzsa_IV}\uses{multidist-def}\leanok
+  Let $m \ge 2$, and let $X_{[m]}$ be a tuple of independent $G$-valued random variables.  Let $W := \sum_{i=1}^m X_i$. Then
   $$ d[W;-W] \leq 2 D[X_i].$$
 \end{lemma}
 
@@ -257,7 +257,7 @@ and the claim follows.
   Averaging this over all choices of $(a,b)$ gives $\bbH[W] + 2 D[X_{[m]}]$, and the claim follows from \Cref{ruz-indep}.
 \end{proof}
 
-\begin{proposition}[Vanishing]\label{multi-zero}\lean{multidist_eq_zero}\uses{multidist-def}
+\begin{proposition}[Vanishing]\label{multi-zero}\lean{multidist_eq_zero}\uses{multidist-def}\leanok
 If $D[X_{[m]}]=0$, then for each $1 \leq i \leq m$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$.
 \end{proposition}
 
@@ -349,7 +349,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 
 \section{The multidistance chain rule}
 
-\begin{lemma}[Multidistance chain rule]\label{multidist-chain-rule}\lean{multiDist_chainRule}  Let $\pi \colon G \to H$ be a homomorphism of abelian groups and let $X_{[m]}$ be a tuple of jointly independent $G$-valued random variables.  Then $D[X_{[m]}]$ is equal to
+\begin{lemma}[Multidistance chain rule]\label{multidist-chain-rule}\lean{multiDist_chainRule}\uses{multidist-def}  Let $\pi \colon G \to H$ be a homomorphism of abelian groups and let $X_{[m]}$ be a tuple of jointly independent $G$-valued random variables.  Then $D[X_{[m]}]$ is equal to
   \begin{equation}
       D[ X_{[m]} | \pi(X_{[m]}) ]  +D[ \pi(X_{[m]}) ]  + \bbI[ \sum_{i=1}^m X_i  : \pi(X_{[m]}) \; \big| \; \pi\bigl(\sum_{i=1}^m X_i\bigr) ]
     \label{chain-eq}
@@ -475,7 +475,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 
 As before, $G$ is an abelian group, and $m\geq 2$.  We let $X_{[m]} = (X_i)_{i =1}^m$ be a $\tau$-minimizer.
 
-\begin{proposition}[Bounding mutual information]\label{key}
+\begin{proposition}[Bounding mutual information]\label{key}\lean{mutual_information_le}
 Suppose that $X_{i,j}$, $1 \leq i,j \leq m$, are jointly independent $G$-valued random variables, such that for each $j = 1,\dots,m$, the random variables $(X_{i,j})_{i = 1}^m$ coincide in distribution with some permutation of $X_{[m]}$.
   Write
   \[
@@ -587,7 +587,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
     R_r := \sum_{\substack{i,j \in \Z/m\Z \\ i+j=-r}} Y_{i,j} .\end{equation}
 \end{definition}
 
-\begin{lemma}[Zero-sum]\label{Zero-sum} We have
+\begin{lemma}[Zero-sum]\label{Zero-sum}\lean{sum_of_z_eq_zero} We have
   \begin{equation}%
     \label{eq:sum-zero}
     Z_1+Z_2+Z_3= 0
@@ -597,7 +597,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
 \begin{proof}\uses{more-random}  Clear from definition.
 \end{proof}
 
-\begin{proposition}[Mutual information bound]\label{prop:52}
+\begin{proposition}[Mutual information bound]\label{prop:52}\lean{mutual_information_le_t}
   We have
   \[
     \bbI[Z_1 : Z_2\, |\, W],\
@@ -662,7 +662,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   which completes the proof.
 \end{proof}
 
-\begin{lemma}[Entropy of $W$]\label{ent-w}  We have $\bbH[W] \leq (2m-1)k + \frac1m \sum_{i=1}^m \bbH[X_i]$.
+\begin{lemma}[Entropy of $W$]\label{ent-w}\lean{entropy_of_W_le}  We have $\bbH[W] \leq (2m-1)k + \frac1m \sum_{i=1}^m \bbH[X_i]$.
 \end{lemma}
 
 \begin{proof}\uses{multidist-def, multidist-ruzsa-IV, klm-1} Without loss of generality, we may take $X_1,\dots,X_m$ to be independent. Write $S = \sum_{i=1}^m X_i$.
@@ -688,7 +688,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   and the claim follows.
 \end{proof}
 
-\begin{lemma}[Entropy of $Z_2$]\label{ent-z2}  We have $\bbH[Z_2] \leq (8m^2-16m+1) k + \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$.
+\begin{lemma}[Entropy of $Z_2$]\label{ent-z2}\lean{entropy_of_Z_two_le}  We have $\bbH[Z_2] \leq (8m^2-16m+1) k + \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$.
 \end{lemma}
 
 \begin{proof}\uses{sum-dilate-II, klm-1}
@@ -709,7 +709,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   Applying~\eqref{eq:ent-s} gives the claim.
 \end{proof}
 
-\begin{lemma}[Mutual information bound]\label{mutual-w-z2}  We have  $\bbI[W : Z_2] \leq 2 (m-1) k$.
+\begin{lemma}[Mutual information bound]\label{mutual-w-z2}\lean{mutual_of_W_Z_two_le}  We have  $\bbI[W : Z_2] \leq 2 (m-1) k$.
 \end{lemma}
 
 \begin{proof}\uses{alternative-mutual, ent-w}
@@ -724,7 +724,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   as claimed.
 \end{proof}
 
-\begin{lemma}[Distance bound]\label{xi-z2-w-dist} We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$.
+\begin{lemma}[Distance bound]\label{xi-z2-w-dist}\lean{sum_of_conditional_distance_le} We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$.
 \end{lemma}
 
 \begin{proof}\uses{klm-3, cond-dist-fact, mutual-w-z2, ent-z2, multidist-ruzsa-II}
@@ -744,7 +744,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \end{proof}
 
 \begin{lemma}[Application of BSG]
-  \label{lem:get-better}
+  \label{lem:get-better}\lean{dist_of_U_add_le}
   Let $G$ be an abelian group, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically, and write
   \[
     \delta := \bbI[T_1 : T_2] + \bbI[T_1 : T_3] + \bbI[T_2 : T_3].
@@ -846,7 +846,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 
 \section{Wrapping up}
 
-\begin{theorem}[Entropy form of PFR]\label{main-entropy} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
+\begin{theorem}[Entropy form of PFR]\label{main-entropy}\lean{dist_of_X_U_H_le} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
 
 \begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from \Cref{eta-def-multi}.
@@ -864,7 +864,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \begin{proof}\uses{main-entropy, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}  Repeat the proof of \Cref{pfr_aux}, but with \Cref{main-entropy} in place of \Cref{entropy-pfr}.
 \end{proof}
 
-\begin{theorem}[PFR]\label{pfr-torsion}  Suppose that $G$ is a finite abelian group of torsion $m$.
+\begin{theorem}[PFR]\label{pfr-torsion}\lean{torsion_PFR}  Suppose that $G$ is a finite abelian group of torsion $m$.
   If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
   \end{theorem}
 

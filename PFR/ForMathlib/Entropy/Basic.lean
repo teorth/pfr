@@ -426,7 +426,7 @@ lemma condEntropy_le_log_card [MeasurableSingletonClass S] [Fintype S]
 
 /-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`.-/
 lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
-    [IsFiniteMeasure μ] (hY: Measurable Y) [FiniteRange Y]:
+    [IsFiniteMeasure μ] (hY : Measurable Y) [FiniteRange Y]:
     H[X | Y ; μ] = ∑ y in FiniteRange.toFinset Y, (μ.map Y {y}).toReal * H[X | Y ← y ; μ] := by
   rw [condEntropy_def, integral_eq_sum' (s := FiniteRange.toFinset Y) _ _]
   simp_rw [smul_eq_mul]

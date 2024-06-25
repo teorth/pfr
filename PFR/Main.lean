@@ -85,7 +85,7 @@ lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measur
     ext ω
     simp only [W, mem_preimage, Pi.add_apply, mem_singleton_iff, Pi.sub_apply, ← sub_eq_zero (b := x)]
     abel_nf
-  have h : (B:Set G)+{x} = (B+{x}:Finset G) := by simp
+  have h : (B : Set G)+{x} = (B+{x}:Finset G) := by simp
   rw [h] at Wunif
   rw [this, Uunif.measureReal_preimage_sub_zero Umeas Wunif Wmeas UWindep]
   congr 3
@@ -190,8 +190,8 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   have VA'unif := VAunif
   rw [← hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
-  let H' := (H:Set G).toFinite.toFinset
-  have hHH' : H' = (H:Set G) := Finite.coe_toFinset (toFinite (H:Set G))
+  let H' := (H : Set G).toFinite.toFinset
+  have hHH' : H' = (H : Set G) := Finite.coe_toFinset (toFinite (H : Set G))
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
 

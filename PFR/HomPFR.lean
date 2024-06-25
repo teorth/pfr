@@ -64,7 +64,7 @@ open Set Fintype
 $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
 $$ |\{f(x) - \phi(x)\}| \leq |S|^{12}. $$ -/
-theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) - (f x) - (f y) ∈ S) :
+theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) - (f x) - (f y) ∈ S) :
   ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ (Nat.card S) ^ 12 ∧ ∀ x : G, (f x) - (φ x) ∈ T := by
   classical
   have : 0 < Nat.card G := Nat.card_pos
@@ -143,7 +143,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS: ∀ x y : G, f (x+y) -
     simp_rw [graph_add, Set.biUnion_image]
   refine ⟨φ, T, ?_, ?_⟩
   · have : (Nat.card T : ℝ) ≤ (Nat.card S : ℝ) ^ (12 : ℝ) := by calc
-      (Nat.card T:ℝ) ≤ Nat.card (c + {(0:G)} ×ˢ (H₁:Set G')) := by
+      (Nat.card T : ℝ) ≤ Nat.card (c + {(0 : G)} ×ˢ (H₁ : Set G')) := by
         norm_cast; apply Nat.card_image_le (toFinite _)
       _ ≤ Nat.card c * Nat.card H₁ := by
         norm_cast
