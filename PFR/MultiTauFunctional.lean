@@ -55,7 +55,11 @@ def multiTauMinimizes (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ 
 lemma multiTau_min_exists (p : multiRefPackage) : ∃ (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G), multiTauMinimizes p Ω hΩ X := by sorry
 
 /-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/
-lemma multiTau_min_sum_le : 0 = 1 := by sorry
+lemma multiTau_min_sum_le (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) (hmin : multiTauMinimizes p Ω hΩ X):
+  have _ := p.hΩ₀
+  have _ := p.hG
+  have _ := p.hGm
+  ∑ i, d[X i # p.X₀] ≤ 2 * p.m * p.η⁻¹ * d[p.X₀ # p.X₀] := by sorry
 
 /-- If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i].$$

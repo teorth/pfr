@@ -82,7 +82,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{definition}[Rho minus]\label{rhominus-def}\lean{rho_minus}\leanok  For any $G$-valued random variable $X$, we define $\rho^-(X)$ to be the infimum of $D_{KL}(X \Vert  U_A + T)$, where $U_A$ is uniform on $A$ and $T$ ranges over $G$-valued random variables independent of $U_A$.
 \end{definition}
 
-\begin{definition}[Rho plus]\label{rhoplus-def}\lean{rho_plus}\ises{rhominus-def}\leanok  For any $G$-valued random variable $X$, we define $\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$.
+\begin{definition}[Rho plus]\label{rhoplus-def}\lean{rho_plus}\uses{rhominus-def}\leanok  For any $G$-valued random variable $X$, we define $\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$.
 \end{definition}
 
 \begin{lemma}[Rho minus non-negative]\label{rhominus-nonneg}\label{rho_minus_nonneg}\uses{rhominus-def}\leanok  We have $\rho^-(X) \geq 0$.
