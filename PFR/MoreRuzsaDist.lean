@@ -8,8 +8,15 @@ More facts about Ruzsa distance and related inequalities, for use in the m-torsi
 
 ## Main definitions
 
+* `multiDist`: An analogue of `rdist` for the m-torsion version of PFR.
+* `condMultiDist`: A conditional analogue of `multiDist`
+
 ## Main results
 
+* `kvm_ineq_I`, `kvm_ineq_II`, `kvm_ineq_III`: Variants of the Kaimonovich-Versik-Madiman inequality
+* `multiDist_chainRule`: A chain rule for `multiDist`
+* `cor_multiDist_chainRule`: The corollary of the chain rule needed for the m-torsion version of PFR
+* `ent_of_sub_smul_le`: Controlling `H[X - aY]` in terms of `H[X]` and `d[X ; Y]`.
 -/
 section dataProcessing
 
@@ -787,6 +794,7 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace 
 `d[X_i; U_{H_i}] = 0`. -/
 lemma multidist_eq_zero {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (X : (i : Fin m) → (Ω i) → G) (hvanish: D[X; hΩ] = 0) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0  := by sorry
 
+-- This is probably not the optimal spelling.  For instance one could use the `μ "[|" t "]"` notation from Mathlib.ProbabilityTheory.ConditionalProbability to simplify the invocation of `ProbabilityTheory.cond`
 /-- If `X_[m] = (X_1, ..., X_m)` and `Y_[m] = (Y_1, ..., Y_m)` are tuples of random variables,
 with the `X_i` being `G`-valued (but the `Y_i` need not be), then we define
 `D[X_[m] | Y_[m]] := H[∑ i, X_i | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[X_i' | Y_i']`
@@ -794,14 +802,15 @@ where `(X_i', Y_i)`, `1 ≤ i ≤ m` are independent copies of `(X_i,Y_i), 1 ≤
 that we do *not* assume `X_i` are independent of `Y_i`, or `X_i'` independent of `Y_i`. -/
 noncomputable
 def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → G) : ℝ := sorry
+    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → G) : ℝ := ∑' ω : (i : Fin m) → G, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩]
 
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
 /-- With the above notation, we have
 `D[ X_[m] | Y_[m]] = ∑_{(y_i)_{1 \leq i \leq m}} (∏ i, p_{Y_i}(y_i)) D[(X_i | Y_i = y_i)_{i=1}^m]`
 where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`. -/
-lemma condMultiDist_eq : 0 = 1 := by sorry
+lemma condMultiDist_eq {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
+    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → G) : D[ X | Y ; hΩ] =  ∑' ω : (i : Fin m) → G, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩] := by rfl
 
 end multiDistance
 

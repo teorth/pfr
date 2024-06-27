@@ -34,18 +34,25 @@ structure multiRefPackage :=
 
 -- May need a lemma here that  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] follows automatically from the given data
 
+open BigOperators
+
+-- Making the instances inside the multiRefPackage explicit is a hack.  Is there a more elegant way to do this?
 /-- If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 -/
-noncomputable def multiTau (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) : ℝ := sorry
+noncomputable def multiTau (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) : ℝ :=
+  have _ := p.hΩ₀
+  have _ := p.hG
+  have _ := p.hGm
+  D[X; hΩ] + p.η * ∑ i, d[ X i # p.X₀ ]
 
 -- I can't figure out how to make a τ notation due to the dependent types in the arguments.  But perhaps we don't need one.  Also it may be better to define multiTau in terms of probability measures on G, rather than G-valued random variables, again to avoid dependent type issues.
 
 /-- A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables. -/
-def MultiTauMinimizes (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) : Prop := ∀ (Ω' : Fin p.m → Type*) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (X': ∀ i, Ω' i → p.G), multiTau p Ω hΩ X ≤ multiTau p Ω' hΩ' X'
+def multiTauMinimizes (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) : Prop := ∀ (Ω' : Fin p.m → Type*) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (X': ∀ i, Ω' i → p.G), multiTau p Ω hΩ X ≤ multiTau p Ω' hΩ' X'
 
 /-- If $G$ is finite, then a $\tau$-minimizer exists. -/
-lemma multiTau_min_exists : 0 = 1 := by sorry
+lemma multiTau_min_exists (p : multiRefPackage) : ∃ (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G), multiTauMinimizes p Ω hΩ X := by sorry
 
 /-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/
 lemma multiTau_min_sum_le : 0 = 1 := by sorry
@@ -65,4 +72,3 @@ lemma sub_condMultiDistance_le : 0 = 1 := by sorry
   \end{equation}
 for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$. -/
 lemma sub_condMultiDistance_le' : 0 = 1 := by sorry
-

@@ -274,14 +274,14 @@ Fix $m \geq 2$, and a reference variable $X^0$ in $G$.
 We set $\eta := \frac{1}{32m^3}$.
 \end{definition}
 
-\begin{definition}[$\tau$-functional]\label{tau-def-multi}\uses{eta-def-multi}\lean{multiTau}\uses{multidist-def}  If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
+\begin{definition}[$\tau$-functional]\label{tau-def-multi}\uses{eta-def-multi}\lean{multiTau}\uses{multidist-def}\leanok  If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 \end{definition}
 
-\begin{definition}[$\tau$-minimizer]\label{tau-min-multi}\uses{tau-def-multi}\lean{multiTau_minimizes}  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables.
+\begin{definition}[$\tau$-minimizer]\label{tau-min-multi}\uses{tau-def-multi}\lean{multiTau_minimizes}\leanok  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables.
 \end{definition}
 
-\begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}\lean{multiTau_min_exists}  If $G$ is finite, then a $\tau$-minimizer exists.
+\begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}\lean{multiTau_min_exists}\leanok  If $G$ is finite, then a $\tau$-minimizer exists.
 \end{proposition}
 
 \begin{proof}\uses{tau-def-multi} This is similar to the proof of \Cref{tau-min}.
@@ -311,14 +311,15 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
   The claim follows.
 \end{proof}
 
-\begin{definition}[Conditional multidistance]\label{cond-multidist-def}\uses{multidist-def}\lean{condMultiDist} If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
+\begin{definition}[Conditional multidistance]\label{cond-multidist-def}\uses{multidist-def}\lean{condMultiDist}
+  \leanok If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
   \begin{equation}\label{multi-def-cond}
   D[ X_{[m]} | Y_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i \big| (\tilde Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \bbH[ \tilde X_i | \tilde Y_i]
     \end{equation}
   where $(\tilde X_i,\tilde Y_i)$, $1 \leq i \leq m$ are independent copies of $(X_i,Y_i), 1 \leq i \leq m$ (but note here that we do \emph{not} assume $X_i$ are independent of $Y_i$, or $\tilde X_i$ independent of $\tilde Y_i$).
 \end{definition}
 
-\begin{lemma}[Alternate form of conditional multidistance]\label{cond-multidist-alt}\lean{condMultiDist_eq}  With the above notation, we have
+\begin{lemma}[Alternate form of conditional multidistance]\label{cond-multidist-alt}\lean{condMultiDist_eq}\leanok  With the above notation, we have
   \begin{equation}\label{multi-def-cond-alt}
     D[ X_{[m]} | Y_{[m]} ] = \sum_{(y_i)_{1 \leq i \leq m}} \biggl(\prod_{1 \leq i \leq m} p_{Y_i}(y_i)\biggr) D[ (X_i \,|\, Y_i \mathop{=}y_i)_{1 \leq i \leq m}]
   \end{equation}

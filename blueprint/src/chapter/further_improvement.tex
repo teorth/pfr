@@ -82,16 +82,16 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{definition}[Rho minus]\label{rhominus-def}\lean{rho_minus}\leanok  For any $G$-valued random variable $X$, we define $\rho^-(X)$ to be the infimum of $D_{KL}(X \Vert  U_A + T)$, where $U_A$ is uniform on $A$ and $T$ ranges over $G$-valued random variables independent of $U_A$.
 \end{definition}
 
-\begin{definition}[Rho plus]\label{rhoplus-def}\lean{rho_plus}\leanok  For any $G$-valued random variable $X$, we define $\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$.
+\begin{definition}[Rho plus]\label{rhoplus-def}\lean{rho_plus}\ises{rhominus-def}\leanok  For any $G$-valued random variable $X$, we define $\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$.
 \end{definition}
 
-\begin{lemma}[Rho minus non-negative]\label{rhominus-nonneg}\label{rho_minus_nonneg}\leanok  We have $\rho^-(X) \geq 0$.
+\begin{lemma}[Rho minus non-negative]\label{rhominus-nonneg}\label{rho_minus_nonneg}\uses{rhominus-def}\leanok  We have $\rho^-(X) \geq 0$.
 \end{lemma}
 
 \begin{proof} Clear from Lemma \ref{Conditional-Gibbs}.
 \end{proof}
 
-\begin{lemma}[Rho minus of subgroup]\label{rhominus-subgroup}\lean{rho_minus_of_subgroup}\leanok If $H$ is a finite subgroup of $G$, then $\rho^-(U_H) = \log |A| - \log \max_t |A \cap (H+t)|$.
+\begin{lemma}[Rho minus of subgroup]\label{rhominus-subgroup}\lean{rho_minus_of_subgroup}\uses{rhominus-def}\leanok If $H$ is a finite subgroup of $G$, then $\rho^-(U_H) = \log |A| - \log \max_t |A \cap (H+t)|$.
 \end{lemma}
 
 \begin{proof}
@@ -103,22 +103,22 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
   To get the equality, let $t^*:=\arg\max_t |A \cap (H+t)|$ and observe that $$\rho^-(U_H)\le D_{KL}(U_H \Vert  U_A+(U_H-t^*))= \log |A| - \log \max_t|A \cap (H+t)|.$$
 \end{proof}
 
-\begin{corollary}[Rho plus of subgroup]\label{rhoplus-subgroup}\lean{rho_plus_of_subgroup} If $H$ is a finite subgroup of $G$, then $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$.
+\begin{corollary}[Rho plus of subgroup]\label{rhoplus-subgroup}\lean{rho_plus_of_subgroup}\uses{rhoplus-def} If $H$ is a finite subgroup of $G$, then $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$.
 \end{corollary}
 
 \begin{proof}\uses{rhominus-subgroup} Straightforward by definition and \Cref{rhominus-subgroup}.
 \end{proof}
 
-\begin{definition}[Rho functional]\label{rho-def}\lean{rho}\leanok  We define $\rho(X) := (\rho^+(X) + \rho^-(X))/2$.
+\begin{definition}[Rho functional]\label{rho-def}\lean{rho}\uses{rhoplus-def}\leanok  We define $\rho(X) := (\rho^+(X) + \rho^-(X))/2$.
 \end{definition}
 
-\begin{lemma}\label{rho-init}\label{rho_of_uniform}\leanok  We have $\rho(U_A) = 0$.
+\begin{lemma}\label{rho-init}\label{rho_of_uniform}\uses{rho-def}\leanok  We have $\rho(U_A) = 0$.
 \end{lemma}
 
 \begin{proof} $\rho^-(U_A)\le 0$ by the choice $T=0$. The claim then follows from \Cref{rhominus-nonneg}.
 \end{proof}
 
-\begin{lemma}[Rho of subgroup]\label{rho-subgroup}\lean{rho_of_subgroup}  If $H$ is a finite subgroup of $G$, and $\rho(U_H) \leq r$, then there exists $t$ such that $|A \cap (H+t)| \geq 2^{-r} \sqrt{|A||H|}$, and $|H|/|A|\in[2^{-2r},2^{2r}]$.
+\begin{lemma}[Rho of subgroup]\label{rho-subgroup}\uses{rho-def}\lean{rho_of_subgroup}  If $H$ is a finite subgroup of $G$, and $\rho(U_H) \leq r$, then there exists $t$ such that $|A \cap (H+t)| \geq 2^{-r} \sqrt{|A||H|}$, and $|H|/|A|\in[2^{-2r},2^{2r}]$.
 \end{lemma}
 
 \begin{proof}\uses{rhominus-subgroup, rhoplus-subgroup} The first claim is a direct corollary of \Cref{rhominus-subgroup} and \Cref{rhoplus-subgroup}. To see the second claim, observe that \Cref{rhominus-nonneg} and \Cref{rhoplus-subgroup} imply $\rho^-(U_H),\rho^+(U_H)\ge 0$. Therefore $$|H(U_A)-H(U_H)|=|\rho^+(U_H)-\rho^-(U_H)|\le \rho^-(U_H)+\rho^+(U_H)= 2\rho(U_H)\le 2r,$$
@@ -337,7 +337,7 @@ If $|A+A| \leq K|A|$, then there exists a subgroup $H$ and $t\in G$ such that $|
   Apply \Cref{pfr-rho} on $U_A,U_A$ to get a subspace such that $2\rho(U_H)\le 2\rho(U_A)+8d[U_A;U_A]$. Recall that $d[U_A;U_A]\le \log K$ as proved in \Cref{pfr_aux}, and $\rho(U_A)=0$ by \Cref{rho-init}. Therefore $\rho(U_H)\le 4\log(K)$. The claim then follows from \Cref{rho-subgroup}.
 \end{proof}
 
-\begin{theorem}[PFR with \texorpdfstring{$C=9$}{C=9}]  If $A \subset {\bf F}_2^n$ is finite non-empty with $|A+A| \leq K|A|$, then there exists a subgroup $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$ such that $A$ can be covered by at most $2K^9$ translates of $H$.
+\begin{theorem}[PFR with \texorpdfstring{$C=9$}{C=9}]\label{pfr-9}  If $A \subset {\bf F}_2^n$ is finite non-empty with $|A+A| \leq K|A|$, then there exists a subgroup $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$ such that $A$ can be covered by at most $2K^9$ translates of $H$.
 \end{theorem}
 
 \begin{proof}
