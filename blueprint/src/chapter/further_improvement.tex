@@ -125,7 +125,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
   which implies the second claim.
 \end{proof}
 
-\begin{lemma}[Rho invariant]\label{rho-invariant}\lean{rho_of_translate}  For any $s \in G$, $\rho(X+s) = \rho(X)$.
+\begin{lemma}[Rho invariant]\label{rho-invariant}\lean{rho_of_translate}\leanok  For any $s \in G$, $\rho(X+s) = \rho(X)$.
 \end{lemma}
 
 \begin{proof} Observe that by \Cref{kl-div-inj}, $$\inf_T D_{KL}(X\Vert U_A+T)=\inf_T D_{KL}(X+s\Vert U_A+T+s)=\inf_{T'} D_{KL}(X+s\Vert U_A+T')$$
@@ -137,7 +137,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{proof}  Clear from definition.
 \end{proof}
 
-\begin{lemma}[Rho and sums]\label{rho-sums}\lean{rho_minus_of_sum, rho_plus_of_sum, rho_of_sum}  If $X,Y$ are independent, one has
+\begin{lemma}[Rho and sums]\label{rho-sums}\lean{rho_minus_of_sum, rho_plus_of_sum, rho_of_sum}\leanok  If $X,Y$ are independent, one has
   $$ \rho^-(X+Y) \leq \rho^-(X)$$
   $$ \rho^+(X+Y) \leq \rho^+(X) + \bbH[X+Y] - \bbH[X]$$
 and
@@ -150,10 +150,10 @@ The first inequality follows from \Cref{kl-sums}. The second and third inequalit
 \end{proof}
 
 
-\begin{definition}[Conditional Rho functional]\label{rho-cond-def}  We define $\rho(X|Y) := \sum_y {\bf P}(Y=y) \rho(X|Y=y)$.
+\begin{definition}[Conditional Rho functional]\label{rho-cond-def}\lean{condRho}\leanok We define $\rho(X|Y) := \sum_y {\bf P}(Y=y) \rho(X|Y=y)$.
 \end{definition}
 
-\begin{lemma}\label{rho-cond-invariant}
+\begin{lemma}\label{rho-cond-invariant}\lean{condRho_of_translate}\leanok
   For any $s\in G$, $\rho(X+s|Y)=\rho(X|Y)$.
 \end{lemma}
 \begin{proof}
@@ -161,7 +161,7 @@ The first inequality follows from \Cref{kl-sums}. The second and third inequalit
   Direct corollary of \Cref{rho-invariant}.
 \end{proof}
 
-\begin{lemma}\label{rho-cond-relabeled}
+\begin{lemma}\label{rho-cond-relabeled}\lean{condRho_of_injective}\leanok
   If $f$ is injective, then $\rho(X|f(Y))=\rho(X|Y)$.
 \end{lemma}
 \begin{proof}
@@ -169,7 +169,7 @@ The first inequality follows from \Cref{kl-sums}. The second and third inequalit
   Clear from the definition.
 \end{proof}
 
-\begin{lemma}[Rho and conditioning]\label{rho-cond}  If $X,Z$ are defined on the same space, one has
+\begin{lemma}[Rho and conditioning]\label{rho-cond}\lean{condRho_minus_le, condRho_plus_le, condRho_le}\leanok  If $X,Z$ are defined on the same space, one has
   $$ \rho^-(X|Z) \leq \rho^-(X) + \bbH[X] - \bbH[X|Z]$$
   $$ \rho^+(X|Z) \leq \rho^+(X)$$
 and
@@ -183,7 +183,7 @@ and
 
 The following lemmas hold for $G=\mathbb{F}_2^n$.
 
-\begin{lemma}[Rho and sums, symmetrized]\label{rho-sums-sym}  If $X,Y$ are independent, then
+\begin{lemma}[Rho and sums, symmetrized]\label{rho-sums-sym}\lean{rho_of_sum_le}\leanok  If $X,Y$ are independent, then
   $$ \rho(X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$
 \end{lemma}
 \begin{proof}
@@ -191,7 +191,7 @@ The following lemmas hold for $G=\mathbb{F}_2^n$.
 Apply \Cref{rho-sums} for $(X,Y)$ and $(Y,X)$ and take their average.
 \end{proof}
 
-\begin{lemma}[Rho and conditioning, symmetrized]\label{rho-cond-sym}
+\begin{lemma}[Rho and conditioning, symmetrized]\label{rho-cond-sym}\lean{condRho_of_sum_le}\leanok
   If $X,Y$ are independent, then
   $$ \rho(X | X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$
 \end{lemma}
