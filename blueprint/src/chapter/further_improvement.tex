@@ -118,7 +118,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{proof} $\rho^-(U_A)\le 0$ by the choice $T=0$. The claim then follows from \Cref{rhominus-nonneg}.
 \end{proof}
 
-\begin{lemma}[Rho of subgroup]\label{rho-subgroup}\uses{rho-def}\lean{rho_of_subgroup}  If $H$ is a finite subgroup of $G$, and $\rho(U_H) \leq r$, then there exists $t$ such that $|A \cap (H+t)| \geq 2^{-r} \sqrt{|A||H|}$, and $|H|/|A|\in[2^{-2r},2^{2r}]$.
+\begin{lemma}[Rho of subgroup]\label{rho-subgroup}\uses{rho-def}\lean{rho_of_subgroup}\leanok  If $H$ is a finite subgroup of $G$, and $\rho(U_H) \leq r$, then there exists $t$ such that $|A \cap (H+t)| \geq 2^{-r} \sqrt{|A||H|}$, and $|H|/|A|\in[2^{-2r},2^{2r}]$.
 \end{lemma}
 
 \begin{proof}\uses{rhominus-subgroup, rhoplus-subgroup} The first claim is a direct corollary of \Cref{rhominus-subgroup} and \Cref{rhoplus-subgroup}. To see the second claim, observe that \Cref{rhominus-nonneg} and \Cref{rhoplus-subgroup} imply $\rho^-(U_H),\rho^+(U_H)\ge 0$. Therefore $$|H(U_A)-H(U_H)|=|\rho^+(U_H)-\rho^-(U_H)|\le \rho^-(U_H)+\rho^+(U_H)= 2\rho(U_H)\le 2r,$$
@@ -131,7 +131,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{proof} Observe that by \Cref{kl-div-inj}, $$\inf_T D_{KL}(X\Vert U_A+T)=\inf_T D_{KL}(X+s\Vert U_A+T+s)=\inf_{T'} D_{KL}(X+s\Vert U_A+T')$$
 \end{proof}
 
-\begin{lemma}[Rho continuous]\label{rho-cts}\lean{rho_continuous} $\rho(X)$ depends continuously on the distribution of $X$.
+\begin{lemma}[Rho continuous]\label{rho-cts}\lean{rho_continuous}\leanok $\rho(X)$ depends continuously on the distribution of $X$.
 \end{lemma}
 
 \begin{proof}  Clear from definition.

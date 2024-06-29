@@ -18,6 +18,8 @@ open MeasureTheory ProbabilityTheory
 open scoped Pointwise
 universe uG
 
+local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
+
 variable {G : Type uG} [AddCommGroup G]  [Fintype G] [hGm: MeasurableSpace G]
 
 /-- For any $G$-valued random variable $X$, we define $\rho^-(X)$ to be the infimum of $D_{KL}(X \Vert  U_A + T)$, where $U_A$ is uniform on $A$ and $T$ ranges over $G$-valued random variables independent of $U_A$. -/
@@ -38,7 +40,8 @@ lemma rho_minus_of_subgroup (H : AddSubgroup G) {Ω : Type*} [MeasureSpace Ω]
     (U : Ω → G) (hunif: IsUniform H U) (A : Finset G) : rho_minus U A = Real.log (Nat.card A) - Real.log (sSup (Set.range fun t:G ↦ Nat.card ((A:Set G) ∩ (t +ᵥ H.carrier) : Set G))) := sorry
 
 /--  If $H$ is a finite subgroup of $G$, then $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$. -/
-lemma rho_plus_of_subgroup : 0 = 1 := sorry
+lemma rho_plus_of_subgroup (H : AddSubgroup G) {Ω : Type*} [MeasureSpace Ω]
+    (U : Ω → G) (hunif: IsUniform H U) (A : Finset G) : rho_plus U A = Real.log (Nat.card H) - Real.log (sSup (Set.range fun t:G ↦ Nat.card ((A:Set G) ∩ (t +ᵥ H.carrier) : Set G))):= sorry
 
 /--  We define $\rho(X) := (\rho^+(X) + \rho^-(X))/2$. -/
 noncomputable def rho {Ω : Type*} [MeasureSpace Ω]
@@ -48,15 +51,17 @@ noncomputable def rho {Ω : Type*} [MeasureSpace Ω]
 lemma rho_of_uniform {Ω : Type*} [MeasureSpace Ω]
     (U : Ω → G) (A : Finset G) (hunif: IsUniform A U) : rho U A = 0 := sorry
 
+-- for some reason I need multiple casts to `Set G` to make this compile
 /-- If $H$ is a finite subgroup of $G$, and $\rho(U_H) \leq r$, then there exists $t$ such that $|A \cap (H+t)| \geq 2^{-r} \sqrt{|A||H|}$, and $|H|/|A|\in[2^{-2r},2^{2r}]$. -/
-lemma rho_of_subgroup : 0 = 1 := by sorry
+lemma rho_of_subgroup (H: AddSubgroup G)  {Ω : Type*} [MeasureSpace Ω] (U : Ω → G) (hunif: IsUniform H U) (A : Finset G) (r:ℝ) (hr: rho U A ≤ r) : ∃ t:G, Nat.card ((A:Set G) ∩ ((t +ᵥ H.carrier)) : Set G) ≤ 2^(-r) * (Nat.card A * Nat.card H)^(1/2) ∧ Nat.card A ≤ 2^(2*r) * Nat.card H ∧ Nat.card H ≤ 2^(2*r) * Nat.card A := by sorry
 
 /-- For any $s \in G$, $\rho(X+s) = \rho(X)$. -/
 lemma rho_of_translate {Ω : Type*} [MeasureSpace Ω]
     (X : Ω → G) (A : Finset G) (s:G) : rho (fun ω ↦ X ω + s) A = rho X A := by sorry
 
 /-- \rho(X)$ depends continuously on the distribution of $X$. -/
-lemma rho_continuous : 0 = 1 := by sorry
+lemma rho_continuous [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] : Continuous
+      (fun (μ: ProbabilityMeasure G) ↦ @rho G _ hGm G ⟨ μ ⟩ id A) := by sorry
 
 /-- If $X,Y$ are independent, one has
   $$ \rho^-(X+Y) \leq \rho^-(X)$$ -/
@@ -178,7 +183,6 @@ theorem rho_PFR_conjecture (η:ℝ) (hη: η > 0) (hη': η < 1/8) {Ω: Type uG}
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
     IsUniform H U ∧ 2 * rho U A ≤ rho Y₁ A + rho Y₂ A + 8 * d[Y₁ # Y₂] := sorry
 
-local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
 open scoped Pointwise
 
