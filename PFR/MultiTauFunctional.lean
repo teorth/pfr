@@ -41,9 +41,9 @@ open BigOperators
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 -/
 noncomputable def multiTau (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) : ℝ :=
-  have _ := p.hΩ₀
-  have _ := p.hG
-  have _ := p.hGm
+  let _ := p.hΩ₀
+  let _ := p.hG
+  let _ := p.hGm
   D[X; hΩ] + p.η * ∑ i, d[ X i # p.X₀ ]
 
 -- I can't figure out how to make a τ notation due to the dependent types in the arguments.  But perhaps we don't need one.  Also it may be better to define multiTau in terms of probability measures on G, rather than G-valued random variables, again to avoid dependent type issues.
@@ -56,9 +56,9 @@ lemma multiTau_min_exists (p : multiRefPackage) : ∃ (Ω : Fin p.m → Type*) (
 
 /-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/
 lemma multiTau_min_sum_le (p : multiRefPackage) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → p.G) (hmin : multiTauMinimizes p Ω hΩ X):
-  have _ := p.hΩ₀
-  have _ := p.hG
-  have _ := p.hGm
+  let _ := p.hΩ₀
+  let _ := p.hG
+  let _ := p.hGm
   ∑ i, d[X i # p.X₀] ≤ 2 * p.m * p.η⁻¹ * d[p.X₀ # p.X₀] := by sorry
 
 /-- If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has

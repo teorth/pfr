@@ -569,7 +569,7 @@ The claim \eqref{I-ineq} is now immediate from \Cref{multidist-ruzsa-II}.
 
 Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \leq i \leq m}$ be a $\tau$-minimizer.
 
-\begin{definition}[Additional random variables]\label{more-random}  By a slight abuse of notation, we identify $\Z/m\Z$ and $\{1,\dots,m\}$ in the obvious way, and let $Y_{i,j}$ be an independent copy of $X_i$ for $i,j \in \Z/m\Z$.  Then also define:
+\begin{definition}[Additional random variables]\label{more-random}\leanok  By a slight abuse of notation, we identify $\Z/m\Z$ and $\{1,\dots,m\}$ in the obvious way, and let $Y_{i,j}$ be an independent copy of $X_i$ for $i,j \in \Z/m\Z$.  Then also define:
   \[
     W := \sum_{i,j \in \Z/m\Z} Y_{i,j}
   \]
@@ -588,7 +588,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
     R_r := \sum_{\substack{i,j \in \Z/m\Z \\ i+j=-r}} Y_{i,j} .\end{equation}
 \end{definition}
 
-\begin{lemma}[Zero-sum]\label{Zero-sum}\lean{sum_of_z_eq_zero} We have
+\begin{lemma}[Zero-sum]\label{Zero-sum}\lean{sum_of_z_eq_zero}\leanok We have
   \begin{equation}%
     \label{eq:sum-zero}
     Z_1+Z_2+Z_3= 0
@@ -598,7 +598,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
 \begin{proof}\uses{more-random}  Clear from definition.
 \end{proof}
 
-\begin{proposition}[Mutual information bound]\label{prop:52}\lean{mutual_information_le_t}
+\begin{proposition}[Mutual information bound]\label{prop:52}\lean{mutual_information_le_t_12, mutual_information_le_t_13, mutual_information_le_t_23}\uses{more-random}\leanok
   We have
   \[
     \bbI[Z_1 : Z_2\, |\, W],\
@@ -663,7 +663,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   which completes the proof.
 \end{proof}
 
-\begin{lemma}[Entropy of $W$]\label{ent-w}\lean{entropy_of_W_le}  We have $\bbH[W] \leq (2m-1)k + \frac1m \sum_{i=1}^m \bbH[X_i]$.
+\begin{lemma}[Entropy of $W$]\label{ent-w}\lean{entropy_of_W_le}\uses{more-random}\leanok  We have $\bbH[W] \leq (2m-1)k + \frac1m \sum_{i=1}^m \bbH[X_i]$.
 \end{lemma}
 
 \begin{proof}\uses{multidist-def, multidist-ruzsa-IV, klm-1} Without loss of generality, we may take $X_1,\dots,X_m$ to be independent. Write $S = \sum_{i=1}^m X_i$.
@@ -689,7 +689,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   and the claim follows.
 \end{proof}
 
-\begin{lemma}[Entropy of $Z_2$]\label{ent-z2}\lean{entropy_of_Z_two_le}  We have $\bbH[Z_2] \leq (8m^2-16m+1) k + \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$.
+\begin{lemma}[Entropy of $Z_2$]\label{ent-z2}\lean{entropy_of_Z_two_le}\uses{more-random}\leanok  We have $\bbH[Z_2] \leq (8m^2-16m+1) k + \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$.
 \end{lemma}
 
 \begin{proof}\uses{sum-dilate-II, klm-1}
@@ -710,7 +710,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   Applying~\eqref{eq:ent-s} gives the claim.
 \end{proof}
 
-\begin{lemma}[Mutual information bound]\label{mutual-w-z2}\lean{mutual_of_W_Z_two_le}  We have  $\bbI[W : Z_2] \leq 2 (m-1) k$.
+\begin{lemma}[Mutual information bound]\label{mutual-w-z2}\lean{mutual_of_W_Z_two_le}\leanok  We have  $\bbI[W : Z_2] \leq 2 (m-1) k$.
 \end{lemma}
 
 \begin{proof}\uses{alternative-mutual, ent-w}
@@ -725,7 +725,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   as claimed.
 \end{proof}
 
-\begin{lemma}[Distance bound]\label{xi-z2-w-dist}\lean{sum_of_conditional_distance_le} We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$.
+\begin{lemma}[Distance bound]\label{xi-z2-w-dist}\lean{sum_of_conditional_distance_le}\leanok We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$.
 \end{lemma}
 
 \begin{proof}\uses{klm-3, cond-dist-fact, mutual-w-z2, ent-z2, multidist-ruzsa-II}
@@ -793,7 +793,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
   and the result follows by setting $U=(T_2 \,|\, T_3 \mathop{=} z)$ for some $z$ such that the quantity in parentheses on the left-hand side is at most the weighted average value.
 \end{proof}
 
-\begin{proposition}[Vanishing entropy]\label{k-vanish}  We have $k = 0$.
+\begin{proposition}[Vanishing entropy]\label{k-vanish}\leanok  We have $k = 0$.
 \end{proposition}
 
 \begin{proof}\uses{lem:get-better, multidist-ruzsa-III, multidist-lower, xi-z2-w-dist, eta-def-multi, multidist-nonneg, Zero-sum, prop:52} For each value $W=w$, apply \Cref{lem:get-better} (and \Cref{Zero-sum}) to
@@ -847,7 +847,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 
 \section{Wrapping up}
 
-\begin{theorem}[Entropy form of PFR]\label{main-entropy}\lean{dist_of_X_U_H_le} Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
+\begin{theorem}[Entropy form of PFR]\label{main-entropy}\lean{dist_of_X_U_H_le}\leanok Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
 
 \begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from \Cref{eta-def-multi}.
@@ -865,7 +865,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \begin{proof}\uses{main-entropy, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}  Repeat the proof of \Cref{pfr_aux}, but with \Cref{main-entropy} in place of \Cref{entropy-pfr}.
 \end{proof}
 
-\begin{theorem}[PFR]\label{pfr-torsion}\lean{torsion_PFR}  Suppose that $G$ is a finite abelian group of torsion $m$.
+\begin{theorem}[PFR]\label{pfr-torsion}\lean{torsion_PFR}\leanok  Suppose that $G$ is a finite abelian group of torsion $m$.
   If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
   \end{theorem}
 
