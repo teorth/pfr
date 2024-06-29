@@ -56,12 +56,12 @@ Now let $G$ be an additive group.
 For each $z$, $D_{KL}(X+z\Vert Y+z)=D_{KL}(X\Vert Y)$ by \Cref{kl-div-inj}. Then apply \Cref{kl-div-convex} with $w_z=\mathbf{P}(Z=z)$.
 \end{proof}
 
-\begin{definition}[Conditional Kullback--Leibler divergence]\label{ckl-div}  \uses{kl-div}
+\begin{definition}[Conditional Kullback--Leibler divergence]\label{ckl-div}  \uses{kl-div}\leanok
   If $X,Y,Z$ are random variables, with $X,Z$ defined on the same sample space, we define
 $$ D_{KL}(X|Z \Vert  Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert  Y).$$
 \end{definition}
 
-\begin{lemma}[Kullback--Leibler and conditioning]\label{kl-cond} If $X, Y$ are independent $G$-valued random variables, and $Z$ is another random variable defined on the same sample space as $X$, then
+\begin{lemma}[Kullback--Leibler and conditioning]\label{kl-cond}\lean{condKL_div_eq}\leanok If $X, Y$ are independent $G$-valued random variables, and $Z$ is another random variable defined on the same sample space as $X$, then
   $$D_{KL}((X|Z)\Vert Y) = D_{KL}(X\Vert Y) + \bbH[X] - \bbH[X|Z].$$
 \end{lemma}
 
@@ -69,7 +69,7 @@ $$ D_{KL}(X|Z \Vert  Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert  Y).$$
   \uses{ckl-div} Compare the terms correspond to each $x\in G$ on both sides.
 \end{proof}
 
-\begin{lemma}[Conditional Gibbs inequality]\label{Conditional-Gibbs}  $D_{KL}((X|W)\Vert Y) \geq 0$.
+\begin{lemma}[Conditional Gibbs inequality]\label{Conditional-Gibbs}\lean{condKL_div_nonneg}\leanok  $D_{KL}((X|W)\Vert Y) \geq 0$.
 \end{lemma}
 
 \begin{proof}\uses{Gibbs, ckl-div}  Clear from Definition \ref{ckl-div} and Lemma \ref{Gibbs}.
@@ -212,7 +212,7 @@ and define a \emph{$\phi$-minimizer} to be a pair of random variables $X,Y$ whic
 \begin{lemma}[$\phi$-minimizers exist]\label{phi-min-exist}  There exists a $\phi$-minimizer.
 \end{lemma}
 
-\begin{proof} Clear from compactness.
+\begin{proof}\uses{rho-cts} Clear from compactness.
 \end{proof}
 
 Let $(X_1, X_2)$ be a $\phi$-minimizer, and $\tilde X_1, \tilde X_2$ be independent copies of $X_1,X_2$ respectively.
@@ -323,7 +323,7 @@ Finally by \Cref{phi-first-estimate} and $\eta<1$ we get that the second term is
   $$ 2\rho(U_H) \leq \rho(Y_1) + \rho(Y_2) + 8 d[Y_1;Y_2].$$
 \end{proposition}
 \begin{proof}
-  \uses{phi-minimizer-zero-distance,phi-min-def,rho-invariant,sym-zero}
+  \uses{phi-min-exist, phi-minimizer-zero-distance,phi-min-def,rho-invariant,sym-zero}
 Let $X_1,X_2$ be a $\phi$-minimizer. By \Cref{phi-minimizer-zero-distance} $d[X_1;X_2]=0$, which by \Cref{phi-min-def} implies $\rho(X_1)+\rho(X_2)\le \rho(Y_1) + \rho(Y_2) + \frac{1}{\eta} d[Y_1;Y_2]$ for every $\eta<1/8$. Take the limit at $\eta=1/8$ to get $\rho(X_1)+\rho(X_2)\le \rho(Y_1) + \rho(Y_2) + 8 d[Y_1;Y_2]$.
 By \Cref{ruzsa-triangle} and \Cref{ruzsa-nonneg} we have $d[X_1;X_1]=d[X_2;X_2]=0$, and by \Cref{sym-zero} there are $H_1:=\mathrm{Sym}[X_1],H_2:=\mathrm{Sym}[X_2]$ such that $X_1=U_{H_1}+x_1$ and $X_2=U_{H_2}+x_2$ for some $x_2$.
 By \Cref{rho-invariant} we get $\rho(U_{H_1})+\rho(U_{H_2})\le \rho(Y_1) + \rho(Y_2) + 8 d[Y_1;Y_2]$, and thus the claim holds for $H=H_1$ or $H=H_2$.

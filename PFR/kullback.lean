@@ -1,6 +1,7 @@
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.ForMathlib.FiniteRange
 import Mathlib.Probability.IdentDistrib
+import PFR.ForMathlib.Entropy.Basic
 
 /-!
 # Kullback-Leibler divergence
@@ -56,3 +57,20 @@ lemma KL_div_of_comp_inj {H : Type*} [MeasurableSpace H] [MeasurableSingletonCla
 /-- If $X, Y, Z$ are independent $G$-valued random variables, then
   $$D_{KL}(X+Z\Vert Y+Z) \leq D_{KL}(X\Vert Y).$$ -/
 lemma KL_div_add_le_KL_div_of_indep [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G] {X Y Z : Ω → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z] (hindep : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ) : KL[X + Z ; μ # Y + Z ; μ] ≤ KL[X ; μ # Y ; μ] := sorry
+
+/--   If $X,Y,Z$ are random variables, with $X,Z$ defined on the same sample space, we define
+$$ D_{KL}(X|Z \Vert  Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert  Y).$$ -/
+noncomputable def condKL_div {S: Type*} (X: Ω → G) (Y: Ω' → G) (Z: Ω → S) (μ: Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ := ∑' z, (μ (Z⁻¹' {z})).toReal * KL[X ; (ProbabilityTheory.cond μ (Z⁻¹' {z})) # Y ; μ']
+
+
+@[inherit_doc condKL_div] notation3:max "KL[" X " | " Z " ; " μ " # " Y " ; " μ' "]" => condKL_div X Y Z μ μ'
+
+@[inherit_doc condKL_div] notation3:max "KL[" X " | " Z " # " Y "]" => condKL_div X Y Z volume volume
+
+/-- If $X, Y$ are independent $G$-valued random variables, and $Z$ is another random variable defined on the same sample space as $X$, then
+  $$D_{KL}((X|Z)\Vert Y) = D_{KL}(X\Vert Y) + \bbH[X] - \bbH[X|Z].$$ -/
+lemma condKL_div_eq {S: Type*} [MeasurableSpace S] (X: Ω → G) (Y: Ω' → G) (Z: Ω → S) (μ: Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : KL[ X | Z; μ # Y ; μ'] = KL[X ; μ # Y ; μ'] + H[X ; μ] - H[ X | Z ; μ] := sorry
+
+
+/-- `KL(X|Z ‖ Y) ≥ 0`.-/
+lemma condKL_div_nonneg {S: Type*} (X: Ω → G) (Y: Ω' → G) (Z: Ω → S) (μ: Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : KL[X | Z; μ # Y ; μ'] ≥ 0 := sorry

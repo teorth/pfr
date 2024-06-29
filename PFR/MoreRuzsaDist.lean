@@ -754,7 +754,7 @@ lemma multiDist_copy {m :ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (h�
     (hident : ∀ i, IdentDistrib (X i) (X' i) ) :
     D[X ; hΩ] = D[X' ; hΩ'] := by sorry
 
-/-- If `X_i` are independent, then `D[X_[m]] = D[Y_[m]]`. -/
+/-- If `X_i` are independent, then `D[X_{[m]}] = H[∑_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m H[X_i]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
     (hindep : iIndepFun (fun _ ↦ hG) X ) :
     D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (∑ i, H[X i]) / m := by sorry
@@ -801,16 +801,16 @@ with the `X_i` being `G`-valued (but the `Y_i` need not be), then we define
 where `(X_i', Y_i)`, `1 ≤ i ≤ m` are independent copies of `(X_i,Y_i), 1 ≤ i ≤ m` (but note here
 that we do *not* assume `X_i` are independent of `Y_i`, or `X_i'` independent of `Y_i`. -/
 noncomputable
-def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → G) : ℝ := ∑' ω : (i : Fin m) → G, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩]
+def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*}
+    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : ℝ := ∑' ω : (i : Fin m) → S, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩]
 
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
 /-- With the above notation, we have
 `D[ X_[m] | Y_[m]] = ∑_{(y_i)_{1 \leq i \leq m}} (∏ i, p_{Y_i}(y_i)) D[(X_i | Y_i = y_i)_{i=1}^m]`
 where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`. -/
-lemma condMultiDist_eq {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → G) : D[ X | Y ; hΩ] =  ∑' ω : (i : Fin m) → G, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩] := by rfl
+lemma condMultiDist_eq {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*}
+    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : D[ X | Y ; hΩ] =  ∑' ω : (i : Fin m) → S, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩] := by rfl
 
 end multiDistance
 
@@ -821,7 +821,7 @@ independent `G`-valued random variables. Then `D[X_[m]]` is equal to
 `D[X_[m] | π(X_[m])] + D[π(X_[m])] + I[∑ i, X_i : π(X_[m]) ; | ; π(∑ i, X_i)]`
 where `π(X_[m]) := (π(X_1), ..., π(X_m))`.
 -/
-lemma multiDist_chainRule : 0 = 1 := by sorry
+lemma multiDist_chainRule (G H: Type*) [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H] [MeasurableSub₂ H] [MeasurableAdd₂ H] [Countable H] (π: G →+ H) {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G) (hindep : iIndepFun (fun _ ↦ hG) X ) : D[X; fun _ ↦ hΩ] = D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩ] + D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩ] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i)] := by sorry
 
 /-- Let `π : G → H` be a homomorphism of abelian groups. Let `I` be a finite index set and let
 `X_[m]` be a tuple of `G`-valued random variables. Let `Y_[m]` be another tuple of random variables
@@ -829,7 +829,7 @@ lemma multiDist_chainRule : 0 = 1 := by sorry
 another (but `X_i` need not be independent of `Y_i`). Then
 `D[X_[m] | Y_[m]] = D[X_[m] ,|, π(X_[m]), Y_[m]] + D[π(X_[m]) ,| , Y_[m]]`
 `+ I[∑ i, X_i : π(X_[m]) ; | ;  π(∑ i, X_i), Y_[m] ]`. -/
-lemma cond_multiDist_chainRule : 0 = 1 := by sorry
+lemma cond_multiDist_chainRule (G H: Type*) [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H] [MeasurableSub₂ H] [MeasurableAdd₂ H] [Countable H] (π: G →+ H) {S : Type*} [hS: MeasurableSpace S] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G) (Y : Fin m → Ω → S) (hindep : iIndepFun (fun _ ↦ (hG.prod hS)) (fun i ↦ ⟨ X i, Y i ⟩) ) : D[X | Y; fun _ ↦ hΩ] = D[X | fun i ↦ ⟨ π ∘ (X i), Y i ⟩; fun _ ↦ hΩ] + D[ fun i ↦ π ∘ (X i) | Y; fun _ ↦ hΩ] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | ⟨ π ∘ (∑ i, X i), fun ω ↦ (fun i ↦ Y i ω)⟩] := by sorry
 
 /-- Let `m` be a positive integer. Suppose one has a sequence `G_m → G_{m-1} → ... → G_1 → G_0 = {0}`
 of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m`, let
@@ -838,11 +838,11 @@ of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m
 Let `X_[m] = (X_1, ..., X_m)` be a jointly independent tuple of `G_m`-valued random variables.
 Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
 ` + ∑_{d=1}^{m-1}, I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
-lemma iter_multiDist_chainRule : 0 = 1 := by sorry
+lemma iter_multiDist_chainRule {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, MeasurableSpace (G i)) (hGs: ∀ i, MeasurableSingletonClass (G i)) (hGa: ∀ i, AddCommGroup (G i)) (hGsub: ∀ i, MeasurableSub₂ (G i)) (hGadd: ∀ i, MeasurableAdd₂ (G i)) (hGcount: ∀ i, Countable (G i)) (φ: ∀ i, G (i+1) →+ G i) (π: ∀ d, G m →+ G d) (hcomp: ∀ i, i < m → π i = (φ i) ∘ (π (i+1))) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → (G m)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] = ∑ d ∈ Finset.Iio m, D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio m, I[ ∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ ∑ i, X i, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ] := by sorry
 
 /--Under the preceding hypotheses,
 `D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
-lemma iter_multiDist_chainRule' : 0 = 1 := by sorry
+lemma iter_multiDist_chainRule'  {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, MeasurableSpace (G i)) (hGs: ∀ i, MeasurableSingletonClass (G i)) (hGa: ∀ i, AddCommGroup (G i)) (hGsub: ∀ i, MeasurableSub₂ (G i)) (hGadd: ∀ i, MeasurableAdd₂ (G i)) (hGcount: ∀ i, Countable (G i)) (φ: ∀ i, G (i+1) →+ G i) (π: ∀ d, G m →+ G d) (hcomp: ∀ i, i < m → π i = (φ i) ∘ (π (i+1))) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → (G m)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] ≥ ∑ d ∈ Finset.Iio m, D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ]  := by sorry
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
@@ -851,7 +851,7 @@ is less than
 `∑_{j=1}^{m-1} (D[(X_{i, j})_{i=1}^m] - D[(X_{i, j})_{i = 1}^m | (X_{i,j} + ... + X_{i,m})_{i=1}^m])`
 `+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
-lemma cor_multiDist_chainRule : 0 = 1 := by sorry
+lemma cor_multiDist_chainRule {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin (m+1) × Fin (m+1) → Ω → G) (hindep : iIndepFun (fun _ ↦ hG) X) : I[ fun ω ↦ (fun j ↦ ∑ i, X (i, j) ω) : fun ω ↦ (fun i ↦ ∑ j, X (i, j) ω) | ∑ p, X p] ≤ ∑ j, (D[ fun i ↦ X (i, j); fun _ ↦ hΩ] -  D[ fun i ↦ X (i, j) | fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k); fun _ ↦ hΩ]) + D[ fun i ↦ X (i, m); fun _ ↦ hΩ] - D[ fun i ↦ ∑ j, X (i, j); fun _ ↦ hΩ] := by sorry
 
 
 end multiDistance_chainRule
