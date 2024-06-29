@@ -74,6 +74,7 @@ lemma k_eq_zero : k = 0 := sorry
 
 end AnalyzeMinimizer
 
+local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
 /-- Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\] -/
 lemma dist_of_X_U_H_le {G : Type*} [AddCommGroup G]  [Fintype G] [MeasurableSpace G]
@@ -82,6 +83,18 @@ lemma dist_of_X_U_H_le {G : Type*} [AddCommGroup G]  [Fintype G] [MeasurableSpac
 
 
 open Pointwise
+
+/-- Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
+  $|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^
+  {(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
+ $|H|/|A| \in [K^{-64m^3}, K^{64m^3}]$
+     -/
+lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] (m:ℕ) (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : AddSubgroup G) (c : Set G),
+    Nat.card c ≤ K ^ (64 * m^3 + 2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
+      ∧ Nat.card H ≤ K ^ (64 * m^3) * Nat.card A ∧ Nat.card A ≤ K ^ (64 * m^3) * Nat.card H ∧ A ⊆ c + H := sorry
+
+
 /--Suppose that $G$ is a finite abelian group of torsion $m$.
   If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
 -/

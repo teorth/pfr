@@ -281,7 +281,7 @@ $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1
 \begin{definition}[$\tau$-minimizer]\label{tau-min-multi}\uses{tau-def-multi}\lean{multiTau_minimizes}\leanok  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables.
 \end{definition}
 
-\begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}\lean{multiTau_min_exists}\leanok  If $G$ is finite, then a $\tau$-minimizer exists.
+\begin{proposition}[Existence of $\tau$-minimizer]\label{multiTau_continuous, tau-min-exist-multi}\lean{multiTau_min_exists}\leanok  If $G$ is finite, then a $\tau$-minimizer exists.
 \end{proposition}
 
 \begin{proof}\uses{tau-def-multi} This is similar to the proof of \Cref{tau-min}.
@@ -297,7 +297,7 @@ $$ \eta \sum_{i=1}^m d[X_i; X^0] \leq D[(X^0)_{1 \leq i \leq m}] + m d[X^0; X^0]
 The claim now follows from \Cref{multidist-ruzsa-III}.
 \end{proof}
 
-\begin{lemma}[Lower bound on multidistance]\label{multidist-lower}\lean{sub_multiDistance_le}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
+\begin{lemma}[Lower bound on multidistance]\label{multidist-lower}\lean{sub_multiDistance_le}\leanok  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i].$$
 \end{lemma}
 
@@ -330,7 +330,7 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
   This is routine from \Cref{conditional-entropy-def} and Definitions \ref{multidist-def} and \ref{cond-multidist-def}.
 \end{proof}
 
-\begin{lemma}[Lower bound on conditional multidistance]\label{cond-multidist-lower}\lean{sub_condMultiDistance_le}  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
+\begin{lemma}[Lower bound on conditional multidistance]\label{cond-multidist-lower}\lean{sub_condMultiDistance_le}\leanok  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$
 \end{lemma}
 
@@ -338,7 +338,7 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
   Immediate from \Cref{multidist-lower}, \Cref{cond-multidist-alt}, and \Cref{cond-dist-def}.
 \end{proof}
 
-\begin{corollary}[Lower bound on conditional multidistance, II]\label{cond-multidist-lower-II}\lean{sub_condMultiDistance_le'} With the notation of the previous lemma, we have
+\begin{corollary}[Lower bound on conditional multidistance, II]\label{cond-multidist-lower-II}\lean{sub_condMultiDistance_le'}\leanok With the notation of the previous lemma, we have
   \begin{equation}\label{5.3-conv}
     k - D[ X'_{[m]} | Y_{[m]} ] \leq \eta \sum_{i=1}^m d[X_{\sigma(i)};X'_i|Y_i]
   \end{equation}
@@ -853,7 +853,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from \Cref{eta-def-multi}.
 \end{proof}
 
-\begin{lemma}\label{pfr_aux_torsion}  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
+\begin{lemma}\label{pfr_aux_torsion}\lean{torsion_PFR_conjecture_aux}\leanok  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
   $|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^
   {(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
   \begin{equation}

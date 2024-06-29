@@ -48,6 +48,10 @@ noncomputable def multiTau {G Ωₒ : Type*} [MeasureableFinGroup G] [MeasureSpa
 /-- A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables. -/
 def multiTauMinimizes {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) : Prop := ∀ (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (X': ∀ i, Ω' i → G), multiTau p Ω hΩ X ≤ multiTau p Ω' hΩ' X'
 
+/-- If $G$ is finite, then a $\tau$ is continuous. -/
+lemma multiTau_continuous {G Ωₒ : Type u} [MeasureableFinGroup G] [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) : Continuous
+      (fun (μ : Fin p.m → ProbabilityMeasure G) ↦ multiTau p (fun _ ↦ G) (fun i ↦ ⟨ μ i ⟩) (fun _ ↦ id)) := by sorry
+
 /-- If $G$ is finite, then a $\tau$-minimizer exists. -/
 lemma multiTau_min_exists {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) : ∃ (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G), multiTauMinimizes p Ω hΩ X := by sorry
 
@@ -58,15 +62,15 @@ lemma multiTau_min_sum_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpa
 /-- If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i].$$
 -/
-lemma sub_multiDistance_le : 0 = 1 := by sorry
+lemma sub_multiDistance_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (X' : ∀ i, Ω' i → G) : D[X; hΩ] - D[X'; hΩ'] ≤ p.η * ∑ i, d[X i ; (hΩ i).volume # X' i; (hΩ' i).volume ] := by sorry
 
 /-- If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$ -/
-lemma sub_condMultiDistance_le : 0 = 1 := by sorry
+lemma sub_condMultiDistance_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (hf: ∀ i, IsFiniteMeasure (hΩ' i).volume) (X' : ∀ i, Ω' i → G) {S : Type u} [MeasurableSpace S] (Y : ∀ i, Ω' i → S) : D[X; hΩ] - D[X'|Y; hΩ'] ≤ p.η * ∑ i, d[X i ; (hΩ i).volume # X' i | Y i; (hΩ' i).volume ] := by sorry
 
 /-- With the notation of the previous lemma, we have
   \begin{equation}\label{5.3-conv}
     k - D[ X'_{[m]} | Y_{[m]} ] \leq \eta \sum_{i=1}^m d[X_{\sigma(i)};X'_i|Y_i]
   \end{equation}
 for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$. -/
-lemma sub_condMultiDistance_le' : 0 = 1 := by sorry
+lemma sub_condMultiDistance_le'  {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (hf: ∀ i, IsFiniteMeasure (hΩ' i).volume) (X' : ∀ i, Ω' i → G) {S : Type u} [MeasurableSpace S] (Y : ∀ i, Ω' i → S)  (φ : Equiv.Perm (Fin p.m)) : D[X; hΩ] - D[X'|Y; hΩ'] ≤ p.η * ∑ i, d[X (φ i) ; (hΩ (φ i)).volume # X' i | Y i; (hΩ' i).volume ] := by sorry
