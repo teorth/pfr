@@ -281,7 +281,7 @@ $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1
 \begin{definition}[$\tau$-minimizer]\label{tau-min-multi}\uses{tau-def-multi}\lean{multiTau_minimizes}\leanok  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables.
 \end{definition}
 
-\begin{proposition}[Existence of $\tau$-minimizer]\label{multiTau_continuous, tau-min-exist-multi}\lean{multiTau_min_exists}\leanok  If $G$ is finite, then a $\tau$-minimizer exists.
+\begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}\lean{multiTau_continuous, multiTau_min_exists}\leanok  If $G$ is finite, then a $\tau$-minimizer exists.
 \end{proposition}
 
 \begin{proof}\uses{tau-def-multi} This is similar to the proof of \Cref{tau-min}.
@@ -745,7 +745,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \end{proof}
 
 \begin{lemma}[Application of BSG]
-  \label{lem:get-better}\lean{dist_of_U_add_le}
+  \label{lem:get-better}\lean{dist_of_U_add_le}\leanok
   Let $G$ be an abelian group, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically, and write
   \[
     \delta := \bbI[T_1 : T_2] + \bbI[T_1 : T_3] + \bbI[T_2 : T_3].
