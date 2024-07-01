@@ -104,7 +104,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
   To get the equality, let $t^*:=\arg\max_t |A \cap (H+t)|$ and observe that $$\rho^-(U_H)\le D_{KL}(U_H \Vert  U_A+(U_H-t^*))= \log |A| - \log \max_t|A \cap (H+t)|.$$
 \end{proof}
 
-\begin{corollary}[Rho plus of subgroup]\label{rhoplus-subgroup}\lean{rho_plus_of_subgroup}\uses{rhoplus-def} If $H$ is a finite subgroup of $G$, then $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$.
+\begin{corollary}[Rho plus of subgroup]\label{rhoplus-subgroup}\lean{rho_plus_of_subgroup}\uses{rhoplus-def}\leanok If $H$ is a finite subgroup of $G$, then $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$.
 \end{corollary}
 
 \begin{proof}\uses{rhominus-subgroup} Straightforward by definition and \Cref{rhominus-subgroup}.
