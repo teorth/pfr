@@ -753,7 +753,15 @@ lemma multiDist_copy {m : ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*}
 /-- If `X_i` are independent, then `D[X_[m]] = D[Y_[m]]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
     (hindep : iIndepFun (fun _ ↦ hG) X ) :
-    D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (∑ i, H[X i]) / m := by sorry
+    D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (m:ℝ)⁻¹ * (∑ i, H[X i]) := by
+  simp_rw [multiDist]
+  ring_nf
+  congr 2
+  have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨X, Y⟩) :=
+    ((indepFun_iff_map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable).mp h).symm
+  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
+  rfl
+  sorry
 
 /-- We have `D[X_[m]] ≥ 0`. -/
 lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
