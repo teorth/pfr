@@ -171,7 +171,7 @@ where the $\tilde X_i$ are independent copies of the $X_i$.
 \begin{lemma}[Multidistance of copy]\label{multidist-copy}\lean{multiDist_copy}\leanok  If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are such that $X_i$ and $Y_i$ have the same distribution for each $i$, then $D[X_{[m]}] = D[Y_{[m]}]$.
 \end{lemma}
 
-\begin{proof}\uses{multidist-def} Clear from Lemma \ref{copy-ent}.
+\begin{proof}\uses{multidist-def}\leanok Clear from Lemma \ref{copy-ent}.
 \end{proof}
 
 \begin{lemma}[Multidistance of independent variables]\label{multidist-indep}\lean{multiDist_indep}\leanok  If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ are jointly independent, then $D[X_{[m]}] = \bbH[\sum_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$.
