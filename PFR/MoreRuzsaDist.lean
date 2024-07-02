@@ -739,9 +739,9 @@ variable {G : Type*}
   [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G]
 
-/--  Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `X_i`.
-Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'` are independent copies
-of the `X_i`.-/
+/--  Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `Xᵢ`.
+Then we define `D[X_[m]] = H[∑ i, Xᵢ'] - 1/m * ∑ i, H[Xᵢ']`, where the `Xᵢ'` are independent copies
+of the `Xᵢ`.-/
 noncomputable
 def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
     (X : (i : Fin m) → (Ω i) → G) : ℝ :=
@@ -749,7 +749,7 @@ def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpa
 
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
-/-- If `X_i` has the same distribution as `Y_i` for each `i`, then `D[X_[m]] = D[Y_[m]]`. -/
+/-- If `Xᵢ` has the same distribution as `Yᵢ` for each `i`, then `D[X_[m]] = D[Y_[m]]`. -/
 lemma multiDist_copy {m : ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*}
     (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (hΩ': (i : Fin m) → MeasureSpace (Ω' i))
     (X : (i : Fin m) → (Ω i) → G) (X' : (i : Fin m) → (Ω' i) → G)
@@ -757,7 +757,7 @@ lemma multiDist_copy {m : ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*}
     D[X ; hΩ] = D[X' ; hΩ'] := by
   simp_rw [multiDist, IdentDistrib.entropy_eq (hident _), (hident _).map_eq]
 
-/-- If `X_i` are independent, then `D[X_{[m]}] = H[∑_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m H[X_i]`. -/
+/-- If `Xᵢ` are independent, then `D[X_{[m]}] = H[∑_{i=1}^m Xᵢ] - \frac{1}{m} \sum_{i=1}^m H[Xᵢ]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
     (hindep : iIndepFun (fun _ ↦ hG) X ) :
     D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (m:ℝ)⁻¹ * (∑ i, H[X i]) := by
@@ -791,26 +791,26 @@ lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i :
     (X : (i : Fin m) → (Ω i) → G): ∑ j, d[X j # X j] ≤ 2 * m * D[X; hΩ] := by sorry
 
 /-- Let `I` be an indexing set of size `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
-variables. If the `X_i` all have the same distribution, then `D[X_[m]] ≤ m d[X_i;X_i]` for any
+variables. If the `Xᵢ` all have the same distribution, then `D[X_[m]] ≤ m d[Xᵢ;Xᵢ]` for any
 `1 ≤ i ≤ m`. -/
 lemma multidist_ruzsa_III {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
     (X : (i : Fin m) → (Ω i) → G) (hident: ∀ j k, IdentDistrib (X j) (X k)): ∀ i, D[X; hΩ] ≤ m * d[X i # X i] := by sorry
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
-variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
+variables. Let `W := ∑ Xᵢ`. Then `d[W;-W] ≤ 2 D[Xᵢ]`. -/
 lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
     (hindep : iIndepFun (fun _ ↦ hG) X ) : d[ ∑ i, X i # ∑ i, X i ] ≤ 2 * D[X; fun _ ↦ hΩ] := by sorry
 
-/-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
-`d[X_i; U_{H_i}] = 0`. -/
+/-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `Hᵢ ≤ G` such that
+`d[Xᵢ; U_{Hᵢ}] = 0`. -/
 lemma multidist_eq_zero {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (X : (i : Fin m) → (Ω i) → G) (hvanish: D[X; hΩ] = 0) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0  := by sorry
 
 -- This is probably not the optimal spelling.  For instance one could use the `μ "[|" t "]"` notation from Mathlib.ProbabilityTheory.ConditionalProbability to simplify the invocation of `ProbabilityTheory.cond`
 /-- If `X_[m] = (X_1, ..., X_m)` and `Y_[m] = (Y_1, ..., Y_m)` are tuples of random variables,
-with the `X_i` being `G`-valued (but the `Y_i` need not be), then we define
-`D[X_[m] | Y_[m]] := H[∑ i, X_i | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[X_i' | Y_i']`
-where `(X_i', Y_i)`, `1 ≤ i ≤ m` are independent copies of `(X_i,Y_i), 1 ≤ i ≤ m` (but note here
-that we do *not* assume `X_i` are independent of `Y_i`, or `X_i'` independent of `Y_i`. -/
+with the `Xᵢ` being `G`-valued (but the `Yᵢ` need not be), then we define
+`D[X_[m] | Y_[m]] := H[∑ i, Xᵢ | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[Xᵢ' | Yᵢ']`
+where `(Xᵢ', Yᵢ)`, `1 ≤ i ≤ m` are independent copies of `(Xᵢ,Yᵢ), 1 ≤ i ≤ m` (but note here
+that we do *not* assume `Xᵢ` are independent of `Yᵢ`, or `Xᵢ'` independent of `Yᵢ`. -/
 noncomputable
 def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*}
     (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : ℝ := ∑' ω : (i : Fin m) → S, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩]
@@ -818,8 +818,8 @@ def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → Measur
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
 /-- With the above notation, we have
-`D[ X_[m] | Y_[m]] = ∑_{(y_i)_{1 \leq i \leq m}} (∏ i, p_{Y_i}(y_i)) D[(X_i | Y_i = y_i)_{i=1}^m]`
-where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`. -/
+`D[ X_[m] | Y_[m]] = ∑_{(yᵢ)_{1 \leq i \leq m}} (∏ i, p_{Yᵢ}(yᵢ)) D[(Xᵢ | Yᵢ = yᵢ)_{i=1}^m]`
+where each `yᵢ` ranges over the support of `p_{Yᵢ}` for `1 ≤ i ≤ m`. -/
 lemma condMultiDist_eq {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*}
     (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : D[ X | Y ; hΩ] =  ∑' ω : (i : Fin m) → S, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩] := by rfl
 
@@ -829,17 +829,17 @@ section multiDistance_chainRule
 
 /-- Let `π : G → H` be a homomorphism of abelian groups and let `X_[m]` be a tuple of jointly
 independent `G`-valued random variables. Then `D[X_[m]]` is equal to
-`D[X_[m] | π(X_[m])] + D[π(X_[m])] + I[∑ i, X_i : π(X_[m]) ; | ; π(∑ i, X_i)]`
+`D[X_[m] | π(X_[m])] + D[π(X_[m])] + I[∑ i, Xᵢ : π(X_[m]) ; | ; π(∑ i, Xᵢ)]`
 where `π(X_[m]) := (π(X_1), ..., π(X_m))`.
 -/
 lemma multiDist_chainRule (G H: Type*) [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H] [MeasurableSub₂ H] [MeasurableAdd₂ H] [Countable H] (π: G →+ H) {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G) (hindep : iIndepFun (fun _ ↦ hG) X ) : D[X; fun _ ↦ hΩ] = D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩ] + D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩ] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i)] := by sorry
 
 /-- Let `π : G → H` be a homomorphism of abelian groups. Let `I` be a finite index set and let
 `X_[m]` be a tuple of `G`-valued random variables. Let `Y_[m]` be another tuple of random variables
-(not necessarily `G`-valued). Suppose that the pairs `(X_i, Y_i)` are jointly independent of one
-another (but `X_i` need not be independent of `Y_i`). Then
+(not necessarily `G`-valued). Suppose that the pairs `(Xᵢ, Yᵢ)` are jointly independent of one
+another (but `Xᵢ` need not be independent of `Yᵢ`). Then
 `D[X_[m] | Y_[m]] = D[X_[m] ,|, π(X_[m]), Y_[m]] + D[π(X_[m]) ,| , Y_[m]]`
-`+ I[∑ i, X_i : π(X_[m]) ; | ;  π(∑ i, X_i), Y_[m] ]`. -/
+`+ I[∑ i, Xᵢ : π(X_[m]) ; | ;  π(∑ i, Xᵢ), Y_[m] ]`. -/
 lemma cond_multiDist_chainRule (G H: Type*) [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H] [MeasurableSub₂ H] [MeasurableAdd₂ H] [Countable H] (π: G →+ H) {S : Type*} [hS: MeasurableSpace S] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G) (Y : Fin m → Ω → S) (hindep : iIndepFun (fun _ ↦ (hG.prod hS)) (fun i ↦ ⟨ X i, Y i ⟩) ) : D[X | Y; fun _ ↦ hΩ] = D[X | fun i ↦ ⟨ π ∘ (X i), Y i ⟩; fun _ ↦ hΩ] + D[ fun i ↦ π ∘ (X i) | Y; fun _ ↦ hΩ] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | ⟨ π ∘ (∑ i, X i), fun ω ↦ (fun i ↦ Y i ω)⟩] := by sorry
 
 /-- Let `m` be a positive integer. Suppose one has a sequence `G_m → G_{m-1} → ... → G_1 → G_0 = {0}`
@@ -848,11 +848,11 @@ of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m
 (so for instance `π_m` is the identity homomorphism and `π_0` is the zero homomorphism).
 Let `X_[m] = (X_1, ..., X_m)` be a jointly independent tuple of `G_m`-valued random variables.
 Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
-` + ∑_{d=1}^{m-1}, I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
+` + ∑_{d=1}^{m-1}, I[∑ i, Xᵢ : π_d(X_[m]) | π_d(∑ i, Xᵢ), π_(d-1})(X_[m])]`.-/
 lemma iter_multiDist_chainRule {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, MeasurableSpace (G i)) (hGs: ∀ i, MeasurableSingletonClass (G i)) (hGa: ∀ i, AddCommGroup (G i)) (hGsub: ∀ i, MeasurableSub₂ (G i)) (hGadd: ∀ i, MeasurableAdd₂ (G i)) (hGcount: ∀ i, Countable (G i)) (φ: ∀ i, G (i+1) →+ G i) (π: ∀ d, G m →+ G d) (hcomp: ∀ i, i < m → π i = (φ i) ∘ (π (i+1))) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → (G m)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] = ∑ d ∈ Finset.Iio m, D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio m, I[ ∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ ∑ i, X i, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ] := by sorry
 
 /--Under the preceding hypotheses,
-`D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
+`D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, Xᵢ : π_1(X_[m]) | π_1(∑ i, Xᵢ)]`. -/
 lemma iter_multiDist_chainRule'  {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, MeasurableSpace (G i)) (hGs: ∀ i, MeasurableSingletonClass (G i)) (hGa: ∀ i, AddCommGroup (G i)) (hGsub: ∀ i, MeasurableSub₂ (G i)) (hGadd: ∀ i, MeasurableAdd₂ (G i)) (hGcount: ∀ i, Countable (G i)) (φ: ∀ i, G (i+1) →+ G i) (π: ∀ d, G m →+ G d) (hcomp: ∀ i, i < m → π i = (φ i) ∘ (π (i+1))) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → (G m)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] ≥ ∑ d ∈ Finset.Iio m, D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ]  := by sorry
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
