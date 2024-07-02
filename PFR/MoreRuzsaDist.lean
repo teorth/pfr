@@ -743,15 +743,12 @@ def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpa
 @[inherit_doc multiDist] notation3:max "D[" X " ; " hΩ "]" => multiDist hΩ X
 
 /-- If `X_i` has the same distribution as `Y_i` for each `i`, then `D[X_[m]] = D[Y_[m]]`. -/
-lemma multiDist_copy {m : ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-    (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (X : (i : Fin m) → (Ω i) → G) (X' : (i : Fin m) → (Ω' i) → G)
+lemma multiDist_copy {m : ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*}
+    (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (hΩ': (i : Fin m) → MeasureSpace (Ω' i))
+    (X : (i : Fin m) → (Ω i) → G) (X' : (i : Fin m) → (Ω' i) → G)
     (hident : ∀ i, IdentDistrib (X i) (X' i)) :
     D[X ; hΩ] = D[X' ; hΩ'] := by
-  simp_rw [multiDist, IdentDistrib.entropy_eq (hident _)]
-  simp only [sub_left_inj]
-  refine IdentDistrib.entropy_eq ?_
-  refine ?_
-  sorry
+  simp_rw [multiDist, IdentDistrib.entropy_eq (hident _), (hident _).map_eq]
 
 /-- If `X_i` are independent, then `D[X_[m]] = D[Y_[m]]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
