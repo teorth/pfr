@@ -10,6 +10,7 @@ permissions:
   pages: write
   id-token: write
 
+
 jobs:
   style_lint:
     name: Lint style
