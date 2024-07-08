@@ -540,9 +540,9 @@ open Classical in
   $$ \mathbb{H}[\sum_{j=1}^l Y_j] \leq \mathbb{H}[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\mathbb{H}[ Y_j - X_{f(j)}] - \mathbb{H}[X_{f(j)}]).$$
 -/
 
-lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t)
-  (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X: I → Ω → G) (hX: (i:I) → Measurable (X i))
-  (hindep: iIndepFun (fun (i:I) => hG) X μ ) (f: I → I) (hf: Finset.image f t ⊆ s) :
+lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t : Finset I} (hdisj : Disjoint s t)
+  (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X : I → Ω → G) (hX: (i : I) → Measurable (X i))
+  (hindep: iIndepFun (fun (i : I) => hG) X μ ) (f : I → I) (hf: Finset.image f t ⊆ s) :
     H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by
   set W := ∑ i in s, X i
   set U := ∑ i in t, X i
@@ -556,6 +556,7 @@ lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t)
       apply le_trans (le_max_left H[U ; μ] H[W ; μ]) (ProbabilityTheory.max_entropy_le_entropy_sub U_meas W_meas _)
       sorry-/
     _ ≤ H[- W ; μ] + ∑ i in t, (H[-W + X i ; μ] - H[- W ; μ]) := by
+      
       sorry --apply kvm_ineq_I
     _ ≤ H[- W ; μ] + ∑ i in t, (H[X i - X (f i) ; μ] - H[X (f i) ; μ]) := by
       rw [add_le_add_iff_left]
@@ -566,8 +567,9 @@ lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t: Finset I} (hdisj: Disjoint s t)
     _ = H[W ; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
       rw [ProbabilityTheory.entropy_neg]
       measurability
+
 /-- Let `X₁, ..., Xₘ` and `Y₁, ..., Yₗ` be tuples of jointly independent random variables (so the
-`X`'s and `Y`'s are also independent of each other), and let `f: {1,..., l} → {1,... ,m}` be a
+`X`'s and `Y`'s are also independent of each other), and let `f: {1,...,l} → {1,...,m}` be a
 function, then  `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
 lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
     (hs : Finset.Nonempty s) (ht : Finset.Nonempty t) (X : I → Ω → G) (hX : (i : I) → Measurable (X i))
