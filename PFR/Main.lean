@@ -174,7 +174,8 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     PFR_conjecture_pos_aux h₀A hA
   let A' := A.toFinite.toFinset
   have h₀A' : Finset.Nonempty A' := by
-    simp [A', Finset.Nonempty]
+    simp only [Finset.Nonempty, Finite.toFinset_setOf, Finset.mem_filter, Finset.mem_univ, true_and,
+      A']
     exact h₀A
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
