@@ -1235,7 +1235,7 @@ max (dimension A') (dimension A'') := by
     convert zpow_neg K 17 using 1
     norm_cast
   calc (dimension B : ℝ)
-    _ ≤ (((max (dimension A') (dimension A'')) : ℕ) : ℝ) := Nat.cast_le.mpr hBdim
+    _ ≤ (((max (dimension A') (dimension A'')) : ℕ) : ℝ) := by norm_cast
     _ ≤ (40 / log 2) * dᵤ[A # A] := hdim
     _ ≤ (40 / log 2) * log K := mul_le_mul_of_nonneg_left hdist (by positivity)
 
