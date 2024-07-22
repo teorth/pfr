@@ -173,10 +173,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A - A) ∧ 0 < K :=
     PFR_conjecture_pos_aux h₀A hA
   let A' := A.toFinite.toFinset
-  have h₀A' : Finset.Nonempty A' := by
-    simp only [Finset.Nonempty, Finite.toFinset_setOf, Finset.mem_filter, Finset.mem_univ, true_and,
-      A']
-    exact h₀A
+  have h₀A' : Finset.Nonempty A' := by simpa [Finset.Nonempty, A'] using h₀A
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
   rw [hAA'] at UAunif
