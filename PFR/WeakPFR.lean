@@ -819,10 +819,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
   let N := AddSubgroup.comap φ H'
   set φ' := QuotientAddGroup.mk' N
   have _cGN : Countable (G ⧸ N) := Surjective.countable (QuotientAddGroup.mk'_surjective N)
-  have _msGN : MeasurableSingletonClass (G ⧸ N) := by
-    constructor
-    intro x
-    exact MeasurableSpace.map_def.mpr (measurableSet_discrete _)
+  have _msGN : MeasurableSingletonClass (G ⧸ N) :=
+    ⟨fun x ↦ MeasurableSpace.map_def.mpr (measurableSet_discrete _)⟩
 
   rcases third_iso H' with ⟨ e : H ⧸ H' ≃+ G ⧸ N, he ⟩
   rcases single_fibres φ' hnA hnB hUA_mes hUB_mes hUA_unif hUB_unif hUA_mem hUB_mem with
@@ -896,8 +894,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
       have : (Measure.map UA ℙ).real {z} > 0 := by
         rw [IsUniform.measureReal_preimage_of_mem' hUAf hUA_mes hzf]
         positivity
-      have _ : IsProbabilityMeasure ((ℙ).map UA) := by
-        exact MeasureTheory.isProbabilityMeasure_map (Measurable.aemeasurable hUA_mes)
+      have _ : IsProbabilityMeasure ((ℙ).map UA) :=
+        MeasureTheory.isProbabilityMeasure_map (Measurable.aemeasurable hUA_mes)
       replace this := single ((ℙ).map UA) hx this
       rwa [Set.mem_preimage, Set.mem_singleton_iff] at this
 
@@ -921,8 +919,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
       have : (Measure.map UB ℙ).real {z} > 0 := by
         rw [IsUniform.measureReal_preimage_of_mem' hUBf hUB_mes hzf]
         positivity
-      have _ : IsProbabilityMeasure ((ℙ).map UB) := by
-        exact MeasureTheory.isProbabilityMeasure_map (Measurable.aemeasurable hUB_mes)
+      have _ : IsProbabilityMeasure ((ℙ).map UB) :=
+        MeasureTheory.isProbabilityMeasure_map (Measurable.aemeasurable hUB_mes)
       replace this := single ((ℙ).map UB) hy this
       rwa [Set.mem_preimage, Set.mem_singleton_iff] at this
 
@@ -957,14 +955,13 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [Finite A] [Finite B] (hnA : A.Nonempt
       apply Real.log_nonneg
       rw [one_le_div]
       gcongr
-      . apply Nat.card_mono
-        . exact Set.toFinite A
-        rw [hAx]; exact Set.inter_subset_left _ _
+      apply Nat.card_mono
+      . exact Set.toFinite A
+      · exact hAx ▸ Set.inter_subset_left _ _
       apply Nat.card_mono
       . exact Set.toFinite B
-      rw [hBy]; exact Set.inter_subset_left _ _
-      norm_cast
-      exact mul_pos Nat.card_pos Nat.card_pos
+      · exact hBy ▸ Set.inter_subset_left _ _
+      · exact_mod_cast mul_pos Nat.card_pos Nat.card_pos
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (34 * (d[UA # UB] - dᵤ[Ax # By])) := by ring
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (34 * (dᵤ[A # B] - dᵤ[Ax # By])) := by
       rw [<- rdist_set_eq_rdist hμ hμ' hUA_unif hUB_unif hUA_mes hUB_mes]
@@ -1187,7 +1184,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
   convert le_trans ?_ hdim using 1
   . field_simp
   simp only [Nat.cast_max, max_le_iff, Nat.cast_le]
-  exact ⟨ dimension_le_rank A, dimension_le_rank B ⟩
+  exact ⟨dimension_le_rank A, dimension_le_rank B⟩
 
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then
 there exists a non-empty $A'\subseteq A$ such that $\lvert A'\rvert\geq K^{-17}\lvert A\rvert$
@@ -1200,10 +1197,8 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K) (
   have : ∃ B : Set G, B ⊆ A ∧ (Nat.card B) ≥ (Nat.card A') ∧ (Nat.card B) ≥ (Nat.card A'') ∧ (dimension B) ≤
 max (dimension A') (dimension A'') := by
     rcases lt_or_ge (Nat.card A') (Nat.card A'') with h | h
-    . use A''
-      exact ⟨hA'', by linarith, by linarith, le_max_right _ _⟩
-    use A'
-    exact ⟨hA', by linarith, by linarith, le_max_left _ _⟩
+    . exact ⟨A'', hA'', by linarith, by linarith, le_max_right _ _⟩
+    · exact ⟨A', hA', by linarith, by linarith, le_max_left _ _⟩
 
   rcases this with ⟨B, hB, hBcard, hBcard', hBdim⟩
   use B
@@ -1212,10 +1207,10 @@ max (dimension A') (dimension A'') := by
     exact ⟨hA.to_subtype, inferInstance⟩
   have hA'pos : Nat.card A' > 0 := by
     rw [gt_iff_lt, Nat.card_pos_iff]
-    refine ⟨ hA'nonempty.to_subtype, Finite.Set.subset _ hA' ⟩
+    exact ⟨ hA'nonempty.to_subtype, Finite.Set.subset _ hA' ⟩
   have hA''pos : Nat.card A'' > 0 := by
     rw [gt_iff_lt, Nat.card_pos_iff]
-    refine ⟨ hA''nonempty.to_subtype, Finite.Set.subset _ hA'' ⟩
+    exact ⟨ hA''nonempty.to_subtype, Finite.Set.subset _ hA'' ⟩
   have hBpos : Nat.card B > 0 := by linarith
 
   refine ⟨hB, ?_, ?_⟩
@@ -1257,6 +1252,5 @@ theorem weak_PFR_int {A : Set G} [Finite A] (hnA : A.Nonempty) {K : ℝ} (hK : 0
   . apply log_le_log _ hA
     norm_cast
     have : Nonempty (A - A) := (hnA.sub hnA).coe_sort
-    apply Nat.card_pos
-  norm_cast
-  apply ne_of_gt (@Nat.card_pos _ hnA.to_subtype _)
+    exact Nat.card_pos
+  exact_mod_cast ne_of_gt (@Nat.card_pos _ hnA.to_subtype _)
