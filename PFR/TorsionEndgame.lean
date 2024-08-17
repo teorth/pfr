@@ -27,14 +27,23 @@ variable (Ω': Type u) [hΩ': MeasureSpace Ω'] (Y: Fin p.m × Fin p.m → Ω' �
 local notation3 "W" => ∑ i, ∑ j, Y (i, j)
 local notation3 "Z1" => ∑ i: Fin p.m, ∑ j, (i:ℤ) • Y (i, j)
 local notation3 "Z2" => ∑ i, ∑ j: Fin p.m, (j:ℤ) • Y (i, j)
-local notation3 "Z3" => - ∑ i: Fin p.m, ∑ j: Fin p.m, (i+j:ℤ) • Y (i, j)
+local notation3 "Z3" => ∑ i: Fin p.m, ∑ j: Fin p.m, (-i-j:ℤ) • Y (i, j)
 local notation3 "P" => fun i ↦ ∑ j, Y (i, j)
 local notation3 "Q" => fun j ↦ ∑ i, Y (i, j)
 local notation3 "R" => fun r ↦ ∑ i, ∑ j, if (i+j+r = 0) then Y r else 0
 
 
 /--  Z_1+Z_2+Z_3= 0 -/
-lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := sorry
+lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
+  rw [<-Finset.sum_add_distrib, <-Finset.sum_add_distrib]
+  apply Finset.sum_eq_zero
+  intro i _
+  rw [<-Finset.sum_add_distrib, <-Finset.sum_add_distrib]
+  apply Finset.sum_eq_zero
+  intro j _
+  rw [<-add_zsmul, <-add_zsmul]
+  convert zero_zsmul ?_
+  simp
 
 /--   We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤  4m^2 η k`.
 -/
