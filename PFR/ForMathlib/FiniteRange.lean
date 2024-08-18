@@ -2,11 +2,8 @@ import Mathlib.Data.Set.Image
 import Mathlib.Data.Set.Finite
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Algebra.Group.Defs
-import Mathlib.Algebra.GroupPower.Basic
 import Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.ForMathlib.Pair
-
-open scoped BigOperators
 
 /-- The property of having a finite range. -/
 class FiniteRange {Ω G : Type*} (X : Ω → G) : Prop where
@@ -135,7 +132,7 @@ lemma FiniteRange.null_of_compl {Ω G : Type*} [MeasurableSpace Ω] [MeasurableS
     (μ.map X) (FiniteRange.toFinset X : Set G)ᶜ = 0 := by
   by_cases hX : AEMeasurable X μ
   · rw [Measure.map_apply₀ hX]
-    convert measure_empty
+    convert measure_empty (μ := μ)
     ext ω
     simp only [Set.preimage_compl, Set.mem_compl_iff, Set.mem_preimage, Finset.mem_coe, mem_iff,
       exists_apply_eq_apply, not_true_eq_false, Set.mem_empty_iff_false]

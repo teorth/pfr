@@ -51,18 +51,20 @@ local notation3 "I₁" => I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X
 of `X₁ + X₂` and `X₁' + X₁` given the quadruple sum `X₁ + X₂ + X₁' + X₂'`. -/
 local notation3 "I₂" => I[X₁ + X₂ : X₁' + X₁ | X₁ + X₂ + X₁' + X₂']
 
+include h_min hX₁ hX₁' hX₂ hX₂' h_indep h₁ h₂ in
 /-- $$ d[X_1+\tilde X_1; X_2+\tilde X_2] \geq k - \frac{\eta}{2} ( d[X_1; X_1] + d[X_2;X_2] ).$$
 -/
 lemma rdist_of_sums_ge' : d[X₁ + X₁' # X₂ + X₂'] ≥ k - p.η * (d[X₁ # X₁] + d[X₂ # X₂]) / 2 := by
-  refine' LE.le.ge (LE.le.trans _ (distance_ge_of_min p h_min (hX₁.add hX₁') (hX₂.add hX₂')))
+  refine LE.le.ge (LE.le.trans ?_ (distance_ge_of_min p h_min (hX₁.add hX₁') (hX₂.add hX₂')))
   rw [sub_sub, sub_le_sub_iff_left k, ← mul_add,mul_div_assoc]
-  refine' mul_le_mul_of_nonneg_left _ (by linarith [p.hη])
+  refine mul_le_mul_of_nonneg_left ?_ (by linarith [p.hη])
   have h₁' := condRuzsaDist_diff_le' ℙ p.hmeas1 hX₁ hX₁' (h_indep.indepFun (show 0 ≠ 2 by decide))
   have h₂' := condRuzsaDist_diff_le' ℙ p.hmeas2 hX₂ hX₂' (h_indep.indepFun (show 1 ≠ 3 by decide))
   rw [h₁.entropy_eq, add_sub_cancel_right, ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁] at h₁'
   rw [h₂.entropy_eq, add_sub_cancel_right, ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂] at h₂'
   linarith
 
+include h_min hX₁ hX₁' hX₂ hX₂' h_indep h₁ h₂ in
 lemma second_estimate_aux :
     d[X₁ # X₁] + d[X₂ # X₂] ≤ 2 * (k + (2 * p.η * k - I₁) / (1 - p.η)) := by
   have hX₁_indep : IndepFun X₁ X₁' (μ := ℙ) := h_indep.indepFun (show 0 ≠ 2 by decide)
@@ -75,7 +77,7 @@ lemma second_estimate_aux :
     rw [sub_eq_add (X₁ + X₁') (X₂ + X₂'), ← sub_eq_add X₁ X₁', ← sub_eq_add X₂ X₂',
       sub_eq_iff_eq_add.mp (sub_eq_iff_eq_add.mp (hX₁_indep.rdist_eq hX₁ hX₁').symm),
       sub_eq_iff_eq_add.mp (sub_eq_iff_eq_add.mp (hX₂_indep.rdist_eq hX₂ hX₂').symm),
-      ← h₁.entropy_eq, ← h₂.entropy_eq, add_assoc, add_assoc, add_halves', add_halves',
+      ← h₁.entropy_eq, ← h₂.entropy_eq, add_assoc, add_assoc, add_halves, add_halves,
       ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁,
       ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂,
       sub_eq_add X₁ X₁', sub_eq_add X₂ X₂', ← add_assoc, add_right_comm _ X₁'] at h
@@ -87,6 +89,7 @@ lemma second_estimate_aux :
   rw [← div_le_iff' two_pos, ← sub_le_iff_le_add', le_div_iff (by linarith [p.hη'])]
   linarith
 
+include h_min hX₁ hX₁' hX₂ hX₂' h_indep h₁ h₂ in
 /-- $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$ -/
 lemma second_estimate : I₂ ≤ 2 * p.η * k + (2 * p.η * (2 * p.η * k - I₁)) / (1 - p.η) := by
   have hX₁_indep : IndepFun X₁ X₁' (μ := ℙ) := h_indep.indepFun (show 0 ≠ 2 by decide)
@@ -99,7 +102,8 @@ lemma second_estimate : I₂ ≤ 2 * p.η * k + (2 * p.η * (2 * p.η * k - I₁
   rw [← h₂.rdist_eq h₁, rdist_symm, rdist_symm (X := X₂ + X₂'),
     condRuzsaDist_symm (Z := X₂ + X₂') (W := X₁ + X₁') (hX₂.add hX₂') (hX₁.add hX₁'),
     ← two_mul] at h
-  replace h : 2 * k = d[X₁ + X₁' # X₂ + X₂'] + d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂'] + I[X₁ + X₂ : X₁ + X₁'|X₁ + X₂ + X₁' + X₂'] := by
+  replace h : 2 * k = d[X₁ + X₁' # X₂ + X₂'] + d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂']
+      + I[X₁ + X₂ : X₁ + X₁'|X₁ + X₂ + X₁' + X₂'] := by
     convert h using 3 <;> abel
   have h' := condRuzsaDistance_ge_of_min p h_min hX₁ hX₂ (X₁ + X₁') (X₂ + X₂') (hX₁.add hX₁') (hX₂.add hX₂')
   have h₁' := condRuzsaDist_diff_le''' ℙ p.hmeas1 hX₁ hX₁' hX₁_indep
@@ -113,5 +117,5 @@ lemma second_estimate : I₂ ≤ 2 * p.η * k + (2 * p.η * (2 * p.η * k - I₁
     have := rdist_of_sums_ge' p _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
     linarith
   nth_rewrite 1 [mul_div_assoc, ← mul_add, mul_assoc, mul_left_comm]
-  refine' h''.trans (mul_le_mul_of_nonneg_left _ (show 0 ≤ p.η by linarith [p.hη]))
+  refine h''.trans (mul_le_mul_of_nonneg_left ?_ (show 0 ≤ p.η by linarith [p.hη]))
   exact second_estimate_aux p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min

@@ -13,7 +13,7 @@ import PFR.MultiTauFunctional
 -/
 
 universe u
-open MeasureTheory ProbabilityTheory BigOperators
+open MeasureTheory ProbabilityTheory
 
 -- Spelling here is *very* janky.  Feel free to respell
 /-- Suppose that $X_{i,j}$, $1 \leq i,j \leq m$, are jointly independent $G$-valued random variables, such that for each $j = 1,\dots,m$, the random variables $(X_{i,j})_{i = 1}^m$

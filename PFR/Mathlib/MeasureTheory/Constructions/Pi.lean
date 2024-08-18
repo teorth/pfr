@@ -1,7 +1,6 @@
 import Mathlib.MeasureTheory.Constructions.Pi
 
 open Function Set
-open scoped BigOperators
 
 namespace MeasureTheory.Measure
 variable {ι : Type*} {α : ι → Type*} [Fintype ι] [∀ i, MeasurableSpace (α i)]

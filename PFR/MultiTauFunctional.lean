@@ -34,9 +34,6 @@ structure multiRefPackage (G Ω₀ : Type*) [MeasureableFinGroup G] [MeasureSpac
   (hη : 0 < η)
   (hη': η ≤ 1)
 
-
-open BigOperators
-
 /-- If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 -/
@@ -70,17 +67,17 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀
       exact multiDist_nonneg hΩ X
     _ ≤ p.η⁻¹ * (D[fun _ ↦ p.X₀ ; fun _ ↦ hΩ₀] + p.η * (p.m * d[p.X₀ # p.X₀])) := by
       apply mul_le_mul_of_nonneg_left
-      . have ineq := hmin (fun _ ↦ Ω₀) (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀)
+      · have ineq := hmin (fun _ ↦ Ω₀) (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀)
         simp [multiTau] at ineq
         exact ineq
       exact inv_nonneg_of_nonneg (le_of_lt hη)
     _ ≤ p.η⁻¹ * (p.m * d[p.X₀ # p.X₀] + 1 * (p.m * d[p.X₀ # p.X₀])) := by
       gcongr
-      . apply multidist_ruzsa_III p.hm (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀) _ (Fin.ofNat' 0 hm)
+      · apply multidist_ruzsa_III p.hm (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀) _ (Fin.ofNat' 0 hm)
         intro _ _
         simp
         exact ProbabilityTheory.IdentDistrib.refl ( Measurable.aemeasurable p.hmeas)
-      . have : 0 ≤ d[p.X₀ # p.X₀] := rdist_nonneg p.hmeas p.hmeas
+      · have : 0 ≤ d[p.X₀ # p.X₀] := rdist_nonneg p.hmeas p.hmeas
         positivity
       exact p.hη'
     _ = _ := by
@@ -114,7 +111,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
 
   have probmes (i : Fin p.m) : ∑ ωi : S, (ℙ (Y i ⁻¹' {ωi})).toReal = 1 := by
     convert Finset.sum_toReal_measure_singleton (s := Finset.univ) (Measure.map (Y i) ℙ) with ω _ i _
-    . exact (MeasureTheory.Measure.map_apply (hY i) ( measurableSet_singleton ω)).symm
+    · exact (MeasureTheory.Measure.map_apply (hY i) ( measurableSet_singleton ω)).symm
     replace hΩ'prob := hΩ'prob i
     rw [MeasureTheory.Measure.map_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ, measure_univ, ENNReal.one_toReal]
 -- μ has total mass one
@@ -142,7 +139,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
       apply Finset.sum_le_sum
       intro ω _
       rcases eq_or_ne (μ ω) 0 with hω | hω
-      . simp [hω]
+      · simp [hω]
       gcongr
       set hΩ'_cond := fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]
       have hΩ'prob_cond : ∀ i, IsProbabilityMeasure (hΩ'_cond i).volume := by
@@ -175,7 +172,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
           apply Finset.prod_congr rfl
           intro j _
           by_cases hij : i = j
-          . simp only [hij, mul_ite, mul_one, ↓reduceIte, f]
+          · simp only [hij, mul_ite, mul_one, ↓reduceIte, f]
             rw [condRuzsaDist'_eq_sum' (hmeasX' i) (hY i), <-hij]
           simp only [mul_ite, mul_one, hij, ↓reduceIte, f]
           exact probmes j
@@ -207,9 +204,9 @@ lemma sub_condMultiDistance_le'  {G Ω₀ : Type u} [MeasureableFinGroup G] [Mea
       _ = multiTau p Ω hΩ X := by
         dsimp [multiTau]
         congr 1
-        . rw [multiDist_of_perm hΩ hΩprob X φ]
+        · rw [multiDist_of_perm hΩ hΩprob X φ]
         congr 1
         apply Finset.sum_bijective φ (Equiv.bijective φ)
-        . simp only [Finset.mem_univ, implies_true]
+        · simp only [Finset.mem_univ, implies_true]
         simp only [Finset.mem_univ, imp_self, implies_true]
       _ ≤ multiTau p Ω'' hΩ'' X'' := hmin Ω'' hΩ'' X''

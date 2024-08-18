@@ -1,4 +1,4 @@
-import Mathlib.Mathport.Notation
+import Mathlib.Util.Notation3
 import Mathlib.Tactic.Basic
 
 /-- The pair of two random variables -/

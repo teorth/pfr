@@ -26,9 +26,11 @@ variable {G : Type uG} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
   [MeasurableSingletonClass G]
 variable (p : refPackage Ω₀₁ Ω₀₂ G) {X₁ : Ω → G} {X₂ : Ω → G} (hX₁ : Measurable X₁) (hX₂ : Measurable X₂)
 
+include hX₁ hX₂ in
 /-- If $d[X_1;X_2] > 0$ then there are $G$-valued random variables $X'_1, X'_2$ such that $\tau[X'_1;X'_2] < \tau[X_1;X_2]$.
 Phrased in the contrapositive form for convenience of proof. -/
-theorem tau_strictly_decreases (h_min : tau_minimizes p X₁ X₂) (hpη : p.η = 1/9): d[X₁ # X₂] = 0 := by
+theorem tau_strictly_decreases (h_min : tau_minimizes p X₁ X₂) (hpη : p.η = 1/9) :
+    d[X₁ # X₂] = 0 := by
   let ⟨A, mA, μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
   rw [← h_id1.rdist_eq h_id2]
@@ -37,7 +39,6 @@ theorem tau_strictly_decreases (h_min : tau_minimizes p X₁ X₂) (hpη : p.η 
   rw [← h_id1.tau_minimizes p h_id2] at h_min
   apply tau_strictly_decreases_aux p Y₁ Y₂ Y₁' Y₂' hY₁ hY₂ hY₁' hY₂' (h_id1.trans h_id1'.symm)
     (h_id2.trans h_id2'.symm) h_indep h_min hpη
-
 
 /-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
     subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$. -/

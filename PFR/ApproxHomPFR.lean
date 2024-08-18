@@ -1,5 +1,5 @@
 import Mathlib.Combinatorics.Additive.Energy
-import Mathlib.Analysis.NormedSpace.PiLp
+import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import LeanAPAP.Extras.BSG
 import PFR.HomPFR
@@ -19,7 +19,7 @@ is true for a positive proportion of x,y.
 -/
 
 open Finset
-open scoped BigOperators Classical Pointwise Combinatorics.Additive
+open scoped Classical Pointwise Combinatorics.Additive
 
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
   [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2] (A : Finset G)
@@ -57,9 +57,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   obtain ⟨A', hA', hA'1, hA'2⟩ :=
     BSG_self' (sq_nonneg K) hA_nonempty (by simpa only [inv_mul_eq_div] using this)
   clear h_cs hf this
-  have hA'₀ : A'.Nonempty := Finset.card_pos.1 $ Nat.cast_pos.1 $ hA'1.trans_lt' $ by
-    have := hA_nonempty.card_pos; positivity
-
+  have hA'₀ : A'.Nonempty := Finset.card_pos.1 $ Nat.cast_pos.1 $ hA'1.trans_lt' $ by positivity
   let A'' := A'.toSet
   have hA''_coe : Nat.card A'' = Finset.card A' := Nat.card_eq_finsetCard A'
   have hA''_pos : 0 < Nat.card A'' := by rw [hA''_coe]; exact hA'₀.card_pos
@@ -119,7 +117,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     show c.2 + h + x'.2 = φ (c.1 + 0 + x'.1) + (-φ c.1 + c.2 + h)
     replace : φ x'.1 = x'.2 := (Set.mem_graph x').mp hx
     rw [map_add, map_add, map_zero, add_zero, this, add_comm (φ c.1), add_assoc x'.2,
-      ← add_assoc (φ c.1), ← add_assoc (φ c.1), add_neg_self, zero_add, add_comm]
+      ← add_assoc (φ c.1), ← add_assoc (φ c.1), ← sub_eq_add_neg, sub_self, zero_add, add_comm]
   have h_translate_card c h : Nat.card (translate c h) = Nat.card (Prod.fst '' translate c h) :=
     Nat.card_congr (Equiv.Set.imageOfInjOn Prod.fst (translate c h) <|
       Set.InjOn.mono (fun _ hx ↦ Set.Finite.subset_toFinset.mp hA' hx.1) (Set.fst_injOn_graph f))
@@ -195,7 +193,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   conv => { lhs; rhs; rw [← mul_assoc, ← mul_div_assoc, mul_comm_div, mul_div_assoc] }
   rw [div_self <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, mul_one]
   push_cast
-  rw [mul_inv_cancel <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, one_mul, ← sq,
+  rw [mul_inv_cancel₀ <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, one_mul, ← sq,
     ← Real.rpow_two, ← Real.rpow_mul (by positivity), Real.mul_rpow (by positivity) (by positivity)]
   have : K ^ (12 : ℕ) = K ^ (12 : ℝ) := (Real.rpow_natCast K 12).symm
   rw [this, ← Real.rpow_mul (by positivity)]

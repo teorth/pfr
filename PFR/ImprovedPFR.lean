@@ -29,8 +29,7 @@ variable (h_indep : iIndepFun (fun _i => hG) ![Z₁, Z₂, Z₃, Z₄])
 
 local notation3 "Sum" => Z₁ + Z₂ + Z₃ + Z₄
 
-open scoped BigOperators
-
+include hY hZ₁ hZ₂ hZ₃ hZ₄ h_indep in
 lemma gen_ineq_aux1 :
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
       + (d[Z₁ # Z₂] + d[Z₁ # Z₃] + d[Z₂ # Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 2
@@ -71,6 +70,7 @@ lemma gen_ineq_aux1 :
       linarith
   _ = _ := by linarith
 
+include hY hZ₁ hZ₂ hZ₃ hZ₄ h_indep in
 lemma gen_ineq_aux2 :
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
       + (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
@@ -192,6 +192,7 @@ lemma gen_ineq_aux2 :
     linarith
   _ = _ := by ring
 
+include hY hZ₁ hZ₂ hZ₃ hZ₄ h_indep in
 /-- Let `Z₁, Z₂, Z₃, Z₄` be independent `G`-valued random variables, and let `Y` be another
 `G`-valued random variable.  Set `S := Z₁ + Z₂ + Z₃ + Z₄`. Then
 `(d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4`
@@ -206,6 +207,7 @@ lemma gen_ineq_00 : d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] �
   have I2 := gen_ineq_aux2 Y hY Z₁ Z₂ Z₃ Z₄ hZ₁ hZ₂ hZ₃ hZ₄ h_indep
   linarith
 
+include hY hZ₁ hZ₂ hZ₃ hZ₄ h_indep in
 /-- Other version of `gen_ineq_00`, in which we switch to the complement in the second term. -/
 lemma gen_ineq_01 : d[Y # Z₁ + Z₂ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] ≤
     (d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4
@@ -222,6 +224,7 @@ lemma gen_ineq_01 : d[Y # Z₁ + Z₂ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] �
   simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
   abel
 
+include hY hZ₁ hZ₂ hZ₃ hZ₄ h_indep in
 /-- Other version of `gen_ineq_00`, in which we switch to the complement in the first term. -/
 lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] ≤
     (d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4
@@ -251,7 +254,7 @@ section MainEstimates
 open MeasureTheory ProbabilityTheory
 
 variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
-  [MeasurableSingletonClass G] [ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
+  [MeasurableSingletonClass G] [ElementaryAddCommGroup G 2]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
@@ -314,6 +317,7 @@ local notation3:max "ψ[" A " # " B "]" => d[A # B] + p.η * (c[A # B])
 local notation3:max "ψ[" A "; " μ " # " B " ; " μ' "]" =>
   d[A ; μ # B ; μ'] + p.η * c[A ; μ # B ; μ']
 
+include hT hT₁ hT₂ hT₃ h_min in
 /-- For any $T_1, T_2, T_3$ adding up to $0$, then $k$ is at most
 $$ \delta + \eta (d[X^0_1;T_1|T_3]-d[X^0_1;X_1]) + \eta (d[X^0_2;T_2|T_3]-d[X^0_2;X_2])$$
 where $\delta = I[T₁ : T₂ ; μ] + I[T₂ : T₃ ; μ] + I[T₃ : T₁ ; μ]$. -/
@@ -367,6 +371,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
 
 open ElementaryAddCommGroup
 
+include hT hT₁ hT₂ hT₃ h_min in
 /-- In fact $k$ is at most
  $$ \delta + \frac{\eta}{6}  \sum_{i=1}^2 \sum_{1 \leq j,l \leq 3; j \neq l}
      (d[X^0_i;T_j|T_l] - d[X^0_i; X_i]).$$
@@ -396,6 +401,7 @@ lemma construct_good_improved' :
   simp only [I1, I2, I3] at Z123 Z132 Z213 Z231 Z312 Z321
   linarith
 
+include h_min in
 /-- Rephrase `construct_good_improved'` with an explicit probability measure, as we will
 apply it to (varying) conditional measures. -/
 lemma construct_good_improved'' {Ω' : Type*} [MeasurableSpace Ω'] (μ : Measure Ω')
@@ -414,8 +420,7 @@ lemma construct_good_improved'' {Ω' : Type*} [MeasurableSpace Ω'] (μ : Measur
 
 end aux
 
-open scoped BigOperators
-
+include hX₁ hX₂ hX₁' hX₂' h_min in
 /--   $k$ is at most
 $$ \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta}{6}
 \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B} (d[X^0_i;A|B,S] - d[X^0_i; X_i]).$$
@@ -450,6 +455,7 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
 
 variable (p)
 
+include hX₁ hX₂ hX₁' hX₂' h_indep h₁ h₂ in
 lemma dist_diff_bound_1 :
       (d[p.X₀₁ # U | ⟨V, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # U | ⟨W, S⟩] - d[p.X₀₁ # X₁])
     + (d[p.X₀₁ # V | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # V | ⟨W, S⟩] - d[p.X₀₁ # X₁])
@@ -469,11 +475,11 @@ lemma dist_diff_bound_1 :
   have C5 : W + X₂' + X₂ = S := by abel
   have C7 : X₂ + X₁' = V := by abel
   have C8 : X₁ + X₁' = W := by abel
-  have C9 : d[X₁ # X₂'] = d[X₁ # X₂] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq  h₂.symm
+  have C9 : d[X₁ # X₂'] = d[X₁ # X₂] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂.symm
   have C10 : d[X₂ # X₁'] = d[X₁' # X₂] := rdist_symm
-  have C11 : d[X₁ # X₁'] = d[X₁ # X₁] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq  h₁.symm
+  have C11 : d[X₁ # X₁'] = d[X₁ # X₁] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁.symm
   have C12 : d[X₁' # X₂'] = d[X₁ # X₂] := h₁.symm.rdist_eq  h₂.symm
-  have C13 : d[X₂ # X₂'] = d[X₂ # X₂] := (IdentDistrib.refl hX₂.aemeasurable).rdist_eq  h₂.symm
+  have C13 : d[X₂ # X₂'] = d[X₂ # X₂] := (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂.symm
   have C14 : d[X₁' # X₂] = d[X₁ # X₂] := h₁.symm.rdist_eq  (IdentDistrib.refl hX₂.aemeasurable)
   have C15 : H[X₁' + X₂'] = H[U] := by
     apply ProbabilityTheory.IdentDistrib.entropy_eq
@@ -541,6 +547,7 @@ lemma dist_diff_bound_1 :
     C20, C21, C22, C23, C24, C25, C26, C27, C28, C29, C30] at I1 I2 I3 I4 I5 I6 ⊢
   linarith only [I1, I2, I3, I4, I5, I6]
 
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep in
 lemma dist_diff_bound_2 :
       ((d[p.X₀₂ # U | ⟨V, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # U | ⟨W, S⟩] - d[p.X₀₂ # X₂])
     + (d[p.X₀₂ # V | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # V | ⟨W, S⟩] - d[p.X₀₂ # X₂])
@@ -649,6 +656,7 @@ lemma dist_diff_bound_2 :
     at I1 I2 I3 I4 I5 I6 ⊢
   linarith only [I1, I2, I3, I4, I5, I6]
 
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min in
 lemma averaged_final : k ≤ (6 * p.η * k - (1 - 5 * p.η) / (1 - p.η) * (2 * p.η * k - I₁))
     + p.η / 6 * (8 * k + 2 * (d[X₁ # X₁] + d[X₂ # X₂])) := by
   apply (averaged_construct_good hX₁ hX₂ hX₁' hX₂' h_min).trans
@@ -658,6 +666,7 @@ lemma averaged_final : k ≤ (6 * p.η * k - (1 - 5 * p.η) / (1 - p.η) * (2 * 
   linarith [dist_diff_bound_1 p hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep,
     dist_diff_bound_2 p hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep]
 
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min in
 /-- Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] = 0$. The proof
 of this lemma uses copies `X₁', X₂'` already in the context. For a version that does not assume
 these are given and constructs them instead, use `tau_strictly_decreases'`.
@@ -682,6 +691,7 @@ theorem tau_strictly_decreases_aux' (hp : 8 * p.η < 1) : d[X₁ # X₂] = 0 := 
   apply le_antisymm _ (rdist_nonneg hX₁ hX₂)
   nlinarith
 
+include hX₁ hX₂ h_min in
 theorem tau_strictly_decreases' (hp : 8 * p.η < 1) : d[X₁ # X₂] = 0 := by
   let ⟨A, mA, μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
@@ -919,8 +929,6 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have I : log K * (-10/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
       ≤ - H[VA - VH] := by
     rw [Vindep.rdist_eq VAmeas VHmeas] at this
-    have : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' VAunif VAmeas
-    have : H[VH] = log (Nat.card (H : Set G)) := IsUniform.entropy_eq' VHunif VHmeas
     linarith
   -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
@@ -934,10 +942,10 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     have hHH'_card : Nat.card H' = Nat.card (H : Set G) := congrArg Nat.card (congrArg Subtype hHH')
     rw [hAA'_card, hHH'_card, le_div_iff] at this
     convert this using 1
-    . rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos, ← rpow_def_of_pos H_pos]
+    · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos, ← rpow_def_of_pos H_pos]
       rpow_ring
       norm_num
-    . rw [hAA', hHH']
+    · rw [hAA', hHH']
     positivity
 
   have Hne : Set.Nonempty (A ∩ (H + {x₀} : Set G)) := by
@@ -960,7 +968,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
       apply le_trans _ hA
       simp only [Nat.cast_le]
       apply Nat.card_mono (toFinite _)
-      apply add_subset_add_left (inter_subset_left _ _)
+      apply add_subset_add_left inter_subset_left
     have : 0 ≤ K ^ (10/2) * Nat.card A ^ (-1/2) * Nat.card (H : Set G) ^ (-1/2) := by positivity
     have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
     convert T using 1 <;> rpow_ring <;> norm_num
@@ -968,7 +976,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     apply Au.trans
     rw [add_sub_assoc]
     apply add_subset_add_left
-    apply (sub_subset_sub (inter_subset_right _ _) (inter_subset_right _ _)).trans
+    apply (sub_subset_sub inter_subset_right inter_subset_right).trans
     rintro - ⟨-, ⟨y, hy, xy, hxy, rfl⟩, -, ⟨z, hz, xz, hxz, rfl⟩, rfl⟩
     simp only [mem_singleton_iff] at hxy hxz
     simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz

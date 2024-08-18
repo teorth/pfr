@@ -1,6 +1,6 @@
 import PFR.BoundingMutual
 import PFR.Main
-import Mathlib.Data.Finset.Pointwise
+-- import Mathlib.Data.Finset.Pointwise
 
 /-!
 # Endgame for the Torsion PFR theorem
@@ -13,7 +13,7 @@ import Mathlib.Data.Finset.Pointwise
 
 -/
 
-open MeasureTheory ProbabilityTheory BigOperators
+open MeasureTheory ProbabilityTheory
 
 section AnalyzeMinimizer
 
@@ -23,7 +23,8 @@ variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : mu
 
 local notation3 "k" => multiTau p Ω hΩ X
 
-variable (Ω': Type u) [hΩ': MeasureSpace Ω'] (Y: Fin p.m × Fin p.m → Ω' → G) [IsFiniteMeasure hΩ'.volume] (hindep: iIndepFun _ Y) (hident: ∀ i, ∀ j, IdentDistrib (Y (i,j)) (X i) )
+variable (Ω': Type u) (Y: Fin p.m × Fin p.m → Ω' → G)
+
 
 local notation3 "W" => ∑ i, ∑ j, Y (i, j)
 local notation3 "Z1" => ∑ i: Fin p.m, ∑ j, (i:ℤ) • Y (i, j)
@@ -32,7 +33,6 @@ local notation3 "Z3" => ∑ i: Fin p.m, ∑ j: Fin p.m, (-i-j:ℤ) • Y (i, j)
 local notation3 "P" => fun i ↦ ∑ j, Y (i, j)
 local notation3 "Q" => fun j ↦ ∑ i, Y (i, j)
 local notation3 "R" => fun r ↦ ∑ i, ∑ j, if (i+j+r = 0) then Y r else 0
-
 
 /--  Z_1+Z_2+Z_3= 0 -/
 lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
@@ -45,6 +45,9 @@ lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
   rw [<-add_zsmul, <-add_zsmul]
   convert zero_zsmul ?_
   simp
+
+variable [hΩ': MeasureSpace Ω'] [IsFiniteMeasure hΩ'.volume]
+  (hindep: iIndepFun _ Y) (hident: ∀ i, ∀ j, IdentDistrib (Y (i,j)) (X i) )
 
 /--   We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤  4m^2 η k`.
 -/
@@ -99,14 +102,17 @@ open Pointwise
   {(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
  $|H|/|A| \in [K^{-64m^3}, K^{64m^3}]$
      -/
-lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2)
+    (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
+    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (64 * m^3 + 2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
-      ∧ Nat.card H ≤ K ^ (64 * m^3) * Nat.card A ∧ Nat.card A ≤ K ^ (64 * m^3) * Nat.card H ∧ A ⊆ c + H := sorry
+      ∧ Nat.card H ≤ K ^ (64 * m^3) * Nat.card A
+      ∧ Nat.card A ≤ K ^ (64 * m^3) * Nat.card H ∧ A ⊆ c + H := sorry
 
 
 -- A silly little set lemma
-lemma set_avoid {G:Type*} {A B : Set G} (hA: A ⊆ B) (hneq: A ≠ B) : ∃ a:G, a ∈ B ∧ a ∉ A := by
+lemma set_avoid {G : Type*} {A B : Set G} (hA: A ⊆ B) (hneq: A ≠ B) : ∃ a:G, a ∈ B ∧ a ∉ A := by
   contrapose! hneq
   exact Set.Subset.antisymm hA hneq
 
@@ -128,7 +134,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
     use K
     refine ⟨ hK.2, ?_, hK.1 ⟩
     rcases LE.le.lt_or_eq hK.1 with heq | heq
-    . have hneq : (K:Set G) ≠ (H:Set G) := by
+    · have hneq : (K:Set G) ≠ (H:Set G) := by
         contrapose! heq
         simp only [SetLike.coe_set_eq] at heq
         simp only [heq, lt_self_iff_false, not_false_eq_true]
@@ -153,7 +159,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
           exact Set.ncard_le_ncard hsub (Set.toFinite H')
       have : (K:Set G) = (H':Set G) := by
           apply (Set.subset_iff_eq_of_ncard_le ?_ ?_).mp hsub
-          . apply Eq.le
+          · apply Eq.le
             rw [<-Set.Nat.card_coe_set_eq (H':Set G), <-Set.Nat.card_coe_set_eq (K:Set G)]
             exact ((hK' H' ⟨ hH', hcard ⟩) hcard').symm
           exact Set.toFinite (H':Set G)
@@ -171,7 +177,9 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
 /--Suppose that $G$ is a finite abelian group of torsion $m$.
   If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
 -/
-theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2)
+     (htorsion : ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
+     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
      ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < m * K ^ (96*m^3+2) ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := PFR_conjecture_pos_aux' h₀A hA
@@ -194,7 +202,7 @@ theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥
     _ = K ^ (96*m^3+2) := by rpow_ring; norm_num; congr 1; ring
     _ < m * K ^ (96*m^3+2) := by
       apply (lt_mul_iff_one_lt_left _).mpr
-      . norm_num; linarith [hm]
+      · norm_num; linarith [hm]
       positivity
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
   -- `#A / m < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
@@ -204,7 +212,7 @@ theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥
       exact torsion_exists_subgroup_subset_card_le hm htorsion H h.le A_pos'.ne'
     have : (Nat.card A / m : ℝ) < Nat.card (H' : Set G) := by
       rw [div_lt_iff, mul_comm]
-      . norm_cast
+      · norm_cast
       norm_cast; exact Nat.zero_lt_of_lt hm
     have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
       have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity

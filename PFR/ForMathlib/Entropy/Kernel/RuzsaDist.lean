@@ -17,18 +17,13 @@ import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 
 open Real MeasureTheory
 
-open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
+open scoped ENNReal NNReal Topology ProbabilityTheory
 
 
-namespace ProbabilityTheory.kernel
+namespace ProbabilityTheory.Kernel
 
-variable {T T' T'' G : Type*}
-  [Countable T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
-  [Countable T'] [Nonempty T'] [MeasurableSpace T'] [MeasurableSingletonClass T']
-  [Countable T''] [Nonempty T''] [MeasurableSpace T''] [MeasurableSingletonClass T'']
-  [Countable G] [Nonempty G] [MeasurableSpace G] [MeasurableSingletonClass G]
-  [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G]
-  {μ : Measure T} {ν : Measure T'}
+variable {T T' T'' G : Type*} [MeasurableSpace T] [MeasurableSpace T'] [MeasurableSpace T'']
+  [MeasurableSpace G] [AddCommGroup G]
 
 /-- The Rusza distance between two measures, defined as `H[X - Y] - H[X]/2 - H[Y]/2` where `X`
 and `Y` are independent variables distributed according to the two measures. -/
@@ -39,14 +34,26 @@ def rdistm (μ : Measure G) (ν : Measure G) : ℝ :=
 /-- The Rusza distance between two kernels taking values in the same space, defined as the average
 Rusza distance between the image measures. -/
 noncomputable
-def rdist (κ : kernel T G) (η : kernel T' G) (μ : Measure T) (ν : Measure T') : ℝ :=
+def rdist (κ : Kernel T G) (η : Kernel T' G) (μ : Measure T) (ν : Measure T') : ℝ :=
   (μ.prod ν)[fun p ↦ rdistm (κ p.1) (η p.2)]
 
 /-- The Rusza distance between two kernels taking values in the same space, defined as the average
 Rusza distance between the image measures. -/
 notation3:max "dk[" κ " ; " μ " # " η " ; " μ' "]" => rdist κ η μ μ'
 
-lemma rdist_eq {κ : kernel T G} {η : kernel T' G} {μ : Measure T} {ν : Measure T'}
+@[simp] lemma rdist_zero_right (κ : Kernel T G) (η : Kernel T' G) (μ : Measure T) :
+    dk[κ ; μ # η ; 0] = 0 := by
+  simp [rdist]
+
+@[simp] lemma rdist_zero_left (κ : Kernel T G) (η : Kernel T' G) (ν' : Measure T') :
+    dk[κ ; 0 # η ; ν'] = 0 := by
+  simp [rdist]
+
+section
+
+variable [Countable T] [MeasurableSingletonClass T] [Countable T'] [MeasurableSingletonClass T']
+
+lemma rdist_eq {κ : Kernel T G} {η : Kernel T' G} {μ : Measure T} {ν : Measure T'}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[κ ; μ # η ; ν] = (μ.prod ν)[fun p ↦ Hm[((κ p.1).prod (η p.2)).map (fun x ↦ x.1 - x.2)]]
@@ -58,7 +65,10 @@ lemma rdist_eq {κ : kernel T G} {η : kernel T' G} {μ : Measure T} {ν : Measu
     simp [entropy]
   all_goals { exact integrable_of_finiteSupport _ }
 
-lemma rdist_eq' {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFiniteKernel η]
+variable [MeasurableSingletonClass G] [Countable G]
+
+lemma rdist_eq'
+    {κ : Kernel T G} {η : Kernel T' G} [IsFiniteKernel κ] [IsFiniteKernel η]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[κ ; μ # η ; ν] =
@@ -69,7 +79,7 @@ lemma rdist_eq' {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFini
   simp only
   rw [map_apply, prod_apply, prodMkLeft_apply, prodMkRight_apply]
 
-lemma rdist_symm {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFiniteKernel η]
+lemma rdist_symm {κ : Kernel T G} {η : Kernel T' G} [IsFiniteKernel κ] [IsFiniteKernel η]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[κ ; μ # η ; ν] = dk[η ; ν # κ ; μ] := by
@@ -79,15 +89,7 @@ lemma rdist_symm {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFin
     comap_prod_swap, map_map]
   congr
 
-@[simp] lemma rdist_zero_right (κ : kernel T G) (η : kernel T' G) (μ : Measure T) :
-    dk[κ ; μ # η ; 0] = 0 := by
-  simp [rdist]
-
-@[simp] lemma rdist_zero_left (κ : kernel T G) (η : kernel T' G) (ν' : Measure T') :
-    dk[κ ; 0 # η ; ν'] = 0 := by
-  simp [rdist]
-
-@[simp] lemma rdist_zero_kernel_right {κ : kernel T G} [IsFiniteKernel κ]
+@[simp] lemma rdist_zero_kernel_right {κ : Kernel T G} [IsFiniteKernel κ]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[κ ; μ # 0 ; ν] = - Hk[κ, μ] / 2 := by
@@ -102,13 +104,13 @@ lemma rdist_symm {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFin
     simp
   rw [this, entropy_zero_kernel]
 
-@[simp] lemma rdist_zero_kernel_left {η : kernel T' G} [IsFiniteKernel η]
+@[simp] lemma rdist_zero_kernel_left {η : Kernel T' G} [IsFiniteKernel η]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[0 ; μ # η ; ν] = - Hk[η, ν] / 2 := by
   rw [rdist_symm, rdist_zero_kernel_right]
 
-@[simp] lemma rdist_dirac_zero_right {κ : kernel T G} [IsFiniteKernel κ]
+@[simp] lemma rdist_dirac_zero_right {κ : Kernel T G} [IsFiniteKernel κ]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[κ ; μ # const T' (Measure.dirac 0) ; ν] = Hk[κ, μ] / 2 := by
@@ -137,13 +139,13 @@ lemma rdist_symm {κ : kernel T G} {η : kernel T' G} [IsFiniteKernel κ] [IsFin
     rw [lintegral_indicator_const hs, one_mul]
   rw [this, entropy_prodMkRight']
 
-@[simp] lemma rdist_dirac_zero_left {η : kernel T' G} [IsFiniteKernel η]
+@[simp] lemma rdist_dirac_zero_left {η : Kernel T' G} [IsFiniteKernel η]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[const T (Measure.dirac 0) ; μ # η ; ν] = Hk[η, ν] / 2 := by
   rw [rdist_symm, rdist_dirac_zero_right]
 
-lemma ruzsa_triangle_aux (κ : kernel T (G × G)) (η : kernel T G)
+lemma ruzsa_triangle_aux {T : Type*} [MeasurableSpace T] (κ : Kernel T (G × G)) (η : Kernel T G)
     [IsMarkovKernel κ] [IsMarkovKernel η] :
     map (κ ×ₖ η) (fun p ↦ p.2 - p.1.2) (measurable_of_countable _)
       = map (η ×ₖ snd κ) (fun p ↦ p.1 - p.2) (measurable_of_countable _) := by
@@ -154,7 +156,7 @@ lemma ruzsa_triangle_aux (κ : kernel T (G × G)) (η : kernel T G)
     prod_apply' _ _ _ (measurable_of_countable _ hs), lintegral_snd _ _ (measurable_of_countable _)]
   congr
 
-lemma abs_sub_entropy_le_rdist {κ : kernel T G} {η : kernel T' G}
+lemma abs_sub_entropy_le_rdist {κ : Kernel T G} {η : Kernel T' G}
     [IsMarkovKernel κ] [IsMarkovKernel η]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν]
@@ -168,7 +170,7 @@ lemma abs_sub_entropy_le_rdist {κ : kernel T G} {η : kernel T' G}
   · linarith [le_max_right (Hk[κ, μ]) (Hk[η, ν])]
   · linarith [le_max_left (Hk[κ, μ]) (Hk[η, ν])]
 
-lemma rdist_nonneg {κ : kernel T G} {η : kernel T' G}
+lemma rdist_nonneg {κ : Kernel T G} {η : Kernel T' G}
     [IsMarkovKernel κ] [IsMarkovKernel η]
     {μ : Measure T} {ν : Measure T'} [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν]
@@ -181,14 +183,14 @@ lemma rdist_nonneg {κ : kernel T G} {η : kernel T' G}
 -- Kernel equivalent of `H[X - Y; μ] ≤ H[X - Z; μ] + H[Z - Y; μ] - H[Z; μ]`
 -- `κ` is `⟨X,Y⟩`, `η` is `Z`. Independence is expressed through the product `×ₖ`.
 /-- The **improved entropic Ruzsa triangle inequality**. -/
-lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η]
+lemma ent_of_diff_le (κ : Kernel T (G × G)) (η : Kernel T G) [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) [IsProbabilityMeasure μ] [FiniteSupport μ]
     (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) :
     Hk[map κ (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
       ≤ Hk[map ((fst κ) ×ₖ η) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
         + Hk[map (η ×ₖ (snd κ)) (fun p : G × G ↦ p.1 - p.2) measurable_sub, μ]
         - Hk[η, μ] := by
-  have hκη := kernel.finiteKernelSupport_of_prod hκ hη
+  have hκη := Kernel.finiteKernelSupport_of_prod hκ hη
   have h1 : Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2)))
         (measurable_of_countable _), μ] + Hk[map κ (fun p ↦ p.1 - p.2) measurable_sub, μ]
       ≤ Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.1 - p.1.2)) (measurable_of_countable _), μ]
@@ -202,16 +204,16 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
         = map κ (fun p ↦ p.1 - p.2) measurable_sub := by
       have : (fun x : (G × G) × G ↦ x.1.1 - x.1.2)
         = (fun x ↦ x.1 - x.2) ∘ Prod.fst := by ext1 y; simp
-      rw [this, ← map_map, ← kernel.fst, fst_prod]
+      rw [this, ← map_map, ← Kernel.fst, fst_prod]
     rw [this] at h
     refine (h ?_).trans_eq ?_
-    . apply FiniteKernelSupport.aefiniteKernelSupport
-      apply kernel.finiteKernelSupport_of_map
-      exact kernel.finiteKernelSupport_of_prod hκ hη
+    · apply FiniteKernelSupport.aefiniteKernelSupport
+      apply Kernel.finiteKernelSupport_of_map
+      exact Kernel.finiteKernelSupport_of_prod hκ hη
     congr 2
     have : (fun x : (G × G) × G ↦ (x.1.2, x.1.1 - x.1.2))
       = (fun x ↦ (x.2, x.1 - x.2)) ∘ Prod.fst := by ext1 y; simp
-    rw [this, ← map_map, ← kernel.fst, fst_prod]
+    rw [this, ← map_map, ← Kernel.fst, fst_prod]
   have h2 : Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.1 - p.1.2)) (measurable_of_countable _), μ]
       ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_countable _), μ]
         + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_countable _), μ] := by
@@ -222,7 +224,7 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
           rw [this, ← map_map]
           apply entropy_map_le _ _
           apply FiniteKernelSupport.aefiniteKernelSupport
-          apply kernel.finiteKernelSupport_of_map hκη
+          apply Kernel.finiteKernelSupport_of_map hκη
     _ ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_countable _), μ]
         + Hk[map (κ ×ₖ η) (fun p ↦ p.1.2 - p.2) (measurable_of_countable _), μ] := by
           have h : 0 ≤ Hk[map (κ ×ₖ η) (fun p ↦ p.1.1 - p.2) (measurable_of_countable _), μ]
@@ -234,7 +236,7 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
             rwa [mutualInfo, fst_map_prod _ (measurable_of_countable _) (measurable_of_countable _),
               snd_map_prod _ (measurable_of_countable _) (measurable_of_countable _)] at h'
             apply FiniteKernelSupport.aefiniteKernelSupport
-            apply kernel.finiteKernelSupport_of_map hκη
+            apply Kernel.finiteKernelSupport_of_map hκη
           linarith
   have h3 : Hk[map κ (fun p : G × G ↦ (p.2, p.1 - p.2)) (measurable_of_countable _), μ]
       ≤ Hk[κ, μ] := by
@@ -253,7 +255,7 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
       simp
     · rfl
     apply FiniteKernelSupport.aefiniteKernelSupport
-    apply kernel.finiteKernelSupport_of_map hκη
+    apply Kernel.finiteKernelSupport_of_map hκη
   have h5 : Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by
     rw [entropy_prod (hκ.aefiniteKernelSupport _) (hη.aefiniteKernelSupport _)]
   rw [h4, h5] at h1
@@ -279,9 +281,14 @@ lemma ent_of_diff_le (κ : kernel T (G × G)) (η : kernel T G) [IsMarkovKernel 
           · exact measurable_of_countable _ hs
         · exact ruzsa_triangle_aux κ η
 
+end
+
 -- note : Measure.prod should be made to use dot notation in the infoview
 
-lemma rdist_triangle_aux1 (κ : kernel T G) (η : kernel T' G)
+variable [MeasurableSingletonClass T] [MeasurableSingletonClass T'] [MeasurableSingletonClass T'']
+variable [MeasurableSingletonClass G] [Countable G]
+
+lemma rdist_triangle_aux1 (κ : Kernel T G) (η : Kernel T' G)
     [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ'']
@@ -313,7 +320,7 @@ lemma rdist_triangle_aux1 (κ : kernel T G) (η : kernel T' G)
     full_measure_of_null_compl (measure_compl_support μ'')]
   simp
 
-lemma rdist_triangle_aux2 (η : kernel T' G) (ξ : kernel T'' G)
+lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
     [IsMarkovKernel η] [IsMarkovKernel ξ]
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ'']
@@ -350,7 +357,9 @@ lemma rdist_triangle_aux2 (η : kernel T' G) (ξ : kernel T'' G)
     prod_apply]
   simp
 
-lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
+variable [Countable T] [Countable T'] [Countable T'']
+
+lemma rdist_triangle (κ : Kernel T G) (η : Kernel T' G) (ξ : Kernel T'' G)
     [IsMarkovKernel κ] [IsMarkovKernel η] [IsMarkovKernel ξ]
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ'']
@@ -361,11 +370,11 @@ lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
   have h := ent_of_diff_le (prodMkRight T' (prodMkRight T'' κ ×ₖ prodMkLeft T ξ))
     (prodMkLeft (T × T'') η) ((μ.prod μ'').prod μ') ?_ ?_
   rotate_left
-  . apply kernel.finiteKernelSupport_of_prodMkRight
-    apply kernel.finiteKernelSupport_of_prod
-    . exact kernel.finiteKernelSupport_of_prodMkRight hκ
-    exact kernel.finiteKernelSupport_of_prodMkLeft hξ
-  . apply kernel.finiteKernelSupport_of_prodMkLeft hη
+  · apply Kernel.finiteKernelSupport_of_prodMkRight
+    apply Kernel.finiteKernelSupport_of_prod
+    · exact Kernel.finiteKernelSupport_of_prodMkRight hκ
+    exact Kernel.finiteKernelSupport_of_prodMkLeft hξ
+  · apply Kernel.finiteKernelSupport_of_prodMkLeft hη
   have h1 : Hk[map (prodMkRight T' (prodMkRight T'' κ ×ₖ prodMkLeft T ξ)) (fun p ↦ p.1 - p.2)
         measurable_sub, (μ.prod μ'').prod μ']
       = Hk[map (prodMkRight T'' κ ×ₖ prodMkLeft T ξ) (fun x ↦ x.1 - x.2) measurable_sub,
@@ -398,4 +407,4 @@ lemma rdist_triangle (κ : kernel T G) (η : kernel T' G) (ξ : kernel T'' G)
       + (Hk[map (prodMkRight T'' η ×ₖ prodMkLeft T' ξ) (fun x ↦ x.1 - x.2) _ , μ'.prod μ'']
       - Hk[η , μ'] / 2 - Hk[ξ , μ''] / 2) := by ring
 
-end ProbabilityTheory.kernel
+end ProbabilityTheory.Kernel

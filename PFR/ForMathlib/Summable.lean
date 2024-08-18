@@ -4,7 +4,7 @@ import Mathlib.Topology.Instances.ENNReal
 lemma tsum_eq_toReal_tsum_ofReal {S : Type*} {f : S → ℝ} (hf : ∀ s : S, 0 ≤ f s) :
     ∑' s, f s = ENNReal.toReal (∑' s, ENNReal.ofReal (f s)) := by
   rw [ENNReal.tsum_toReal_eq]
-  . congr with s
+  · congr with s
     simp [hf s]
   intro s; simp
 

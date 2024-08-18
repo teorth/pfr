@@ -60,7 +60,7 @@ end PFR
 section RealMeasure
 -- some examples to showcase real-valued measures in a self-contained fashion.
 
-open MeasureTheory ProbabilityTheory BigOperators
+open MeasureTheory ProbabilityTheory
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
@@ -86,7 +86,7 @@ example (E F : Set Ω) (h : NullMeasurableSet F ℙ)
 
 example (E : Set Ω) : 0 ≤ ℙᵣ E ∧ ℙᵣ E ≤ 1 := by
   constructor
-  . simp
+  · simp
   have : E ⊆ Set.univ := by simp
   convert measureReal_mono (μ := ℙ) this
   simp
@@ -98,7 +98,7 @@ end RealMeasure
 section Entropy
 -- some examples to showcase Shannon entropy in a self-contained fashion.  For simplicity we only illustrate the notation for probability spaces with a canonical probability measure, but one can also decouple the measure from the space if desired.
 
-open MeasureTheory ProbabilityTheory BigOperators
+open MeasureTheory ProbabilityTheory
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
@@ -116,7 +116,7 @@ example :
     H[X] =
       -∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
   rw [entropy_eq_sum hX ℙ, ← Finset.sum_neg_distrib, tsum_eq_sum]
-  . congr with x
+  · congr with x
     unfold Real.negMulLog
     ring
   intro x hx

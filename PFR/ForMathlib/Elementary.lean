@@ -24,7 +24,7 @@ namespace ElementaryAddCommGroup
 lemma torsion {G : Type*} [AddCommGroup G] (p : ℕ) [elem : ElementaryAddCommGroup G p] (x : G) :
     p • x = 0 := by
   by_cases h : x = 0
-  . simp [h]
+  · simp [h]
   have := elem.orderOf_of_ne h
   rw [← this]
   exact addOrderOf_nsmul_eq_zero x
@@ -36,9 +36,8 @@ lemma of_torsion {G : Type*} [AddCommGroup G] {p : ℕ} (hp : p.Prime) (h : ∀ 
   have := addOrderOf_dvd_of_nsmul_eq_zero (h x)
   rw [Nat.dvd_prime hp] at this
   rcases this with this | this
-  . simp at this; contradiction
+  · simp at this; contradiction
   exact this
-
 
 /-- A vector space over Z/p is an elementary abelian p-group. -/
 -- We can't make this an instance as `p` is not determined.
@@ -99,15 +98,6 @@ lemma sum_add_sum_add_sum_eq_zero ( x y z : G ) : (x + y) + (y + z) + (z + x) = 
   rw [sum_add_sum_eq_sum, add_comm x z, add_self]
 
 open Function
-
-@[simp] lemma char_smul_eq_zero {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] (x : Γ) :
-    p • x = 0 := by
-  by_cases hx : x = 0
-  · simp only [hx, smul_zero]
-  · have obs := ElementaryAddCommGroup.orderOf_of_ne hx
-    rw [addOrderOf] at obs
-    simpa only [obs, add_left_iterate, add_zero] using
-      iterate_minimalPeriod (f := fun z ↦ x + z) (x := 0)
 
 lemma char_ne_one_of_ne_zero {Γ : Type*} [AddCommGroup Γ] [ElementaryAddCommGroup Γ p] {x : Γ}
     (x_ne_zero : x ≠ 0) : p ≠ 1 := by
