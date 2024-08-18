@@ -114,7 +114,7 @@ open Pointwise
 
 /-- Every subgroup H of a finite m-torsion abelian group G contains a subgroup H' of order between k and mk, if 0 < k < |H|. -/
 lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2)
-    [AddCommGroup G] [Fintype G] [DecidableEq G] (htorsion: ∀ x:G, m • x = 0)
+    [AddCommGroup G] [Fintype G] (htorsion: ∀ x:G, m • x = 0)
     {k : ℕ} (H : AddSubgroup G) (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
     ∃ (K : AddSubgroup G), Nat.card K ≤ k ∧ k < m * Nat.card K ∧ K ≤ H := by
     let S := {K: AddSubgroup G | K ≤ H ∧ Nat.card K ≤ k }
@@ -138,42 +138,29 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
       contrapose! ha'
       have hcard : Nat.card H' ≤ k := by
         apply le_trans _ ha'
-        suffices (H':Set G).ncard ≤ m * (K:Set G).ncard by
-          convert this
-          exact Set.Nat.card_coe_set_eq (H':Set G)
-          exact Set.Nat.card_coe_set_eq (K:Set G)
-        rw [AddSubgroup.normal_add K Z]
+        rw [<-SetLike.coe_sort_coe, <-SetLike.coe_sort_coe, AddSubgroup.normal_add K Z, Nat.mul_comm]
         calc
-          _ = Nat.card ((K:Set G) + (Z:Set G)) :=
-            Eq.symm (Set.Nat.card_coe_set_eq _)
           _ ≤ (Nat.card (K:Set G)) * (Nat.card (Z:Set G)) := Set.card_add_le
-          _ ≤ (K:Set G).ncard * m := by
-            rw [Set.Nat.card_coe_set_eq, SetLike.coe_sort_coe, Nat.card_zmultiples a]
+          _ ≤ _ := by
             gcongr
-            apply  addOrderOf_le_of_nsmul_eq_zero (Nat.zero_lt_of_lt hm) (htorsion a)
-          _ = _ := Nat.mul_comm _ _
+            rw [SetLike.coe_sort_coe, Nat.card_zmultiples a]
+            apply addOrderOf_le_of_nsmul_eq_zero (Nat.zero_lt_of_lt hm) (htorsion a)
       have hH' : H' ≤ H := by
         simpa only [sup_le_iff, hK.1, AddSubgroup.zmultiples_le, true_and, H', Z]
-      have hsub : (K:Set G) ⊆ (H':Set G) := by
-        simp only [SetLike.coe_subset_coe]
-        exact le_sup_left
+      have hsub : (K:Set G) ⊆ (H':Set G) := SetLike.coe_subset_coe.mpr le_sup_left
       have hcard' : Nat.card K ≤ Nat.card H' := by
-          convert Set.ncard_le_ncard hsub (Set.toFinite H')
-          exact Set.Nat.card_coe_set_eq (K:Set G)
-          exact Set.Nat.card_coe_set_eq (H':Set G)
+          rw [<-SetLike.coe_sort_coe, <-SetLike.coe_sort_coe, Set.Nat.card_coe_set_eq (K:Set G), Set.Nat.card_coe_set_eq (H':Set G)]
+          exact Set.ncard_le_ncard hsub (Set.toFinite H')
       have : (K:Set G) = (H':Set G) := by
           apply (Set.subset_iff_eq_of_ncard_le ?_ ?_).mp hsub
           . apply Eq.le
-            convert ((hK' H' ⟨ hH', hcard ⟩) hcard').symm
-            exact Eq.symm (Set.Nat.card_coe_set_eq (H':Set G))
-            exact Eq.symm (Set.Nat.card_coe_set_eq (K:Set G))
+            rw [<-Set.Nat.card_coe_set_eq (H':Set G), <-Set.Nat.card_coe_set_eq (K:Set G)]
+            exact ((hK' H' ⟨ hH', hcard ⟩) hcard').symm
           exact Set.toFinite (H':Set G)
       rw [this]
-      have : AddSubgroup.zmultiples a ≤ H' := le_sup_right
-      exact this (AddSubgroup.mem_zmultiples a)
+      exact (le_sup_right : AddSubgroup.zmultiples a ≤ H') (AddSubgroup.mem_zmultiples a)
     rw [heq]
-    apply lt_of_le_of_lt hk
-    refine (Nat.lt_mul_iff_one_lt_left Nat.card_pos).mpr hm
+    exact lt_of_le_of_lt hk ((Nat.lt_mul_iff_one_lt_left Nat.card_pos).mpr hm)
 
 
 
@@ -184,7 +171,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
 /--Suppose that $G$ is a finite abelian group of torsion $m$.
   If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
 -/
-theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
      ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < m * K ^ (96*m^3+2) ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := PFR_conjecture_pos_aux' h₀A hA
