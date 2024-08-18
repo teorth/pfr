@@ -1,5 +1,5 @@
 import PFR.BoundingMutual
-
+import PFR.Main
 
 /-!
 # Endgame for the Torsion PFR theorem
@@ -47,7 +47,7 @@ lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
 
 /--   We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤  4m^2 η k`.
 -/
-lemma mutual_information_le_t_12 : I[ Z1 : Z2 | W] ≤ 4 * (p.m)^2 * p.η * k := sorry
+lemma mutual_information_le_t_(64*m^3+1) : I[ Z1 : Z2 | W] ≤ 4 * (p.m)^2 * p.η * k := sorry
 
 lemma mutual_information_le_t_13 : I[ Z1 : Z3 | W] ≤ 4 * (p.m)^2 * p.η * k := sorry
 
@@ -98,15 +98,82 @@ open Pointwise
   {(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
  $|H|/|A| \in [K^{-64m^3}, K^{64m^3}]$
      -/
-lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] (m:ℕ) (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ (64 * m^3 + 2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
       ∧ Nat.card H ≤ K ^ (64 * m^3) * Nat.card A ∧ Nat.card A ≤ K ^ (64 * m^3) * Nat.card H ∧ A ⊆ c + H := sorry
 
 
+/-- In an m-torsion, every finite subgroup $H$ contains a further subgroup of cardinality between $k$ and $mk$, if $k \leq |H|$.-/
+lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2)
+    [AddCommGroup G] (htorsion: ∀ x:G, m • x = 0)
+    {k : ℕ} (H : AddSubgroup G) (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
+    ∃ (H' : AddSubgroup G), Nat.card H' ≤ k ∧ k < m * Nat.card H' ∧ H' ≤ H := by
+      sorry
+
 /--Suppose that $G$ is a finite abelian group of torsion $m$.
   If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
 -/
-theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] (m:ℕ) (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
      ∃ (H : AddSubgroup G) (c : Set G),
-      Nat.card c < m * K ^ (64*m^3+1) ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := sorry
+      Nat.card c < m * K ^ (96*m^3+2) ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := PFR_conjecture_pos_aux' h₀A hA
+   -- consider the subgroup `H` given by Lemma `torsion_PFR_conjecture_aux`.
+  obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
+    Nat.card c ≤ K ^ (64 * m^3+2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
+      ∧ Nat.card (H : Set G) ≤ K ^ (64*m^3) * Nat.card A ∧ Nat.card A ≤ K ^ (64*m^3) * Nat.card (H : Set G)
+      ∧ A ⊆ c + H :=
+    torsion_PFR_conjecture_aux hm htorsion h₀A hA
+
+  have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
+    have : 0 < Nat.card (H : Set G) := Nat.card_pos; positivity
+  rcases le_or_lt (Nat.card (H : Set G)) (Nat.card A) with h|h
+  -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
+  · refine ⟨H, c, ?_, h, A_subs_cH⟩
+    calc
+    Nat.card c ≤ K ^ ((64*m^3+2)) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := hc
+    _ ≤ K ^ ((64*m^3+2)) * (K ^ (64*m^3) * Nat.card (H : Set G)) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
+      gcongr
+    _ = K ^ (96*m^3+2) := by rpow_ring; norm_num; congr 1; ring
+    _ < m * K ^ (96*m^3+2) := by
+      apply (lt_mul_iff_one_lt_left _).mpr
+      . norm_num; linarith [hm]
+      positivity
+  -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
+  -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
+  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card (H' : Set G) ≤ Nat.card A
+          ∧ Nat.card A < m * Nat.card (H' : Set G) ∧ H' ≤ H := by
+      have A_pos' : 0 < Nat.card A := mod_cast A_pos
+      exact torsion_exists_subgroup_subset_card_le hm htorsion H h.le A_pos'.ne'
+    have : (Nat.card A / m : ℝ) < Nat.card (H' : Set G) := by
+      rw [div_lt_iff, mul_comm]
+      . norm_cast
+      norm_cast; exact Nat.zero_lt_of_lt hm
+    have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
+      have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity
+    obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H
+    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
+    calc
+    (Nat.card (c + u) : ℝ)
+      ≤ Nat.card c * Nat.card u := mod_cast Set.card_add_le
+    _ ≤ (K ^ ((64*m^3+2)) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
+          * (Nat.card (H : Set G) / Nat.card (H' : Set G)) := by
+        gcongr
+        apply le_of_eq
+        rw [eq_div_iff H'_pos.ne']
+        norm_cast
+    _ < (K ^ ((64*m^3+2)) * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
+          * (Nat.card (H : Set G) / (Nat.card A / m)) := by
+        gcongr
+    _ = m * K ^ ((64*m^3+2)) * (Nat.card A) ^ (-1/2) * (Nat.card (H : Set G)) ^ (1/2) := by
+        have : (0 : ℝ) < Nat.card H := H_pos
+        field_simp
+        rpow_ring
+        norm_num
+    _ ≤ m * K ^ ((64*m^3+2)) * (Nat.card A) ^ (-1/2) * (K ^ (64*m^3) * Nat.card A) ^ (1/2) := by
+        gcongr
+    _ = m * K ^ (96*m^3+2) := by
+        rpow_ring
+        norm_num
+        left; congr 1
+        ring
