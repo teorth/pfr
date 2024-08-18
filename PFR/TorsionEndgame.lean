@@ -1,5 +1,6 @@
 import PFR.BoundingMutual
 import PFR.Main
+import Mathlib.Data.Finset.Pointwise
 
 /-!
 # Endgame for the Torsion PFR theorem
@@ -47,7 +48,7 @@ lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
 
 /--   We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤  4m^2 η k`.
 -/
-lemma mutual_information_le_t_(64*m^3+1) : I[ Z1 : Z2 | W] ≤ 4 * (p.m)^2 * p.η * k := sorry
+lemma mutual_information_le_t_12 : I[ Z1 : Z2 | W] ≤ 4 * (p.m)^2 * p.η * k := sorry
 
 lemma mutual_information_le_t_13 : I[ Z1 : Z3 | W] ≤ 4 * (p.m)^2 * p.η * k := sorry
 
@@ -104,17 +105,87 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ
       ∧ Nat.card H ≤ K ^ (64 * m^3) * Nat.card A ∧ Nat.card A ≤ K ^ (64 * m^3) * Nat.card H ∧ A ⊆ c + H := sorry
 
 
-/-- In an m-torsion, every finite subgroup $H$ contains a further subgroup of cardinality between $k$ and $mk$, if $k \leq |H|$.-/
+-- A silly little set lemma
+lemma set_avoid {G:Type*} {A B : Set G} (hA: A ⊆ B) (hneq: A ≠ B) : ∃ a:G, a ∈ B ∧ a ∉ A := by
+  contrapose! hneq
+  ext a
+  constructor
+  . exact fun ha ↦ hA ha
+  exact fun ha ↦ hneq a ha
+
+open Pointwise
+
+/-- Every subgroup H of a finite m-torsion abelian group G contains a subgroup H' of order between k and mk, if 0 < k < |H|. -/
 lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2)
-    [AddCommGroup G] (htorsion: ∀ x:G, m • x = 0)
+    [AddCommGroup G] [Fintype G] [DecidableEq G] (htorsion: ∀ x:G, m • x = 0)
     {k : ℕ} (H : AddSubgroup G) (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
-    ∃ (H' : AddSubgroup G), Nat.card H' ≤ k ∧ k < m * Nat.card H' ∧ H' ≤ H := by
-      sorry
+    ∃ (K : AddSubgroup G), Nat.card K ≤ k ∧ k < m * Nat.card K ∧ K ≤ H := by
+    let S := {K: AddSubgroup G | K ≤ H ∧ Nat.card K ≤ k }
+    have hnon : S.Nonempty := by
+      use ⊥
+      simp [S]
+      exact Nat.one_le_iff_ne_zero.mpr h'k
+    obtain ⟨ K, ⟨ hK, hK' ⟩ ⟩ := Set.Finite.exists_maximal_wrt (fun K:AddSubgroup G ↦ Nat.card K) S (Set.toFinite S) hnon
+    simp [S] at hK
+    use K
+    refine ⟨ hK.2, ?_, hK.1 ⟩
+    rcases LE.le.lt_or_eq hK.1 with heq | heq
+    . have hneq : (K:Set G) ≠ (H:Set G) := by
+        contrapose! heq
+        simp at heq
+        simp [heq]
+      obtain ⟨ a, ⟨ ha, ha' ⟩⟩ := set_avoid hK.1 hneq
+      let Z := AddSubgroup.zmultiples a
+      let H' := K ⊔ Z
+      contrapose! ha'
+      have hcard : Nat.card H' ≤ k := by
+        apply le_trans _ ha'
+        suffices (H':Set G).ncard ≤ m * (K:Set G).ncard by
+          convert this
+          exact Set.Nat.card_coe_set_eq (H':Set G)
+          exact Set.Nat.card_coe_set_eq (K:Set G)
+        rw [AddSubgroup.normal_add K Z]
+        let Kf := (K:Set G).toFinite.toFinset
+        let Zf := (Z:Set G).toFinite.toFinset
+        calc
+          _ = (Kf + Zf).card := by sorry
+          _ ≤ Kf.card * Zf.card := Finset.card_add_le
+          _ ≤ (K:Set G).ncard * m := by
+            sorry
+          _ = _ := Nat.mul_comm _ _
+      have hH' : H' ≤ H := by
+        simpa [H', hK.1, Z, ha]
+      have hsub : (K:Set G) ⊆ (H':Set G) := by
+        simp
+        exact le_sup_left
+      have hcard' : Nat.card K ≤ Nat.card H' := by
+          convert Set.ncard_le_ncard hsub (Set.toFinite H')
+          exact Set.Nat.card_coe_set_eq (K:Set G)
+          exact Set.Nat.card_coe_set_eq (H':Set G)
+      have : (K:Set G) = (H':Set G) := by
+          apply (Set.subset_iff_eq_of_ncard_le ?_ ?_).mp hsub
+          . apply Eq.le
+            convert ((hK' H' ⟨ hH', hcard ⟩) hcard').symm
+            exact Eq.symm (Set.Nat.card_coe_set_eq (H':Set G))
+            exact Eq.symm (Set.Nat.card_coe_set_eq (K:Set G))
+          exact Set.toFinite (H':Set G)
+      rw [this]
+      have : AddSubgroup.zmultiples a ≤ H' := le_sup_right
+      exact this (AddSubgroup.mem_zmultiples a)
+    rw [heq]
+    apply lt_of_le_of_lt hk
+    refine (Nat.lt_mul_iff_one_lt_left Nat.card_pos).mpr hm
+
+
+
+
+
+
 
 /--Suppose that $G$ is a finite abelian group of torsion $m$.
   If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
 -/
-theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
      ∃ (H : AddSubgroup G) (c : Set G),
       Nat.card c < m * K ^ (96*m^3+2) ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := PFR_conjecture_pos_aux' h₀A hA
@@ -140,7 +211,7 @@ theorem torsion_PFR  {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥
       . norm_num; linarith [hm]
       positivity
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
-  -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
+  -- `#A / m < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
   · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card (H' : Set G) ≤ Nat.card A
           ∧ Nat.card A < m * Nat.card (H' : Set G) ∧ H' ≤ H := by
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
