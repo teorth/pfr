@@ -55,16 +55,16 @@ lemma mutual_information_le_t_13 : I[ Z1 : Z3 | W] ≤ 4 * (p.m)^2 * p.η * k :=
 lemma mutual_information_le_t_23 : I[ Z2 : Z3 | W] ≤ 4 * (p.m)^2 * p.η * k := sorry
 
 
-/-- We let $\bbH[W] \leq (2m-1)k + \frac1m \sum_{i=1}^m \bbH[X_i]$. -/
+/-- We have $\bbH[W] \leq (2m-1)k + \frac1m \sum_{i=1}^m \bbH[X_i]$. -/
 lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (m:ℝ)⁻¹ * ∑ i, H[X i] := sorry
 
-/-- We let $\bbH[Z_2] \leq (8m^2-16m+1) k + \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$. -/
+/-- We have $\bbH[Z_2] \leq (8m^2-16m+1) k + \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$. -/
 lemma entropy_of_Z_two_le : H[Z2] ≤ (8 * p.m^2 - 16 * p.m + 1) * k + (m:ℝ)⁻¹ * ∑ i, H[X i] := sorry
 
-/-- We let  $\bbI[W : Z_2] \leq 2 (m-1) k$. -/
+/-- We have  $\bbI[W : Z_2] \leq 2 (m-1) k$. -/
 lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := sorry
 
-/-- We let $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$. -/
+/-- We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$. -/
 lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 8 * (p.m^3 - p.m^2)*k := sorry
 
 
@@ -79,7 +79,7 @@ $$
 -/
 lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω: Type*} [MeasureSpace Ω] (T₁ T₂ T₃ : Ω → G) (hsum: T₁ + T₂ + T₃ = 0) (n:ℕ) {Ω': Fin n → Type*} (hΩ': ∀ i, MeasureSpace (Ω' i)) (Y: ∀ i, (Ω' i) → G) {α:ℝ} (hα: α > 0): ∃ (Ω'':Type*) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := sorry
 
-/-- We let $k = 0$. -/
+/-- We have $k = 0$. -/
 lemma k_eq_zero : k = 0 := sorry
 
 end AnalyzeMinimizer

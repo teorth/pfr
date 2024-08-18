@@ -850,7 +850,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \begin{theorem}[Entropy form of PFR]\label{main-entropy}\lean{dist_of_X_U_H_le}\leanok Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
 
-\begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from \Cref{eta-def-multi}.
+\begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi, tau-ref}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from \Cref{eta-def-multi}.
 \end{proof}
 
 \begin{lemma}\label{pfr_aux_torsion}\lean{torsion_PFR_conjecture_aux}\leanok  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
