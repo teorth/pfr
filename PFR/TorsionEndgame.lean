@@ -108,10 +108,7 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ
 -- A silly little set lemma
 lemma set_avoid {G:Type*} {A B : Set G} (hA: A ⊆ B) (hneq: A ≠ B) : ∃ a:G, a ∈ B ∧ a ∉ A := by
   contrapose! hneq
-  ext a
-  constructor
-  . exact fun ha ↦ hA ha
-  exact fun ha ↦ hneq a ha
+  exact Set.Subset.antisymm hA hneq
 
 open Pointwise
 
@@ -123,17 +120,18 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
     let S := {K: AddSubgroup G | K ≤ H ∧ Nat.card K ≤ k }
     have hnon : S.Nonempty := by
       use ⊥
-      simp [S]
+      simp only [Set.mem_setOf_eq, bot_le, AddSubgroup.mem_bot, Nat.card_eq_fintype_card,
+        Fintype.card_ofSubsingleton, true_and, S]
       exact Nat.one_le_iff_ne_zero.mpr h'k
     obtain ⟨ K, ⟨ hK, hK' ⟩ ⟩ := Set.Finite.exists_maximal_wrt (fun K:AddSubgroup G ↦ Nat.card K) S (Set.toFinite S) hnon
-    simp [S] at hK
+    simp only [ge_iff_le, Set.mem_setOf_eq, S] at hK
     use K
     refine ⟨ hK.2, ?_, hK.1 ⟩
     rcases LE.le.lt_or_eq hK.1 with heq | heq
     . have hneq : (K:Set G) ≠ (H:Set G) := by
         contrapose! heq
-        simp at heq
-        simp [heq]
+        simp only [SetLike.coe_set_eq] at heq
+        simp only [heq, lt_self_iff_false, not_false_eq_true]
       obtain ⟨ a, ⟨ ha, ha' ⟩⟩ := set_avoid hK.1 hneq
       let Z := AddSubgroup.zmultiples a
       let H' := K ⊔ Z
@@ -145,18 +143,19 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
           exact Set.Nat.card_coe_set_eq (H':Set G)
           exact Set.Nat.card_coe_set_eq (K:Set G)
         rw [AddSubgroup.normal_add K Z]
-        let Kf := (K:Set G).toFinite.toFinset
-        let Zf := (Z:Set G).toFinite.toFinset
         calc
-          _ = (Kf + Zf).card := by sorry
-          _ ≤ Kf.card * Zf.card := Finset.card_add_le
+          _ = Nat.card ((K:Set G) + (Z:Set G)) :=
+            Eq.symm (Set.Nat.card_coe_set_eq _)
+          _ ≤ (Nat.card (K:Set G)) * (Nat.card (Z:Set G)) := Set.card_add_le
           _ ≤ (K:Set G).ncard * m := by
-            sorry
+            rw [Set.Nat.card_coe_set_eq, SetLike.coe_sort_coe, Nat.card_zmultiples a]
+            gcongr
+            apply  addOrderOf_le_of_nsmul_eq_zero (Nat.zero_lt_of_lt hm) (htorsion a)
           _ = _ := Nat.mul_comm _ _
       have hH' : H' ≤ H := by
-        simpa [H', hK.1, Z, ha]
+        simpa only [sup_le_iff, hK.1, AddSubgroup.zmultiples_le, true_and, H', Z]
       have hsub : (K:Set G) ⊆ (H':Set G) := by
-        simp
+        simp only [SetLike.coe_subset_coe]
         exact le_sup_left
       have hcard' : Nat.card K ≤ Nat.card H' := by
           convert Set.ncard_le_ncard hsub (Set.toFinite H')
