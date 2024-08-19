@@ -290,7 +290,7 @@ $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1
 \begin{proposition}[Minimizer close to reference variables]\label{tau-ref}\lean{multiTau_min_sum_le}\leanok  If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$.
 \end{proposition}
 
-\begin{proof}\uses{tau-min-multi, multidist-nonneg, multidist-ruzsa-III}  By \Cref{tau-min-multi} we have
+\begin{proof}\uses{tau-min-multi, multidist-nonneg, multidist-ruzsa-III}\leanok  By \Cref{tau-min-multi} we have
   $$ \tau[ (X_i)_{1 \leq i \leq m}] \leq \tau[ (X^0)_{1 \leq i \leq m}]$$
 and hence by \Cref{tau-def-multi} and \Cref{multidist-nonneg}
 $$ \eta \sum_{i=1}^m d[X_i; X^0] \leq D[(X^0)_{1 \leq i \leq m}] + m d[X^0; X^0].$$
