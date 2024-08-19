@@ -109,7 +109,22 @@ lemma sub_multiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [hΩ₀: M
 
 /-- If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$ -/
-lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (hf: ∀ i, IsFiniteMeasure (hΩ' i).volume) (X' : ∀ i, Ω' i → G) {S : Type u} [MeasurableSpace S] (Y : ∀ i, Ω' i → S) : D[X; hΩ] - D[X'|Y; hΩ'] ≤ p.η * ∑ i, d[X i ; (hΩ i).volume # X' i | Y i; (hΩ' i).volume ] := by sorry
+lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (hf: ∀ i, IsFiniteMeasure (hΩ' i).volume) (X' : ∀ i, Ω' i → G) {S : Type u} [MeasurableSpace S] (Y : ∀ i, Ω' i → S) : D[X; hΩ] - D[X'|Y; hΩ'] ≤ p.η * ∑ i, d[X i ; (hΩ i).volume # X' i | Y i; (hΩ' i).volume ] := by
+  set μ := fun ω: Fin p.m → S ↦ ∏ i : Fin p.m, (ℙ (Y i ⁻¹' {ω i})).toReal
+  have total : ∑' (ω : Fin p.m → S), μ ω = 1 := by
+        sorry
+  calc
+    _ = ∑' (ω: Fin p.m → S), μ ω * D[X; hΩ] - ∑' (ω: Fin p.m → S), μ ω * D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]] := by
+      congr
+      rw [tsum_mul_right, total, one_mul]
+    _ = ∑' (ω: Fin p.m → S), μ ω * (D[X; hΩ] - D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]]) := by
+      rw [<-tsum_sub]
+      . apply tsum_congr
+        intro ω
+        exact (mul_sub_left_distrib _ _ _).symm
+      . sorry
+      sorry
+    _ ≤ _ := by sorry
 
 /-- With the notation of the previous lemma, we have
   \begin{equation}\label{5.3-conv}
