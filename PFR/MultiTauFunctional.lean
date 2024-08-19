@@ -68,7 +68,7 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀
     _ ≤ p.η⁻¹ * (D[X ; hΩ] + p.η * ∑ i, d[X i # p.X₀]) := by
       gcongr
       exact multiDist_nonneg hΩ X
-    _ ≤ p.η⁻¹ * (D[fun x ↦ p.X₀ ; fun x ↦ hΩ₀] + p.η * (p.m * d[p.X₀ # p.X₀])) := by
+    _ ≤ p.η⁻¹ * (D[fun _ ↦ p.X₀ ; fun _ ↦ hΩ₀] + p.η * (p.m * d[p.X₀ # p.X₀])) := by
       apply mul_le_mul_of_nonneg_left
       . have ineq := hmin (fun _ ↦ Ω₀) (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀)
         simp [multiTau] at ineq
@@ -91,7 +91,21 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀
 /-- If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i].$$
 -/
-lemma sub_multiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (X' : ∀ i, Ω' i → G) : D[X; hΩ] - D[X'; hΩ'] ≤ p.η * ∑ i, d[X i ; (hΩ i).volume # X' i; (hΩ' i).volume ] := by sorry
+lemma sub_multiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [hΩ₀: MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume) (X : ∀ i, Ω i → G) (hmeasX: ∀ i, Measurable (X i)) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (hΩprob': ∀ i, IsProbabilityMeasure (hΩ' i).volume) (X' : ∀ i, Ω' i → G) (hmeasX': ∀ i, Measurable (X' i)) : D[X; hΩ] - D[X'; hΩ'] ≤ p.η * ∑ i, d[X i ; (hΩ i).volume # X' i; (hΩ' i).volume ] := by
+  suffices D[X; hΩ] + p.η * ∑ i, d[X i ; (hΩ i).volume # p.X₀; hΩ₀.volume ] ≤ D[X'; hΩ'] + (p.η * ∑ i, d[X i ; (hΩ i).volume # p.X₀; hΩ₀.volume ] + p.η * ∑ i, d[X i ; (hΩ i).volume # X' i; (hΩ' i).volume ]) by
+    linarith
+  calc
+    _ ≤ D[X'; hΩ'] + p.η * ∑ i, d[X' i ; (hΩ' i).volume # p.X₀; hΩ₀.volume ] := hmin Ω' hΩ' X'
+    _ ≤ _ := by
+      have hη : p.η > 0 := p.hη
+      have hprob := p.hprob
+      rw [<- mul_add, <-Finset.sum_add_distrib]
+      gcongr with i _
+      rw [add_comm, rdist_symm (Y := X' i)]
+      apply rdist_triangle (hmeasX' i) (hmeasX i) p.hmeas
+
+
+
 
 /-- If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$ -/
