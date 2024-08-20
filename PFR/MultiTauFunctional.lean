@@ -199,7 +199,7 @@ lemma sub_condMultiDistance_le'  {G Ω₀ : Type u} [MeasureableFinGroup G] [Mea
   calc
     _ = D[Xφ; hΩφ] - D[X'|Y; hΩ'] := by
       congr 1
-      rw [multiDist_of_perm hΩ hΩprob X hmeasX φ]
+      rw [multiDist_of_perm hΩ hΩprob X φ]
     _ ≤ _ := by
       apply sub_condMultiDistance_le p Ωφ hΩφ hΩφprob Xφ hmeasXφ _ Ω' hΩ' hΩ'prob X' hmeasX' Y hY
       intro Ω'' hΩ'' X''
@@ -207,7 +207,7 @@ lemma sub_condMultiDistance_le'  {G Ω₀ : Type u} [MeasureableFinGroup G] [Mea
       _ = multiTau p Ω hΩ X := by
         dsimp [multiTau]
         congr 1
-        . rw [multiDist_of_perm hΩ hΩprob X hmeasX φ]
+        . rw [multiDist_of_perm hΩ hΩprob X φ]
         congr 1
         apply Finset.sum_bijective φ (Equiv.bijective φ)
         . simp only [Finset.mem_univ, implies_true]

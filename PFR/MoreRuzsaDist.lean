@@ -768,8 +768,60 @@ lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → M
 
 /-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
 lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume)
-    (X : (i : Fin m) → (Ω i) → G) (hmeasX: ∀ i, Measurable (X i)) (φ : Equiv.Perm (Fin m)) :
-    D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)] = D[X ; hΩ] := by sorry
+    (X : (i : Fin m) → (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
+    D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)] = D[X ; hΩ] := by
+      simp [multiDist]
+      congr 1
+      . apply IdentDistrib.entropy_eq
+        exact {
+          aemeasurable_fst := by
+            apply Measurable.aemeasurable
+            apply Finset.measurable_sum
+            intro i _
+            exact measurable_pi_apply i
+          aemeasurable_snd := by
+            apply Measurable.aemeasurable
+            apply Finset.measurable_sum
+            intro i _
+            exact measurable_pi_apply i
+          map_eq := by
+            let sum := fun x : Fin m → G ↦ ∑ i, x i
+            let perm := MeasurableEquiv.piCongrLeft (fun _ ↦ G) φ
+            have perm_apply : ∀ (i : Fin m) (x : Fin m → G), perm x i = x (φ.symm i) := by
+                  intro i x
+                  simp only [perm]
+                  rw [MeasurableEquiv.coe_piCongrLeft, Equiv.piCongrLeft_apply]
+                  simp only [eq_rec_constant]
+
+            have invar : sum ∘ perm = sum := by
+              ext x
+              rw [comp_apply]
+              convert Finset.sum_bijective φ.symm (Equiv.bijective φ.symm) ?_ ?_
+              . simp only [Finset.mem_univ, implies_true]
+              intro i _
+              rw [perm_apply i x]
+            calc
+              _ = Measure.map (sum ∘ perm) (Measure.pi fun i ↦ Measure.map (X (φ i)) ℙ) := by rw [invar]
+              _ = Measure.map sum (Measure.map perm (Measure.pi fun i ↦ Measure.map (X (φ i)) ℙ)) := by
+                rw [Measure.map_map]
+                . apply Finset.measurable_sum
+                  intro i _
+                  exact measurable_pi_apply i
+                apply measurable_pi_lambda
+                intro i
+                have : (fun x : Fin m → G ↦ perm x i) = (fun x : Fin m → G ↦ x (φ.symm i)) := by
+                  ext x
+                  exact perm_apply i x
+                rw [this]
+                exact measurable_pi_apply ((Equiv.symm φ) i)
+              _ = _ := by
+                congr
+                exact (MeasureTheory.measurePreserving_piCongrLeft (fun i ↦ Measure.map (X i) ℙ) φ).map_eq
+        }
+      congr 1
+      convert Finset.sum_bijective φ (Equiv.bijective φ) ?_ ?_
+      . simp only [Finset.mem_univ, implies_true]
+      simp only [Finset.mem_univ, imp_self, implies_true]
 
 
 -- The condition m ≥ 2 is likely not needed here.
