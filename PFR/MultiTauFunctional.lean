@@ -175,9 +175,9 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
           apply Finset.prod_congr rfl
           intro j _
           by_cases hij : i = j
-          . simp [f, hij]
-            sorry
-          simp [f, hij]
+          . simp only [hij, mul_ite, mul_one, ↓reduceIte, f]
+            rw [condRuzsaDist'_eq_sum' (hmeasX' i) (hY i), <-hij]
+          simp only [mul_ite, mul_one, hij, ↓reduceIte, f]
           exact probmes j
         _ = _ := by
           simp only [Finset.prod_ite_eq, Finset.mem_univ, ↓reduceIte]
