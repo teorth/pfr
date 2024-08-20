@@ -1,3 +1,4 @@
+import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Independence.Kernel
 
 open MeasureTheory MeasurableSpace
@@ -47,6 +48,8 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
     (hf_Indep : iIndepFun m f κ μ) (hf_meas : ∀ i, Measurable (f i)) :
     iIndepFun (fun _ ↦ pi) (fun (j : J) ↦ fun a (i : S j) ↦ f i a) κ μ := by
   set F := fun (j : J) ↦ fun a (i : S j) ↦ f i a
+  let M (j : J) := pi (m := fun (i : S j) ↦ m i)
+  let πβ (j : J) := Set.pi Set.univ '' Set.pi Set.univ fun (i : S j) => { s | MeasurableSet[m i] s }
   apply iIndepSets.iIndep
   . intro j
     rw [<-measurable_iff_comap_le, measurable_pi_iff]
@@ -54,8 +57,42 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
     simp [F]
     exact hf_meas ω
   . exact fun i ↦ IsPiSystem.comap isPiSystem_pi (F i)
-  . sorry
+  . intro j
+    show MeasurableSpace.comap _ (M j) = _
+    have : M j = MeasurableSpace.generateFrom (πβ j) := generateFrom_pi.symm
+    rewrite [this, MeasurableSpace.comap_generateFrom] ; rfl
+  rw [iIndepSets]
+  intro s E hE
+  simp at hE
+  classical
+  obtain ⟨sets, h_sets⟩ := Classical.axiomOfChoice (fun (j:s) ↦ hE j (Finset.coe_mem j))
+  set E' := fun (j:s) (i:S j) ↦ f i ⁻¹' (sets j i)
+  have Ej_eq : ∀ (j:s), E j = ⋂ (i : S j), E' j i := by
+    intro j
+    rw [(h_sets j).2.symm]
+    simp [E']
+    ext ω
+    simp
+  suffices ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (j:s), ⋂ (i : S j), E' j i) = ∏ (j:s), (κ a) (⋂ (i : S j), E' j i) by
+    convert this with x
+    . rw [Set.iInter_subtype]
+      apply Set.iInter_congr
+      intro j
+      apply Set.iInter_congr
+      intro hj
+      exact Ej_eq ⟨ j, hj ⟩
+    rw [Finset.prod_subtype s (p := fun j ↦ j ∈ s)]
+    . apply Finset.prod_congr rfl
+      intro j _
+      rw [Ej_eq j]
+    simp only [implies_true]
+  have Ej_mes : ∀ (j:s), ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (i : S j), E' j i) = ∏ i : S j, (κ a) (E' j i) := by
+    sorry
+  have Einter_mes : ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (j:s), ⋂ (i : S j), E' j i) = ∏ (j:s), ∏ i : S j, (κ a) (E' j i) := by
+    sorry
   sorry
+
+
 
 /-- If `f` is a family of mutually independent random variables, `(S j)ⱼ` are pairwise disjoint
 finite index sets, and `φ j` is a function that maps the tuple formed by `f i` for `i ∈ S j` to a
