@@ -87,6 +87,22 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
       rw [Ej_eq j]
     simp only [implies_true]
 
+  set E'' := fun (i:ι) ↦ ⋂ (j:s) (h: i ∈ S j), E' j ⟨ i, h ⟩
+  set h_disjoint' : (↑s:Set J).PairwiseDisjoint S := Set.PairwiseDisjoint.subset h_disjoint fun ⦃a⦄ a ↦ trivial
+  set t := Finset.disjiUnion s S h_disjoint'
+
+  have Einter_eq : ⋂ (j:s), ⋂ (i : S j), E' j i = ⋂ i ∈ t, E'' i := by
+    ext x
+    simp [E'']
+    constructor
+    . intro h i hit j hj hi
+      exact h j hj i hi
+    intro h j hj i hi
+    have hit : i ∈ t := by
+      simp [t]
+      exact ⟨ j, hj, hi ⟩
+    exact h i hit j hj hi
+
   have Ej_mes : ∀ (j:s), ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (i : S j), E' j i) = ∏ i : S j, (κ a) (E' j i) := by
     intro j
     convert kernel.iIndepFun.meas_biInter hf_Indep (S := S j) (s := fun i:ι ↦ if h:i ∈ S j then E' j ⟨ i, h ⟩ else Set.univ) ?_ with x
@@ -106,8 +122,57 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
     apply MeasurableSet.preimage ((h_sets j).1 i hi) _
     exact Measurable.of_comap_le fun s a ↦ a
   have Einter_mes : ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (j:s), ⋂ (i : S j), E' j i) = ∏ (j:s), ∏ i : S j, (κ a) (E' j i) := by
-    sorry
-  sorry
+    rw [Einter_eq]
+    convert kernel.iIndepFun.meas_biInter hf_Indep (S := t) (s := E'') ?_ with x
+    . rw [Finset.prod_disjiUnion, Finset.prod_subtype s (p := fun j ↦ j ∈ s)]
+      . simp [E'']
+        apply Finset.prod_congr rfl
+        intro i hi
+        rw [<-Finset.prod_attach (S i)]
+        apply Finset.prod_congr rfl
+        intro j hj
+        congr
+        have : E' i j = ⋂ i', if i' = i then E' i j else Set.univ := by
+          rw [Set.iInter_ite]
+          simp
+        rw [this]
+        apply Set.iInter_congr
+        intro i'
+        by_cases h : i' = i
+        . simp [h, E']
+          congr
+          ext x
+          simp
+          constructor
+          . intro this
+            convert this
+          intro this
+          convert this
+          exact h.symm
+        simp [h]
+        have empty : IsEmpty ((j:ι) ∈ S i') := by
+          rw [IsEmpty.prop_iff]
+          contrapose! h
+          exact SetCoe.ext (Set.PairwiseDisjoint.elim_finset (f := S) h_disjoint (by trivial) (by trivial) _ h j.property)
+        exact (Set.iInter_of_empty _).symm
+      . simp only [implies_true]
+      exact FinsetCoe.fintype s
+    intro i hit
+    simp [E'', E']
+    apply MeasurableSet.iInter
+    intro j
+    apply MeasurableSet.iInter
+    intro hi
+    apply MeasurableSet.preimage ((h_sets j).1 i hi)
+    exact Measurable.of_comap_le fun s a ↦ a
+  have fin : Finite { x // x ∈ s } := Subtype.finite
+  rw [<-Filter.eventually_all] at Ej_mes
+  apply Filter.Eventually.mono (Filter.eventually_and.mpr ⟨ Ej_mes, Einter_mes ⟩)
+  intro x ⟨ h1, h2 ⟩
+  rw [h2]
+  apply Finset.prod_congr rfl
+  intro i _
+  rw [h1 i]
 
 
 
