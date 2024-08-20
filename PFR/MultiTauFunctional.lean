@@ -112,6 +112,11 @@ lemma sub_multiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [hΩ₀: M
 lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume) (X : ∀ i, Ω i → G) (hmeasX: ∀ i, Measurable (X i)) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (hΩ'prob: ∀ i, IsProbabilityMeasure (hΩ' i).volume) (X' : ∀ i, Ω' i → G) (hmeasX': ∀ i, Measurable (X' i)) {S : Type u} [Fintype S][MeasurableSpace S] [MeasurableSingletonClass S] (Y : ∀ i, Ω' i → S) (hY : ∀ i, Measurable (Y i)): D[X; hΩ] - D[X'|Y; hΩ'] ≤ p.η * ∑ i, d[X i ; (hΩ i).volume # X' i | Y i; (hΩ' i).volume ] := by
   set μ := fun ω: Fin p.m → S ↦ ∏ i : Fin p.m, (ℙ (Y i ⁻¹' {ω i})).toReal
 
+  have probmes (i : Fin p.m) : ∑ ωi : S, (ℙ (Y i ⁻¹' {ωi})).toReal = 1 := by
+    convert Finset.sum_toReal_measure_singleton (s := Finset.univ) (Measure.map (Y i) ℙ) with ω _ i _
+    . exact (MeasureTheory.Measure.map_apply (hY i) ( measurableSet_singleton ω)).symm
+    replace hΩ'prob := hΩ'prob i
+    rw [MeasureTheory.Measure.map_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ, measure_univ, ENNReal.one_toReal]
 -- μ has total mass one
   have total : ∑ (ω : Fin p.m → S), μ ω = 1 := calc
     _ = ∏ i, ∑ ωi, (ℙ (Y i ⁻¹' {ωi})).toReal := by
@@ -120,10 +125,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
     _ = ∏ i, 1 := by
       apply Finset.prod_congr rfl
       intro i _
-      convert Finset.sum_toReal_measure_singleton (s := Finset.univ) (Measure.map (Y i) ℙ) with ω _ i _
-      . exact (MeasureTheory.Measure.map_apply (hY i) ( measurableSet_singleton ω)).symm
-      replace hΩ'prob := hΩ'prob i
-      rw [MeasureTheory.Measure.map_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ, measure_univ, ENNReal.one_toReal]
+      exact probmes i
     _ = 1 := by
       simp only [Finset.prod_const_one]
 
@@ -150,7 +152,35 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
         apply Finset.prod_eq_zero (Finset.mem_univ i)
         simp only [hω, ENNReal.zero_toReal]
       exact sub_multiDistance_le p Ω hΩ hΩprob X hmeasX hmin Ω' hΩ'_cond hΩ'prob_cond X' hmeasX'
-    _ ≤ _ := by sorry
+    _ = p.η * ∑ i, ∑ (ω: Fin p.m → S), μ ω * d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ] := by
+      rw [Finset.sum_comm, Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro ω _
+      rw [Finset.mul_sum, Finset.mul_sum, Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro i _
+      ring
+    _ = _ := by
+      congr with i
+      let f := fun j ↦ (fun ωj ↦ (ℙ (Y j ⁻¹' {ωj})).toReal * (if i=j then d[X i ; ℙ # X' i ; ℙ[|Y i ⁻¹' {ωj}]] else 1))
+      calc
+        _ = ∑ ω : Fin p.m → S, ∏ j, f j (ω j) := by
+          apply Finset.sum_congr rfl
+          intro ω _
+          rw [Finset.prod_mul_distrib]
+          congr
+          simp only [Finset.prod_ite_eq, Finset.mem_univ, ↓reduceIte]
+        _ = ∏ j, ∑ ωj, f j ωj := Finset.sum_prod_piFinset Finset.univ f
+        _ = ∏ j, if i = j then d[X i # X' i | Y i] else 1 := by
+          apply Finset.prod_congr rfl
+          intro j _
+          by_cases hij : i = j
+          . simp [f, hij]
+            sorry
+          simp [f, hij]
+          exact probmes j
+        _ = _ := by
+          simp only [Finset.prod_ite_eq, Finset.mem_univ, ↓reduceIte]
 
 /-- With the notation of the previous lemma, we have
   \begin{equation}\label{5.3-conv}
