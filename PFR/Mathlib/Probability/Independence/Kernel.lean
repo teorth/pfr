@@ -88,14 +88,14 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
     simp only [implies_true]
 
   set E'' := fun (i:ι) ↦ ⋂ (j:s) (h: i ∈ S j), E' j ⟨ i, h ⟩
-  set h_disjoint' : (↑s:Set J).PairwiseDisjoint S := Set.PairwiseDisjoint.subset h_disjoint fun ⦃a⦄ a ↦ trivial
+  set h_disjoint' : (↑s:Set J).PairwiseDisjoint S := Set.PairwiseDisjoint.subset h_disjoint fun ⦃a⦄ _ ↦ trivial
   set t := Finset.disjiUnion s S h_disjoint'
 
   have Einter_eq : ⋂ (j:s), ⋂ (i : S j), E' j i = ⋂ i ∈ t, E'' i := by
     ext x
     simp [E'']
     constructor
-    . intro h i hit j hj hi
+    . intro h i _ j hj hi
       exact h j hj i hi
     intro h j hj i hi
     have hit : i ∈ t := by
@@ -157,7 +157,7 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
         exact (Set.iInter_of_empty _).symm
       . simp only [implies_true]
       exact FinsetCoe.fintype s
-    intro i hit
+    intro i _
     simp [E'', E']
     apply MeasurableSet.iInter
     intro j
