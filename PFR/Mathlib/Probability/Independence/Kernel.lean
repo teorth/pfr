@@ -46,6 +46,15 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
     (hf_Indep : iIndepFun m f κ μ) (hf_meas : ∀ i, Measurable (f i)) :
     iIndepFun (fun _ ↦ pi) (fun (j : J) ↦ fun a (i : S j) ↦ f i a) κ μ := by
+  set F := fun (j : J) ↦ fun a (i : S j) ↦ f i a
+  apply iIndepSets.iIndep
+  . intro j
+    rw [<-measurable_iff_comap_le, measurable_pi_iff]
+    intro ω
+    simp [F]
+    exact hf_meas ω
+  . exact fun i ↦ IsPiSystem.comap isPiSystem_pi (F i)
+  . sorry
   sorry
 
 /-- If `f` is a family of mutually independent random variables, `(S j)ⱼ` are pairwise disjoint
