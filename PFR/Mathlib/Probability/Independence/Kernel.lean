@@ -86,8 +86,25 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
       intro j _
       rw [Ej_eq j]
     simp only [implies_true]
+
   have Ej_mes : ∀ (j:s), ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (i : S j), E' j i) = ∏ i : S j, (κ a) (E' j i) := by
-    sorry
+    intro j
+    convert kernel.iIndepFun.meas_biInter hf_Indep (S := S j) (s := fun i:ι ↦ if h:i ∈ S j then E' j ⟨ i, h ⟩ else Set.univ) ?_ with x
+    . simp [E', Set.iInter_subtype]
+      apply Set.iInter_congr
+      intro i
+      apply Set.iInter_congr
+      intro hi
+      simp [hi]
+    . rw [Finset.prod_subtype (S j) (p := fun i ↦ i ∈ S j)]
+      apply Finset.prod_congr rfl
+      intro i _
+      simp [E']
+      simp only [implies_true]
+    intro i hi
+    simp [hi, E']
+    apply MeasurableSet.preimage ((h_sets j).1 i hi) _
+    exact Measurable.of_comap_le fun s a ↦ a
   have Einter_mes : ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (j:s), ⋂ (i : S j), E' j i) = ∏ (j:s), ∏ i : S j, (κ a) (E' j i) := by
     sorry
   sorry
