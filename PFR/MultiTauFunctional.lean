@@ -182,9 +182,34 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
         _ = _ := by
           simp only [Finset.prod_ite_eq, Finset.mem_univ, ↓reduceIte]
 
+
+
+
 /-- With the notation of the previous lemma, we have
   \begin{equation}\label{5.3-conv}
     k - D[ X'_{[m]} | Y_{[m]} ] \leq \eta \sum_{i=1}^m d[X_{\sigma(i)};X'_i|Y_i]
   \end{equation}
 for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$. -/
-lemma sub_condMultiDistance_le'  {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (hf: ∀ i, IsFiniteMeasure (hΩ' i).volume) (X' : ∀ i, Ω' i → G) {S : Type u} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S] (Y : ∀ i, Ω' i → S)  (φ : Equiv.Perm (Fin p.m)) : D[X; hΩ] - D[X'|Y; hΩ'] ≤ p.η * ∑ i, d[X (φ i) ; (hΩ (φ i)).volume # X' i | Y i; (hΩ' i).volume ] := by sorry
+lemma sub_condMultiDistance_le'  {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume) (X : ∀ i, Ω i → G) (hmeasX: ∀ i, Measurable (X i)) (hmin : multiTauMinimizes p Ω hΩ X) (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (hΩ'prob: ∀ i, IsProbabilityMeasure (hΩ' i).volume) (X' : ∀ i, Ω' i → G) (hmeasX': ∀ i, Measurable (X' i)) {S : Type u} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S] (Y : ∀ i, Ω' i → S) (hY : ∀ i, Measurable (Y i)) (φ : Equiv.Perm (Fin p.m)) : D[X; hΩ] - D[X'|Y; hΩ'] ≤ p.η * ∑ i, d[X (φ i) ; (hΩ (φ i)).volume # X' i | Y i; (hΩ' i).volume ] := by
+  let Xφ := fun i => X (φ i)
+  let Ωφ := fun i => Ω (φ i)
+  let hΩφ := fun i => hΩ (φ i)
+  let hΩφprob := fun i => hΩprob (φ i)
+  let hmeasXφ := fun i => hmeasX (φ i)
+  calc
+    _ = D[Xφ; hΩφ] - D[X'|Y; hΩ'] := by
+      congr 1
+      rw [multiDist_of_perm hΩ hΩprob X hmeasX φ]
+    _ ≤ _ := by
+      apply sub_condMultiDistance_le p Ωφ hΩφ hΩφprob Xφ hmeasXφ _ Ω' hΩ' hΩ'prob X' hmeasX' Y hY
+      intro Ω'' hΩ'' X''
+      calc
+      _ = multiTau p Ω hΩ X := by
+        dsimp [multiTau]
+        congr 1
+        . rw [multiDist_of_perm hΩ hΩprob X hmeasX φ]
+        congr 1
+        apply Finset.sum_bijective φ (Equiv.bijective φ)
+        . simp only [Finset.mem_univ, implies_true]
+        simp only [Finset.mem_univ, imp_self, implies_true]
+      _ ≤ multiTau p Ω'' hΩ'' X'' := hmin Ω'' hΩ'' X''

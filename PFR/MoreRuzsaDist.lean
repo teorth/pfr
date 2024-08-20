@@ -767,9 +767,10 @@ lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → M
     (X : (i : Fin m) → (Ω i) → G) : D[X ; hΩ] ≥ 0 := by sorry
 
 /-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
-lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
-    (X : (i : Fin m) → (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
-    D[X ; hΩ] = D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by sorry
+lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume)
+    (X : (i : Fin m) → (Ω i) → G) (hmeasX: ∀ i, Measurable (X i)) (φ : Equiv.Perm (Fin m)) :
+    D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)] = D[X ; hΩ] := by sorry
+
 
 -- The condition m ≥ 2 is likely not needed here.
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
