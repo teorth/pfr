@@ -924,8 +924,28 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
               congr 1
               apply IdentDistrib.entropy_eq
               exact (hident y i).symm
+            _ =  ∑ y ∈ Fintype.piFinset (fun _ ↦ Finset.univ), ∏ i', (ℙ (E i' (y i'))).toReal * (if i'=i then H[X i; cond ℙ (E i (y i'))] else 1) := by
+              simp only [Fintype.piFinset_univ]
+              apply Finset.sum_congr rfl
+              intro y _
+              rw [Finset.prod_mul_distrib]
+              congr
+              rw [Fintype.prod_ite_eq']
             _ = _ := by
-              sorry
+              convert (Finset.prod_univ_sum (fun _ ↦ Finset.univ) (fun (i':Fin m) (s:S) ↦ (ℙ (E i' s)).toReal * if i' = i then H[X i ; ℙ[|E i s]] else 1)).symm
+              calc
+                _ = ∏ i', if i' = i then H[X i' | Y i'] else 1 := by
+                  simp only [Finset.prod_ite_eq', Finset.mem_univ, ↓reduceIte]
+                _ = _ := by
+                  apply Finset.prod_congr rfl
+                  intro i' _
+                  by_cases h : i' = i
+                  . simp [h, E]
+                    rw [condEntropy_eq_sum_fintype]
+                    exact hY i
+                  simp [h, E]
+                  apply (sum_measure_preimage_singleton' _ _).symm
+                  exact hY i'
 
 end multiDistance
 
