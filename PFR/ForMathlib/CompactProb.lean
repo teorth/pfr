@@ -13,7 +13,7 @@ theorem which we don't have currently in mathlib.
 -/
 
 open MeasureTheory
-open scoped BigOperators Topology ENNReal NNReal BoundedContinuousFunction
+open scoped Topology ENNReal NNReal BoundedContinuousFunction
 
 variable {X : Type*} [MeasurableSpace X]
 
@@ -57,7 +57,8 @@ noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingl
     intro μ
     refine ⟨fun i ↦ (μ {i}).toReal, by simp, ?_⟩
     simp only
-    rw [← NNReal.coe_sum, ← ENNReal.toNNReal_sum (fun a _ha ↦ by finiteness)]
+    rw [← NNReal.coe_sum, ProbabilityMeasure.coeFn_def,
+      ← ENNReal.toNNReal_sum (fun a _ha ↦ by finiteness)]
     simp
   invFun := by
     intro p
@@ -75,9 +76,8 @@ noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingl
   right_inv := by
     rintro ⟨p, p_pos, hp⟩
     ext i
-    simp only [ProbabilityMeasure.coe_mk , Measure.coe_finset_sum, Measure.smul_toOuterMeasure,
-      OuterMeasure.coe_smul, Finset.sum_apply, Pi.smul_apply, MeasurableSet.singleton,
-      Measure.dirac_apply', Set.mem_singleton_iff, smul_eq_mul]
+    simp only [ProbabilityMeasure.mk_apply, Measure.coe_finset_sum, Measure.coe_smul,
+      Finset.sum_apply, Pi.smul_apply, MeasurableSet.singleton, Measure.dirac_apply', smul_eq_mul]
     rw [Finset.sum_eq_single_of_mem i (Finset.mem_univ i)]
     · simp only [Measure.smul_apply, MeasurableSet.singleton, Measure.dirac_apply',
         Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, smul_eq_mul, mul_one]

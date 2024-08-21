@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Integral.Bochner
 
-open scoped BigOperators ENNReal
+open scoped ENNReal
 
 namespace MeasureTheory
 variable {α E : Type*} [MeasurableSpace α] [NormedAddCommGroup E] [NormedSpace ℝ E]

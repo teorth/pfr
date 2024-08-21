@@ -27,7 +27,7 @@ import PFR.HomPFR
 import PFR.HundredPercent
 import PFR.ImprovedPFR
 import PFR.Main
-import PFR.Mathlib.Algebra.Group.Subgroup.Pointwise
+import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.GroupTheory.Torsion

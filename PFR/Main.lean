@@ -1,7 +1,7 @@
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
-import PFR.Mathlib.Algebra.Group.Subgroup.Pointwise
+import Mathlib.Data.Finset.Pointwise.Card
 import PFR.ForMathlib.Entropy.RuzsaSetDist
 import PFR.Tactic.RPowSimp
 import PFR.TauFunctional
@@ -17,7 +17,7 @@ Here we prove the polynomial Freiman-Ruzsa conjecture.
 -/
 
 open ProbabilityTheory MeasureTheory Real Set Fintype Function
-open scoped BigOperators Pointwise
+open scoped Pointwise
 
 universe u
 
@@ -89,9 +89,9 @@ lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measur
   rw [h] at Wunif
   rw [this, Uunif.measureReal_preimage_sub_zero Umeas Wunif Wmeas UWindep]
   congr 3
-  . rw [add_singleton]; simp
+  · rw [add_singleton]; simp
   convert Finset.card_vadd_finset (AddOpposite.op x) B
-  . simp
+  · simp
   simp
 
 end ProbabilityTheory
@@ -120,12 +120,13 @@ lemma PFR_conjecture_pos_aux' {G : Type*} [AddCommGroup G] {A : Set G} [Finite A
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
-variable {G : Type*} [AddCommGroup G] [MeasurableSpace G]
-  [MeasurableSingletonClass G] {A : Set G} [Finite A] {K : ℝ} [Countable G]
+variable {G : Type*} [AddCommGroup G] {A : Set G} [Finite A] {K : ℝ} [Countable G]
 
 /-- A uniform distribution on a set with doubling constant `K` has self Rusza distance
 at most `log K`. -/
-theorem rdist_le_of_isUniform_of_card_add_le (h₀A : A.Nonempty) (hA : Nat.card (A - A) ≤ K * Nat.card A)
+theorem rdist_le_of_isUniform_of_card_add_le [MeasurableSpace G]
+    [MeasurableSingletonClass G]
+    (h₀A : A.Nonempty) (hA : Nat.card (A - A) ≤ K * Nat.card A)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
   obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A - A) ∧ 0 < K :=
@@ -136,23 +137,23 @@ theorem rdist_le_of_isUniform_of_card_add_le (h₀A : A.Nonempty) (hA : Nat.card
   have IU : d[U # U'] ≤ log K := by
     have I : H[U - U'] ≤ log (Nat.card (A - A)) := by
       convert entropy_le_log_card_of_mem (A := (A-A).toFinite.toFinset) ?_ ?_ with x
-      . simp
+      · simp
         exact Iff.rfl
-      . measurability
+      · measurability
       filter_upwards [Uunif.ae_mem, U'unif.ae_mem] with ω h1 h2
       simp
       exact Set.sub_mem_sub h1 h2
     have J : log (Nat.card (A - A)) ≤ log K + log (Nat.card A) := by
       apply (log_le_log AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
---    have : H[U + U'] = H[U - U'] := by congr; simp
     rw [UU'_indep.rdist_eq hU hU', IsUniform.entropy_eq' Uunif hU, IsUniform.entropy_eq' U'unif hU']
     linarith
   rwa [idU.rdist_eq idU'] at IU
 
 variable [ElementaryAddCommGroup G 2] [Fintype G]
 
-lemma sumset_eq_sub : A + A = A - A := by
+lemma sumset_eq_sub {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] (A : Set G) :
+    A + A = A - A := by
   rw [← Set.image2_add, ← Set.image2_sub]
   congr! 1 with a _ b _
   show a + b = a - b
@@ -219,8 +220,6 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   have I : log K * (-11/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
       ≤ - H[VA - VH] := by
     rw [Vindep.rdist_eq VAmeas VHmeas] at this
-    have : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' VAunif VAmeas
-    have : H[VH] = log (Nat.card (H : Set G)) := IsUniform.entropy_eq' VHunif VHmeas
     linarith
   -- therefore, there exists a point `x₀` which is attained by `VA - VH` with a large probability
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
@@ -234,10 +233,10 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     have hHH'_card : Nat.card H' = Nat.card (H : Set G) := congrArg Nat.card (congrArg Subtype hHH')
     rw [hAA'_card, hHH'_card, le_div_iff] at this
     convert this using 1
-    . rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos, ← rpow_def_of_pos H_pos]
+    · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos, ← rpow_def_of_pos H_pos]
       rpow_ring
       norm_num
-    . rw [hAA', hHH']
+    · rw [hAA', hHH']
     positivity
 
   have Hne : Set.Nonempty (A ∩ (H + {x₀} : Set G)) := by
@@ -260,7 +259,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
       apply le_trans _ hA
       simp only [Nat.cast_le]
       apply Nat.card_mono (toFinite _)
-      apply add_subset_add_left (inter_subset_left _ _)
+      apply add_subset_add_left inter_subset_left
     have : 0 ≤ K ^ (11/2) * Nat.card A ^ (-1/2) * Nat.card (H : Set G) ^ (-1/2) := by positivity
     have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
     convert T using 1 <;> rpow_ring <;> norm_num

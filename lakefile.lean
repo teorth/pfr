@@ -30,8 +30,7 @@ package PFR where
 require LeanAPAP from git
   "https://github.com/YaelDillies/LeanAPAP.git"
 
--- This is run only if we're in `dev` mode. This is so not everyone has to build doc-gen
-meta if get_config? env = some "dev" then
+meta if get_config? env = some "dev" then -- dev is so not everyone has to build it
 require «doc-gen4» from git
   "https://github.com/leanprover/doc-gen4" @ "main"
 

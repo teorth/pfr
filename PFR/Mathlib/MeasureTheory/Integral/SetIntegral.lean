@@ -1,7 +1,7 @@
 import Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 
-open scoped BigOperators ENNReal
+open scoped ENNReal
 
 namespace MeasureTheory
 variable {α E : Type*} [MeasurableSpace α] [MeasurableSingletonClass α] [NormedAddCommGroup E]

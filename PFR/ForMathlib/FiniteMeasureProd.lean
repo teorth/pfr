@@ -8,7 +8,7 @@ import Mathlib.MeasureTheory.Constructions.Prod.Basic
 
 open MeasureTheory Topology Metric Filter Set ENNReal NNReal
 
-open scoped Topology ENNReal NNReal BoundedContinuousFunction BigOperators
+open scoped Topology ENNReal NNReal BoundedContinuousFunction
 
 namespace MeasureTheory
 section FiniteMeasure_product
@@ -25,18 +25,20 @@ variable (μ : FiniteMeasure α) (ν : FiniteMeasure β)
 
 lemma prod_apply (s : Set (α × β)) (s_mble : MeasurableSet s) :
     μ.prod ν s = ENNReal.toNNReal (∫⁻ x, ν.toMeasure (Prod.mk x ⁻¹' s) ∂μ) := by
-  simp [@Measure.prod_apply α β _ _ μ ν _ s s_mble]
+  simp [prod, @Measure.prod_apply α β _ _ μ ν _ s s_mble]
 
 lemma prod_apply_symm (s : Set (α × β)) (s_mble : MeasurableSet s) :
     μ.prod ν s = ENNReal.toNNReal (∫⁻ y, μ.toMeasure ((fun x ↦ ⟨x, y⟩) ⁻¹' s) ∂ν) := by
-  simp [@Measure.prod_apply_symm α β _ _ μ ν _ _ s s_mble]
+  simp [prod, @Measure.prod_apply_symm α β _ _ μ ν _ _ s s_mble]
 
-lemma prod_prod (s : Set α) (t : Set β) : μ.prod ν (s ×ˢ t) = μ s * ν t := by simp
+lemma prod_prod (s : Set α) (t : Set β) : μ.prod ν (s ×ˢ t) = μ s * ν t := by
+  simp only [prod, mk_apply, Measure.prod_prod, toNNReal_mul]
+  rfl
 
 lemma mass_prod : (μ.prod ν).mass = μ.mass * ν.mass := by
-  simp only [mass, univ_prod_univ.symm, toMeasure_prod]
-  rw [← ENNReal.toNNReal_mul]
-  exact congr_arg ENNReal.toNNReal (Measure.prod_prod univ univ)
+  simp only [mass, MeasurableSet.univ, prod_apply, preimage_univ, lintegral_const, toNNReal_mul,
+    mul_comm]
+  rfl
 
 lemma zero_prod : (0 : FiniteMeasure α).prod ν = 0 := by
   rw [← mass_zero_iff, mass_prod, zero_mass, zero_mul]
@@ -48,18 +50,13 @@ lemma prod_zero : μ.prod (0 : FiniteMeasure β) = 0 := by
   apply Subtype.ext
   simp only [val_eq_toMeasure, toMeasure_map, toMeasure_prod, Measure.map_fst_prod]
   ext s _
-  simp only [Measure.smul_apply, smul_eq_mul]
-  have aux := @coeFn_smul_apply α _ ℝ≥0 _ _ _ _ _ (ν univ) μ s
-  simpa using congr_arg ENNReal.ofNNReal aux.symm
+  simp
 
 @[simp] lemma map_snd_prod : (μ.prod ν).map Prod.snd = (μ univ) • ν := by
   apply Subtype.ext
   simp only [val_eq_toMeasure, toMeasure_map, toMeasure_prod, Measure.map_fst_prod]
   ext s _
-  simp only [Measure.map_snd_prod, Measure.smul_toOuterMeasure, OuterMeasure.coe_smul,
-    Pi.smul_apply, smul_eq_mul]
-  have aux := @coeFn_smul_apply β _ ℝ≥0 _ _ _ _ _ (μ univ) ν s
-  simpa using congr_arg ENNReal.ofNNReal aux.symm
+  simp
 
 lemma map_prod_map {α' : Type*} [MeasurableSpace α'] {β' : Type*} [MeasurableSpace β']
     {f : α → α'} {g : β → β'} (f_mble : Measurable f) (g_mble : Measurable g):
@@ -69,12 +66,9 @@ lemma map_prod_map {α' : Type*} [MeasurableSpace α'] {β' : Type*} [Measurable
   rw [Measure.map_prod_map _ _ f_mble g_mble]
 
 lemma prod_apply_null {s : Set (α × β)} (hs : MeasurableSet s) :
-    μ.prod ν s = 0 ↔ (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ] 0 := by
+    μ.prod ν s = 0 ↔ (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ.toMeasure] 0 := by
   convert Measure.measure_prod_null (μ := μ.toMeasure) (ν := ν.toMeasure) hs
-  · simp only [toMeasure_prod, toNNReal_eq_zero_iff, or_iff_left_iff_imp]
-    intro con
-    by_contra
-    exact measure_ne_top _ _ con
+  · simp
   · constructor <;> intro h <;> filter_upwards [h] with p hp
     · simp only [Pi.zero_apply] at *
       rcases (ENNReal.toNNReal_eq_zero_iff _).mp hp with (h'|con)
@@ -85,7 +79,7 @@ lemma prod_apply_null {s : Set (α × β)} (hs : MeasurableSet s) :
       exact (ENNReal.toNNReal_eq_zero_iff _).mpr (Or.inl hp)
 
 lemma measure_ae_null_of_prod_null {s : Set (α × β)} (h : μ.prod ν s = 0) :
-    (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ] 0 := by
+    (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ.toMeasure] 0 := by
   convert Measure.measure_ae_null_of_prod_null (μ := μ.toMeasure) (ν := ν.toMeasure) (s := s) ?_
   · constructor <;> intro h <;> filter_upwards [h] with p hp
     · simp only [Pi.zero_apply] at *
@@ -95,11 +89,7 @@ lemma measure_ae_null_of_prod_null {s : Set (α × β)} (h : μ.prod ν s = 0) :
         exact measure_ne_top _ _ con
     · simp only [Pi.zero_apply] at *
       exact (ENNReal.toNNReal_eq_zero_iff _).mpr (Or.inl hp)
-  · simp [toNNReal_eq_zero_iff] at h
-    rcases h with (h'|con)
-    · exact h'
-    · by_contra
-      exact measure_ne_top _ _ con
+  · simpa [toNNReal_eq_zero_iff] using h
 
 lemma prod_swap : (μ.prod ν).map Prod.swap = ν.prod μ := by
   apply Subtype.ext
@@ -126,13 +116,15 @@ variable (μ : ProbabilityMeasure α) (ν : ProbabilityMeasure β)
 
 lemma prod_apply (s : Set (α × β)) (s_mble : MeasurableSet s) :
     μ.prod ν s = ENNReal.toNNReal (∫⁻ x, ν.toMeasure (Prod.mk x ⁻¹' s) ∂μ) := by
-  simp [@Measure.prod_apply α β _ _ μ ν _ s s_mble]
+  simp [prod, @Measure.prod_apply α β _ _ μ ν _ s s_mble]
 
 lemma prod_apply_symm (s : Set (α × β)) (s_mble : MeasurableSet s) :
     μ.prod ν s = ENNReal.toNNReal (∫⁻ y, μ.toMeasure ((fun x ↦ ⟨x, y⟩) ⁻¹' s) ∂ν) := by
-  simp [@Measure.prod_apply_symm α β _ _ μ ν _ _ s s_mble]
+  simp [prod, @Measure.prod_apply_symm α β _ _ μ ν _ _ s s_mble]
 
-lemma prod_prod (s : Set α) (t : Set β) : μ.prod ν (s ×ˢ t) = μ s * ν t := by simp
+lemma prod_prod (s : Set α) (t : Set β) : μ.prod ν (s ×ˢ t) = μ s * ν t := by
+  simp only [prod, mk_apply, Measure.prod_prod, toNNReal_mul]
+  rfl
 
 example : Measurable (Prod.fst : α × β → α) := by
   exact measurable_fst
@@ -156,12 +148,9 @@ lemma map_prod_map {α' : Type*} [MeasurableSpace α'] {β' : Type*} [Measurable
   rw [Measure.map_prod_map _ _ f_mble g_mble]
 
 lemma prod_apply_null {s : Set (α × β)} (hs : MeasurableSet s) :
-    μ.prod ν s = 0 ↔ (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ] 0 := by
+    μ.prod ν s = 0 ↔ (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ.toMeasure] 0 := by
   convert Measure.measure_prod_null (μ := μ.toMeasure) (ν := ν.toMeasure) hs
-  · simp only [toMeasure_prod, toNNReal_eq_zero_iff, or_iff_left_iff_imp]
-    intro con
-    by_contra
-    exact measure_ne_top _ _ con
+  · simp
   · constructor <;> intro h <;> filter_upwards [h] with p hp
     · simp only [Pi.zero_apply] at *
       rcases (ENNReal.toNNReal_eq_zero_iff _).mp hp with (h'|con)
@@ -172,7 +161,7 @@ lemma prod_apply_null {s : Set (α × β)} (hs : MeasurableSet s) :
       exact (ENNReal.toNNReal_eq_zero_iff _).mpr (Or.inl hp)
 
 lemma measure_ae_null_of_prod_null {s : Set (α × β)} (h : μ.prod ν s = 0) :
-    (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ] 0 := by
+    (fun x ↦ ν (Prod.mk x ⁻¹' s)) =ᵐ[μ.toMeasure] 0 := by
   convert Measure.measure_ae_null_of_prod_null (μ := μ.toMeasure) (ν := ν.toMeasure) (s := s) ?_
   · constructor <;> intro h <;> filter_upwards [h] with p hp
     · simp only [Pi.zero_apply] at *
@@ -182,11 +171,7 @@ lemma measure_ae_null_of_prod_null {s : Set (α × β)} (h : μ.prod ν s = 0) :
         exact measure_ne_top _ _ con
     · simp only [Pi.zero_apply] at *
       exact (ENNReal.toNNReal_eq_zero_iff _).mpr (Or.inl hp)
-  · simp [toNNReal_eq_zero_iff] at h
-    rcases h with (h'|con)
-    · exact h'
-    · by_contra
-      exact measure_ne_top _ _ con
+  · simpa [toNNReal_eq_zero_iff] using h
 
 lemma prod_swap : (μ.prod ν).map measurable_swap.aemeasurable = ν.prod μ := by
   apply Subtype.ext

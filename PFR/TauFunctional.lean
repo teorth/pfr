@@ -187,9 +187,6 @@ lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂
   set M2 : MeasureSpace Ω'₂ := { volume := μ' }
   exact distance_ge_of_min p h h1 h2
 
-
-open BigOperators
-
 /-- For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower
 bound $d[X'_1|Z;X'_2|W]$ by
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
@@ -221,9 +218,9 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
   apply Finset.sum_le_sum
   intro w _
   rcases eq_or_ne (ℙ (Z ⁻¹' {z})) 0 with hpz | hpz
-  . simp [hpz]
+  · simp [hpz]
   rcases eq_or_ne (ℙ (W ⁻¹' {w})) 0 with hpw | hpw
-  . simp [hpw]
+  · simp [hpw]
   set μ := (hΩ₁.volume)[|Z ← z]
   have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure ℙ hpz
   set μ' := ℙ[|W ← w]

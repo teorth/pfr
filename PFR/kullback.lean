@@ -46,7 +46,6 @@ lemma KL_div_nonneg : KL[X ; μ # Y ; μ'] ≥ 0 := sorry
 /-- `KL(X ‖ Y) = 0` if and only if `Y` is a copy of `X`. -/
 lemma KL_div_eq_zero_iff_identDistrib : KL[X ; μ # Y ; μ'] = 0 ↔ IdentDistrib X Y μ μ' := sorry
 
-open BigOperators
 /-- If $S$ is a finite set, $\sum_{s \in S} w_s = 1$ for some non-negative $w_s$, and ${\bf P}(X=x) = \sum_{s\in S} w_s  {\bf P}(X_s=x)$, ${\bf P}(Y=x) = \sum_{s\in S} w_s  {\bf P}(Y_s=x)$ for all $x$, then
 $$D_{KL}(X\Vert Y) \le \sum_{s\in S} w_s D_{KL}(X_s\Vert Y_s).$$ -/
 lemma KL_div_of_convex {I : Type*} {S : Finset I} {w : I → ℝ} (hw: ∀ s, w s ≥ 0) (hsum: ∑ s in S, w s = 1) (X': I → Ω'' → G) (hconvex: ∀ x : G, (μ.map X {x}).toReal = ∑ s in S, (w s) * (μ''.map (X' s) {x}).toReal) : KL[X ; μ # Y ; μ'] ≤ ∑ s in S, w s * KL[X' s ; μ'' # Y ; μ'] := sorry

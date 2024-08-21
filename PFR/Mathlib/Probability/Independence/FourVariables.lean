@@ -5,11 +5,12 @@ open MeasureTheory ProbabilityTheory
 
 namespace ProbabilityTheory.iIndepFun
 
-variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+variable {Ω : Type*} [MeasureSpace Ω]
   {G : Type*} [hG : MeasurableSpace G]
 
 variable {Z₁ Z₂ Z₃ Z₄ : Ω → G} (h_indep : iIndepFun (fun _i => hG) ![Z₁, Z₂, Z₃, Z₄])
-  (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
+
+include h_indep
 
 lemma reindex_four_abcd :
     iIndepFun (fun _ => hG) ![Z₁, Z₂, Z₃, Z₄] := h_indep
@@ -226,7 +227,9 @@ private def fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
 
 attribute [local instance] fintype_kappa in
 /-- If `(Z₁, Z₂, Z₃, Z₄)` are independent, so are `(Z₁, Z₂, φ Z₃ Z₄)` for any measurable `φ`. -/
-lemma apply_two_last {phi : G → G → G} (hphi : Measurable phi.uncurry) :
+lemma apply_two_last [IsProbabilityMeasure (ℙ : Measure Ω)]
+    (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
+    {phi : G → G → G} (hphi : Measurable phi.uncurry) :
     iIndepFun (fun _ ↦ hG) ![Z₁, Z₂, (fun ω ↦ phi (Z₃ ω) (Z₄ ω))] := by
   -- deduce from the assumption the independence of `Z₁`, `Z₂` and `(Z₃, Z₄)`.
   have T := iIndepFun.pi' (m := fun  _ _ ↦ hG) ?_ (h_indep.reindex_symm κ_equiv); swap
