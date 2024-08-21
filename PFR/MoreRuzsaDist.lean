@@ -893,57 +893,77 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
           ext p
           simp
         obtain ⟨sets, h_sets⟩ := Classical.axiomOfChoice (fun (i:s) ↦ hf'' i (Finset.coe_mem i))
-        have h1 : ∀ i : s, ℙ[|E' y] (f' i) = ℙ[|E i (y i)] (f' i) := by
-          intro i
-          let g := fun (i': Fin m) ↦ if i' = i then (E i (y i) ∩ f' i) else (E i' (y i'))
-          rw [ProbabilityTheory.cond_apply, ProbabilityTheory.cond_apply]
-          . have : E' y ∩ f' i = ⋂ i', g i' := calc
-              _ = E' y ∩ ⋂ i' : Fin m, if i' = i then f' i else Set.univ := by
-                congr
-                simp only [Set.iInter_ite, Set.iInter_iInter_eq_left, Set.iInter_univ,
-                   Set.inter_univ]
-              _ = ⋂ i', E i' (y i') ∩ (if i' = i then f' i else Set.univ) := by
-                rw [Set.iInter_inter_distrib]
-              _ = _ := by
-                apply Set.iInter_congr
-                intro i'
-                by_cases h : i' = i
-                . simp [h, g]
-                simp [h, g]
-            rw [this, iIndepFun.meas_iInter hindep _, iIndepFun.meas_iInter hindep _]
-            . apply ENNReal.cross
+        have h : ∀ s' : Finset (Fin m), s' ⊆ s → ℙ[|E' y] (⋂ i ∈ s', f' i) = ∏ i ∈ s', ℙ[|E i (y i)] (f' i) := by
+          intro s' hs'
+          let g := fun (i': Fin m) ↦ if i' ∈ s' then (E i' (y i') ∩ f' i') else (E i' (y i'))
+          calc
+            _ = (ℙ (E' y))⁻¹ * ℙ (E' y ∩ ⋂ i ∈ s', f' i) := by
+              rw [cond_apply]
+              apply MeasurableSet.iInter
+              intro i
+              exact MeasurableSet.preimage (measurableSet_singleton (y i)) (hY i)
+            _ = (ℙ (E' y))⁻¹ * ℙ ( ⋂ i, g i ) := by
+              congr
+              calc
+                _ = E' y ∩ ⋂ i, if i ∈ s' then f' i else Set.univ := by
+                  congr
+                  simp only [Set.iInter_ite, Set.iInter_univ, Set.inter_univ]
+                _ = ⋂ i, E i (y i) ∩ (if i ∈ s' then f' i else Set.univ) := by
+                  rw [Set.iInter_inter_distrib]
+                _ = _ := by
+                  apply Set.iInter_congr
+                  intro i
+                  by_cases h: i ∈ s'
+                  . simp only [h, ↓reduceIte, g]
+                  simp only [h, ↓reduceIte, Set.inter_univ, g]
+            _ = (∏ i, ℙ (E i (y i)))⁻¹ * ℙ (⋂ i, g i) := by
+              rw [iIndepFun.meas_iInter hindep _]
+              exact Emes y
+            _ = (∏ i, ℙ (E i (y i)))⁻¹ * ∏ i, ℙ (g i) := by
+              rw [iIndepFun.meas_iInter hindep _]
+              intro i
+              by_cases h : i ∈ s'
+              . simp [h, g]
+                apply MeasurableSet.inter (Emes y i) (hfmes i (hs' h))
+              simp [h, g]
+              exact Emes y i
+            _ = (∏ i, ℙ (E i (y i)))⁻¹ * ∏ i, (ℙ (E i (y i))) * ((ℙ (E i (y i)))⁻¹ * ℙ (g i)) := by
+              congr
+              ext i
+              rw [<-mul_assoc, ENNReal.mul_inv_cancel, one_mul]
               . exact hy i
-              . exact measure_ne_top ℙ _
-              . exact Finset.prod_ne_zero_iff.mpr fun a a_1 ↦ hy a
-              . have : ∏ i : Fin m, ℙ (E i (y i)) < ⊤ := by
+              exact measure_ne_top ℙ _
+            _ = ∏ i, (ℙ (E i (y i)))⁻¹ * ℙ (g i) := by
+              rw [Finset.prod_mul_distrib, <-mul_assoc, ENNReal.inv_mul_cancel, one_mul]
+              . exact Finset.prod_ne_zero_iff.mpr fun a _ ↦ hy a
+              have : ∏ i : Fin m, ℙ (E i (y i)) < ⊤ := by
                   apply ENNReal.prod_lt_top
                   intro i _
                   exact measure_ne_top ℙ _
-                exact LT.lt.ne_top this
-              rw [mul_comm]
-              rw [Finset.prod_mul _ _ (i:Fin m), Finset.prod_mul _ _ (i:Fin m)]
+              exact LT.lt.ne_top this
+            _ = ∏ i, if i ∈ s' then ℙ[|E i (y i)] (f' i) else 1 := by
               apply Finset.prod_congr rfl
-              intro i' _
-              by_cases h : i' = i
-              . simp [h,g]
-                rw [mul_comm]
-              simp [h,g]
-            . intro i'
-              by_cases h : i' = i
-              . simp [h,g]
-                exact MeasurableSet.inter (Emes y i) (hfmes i (Finset.coe_mem i))
-              simp [h,g]
-              exact Emes y i'
-            exact Emes y
-          . exact MeasurableSet.preimage (measurableSet_singleton (y i)) (hY i)
-          apply MeasurableSet.iInter
+              intro i _
+              by_cases h : i ∈ s'
+              . simp [h, g]
+                rw [cond_apply]
+                exact MeasurableSet.preimage (measurableSet_singleton (y i)) (hY i)
+              simp [h, g]
+              rw [ENNReal.inv_mul_cancel]
+              . exact hy i
+              exact measure_ne_top ℙ _
+            _ = _ := by
+              rw [Finset.prod_ite]
+              simp only [Finset.filter_univ_mem, Finset.prod_const_one, mul_one]
+        have h1 : ∀ i : s, ℙ[|E' y] (f' i) = ℙ[|E i (y i)] (f' i) := by
           intro i
-          exact MeasurableSet.preimage (measurableSet_singleton (y i)) (hY i)
-        have h2 : ℙ[|E' y] (⋂ i ∈ s, f' i) = ∏ i ∈ s, ℙ[|E i (y i)] (f' i) := by
-          rw [ProbabilityTheory.cond_apply]
-          . sorry
-          sorry
-        rw [h2]
+          let s' : Finset (Fin m) := {i.val}
+          have hs' : s' ⊆ s := by
+            simp only [Finset.singleton_subset_iff, Finset.coe_mem, s']
+          replace h := h s' hs'
+          simp [s'] at h
+          exact h
+        rw [h s (fun ⦃a⦄ a ↦ a)]
         apply Finset.prod_congr rfl
         intro i hi
         exact (h1 ⟨ i, hi ⟩).symm
