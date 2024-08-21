@@ -864,8 +864,8 @@ def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → Measur
 
 /-- If  `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then `D[X_[m] | Y_[m]] := H[∑ i, X_i | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[X_i | Y_i]`
 -/
-lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
-    (X : (i : Fin m) → Ω → G) (Y : (i : Fin m) → Ω → S) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ): D[ X | Y ; fun _ ↦ hΩ] =  H[ fun ω ↦ ∑ i, X i ω | fun ω ↦ (fun i ↦ Y i ω)] - (m:ℝ)⁻¹ * ∑ i, H[X i | Y i] := by
+lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: IsProbabilityMeasure hΩ.volume) {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
+    (X : (i : Fin m) → Ω → G) (Y : (i : Fin m) → Ω → S) (hY : (i:Fin m) →  Measurable (Y i)) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ): D[ X | Y ; fun _ ↦ hΩ] =  H[ fun ω ↦ ∑ i, X i ω | fun ω ↦ (fun i ↦ Y i ω)] - (m:ℝ)⁻¹ * ∑ i, H[X i | Y i] := by
       let E := fun (i:Fin m) (yi:S) ↦ (Y i)⁻¹' {yi}
       let E' := fun (y : Fin m → S) ↦ ⋂ i, E i (y i)
       let f := fun (y : Fin m → S) ↦ ∏ i, (ℙ (E i (y i))).toReal
@@ -894,7 +894,28 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) {S: Type*}
           rw [<-Finset.mul_sum, <-mul_assoc, mul_comm _ (f y), mul_assoc, <-mul_sub, inv_mul_eq_div]
         _ = _ := by
           congr
-          . sorry
+          . rw [condEntropy_eq_sum_fintype]
+            . apply Finset.sum_congr rfl
+              intro y _
+              congr
+              . calc
+                  _ = (∏ i, (ℙ (E i (y i)))).toReal := Eq.symm ENNReal.toReal_prod
+                  _ = (ℙ (⋂ i, (E i (y i)))).toReal := by
+                    congr
+                    apply (iIndepFun.meas_iInter hindep _).symm
+                    intro i
+                    convert MeasurableSet.preimage (t := { p : G × S | p.2 = y i}) _ (comap_measurable _)
+                    exact DiscreteMeasurableSpace.forall_measurableSet {p : G × S | p.2 = y i}
+                  _ = _ := by
+                    congr
+                    ext x
+                    simp [E]
+                    exact Iff.symm funext_iff
+              . exact Finset.sum_fn Finset.univ fun c ↦ X c
+              ext x
+              simp [E']
+              exact Iff.symm funext_iff
+            exact measurable_pi_lambda (fun ω i ↦ Y i ω) hY
           ext i
           calc
             _ = ∑ y, f y * H[X i; cond ℙ (E i (y i))] := by
