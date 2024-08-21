@@ -1,8 +1,7 @@
 import Mathlib.GroupTheory.Torsion
 
-/-- See note [reducible non-instances]. -/
-def AddMonoid.IsTorsionFree.noZeroNsmulDivisors {M : Type*} [AddMonoid M]
-    (hM: AddMonoid.IsTorsionFree M) : NoZeroSMulDivisors ℕ M where
+lemma AddMonoid.IsTorsionFree.noZeroNsmulDivisors {M : Type*} [AddMonoid M]
+    (hM : AddMonoid.IsTorsionFree M) : NoZeroSMulDivisors ℕ M where
   eq_zero_or_eq_zero_of_smul_eq_zero := by
     intro n x h
     by_contra hc

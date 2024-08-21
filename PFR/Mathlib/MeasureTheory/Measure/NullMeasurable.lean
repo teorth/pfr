@@ -1,8 +1,6 @@
 import Mathlib.MeasureTheory.MeasurableSpace.Basic
 import Mathlib.MeasureTheory.Measure.NullMeasurable
 
-open scoped BigOperators
-
 namespace MeasureTheory
 variable {α β : Type*} [MeasurableSpace α] [MeasurableSingletonClass α] [MeasurableSpace β]
   [MeasurableSingletonClass β]

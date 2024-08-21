@@ -1,7 +1,6 @@
 import PFR.ForMathlib.CompactProb
 import PFR.MoreRuzsaDist
 import PFR.kullback
-import PFR.Mathlib.Algebra.Group.Subgroup.Pointwise
 
 /-!
 # The rho functional

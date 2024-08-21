@@ -3,11 +3,11 @@ import Mathlib.Probability.Independence.Kernel
 
 open MeasureTheory MeasurableSpace
 
-open scoped BigOperators MeasureTheory ENNReal
+open scoped MeasureTheory ENNReal
 
-namespace ProbabilityTheory.kernel
+namespace ProbabilityTheory.Kernel
 variable {β β' γ γ' : Type*} {_mα : MeasurableSpace α} {_mΩ : MeasurableSpace Ω}
-  {κ : kernel α Ω} {μ : Measure α} {f : Ω → β} {g : Ω → β'}
+  {κ : Kernel α Ω} {μ : Measure α} {f : Ω → β} {g : Ω → β'}
 
 
 /-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
@@ -34,10 +34,10 @@ lemma iIndepFun.comp (h : iIndepFun m f κ μ) (g : ∀ i, β i → γ i) (hg : 
   simp_rw [Set.preimage_comp]
   exact ha
 
--- #check kernel.iIndepFun.indepFun_finset
+-- #check Kernel.iIndepFun.indepFun_finset
 -- #check iIndepFun.indepFun_finset
 
-#check kernel.iIndepFun.comp
+#check Kernel.iIndepFun.comp
 
 -- maybe `Fintype J` is not necessary?
 /-- If `f` is a family of mutually independent random variables, `(S j)ⱼ` are pairwise disjoint
@@ -51,13 +51,13 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
   let M (j : J) := pi (m := fun (i : S j) ↦ m i)
   let πβ (j : J) := Set.pi Set.univ '' Set.pi Set.univ fun (i : S j) => { s | MeasurableSet[m i] s }
   apply iIndepSets.iIndep
-  . intro j
+  · intro j
     rw [<-measurable_iff_comap_le, measurable_pi_iff]
     intro ω
     simp [F]
     exact hf_meas ω
-  . exact fun i ↦ IsPiSystem.comap isPiSystem_pi (F i)
-  . intro j
+  · exact fun i ↦ IsPiSystem.comap isPiSystem_pi (F i)
+  · intro j
     show MeasurableSpace.comap _ (M j) = _
     have : M j = MeasurableSpace.generateFrom (πβ j) := generateFrom_pi.symm
     rewrite [this, MeasurableSpace.comap_generateFrom] ; rfl
@@ -75,14 +75,14 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
     simp
   suffices ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (j:s), ⋂ (i : S j), E' j i) = ∏ (j:s), (κ a) (⋂ (i : S j), E' j i) by
     convert this with x
-    . rw [Set.iInter_subtype]
+    · rw [Set.iInter_subtype]
       apply Set.iInter_congr
       intro j
       apply Set.iInter_congr
       intro hj
       exact Ej_eq ⟨ j, hj ⟩
     rw [Finset.prod_subtype s (p := fun j ↦ j ∈ s)]
-    . apply Finset.prod_congr rfl
+    · apply Finset.prod_congr rfl
       intro j _
       rw [Ej_eq j]
     simp only [implies_true]
@@ -95,7 +95,7 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
     ext x
     simp [E'']
     constructor
-    . intro h i _ j hj hi
+    · intro h i _ j hj hi
       exact h j hj i hi
     intro h j hj i hi
     have hit : i ∈ t := by
@@ -105,32 +105,33 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
 
   have Ej_mes : ∀ (j:s), ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (i : S j), E' j i) = ∏ i : S j, (κ a) (E' j i) := by
     intro j
-    convert kernel.iIndepFun.meas_biInter hf_Indep (S := S j) (s := fun i:ι ↦ if h:i ∈ S j then E' j ⟨ i, h ⟩ else Set.univ) ?_ with x
-    . simp [E', Set.iInter_subtype]
+    convert Kernel.iIndepFun.meas_biInter hf_Indep (S := S j) (s := fun i:ι ↦ if h:i ∈ S j then E' j ⟨ i, h ⟩ else Set.univ) ?_ with x
+    · simp [E', Set.iInter_subtype]
       apply Set.iInter_congr
       intro i
       apply Set.iInter_congr
       intro hi
       simp [hi]
-    . rw [Finset.prod_subtype (S j) (p := fun i ↦ i ∈ S j)]
+    · rw [Finset.prod_subtype (S j) (p := fun i ↦ i ∈ S j)]
       apply Finset.prod_congr rfl
       intro i _
       simp [E']
       simp only [implies_true]
-    intro i hi
-    simp [hi, E']
-    apply MeasurableSet.preimage ((h_sets j).1 i hi) _
-    exact Measurable.of_comap_le fun s a ↦ a
+    · intro i hi
+      simp [hi, E']
+      apply MeasurableSet.preimage ((h_sets j).1 i hi) _
+      apply Measurable.of_comap_le le_rfl
+
   have Einter_mes : ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (j:s), ⋂ (i : S j), E' j i) = ∏ (j:s), ∏ i : S j, (κ a) (E' j i) := by
     rw [Einter_eq]
-    convert kernel.iIndepFun.meas_biInter hf_Indep (S := t) (s := E'') ?_ with x
-    . rw [Finset.prod_disjiUnion, Finset.prod_subtype s (p := fun j ↦ j ∈ s)]
-      . simp [E'']
+    convert Kernel.iIndepFun.meas_biInter hf_Indep (S := t) (s := E'') ?_ with x
+    · rw [Finset.prod_disjiUnion, Finset.prod_subtype s (p := fun j ↦ j ∈ s)]
+      · simp only [Finset.univ_eq_attach, E'']
         apply Finset.prod_congr rfl
-        intro i hi
-        rw [<-Finset.prod_attach (S i)]
+        intro i _hi
+        rw [← Finset.prod_attach (S i)]
         apply Finset.prod_congr rfl
-        intro j hj
+        intro j _hj
         congr
         have : E' i j = ⋂ i', if i' = i then E' i j else Set.univ := by
           rw [Set.iInter_ite]
@@ -139,41 +140,39 @@ lemma iIndepFun.finsets [IsMarkovKernel κ] {J : Type*} [Fintype J]
         apply Set.iInter_congr
         intro i'
         by_cases h : i' = i
-        . simp [h, E']
-          congr
+        · simp [h, E']
           ext x
           simp
           constructor
-          . intro this
+          · intro this
             convert this
           intro this
           convert this
           exact h.symm
-        simp [h]
-        have empty : IsEmpty ((j:ι) ∈ S i') := by
-          rw [IsEmpty.prop_iff]
-          contrapose! h
-          exact SetCoe.ext (Set.PairwiseDisjoint.elim_finset (f := S) h_disjoint (by trivial) (by trivial) _ h j.property)
-        exact (Set.iInter_of_empty _).symm
-      . simp only [implies_true]
-      exact FinsetCoe.fintype s
-    intro i _
-    simp [E'', E']
-    apply MeasurableSet.iInter
-    intro j
-    apply MeasurableSet.iInter
-    intro hi
-    apply MeasurableSet.preimage ((h_sets j).1 i hi)
-    exact Measurable.of_comap_le fun s a ↦ a
-  have fin : Finite { x // x ∈ s } := Subtype.finite
-  rw [<-Filter.eventually_all] at Ej_mes
+        · simp [h]
+          have empty : IsEmpty ((j:ι) ∈ S i') := by
+            rw [IsEmpty.prop_iff]
+            contrapose! h
+            exact SetCoe.ext (Set.PairwiseDisjoint.elim_finset (f := S) h_disjoint (by trivial) (by trivial) _ h j.property)
+          exact (Set.iInter_of_empty _).symm
+      · simp only [implies_true]
+      · exact FinsetCoe.fintype s
+    · intro i _
+      simp only [E'', E']
+      apply MeasurableSet.iInter
+      intro j
+      apply MeasurableSet.iInter
+      intro hi
+      apply MeasurableSet.preimage ((h_sets j).1 i hi)
+      apply Measurable.of_comap_le le_rfl
+
+  rw [← Filter.eventually_all] at Ej_mes
   apply Filter.Eventually.mono (Filter.eventually_and.mpr ⟨ Ej_mes, Einter_mes ⟩)
   intro x ⟨ h1, h2 ⟩
   rw [h2]
   apply Finset.prod_congr rfl
   intro i _
   rw [h1 i]
-
 
 
 /-- If `f` is a family of mutually independent random variables, `(S j)ⱼ` are pairwise disjoint
@@ -186,6 +185,6 @@ lemma iIndepFun.finsets_comp [IsMarkovKernel κ] {J : Type*} [Fintype J]
     (γ : J → Type*) {mγ : ∀ j, MeasurableSpace (γ j)}
     (φ : (j : J) → ((i : S j) → β i) → γ j) (hφ : ∀ j, Measurable (φ j)) :
     iIndepFun mγ (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) κ μ :=
-  (kernel.iIndepFun.finsets S h_disjoint hf_Indep hf_meas).comp φ hφ
+  (Kernel.iIndepFun.finsets S h_disjoint hf_Indep hf_meas).comp φ hφ
 
 end iIndepFun

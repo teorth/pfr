@@ -1,5 +1,5 @@
 import PFR.ForMathlib.Entropy.RuzsaDist
-import Mathlib.Tactic.FunProp.Measurable
+-- import Mathlib.Tactic.FunProp.Measurable
 
 /-!
 # More results about Ruzsa distance
@@ -13,7 +13,7 @@ More facts about Ruzsa distance and related inequalities, for use in the m-torsi
 
 ## Main results
 
-* `kvm_ineq_I`, `kvm_ineq_II`, `kvm_ineq_III`: Variants of the Kaimonovich-Versik-Madiman inequality
+* `kvm_ineq_I`, `kvm_ineq_II`, `kvm_ineq_III`: Variants of the Kaimanovich-Versik-Madiman inequality
 * `multiDist_chainRule`: A chain rule for `multiDist`
 * `cor_multiDist_chainRule`: The corollary of the chain rule needed for the m-torsion version of PFR
 * `ent_of_sub_smul_le`: Controlling `H[X - aY]` in terms of `H[X]` and `d[X ; Y]`.
@@ -21,17 +21,18 @@ More facts about Ruzsa distance and related inequalities, for use in the m-torsi
 section dataProcessing
 
 open Function MeasureTheory Measure Real
-open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
+open scoped ENNReal NNReal Topology ProbabilityTheory
 
 namespace ProbabilityTheory
 
 universe uΩ uS uT uU uV uW
 
-variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} {V : Type uV} {W : Type uW} [mΩ : MeasurableSpace Ω]
-  [Countable S] [Countable T] [Countable U] [Countable V] [Countable W]
-  [Nonempty S] [Nonempty T] [Nonempty U] [Nonempty V] [Nonempty W]
+variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} {V : Type uV} {W : Type uW}
+  [mΩ : MeasurableSpace Ω]
+  [Countable S] [Countable T] [Countable V] [Countable W]
   [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U] [MeasurableSpace V] [MeasurableSpace W]
-  [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U] [MeasurableSingletonClass V] [MeasurableSingletonClass W]
+  [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
+  [MeasurableSingletonClass V] [MeasurableSingletonClass W]
   {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
   {μ : Measure Ω}
 
@@ -39,7 +40,7 @@ variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} {V : Type uV}
 Let `X, Y`be random variables. For any function `f, g` on the range of `X`, we have
 `I[f(X) : Y] ≤ I[X : Y]`.
 -/
-lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
+lemma mutual_comp_le [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     (hY : Measurable Y) (f : S → U) [FiniteRange X] [FiniteRange Y] :
     I[f ∘ X : Y ; μ] ≤ I[X : Y ; μ] := by
   have h_meas : Measurable (f ∘ X) := Measurable.comp (measurable_discrete f) hX
@@ -50,7 +51,7 @@ lemma mutual_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurabl
 
 /-- Let `X, Y` be random variables. For any functions `f, g` on the ranges of `X, Y` respectively,
 we have `I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ]`. -/
-lemma mutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
+lemma mutual_comp_comp_le  [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     (hY : Measurable Y) (f : S → U) (g : T → V) (hg : Measurable g)
     [FiniteRange X] [FiniteRange Y] :
     I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ] :=
@@ -74,7 +75,7 @@ lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : 
     haveI : IsProbabilityMeasure (μ[|Z ← i]) := by
       apply cond_isProbabilityMeasure_of_finite
       · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).left
-      . exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).right
+      · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).right
     apply mutual_comp_comp_le _ hX hY f g hg
   · suffices (μ (Z ⁻¹' {i})).toReal = 0 by simp only [this, zero_mul, le_refl]
     apply le_antisymm (le_of_not_lt h) ENNReal.toReal_nonneg
@@ -83,7 +84,6 @@ end ProbabilityTheory
 end dataProcessing
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
-open scoped BigOperators
 
 attribute [symm] ProbabilityTheory.IdentDistrib.symm
 
@@ -92,35 +92,19 @@ variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
   [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
-  [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
-  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G]
-  [Countable S] [Nonempty S] [MeasurableSpace S]
-  [Countable T] [Nonempty T] [MeasurableSpace T]
+  [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Countable G]
+  [Countable S] [MeasurableSpace S]
+  [Countable T] [MeasurableSpace T]
 
-variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
+variable {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G} -- [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
 
 /-`TODO`: we had to add the hp `Fintype G` to the following lemma in order to use `condIndep_copies`,
 which requires it. Actually, we already have `FiniteRange X` and `FiniteRange Y`, so it should be
-possible to remove it, or to gneralize the lemma to the case where `G` is not finite but the
+possible to remove it, or to generalize the lemma to the case where `G` is not finite but the
 random variables have finite range. One way to do it may be to write a lemma that tells us that
 given a r.v., we can construct another r.v. that is identically distributed, which is defined the
 immersion of the range of the initial r.v. inside the codomain (this would be a sort of canonical
 version)-/
-
---PRed to Mathlib, see #13125. When we bump, remove this.
-lemma ProbabilityTheory.indepFun_of_identDistrib_pair {Ω Ω' α β : Type*}
-    [MeasurableSpace Ω] [MeasurableSpace Ω'] [MeasurableSpace α] [MeasurableSpace β]
-    {μ : Measure Ω} {μ' : Measure Ω'} [IsFiniteMeasure μ] [IsFiniteMeasure μ']
-    {X : Ω → α} {X' : Ω' → α} {Y : Ω → β} {Y' : Ω' → β} (hX : AEMeasurable X μ)
-    (hX' : AEMeasurable X' μ') (hY : AEMeasurable Y μ) (hY' : AEMeasurable Y' μ')
-    (h_indep : IndepFun X Y μ)
-    (h_ident : IdentDistrib (fun ω ↦ (X ω, Y ω)) (fun ω ↦ (X' ω, Y' ω)) μ μ') :
-    IndepFun X' Y' μ' := by
-  apply (indepFun_iff_map_prod_eq_prod_map_map hX' hY').mpr
-  have iX : IdentDistrib X X' μ μ' := h_ident.comp measurable_fst
-  have iY : IdentDistrib Y Y' μ μ' := h_ident.comp measurable_snd
-  rw [← h_ident.map_eq, ← iX.map_eq, ← iY.map_eq]
-  exact indepFun_iff_map_prod_eq_prod_map_map hX hY |>.mp h_indep
 
 /--   If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
@@ -138,7 +122,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   have mY'₁ : Measurable Y'₁ := by fun_prop
   have Z'eq1 : Z' =ᵐ[ν'₀] X'₁ - Y'₁ :=
     (IdentDistrib.ae_snd h_id1sub.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
-      (eventually_of_forall fun ω ↦ rfl) :)
+      (Eventually.of_forall fun ω ↦ rfl) :)
   obtain ⟨ν₀, XY₁XY₂Z, XY₃, hν₀, hXY₁XY₂Z, hXY₃, h_indep, h_idXY₁XY₂Z, h_idXY₃⟩ :=
     independent_copies (hXY'₁.prod_mk hXY'₂ |>.prod_mk hZ') (mX'.prod_mk mY') ν'₀ ν
   let X₁ := fun ω ↦ (XY₁XY₂Z ω).fst.fst.fst
@@ -148,13 +132,13 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   let Z := fun ω ↦ (XY₁XY₂Z ω).snd
   let X₃ := fun ω ↦ (XY₃ ω).fst
   let Y₃ := fun ω ↦ (XY₃ ω).snd
-  have mX₁ : Measurable X₁ := (by fun_prop)
-  have mY₁ : Measurable Y₁ := (by fun_prop)
-  have mX₂ : Measurable X₂ := (by fun_prop)
-  have mY₂ : Measurable Y₂ := (by fun_prop)
-  have mX₃ : Measurable X₃ := (by fun_prop)
-  have mY₃ : Measurable Y₃ := (by fun_prop)
-  have mZ : Measurable Z := (by fun_prop)
+  have mX₁ : Measurable X₁ := by fun_prop
+  have mY₁ : Measurable Y₁ := by fun_prop
+  have mX₂ : Measurable X₂ := by fun_prop
+  have mY₂ : Measurable Y₂ := by fun_prop
+  have mX₃ : Measurable X₃ := by fun_prop
+  have mY₃ : Measurable Y₃ := by fun_prop
+  have mZ : Measurable Z := by fun_prop
   have idXY₁Z : IdentDistrib (⟨⟨X₁, Y₁⟩, Z⟩) (⟨⟨X', Y'⟩, X' - Y'⟩) ν₀ ν :=
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ (x.1.1, x.2)) |>.trans h_id1sub
   have idXY₂Z : IdentDistrib (⟨⟨X₂, Y₂⟩, Z⟩) (⟨⟨X', Y'⟩, X' - Y'⟩) ν₀ ν :=
@@ -180,24 +164,18 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
     h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ (x.1.2, x.2))
   have idZZ' : IdentDistrib Z Z' ν₀ ν'₀ := h_idXY₁XY₂Z.comp (measurable_discrete fun x ↦ x.2)
   have Zeq1 : Z =ᵐ[ν₀] X₁ - Y₁ := (IdentDistrib.ae_snd idXY₁Z.symm
-      (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2}) (eventually_of_forall fun ω ↦ rfl) :)
+      (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2}) (Eventually.of_forall fun ω ↦ rfl) :)
   have Zeq2 : Z =ᵐ[ν₀] X₂ - Y₂ :=
     (IdentDistrib.ae_snd idXY₂Z.symm (measurableSet_discrete {x | x.2 = x.1.1 - x.1.2})
-      (eventually_of_forall fun ω ↦ rfl) :)
+      (Eventually.of_forall fun ω ↦ rfl) :)
   have iX₁Y₃ : IndepFun X₁ Y₃ ν₀ := by
     convert h_indep.comp (measurable_discrete fun x ↦ x.1.1.1) (measurable_discrete fun x ↦ x.2)
   have iX₃Y₂ : IndepFun X₃ Y₂ ν₀ := by
     convert h_indep.symm.comp (measurable_discrete fun x ↦ x.1)
       (measurable_discrete fun x ↦ x.1.2.2)
-  have iX₁Y₁ : IndepFun X₁ Y₁ ν₀ :=
-    indepFun_of_identDistrib_pair mX'.aemeasurable mX₁.aemeasurable mY'.aemeasurable
-      mY₁.aemeasurable h_indep' idXY₁.symm
-  have iX₂Y₂ : IndepFun X₂ Y₂ ν₀ :=
-    indepFun_of_identDistrib_pair mX'.aemeasurable mX₂.aemeasurable mY'.aemeasurable
-      mY₂.aemeasurable h_indep' idXY₂.symm
-  have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ :=
-    indepFun_of_identDistrib_pair mX'.aemeasurable mX₃.aemeasurable mY'.aemeasurable
-      mY₃.aemeasurable h_indep' idXY₃.symm
+  have iX₁Y₁ : IndepFun X₁ Y₁ ν₀ := indepFun_of_identDistrib_pair h_indep' idXY₁.symm
+  have iX₂Y₂ : IndepFun X₂ Y₂ ν₀ := indepFun_of_identDistrib_pair h_indep' idXY₂.symm
+  have iX₃Y₃ : IndepFun X₃ Y₃ ν₀ := indepFun_of_identDistrib_pair h_indep' idXY₃.symm
   have iX₃negY₃ : IndepFun X₃ (-Y₃) ν₀ := iX₃Y₃.comp measurable_id measurable_neg
   have i112233 : IndepFun (⟨⟨X₁, Y₁⟩, ⟨X₂, Y₂⟩⟩) (⟨X₃, Y₃⟩) ν₀ :=
     h_indep.comp (measurable_discrete fun (xy, _) ↦ xy) measurable_id
@@ -240,7 +218,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   have eq4 : X₃ + Y₃ =ᵐ[ν₀] (X₃ - Y₂) - (X₁ - Y₃) + X₂ + Y₁ := by
     filter_upwards [eq4'] with ω h
     simp only [Pi.add_apply, sub_eq_add_neg, neg_add_rev, neg_neg, add_assoc, Pi.neg_apply, h,
-      add_left_neg, add_zero, neg_add_cancel_comm_assoc]
+      neg_add_cancel, add_zero, neg_add_cancel_comm_assoc]
   have eq5 : H[⟨⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩, X₃ + Y₃⟩ ; ν₀]
       = H[⟨X₃ - Y₂, ⟨X₁ - Y₃, ⟨X₂, Y₁⟩⟩⟩ ; ν₀] :=
     calc
@@ -373,7 +351,6 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       simp only [eq3]
       ring
 
---open Classical in
 /--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.
@@ -460,7 +437,7 @@ lemma kvm_ineq_II [IsProbabilityMeasure μ] {I : Type*} {i₀ : I} {s : Finset I
     max_entropy_le_entropy_sum hj hY hindep
   have ineq6 : (s.card : ℝ)⁻¹ * ∑ i ∈ s, (H[Y i; μ] - H[Y i₀; μ]) ≤ H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ] := by
     rw [inv_mul_le_iff (by exact_mod_cast Finset.card_pos.mpr hs'), ← smul_eq_mul,
-      ← nsmul_eq_smul_cast, ← Finset.sum_const]
+      Nat.cast_smul_eq_nsmul, ← Finset.sum_const]
     refine Finset.sum_le_sum fun i hi ↦ ?_
     gcongr
     exact ineq5 i hi
@@ -555,7 +532,7 @@ lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Fins
 
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
 and let `a` be an integer. Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
-lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X']
+lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange X] [FiniteRange Y] [FiniteRange X']
     [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X')
     (hindep : iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident : IdentDistrib X X' μ μ) {a : ℤ} :
     H[X - (a+1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
@@ -581,7 +558,7 @@ lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRang
 
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
 and let `a` be an integer. Then `H[X - (a-1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
-lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRange X']
+lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange X] [FiniteRange Y] [FiniteRange X']
     [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hX': Measurable X')
     (hindep : iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident : IdentDistrib X X' μ μ) {a : ℤ} :
     H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
@@ -597,11 +574,11 @@ lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange Y] [FiniteRan
     simp_rw [neg_sub, ← sub_sub, sub_eq_add_neg, add_assoc]
     refine hident.symm.add ?_ ?_ ?_
     rotate_left
-    . rw [← neg_add]
+    · rw [← neg_add]
       apply IndepFun.comp _ measurable_id measurable_neg
       refine hindep.indepFun_add_right (fun i ↦ (by fin_cases i <;> assumption))
         2 0 1 (by simp) (by simp)
-    . rw [← neg_add]
+    · rw [← neg_add]
       apply IndepFun.comp _ measurable_id measurable_neg
       refine hindep.indepFun_add_right (fun i ↦ (by fin_cases i <;> assumption))
         0 1 2 (by simp) (by simp)
@@ -733,11 +710,8 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
 section multiDistance
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
-open scoped BigOperators
 
-variable {G : Type*}
-  [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
-  [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G]
+variable {G : Type*} [hG : MeasurableSpace G]  [AddCommGroup G]
 
 /--  Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `X_i`.
 Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'` are independent copies
@@ -757,6 +731,8 @@ lemma multiDist_copy {m : ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*}
     D[X ; hΩ] = D[X' ; hΩ'] := by
   simp_rw [multiDist, IdentDistrib.entropy_eq (hident _), (hident _).map_eq]
 
+variable [MeasurableSingletonClass G] [Countable G]
+
 /-- If `X_i` are independent, then `D[X_{[m]}] = H[∑_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m H[X_i]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
     (hindep : iIndepFun (fun _ ↦ hG) X ) :
@@ -767,12 +743,13 @@ lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → M
     (X : (i : Fin m) → (Ω i) → G) : D[X ; hΩ] ≥ 0 := by sorry
 
 /-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
-lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume)
+lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
+    (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume)
     (X : (i : Fin m) → (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
     D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)] = D[X ; hΩ] := by
       simp [multiDist]
       congr 1
-      . apply IdentDistrib.entropy_eq
+      · apply IdentDistrib.entropy_eq
         exact {
           aemeasurable_fst := by
             apply Measurable.aemeasurable
@@ -797,14 +774,14 @@ lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → M
               ext x
               rw [comp_apply]
               convert Finset.sum_bijective φ.symm (Equiv.bijective φ.symm) ?_ ?_
-              . simp only [Finset.mem_univ, implies_true]
+              · simp only [Finset.mem_univ, implies_true]
               intro i _
               rw [perm_apply i x]
             calc
               _ = Measure.map (sum ∘ perm) (Measure.pi fun i ↦ Measure.map (X (φ i)) ℙ) := by rw [invar]
               _ = Measure.map sum (Measure.map perm (Measure.pi fun i ↦ Measure.map (X (φ i)) ℙ)) := by
                 rw [Measure.map_map]
-                . apply Finset.measurable_sum
+                · apply Finset.measurable_sum
                   intro i _
                   exact measurable_pi_apply i
                 apply measurable_pi_lambda
@@ -820,7 +797,7 @@ lemma multiDist_of_perm {m :ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → M
         }
       congr 1
       convert Finset.sum_bijective φ (Equiv.bijective φ) ?_ ?_
-      . simp only [Finset.mem_univ, implies_true]
+      · simp only [Finset.mem_univ, implies_true]
       simp only [Finset.mem_univ, imp_self, implies_true]
 
 
@@ -898,11 +875,11 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
           rw [<-Finset.mul_sum, <-mul_assoc, mul_comm _ (f y), mul_assoc, <-mul_sub, inv_mul_eq_div]
         _ = _ := by
           congr
-          . rw [condEntropy_eq_sum_fintype]
-            . apply Finset.sum_congr rfl
+          · rw [condEntropy_eq_sum_fintype]
+            · apply Finset.sum_congr rfl
               intro y _
               congr
-              . calc
+              · calc
                   _ = (∏ i, (ℙ (E i (y i)))).toReal := Eq.symm ENNReal.toReal_prod
                   _ = (ℙ (⋂ i, (E i (y i)))).toReal := by
                     congr
@@ -915,7 +892,7 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
                     ext x
                     simp [E]
                     exact Iff.symm funext_iff
-              . exact Finset.sum_fn Finset.univ fun c ↦ X c
+              · exact Finset.sum_fn Finset.univ fun c ↦ X c
               ext x
               simp [E']
               exact Iff.symm funext_iff
@@ -944,12 +921,12 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
                   apply Finset.prod_congr rfl
                   intro i' _
                   by_cases h : i' = i
-                  . simp [h, E]
+                  · simp [h, E]
                     rw [condEntropy_eq_sum_fintype]
                     exact hY i
-                  simp [h, E]
-                  apply (sum_measure_preimage_singleton' _ _).symm
-                  exact hY i'
+                  · simp [h, E]
+                    apply (sum_measure_preimage_singleton' _ _).symm
+                    exact hY i'
 
 end multiDistance
 

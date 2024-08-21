@@ -22,7 +22,7 @@ few values.
 
 open Pointwise
 
-variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
+variable {G G' : Type*} [AddCommGroup G] [AddCommGroup G']
   [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2]
 
 /-- Let $H_0$ be a subgroup of $G$.  Then every homomorphism $\phi: H_0 \to G'$ can be extended to a
@@ -57,6 +57,8 @@ lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : Ad
         · let x₁ : S₁ := { val := x.1, property := hx.1 }
           let x₂ : S₂ := { val := x.2 - φ x.1, property := hx.2 }
           exact Set.mem_of_eq_of_mem (by rw [hf_inv, sub_add_cancel]) (f.symm (x₁, x₂)).property
+
+variable [Fintype G] [Fintype G']
 
 open Set Fintype
 

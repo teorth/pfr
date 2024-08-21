@@ -136,7 +136,7 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
     condMutualInfo_comm hmf hmij,
     ← condMutualInfo_of_inj_map hmij hmf hm0123 (fun z x ↦ (x + z, x)),
     condMutualInfo_comm hmg hmf]
-  . congr 1
+  · congr 1
     { ext ω
       { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] }
       { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] } }
@@ -144,7 +144,7 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
       ext ω
       { simp only [comp_apply, Pi.sub_apply, add_sub_cancel] }
       { simp only [comp_apply, Pi.sub_apply, sub_sub_cancel] } }
-  . exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).2
+  · exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).2
   exact fun _ _ _ h ↦ (Prod.ext_iff.1 h).1
 
 
