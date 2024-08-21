@@ -872,7 +872,11 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
       have hident : ∀ (y : Fin m → S) (i:Fin m), IdentDistrib (X i) (X i) (cond ℙ (E i (y i))) (cond ℙ (E' y)):= by
         intro y i
         sorry
-      have hindep' : ∀ (y : Fin m → S), iIndepFun (fun _ ↦ hG) X (cond ℙ (E' y)) := by sorry
+      have hindep' : ∀ (y : Fin m → S), iIndepFun (fun _ ↦ hG) X (cond ℙ (E' y)) := by
+        intro y
+        rw [iIndepFun_iff]
+        intro s f' hf'
+        sorry
       calc
         _ = ∑ y, (f y) * D[X; fun i ↦ ⟨ cond ℙ (E i (y i)) ⟩] := by rfl
         _ = ∑ y, (f y) * D[X; fun i ↦ ⟨ cond ℙ (E' y) ⟩] := by
