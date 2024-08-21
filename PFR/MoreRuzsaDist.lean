@@ -865,7 +865,46 @@ def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → Measur
 /-- If  `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then `D[X_[m] | Y_[m]] := H[∑ i, X_i | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[X_i | Y_i]`
 -/
 lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
-    (X : (i : Fin m) → Ω → G) (Y : (i : Fin m) → Ω → S) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ): D[ X | Y ; fun _ ↦ hΩ] =  H[ fun ω ↦ ∑ i, X i ω | fun ω ↦ (fun i ↦ Y i ω)] - (m:ℝ)⁻¹ * ∑ i, H[X i | Y i] := by sorry
+    (X : (i : Fin m) → Ω → G) (Y : (i : Fin m) → Ω → S) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ): D[ X | Y ; fun _ ↦ hΩ] =  H[ fun ω ↦ ∑ i, X i ω | fun ω ↦ (fun i ↦ Y i ω)] - (m:ℝ)⁻¹ * ∑ i, H[X i | Y i] := by
+      let E := fun (i:Fin m) (yi:S) ↦ (Y i)⁻¹' {yi}
+      let E' := fun (y : Fin m → S) ↦ ⋂ i, E i (y i)
+      let f := fun (y : Fin m → S) ↦ ∏ i, (ℙ (E i (y i))).toReal
+      have hident : ∀ (y : Fin m → S) (i:Fin m), IdentDistrib (X i) (X i) (cond ℙ (E i (y i))) (cond ℙ (E' y)):= by
+        intro y i
+        sorry
+      have hindep' : ∀ (y : Fin m → S), iIndepFun (fun _ ↦ hG) X (cond ℙ (E' y)) := by sorry
+      calc
+        _ = ∑ y, (f y) * D[X; fun i ↦ ⟨ cond ℙ (E i (y i)) ⟩] := by rfl
+        _ = ∑ y, (f y) * D[X; fun i ↦ ⟨ cond ℙ (E' y) ⟩] := by
+          apply Finset.sum_congr rfl
+          intro y _
+          congr 1
+          apply multiDist_copy
+          exact hident y
+        _ = ∑ y, (f y) * (H[∑ i, X i; cond ℙ (E' y) ] - (∑ i, H[X i; cond ℙ (E' y) ]) / m) := by
+          apply Finset.sum_congr rfl
+          intro y _
+          congr 1
+          apply multiDist_indep
+          exact hindep' y
+        _ = ∑ y, (f y) * H[∑ i, X i; cond ℙ (E' y) ] - (m:ℝ)⁻¹ * ∑ i, ∑ y, (f y) * H[X i; cond ℙ (E' y) ] := by
+          rw [Finset.sum_comm, Finset.mul_sum, <-Finset.sum_sub_distrib]
+          apply Finset.sum_congr rfl
+          intro y _
+          rw [<-Finset.mul_sum, <-mul_assoc, mul_comm _ (f y), mul_assoc, <-mul_sub, inv_mul_eq_div]
+        _ = _ := by
+          congr
+          . sorry
+          ext i
+          calc
+            _ = ∑ y, f y * H[X i; cond ℙ (E i (y i))] := by
+              apply Finset.sum_congr rfl
+              intro y _
+              congr 1
+              apply IdentDistrib.entropy_eq
+              exact (hident y i).symm
+            _ = _ := by
+              sorry
 
 end multiDistance
 
