@@ -835,7 +835,7 @@ where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`.
 -/
 noncomputable
 def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*} [Fintype S]
-    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : ℝ := ∑ ω : (i : Fin m) → S, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ ProbabilityTheory.cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩]
+    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : ℝ := ∑ ω : (i : Fin m) → S, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩]
 
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
@@ -858,10 +858,17 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
       let E := fun (i:Fin m) (yi:S) ↦ (Y i)⁻¹' {yi}
       let E' := fun (y : Fin m → S) ↦ ⋂ i, E i (y i)
       let f := fun (y : Fin m → S) ↦ ∏ i, (ℙ (E i (y i))).toReal
-      have Emes : ∀ y : Fin m → S, ∀ i, @MeasurableSet Ω (MeasurableSpace.comap (fun ω ↦ ⟨ X i ω, Y i ω ⟩) (hG.prod hS)) (E i (y i)) := by
+      have Emes : ∀ y : Fin m → S, ∀ i, @MeasurableSet Ω ((hG.prod hS).comap (fun ω ↦ ⟨ X i ω, Y i ω ⟩)) (E i (y i)) := by
         intro y i
         convert MeasurableSet.preimage (t := { p : G × S | p.2 = y i}) _ (comap_measurable _)
         exact DiscreteMeasurableSpace.forall_measurableSet {p : G × S | p.2 = y i}
+
+      have hnon: ∀ y : Fin m → S, (f y ≠ 0) → ∀ i, ℙ (E i (y i)) ≠ 0 := by
+        intro y hf
+        contrapose! hf
+        obtain ⟨i, hi⟩ := hf
+        apply Finset.prod_eq_zero (Finset.mem_univ i) _
+        simp only [hi, ENNReal.zero_toReal]
 
       have h : ∀ (y : Fin m → S) (s' s : Finset (Fin m)) (f' : _ → Set Ω)
           (hf' : ∀ i ∈ s, MeasurableSet[hG.comap (X i)] (f' i))
@@ -870,8 +877,8 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
         intro y s' s f' hf' hy hs'
         let g := fun (i': Fin m) ↦ if i' ∈ s' then (E i' (y i') ∩ f' i') else (E i' (y i'))
 
-        have hfmes : ∀ i ∈ s, @MeasurableSet Ω (MeasurableSpace.comap (fun ω ↦ ⟨ X i ω, Y i ω ⟩)
-            (hG.prod hS)) (f' i) := by
+        have hfmes : ∀ i ∈ s, @MeasurableSet Ω ((hG.prod hS).comap (fun ω ↦ ⟨ X i ω, Y i ω ⟩)
+            ) (f' i) := by
           intro i hi
           have := hf' i hi
           change ∃ A : Set G, MeasurableSet A ∧ (X i)⁻¹' A = f' i at this
@@ -965,18 +972,15 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
         intro y hy
         rw [iIndepFun_iff]
         intro s f' hf'
-        have h' : ∀ s' : Finset (Fin m), s' ⊆ s → ℙ[|E' y] (⋂ i ∈ s', f' i) = ∏ i ∈ s', ℙ[|E i (y i)] (f' i) := by
-          intro s'
-          exact h y s' s f' hf' hy
         have h1 : ∀ i : s, ℙ[|E' y] (f' i) = ℙ[|E i (y i)] (f' i) := by
           intro i
           let s' : Finset (Fin m) := {i.val}
           have hs' : s' ⊆ s := by
             simp only [Finset.singleton_subset_iff, Finset.coe_mem, s']
-          replace h' := h' s' hs'
-          simp [s'] at h'
-          exact h'
-        rw [h' s (fun ⦃a⦄ a ↦ a)]
+          replace h := h y s' s f' hf' hy hs'
+          simp [s'] at h
+          exact h
+        rw [h y s s f' hf' hy (fun ⦃a⦄ a ↦ a)]
         apply Finset.prod_congr rfl
         intro i hi
         exact (h1 ⟨ i, hi ⟩).symm
@@ -989,26 +993,16 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
           . simp [hf]
           congr 1
           apply multiDist_copy
-          have hf': ∀ i, ℙ (E i (y i)) ≠ 0 := by
-            contrapose! hf
-            obtain ⟨i, hi⟩ := hf
-            apply Finset.prod_eq_zero (Finset.mem_univ i) _
-            simp only [hi, ENNReal.zero_toReal]
           intro i
-          exact hident y i hf'
+          exact hident y i (hnon y hf)
         _ = ∑ y, (f y) * (H[∑ i, X i; cond ℙ (E' y) ] - (∑ i, H[X i; cond ℙ (E' y) ]) / m) := by
           apply Finset.sum_congr rfl
           intro y _
           by_cases hf: f y = 0
           . simp [hf]
           congr 1
-          have hf': ∀ i, ℙ (E i (y i)) ≠ 0 := by
-            contrapose! hf
-            obtain ⟨i, hi⟩ := hf
-            apply Finset.prod_eq_zero (Finset.mem_univ i) _
-            simp only [hi, ENNReal.zero_toReal]
           apply multiDist_indep
-          exact hindep' y hf'
+          exact hindep' y (hnon y hf)
         _ = ∑ y, (f y) * H[∑ i, X i; cond ℙ (E' y) ] - (m:ℝ)⁻¹ * ∑ i, ∑ y, (f y) * H[X i; cond ℙ (E' y) ] := by
           rw [Finset.sum_comm, Finset.mul_sum, <-Finset.sum_sub_distrib]
           apply Finset.sum_congr rfl
@@ -1045,13 +1039,8 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
               by_cases hf: f y = 0
               . simp [hf]
               congr 1
-              have hf': ∀ i, ℙ (E i (y i)) ≠ 0 := by
-                contrapose! hf
-                obtain ⟨i, hi⟩ := hf
-                apply Finset.prod_eq_zero (Finset.mem_univ i) _
-                simp only [hi, ENNReal.zero_toReal]
               apply IdentDistrib.entropy_eq
-              exact (hident y i hf').symm
+              exact (hident y i (hnon y hf)).symm
             _ =  ∑ y ∈ Fintype.piFinset (fun _ ↦ Finset.univ), ∏ i', (ℙ (E i' (y i'))).toReal * (if i'=i then H[X i; cond ℙ (E i (y i'))] else 1) := by
               simp only [Fintype.piFinset_univ]
               apply Finset.sum_congr rfl
