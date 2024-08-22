@@ -839,14 +839,6 @@ def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → Measur
 
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
-lemma ENNReal.cross {a b c d:ENNReal} (ha: a ≠ 0) (ha': a ≠ ⊤) (hc: c ≠ 0) (hc': c ≠ ⊤) (h: a*b=c*d) : c⁻¹ * b = a⁻¹ * d := calc
-  _ = c⁻¹ * 1 * b := by ring
-  _ = c⁻¹ * (a⁻¹ * a) * b := by rw [ENNReal.inv_mul_cancel ha ha']
-  _ = a⁻¹ * c⁻¹ * (a * b) := by ring
-  _ = a⁻¹ * c⁻¹ * (c * d) := by rw [h]
-  _ = a⁻¹ * d * (c⁻¹ * c) := by ring
-  _ = _ := by rw [ENNReal.inv_mul_cancel hc hc', mul_one]
-
 lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β] (f:α → β) (c: β) (i₀:α) : (∏ i, f i) * c = ∏ i, (if i=i₀ then f i * c else f i) := calc
   _ = (∏ i, f i) * (∏ i, if i = i₀ then c else 1) := by
     congr
@@ -873,7 +865,7 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
 
       have h : ∀ (y : Fin m → S) (s' s : Finset (Fin m)) (f' : _ → Set Ω)
           (hf' : ∀ i ∈ s, MeasurableSet[hG.comap (X i)] (f' i))
-          (hy : ∀ (i : Fin m), ℙ (E i (y i)) ≠ 0), s' ⊆ s →
+          (_ : ∀ (i : Fin m), ℙ (E i (y i)) ≠ 0), s' ⊆ s →
             ℙ[|E' y] (⋂ i ∈ s', f' i) = ∏ i ∈ s', ℙ[|E i (y i)] (f' i) := by
         intro y s' s f' hf' hy hs'
         let g := fun (i': Fin m) ↦ if i' ∈ s' then (E i' (y i') ∩ f' i') else (E i' (y i'))
