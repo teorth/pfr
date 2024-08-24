@@ -944,8 +944,7 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
             simp only [h, ↓reduceIte, g]
             rw [ENNReal.inv_mul_cancel (hy i) (measure_ne_top ℙ _)]
           _ = _ := by
-            rw [Finset.prod_ite]
-            simp only [Finset.filter_univ_mem, Finset.prod_const_one, mul_one]
+            simp only [Finset.prod_ite, Finset.filter_univ_mem, Finset.prod_const_one, mul_one]
 
       have hident (y : Fin m → S) (i : Fin m) (hy: ∀ i, ℙ (E i (y i)) ≠ 0) :
           IdentDistrib (X i) (X i) (cond ℙ (E i (y i))) (cond ℙ (E' y)) :=
@@ -1059,13 +1058,49 @@ independent `G`-valued random variables. Then `D[X_[m]]` is equal to
 where `π(X_[m]) := (π(X_1), ..., π(X_m))`.
 -/
 lemma multiDist_chainRule (G H : Type*) [hG : MeasurableSpace G] [MeasurableSingletonClass G]
-    [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] [hH : MeasurableSpace H]
+    [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G] [hH : MeasurableSpace H]
     [MeasurableSingletonClass H] [AddCommGroup H] [MeasurableSub₂ H] [MeasurableAdd₂ H]
-    [Fintype H] (π: G →+ H) {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
+    [Fintype H] (π: G →+ H) {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure hΩ.volume] (X : Fin m → Ω → G) (hmes: ∀ i, Measurable (X i))
     (hindep : iIndepFun (fun _ ↦ hG) X ) :
     D[X; fun _ ↦ hΩ] = D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩ]
       + D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩ]
-      + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i)] := by sorry
+      + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i)] := by
+      set S := ∑ i, X i
+      set piX := fun ω ↦ (fun i ↦ π (X i ω))
+      set avg_HX := (m:ℝ)⁻¹ * ∑ i, H[X i]
+      set avg_HpiX := (m:ℝ)⁻¹ * ∑ i, H[π ∘ (X i)]
+      set avg_HXpiX := (m:ℝ)⁻¹ * ∑ i, H[X i | π ∘ (X i)]
+
+      have eq1 : I[ S : piX | π ∘ S] = H[S] + H[piX] - H[ ⟨ S, piX ⟩ ] - H[π ∘ S] := by
+        sorry
+
+      have eq2 : H[⟨ S, piX ⟩] = H[S | piX ] + H[piX] := by
+        rw [add_comm]
+        apply chain_rule
+        . apply Finset.measurable_sum'
+          intro i _
+          exact hmes i
+        rw [measurable_pi_iff]
+        intro i
+        exact Measurable.comp (measurable_discrete _) (hmes i)
+
+      have eq3 : D[X; fun _ ↦ hΩ] = H[S] - avg_HX := by
+        sorry
+
+      have eq4 : D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩ] = H[S | piX ] - avg_HXpiX := by
+        sorry
+
+      have eq5: D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩ] = H[π ∘ S] - avg_HpiX := by
+        sorry
+
+      have eq6: avg_HX = avg_HpiX + avg_HXpiX := by
+        dsimp [avg_HX, avg_HpiX, avg_HXpiX]
+        rw [<-left_distrib, <-Finset.sum_add_distrib]
+        congr with i
+        rw [condEntropy_comp_self (hmes i) (measurable_discrete _)]
+        abel
+
+      linarith only [eq1, eq2, eq3, eq4, eq5, eq6]
 
 /-- Let `π : G → H` be a homomorphism of abelian groups. Let `I` be a finite index set and let
 `X_[m]` be a tuple of `G`-valued random variables. Let `Y_[m]` be another tuple of random variables
