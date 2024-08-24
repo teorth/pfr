@@ -1071,18 +1071,36 @@ lemma multiDist_chainRule (G H : Type*) [hG : MeasurableSpace G] [MeasurableSing
       set avg_HpiX := (∑ i, H[π ∘ (X i)])/m
       set avg_HXpiX := (∑ i, H[X i | π ∘ (X i)])/m
 
-      have eq1 : I[ S : piX | π ∘ S] = H[S] + H[piX] - H[ ⟨ S, piX ⟩ ] - H[π ∘ S] := by
-        sorry
+      have hSmes : Measurable S := by
+        apply Finset.measurable_sum'
+        intro i _
+        exact hmes i
 
-      have eq2 : H[⟨ S, piX ⟩] = H[S | piX ] + H[piX] := by
-        rw [add_comm]
-        apply chain_rule
-        . apply Finset.measurable_sum'
-          intro i _
-          exact hmes i
+      have hpiXmes : Measurable piX := by
         rw [measurable_pi_iff]
         intro i
         exact Measurable.comp (measurable_discrete _) (hmes i)
+
+      have eq1 : I[ S : piX | π ∘ S] = H[S] + H[piX] - H[ ⟨ S, piX ⟩ ] - H[π ∘ S] := by
+        rw [condMutualInfo_eq hSmes hpiXmes (Measurable.comp (measurable_discrete _) hSmes)]
+        have eq1a : H[S | ⇑π ∘ S] = H[S] - H[⇑π ∘ S] := condEntropy_comp_self hSmes (measurable_discrete _)
+        have eq1b : H[piX | ⇑π ∘ S] = H[piX] - H[⇑π ∘ S] := by
+          set g := fun (y : Fin m → H) ↦ ∑ i, y i
+          have : ⇑π ∘ S = g ∘ piX := by
+            ext x
+            simp only [comp_apply, Finset.sum_apply, _root_.map_sum, S, g, piX]
+          rw [this]
+          exact condEntropy_comp_self hpiXmes (measurable_discrete _)
+        have eq1c : H[⟨ S, piX⟩ | ⇑π ∘ S] = H[⟨ S, piX⟩] - H[⇑π ∘ S] := by
+          set g := fun (x : G × (Fin m → H)) ↦ ⇑π x.1
+          have : ⇑π ∘ S = g ∘ ⟨ S, piX⟩  := by
+            ext x
+            simp only [comp_apply, Finset.sum_apply, _root_.map_sum, S, g, piX]
+          rw [this]
+          apply condEntropy_comp_self (Measurable.prod_mk hSmes hpiXmes) (measurable_discrete _)
+        linarith only [eq1a, eq1b, eq1c]
+
+      have eq2 : H[⟨ S, piX ⟩] = H[piX] + H[S | piX ]  :=  chain_rule _ hSmes hpiXmes
 
       have eq3 : D[X; fun _ ↦ hΩ] = H[S] - avg_HX :=  multiDist_indep _ _ hindep
 
