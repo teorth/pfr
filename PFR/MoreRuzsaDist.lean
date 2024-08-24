@@ -854,7 +854,7 @@ lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β
 /-- If  `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then `D[X_[m] | Y_[m]] := H[∑ i, X_i | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[X_i | Y_i]`
 -/
 lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: IsProbabilityMeasure hΩ.volume) {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
-    (X : (i : Fin m) → Ω → G) (hX : (i:Fin m) →  Measurable (X i)) (Y : (i : Fin m) → Ω → S) (hY : (i:Fin m) →  Measurable (Y i)) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ): D[ X | Y ; fun _ ↦ hΩ] =  H[ fun ω ↦ ∑ i, X i ω | fun ω ↦ (fun i ↦ Y i ω)] - (m:ℝ)⁻¹ * ∑ i, H[X i | Y i] := by
+    (X : (i : Fin m) → Ω → G) (hX : (i:Fin m) →  Measurable (X i)) (Y : (i : Fin m) → Ω → S) (hY : (i:Fin m) →  Measurable (Y i)) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ): D[ X | Y ; fun _ ↦ hΩ] =  H[ fun ω ↦ ∑ i, X i ω | fun ω ↦ (fun i ↦ Y i ω)] - (∑ i, H[X i | Y i])/m := by
       let E := fun (i:Fin m) (yi:S) ↦ (Y i)⁻¹' {yi}
       let E' := fun (y : Fin m → S) ↦ ⋂ i, E i (y i)
       let f := fun (y : Fin m → S) ↦ ∏ i, (ℙ (E i (y i))).toReal
@@ -991,11 +991,11 @@ lemma condMultiDist_eq {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (hprob: Is
           congr 1
           rw [multiDist_copy (fun i ↦ ⟨ cond ℙ (E i (y i)) ⟩) (fun _ ↦ ⟨ cond ℙ (E' y) ⟩) X X (fun i ↦ hident y i (hnon y hf))]
           exact multiDist_indep _ _ (hindep' y (hnon y hf))
-        _ = ∑ y, (f y) * H[∑ i, X i; cond ℙ (E' y) ] - (m:ℝ)⁻¹ * ∑ i, ∑ y, (f y) * H[X i; cond ℙ (E' y) ] := by
-          rw [Finset.sum_comm, Finset.mul_sum, <-Finset.sum_sub_distrib]
+        _ = ∑ y, (f y) * H[∑ i, X i; cond ℙ (E' y) ] - (∑ i, ∑ y, (f y) * H[X i; cond ℙ (E' y) ])/m := by
+          rw [Finset.sum_comm, Finset.sum_div, <-Finset.sum_sub_distrib]
           apply Finset.sum_congr rfl
           intro y _
-          rw [← Finset.mul_sum, <-mul_assoc, mul_comm _ (f y), mul_assoc, ← mul_sub, inv_mul_eq_div]
+          rw [← Finset.mul_sum, mul_div_assoc, ← mul_sub]
         _ = _ := by
           congr
           · rw [condEntropy_eq_sum_fintype]
@@ -1060,16 +1060,16 @@ where `π(X_[m]) := (π(X_1), ..., π(X_m))`.
 lemma multiDist_chainRule (G H : Type*) [hG : MeasurableSpace G] [MeasurableSingletonClass G]
     [AddCommGroup G] [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G] [hH : MeasurableSpace H]
     [MeasurableSingletonClass H] [AddCommGroup H] [MeasurableSub₂ H] [MeasurableAdd₂ H]
-    [Fintype H] (π: G →+ H) {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure hΩ.volume] (X : Fin m → Ω → G) (hmes: ∀ i, Measurable (X i))
+    [Fintype H] (π: G →+ H) {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) [hprob: IsProbabilityMeasure hΩ.volume] (X : Fin m → Ω → G) (hmes: ∀ i, Measurable (X i))
     (hindep : iIndepFun (fun _ ↦ hG) X ) :
     D[X; fun _ ↦ hΩ] = D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩ]
       + D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩ]
       + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i)] := by
       set S := ∑ i, X i
       set piX := fun ω ↦ (fun i ↦ π (X i ω))
-      set avg_HX := (m:ℝ)⁻¹ * ∑ i, H[X i]
-      set avg_HpiX := (m:ℝ)⁻¹ * ∑ i, H[π ∘ (X i)]
-      set avg_HXpiX := (m:ℝ)⁻¹ * ∑ i, H[X i | π ∘ (X i)]
+      set avg_HX := (∑ i, H[X i]) / m
+      set avg_HpiX := (∑ i, H[π ∘ (X i)])/m
+      set avg_HXpiX := (∑ i, H[X i | π ∘ (X i)])/m
 
       have eq1 : I[ S : piX | π ∘ S] = H[S] + H[piX] - H[ ⟨ S, piX ⟩ ] - H[π ∘ S] := by
         sorry
@@ -1084,18 +1084,29 @@ lemma multiDist_chainRule (G H : Type*) [hG : MeasurableSpace G] [MeasurableSing
         intro i
         exact Measurable.comp (measurable_discrete _) (hmes i)
 
-      have eq3 : D[X; fun _ ↦ hΩ] = H[S] - avg_HX := by
-        sorry
+      have eq3 : D[X; fun _ ↦ hΩ] = H[S] - avg_HX :=  multiDist_indep _ _ hindep
 
       have eq4 : D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩ] = H[S | piX ] - avg_HXpiX := by
-        sorry
+        dsimp [S, piX]
+        convert condMultiDist_eq (S := H) _ hprob _ hmes _ _ _
+        . exact Fintype.sum_apply _ _
+        . intro i
+          exact Measurable.comp (measurable_discrete _) (hmes i)
+        set g : G → G × H := fun x:G ↦ ⟨ x, ⇑π x ⟩
+        change iIndepFun (fun x ↦ hG.prod hH) (fun i ↦ g ∘ (X i)) ℙ
+        apply iIndepFun.comp hindep
+        exact fun _ ↦ measurable_discrete _
 
       have eq5: D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩ] = H[π ∘ S] - avg_HpiX := by
-        sorry
+        convert multiDist_indep _ (fun i ↦ π ∘ (X i)) _
+        . ext _
+          simp only [comp_apply, Finset.sum_apply, _root_.map_sum, S]
+        apply iIndepFun.comp hindep
+        exact fun _ ↦ measurable_discrete _
 
       have eq6: avg_HX = avg_HpiX + avg_HXpiX := by
         dsimp [avg_HX, avg_HpiX, avg_HXpiX]
-        rw [<-left_distrib, <-Finset.sum_add_distrib]
+        rw [<-add_div, <-Finset.sum_add_distrib]
         congr with i
         rw [condEntropy_comp_self (hmes i) (measurable_discrete _)]
         abel
