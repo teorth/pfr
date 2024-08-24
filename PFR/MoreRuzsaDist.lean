@@ -1081,24 +1081,26 @@ lemma multiDist_chainRule (G H : Type*) [hG : MeasurableSpace G] [MeasurableSing
         intro i
         exact Measurable.comp (measurable_discrete _) (hmes i)
 
-      have eq1 : I[ S : piX | π ∘ S] = H[S] + H[piX] - H[ ⟨ S, piX ⟩ ] - H[π ∘ S] := by
+      have eq1 : I[ S : piX | π ∘ S] = H[S | ⇑π ∘ S] + H[piX | ⇑π ∘ S] - H[⟨ S, piX⟩ | ⇑π ∘ S] := by
         rw [condMutualInfo_eq hSmes hpiXmes (Measurable.comp (measurable_discrete _) hSmes)]
-        have eq1a : H[S | ⇑π ∘ S] = H[S] - H[⇑π ∘ S] := condEntropy_comp_self hSmes (measurable_discrete _)
-        have eq1b : H[piX | ⇑π ∘ S] = H[piX] - H[⇑π ∘ S] := by
-          set g := fun (y : Fin m → H) ↦ ∑ i, y i
-          have : ⇑π ∘ S = g ∘ piX := by
-            ext x
-            simp only [comp_apply, Finset.sum_apply, _root_.map_sum, S, g, piX]
-          rw [this]
-          exact condEntropy_comp_self hpiXmes (measurable_discrete _)
-        have eq1c : H[⟨ S, piX⟩ | ⇑π ∘ S] = H[⟨ S, piX⟩] - H[⇑π ∘ S] := by
-          set g := fun (x : G × (Fin m → H)) ↦ ⇑π x.1
-          have : ⇑π ∘ S = g ∘ ⟨ S, piX⟩  := by
-            ext x
-            simp only [comp_apply, Finset.sum_apply, _root_.map_sum, S, g, piX]
-          rw [this]
-          apply condEntropy_comp_self (Measurable.prod_mk hSmes hpiXmes) (measurable_discrete _)
-        linarith only [eq1a, eq1b, eq1c]
+
+      have eq1a : H[S | ⇑π ∘ S] = H[S] - H[⇑π ∘ S] := condEntropy_comp_self hSmes (measurable_discrete _)
+
+      have eq1b : H[piX | ⇑π ∘ S] = H[piX] - H[⇑π ∘ S] := by
+        set g := fun (y : Fin m → H) ↦ ∑ i, y i
+        have : ⇑π ∘ S = g ∘ piX := by
+          ext x
+          simp only [comp_apply, Finset.sum_apply, _root_.map_sum, S, g, piX]
+        rw [this]
+        exact condEntropy_comp_self hpiXmes (measurable_discrete _)
+
+      have eq1c : H[⟨ S, piX⟩ | ⇑π ∘ S] = H[⟨ S, piX⟩] - H[⇑π ∘ S] := by
+        set g := fun (x : G × (Fin m → H)) ↦ ⇑π x.1
+        have : ⇑π ∘ S = g ∘ ⟨ S, piX⟩  := by
+          ext x
+          simp only [comp_apply, Finset.sum_apply, _root_.map_sum, S, g, piX]
+        rw [this]
+        apply condEntropy_comp_self (Measurable.prod_mk hSmes hpiXmes) (measurable_discrete _)
 
       have eq2 : H[⟨ S, piX ⟩] = H[piX] + H[S | piX ]  :=  chain_rule _ hSmes hpiXmes
 
@@ -1110,8 +1112,8 @@ lemma multiDist_chainRule (G H : Type*) [hG : MeasurableSpace G] [MeasurableSing
         . exact Fintype.sum_apply _ _
         . intro i
           exact Measurable.comp (measurable_discrete _) (hmes i)
-        set g : G → G × H := fun x:G ↦ ⟨ x, ⇑π x ⟩
-        change iIndepFun (fun x ↦ hG.prod hH) (fun i ↦ g ∘ (X i)) ℙ
+        set g : G → G × H := fun x ↦ ⟨ x, ⇑π x ⟩
+        change iIndepFun _ (fun i ↦ g ∘ (X i)) ℙ
         apply iIndepFun.comp hindep
         exact fun _ ↦ measurable_discrete _
 
@@ -1129,7 +1131,7 @@ lemma multiDist_chainRule (G H : Type*) [hG : MeasurableSpace G] [MeasurableSing
         rw [condEntropy_comp_self (hmes i) (measurable_discrete _)]
         abel
 
-      linarith only [eq1, eq2, eq3, eq4, eq5, eq6]
+      linarith only [eq1, eq1a, eq1b, eq1c, eq2, eq3, eq4, eq5, eq6]
 
 /-- Let `π : G → H` be a homomorphism of abelian groups. Let `I` be a finite index set and let
 `X_[m]` be a tuple of `G`-valued random variables. Let `Y_[m]` be another tuple of random variables
