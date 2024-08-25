@@ -852,14 +852,14 @@ lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β
     simp [h]
 
 /-- A technical lemma: a preimage of a singleton of Y i is measurable with respect to the comap of <X i, Y i> -/
-lemma mes_of_comap {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G]
+private lemma mes_of_comap {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G]
 {m : ℕ} {Ω : Type*} {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
     (X : (i : Fin m) → Ω → G) (Y : (i : Fin m) → Ω → S) (y : Fin m → S) (i : Fin m) : @MeasurableSet Ω ((hG.prod hS).comap (fun ω ↦ ⟨ X i ω, Y i ω ⟩)) ((Y i)⁻¹' {y i}) := by
       convert MeasurableSet.preimage (t := { p : G × S | p.2 = y i}) _ (comap_measurable _)
       exact DiscreteMeasurableSpace.forall_measurableSet {p : G × S | p.2 = y i}
 
 /-- A technical lemma: the probability of an intersection of preimages conditioning on another intersection factors into a product -/
-lemma cond_prob_of_inter {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G] {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] (hprob: IsProbabilityMeasure hΩ.volume) {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
+private lemma cond_prob_of_inter {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G] {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] (hprob: IsProbabilityMeasure hΩ.volume) {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
     (X : (i : Fin m) → Ω → G) (Y : (i : Fin m) → Ω → S) (hY : (i:Fin m) →  Measurable (Y i)) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ) (y : Fin m → S) (s' s : Finset (Fin m)) (f' : _ → Set Ω)
           (hf' : ∀ i ∈ s, MeasurableSet[hG.comap (X i)] (f' i))
           (hy : ∀ (i : Fin m), ℙ ((Y i)⁻¹' {y i}) ≠ 0) (hss: s' ⊆ s) :
@@ -936,7 +936,7 @@ lemma cond_prob_of_inter {G: Type*} [hG : MeasurableSpace G] [MeasurableSingleto
           simp only [Finset.prod_ite, Finset.filter_univ_mem, Finset.prod_const_one, mul_one]
 
 /-- A technical lemma: two different ways of conditioning independent variables gives identical distributions -/
-lemma ident_of_cond_of_indep {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G] {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] (hprob: IsProbabilityMeasure hΩ.volume) {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
+private lemma ident_of_cond_of_indep {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G] {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] (hprob: IsProbabilityMeasure hΩ.volume) {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
     {X : (i : Fin m) → Ω → G} (hX : (i:Fin m) →  Measurable (X i)) {Y : (i : Fin m) → Ω → S} (hY : (i:Fin m) →  Measurable (Y i)) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ) (y : Fin m → S) (i : Fin m) (hy: ∀ i, ℙ ((Y i)⁻¹' {y i}) ≠ 0):
           IdentDistrib (X i) (X i) (cond ℙ ((Y i)⁻¹' {y i})) (cond ℙ (⋂ i, (Y i)⁻¹' {y i})) :=
         { aemeasurable_fst := Measurable.aemeasurable (hX i)
@@ -957,14 +957,14 @@ lemma ident_of_cond_of_indep {G: Type*} [hG : MeasurableSpace G] [MeasurableSing
         }
 
 /-- A technical lemma: if a product of probabilities is nonzero, then each probabiity is individually non-zero -/
-lemma prob_nonzero_of_prod_prob_nonzero {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S] {Y : (i : Fin m) → Ω → S} {y : Fin m → S} (hf: ∏ i, (ℙ ((Y i)⁻¹' {y i})).toReal ≠ 0) : ∀ i, ℙ ((Y i)⁻¹' {y i}) ≠ 0 := by
+private lemma prob_nonzero_of_prod_prob_nonzero {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S] {Y : (i : Fin m) → Ω → S} {y : Fin m → S} (hf: ∏ i, (ℙ ((Y i)⁻¹' {y i})).toReal ≠ 0) : ∀ i, ℙ ((Y i)⁻¹' {y i}) ≠ 0 := by
       contrapose! hf
       obtain ⟨i, hi⟩ := hf
       apply Finset.prod_eq_zero (Finset.mem_univ i) _
       simp only [hi, ENNReal.zero_toReal]
 
 /-- A technical lemma: The X i remain independent after conditioning on intersections of Y i events -/
-lemma indep_of_cond {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G] {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
+private lemma indep_of_cond {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G] {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
     {X : (i : Fin m) → Ω → G}  {Y : (i : Fin m) → Ω → S} (hY : (i:Fin m) →  Measurable (Y i)) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ) {y : Fin m → S} (hy : ∀ i, ℙ ((Y i)⁻¹' {y i}) ≠ 0) : iIndepFun (fun _ ↦ hG) X (cond ℙ (⋂ i, (Y i)⁻¹' {y i})) := by
       rw [iIndepFun_iff]
       intro s f' hf'
@@ -1184,7 +1184,13 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
     _ = _ := by
       congr 2
       . sorry
-      . sorry
+      . rw [condMultiDist_eq' _ hY _]
+        . intro i
+          apply Measurable.comp (measurable_discrete _) (hX i)
+        set g : G × S → H × S := fun p ↦ ⟨⇑π p.1, p.2⟩
+        convert iIndepFun.comp hindep (fun _ ↦ g) _
+        intro i
+        exact measurable_discrete _
       sorry
 
 
