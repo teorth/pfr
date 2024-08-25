@@ -963,6 +963,7 @@ lemma prob_nonzero_of_prod_prob_nonzero {m : ℕ} {Ω : Type*} [hΩ : MeasureSpa
       apply Finset.prod_eq_zero (Finset.mem_univ i) _
       simp only [hi, ENNReal.zero_toReal]
 
+/-- A technical lemma: The X i remain independent after conditioning on intersections of Y i events -/
 lemma indep_of_cond {G: Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G] {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
     {X : (i : Fin m) → Ω → G}  {Y : (i : Fin m) → Ω → S} (hY : (i:Fin m) →  Measurable (Y i)) (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) ) {y : Fin m → S} (hy : ∀ i, ℙ ((Y i)⁻¹' {y i}) ≠ 0) : iIndepFun (fun _ ↦ hG) X (cond ℙ (⋂ i, (Y i)⁻¹' {y i})) := by
       rw [iIndepFun_iff]
@@ -1164,7 +1165,8 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
 
   calc
     _ = ∑ y, (f y) * D[X; fun _ ↦ hΩc y] :=  condMultiDist_eq' hX hY hindep
-    _ = ∑ y, (f y) * (D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩc y] + D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩc y] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i); (hΩc y).volume]) := by
+    _ = ∑ y, (f y) * D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩc y] + ∑ y, (f y) * D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩc y] + ∑ y, (f y) * I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i); (hΩc y).volume] := by
+      simp_rw [<-Finset.sum_add_distrib, <-left_distrib]
       congr with y
       by_cases hf: f y = 0
       . simp only [hf, zero_mul]
@@ -1179,9 +1181,12 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
       rw [<-ENNReal.toReal_prod]
       congr
       exact (iIndepFun.meas_iInter hindep (mes_of_comap X Y y)).symm
-    _ = _ := by sorry
+    _ = _ := by
+      congr 2
+      . sorry
+      . sorry
+      sorry
 
--- D[X; fun _ ↦ hΩ] = D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩ]+ D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩ] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i)]
 
 /-- Let `m` be a positive integer. Suppose one has a sequence `G_m → G_{m-1} → ... → G_1 → G_0 = {0}`
 of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m`, let
