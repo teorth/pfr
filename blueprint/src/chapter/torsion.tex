@@ -392,7 +392,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
     \end{align}
   \end{lemma}
 
-  \begin{proof}\uses{multidist-chain-rule}
+  \begin{proof}\uses{multidist-chain-rule}\leanok
   For each $y_i$ in the support of $p_{Y_i}$, apply \Cref{multidist-chain-rule} with $X_i$ replaced by the conditioned random variable $(X_i|Y_i=y_i)$, and the claim~\eqref{chain-eq-cond} follows by averaging~\eqref{chain-eq} in the $y_i$ using the weights $p_{Y_i}$.
   \end{proof}
 

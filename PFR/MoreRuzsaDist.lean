@@ -1187,7 +1187,7 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
         convert Finset.measurable_sum (f := X) Finset.univ _ with ω
         . exact Fintype.sum_apply ω X
         exact (fun i _ ↦ hX i)
-      have hpi_indep : iIndepFun (fun x ↦ hH.prod hS) (fun i ↦ ⟨⇑π ∘ X i, Y i⟩) ℙ := by
+      have hpi_indep : iIndepFun (fun _ ↦ hH.prod hS) (fun i ↦ ⟨⇑π ∘ X i, Y i⟩) ℙ := by
         set g : G × S → H × S := fun p ↦ ⟨⇑π p.1, p.2⟩
         convert iIndepFun.comp hindep (fun _ ↦ g) _
         intro i
@@ -1197,6 +1197,12 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
         convert iIndepFun.comp hindep (fun _ ↦ g) _
         intro i
         exact measurable_discrete _
+
+      have hey_mes : ∀ y, MeasurableSet (E' y) := by
+          intro y
+          apply MeasurableSet.iInter
+          intro i
+          exact MeasurableSet.preimage (MeasurableSet.singleton (y i)) (hY i)
 
       congr 2
       . rw [condMultiDist_eq' hX _ hpi_indep']
@@ -1219,20 +1225,25 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
             dsimp [f, E', Equiv.arrowProdEquivProdArrow]
             rw [<-mul_assoc, <-ENNReal.toReal_mul]
             congr 2
-            . sorry
+            . rw [mul_comm]
+              convert ProbabilityTheory.cond_mul_eq_inter ?_ (hey_mes y) ?_
+              . rw [<-Set.iInter_inter_distrib]
+                apply Set.iInter_congr
+                intro i
+                ext ω
+                simp only [Set.mem_preimage, Set.mem_singleton_iff, Prod.mk.injEq, comp_apply, Set.mem_inter_iff]
+                exact And.comm
+              infer_instance
             funext _
             congr 1
             dsimp [hΩc, E']
-            rw [ProbabilityTheory.cond_cond_eq_cond_inter, <-Set.iInter_inter_distrib]
+            rw [ProbabilityTheory.cond_cond_eq_cond_inter _ (hey_mes y), <-Set.iInter_inter_distrib]
             . congr 1
               apply Set.iInter_congr
               intro i
               ext ω
               simp only [Set.mem_inter_iff, Set.mem_preimage, Set.mem_singleton_iff, comp_apply, Prod.mk.injEq]
-              tauto
-            . apply MeasurableSet.iInter
-              intro i
-              exact MeasurableSet.preimage (MeasurableSet.singleton (y i)) (hY i)
+              exact And.comm
             apply MeasurableSet.iInter
             intro i
             apply MeasurableSet.preimage (MeasurableSet.singleton _)
@@ -1272,20 +1283,26 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
         dsimp [f, E']
         rw [<-mul_assoc, <-ENNReal.toReal_mul]
         congr 2
-        . sorry
+        . rw [mul_comm]
+          convert ProbabilityTheory.cond_mul_eq_inter ?_ (hey_mes y) ?_
+          . ext ω
+            simp only [Set.mem_preimage, Set.mem_singleton_iff, Prod.mk.injEq, comp_apply,
+              Finset.sum_apply, _root_.map_sum, Set.mem_inter_iff, Set.mem_iInter, E']
+            rw [and_comm]
+            apply and_congr_left
+            intro _
+            exact funext_iff
+          infer_instance
         dsimp [hΩc, E']
-        rw [ProbabilityTheory.cond_cond_eq_cond_inter]
+        rw [ProbabilityTheory.cond_cond_eq_cond_inter _  (hey_mes y)]
         . congr
           ext ω
           simp only [Set.mem_inter_iff, Set.mem_iInter, Set.mem_preimage, Set.mem_singleton_iff,
-            comp_apply, Finset.sum_apply, _root_.map_sum, Prod.mk.injEq]
+            comp_apply, Finset.sum_apply, _root_.map_sum, Prod.mk.injEq, E']
           rw [and_comm]
           apply and_congr_right
           intro _
           exact Iff.symm funext_iff
-        . apply MeasurableSet.iInter
-          intro i
-          exact MeasurableSet.preimage (MeasurableSet.singleton (y i)) (hY i)
         exact MeasurableSet.preimage (MeasurableSet.singleton x) hmes
       exact Measurable.prod_mk hmes ( measurable_pi_lambda (fun ω i ↦ Y i ω) hY )
 
