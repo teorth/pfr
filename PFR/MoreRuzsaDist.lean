@@ -1191,7 +1191,32 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
         convert iIndepFun.comp hindep (fun _ ↦ g) _
         intro i
         exact measurable_discrete _
-      sorry
+      have hmes : Measurable (⇑π ∘ ∑ i : Fin m, X i) := by
+        apply Measurable.comp (measurable_discrete _)
+        convert Finset.measurable_sum (f := X) Finset.univ _ with ω
+        . exact Fintype.sum_apply ω X
+        exact (fun i _ ↦ hX i)
+      rw [condMutualInfo_eq_sum', Fintype.sum_prod_type, Finset.sum_comm]
+      . congr with y
+        by_cases pey : ℙ (E' y) = 0
+        . simp only [pey, ENNReal.zero_toReal, zero_mul, f]
+          apply (Finset.sum_eq_zero _).symm
+          intro s _
+          convert zero_mul _
+          convert ENNReal.zero_toReal
+          apply measure_mono_null _ pey
+          intro ω hω
+          simp [E'] at hω ⊢
+          rw [<-hω.2]
+          simp only [implies_true]
+        have : IsProbabilityMeasure (hΩc y).volume :=  cond_isProbabilityMeasure _ pey
+        rw [condMutualInfo_eq_sum' hmes, Finset.mul_sum]
+        congr with x
+        rw [<-mul_assoc]
+        congr 2
+        . sorry
+        sorry
+      exact Measurable.prod_mk hmes ( measurable_pi_lambda (fun ω i ↦ Y i ω) hY )
 
 
 /-- Let `m` be a positive integer. Suppose one has a sequence `G_m → G_{m-1} → ... → G_1 → G_0 = {0}`
