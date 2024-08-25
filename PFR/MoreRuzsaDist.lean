@@ -1182,20 +1182,63 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
       congr
       exact (iIndepFun.meas_iInter hindep (mes_of_comap X Y y)).symm
     _ = _ := by
-      congr 2
-      . sorry
-      . rw [condMultiDist_eq' _ hY _]
-        . intro i
-          apply Measurable.comp (measurable_discrete _) (hX i)
-        set g : G × S → H × S := fun p ↦ ⟨⇑π p.1, p.2⟩
-        convert iIndepFun.comp hindep (fun _ ↦ g) _
-        intro i
-        exact measurable_discrete _
       have hmes : Measurable (⇑π ∘ ∑ i : Fin m, X i) := by
         apply Measurable.comp (measurable_discrete _)
         convert Finset.measurable_sum (f := X) Finset.univ _ with ω
         . exact Fintype.sum_apply ω X
         exact (fun i _ ↦ hX i)
+      have hpi_indep : iIndepFun (fun x ↦ hH.prod hS) (fun i ↦ ⟨⇑π ∘ X i, Y i⟩) ℙ := by
+        set g : G × S → H × S := fun p ↦ ⟨⇑π p.1, p.2⟩
+        convert iIndepFun.comp hindep (fun _ ↦ g) _
+        intro i
+        exact measurable_discrete _
+      have hpi_indep' : iIndepFun (fun x ↦ hG.prod Prod.instMeasurableSpace) (fun i ↦ ⟨X i, ⟨⇑π ∘ X i, Y i⟩⟩) ℙ := by
+        set g : G × S → G × (H × S) := fun p ↦ ⟨ p.1, ⟨⇑π p.1, p.2⟩ ⟩
+        convert iIndepFun.comp hindep (fun _ ↦ g) _
+        intro i
+        exact measurable_discrete _
+
+      congr 2
+      . rw [condMultiDist_eq' hX _ hpi_indep']
+        . rw [<-Equiv.sum_comp (Equiv.arrowProdEquivProdArrow H S (Fin m)).symm, Fintype.sum_prod_type, Finset.sum_comm]
+          congr with y
+          by_cases pey : ℙ (E' y) = 0
+          . simp only [pey, ENNReal.zero_toReal, zero_mul, f]
+            apply (Finset.sum_eq_zero _).symm
+            intro s _
+            convert zero_mul _
+            convert ENNReal.zero_toReal
+            apply measure_mono_null _ pey
+            intro ω hω
+            simp [E', Equiv.arrowProdEquivProdArrow] at hω ⊢
+            intro i
+            exact (hω i).2
+          have : IsProbabilityMeasure (hΩc y).volume :=  cond_isProbabilityMeasure _ pey
+          rw [condMultiDist_eq' (hΩ := hΩc y) hX, Finset.mul_sum]
+          . congr with s
+            dsimp [f, E', Equiv.arrowProdEquivProdArrow]
+            rw [<-mul_assoc, <-ENNReal.toReal_mul]
+            congr 2
+            . sorry
+            funext _
+            congr 1
+            sorry
+          . intro i
+            exact Measurable.comp (measurable_discrete _) (hX i)
+          set g : G → G × H := fun x ↦ ⟨ x, ⇑π x⟩
+          convert iIndepFun.comp _ (fun _ ↦ g) _
+          . apply indep_of_cond hY hindep
+            rw [iIndepFun.meas_iInter hindep (mes_of_comap X Y y)] at pey
+            contrapose! pey
+            obtain ⟨i, hi⟩ := pey
+            exact Finset.prod_eq_zero (Finset.mem_univ i) hi
+          intro i
+          exact measurable_discrete _
+        intro i
+        exact Measurable.prod_mk (Measurable.comp (measurable_discrete _) (hX i)) (hY i)
+      . rw [condMultiDist_eq' _ hY hpi_indep]
+        intro i
+        apply Measurable.comp (measurable_discrete _) (hX i)
       rw [condMutualInfo_eq_sum', Fintype.sum_prod_type, Finset.sum_comm]
       . congr with y
         by_cases pey : ℙ (E' y) = 0
@@ -1212,7 +1255,8 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
         have : IsProbabilityMeasure (hΩc y).volume :=  cond_isProbabilityMeasure _ pey
         rw [condMutualInfo_eq_sum' hmes, Finset.mul_sum]
         congr with x
-        rw [<-mul_assoc]
+        dsimp [f, E']
+        rw [<-mul_assoc, <-ENNReal.toReal_mul]
         congr 2
         . sorry
         sorry
