@@ -1314,7 +1314,36 @@ of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m
 Let `X_[m] = (X_1, ..., X_m)` be a jointly independent tuple of `G_m`-valued random variables.
 Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
 ` + ∑_{d=1}^{m-1}, I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
-lemma iter_multiDist_chainRule {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, MeasurableSpace (G i)) (hGs: ∀ i, MeasurableSingletonClass (G i)) (hGa: ∀ i, AddCommGroup (G i)) (hGsub: ∀ i, MeasurableSub₂ (G i)) (hGadd: ∀ i, MeasurableAdd₂ (G i)) (hGcount: ∀ i, Fintype (G i)) (φ: ∀ i, G (i+1) →+ G i) (π: ∀ d, G m →+ G d) (hcomp: ∀ i, i < m → π i = (φ i) ∘ (π (i+1))) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → (G m)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] = ∑ d ∈ Finset.Iio m, D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio m, I[ ∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ ∑ i, X i, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ] := by sorry
+lemma iter_multiDist_chainRule {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, MeasurableSpace (G i)) (hGs: ∀ i, MeasurableSingletonClass (G i)) (hGa: ∀ i, AddCommGroup (G i)) (hGsub: ∀ i, MeasurableSub₂ (G i)) (hGadd: ∀ i, MeasurableAdd₂ (G i)) (hGcount: ∀ i, Fintype (G i)) (φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc) (π: ∀ d, G m →+ G d) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
+(hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) (n : Fin (m+1)): D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ ∑ i, X i, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ]) := by
+  set S := ∑ i, X i
+  set motive := fun n:Fin (m+1) ↦ D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + I[ S : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ S, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ])
+  have zero : motive 0 := by
+    have : (Finset.Iio 0 : Finset (Fin (m+1))) = ∅ := rfl
+    simp [motive, this]
+  have succ : (n : Fin m) → motive n.castSucc → motive n.succ := by
+    intro n hn
+    dsimp [motive] at hn ⊢
+    have h1 : (Finset.Iio n.succ).erase n.castSucc = Finset.Iio n.castSucc := by
+      rw [<-Finset.map_inj (f := Fin.valEmbedding)]
+      simp only [Fin.map_valEmbedding_Iio, Fin.coe_castSucc, Finset.map_erase, Fin.val_succ]
+      exact Finset.Iic_erase _
+    have h2 : n.castSucc ∈ Finset.Iio n.succ := by
+      simp only [Nat.succ_eq_add_one, Finset.mem_Iio, Fin.castSucc_lt_succ_iff, le_refl]
+    rw [hn, <-Finset.add_sum_erase _ _ h2, h1, <-add_assoc, <-add_assoc, Fin.coeSucc_eq_succ]
+    congr 1
+    convert cond_multiDist_chainRule (X := X) (Y := fun i ↦ ⇑(π n.castSucc) ∘ X i) (π n.succ) hX ?_ ?_
+    . sorry
+    . intro _
+      exact Measurable.comp (measurable_discrete _) (hX _)
+    set g : (G m) → (G m) × (G n.castSucc) := fun x ↦ ⟨ x, ⇑(π n.castSucc) x⟩
+    convert iIndepFun.comp hindep (fun _ ↦ g) _
+    intro _
+    exact measurable_discrete _
+
+
+
+
 
 /--Under the preceding hypotheses,
 `D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
