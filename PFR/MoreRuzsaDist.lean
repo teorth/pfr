@@ -1340,7 +1340,7 @@ lemma iter_multiDist_chainRule {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, Mea
     convert iIndepFun.comp hindep (fun _ ↦ g) _
     intro _
     exact measurable_discrete _
-
+  exact Fin.induction zero succ n
 
 
 
