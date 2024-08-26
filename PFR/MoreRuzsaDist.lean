@@ -868,6 +868,28 @@ theorem condMultiDist_of_inj {G: Type*} [hG : MeasurableSpace G] [AddCommGroup G
   congr
   aesop
 
+/-- Conditional multidistance against a constant is just multidistance -/
+theorem condMultiDist_of_const {G: Type*} [hG : MeasurableSpace G] [AddCommGroup G] {m : ℕ} {Ω : Fin m → Type*} [hΩ : (i : Fin m) → MeasureSpace (Ω i)] [hprob: (i : Fin m) → IsProbabilityMeasure (hΩ i).volume] {S: Type*} [Fintype S] (c:Fin m → S) (X : (i : Fin m) → (Ω i) → G) : D[ X | fun i ↦ fun _ ↦ c i; hΩ ] = D[ X ; hΩ ] := by
+  dsimp [condMultiDist]
+  rw [Finset.sum_eq_single c]
+  . have : ∀ i, (fun _:Ω i ↦ c i) ⁻¹' {c i} = Set.univ := by
+      intro _
+      simp only [Set.mem_singleton_iff, Set.preimage_const_of_mem]
+    simp [this]
+  . intro y _ hy
+    convert zero_mul _
+    contrapose! hy
+    rw [Finset.prod_ne_zero_iff] at hy
+    ext i
+    replace hy := hy i (Finset.mem_univ i)
+    contrapose! hy
+    have : (fun _:Ω i ↦ c i) ⁻¹' {y i} = ∅ := by
+      ext ω
+      simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.mem_empty_iff_false, iff_false]
+      exact id (Ne.symm hy)
+    simp [this]
+  simp only [Finset.mem_univ, not_true_eq_false, false_implies]
+
 
 /-- A technical lemma: can push a constant into a product at a specific term -/
 private lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β] (f:α → β) (c: β) (i₀:α) : (∏ i, f i) * c = ∏ i, (if i=i₀ then f i * c else f i) := calc
@@ -1337,6 +1359,8 @@ lemma cond_multiDist_chainRule {G H: Type*} [hG : MeasurableSpace G] [Measurable
         exact MeasurableSet.preimage (MeasurableSet.singleton x) hmes
       exact Measurable.prod_mk hmes ( measurable_pi_lambda (fun ω i ↦ Y i ω) hY )
 
+lemma Iio_of_succ_eq_Iic_of_castSucc {N : ℕ} (n: Fin N) : Finset.Iio n.succ = Finset.Iic n.castSucc := rfl
+
 
 /-- Let `m` be a positive integer. Suppose one has a sequence `G_m → G_{m-1} → ... → G_1 → G_0 = {0}`
 of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m`, let
@@ -1345,7 +1369,7 @@ of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m
 Let `X_[m] = (X_1, ..., X_m)` be a jointly independent tuple of `G_m`-valued random variables.
 Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
 ` + ∑_{d=1}^{m-1}, I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
-lemma iter_multiDist_chainRule {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, MeasurableSpace (G i)] [hGs: ∀ i, MeasurableSingletonClass (G i)] [hGa: ∀ i, AddCommGroup (G i)] [hGsub: ∀ i, MeasurableSub₂ (G i)] [hGadd: ∀ i, MeasurableAdd₂ (G i)] [hGcount: ∀ i, Fintype (G i)] (φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc) (π: ∀ d, G m →+ G d) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
+lemma iter_multiDist_chainRule {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, MeasurableSpace (G i)] [hGs: ∀ i, MeasurableSingletonClass (G i)] [hGa: ∀ i, AddCommGroup (G i)] [hGsub: ∀ i, MeasurableSub₂ (G i)] [hGadd: ∀ i, MeasurableAdd₂ (G i)] [hGcount: ∀ i, Fintype (G i)] {φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc} {π: ∀ d, G m →+ G d} (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
 (hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) (n : Fin (m+1)): D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ ∑ i, X i, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ]) := by
   set S := ∑ i, X i
   set motive := fun n:Fin (m+1) ↦ D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + I[ S : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ S, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ])
@@ -1355,13 +1379,9 @@ lemma iter_multiDist_chainRule {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, Mea
   have succ : (n : Fin m) → motive n.castSucc → motive n.succ := by
     intro n hn
     dsimp [motive] at hn ⊢
-    have h1 : (Finset.Iio n.succ).erase n.castSucc = Finset.Iio n.castSucc := by
-      rw [<-Finset.map_inj (f := Fin.valEmbedding)]
-      simp only [Fin.map_valEmbedding_Iio, Fin.coe_castSucc, Finset.map_erase, Fin.val_succ]
-      exact Finset.Iic_erase _
     have h2 : n.castSucc ∈ Finset.Iio n.succ := by
       simp only [Nat.succ_eq_add_one, Finset.mem_Iio, Fin.castSucc_lt_succ_iff, le_refl]
-    rw [hn, <-Finset.add_sum_erase _ _ h2, h1, <-add_assoc, <-add_assoc, Fin.coeSucc_eq_succ]
+    rw [hn, <-Finset.add_sum_erase _ _ h2, Iio_of_succ_eq_Iic_of_castSucc, Finset.Iic_erase, <-add_assoc, <-add_assoc, Fin.coeSucc_eq_succ]
     congr 1
     convert cond_multiDist_chainRule (X := X) (Y := fun i ↦ ⇑(π n.castSucc) ∘ X i) (π n.succ) hX ?_ ?_
     . set g : G n.succ → G n.succ × G n.castSucc := fun x ↦ ⟨ x, ⇑(φ n) x⟩
@@ -1386,15 +1406,16 @@ lemma iter_multiDist_chainRule {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, Mea
 
 /--Under the preceding hypotheses,
 `D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
-lemma iter_multiDist_chainRule'  {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, MeasurableSpace (G i)] [hGs: ∀ i, MeasurableSingletonClass (G i)] [hGa: ∀ i, AddCommGroup (G i)] [hGsub: ∀ i, MeasurableSub₂ (G i)] [hGadd: ∀ i, MeasurableAdd₂ (G i)] [hGcount: ∀ i, Fintype (G i)] (φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc) (π: ∀ d, G m →+ G d) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
+lemma iter_multiDist_chainRule'  {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, MeasurableSpace (G i)] [hGs: ∀ i, MeasurableSingletonClass (G i)] [hGa: ∀ i, AddCommGroup (G i)] [hGsub: ∀ i, MeasurableSub₂ (G i)] [hGadd: ∀ i, MeasurableAdd₂ (G i)] [hGcount: ∀ i, Fintype (G i)] {φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc} {π: ∀ d, G m →+ G d} (hπ0: π 0 = 0) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
 (hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] ≥ ∑ d : Fin m, D[ fun i ↦ (π (d.succ)) ∘ (X i) | fun i ↦ (π d.castSucc) ∘ (X i); fun _ ↦ hΩ] + I[∑ i : Fin m, X i : fun ω i ↦ (π 1) (X i ω)| ⇑(π 1) ∘ ∑ i : Fin m, X i]  := calc
   _ = D[X | fun i ↦ ⇑(π 0) ∘ X i ; fun x ↦ hΩ] := by
-    sorry
+    rw [hπ0]
+    convert (condMultiDist_of_const (fun _ ↦ (0: G 0)) X).symm
   _ = D[X | fun i ↦ ⇑(π m) ∘ X i ; fun x ↦ hΩ] +
     ∑ d ∈ Finset.Iio (m : Fin (m+1)),
       (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ ⇑(π d) ∘ X i ; fun x ↦ hΩ] +
         I[∑ i : Fin m, X i : fun ω i ↦ (π (d + 1)) (X i ω)|⟨⇑(π (d + 1)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) :=
-    iter_multiDist_chainRule φ π hcomp hX hindep (m : Fin (m+1))
+    iter_multiDist_chainRule hcomp hX hindep (m : Fin (m+1))
   _ ≥ _ := by sorry
 
 
