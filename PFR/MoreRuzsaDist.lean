@@ -1345,7 +1345,7 @@ of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m
 Let `X_[m] = (X_1, ..., X_m)` be a jointly independent tuple of `G_m`-valued random variables.
 Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
 ` + ∑_{d=1}^{m-1}, I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
-lemma iter_multiDist_chainRule {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, MeasurableSpace (G i)) (hGs: ∀ i, MeasurableSingletonClass (G i)) (hGa: ∀ i, AddCommGroup (G i)) (hGsub: ∀ i, MeasurableSub₂ (G i)) (hGadd: ∀ i, MeasurableAdd₂ (G i)) (hGcount: ∀ i, Fintype (G i)) (φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc) (π: ∀ d, G m →+ G d) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
+lemma iter_multiDist_chainRule {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, MeasurableSpace (G i)] [hGs: ∀ i, MeasurableSingletonClass (G i)] [hGa: ∀ i, AddCommGroup (G i)] [hGsub: ∀ i, MeasurableSub₂ (G i)] [hGadd: ∀ i, MeasurableAdd₂ (G i)] [hGcount: ∀ i, Fintype (G i)] (φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc) (π: ∀ d, G m →+ G d) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
 (hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) (n : Fin (m+1)): D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + I[ ∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ ∑ i, X i, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ]) := by
   set S := ∑ i, X i
   set motive := fun n:Fin (m+1) ↦ D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ] + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ] + I[ S : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) | ⟨ (π (d+1)) ∘ S, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ])
@@ -1386,7 +1386,17 @@ lemma iter_multiDist_chainRule {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, Mea
 
 /--Under the preceding hypotheses,
 `D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
-lemma iter_multiDist_chainRule'  {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, MeasurableSpace (G i)) (hGs: ∀ i, MeasurableSingletonClass (G i)) (hGa: ∀ i, AddCommGroup (G i)) (hGsub: ∀ i, MeasurableSub₂ (G i)) (hGadd: ∀ i, MeasurableAdd₂ (G i)) (hGcount: ∀ i, Fintype (G i)) (φ: ∀ i, G (i+1) →+ G i) (π: ∀ d, G m →+ G d) (hcomp: ∀ i, i < m → π i = (φ i) ∘ (π (i+1))) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → (G m)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] ≥ ∑ d ∈ Finset.Iio m, D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ]  := by sorry
+lemma iter_multiDist_chainRule'  {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, MeasurableSpace (G i)] [hGs: ∀ i, MeasurableSingletonClass (G i)] [hGa: ∀ i, AddCommGroup (G i)] [hGsub: ∀ i, MeasurableSub₂ (G i)] [hGadd: ∀ i, MeasurableAdd₂ (G i)] [hGcount: ∀ i, Fintype (G i)] (φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc) (π: ∀ d, G m →+ G d) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
+(hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] ≥ ∑ d : Fin m, D[ fun i ↦ (π (d.succ)) ∘ (X i) | fun i ↦ (π d.castSucc) ∘ (X i); fun _ ↦ hΩ] + I[∑ i : Fin m, X i : fun ω i ↦ (π 1) (X i ω)| ⇑(π 1) ∘ ∑ i : Fin m, X i]  := calc
+  _ = D[X | fun i ↦ ⇑(π 0) ∘ X i ; fun x ↦ hΩ] := by
+    sorry
+  _ = D[X | fun i ↦ ⇑(π m) ∘ X i ; fun x ↦ hΩ] +
+    ∑ d ∈ Finset.Iio (m : Fin (m+1)),
+      (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ ⇑(π d) ∘ X i ; fun x ↦ hΩ] +
+        I[∑ i : Fin m, X i : fun ω i ↦ (π (d + 1)) (X i ω)|⟨⇑(π (d + 1)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) :=
+    iter_multiDist_chainRule φ π hcomp hX hindep (m : Fin (m+1))
+  _ ≥ _ := by sorry
+
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
