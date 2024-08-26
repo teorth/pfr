@@ -835,11 +835,42 @@ where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`.
 -/
 noncomputable
 def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*} [Fintype S]
-    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : ℝ := ∑ ω : (i : Fin m) → S, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩]
+    (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : ℝ := ∑ ω : Fin m → S, (∏ i, ((hΩ i).volume ((Y i) ⁻¹' {ω i})).toReal) * D[X; fun i ↦ ⟨ cond (hΩ i).volume ((Y i)⁻¹' {ω i}) ⟩]
 
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
-lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β] (f:α → β) (c: β) (i₀:α) : (∏ i, f i) * c = ∏ i, (if i=i₀ then f i * c else f i) := calc
+/-- Conditional multidistance is unchanged if we apply an injection to the conditioned variables -/
+theorem condMultiDist_of_inj {G: Type*} [hG : MeasurableSpace G] [AddCommGroup G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*} [Fintype S] {T: Type*} [Fintype T] (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) {f : S → T} (hf: Injective f)  : D[ X | fun i ↦ f ∘ (Y i); hΩ ] = D[ X | fun i ↦ Y i; hΩ ] := by
+  set e : (Fin m → S) → (Fin m → T) := fun y ↦ f ∘ y
+
+  convert (Fintype.sum_of_injective e (Injective.comp_left hf) ?_ ?_ _ _).symm
+  . intro z hz
+    convert zero_mul ?_
+    rw [Finset.prod_eq_zero_iff]
+    simp [e] at hz
+    contrapose! hz
+    have : ∀ i, ∃ yi, f yi = z i := by
+      intro i
+      replace hz := hz i (Finset.mem_univ i)
+      contrapose! hz
+      have : f ∘ Y i ⁻¹' {z i} = ∅ := by
+        aesop
+      simp [this]
+    obtain ⟨ y, hy ⟩ := Classical.axiomOfChoice this
+    use y
+    aesop
+  intro y
+  congr
+  . ext i
+    congr
+    aesop
+  ext i
+  congr
+  aesop
+
+
+/-- A technical lemma: can push a constant into a product at a specific term -/
+private lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β] (f:α → β) (c: β) (i₀:α) : (∏ i, f i) * c = ∏ i, (if i=i₀ then f i * c else f i) := calc
   _ = (∏ i, f i) * (∏ i, if i = i₀ then c else 1) := by
     congr
     simp only [prod_ite_eq', mem_univ, ↓reduceIte]
@@ -1333,7 +1364,15 @@ lemma iter_multiDist_chainRule {m:ℕ} (G : Fin (m+1) → Type*) (hG: ∀ i, Mea
     rw [hn, <-Finset.add_sum_erase _ _ h2, h1, <-add_assoc, <-add_assoc, Fin.coeSucc_eq_succ]
     congr 1
     convert cond_multiDist_chainRule (X := X) (Y := fun i ↦ ⇑(π n.castSucc) ∘ X i) (π n.succ) hX ?_ ?_
-    . sorry
+    . set g : G n.succ → G n.succ × G n.castSucc := fun x ↦ ⟨ x, ⇑(φ n) x⟩
+      convert (condMultiDist_of_inj (f := g) (fun _ ↦ hΩ) X (fun i ↦ ⇑(π n.succ) ∘ X i) _).symm using 3 with i
+      . ext ω
+        . dsimp [g, prod]
+        rw [hcomp n]
+        simp [g, prod]
+      intro x x' h
+      simp [g] at h
+      exact h.1
     . intro _
       exact Measurable.comp (measurable_discrete _) (hX _)
     set g : (G m) → (G m) × (G n.castSucc) := fun x ↦ ⟨ x, ⇑(π n.castSucc) x⟩
