@@ -890,6 +890,16 @@ theorem condMultiDist_of_const {G: Type*} [hG : MeasurableSpace G] [AddCommGroup
     simp [this]
   simp only [Finset.mem_univ, not_true_eq_false, false_implies]
 
+/--Conditional multidistance is nonnegative. -/
+theorem condMultiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*} [Fintype S] (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) : 0 ≤ D[X | Y; hΩ] := by
+  dsimp [condMultiDist]
+  apply Finset.sum_nonneg
+  intro y _
+  apply mul_nonneg
+  . apply Finset.prod_nonneg
+    intro i _
+    exact ENNReal.toReal_nonneg
+  exact multiDist_nonneg _ X
 
 /-- A technical lemma: can push a constant into a product at a specific term -/
 private lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β] (f:α → β) (c: β) (i₀:α) : (∏ i, f i) * c = ∏ i, (if i=i₀ then f i * c else f i) := calc
@@ -1402,11 +1412,25 @@ lemma iter_multiDist_chainRule {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, Mea
   exact Fin.induction zero succ n
 
 
+theorem Finset.map_sdiff {α : Type u_1} {β : Type u_2} [DecidableEq α] [DecidableEq β] {f : α ↪ β} (s₁ : Finset α) (s₂ : Finset α) :
+Finset.map f (s₁ \ s₂) = Finset.map f s₁ \ Finset.map f s₂ := by
+  aesop
 
+theorem Finset.map_compl {α : Type u_1} {β : Type u_2} [Fintype α] [DecidableEq α] [DecidableEq β] {f : α ↪ β} (s : Finset α)  :
+Finset.map f sᶜ  = Finset.map f Finset.univ \ Finset.map f s := by
+  convert Finset.map_sdiff _ _
+
+theorem sum_of_iio_last (N: ℕ) (f: Fin (N+1) → ℝ) : ∑ d in Finset.Iio (N : Fin (N+1)), f d = ∑ d : Fin N, f d.castSucc := by
+  convert Finset.sum_image (s := Finset.univ) (g := Fin.castSucc) (f := f) ?_
+  . rw [Fin.image_castSucc, <-Finset.map_inj (f := Fin.valEmbedding), Finset.map_compl]
+    simp only [Fin.map_valEmbedding_Iio, Fin.map_valEmbedding_univ, Fin.coe_castSucc, Finset.map_singleton, Fin.valEmbedding_apply, Fin.natCast_eq_last, Fin.val_last,Finset.sdiff_singleton_eq_erase]
+    convert (Finset.Iic_erase N).symm using 1
+  intro _ _ _ _
+  exact Fin.castSucc_inj.mp
 
 /--Under the preceding hypotheses,
 `D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
-lemma iter_multiDist_chainRule'  {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, MeasurableSpace (G i)] [hGs: ∀ i, MeasurableSingletonClass (G i)] [hGa: ∀ i, AddCommGroup (G i)] [hGsub: ∀ i, MeasurableSub₂ (G i)] [hGadd: ∀ i, MeasurableAdd₂ (G i)] [hGcount: ∀ i, Fintype (G i)] {φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc} {π: ∀ d, G m →+ G d} (hπ0: π 0 = 0) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
+lemma iter_multiDist_chainRule'  {m:ℕ} (hm: m > 0) {G : Fin (m+1) → Type*} [hG: ∀ i, MeasurableSpace (G i)] [hGs: ∀ i, MeasurableSingletonClass (G i)] [hGa: ∀ i, AddCommGroup (G i)] [hGsub: ∀ i, MeasurableSub₂ (G i)] [hGadd: ∀ i, MeasurableAdd₂ (G i)] [hGcount: ∀ i, Fintype (G i)] {φ: ∀ i : Fin m, G (i.succ) →+ G i.castSucc} {π: ∀ d, G m →+ G d} (hπ0: π 0 = 0) (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ)) {Ω : Type*} [hΩ : MeasureSpace Ω] [hprob: IsProbabilityMeasure hΩ.volume] {X : Fin m → Ω → (G m)}
 (hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X ) : D[X; fun _ ↦ hΩ] ≥ ∑ d : Fin m, D[ fun i ↦ (π (d.succ)) ∘ (X i) | fun i ↦ (π d.castSucc) ∘ (X i); fun _ ↦ hΩ] + I[∑ i : Fin m, X i : fun ω i ↦ (π 1) (X i ω)| ⇑(π 1) ∘ ∑ i : Fin m, X i]  := calc
   _ = D[X | fun i ↦ ⇑(π 0) ∘ X i ; fun x ↦ hΩ] := by
     rw [hπ0]
@@ -1416,7 +1440,56 @@ lemma iter_multiDist_chainRule'  {m:ℕ} {G : Fin (m+1) → Type*} [hG: ∀ i, M
       (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ ⇑(π d) ∘ X i ; fun x ↦ hΩ] +
         I[∑ i : Fin m, X i : fun ω i ↦ (π (d + 1)) (X i ω)|⟨⇑(π (d + 1)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) :=
     iter_multiDist_chainRule hcomp hX hindep (m : Fin (m+1))
-  _ ≥ _ := by sorry
+  _ ≥ ∑ d ∈ Finset.Iio (m : Fin (m+1)),
+      (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ ⇑(π d) ∘ X i ; fun x ↦ hΩ] +
+        I[∑ i : Fin m, X i : fun ω i ↦ (π (d + 1)) (X i ω)|⟨⇑(π (d + 1)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) := by
+      apply le_add_of_nonneg_left (condMultiDist_nonneg _ X _)
+  _ = ∑ d : Fin m,
+      (D[fun i ↦ ⇑(π (d.succ)) ∘ X i | fun i ↦ ⇑(π d.castSucc) ∘ X i ; fun x ↦ hΩ] +
+        I[∑ i : Fin m, X i : fun ω i ↦ (π (d.succ)) (X i ω)|⟨⇑(π (d.succ)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) := by
+      rw [sum_of_iio_last]
+      congr with d
+      rw [Fin.coeSucc_eq_succ, Fin.coe_eq_castSucc]
+  _ ≥ _ := by
+      rw [Finset.sum_add_distrib]
+      gcongr
+      set f := fun i : Fin m ↦ I[∑ i' : Fin m, X i' : fun ω i' ↦ (π i.succ) (X i' ω)|⟨⇑(π i.succ) ∘ ∑ i' : Fin m, X i', fun ω i' ↦ (π i) (X i' ω)⟩]
+      set a := Fin.ofNat' 0 hm
+      have hsum_mes := Finset.measurable_sum' Finset.univ fun i _ ↦ hX i
+      convert Finset.single_le_sum (a := a) (s := Finset.univ) (f := f) ?_ ?_
+      . have a0 : ((a:ℕ):Fin (m+1)) = 0 := rfl
+        have a1 : a.succ = 1 := by
+          rw [<-Fin.val_inj]
+          simp only [Nat.succ_eq_add_one, Fin.val_succ, Fin.val_ofNat', Nat.zero_mod, zero_add,
+            Fin.val_one', a]
+          exact (Nat.mod_eq_of_lt (Nat.lt_add_of_pos_left hm)).symm
+        simp [f]
+        rw [a0, a1]
+        set F : G 1 → G 1 × (Fin m → G 0):= fun (x : G 1) ↦ ⟨ x, (fun _ ↦ 0) ⟩
+        convert (condMutualInfo_of_inj (f := F) _ _ _ _ _).symm
+        . simp only [hπ0, AddMonoidHom.zero_apply, comp_apply, Finset.sum_apply, _root_.map_sum, F]
+        . exact hGs m
+        . infer_instance
+        . exact Finite.to_countable
+        . infer_instance
+        . exact hsum_mes
+        . apply measurable_pi_lambda
+          intro i'
+          exact Measurable.comp (measurable_discrete _) (hX i')
+        . exact Measurable.comp (measurable_discrete _) hsum_mes
+        . exact hprob
+        . infer_instance
+        . infer_instance
+        . infer_instance
+        intro x y hxy
+        simp only [Prod.mk.injEq, and_true, F] at hxy
+        exact hxy
+      . intro i _
+        apply condMutualInfo_nonneg hsum_mes
+        apply measurable_pi_lambda
+        intro i'
+        apply Measurable.comp (measurable_discrete _) (hX i')
+      exact Finset.mem_univ a
 
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are

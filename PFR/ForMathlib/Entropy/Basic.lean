@@ -942,6 +942,12 @@ lemma condMutualInfo_of_inj_map [Countable U] [IsProbabilityMeasure μ]
     fun _ _ _ h ↦ Prod.ext_iff.2 ⟨hf _ (Prod.ext_iff.1 h).1, (Prod.ext_iff.1 h).2⟩
   rw [← condEntropy_of_injective μ (hX.prod_mk hY) hZ g hg, ← condEntropy_of_injective μ hX hZ _ hf]
 
+lemma condMutualInfo_of_inj [Countable U]
+    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z] {V: Type*} [MeasurableSpace V] [MeasurableSingletonClass V] [Countable V] {f : U → V} (hf : Function.Injective f) : I[X : Y | f ∘ Z; μ] = I[X : Y | Z; μ] := by
+  have hfZ : Measurable (f ∘ Z) := (measurable_of_countable _).comp hZ
+  rw [condMutualInfo_eq hX hY hZ, condMutualInfo_eq hX hY hfZ, condEntropy_of_injective' _ hX hZ _ hf hfZ, condEntropy_of_injective' _ hY hZ _ hf hfZ, condEntropy_of_injective' _ (hX.prod_mk hY) hZ _ hf hfZ]
+
 lemma condEntropy_prod_eq_of_indepFun [Fintype T] [Fintype U] [IsProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X]
     (h : IndepFun (⟨X, Y⟩) Z μ) :
