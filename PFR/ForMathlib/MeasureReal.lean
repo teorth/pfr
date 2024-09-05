@@ -66,7 +66,7 @@ lemma sum_measure_preimage_singleton' (μ : Measure Ω) [IsProbabilityMeasure μ
     [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y : Ω → T} (hY : Measurable Y) :
     ∑ y : T, (μ (Y ⁻¹' {y})).toReal = 1 := by
   rw [← ENNReal.toReal_sum, sum_measure_preimage_singleton] <;>
-    simp [hY $ MeasurableSet.of_discrete, measure_ne_top]
+    simp [hY .of_discrete, measure_ne_top]
 
 end aux_lemmas
 

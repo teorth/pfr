@@ -251,7 +251,7 @@ lemma rdist_set_le (A B : Set G) [h'A : Finite A] [h'B : Finite B]
   · rw [Set.Nat.card_coe_set_eq,]
     exact Set.ncard_eq_toFinset_card (A - B)
   · exact isProbabilityMeasure_map (Measurable.aemeasurable measurable_sub)
-  rw [Measure.map_apply measurable_sub MeasurableSet.of_discrete]
+  rw [Measure.map_apply measurable_sub .of_discrete]
   apply MeasureTheory.measure_mono_null (t := (Aᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ Bᶜ))
   · intro (x, y)
     contrapose!
