@@ -198,7 +198,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     rw [h1] at hy
     have hy'' : μ (Y ⁻¹' {y}) ≠ 0 := by
       convert hy
-      exact (map_apply hY $ .of_discrete).symm
+      exact (map_apply hY .of_discrete).symm
     have h2 : ν[| Prod.snd⁻¹' {y}] = m y := by
       rw [Measure.ext_iff]
       intro E _

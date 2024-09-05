@@ -88,7 +88,7 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
         have hFY' : IndepFun F Y' := by
           have : Measurable (fun z ↦ z - c) := measurable_sub_const' c
           apply hindep.comp this measurable_id
-        rw [indepFun_iff_measure_inter_preimage_eq_mul.1 hFY' _ _ hs $ .of_discrete]
+        rw [indepFun_iff_measure_inter_preimage_eq_mul.1 hFY' _ _ hs .of_discrete]
       _ = ℙ ((X' - Y') ⁻¹' s ∩ Y' ⁻¹' {c}) := by
         congr 1; ext z; simp (config := {contextual := true})
       _ = ℙ ((X' - Y') ⁻¹' s) * ℙ (Y' ⁻¹' {c}) := by
