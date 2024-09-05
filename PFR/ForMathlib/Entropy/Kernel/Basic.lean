@@ -2,6 +2,7 @@ import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import PFR.ForMathlib.Entropy.Measure
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.Probability.Kernel.Disintegration
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 
 /-!
 # Entropy of a kernel with respect to a measure
@@ -411,8 +412,6 @@ lemma entropy_prod {κ : Kernel T S} {η : Kernel T U} [IsMarkovKernel κ] [IsMa
   have : Nonempty U := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ η
   rw [chain_rule (hκ.prod hη), fst_prod,
     entropy_congr (condKernel_prod_ae_eq _ _), entropy_prodMkRight hκ]
-
-attribute [fun_prop] Measurable.of_discrete
 
 /-- Data-processing inequality for the kernel entropy. -/
 lemma entropy_map_le

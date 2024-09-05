@@ -6,6 +6,7 @@ import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.Mathlib.Data.Fin.VecNotation
 import PFR.Mathlib.Probability.IdentDistrib
+import PFR.Mathlib.MeasureTheory.Group.Arithmetic
 
 /-!
 # Ruzsa distance
@@ -364,14 +365,6 @@ lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
   rw [← hIdX.rdist_eq hIdY, ← hIdX.rdist_eq A, hind.rdist_eq hX' hY',
     B.rdist_eq hX' (hY'.add_const _), entropy_add_const hY' c, C, entropy_add_const]
   exact hX'.sub hY'
-
-
-@[fun_prop]
-lemma Measurable.prod' {α β δ : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
-  {_ : MeasurableSpace δ} (f : α → β) (g : α → δ) (hf : Measurable f) (hg : Measurable g) :
-  Measurable (⟨f, g⟩) := hf.prod hg
-
-attribute [fun_prop] Measurable.div' Measurable.sub' Measurable.add' Measurable.mul'
 
 /-- A variant of `rdist_add_const` where one adds constants to both variables. -/
 lemma rdist_add_const' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (c : G) (c' : G)

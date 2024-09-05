@@ -1,6 +1,7 @@
 import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
 import PFR.Mathlib.Probability.Kernel.Composition
 import PFR.ForMathlib.Entropy.Kernel.Basic
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Embedding
 
 /-!
 # Mutual Information of kernels
@@ -61,8 +62,6 @@ lemma mutualInfo_congr {κ η : Kernel T (S × U)} {μ : Measure T} (h : κ =ᵐ
     filter_upwards [h] with t ht
     rw [snd_apply, ht, snd_apply]
   rw [entropy_congr h1, entropy_congr h2, entropy_congr h]
-
-attribute [fun_prop] MeasurableEquiv.measurable
 
 lemma compProd_assoc (ξ : Kernel T S) [IsSFiniteKernel ξ]
     (κ : Kernel (T × S) U) [IsSFiniteKernel κ] (η : Kernel (T × S × U) V) [IsSFiniteKernel η] :

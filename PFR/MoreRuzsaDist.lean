@@ -85,8 +85,6 @@ end dataProcessing
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 
-attribute [symm] ProbabilityTheory.IdentDistrib.symm
-
 variable {Ω Ω' Ω'' Ω''' G T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
