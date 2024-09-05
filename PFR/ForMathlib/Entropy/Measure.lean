@@ -60,6 +60,7 @@ lemma measureEntropy_def' (μ : Measure S) :
 class FiniteSupport (μ : Measure S := by volume_tac) : Prop where
   finite : ∃ A : Finset S, μ Aᶜ = 0
 
+/-- A set on which a measure with finite support is supported. -/
 noncomputable
 def _root_.MeasureTheory.Measure.support (μ : Measure S) [hμ : FiniteSupport μ] : Finset S :=
   hμ.finite.choose
@@ -233,22 +234,24 @@ lemma measureEntropy_dirac [MeasurableSingletonClass S] (x : S) : Hm[Measure.dir
 lemma measureEntropy_of_not_isFiniteMeasure (h : ¬ IsFiniteMeasure μ) : Hm[μ] = 0 := by
   simp [measureEntropy, not_isFiniteMeasure_iff.mp h]
 
-lemma measureEntropy_of_isProbabilityMeasure (μ : Measure S) [IsProbabilityMeasure μ] :
+lemma measureEntropy_of_isProbabilityMeasure (μ : Measure S) [IsZeroOrProbabilityMeasure μ] :
     Hm[μ] = ∑' s, negMulLog (μ {s}).toReal := by
-  simp [measureEntropy]
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp [measureEntropy]
+  · simp [measureEntropy]
 
-lemma measureEntropy_of_isProbabilityMeasure' (μ : Measure S) [IsProbabilityMeasure μ] :
+lemma measureEntropy_of_isProbabilityMeasure' (μ : Measure S) [IsZeroOrProbabilityMeasure μ] :
     Hm[μ] = ∑' s, negMulLog (μ.real {s}) :=
   measureEntropy_of_isProbabilityMeasure μ
 
 lemma measureEntropy_of_isProbabilityMeasure_finite {μ : Measure S} {A : Finset S} (hA : μ Aᶜ = 0)
-    [IsProbabilityMeasure μ] :
+    [IsZeroOrProbabilityMeasure μ] :
     Hm[ μ ] = ∑ s in A, negMulLog (μ {s}).toReal := by
   rw [measureEntropy_def_finite hA]
-  simp
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ <;> simp
 
 lemma measureEntropy_of_isProbabilityMeasure_finite' {μ : Measure S} {A : Finset S} (hA : μ Aᶜ = 0)
-    [IsProbabilityMeasure μ] :
+    [IsZeroOrProbabilityMeasure μ] :
     Hm[ μ ] = ∑ s in A, negMulLog (μ.real {s}) :=
   measureEntropy_of_isProbabilityMeasure_finite hA
 
@@ -276,6 +279,8 @@ lemma measureEntropy_nonneg (μ : Measure S) : 0 ≤ Hm[μ] := by
 
 variable [MeasurableSingletonClass S]
 
+/-- Auxiliary lemma for `measureEntropy_le_log_card_of_mem`, which removes the probability
+measure assumption. -/
 lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
     (A : Finset S) (hμ : μ Aᶜ = 0) :
     Hm[μ] ≤ log A.card := by
@@ -550,9 +555,11 @@ lemma measureMutualInfo_prod {μ : Measure S} {ν : Measure T} [FiniteSupport μ
 
 /-- An ambitious goal would be to replace FiniteSupport with finite entropy.  Proof is long and slow; needs to be optimized -/
 lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
-    [IsProbabilityMeasure μ] :
+    [IsZeroOrProbabilityMeasure μ] :
     0 ≤ Im[μ] ∧
     (Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}) := by
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp
   have : IsProbabilityMeasure (μ.map Prod.fst) :=
     isProbabilityMeasure_map measurable_fst.aemeasurable
   have : IsProbabilityMeasure (μ.map Prod.snd) :=
@@ -753,14 +760,12 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
 lemma measureMutualInfo_nonneg {μ : Measure (S × U)} [FiniteSupport μ] :
     0 ≤ Im[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
-  · rcases eq_zero_or_neZero μ with hμ|hμ
-    · simp [hμ]
-    rw [← measureMutualInfo_univ_smul μ]
+  · rw [← measureMutualInfo_univ_smul μ]
     apply measureMutualInfo_nonneg_aux.1
   rw [measureMutualInfo_of_not_isFiniteMeasure hμ_fin]
 
 lemma measureMutualInfo_eq_zero_iff {μ : Measure (S × U)} [FiniteSupport μ]
-    [IsProbabilityMeasure μ] :
+    [IsZeroOrProbabilityMeasure μ] :
     Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2} :=
   measureMutualInfo_nonneg_aux.2
 

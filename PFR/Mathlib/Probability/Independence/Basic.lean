@@ -69,9 +69,8 @@ when seen as a family indexed by `J`. -/
 lemma iIndepFun.finsets {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
     (hf_Indep : iIndepFun m f μ) (hf_meas : ∀ i, Measurable (f i)) :
-    iIndepFun (fun _ ↦ pi) (fun (j : J) ↦ fun a (i : S j) ↦ f i a) μ := by
-  have := hf_Indep.isProbabilityMeasure
-  exact Kernel.iIndepFun.finsets S h_disjoint hf_Indep hf_meas
+    iIndepFun (fun _ ↦ pi) (fun (j : J) ↦ fun a (i : S j) ↦ f i a) μ :=
+  Kernel.iIndepFun.finsets S h_disjoint hf_Indep hf_meas
 
 /-- If `f` is a family of mutually independent random variables, `(S j)ⱼ` are pairwise disjoint
 finite index sets, and `φ j` is a function that maps the tuple formed by `f i` for `i ∈ S j` to a
@@ -82,40 +81,42 @@ lemma iIndepFun.finsets_comp {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
     (hf_Indep : iIndepFun m f μ) (hf_meas : ∀ i, Measurable (f i))
     {γ : J → Type*} {mγ : ∀ j, MeasurableSpace (γ j)}
     (φ : (j : J) → ((i : S j) → β i) → γ j) (hφ : ∀ j, Measurable (φ j)) :
-    iIndepFun mγ (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) μ :=by
-  have := hf_Indep.isProbabilityMeasure
-  exact Kernel.iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas γ φ hφ
+    iIndepFun mγ (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) μ :=
+  Kernel.iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas γ φ hφ
 
 end iIndepFun
 
 section
 variable {β β' : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → β'}
 
-theorem IndepFun.measure_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
-    {_mβ' : MeasurableSpace β'} (h : IndepFun f g μ) {s : Set β} {t : Set β'}
-    (hs : MeasurableSet s) (ht : MeasurableSet t) :
-    μ (f ⁻¹' s ∩ g ⁻¹' t) = μ (f ⁻¹' s) * μ (g ⁻¹' t) :=
-  indepFun_iff_measure_inter_preimage_eq_mul.1 h _ _ hs ht
-
 theorem IndepFun.measureReal_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
     {_mβ' : MeasurableSpace β'} (h : IndepFun f g μ) {s : Set β} {t : Set β'}
     (hs : MeasurableSet s) (ht : MeasurableSet t) :
     μ.real (f ⁻¹' s ∩ g ⁻¹' t) = μ.real (f ⁻¹' s) * μ.real (g ⁻¹' t) := by
-  rw [measureReal_def, h.measure_inter_preimage_eq_mul hs ht, ENNReal.toReal_mul]; rfl
+  rw [measureReal_def, h.measure_inter_preimage_eq_mul _ _ hs ht, ENNReal.toReal_mul]; rfl
 
 end
 
 variable {Ω' : Type*} [MeasurableSpace Ω'] [MeasurableSpace α] [MeasurableSpace β]
 
+@[simp] lemma indepFun_zero_measure {f : Ω → α} {g : Ω → β} : IndepFun f g (0 : Measure Ω) := by
+  simp [IndepFun]
+
 /-- Random variables are always independent of constants. -/
-lemma indepFun_const [IsProbabilityMeasure μ] (c : α) : IndepFun f (fun _ => c) μ := by
+lemma indepFun_const [IsZeroOrProbabilityMeasure μ] (c : α) : IndepFun f (fun _ => c) μ := by
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp
   rw [IndepFun_iff, MeasurableSpace.comap_const]
   intro t₁ t₂ _ ht₂
   rcases MeasurableSpace.measurableSet_bot_iff.mp ht₂ with h | h
   all_goals simp [h]
 
-lemma indepFun_fst_snd [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+lemma indepFun_fst_snd [IsZeroOrProbabilityMeasure μ] [IsZeroOrProbabilityMeasure μ'] :
     IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp
+  rcases eq_zero_or_isProbabilityMeasure μ' with rfl | hμ'
+  · simp
   rw [IndepFun_iff]
   rintro _ _ ⟨s, _, rfl⟩ ⟨t, _, rfl⟩
   simp [← Set.prod_univ, ← Set.univ_prod, Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ,
@@ -217,7 +218,7 @@ end ProbabilityTheory
 
 namespace ProbabilityTheory
 variable {ι Ω : Type*} {κ : ι → Type*} {α : ∀ i, κ i → Type*} [MeasurableSpace Ω] {μ : Measure Ω}
-  [IsProbabilityMeasure μ] [m : ∀ i j, MeasurableSpace (α i j)] {f : ∀ i j, Ω → α i j}
+  [m : ∀ i j, MeasurableSpace (α i j)] {f : ∀ i j, Ω → α i j}
 
 lemma measurable_sigmaCurry :
     Measurable (Sigma.curry : (∀ ij : Σ i, κ i, α ij.1 ij.2) → ∀ i j, α i j) := by

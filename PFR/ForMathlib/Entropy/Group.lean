@@ -102,7 +102,6 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div [FiniteRange X] [Fin
     {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [IsProbabilityMeasure μ] [FiniteRange Z] :
     (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X / Y | Z ; μ] := by
-  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
     condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
     condEntropy_eq_kernel_entropy ?_ hZ]
@@ -212,7 +211,6 @@ lemma max_entropy_sub_mutualInfo_le_entropy_div (hX : Measurable X) (hY : Measur
 lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T} [FiniteRange Z]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
     max H[X | Z ; μ] H[Y | Z ; μ] - I[X : Y | Z ; μ] ≤ H[X * Y | Z ; μ] := by
-  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
     condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
     condEntropy_eq_kernel_entropy (show Measurable (X * Y) from hX.mul hY) hZ]

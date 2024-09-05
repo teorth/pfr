@@ -12,8 +12,8 @@ Here we show entropic PFR in the case of doubling constant zero.
 
 open MeasureTheory ProbabilityTheory Real
 
-variable {Ω : Type*} {G : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
-  [AddCommGroup G] [Fintype G] [MeasurableSpace G] [MeasurableAdd₂ G] [MeasurableSub₂ G] {X : Ω → G}
+variable {Ω : Type*} {G : Type*} [MeasureSpace Ω] [MeasurableSpace G] [AddCommGroup G]
+  [MeasurableAdd₂ G] {X : Ω → G}
 
 /-- The symmetry group Sym of $X$: the set of all $h ∈ G$ such that $X + h$ has an identical
 distribution to $X$. -/
@@ -53,7 +53,7 @@ lemma ProbabilityTheory.IdentDistrib.symmGroup_eq {Ω' : Type*} [MeasureSpace Ω
   have A : Measurable (fun a ↦ a + x) := measurable_add_const _
   exact ⟨fun H ↦ h.symm.trans (H.trans (h.comp A)), fun H ↦ h.trans (H.trans (h.symm.comp A))⟩
 
-variable [MeasurableSingletonClass G]
+variable [Fintype G] [MeasurableSingletonClass G] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 /-- If $d[X ;X]=0$, and $x,y \in G$ are such that $P[X=x], P[X=y]>0$,
 then $x-y \in \mathrm{Sym}[X]$. -/
@@ -88,17 +88,17 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
         have hFY' : IndepFun F Y' := by
           have : Measurable (fun z ↦ z - c) := measurable_sub_const' c
           apply hindep.comp this measurable_id
-        rw [indepFun_iff_measure_inter_preimage_eq_mul.1 hFY' _ _ hs $ measurableSet_discrete _]
+        rw [indepFun_iff_measure_inter_preimage_eq_mul.1 hFY' _ _ hs $ .of_discrete]
       _ = ℙ ((X' - Y') ⁻¹' s ∩ Y' ⁻¹' {c}) := by
         congr 1; ext z; simp (config := {contextual := true})
       _ = ℙ ((X' - Y') ⁻¹' s) * ℙ (Y' ⁻¹' {c}) := by
-        rw [indepFun_iff_measure_inter_preimage_eq_mul.1 I _ _ hs $ measurableSet_discrete _]
+        rw [indepFun_iff_measure_inter_preimage_eq_mul.1 I _ _ hs $ .of_discrete]
     rwa [ENNReal.mul_eq_mul_right hc (measure_ne_top ℙ _)] at this
   have J : IdentDistrib (fun ω ↦ X' ω - x) (fun ω ↦ X' ω - y) := by
     have Px : ℙ (Y' ⁻¹' {x}) ≠ 0 := by
-      convert hx; exact hidY.measure_mem_eq $ measurableSet_discrete _
+      convert hx; exact hidY.measure_mem_eq $ .of_discrete
     have Py : ℙ (Y' ⁻¹' {y}) ≠ 0 := by
-      convert hy; exact hidY.measure_mem_eq $ measurableSet_discrete _
+      convert hy; exact hidY.measure_mem_eq $ .of_discrete
     exact (M x Px).trans (M y Py).symm
   have : IdentDistrib X' (fun ω ↦ X' ω + (x - y)) := by
     have : Measurable (fun c ↦ c + x) := measurable_add_const x
@@ -121,7 +121,7 @@ lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X]
       simp_rw [B, add_zero, this]
       have Z := (mem_symmGroup hX).1 (AddSubgroup.neg_mem (symmGroup X hX) hz)
       simp [← sub_eq_add_neg] at Z
-      exact Z.symm.measure_mem_eq $ measurableSet_discrete _
+      exact Z.symm.measure_mem_eq $ .of_discrete
     intro x y hx hy
     rw [A x hx, A y hy]
   measure_preimage_compl := by
@@ -140,7 +140,7 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
   obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X⁻¹' {x₀}) ≠ 0 := by
     by_contra! h
     have A a : (ℙ : Measure Ω).map X {a} = 0 := by
-      rw [Measure.map_apply hX $ measurableSet_discrete _]
+      rw [Measure.map_apply hX $ .of_discrete]
       exact h _
     have B : (ℙ : Measure Ω).map X = 0 := by
       rw [← Measure.sum_smul_dirac (μ := (ℙ : Measure Ω).map X)]

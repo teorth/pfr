@@ -24,7 +24,6 @@ open scoped Classical Pointwise Combinatorics.Additive
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
   [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2] (A : Finset G)
 
-set_option maxHeartbeats 400000 in
 /-- Let $G, G'$ be finite abelian $2$-groups.
 Let $f : G \to G'$ be a function, and suppose that there are at least
 $|G|^2 / K$ pairs $(x,y) \in G^2$ such that $$ f(x+y) = f(x) + f(y).$$
@@ -48,7 +47,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   have : ((Nat.card G)^2 / K)^2 ≤ Nat.card A * E[A] := LE.le.trans (by gcongr) h_cs
   rewrite [← hA] at this
   replace : E[A] ≥ (Finset.card A)^3 / K^2 := calc
-    _ ≥ ((Nat.card A)^2 / K)^2 / Nat.card A := (div_le_iff' <| hA_pos).mpr this
+    _ ≥ ((Nat.card A)^2 / K)^2 / Nat.card A := (div_le_iff₀' <| hA_pos).mpr this
     _ = ((Nat.card A)^4 / (Nat.card A)) / K^2 := by ring
     _ = (Finset.card A)^3 / K^2 := by
       rw [pow_succ, mul_div_assoc, div_self (ne_of_gt hA_pos), mul_one,

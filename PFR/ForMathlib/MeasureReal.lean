@@ -66,7 +66,7 @@ lemma sum_measure_preimage_singleton' (μ : Measure Ω) [IsProbabilityMeasure μ
     [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y : Ω → T} (hY : Measurable Y) :
     ∑ y : T, (μ (Y ⁻¹' {y})).toReal = 1 := by
   rw [← ENNReal.toReal_sum, sum_measure_preimage_singleton] <;>
-    simp [hY $ measurableSet_discrete _, measure_ne_top]
+    simp [hY $ MeasurableSet.of_discrete, measure_ne_top]
 
 end aux_lemmas
 
@@ -275,7 +275,7 @@ theorem measureReal_union_add_inter' (hs : MeasurableSet s) (t : Set α)
     μ.real (s ∪ t) + μ.real (s ∩ t) = μ.real s + μ.real t :=
   measureReal_union_add_inter₀' hs.nullMeasurableSet t h₁ h₂
 
-lemma measureReal_symmDiff_eq (hs : MeasurableSet s) (ht : MeasurableSet t)
+lemma measureReal_symmDiff_eq (hs : NullMeasurableSet s μ) (ht : NullMeasurableSet t μ)
     (h₁ : μ s ≠ ∞ := by finiteness) (h₂ : μ t ≠ ∞ := by finiteness) :
     μ.real (s ∆ t) = μ.real (s \ t) + μ.real (t \ s) := by
   simp only [Measure.real]
@@ -433,7 +433,7 @@ theorem exists_nonempty_inter_of_measureReal_univ_lt_sum_measureReal
   · convert H
     rw [ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
     rfl
-  · exact (ENNReal.sum_lt_top (fun i hi ↦ measure_ne_top _ _)).ne
+  · exact (ENNReal.sum_lt_top.2 (fun i hi ↦ measure_lt_top _ _)).ne
 
 /-- If two sets `s` and `t` are included in a set `u` of finite measure,
 and `μ.real s + μ.real t > μ.real u`, then `s` intersects `t`.

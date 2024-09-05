@@ -152,7 +152,8 @@ local notation3:max "c[" A "; " μ " # " B " ; " μ' "]" =>
 local notation3:max "c[" A " # " B "]" =>
   d[p.X₀₁ # A] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # B] - d[p.X₀₂ # X₂])
 
-local notation3:max "c[" A " | " B " # " C " | " D "]" => d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
+local notation3:max "c[" A " | " B " # " C " | " D "]" =>
+  d[p.X₀₁ # A|B] - d[p.X₀₁ # X₁] + (d[p.X₀₂ # C|D] - d[p.X₀₂ # X₂])
 
 include h_indep h₁ h₂ in
 lemma hU [IsProbabilityMeasure (ℙ : Measure Ω)] : H[U] = H[X₁' + X₂'] :=
@@ -162,43 +163,43 @@ lemma hU [IsProbabilityMeasure (ℙ : Measure Ω)] : H[U] = H[X₁' + X₂'] :=
 
 variable {X₁ X₂ X₁' X₂'} in
 include h_indep hX₁ hX₂ hX₁' hX₂' in
-lemma independenceCondition1 [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma independenceCondition1 :
     iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] :=
   h_indep.apply_two_last hX₁ hX₂ hX₁' hX₂' measurable_add
 
 include h₁ h₂ h_indep in
 lemma hV [IsProbabilityMeasure (ℙ : Measure Ω)] : H[V] = H[X₁ + X₂'] :=
-IdentDistrib.entropy_eq (h₁.symm.add h₂
-  (h_indep.indepFun (show (2 : Fin 4) ≠ 1 by norm_cast))
-  (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by norm_cast)))
+  IdentDistrib.entropy_eq (h₁.symm.add h₂
+    (h_indep.indepFun (show (2 : Fin 4) ≠ 1 by norm_cast))
+    (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by norm_cast)))
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition2 [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma independenceCondition2 :
     iIndepFun (fun _ ↦ hG) ![X₂, X₁, X₁' + X₂'] :=
   independenceCondition1 hX₂ hX₁ hX₁' hX₂' h_indep.reindex_four_bacd
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition3 [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma independenceCondition3 :
     iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁ + X₂'] :=
   independenceCondition1 hX₁' hX₂ hX₁ hX₂' h_indep.reindex_four_cbad
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition4 [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma independenceCondition4 :
     iIndepFun (fun _ ↦ hG) ![X₂, X₁', X₁ + X₂'] :=
   independenceCondition1 hX₂ hX₁' hX₁ hX₂' h_indep.reindex_four_bcad
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition5 [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma independenceCondition5 :
     iIndepFun (fun _ ↦ hG) ![X₁, X₁', X₂ + X₂'] :=
   independenceCondition1 hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_acbd
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
-lemma independenceCondition6 [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma independenceCondition6 :
     iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X₁] :=
   independenceCondition1 hX₂ hX₂' hX₁' hX₁ h_indep.reindex_four_bdca
 
@@ -325,16 +326,30 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [ElementaryAddC
         sub_le_sub_right ineq8 _
      _ = (6 - 3 * p.η)*k + 3 * (2*p.η*k - I₁) := by ring
 
+omit [Fintype G] hG [MeasurableSingletonClass G] mΩ in
 /-- `U + V + W = 0`. -/
 lemma sum_uvw_eq_zero [ElementaryAddCommGroup G 2] : U+V+W = 0 := by
   rw [add_comm X₁' X₂, ElementaryAddCommGroup.sum_add_sum_add_sum_eq_zero]
 
 section construct_good
 variable {Ω' : Type*} [MeasureSpace Ω']
+
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] in
+lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
+    {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable Z) : c[Y | Z # Y | Z] =
+    (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ← z] # Y ; ℙ[|Z ← z]]] := by
+  simp only [integral_eq_sum, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
+    Finset.sum_add_distrib]
+  simp_rw [← integral_eq_sum]
+  rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
+    integral_const]
+  have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
+  simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+
 variable {T₁ T₂ T₃ : Ω' → G} (hT : T₁+T₂+T₃ = 0)
 variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
   [IsProbabilityMeasure (ℙ : Measure Ω')] [ElementaryAddCommGroup G 2]
-  [IsProbabilityMeasure (ℙ : Measure Ω)]
+  --[IsProbabilityMeasure (ℙ : Measure Ω)]
 
 local notation3:max "δ[" μ "]" => I[T₁ : T₂ ; μ] + I[T₂ : T₃ ; μ] + I[T₃ : T₁ ; μ]
 local notation3:max "δ" => I[T₁ : T₂] + I[T₂ : T₃] + I[T₃ : T₁]
@@ -422,8 +437,7 @@ is at most
 $$\delta + \frac{\eta}{3} \biggl( \delta + \sum_{i=1}^2 \sum_{j = 1}^3
     (d[X^0_i;T_j] - d[X^0_i; X_i]) \biggr).$$
 -/
-lemma construct_good
-    [IsProbabilityMeasure (ℙ : Measure Ω)] [IsProbabilityMeasure (ℙ : Measure Ω')] :
+lemma construct_good :
     k ≤ δ + (p.η/3) * (δ + c[T₁ # T₁] + c[T₂ # T₂] + c[T₃ # T₃]) := by
   have v2 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₁ hT₃ hT₂
   have v3 := construct_good_prelim p X₁ X₂ h_min (by rw [← hT]; abel) hT₂ hT₁ hT₃
@@ -433,32 +447,23 @@ lemma construct_good
   linarith
 
 include hT₁ hT₂ hT₃ hT h_min in
+omit [IsProbabilityMeasure (ℙ : Measure Ω')] in
 lemma construct_good' (μ : Measure Ω') [IsProbabilityMeasure μ] :
     k ≤ δ[μ] + (p.η/3) * (δ[μ] + c[T₁ ; μ # T₁ ; μ] + c[T₂ ; μ # T₂ ; μ] + c[T₃ ; μ # T₃ ; μ]) := by
   letI : MeasureSpace Ω' := ⟨μ⟩
   apply construct_good p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 
-lemma cond_c_eq_integral
-    {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable Z) : c[Y | Z # Y | Z] =
-    (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ← z] # Y ; ℙ[|Z ← z]]] := by
-  simp only [integral_eq_sum, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
-    Finset.sum_add_distrib]
-  simp_rw [← integral_eq_sum]
-  rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
-    integral_const]
-  have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
-  simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
-
 variable {R : Ω' → G} (hR : Measurable R)
 local notation3:max "δ'" => I[T₁ : T₂|R] + I[T₂ : T₃|R] + I[T₃ : T₁|R]
 
+omit [AddCommGroup G] in
 lemma delta'_eq_integral :
     δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
   simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum, smul_add,
     Finset.sum_add_distrib]
 
 include hT₁ hT₂ hT₃ hT h_min hR hX₁ hX₂ in
-lemma cond_construct_good :
+lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
     k ≤ δ' + (p.η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
@@ -488,8 +493,9 @@ end construct_good
 include hX₁ hX₂ h_min h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂' in
 /-- If `d[X₁ ; X₂] > 0` then there are `G`-valued random variables `X'₁, X'₂` such that
 Phrased in the contrapositive form for convenience of proof. -/
-theorem tau_strictly_decreases_aux [IsProbabilityMeasure (ℙ : Measure Ω)] [ElementaryAddCommGroup G 2]
-    (hpη: p.η = 1/9) : d[X₁ # X₂] = 0 := by
+theorem tau_strictly_decreases_aux
+    [IsProbabilityMeasure (ℙ : Measure Ω)] [ElementaryAddCommGroup G 2]
+    (hpη : p.η = 1/9) : d[X₁ # X₂] = 0 := by
   have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)
     (show Measurable U by measurability) (show Measurable V by measurability)
     (show Measurable W by measurability) (show Measurable S by measurability)

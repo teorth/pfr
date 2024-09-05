@@ -1,7 +1,6 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import PFR.ForMathlib.Entropy.Measure
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.Kernel.Disintegration
 
 /-!
@@ -32,10 +31,6 @@ namespace ProbabilityTheory.Kernel
 
 variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
   [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U]
- --[Countable S] [Nonempty S] [MeasurableSpace S] [MeasurableSingletonClass S]
- --[Countable T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
- --[Countable U] [Nonempty U] [MeasurableSpace U] [MeasurableSingletonClass U]
- --[Countable V] [Nonempty V] [MeasurableSpace V] [MeasurableSingletonClass V]
 
 /-- Entropy of a kernel with respect to a measure. -/
 noncomputable
@@ -75,7 +70,7 @@ lemma finiteKernelSupport_of_const (ν : Measure S) [FiniteSupport ν] :
 /-- Composing a finitely supported measure with a finitely supported kernel gives a finitely supported kernel. -/
 lemma finiteSupport_of_compProd' [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     {μ : Measure T} [IsFiniteMeasure μ] {κ : Kernel T S}
-    [IsMarkovKernel κ] [FiniteSupport μ] (hκ : FiniteKernelSupport κ) :
+    [IsZeroOrMarkovKernel κ] [FiniteSupport μ] (hκ : FiniteKernelSupport κ) :
     FiniteSupport (μ ⊗ₘ κ) := by
   let A := μ.support
   have hA := measure_compl_support μ
@@ -90,9 +85,9 @@ lemma finiteSupport_of_compProd' [MeasurableSingletonClass S] [MeasurableSinglet
   simp; tauto
 
 lemma finiteSupport_of_compProd
-    [MeasurableSingletonClass S] [Nonempty S] [Countable T] [MeasurableSingletonClass T]
+    [MeasurableSingletonClass S] [Countable T] [MeasurableSingletonClass T]
     {μ : Measure T} [IsFiniteMeasure μ] {κ : Kernel T S}
-    [IsMarkovKernel κ] [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
+    [IsZeroOrMarkovKernel κ] [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     FiniteSupport (μ ⊗ₘ κ) := by
   rw [Measure.compProd_congr hκ.ae_eq_mk]
   exact finiteSupport_of_compProd' hκ.finiteKernelSupport_mk
@@ -116,7 +111,7 @@ lemma entropy_le_log_card
   · exact ae_of_all _ (fun _ ↦ measureEntropy_le_log_card _)
   · simp
 
-lemma entropy_eq_integral_sum (κ : Kernel T S) [IsMarkovKernel κ] (μ : Measure T) :
+lemma entropy_eq_integral_sum (κ : Kernel T S) [IsZeroOrMarkovKernel κ] (μ : Measure T) :
     Hk[κ, μ] = μ[fun y ↦ ∑' x, negMulLog (κ y {x}).toReal] := by
   simp_rw [entropy, measureEntropy_of_isProbabilityMeasure]
 
@@ -127,32 +122,32 @@ lemma entropy_snd_compProd_deterministic_of_injective [MeasurableSingletonClass 
     (hf : ∀ t, Function.Injective (fun x ↦ f (t, x))) (hmes : Measurable f) :
     Hk[snd (κ ⊗ₖ deterministic f hmes), μ] = Hk[κ, μ] := by
   have : ∀ t, snd (κ ⊗ₖ deterministic f hmes) t
-      = map κ (fun x ↦ f (t, x)) (hmes.comp measurable_prod_mk_left) t := by
+      = map κ (fun x ↦ f (t, x)) t := by
     intro t
     ext s hs
-    rw [snd_apply' _ _ hs, compProd_deterministic_apply, map_apply' _ _ _ hs]
-    · congr
+    rw [snd_apply' _ _ hs, compProd_deterministic_apply, map_apply' _ (by fun_prop) _ hs]
+    · rfl
     · exact measurable_snd hs
   simp_rw [entropy]
   congr with y
   convert measureEntropy_map_of_injective (κ y) _ (hmes.comp measurable_prod_mk_left) (hf y)
-  rw [this y, map_apply]
-  congr
+  rw [this y, map_apply _ (by fun_prop)]
+  rfl
 
 lemma entropy_map_of_injective [MeasurableSingletonClass U]
     (κ : Kernel T S) (μ : Measure T) {f : S → U} (hf : Function.Injective f) (hmes : Measurable f) :
-    Hk[map κ f hmes, μ] = Hk[κ, μ] := by
-  simp_rw [entropy, map_apply, measureEntropy_map_of_injective _ _ hmes hf]
+    Hk[map κ f, μ] = Hk[κ, μ] := by
+  simp_rw [entropy, map_apply _ hmes, measureEntropy_map_of_injective _ _ hmes hf]
 
 lemma entropy_map_swap [MeasurableSingletonClass S] [MeasurableSingletonClass U]
     (κ : Kernel T (S × U)) (μ : Measure T) :
-    Hk[map κ Prod.swap measurable_swap, μ] = Hk[κ, μ] :=
-  entropy_map_of_injective κ μ Prod.swap_injective _
+    Hk[map κ Prod.swap, μ] = Hk[κ, μ] :=
+  entropy_map_of_injective κ μ Prod.swap_injective measurable_swap
 
 lemma entropy_swapRight [MeasurableSingletonClass S] [MeasurableSingletonClass U]
     (κ : Kernel T (S × U)) (μ : Measure T) :
     Hk[swapRight κ, μ] = Hk[κ, μ] := by
-  rw [swapRight, entropy_map_swap]
+  rw [swapRight_eq, entropy_map_swap]
 
 lemma entropy_comap [MeasurableSingletonClass T]
     {T' : Type*}  [MeasurableSpace T'] [MeasurableSingletonClass T']
@@ -218,7 +213,7 @@ def prodMKLeft_unit_equiv (T : Type*) [MeasurableSpace T] : (Unit × T) ≃ᵐ T
   measurable_invFun := by simp; exact measurable_prod_mk_left
 
 lemma entropy_prodMkLeft_unit [MeasurableSingletonClass T]
-    (κ : Kernel T S) {μ : Measure T} [IsProbabilityMeasure μ] [FiniteSupport μ] :
+    (κ : Kernel T S) {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ] :
     Hk[prodMkLeft Unit κ, μ.map (Prod.mk ())] = Hk[κ, μ] := by
   convert entropy_comap_equiv κ (prodMKLeft_unit_equiv T) (μ := μ)
   funext μ
@@ -226,11 +221,13 @@ lemma entropy_prodMkLeft_unit [MeasurableSingletonClass T]
   congr
 
 lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClass T]
-    [MeasurableSingletonClass U] [IsFiniteMeasure μ] {κ : Kernel T S} [IsMarkovKernel κ]
+    [MeasurableSingletonClass U] [IsFiniteMeasure μ] {κ : Kernel T S} [IsZeroOrMarkovKernel κ]
     {η : Kernel (T × S) U} [IsMarkovKernel η] [FiniteSupport μ] (hκ : FiniteKernelSupport κ)
     (hη : FiniteKernelSupport η) :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ]
       + μ[fun t ↦ Hk[comap η (Prod.mk t) measurable_prod_mk_left, (κ t)]] := by
+  rcases eq_zero_or_isMarkovKernel κ with rfl | hκ'
+  · simp
   let A := μ.support
   have hA := measure_compl_support μ
   have hsum (F : T → ℝ) : ∫ (t : T), F t ∂μ = ∑ t in A, (μ.real {t}) * (F t) := by
@@ -289,7 +286,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
 
 lemma entropy_compProd' [MeasurableSingletonClass S] [Countable S] [MeasurableSingletonClass T]
     [Countable T] [MeasurableSingletonClass U]
-    [IsFiniteMeasure μ] {κ : Kernel T S} [IsMarkovKernel κ]
+    [IsFiniteMeasure μ] {κ : Kernel T S} [IsZeroOrMarkovKernel κ]
     {η : Kernel (T × S) U} [IsMarkovKernel η] [FiniteSupport μ]
     (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[η, μ ⊗ₘ κ] := by
@@ -301,9 +298,9 @@ lemma entropy_compProd' [MeasurableSingletonClass S] [Countable S] [MeasurableSi
   · have := finiteSupport_of_compProd' hκ (μ := μ)
     exact integrable_of_finiteSupport (μ ⊗ₘ κ)
 
-lemma entropy_compProd [Nonempty S] [Countable S] [MeasurableSingletonClass S]
-    [Countable T] [MeasurableSingletonClass T] [Nonempty U] [MeasurableSingletonClass U]
-    [IsFiniteMeasure μ] {κ : Kernel T S} [IsMarkovKernel κ]
+lemma entropy_compProd [Countable S] [MeasurableSingletonClass S]
+    [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
+    [IsFiniteMeasure μ] {κ : Kernel T S} [IsZeroOrMarkovKernel κ]
     {η : Kernel (T × S) U} [IsMarkovKernel η] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η (μ ⊗ₘ κ)) :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[η, μ ⊗ₘ κ] := by
@@ -327,12 +324,12 @@ lemma entropy_deterministic [MeasurableSingletonClass S]
   apply measureEntropy_dirac
 
 @[simp]
-lemma entropy_compProd_deterministic [Nonempty S] [Countable S] [MeasurableSingletonClass S]
-    [Countable T] [MeasurableSingletonClass T] [Nonempty U] [MeasurableSingletonClass U]
-    (κ : Kernel T S) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ] (f : T × S → U)
+lemma entropy_compProd_deterministic [Countable S] [MeasurableSingletonClass S]
+    [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
+    (κ : Kernel T S) [IsZeroOrMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ] (f : T × S → U)
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     Hk[κ ⊗ₖ (deterministic f (measurable_of_countable f)), μ] = Hk[κ, μ] := by
-  simp [entropy_compProd hκ ((finiteKernelSupport_of_deterministic f).aefiniteKernelSupport _)]
+  simp [entropy_compProd hκ ((FiniteKernelSupport.deterministic f).aefiniteKernelSupport _)]
 
 lemma nonempty_of_isMarkovKernel
     {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] (κ : Kernel α β) [IsMarkovKernel κ]
@@ -350,20 +347,17 @@ lemma nonempty_of_isProbabilityMeasure_of_isMarkovKernel
 
 lemma chain_rule [Countable S] [MeasurableSingletonClass S] [Countable T]
     [MeasurableSingletonClass T] [Countable U] [MeasurableSingletonClass U]
-    {κ : Kernel T (S × U)} [IsMarkovKernel κ] [hU : Nonempty U]
-    {μ : Measure T} [IsProbabilityMeasure μ] [FiniteSupport μ]
+    {κ : Kernel T (S × U)} [IsZeroOrMarkovKernel κ] [hU : Nonempty U]
+    {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) :
     Hk[κ, μ] = Hk[fst κ, μ] + Hk[condKernel κ, μ ⊗ₘ (fst κ)] := by
-  have : Nonempty (S × U) := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ κ
-  inhabit (S × U)
-  have : Nonempty S := ⟨(default : S × U).1⟩
   conv_lhs => rw [disintegration κ]
   rw [entropy_compProd hκ.fst (aefiniteKernelSupport_of_cond _ hκ)]
 
 lemma chain_rule' [Nonempty S] [Countable S] [MeasurableSingletonClass S] [Countable T]
     [MeasurableSingletonClass T] [Countable U] [MeasurableSingletonClass U]
-    {κ : Kernel T (S × U)} [IsMarkovKernel κ]
-    {μ : Measure T} [IsProbabilityMeasure μ] [FiniteSupport μ]
+    {κ : Kernel T (S × U)} [IsZeroOrMarkovKernel κ]
+    {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) :
     Hk[κ, μ] = Hk[snd κ, μ] + Hk[condKernel (swapRight κ), μ ⊗ₘ (snd κ)] := by
   rw [← entropy_swapRight, chain_rule hκ.swapRight]
@@ -373,10 +367,9 @@ lemma chain_rule' [Nonempty S] [Countable S] [MeasurableSingletonClass S] [Count
 lemma entropy_prodMkRight [Countable S] [MeasurableSingletonClass S] [Countable T]
     [MeasurableSingletonClass T]
     {κ : Kernel T S} {η : Kernel T U}
-    [IsMarkovKernel κ] {μ : Measure T} [IsProbabilityMeasure μ] [FiniteSupport μ]
+    [IsMarkovKernel κ] {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) :
     Hk[prodMkRight S η, μ ⊗ₘ κ] = Hk[η, μ] := by
-  have : Nonempty S := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ κ
   simp_rw [entropy, prodMkRight_apply]
   rw [Measure.integral_compProd]
   · simp only [MeasureTheory.integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
@@ -386,7 +379,7 @@ lemma entropy_prodMkRight [Countable S] [MeasurableSingletonClass S] [Countable 
 lemma entropy_prodMkRight' [Countable S] [MeasurableSingletonClass S] [Countable T]
     [MeasurableSingletonClass T]
     {η : Kernel T U}
-    {μ : Measure T} [IsProbabilityMeasure μ] {ν : Measure S} [IsProbabilityMeasure ν]
+    {μ : Measure T} [IsZeroOrProbabilityMeasure μ] {ν : Measure S} [IsProbabilityMeasure ν]
     [FiniteSupport μ] [FiniteSupport ν] :
     Hk[prodMkRight S η, μ.prod ν] = Hk[η, μ] := by
   rw [← entropy_prodMkRight (μ := μ) ((finiteKernelSupport_of_const ν).aefiniteKernelSupport _)]
@@ -397,7 +390,7 @@ lemma entropy_prodMkRight' [Countable S] [MeasurableSingletonClass S] [Countable
 @[simp]
 lemma entropy_prodMkLeft [Countable S] [MeasurableSingletonClass S] [Countable T]
     [MeasurableSingletonClass T] {η : Kernel T U}
-    {ν : Measure S} [IsProbabilityMeasure ν] {μ : Measure T} [IsProbabilityMeasure μ]
+    {ν : Measure S} [IsProbabilityMeasure ν] {μ : Measure T} [IsZeroOrProbabilityMeasure μ]
     [FiniteSupport μ] [FiniteSupport ν] :
     Hk[prodMkLeft S η, ν.prod μ] = Hk[η, μ] := by
   simp_rw [entropy, prodMkLeft_apply]
@@ -410,48 +403,58 @@ variable [Countable S] [MeasurableSingletonClass S] [Countable T]
 
 @[simp]
 lemma entropy_prod {κ : Kernel T S} {η : Kernel T U} [IsMarkovKernel κ] [IsMarkovKernel η]
-    {μ : Measure T} [IsProbabilityMeasure μ] [FiniteSupport μ]
+    {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η μ) :
     Hk[κ ×ₖ η, μ] = Hk[κ, μ] + Hk[η, μ] := by
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp
   have : Nonempty U := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ η
   rw [chain_rule (hκ.prod hη), fst_prod,
     entropy_congr (condKernel_prod_ae_eq _ _), entropy_prodMkRight hκ]
 
+attribute [fun_prop] Measurable.of_discrete
+
 /-- Data-processing inequality for the kernel entropy. -/
 lemma entropy_map_le
-    {κ : Kernel T S} [IsMarkovKernel κ] {μ : Measure T} [IsProbabilityMeasure μ] (f : S → U)
-    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
-    Hk[map κ f (measurable_of_countable f), μ] ≤ Hk[κ, μ] := by
+    {κ : Kernel T S} [IsZeroOrMarkovKernel κ] {μ : Measure T} [IsZeroOrProbabilityMeasure μ]
+    (f : S → U) [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
+    Hk[map κ f, μ] ≤ Hk[κ, μ] := by
+  rcases eq_zero_or_isMarkovKernel κ with rfl | hκ'
+  · simp
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp
   have : Nonempty S := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ κ
-  have : Hk[κ, μ] = Hk[map κ (fun x ↦ (x, f x)) (measurable_of_countable _), μ] := by
-    refine (entropy_map_of_injective κ μ (f := fun x ↦ (x, f x)) ?_ ?_).symm
+  have : Hk[κ, μ] = Hk[map κ (fun x ↦ (x, f x)), μ] := by
+    refine (entropy_map_of_injective κ μ (f := fun x ↦ (x, f x)) ?_ (by fun_prop)).symm
     intro x y hxy
     simp only [Prod.mk.injEq] at hxy
     exact hxy.1
-  rw [this, chain_rule' (hκ.map _)]
-  simp_rw [snd_map_prod κ measurable_id' (measurable_of_countable f), le_add_iff_nonneg_right]
+  rw [this, chain_rule' hκ.map]
+  simp_rw [snd_map_prod κ measurable_id', le_add_iff_nonneg_right]
   exact entropy_nonneg _ _
 
 lemma entropy_of_map_eq_of_map {κ : Kernel T S} {η : Kernel T U}
-    [IsMarkovKernel κ] [IsMarkovKernel η]
-    {μ : Measure T} [IsProbabilityMeasure μ] (f : S → U) (g : U → S)
-    (h1 : η = map κ f (measurable_of_countable _)) (h2 : κ = map η g (measurable_of_countable _))
+    [IsZeroOrMarkovKernel κ] [IsZeroOrMarkovKernel η]
+    {μ : Measure T} [IsZeroOrProbabilityMeasure μ] (f : S → U) (g : U → S)
+    (h1 : η = map κ f) (h2 : κ = map η g)
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η μ) :
     Hk[κ, μ] = Hk[η, μ] := by
   refine le_antisymm ?_ ?_
   · rw [h2]; exact entropy_map_le g hη
   · rw [h1]; exact entropy_map_le f hκ
 
-lemma entropy_snd_le {κ : Kernel T (S × U)} [IsMarkovKernel κ]
-    {μ : Measure T} [IsProbabilityMeasure μ]
+lemma entropy_snd_le {κ : Kernel T (S × U)} [IsZeroOrMarkovKernel κ]
+    {μ : Measure T} [IsZeroOrProbabilityMeasure μ]
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
-    Hk[snd κ, μ] ≤ Hk[κ, μ] :=
-  entropy_map_le _ hκ
+    Hk[snd κ, μ] ≤ Hk[κ, μ] := by
+  rw [snd_eq]
+  exact entropy_map_le _ hκ
 
-lemma entropy_fst_le (κ : Kernel T (S × U)) [IsMarkovKernel κ]
-    (μ : Measure T) [IsProbabilityMeasure μ]
+lemma entropy_fst_le (κ : Kernel T (S × U)) [IsZeroOrMarkovKernel κ]
+    (μ : Measure T) [IsZeroOrProbabilityMeasure μ]
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
-    Hk[fst κ, μ] ≤ Hk[κ, μ] :=
-  entropy_map_le _ hκ
+    Hk[fst κ, μ] ≤ Hk[κ, μ] := by
+  rw [fst_eq]
+  exact entropy_map_le _ hκ
 
 end ProbabilityTheory.Kernel

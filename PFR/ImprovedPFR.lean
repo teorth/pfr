@@ -90,7 +90,7 @@ lemma gen_ineq_aux2 :
           right_inv := by intro ⟨a, b⟩; simp [add_assoc] }
       convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
         (⟨Z₁ + Z₃, Sum⟩) e (hZ₁.add' hZ₂) ((hZ₁.add' hZ₃).prod_mk hS)
-        (measurable_discrete e) e.injective).symm
+        (Measurable.of_discrete (f := e)) e.injective).symm
       simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
       abel
   _ = ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal *
@@ -132,8 +132,8 @@ lemma gen_ineq_aux2 :
         ext p; simp
       rw [this]
       have J : IndepFun (Z₁ + Z₃) (Z₂ + Z₄) := by exact I.comp measurable_add measurable_add
-      rw [J.measure_inter_preimage_eq_mul (measurableSet_singleton x) (measurableSet_singleton y),
-        ENNReal.toReal_mul]
+      rw [J.measure_inter_preimage_eq_mul _ _ (measurableSet_singleton x)
+        (measurableSet_singleton y), ENNReal.toReal_mul]
       rcases eq_or_ne (ℙ ((Z₁ + Z₃) ⁻¹' {x})) 0 with h1|h1
       · simp [h1]
       rcases eq_or_ne (ℙ ((Z₂ + Z₄) ⁻¹' {y})) 0 with h2|h2
@@ -150,7 +150,8 @@ lemma gen_ineq_aux2 :
               (hZ₁.prod_mk hZ₃)
           exact this.comp measurable_fst measurable_add
         · rw [cond_apply _ ((hZ₁.add' hZ₃) (measurableSet_singleton x)),
-            J.measure_inter_preimage_eq_mul (measurableSet_singleton x) (measurableSet_singleton y)]
+            J.measure_inter_preimage_eq_mul _ _ (measurableSet_singleton x)
+            (measurableSet_singleton y)]
           simp [h1, h2]
           finiteness
         · finiteness
@@ -165,7 +166,7 @@ lemma gen_ineq_aux2 :
               (hZ₂.prod_mk hZ₄)
           exact this.comp measurable_fst measurable_add
         · rw [cond_apply _ ((hZ₂.add' hZ₄) (measurableSet_singleton y)),
-            J.symm.measure_inter_preimage_eq_mul (measurableSet_singleton y)
+            J.symm.measure_inter_preimage_eq_mul _ _ (measurableSet_singleton y)
               (measurableSet_singleton x)]
           simp [h1, h2]
           finiteness
@@ -220,7 +221,7 @@ lemma gen_ineq_01 : d[Y # Z₁ + Z₂ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] �
     left_inv := by intro ⟨a, b⟩; simp [add_comm b a, add_assoc]
     right_inv := by intro ⟨a, b⟩; simp [add_comm a b, ← add_assoc] }
   convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂) (⟨Z₁ + Z₃, Sum⟩) e
-    (by measurability) (by measurability) (by measurability) e.injective) with p
+    (by fun_prop) (by fun_prop) (by fun_prop) e.injective) with p
   simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
   abel
 
@@ -235,9 +236,9 @@ lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] �
   let e : G × G ≃ G × G := Equiv.prodComm G G
   have A : e ∘ ⟨Z₁ + Z₃, Sum⟩ = ⟨Sum, Z₁ + Z₃⟩ := by ext p <;> rfl
   rw [← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₃ + Z₄) (⟨Z₁ + Z₃, Sum⟩)
-      e (by measurability) (by measurability) (by measurability) e.injective ,
+      e (by fun_prop) (by fun_prop) (by fun_prop) e.injective ,
       ← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
-        (⟨Z₁ + Z₃, Sum⟩) e (by measurability) (by measurability) (by measurability)  e.injective, A,
+        (⟨Z₁ + Z₃, Sum⟩) e (by fun_prop) (by fun_prop) (by fun_prop)  e.injective, A,
       condRuzsaDist'_prod_eq_sum _ _ (hZ₃.add' hZ₄) hS (hZ₁.add' hZ₃),
       condRuzsaDist'_prod_eq_sum _ _ (hZ₁.add' hZ₂) hS (hZ₁.add' hZ₃)]
   congr with w
@@ -318,6 +319,8 @@ local notation3:max "ψ[" A "; " μ " # " B " ; " μ' "]" =>
   d[A ; μ # B ; μ'] + p.η * c[A ; μ # B ; μ']
 
 include hT hT₁ hT₂ hT₃ h_min in
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+[IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- For any $T_1, T_2, T_3$ adding up to $0$, then $k$ is at most
 $$ \delta + \eta (d[X^0_1;T_1|T_3]-d[X^0_1;X_1]) + \eta (d[X^0_2;T_2|T_3]-d[X^0_2;X_2])$$
 where $\delta = I[T₁ : T₂ ; μ] + I[T₂ : T₃ ; μ] + I[T₃ : T₁ ; μ]$. -/
@@ -372,6 +375,8 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
 open ElementaryAddCommGroup
 
 include hT hT₁ hT₂ hT₃ h_min in
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+[IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- In fact $k$ is at most
  $$ \delta + \frac{\eta}{6}  \sum_{i=1}^2 \sum_{1 \leq j,l \leq 3; j \neq l}
      (d[X^0_i;T_j|T_l] - d[X^0_i; X_i]).$$
@@ -402,6 +407,8 @@ lemma construct_good_improved' :
   linarith
 
 include h_min in
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+[IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Rephrase `construct_good_improved'` with an explicit probability measure, as we will
 apply it to (varying) conditional measures. -/
 lemma construct_good_improved'' {Ω' : Type*} [MeasurableSpace Ω'] (μ : Measure Ω')
@@ -421,6 +428,7 @@ lemma construct_good_improved'' {Ω' : Type*} [MeasurableSpace Ω'] (μ : Measur
 end aux
 
 include hX₁ hX₂ hX₁' hX₂' h_min in
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] in
 /--   $k$ is at most
 $$ \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta}{6}
 \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B} (d[X^0_i;A|B,S] - d[X^0_i; X_i]).$$
@@ -456,6 +464,7 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
 variable (p)
 
 include hX₁ hX₂ hX₁' hX₂' h_indep h₁ h₂ in
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] in
 lemma dist_diff_bound_1 :
       (d[p.X₀₁ # U | ⟨V, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # U | ⟨W, S⟩] - d[p.X₀₁ # X₁])
     + (d[p.X₀₁ # V | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # V | ⟨W, S⟩] - d[p.X₀₁ # X₁])
@@ -548,6 +557,7 @@ lemma dist_diff_bound_1 :
   linarith only [I1, I2, I3, I4, I5, I6]
 
 include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep in
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] in
 lemma dist_diff_bound_2 :
       ((d[p.X₀₂ # U | ⟨V, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # U | ⟨W, S⟩] - d[p.X₀₂ # X₂])
     + (d[p.X₀₂ # V | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # V | ⟨W, S⟩] - d[p.X₀₂ # X₂])
@@ -867,6 +877,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     ∃ (H : AddSubgroup G) (c : Set G),
     Nat.card c ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 10 * Nat.card A ∧ Nat.card A ≤ K ^ 10 * Nat.card H ∧ A ⊆ c + H := by
+  have A_fin : Finite A := by infer_instance
   classical
   let mG : MeasurableSpace G := ⊤
   have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
@@ -894,21 +905,22 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
-  have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm $ measurableSet_discrete _
+  have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm .of_discrete
   have VA'unif := VAunif
   rw [← hAA'] at VA'unif
-  have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm $ measurableSet_discrete _
+  have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm .of_discrete
   let H' := (H : Set G).toFinite.toFinset
   have hHH' : H' = (H : Set G) := Finite.coe_toFinset (toFinite (H : Set G))
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
+  have H_fin : Finite (H : Set G) := by infer_instance
 
   have : d[VA # VH] ≤ 10/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
     have : 0 < Nat.card (H : Set G) := Nat.card_pos
     positivity
-  have VA_ent : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' VAunif VAmeas
-  have VH_ent : H[VH] = log (Nat.card (H : Set G)) := IsUniform.entropy_eq' VHunif VHmeas
+  have VA_ent : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' A_fin VAunif VAmeas
+  have VH_ent : H[VH] = log (Nat.card (H : Set G)) := IsUniform.entropy_eq' H_fin VHunif VHmeas
   have Icard : |log (Nat.card A) - log (Nat.card (H : Set G))| ≤ 10 * log K := by
     rw [← VA_ent, ← VH_ent]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
@@ -940,9 +952,10 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     have := (Real.exp_monotone I).trans h₀
     have hAA'_card : Nat.card A' = Nat.card A := congrArg Nat.card (congrArg Subtype hAA')
     have hHH'_card : Nat.card H' = Nat.card (H : Set G) := congrArg Nat.card (congrArg Subtype hHH')
-    rw [hAA'_card, hHH'_card, le_div_iff] at this
+    rw [hAA'_card, hHH'_card, le_div_iff₀] at this
     convert this using 1
-    · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos, ← rpow_def_of_pos H_pos]
+    · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos,
+        ← rpow_def_of_pos H_pos]
       rpow_ring
       norm_num
     · rw [hAA', hHH']

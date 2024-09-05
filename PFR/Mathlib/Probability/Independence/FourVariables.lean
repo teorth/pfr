@@ -207,7 +207,7 @@ lemma reindex_four_dbca :
   ext i
   fin_cases i <;> rfl
 
-abbrev κ : Fin 3 → Type
+private abbrev κ : Fin 3 → Type
   | 0 | 1 => Fin 1
   | 2     => Fin 2
 
@@ -227,7 +227,7 @@ private def fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
 
 attribute [local instance] fintype_kappa in
 /-- If `(Z₁, Z₂, Z₃, Z₄)` are independent, so are `(Z₁, Z₂, φ Z₃ Z₄)` for any measurable `φ`. -/
-lemma apply_two_last [IsProbabilityMeasure (ℙ : Measure Ω)]
+lemma apply_two_last
     (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
     {phi : G → G → G} (hphi : Measurable phi.uncurry) :
     iIndepFun (fun _ ↦ hG) ![Z₁, Z₂, (fun ω ↦ phi (Z₃ ω) (Z₄ ω))] := by
@@ -244,5 +244,5 @@ lemma apply_two_last [IsProbabilityMeasure (ℙ : Measure Ω)]
   · intro i
     match i with
       | 0 | 1 => exact measurable_pi_apply _
-      | 2     => have : Measurable (fun (p : Fin 2 → G) ↦ (p 0, p 1)) := by measurability
+      | 2     => have : Measurable (fun (p : Fin 2 → G) ↦ (p 0, p 1)) := by fun_prop
                  exact hphi.comp this

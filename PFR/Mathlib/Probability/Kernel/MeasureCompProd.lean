@@ -77,10 +77,10 @@ lemma _root_.MeasureTheory.Measure.comap_swap (μ : Measure (α × β)) :
 
 lemma comap_prod_swap (κ : Kernel α β) (η : Kernel γ δ) [IsFiniteKernel κ] [IsFiniteKernel η] :
     comap (prodMkRight α η ×ₖ prodMkLeft γ κ) Prod.swap measurable_swap
-      = map (prodMkRight γ κ ×ₖ prodMkLeft α η) Prod.swap measurable_swap := by
+      = map (prodMkRight γ κ ×ₖ prodMkLeft α η) Prod.swap := by
   rw [ext_fun_iff]
   intro x f hf
-  rw [lintegral_comap, lintegral_map _ _ _ hf, lintegral_prod _ _ _ hf,
+  rw [lintegral_comap, lintegral_map _ measurable_swap _ hf, lintegral_prod _ _ _ hf,
     lintegral_prod]
   swap; · exact hf.comp measurable_swap
   simp only [prodMkRight_apply, Prod.fst_swap, Prod.swap_prod_mk, lintegral_prodMkLeft,
@@ -89,10 +89,10 @@ lemma comap_prod_swap (κ : Kernel α β) (η : Kernel γ δ) [IsFiniteKernel κ
   exact (hf.comp measurable_swap).aemeasurable
 
 lemma map_prod_swap (κ : Kernel α β) (η : Kernel α γ) [IsMarkovKernel κ] [IsMarkovKernel η] :
-    map (κ ×ₖ η) Prod.swap measurable_swap = η ×ₖ κ := by
+    map (κ ×ₖ η) Prod.swap = η ×ₖ κ := by
   rw [ext_fun_iff]
   intro x f hf
-  rw [lintegral_map _ _ _ hf, lintegral_prod, lintegral_prod _ _ _ hf]
+  rw [lintegral_map _ measurable_swap _ hf, lintegral_prod, lintegral_prod _ _ _ hf]
   swap; · exact hf.comp measurable_swap
   refine (lintegral_lintegral_swap ?_).symm
   exact hf.aemeasurable

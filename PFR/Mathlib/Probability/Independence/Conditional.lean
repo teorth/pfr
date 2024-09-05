@@ -23,7 +23,7 @@ theorem IndepFun.identDistrib_cond [IsProbabilityMeasure μ]
   refine ⟨hA.aemeasurable, hA.aemeasurable, ?_⟩
   ext t ht
   rw [Measure.map_apply hA ht, Measure.map_apply hA ht, cond_apply _ (hB hs), Set.inter_comm,
-    hi.measure_inter_preimage_eq_mul ht hs, mul_comm, mul_assoc,
+    hi.measure_inter_preimage_eq_mul _ _ ht hs, mul_comm, mul_assoc,
     ENNReal.mul_inv_cancel h (by finiteness), mul_one]
 
 /-- If `A` is independent of `B`, then they remain independent when conditioning on an event
@@ -43,8 +43,8 @@ lemma IndepFun.cond_left (hi : IndepFun A B μ) {s : Set α}
     have J : μ (A ⁻¹' s ∩ B ⁻¹' v) = 0 :=
       le_antisymm ((measure_mono inter_subset_left).trans h'.le) bot_le
     simp only [I, J, mul_zero]
-  · rw [hi.measure_inter_preimage_eq_mul (hs.inter hu) hv, Set.preimage_inter,
-      hi.measure_inter_preimage_eq_mul hs hv, ← mul_assoc (μ (A ⁻¹' s))⁻¹,
+  · rw [hi.measure_inter_preimage_eq_mul _ _ (hs.inter hu) hv, Set.preimage_inter,
+      hi.measure_inter_preimage_eq_mul _ _ hs hv, ← mul_assoc (μ (A ⁻¹' s))⁻¹,
       ← mul_assoc (μ (A ⁻¹' s))⁻¹, ENNReal.inv_mul_cancel h' h, one_mul]
 
 /-- If `A` is independent of `B`, then they remain independent when conditioning on an event
@@ -75,15 +75,15 @@ lemma IndepFun.cond (hi : IndepFun A B μ) {s : Set α} {t : Set β}
       apply le_antisymm ((measure_mono _).trans h'.le) bot_le
       exact inter_subset_inter_left _ (preimage_mono inter_subset_left)
     simp only [I, J, mul_zero, zero_mul]
-  · simp only [hi.measure_inter_preimage_eq_mul hs ht, ne_eq, mul_eq_zero, not_or] at h'
-    simp only [hi.measure_inter_preimage_eq_mul hs ht, ne_eq, ENNReal.mul_eq_top, h'.1,
+  · simp only [hi.measure_inter_preimage_eq_mul _ _ hs ht, ne_eq, mul_eq_zero, not_or] at h'
+    simp only [hi.measure_inter_preimage_eq_mul _ _ hs ht, ne_eq, ENNReal.mul_eq_top, h'.1,
       not_false_eq_true, true_and, h'.2, and_true, not_or] at h
     rw [mul_assoc]
     congr 1
-    rw [hi.measure_inter_preimage_eq_mul (hs.inter hu) (ht.inter hv),
-      hi.measure_inter_preimage_eq_mul (hs.inter hu) ht,
-      hi.measure_inter_preimage_eq_mul hs ht,
-      hi.measure_inter_preimage_eq_mul hs (ht.inter hv),
+    rw [hi.measure_inter_preimage_eq_mul _ _ (hs.inter hu) (ht.inter hv),
+      hi.measure_inter_preimage_eq_mul _ _ (hs.inter hu) ht,
+      hi.measure_inter_preimage_eq_mul _ _ hs ht,
+      hi.measure_inter_preimage_eq_mul _ _ hs (ht.inter hv),
       ENNReal.mul_inv (Or.inl h'.1) (Or.inr h'.2), mul_assoc]
     congr 1
     have : μ (B ⁻¹' t) * ((μ (A ⁻¹' s))⁻¹ * (μ (B ⁻¹' t))⁻¹ * (μ (A ⁻¹' s) * μ (B ⁻¹' (t ∩ v))))
@@ -198,7 +198,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     rw [h1] at hy
     have hy'' : μ (Y ⁻¹' {y}) ≠ 0 := by
       convert hy
-      exact (map_apply hY $ measurableSet_discrete _).symm
+      exact (map_apply hY $ .of_discrete).symm
     have h2 : ν[| Prod.snd⁻¹' {y}] = m y := by
       rw [Measure.ext_iff]
       intro E _

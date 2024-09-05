@@ -24,7 +24,7 @@ universe uG
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-variable (G : Type uG) [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
 
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
@@ -40,6 +40,8 @@ structure refPackage :=
   X₀₂ : Ω₀₂ → G
   hmeas1 : Measurable X₀₁
   hmeas2 : Measurable X₀₂
+  /-- The constant that parameterizes how good the package is. The argument only works for
+  small enough `η`, typically `≤ 1/9` or `< 1/8`. -/
   η : ℝ
   hη : 0 < η
   hη' : 8 * η ≤ 1
@@ -48,7 +50,6 @@ variable (p : refPackage Ω₀₁ Ω₀₂ G)
 variable {Ω₀₁ Ω₀₂ G}
 
 variable {Ω₁ Ω₂ Ω'₁ Ω'₂ : Type*}
-
 
 /-- If $X_1,X_2$ are two $G$-valued random variables, then
 $$ \tau[X_1; X_2] := d[X_1; X_2] + \eta d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
@@ -84,6 +85,8 @@ lemma continuous_tau_restrict_probabilityMeasure
     Continuous.comp (continuous_rdist_restrict_probabilityMeasure₁' _ _ p.hmeas1) continuous_fst
   continuity
 
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+[Fintype G] in
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. -/
 lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂]
@@ -103,6 +106,8 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
   ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+[Fintype G] in
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. -/
 lemma ProbabilityTheory.IdentDistrib.tau_minimizes [MeasureSpace Ω]
     [MeasureSpace Ω']
@@ -155,6 +160,8 @@ variable [MeasureSpace Ω] [hΩ₁ : MeasureSpace Ω'₁] [hΩ₂ : MeasureSpace
   [IsProbabilityMeasure (ℙ : Measure Ω'₁)] [IsProbabilityMeasure (ℙ : Measure Ω'₂)]
   {X₁ : Ω → G} {X₂ : Ω → G} {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G}
 
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Fintype G]
+[IsProbabilityMeasure (ℙ : Measure Ω)] in
 lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
     τ[X₁ # X₂ | p] ≤ τ[X'₁ # X'₂ | p] := by
   let ν₁ := (ℙ : Measure Ω'₁).map X'₁
@@ -164,6 +171,8 @@ lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : M
   convert h ν₁ ν₂ (isProbabilityMeasure_map h1.aemeasurable)
     (isProbabilityMeasure_map h2.aemeasurable)
 
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Fintype G]
+[IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Let `X₁` and `X₂` be tau-minimizers associated to `p`, with $d[X_1,X_2]=k$, then
 $$ d[X'_1;X'_2] \geq
     k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] )$$
@@ -176,6 +185,8 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁)
   simp [tau] at Z
   linarith
 
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Fintype G]
+[IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Version of `distance_ge_of_min` with the measures made explicit. -/
 lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂)
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
@@ -187,6 +198,8 @@ lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂
   set M2 : MeasureSpace Ω'₂ := { volume := μ' }
   exact distance_ge_of_min p h h1 h2
 
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+[IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower
 bound $d[X'_1|Z;X'_2|W]$ by
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$

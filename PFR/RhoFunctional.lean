@@ -64,7 +64,8 @@ lemma rho_continuous [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] : 
 
 /-- If $X,Y$ are independent, one has
   $$ \rho^-(X+Y) \leq \rho^-(X)$$ -/
-lemma rho_minus_of_sum  {Ω : Type*} [MeasureSpace Ω] (X Y : Ω → G) (A : Finset G) (hindep: IndepFun X Y) : rho_minus (X+Y) A ≤ rho_minus X A := by sorry
+lemma rho_minus_of_sum  {Ω : Type*} [MeasureSpace Ω] (X Y : Ω → G)
+    (A : Finset G) (hindep: IndepFun X Y) : rho_minus (X+Y) A ≤ rho_minus X A := by sorry
 
 
 /-- If $X,Y$ are independent, one has
@@ -78,12 +79,21 @@ lemma rho_of_sum {Ω : Type*} [MeasureSpace Ω] (X Y : Ω → G) (A : Finset G) 
 
 -- This may not be the optimal spelling for condRho, feel free to improve
 /-- We define $\rho(X|Y) := \sum_y {\bf P}(Y=y) \rho(X|Y=y)$. -/
-noncomputable def condRho {Ω S : Type*} [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) : ℝ := ∑' s, (volume (Y ⁻¹' {s})).toReal * @rho G _ _ Ω ⟨ ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
+noncomputable def condRho {Ω S : Type*}
+    [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) : ℝ :=
+  ∑' s, (volume (Y ⁻¹' {s})).toReal * @rho G _ _ Ω ⟨ ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
 
-noncomputable def condRho_minus {Ω S : Type*} [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) : ℝ := ∑' s, (volume (Y ⁻¹' {s})).toReal * @rho_minus G _ _ Ω ⟨ ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
+/-- Average of rho_minus along the fibers-/
+noncomputable def condRho_minus {Ω S : Type*}
+    [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) : ℝ :=
+  ∑' s, (volume (Y ⁻¹' {s})).toReal *
+    @rho_minus G _ _ Ω ⟨ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
 
-noncomputable def condRho_plus {Ω S : Type*} [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) : ℝ := ∑' s, (volume (Y ⁻¹' {s})).toReal * @rho_plus G _ _ Ω ⟨ ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
-
+/-- Average of rho_plus along the fibers-/
+noncomputable def condRho_plus {Ω S : Type*}
+    [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) : ℝ :=
+  ∑' s, (volume (Y ⁻¹' {s})).toReal *
+    @rho_plus G _ _ Ω ⟨ ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
 
 /-- For any $s\in G$, $\rho(X+s|Y)=\rho(X|Y)$. -/
 lemma condRho_of_translate {Ω S : Type*} [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) (s:G) : condRho (fun ω ↦ X ω + s) Y A = condRho X Y A := by sorry
@@ -115,7 +125,10 @@ lemma condRho_of_sum_le {Ω : Type*} [MeasureSpace Ω] (X Y : Ω → G) (A : Fin
 
 section phiMinimizer
 
-noncomputable def phi {Ω: Type*} [MeasureSpace Ω] (X Y : Ω → G) (η:ℝ) (A: Finset G)  : ℝ := d[ X # Y ] + η * (rho X A + rho Y A)
+/-- Given $G$-valued random variables $X,Y$, define
+$$ \phi[X;Y] := d[X;Y] + \eta(\rho(X) + \rho(Y))$$. -/
+noncomputable def phi {Ω : Type*} [MeasureSpace Ω] (X Y : Ω → G) (η : ℝ) (A : Finset G) : ℝ :=
+  d[ X # Y ] + η * (rho X A + rho Y A)
 
 /--  Given $G$-valued random variables $X,Y$, define
 $$ \phi[X;Y] := d[X;Y] + \eta(\rho(X) + \rho(Y))$$

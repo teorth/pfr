@@ -9,6 +9,7 @@ namespace Set
 variable {G G' : Type*}
 
 -- TODO: maybe `Function.graph` for dot notation?
+/-- The graph of a function, as a subset of the product space. -/
 def graph (f : G → G') : Set (G×G') := {(x, f x) | x : G}
 
 lemma graph_def (f : G → G') : graph f = {(x, f x) | x : G} := rfl
@@ -67,6 +68,9 @@ lemma graph_add [AddGroup G] [AddCommGroup G'] {f : G →+ G'} {c : G × G'} :
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G'] [DecidableEq G]
   [DecidableEq G']
 
+/-- The pairs of points in the graph of `f` satisyfing that their sum still belongs to the
+graph correspond to the pairs `(x, y)` with `f (x + y) = f x + f y` (by considering the first
+coordinates). -/
 def equivFilterGraph (f : G → G') :
     let A := (Set.graph f).toFinite.toFinset
     (A ×ˢ A).filter (fun (a, a') ↦ a + a' ∈ A) ≃ {x : G × G | f (x.1 + x.2) = f x.1 + f x.2} where
