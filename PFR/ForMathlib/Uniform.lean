@@ -72,15 +72,14 @@ lemma exists_isUniform_measureSpace {S : Type u}  [MeasurableSpace S]
 
 /-- Uniform distributions exist, version with a Finite set rather than a Finset and giving a measure space -/
 lemma exists_isUniform_measureSpace' {S : Type u}  [MeasurableSpace S]
-    [MeasurableSingletonClass S] (H : Set S) [Finite H] [Nonempty H] :
+    [MeasurableSingletonClass S] (H : Set S) (hH : H.Finite) (h'H : H.Nonempty) :
     ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
-    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω, U ω ∈ H) ∧ FiniteRange U := by
-  set Hf := H.toFinite.toFinset
-  have hHf : Hf.Nonempty := by
-    rwa [<-Hf.coe_nonempty, H.toFinite.coe_toFinset, <-H.nonempty_coe_sort]
-  obtain ⟨ Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin ⟩ := exists_isUniform_measureSpace Hf hHf
-  rw [ H.toFinite.coe_toFinset] at hunif
-  replace hrange : ∀ ω, U ω ∈ H := by convert hrange with ω; simp_rw [Hf, Finite.mem_toFinset]
+    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U
+      ∧ (∀ ω, U ω ∈ H) ∧ FiniteRange U := by
+  set Hf := hH.toFinset
+  have hHf : Hf.Nonempty := by simpa [Hf] using h'H
+  obtain ⟨Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin⟩ := exists_isUniform_measureSpace Hf hHf
+  simp only [Finite.coe_toFinset, Finite.mem_toFinset, Hf] at hunif hrange
   exact ⟨Ω, mΩ, U, hμ, hmes, hunif, hrange, hfin⟩
 
 /-- A uniform random variable on H almost surely takes values in H. -/
@@ -115,7 +114,7 @@ lemma IsUniform.measure_preimage_of_mem
     μ (X ⁻¹' {s}) = μ univ / Nat.card H := by
   have B : μ univ = (Nat.card H) * μ (X ⁻¹' {s}) := calc
     μ univ = μ (X ⁻¹' Hᶜ) + μ (X ⁻¹' H) := by
-      rw [← measure_union (disjoint_compl_left.preimage _) (hX (measurableSet_discrete _))]
+      rw [← measure_union (disjoint_compl_left.preimage _) (hX .of_discrete)]
       simp
     _ = μ (X ⁻¹' H) := by rw [h.measure_preimage_compl, zero_add]
     _ = ∑ x in H, μ (X ⁻¹' {x}) := by
@@ -125,7 +124,7 @@ lemma IsUniform.measure_preimage_of_mem
         apply Disjoint.preimage
         simp [hyz]
       · intro y _hy
-        exact hX (measurableSet_discrete _)
+        exact hX .of_discrete
     _ = ∑ _x in H, μ (X ⁻¹' {s}) :=
       Finset.sum_congr rfl (fun x hx ↦ h.eq_of_mem x s (by simpa using hx) hs)
     _ = H.card * μ (X ⁻¹' {s}) := by simp
@@ -227,7 +226,7 @@ lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) 
       _ = 0 := by
         simp only [cond, Measure.smul_apply, smul_eq_mul]
         rw [add_zero, Set.preimage_compl, Measure.restrict_apply <|
-          MeasurableSet.compl (measurableSet_preimage hX (measurableSet_discrete H')),
+          MeasurableSet.compl (measurableSet_preimage hX .of_discrete),
           compl_inter_self, measure_empty, mul_zero]
 
 lemma IdentDistrib.of_isUniform {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}

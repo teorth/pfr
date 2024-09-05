@@ -22,7 +22,7 @@ Assumptions:
 open MeasureTheory ProbabilityTheory
 
 variable {G : Type*} [addgroup : AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
-  [MeasurableSingletonClass G] [elem : ElementaryAddCommGroup G 2]
+  [MeasurableSingletonClass G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
 
@@ -50,8 +50,9 @@ $$ d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] 
 and
 $$ I[X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2] $$
 is equal to $2k$. -/
-lemma rdist_add_rdist_add_condMutual_eq : d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁']
-    + I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂'] = 2 * k := by
+lemma rdist_add_rdist_add_condMutual_eq [ElementaryAddCommGroup G 2] :
+    d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁']
+      + I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂'] = 2 * k := by
   have h0 : ![X₁, X₂, X₂', X₁'] 0 = X₁ := rfl
   have h1 : ![X₁, X₂, X₂', X₁'] 1 = X₂ := rfl
   have h2 : ![X₁, X₂, X₂', X₁'] 2 = X₂' := rfl
@@ -70,8 +71,7 @@ lemma rdist_add_rdist_add_condMutual_eq : d[X₁ + X₂' # X₂ + X₁'] + d[X�
 include h_min hX₁ hX₂ hX₁' hX₂' in
 /-- The distance $d[X_1+\tilde X_2; X_2+\tilde X_1]$ is at least
 $$ k - \eta (d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1]) - \eta (d[X^0_2; X_2+\tilde X_1] - d[X^0_2; X_2]).$$ -/
-lemma rdist_of_sums_ge
-    [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] :
+lemma rdist_of_sums_ge :
     d[X₁ + X₂' # X₂ + X₁'] ≥
       k - p.η * (d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁])
         - p.η * (d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
@@ -81,12 +81,13 @@ include h_min hX₁ hX₂ hX₁' hX₂' in
 /-- The distance $d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]$ is at least
 $$ k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).$$
 -/
-lemma condRuzsaDist_of_sums_ge
-    [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] :
+lemma condRuzsaDist_of_sums_ge :
     d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] ≥
       k - p.η * (d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁])
         - p.η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
   condRuzsaDistance_ge_of_min _ h_min hX₁ hX₂ _ _ (by measurability) (by measurability)
+
+variable [ElementaryAddCommGroup G 2]
 
 include hX₁ hX₂' h_indep h₂ in
 /--`d[X₀₁ # X₁ + X₂'] - d[X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4`. -/

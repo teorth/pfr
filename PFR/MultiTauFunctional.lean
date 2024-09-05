@@ -24,12 +24,15 @@ extends AddCommGroup G, Fintype G,
 
 /-- A structure that packages all the fixed information in the main argument.  See https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Problem.20when.20instances.20are.20inside.20a.20structure for more discussion of the design choices here. -/
 structure multiRefPackage (G Ω₀ : Type*) [MeasureableFinGroup G] [MeasureSpace Ω₀] where
+  /-- The torsion index of the group we are considering. -/
   (m : ℕ)
   (hm : m ≥ 2)
   (htorsion : ∀ x : G, m • x = 0)
   (hprob : IsProbabilityMeasure (ℙ : Measure Ω₀))
+  /-- The random variable -/
   (X₀ : Ω₀ → G)
   (hmeas : Measurable X₀)
+  /-- A small constant. The argument will only work for suitably small `η`. -/
   (η : ℝ)
   (hη : 0 < η)
   (hη': η ≤ 1)

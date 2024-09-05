@@ -86,7 +86,7 @@ lemma second_estimate_aux :
     have h' := ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
     convert (h.symm ▸ (sub_le_sub_right (sub_le_sub_right h' _) _)) using 1; ring
   have h' := (rdist_of_sums_ge' p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min).le.trans h
-  rw [← div_le_iff' two_pos, ← sub_le_iff_le_add', le_div_iff (by linarith [p.hη'])]
+  rw [← div_le_iff₀' two_pos, ← sub_le_iff_le_add', le_div_iff₀ (by linarith [p.hη'])]
   linarith
 
 include h_min hX₁ hX₁' hX₂ hX₂' h_indep h₁ h₂ in

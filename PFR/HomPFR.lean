@@ -121,7 +121,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
       (Nat.card H₁ : ℝ) = (Nat.card H : ℝ) / Nat.card H₀ := by field_simp [hH_card, mul_comm]
       _ ≤ (Nat.card H : ℝ) / (Nat.card G / Nat.card c) := by
         gcongr
-        rw [div_le_iff' (by positivity)]
+        rw [div_le_iff₀' (by positivity)]
         exact_mod_cast hG_card_le
       _ = (Nat.card H / Nat.card G : ℝ) * Nat.card c := by field_simp
       _ = (Nat.card H / Nat.card A) * Nat.card c := by congr; exact (card_graph f).symm
