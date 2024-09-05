@@ -149,7 +149,6 @@ lemma deleteRight_map_prod (κ : Kernel α β) {f : β → γ} {g : β → δ} {
       exact U.prod T
     simp [map_of_not_measurable _ hfg, map_of_not_measurable _ this]
 
-
 /-- Given a kernel taking values in a product of three spaces, reverse the order of the spaces. -/
 noncomputable
 def reverse (κ : Kernel α (β × γ × δ)) : Kernel α (δ × γ × β) :=
