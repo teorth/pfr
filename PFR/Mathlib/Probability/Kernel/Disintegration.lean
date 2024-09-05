@@ -209,8 +209,7 @@ lemma condKernel_map_prod_mk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
   · rw [map_apply' _ (measurable_of_countable _) _ (measurable_fst (measurableSet_singleton _)),
       h_preimage]
     exact h_ne_zero
-  rw [map_apply' _ (measurable_of_countable _) _ (measurable_fst (measurableSet_singleton _)),
-    h_preimage]
+  rw [map_apply' _ .of_discrete _ (measurable_fst (measurableSet_singleton _)), h_preimage]
   congr
   rw [map_apply' _ (measurable_of_countable _) _ ((measurableSet_singleton _).prod hs)]
   congr
