@@ -97,7 +97,7 @@ theorem IndepFun.measureReal_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
 
 end
 
-variable {Ω' : Type*} [MeasurableSpace Ω'] [MeasurableSpace α] [MeasurableSpace β]
+variable {Ω' α : Type*} [MeasurableSpace Ω'] [MeasurableSpace α] [MeasurableSpace β]
 
 @[simp] lemma indepFun_zero_measure {f : Ω → α} {g : Ω → β} : IndepFun f g (0 : Measure Ω) := by
   simp [IndepFun]
@@ -111,7 +111,7 @@ lemma indepFun_const [IsZeroOrProbabilityMeasure μ] (c : α) : IndepFun f (fun 
   rcases MeasurableSpace.measurableSet_bot_iff.mp ht₂ with h | h
   all_goals simp [h]
 
-lemma indepFun_fst_snd [IsZeroOrProbabilityMeasure μ] [IsZeroOrProbabilityMeasure μ'] :
+lemma indepFun_fst_snd [IsZeroOrProbabilityMeasure μ] {μ'} [IsZeroOrProbabilityMeasure μ'] :
     IndepFun (Prod.fst : Ω × Ω' → Ω) (Prod.snd : Ω × Ω' → Ω') (μ.prod μ') := by
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp

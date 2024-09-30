@@ -4,9 +4,9 @@ import PFR.ForMathlib.Elementary
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.ProbabilityMeasureProdCont
-import PFR.Mathlib.Data.Fin.VecNotation
-import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.MeasureTheory.Group.Arithmetic
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
+import PFR.Mathlib.Probability.IdentDistrib
 
 /-!
 # Ruzsa distance
@@ -27,18 +27,9 @@ Here we define Ruzsa distance and establish its basic properties.
   $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]$$
 -/
 
-section
-variable {G : Type*} [Group G] (H : Subgroup G)
-
--- FIXME: Why is this instance necessary? Reported at
--- https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/Subgroups.20are.20empty
-@[to_additive] instance : Nonempty H := One.instNonempty
-
-end
-
 open Filter Function MeasureTheory Measure ProbabilityTheory
 
-variable {Ω Ω' Ω'' Ω''' G T : Type*}
+variable {Ω Ω' Ω'' Ω''' G S T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
@@ -351,7 +342,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
 
 /-- Adding a constant to a random variable does not change the Rusza distance. -/
 lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
-    (hX : Measurable X) (hY : Measurable Y) :
+    (hX : Measurable X) (hY : Measurable Y) {c} :
     d[X ; μ # Y + fun _ ↦ c; μ'] = d[X ; μ # Y ; μ'] := by
   obtain ⟨ν, X', Y', _, hX', hY', hind, hIdX, hIdY, _, _⟩ := independent_copies_finiteRange hX hY μ μ'
   have A : IdentDistrib (Y' + fun _ ↦ c) (Y + fun _ ↦ c) ν μ' := by
@@ -966,7 +957,7 @@ lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T] [Fintype T'] [Measurable
   simp [Set.preimage_comp]
   have A i : e ⁻¹' {e i} = {i} := by ext x; simp [h'e.eq_iff]
   symm
-  refine Fintype.sum_of_injective e h'e  _ _ (fun i hi ↦ ?_) (by simp [A])
+  refine Fintype.sum_of_injective e h'e _ _ (fun i hi ↦ ?_) (by simp [A])
   suffices e ⁻¹' {i} = ∅ by simp [this]
   simpa [Set.eq_empty_iff_forall_not_mem] using hi
 
@@ -1044,7 +1035,7 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
 
 lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabilityMeasure μ]
     [IsProbabilityMeasure μ''] {A : Ω'' → G} {B C : Ω → G} (hA : Measurable A) (hB : Measurable B)
-    (hC : Measurable C) [FiniteRange A] [FiniteRange B] [FiniteRange C]  :
+    (hC : Measurable C) [FiniteRange A] [FiniteRange B] [FiniteRange C] :
     d[A ; μ'' # B | B + C ; μ] = d[A ; μ'' # C | B + C ; μ] := by
   -- we want to apply `condRuzsaDist'_of_inj_map'`, but for that all variables need to
   -- be in the same probability space
@@ -1345,7 +1336,7 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
     d[X ; μ # Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y + Z; μ'] - H[Y; μ']) / 2 ∧
     (ElementaryAddCommGroup G 2 →
       H[Y + Z; μ'] - H[Y; μ'] = d[Y; μ' # Z; μ'] + H[Z; μ'] / 2 - H[Y; μ'] / 2) := by
-  obtain ⟨Ω'', mΩ'', μ'', X', Y', Z', hμ, hi, hX', hY', hZ', h2X', h2Y', h2Z', _, _,  _⟩ :=
+  obtain ⟨Ω'', mΩ'', μ'', X', Y', Z', hμ, hi, hX', hY', hZ', h2X', h2Y', h2Z', _, _, _⟩ :=
     independent_copies3_nondep_finiteRange hX hY hZ μ μ' μ'
   have hY'Z' : IndepFun Y' Z' μ'' := hi.indepFun (show (1 : Fin 3) ≠ 2 by decide)
   have h2 : IdentDistrib (Y' + Z') (Y + Z) μ'' μ' := h2Y'.add h2Z' hY'Z' h

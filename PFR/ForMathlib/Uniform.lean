@@ -14,7 +14,7 @@ variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} [mΩ : MeasurableSpace Ω]
 /-- The assertion that the law of $X$ is the uniform probability measure on a finite set $H$.
 While in applications $H$ will be non-empty finite set, $X$ measurable, and and $μ$ a probability
 measure, it could be technically convenient to have a definition that works even without these
-hypotheses.  (For instance, `isUniform` would be well-defined, but false, for infinite `H`) -/
+hypotheses. (For instance, `isUniform` would be well-defined, but false, for infinite `H`) -/
 structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop :=
   eq_of_mem : ∀ x y, x ∈ H → y ∈ H → μ (X ⁻¹' {x}) = μ (X ⁻¹' {y})
   measure_preimage_compl : μ (X ⁻¹' Hᶜ) = 0
@@ -63,17 +63,17 @@ lemma IsUniform.comp [DecidableEq T] {H : Finset S} (h : IsUniform H X μ) {f : 
   measure_preimage_compl := by simpa [preimage_comp, hf] using h.measure_preimage_compl
 
 /-- Uniform distributions exist, version giving a measure space -/
-lemma exists_isUniform_measureSpace {S : Type u}  [MeasurableSpace S]
+lemma exists_isUniform_measureSpace {S : Type uS} [MeasurableSpace S]
     [MeasurableSingletonClass S] (H : Finset S) (h : H.Nonempty) :
-    ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
+    ∃ (Ω : Type uS) (mΩ : MeasureSpace Ω) (U : Ω → S),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω : Ω, U ω ∈ H) ∧ FiniteRange U := by
   rcases exists_isUniform H h with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem, Xfin⟩
   exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem, Xfin⟩
 
 /-- Uniform distributions exist, version with a Finite set rather than a Finset and giving a measure space -/
-lemma exists_isUniform_measureSpace' {S : Type u}  [MeasurableSpace S]
+lemma exists_isUniform_measureSpace' {S : Type uS} [MeasurableSpace S]
     [MeasurableSingletonClass S] (H : Set S) (hH : H.Finite) (h'H : H.Nonempty) :
-    ∃ (Ω : Type u) (mΩ : MeasureSpace Ω) (U : Ω → S),
+    ∃ (Ω : Type uS) (mΩ : MeasureSpace Ω) (U : Ω → S),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U
       ∧ (∀ ω, U ω ∈ H) ∧ FiniteRange U := by
   set Hf := hH.toFinset

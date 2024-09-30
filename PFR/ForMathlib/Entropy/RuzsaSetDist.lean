@@ -51,7 +51,7 @@ instance discreteUniform.isProbabilityMeasure [Nonempty H] :
   · simp [Nat.pos_iff_ne_zero.mp Nat.card_pos]
   simp
 
-/--  injective map of discrete uniform is discrete uniform -/
+/-- injective map of discrete uniform is discrete uniform -/
 lemma map_discreteUniform_of_inj {T : Type*} [MeasurableSpace T] [MeasurableSingletonClass T]
     {f : S → T} (hmes : Measurable f) (hf : Function.Injective f) :
     (discreteUniform H).map f = discreteUniform (f '' H) := by
@@ -145,7 +145,7 @@ open MeasureTheory Pointwise Real
 variable {G : Type*} [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
   [AddCommGroup G]
 
-/-- The Ruzsa distance between two subsets `A`, `B` of a group `G` is defined to be the Ruzsa distance between their uniform probability distributions.  Is only intended for use when `A`, `B` are finite and non-empty. -/
+/-- The Ruzsa distance between two subsets `A`, `B` of a group `G` is defined to be the Ruzsa distance between their uniform probability distributions. Is only intended for use when `A`, `B` are finite and non-empty. -/
 noncomputable def rdist_set (A B: Set G) : ℝ :=
   Kernel.rdistm (Measure.discreteUniform A) (Measure.discreteUniform B)
 
@@ -174,7 +174,7 @@ lemma rdist_set_nonneg (A B : Set G) [hA : Finite A] [hB : Finite B] [Nonempty A
   exact rdist_nonneg hUA_mes hUB_mes
 
 /-- Ruzsa distance between sets is symmetric. -/
-lemma rdist_set_symm (A B: Set G) [hA : Finite A] [hB : Finite B]  [Nonempty A] [Nonempty B] :
+lemma rdist_set_symm (A B: Set G) [hA : Finite A] [hB : Finite B] [Nonempty A] [Nonempty B] :
     dᵤ[A # B] = dᵤ[B # A] := by
   obtain ⟨Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, -⟩ :=
     exists_isUniform_measureSpace' A hA Set.nonempty_of_nonempty_subtype

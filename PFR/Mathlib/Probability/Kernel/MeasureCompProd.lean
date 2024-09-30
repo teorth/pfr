@@ -1,4 +1,3 @@
-import Mathlib.Probability.Kernel.MeasureCompProd
 import Mathlib.Probability.Kernel.Composition
 
 /-!

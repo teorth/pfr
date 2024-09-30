@@ -26,6 +26,8 @@ project, but we should probably add them back in the long run if they turn out t
 open MeasureTheory Measure Set
 open scoped ENNReal NNReal symmDiff
 
+variable {ι Ω S : Type*}
+
 section aux_lemmas
 
 @[simp]
@@ -62,7 +64,7 @@ variable [MeasurableSpace Ω]
 
 /-- Variant of `sum_measure_preimage_singleton` using real numbers rather than extended nonnegative
 reals. -/
-lemma sum_measure_preimage_singleton' (μ : Measure Ω) [IsProbabilityMeasure μ] {T : Type u}
+lemma sum_measure_preimage_singleton' (μ : Measure Ω) [IsProbabilityMeasure μ] {T : Type*}
     [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T] {Y : Ω → T} (hY : Measurable Y) :
     ∑ y : T, (μ (Y ⁻¹' {y})).toReal = 1 := by
   rw [← ENNReal.toReal_sum, sum_measure_preimage_singleton] <;>
@@ -464,7 +466,7 @@ theorem measureReal_prod_prod {μ : Measure α} {ν : Measure β} [SigmaFinite �
     (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
--- find this in library?  generalize?
+-- find this in library? generalize?
 /-- Generalized in Measure.ext_iff_singleton_finiteSupport at Entropy.Measure -/
 theorem Measure.ext_iff_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     {μ1 μ2 : Measure S} :

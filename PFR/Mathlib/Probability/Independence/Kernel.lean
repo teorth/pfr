@@ -1,4 +1,3 @@
-import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Independence.Kernel
 
 open MeasureTheory MeasurableSpace
@@ -6,9 +5,8 @@ open MeasureTheory MeasurableSpace
 open scoped MeasureTheory ENNReal
 
 namespace ProbabilityTheory.Kernel
-variable {β β' γ γ' : Type*} {_mα : MeasurableSpace α} {_mΩ : MeasurableSpace Ω}
+variable {ι α β β' γ γ' Ω : Type*} {_mα : MeasurableSpace α} {_mΩ : MeasurableSpace Ω}
   {κ : Kernel α Ω} {μ : Measure α} {f : Ω → β} {g : Ω → β'}
-
 
 /-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
 theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}

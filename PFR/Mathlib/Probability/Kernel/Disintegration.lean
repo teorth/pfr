@@ -53,7 +53,7 @@ namespace Kernel
 
 section condKernel
 
-variable [Countable U] [Nonempty U]  [DiscreteMeasurableSpace U]
+variable [Countable U] [Nonempty U] [DiscreteMeasurableSpace U]
 
 /-
 /-- Kernel such that `κ : Kernel T (S × U)` is equal to `(fst κ) ⊗ₖ (condKernel κ)`. -/
@@ -158,11 +158,11 @@ lemma condKernel_compProd_ae_eq
     exact hy.2
   · simp [hyx1] at hy
 
-lemma condKernel_prod_ae_eq (κ : Kernel T S) [IsFiniteKernel κ]
+lemma condKernel_prod_ae_eq (κ : Kernel T S) [IsFiniteKernel κ] {μ}
     (η : Kernel T U) [IsMarkovKernel η] [IsFiniteMeasure μ] :
     condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight S η := condKernel_compProd_ae_eq _ _ _
 
-lemma ae_eq_condKernel_of_compProd_eq (κ : Kernel T (S × U)) [IsFiniteKernel κ]
+lemma ae_eq_condKernel_of_compProd_eq (κ : Kernel T (S × U)) [IsFiniteKernel κ] {μ}
     (η : Kernel (T × S) U) [IsMarkovKernel η] [IsFiniteMeasure μ] (h : (fst κ) ⊗ₖ η = κ) :
     η =ᵐ[μ ⊗ₘ fst κ] condKernel κ := by
   have : condKernel κ = condKernel ((fst κ) ⊗ₖ η) := by congr; exact h.symm
@@ -230,7 +230,7 @@ end Kernel
 section condDistrib
 
 variable [MeasurableSingletonClass T]
-variable [Countable U]  [DiscreteMeasurableSpace U]
+variable [Countable U] [DiscreteMeasurableSpace U]
 
 variable {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
 
@@ -544,7 +544,7 @@ open scoped ENNReal NNReal Topology ProbabilityTheory
 
 namespace ProbabilityTheory.Kernel
 
-variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
+variable {Ω S T U V : Type*} [mΩ : MeasurableSpace Ω]
   [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U] [MeasurableSpace V]
 
 lemma _root_.MeasureTheory.Measure.compProd_apply_singleton
@@ -597,7 +597,7 @@ lemma _root_.MeasureTheory.Measure.ae_of_ae_compProd {α β : Type*}
   rw [ae_iff]
   convert ha
 
-lemma compProd_congr [SFinite μ] {κ κ' : Kernel T S} [IsSFiniteKernel κ] [IsSFiniteKernel κ']
+lemma compProd_congr {μ} [SFinite μ] {κ κ' : Kernel T S} [IsSFiniteKernel κ] [IsSFiniteKernel κ']
     {η η' : Kernel (T × S) U} [IsSFiniteKernel η] [IsSFiniteKernel η']
     (hκ : κ =ᵐ[μ] κ') (hη : η =ᵐ[μ ⊗ₘ κ] η') :
     κ ⊗ₖ η =ᵐ[μ] κ' ⊗ₖ η' := by
@@ -626,18 +626,18 @@ lemma FiniteKernelSupport.aefiniteKernelSupport {κ : Kernel T S} (hκ : FiniteK
 @[simp] lemma finiteKernelSupport_zero : FiniteKernelSupport (0 : Kernel T S) :=
   fun t ↦ ⟨∅, by simp⟩
 
-@[simp] lemma aefiniteKernelSupport_zero : AEFiniteKernelSupport (0 : Kernel T S) μ :=
+@[simp] lemma aefiniteKernelSupport_zero {μ} : AEFiniteKernelSupport (0 : Kernel T S) μ :=
   finiteKernelSupport_zero.aefiniteKernelSupport _
 
 section
 
-variable [Countable T] [MeasurableSingletonClass T]
+variable [Countable T] [MeasurableSingletonClass T] {μ : Measure T}
 
 set_option linter.unusedVariables false in
 /-- The definition doesn't use `hκ`, but we keep it here still as it doesn't give anything
 interesting otherwise. -/
 noncomputable
-def AEFiniteKernelSupport.mk {κ : Kernel T S} (hκ : AEFiniteKernelSupport κ μ) :
+def AEFiniteKernelSupport.mk {μ} {κ : Kernel T S} (hκ : AEFiniteKernelSupport κ μ) :
     Kernel T S := by
   classical
   exact if hS : Nonempty S then
@@ -940,7 +940,7 @@ lemma FiniteKernelSupport.prodMkRight {κ : Kernel T S} (hκ : FiniteKernelSuppo
   hκ.comap _
 
 protected lemma AEFiniteKernelSupport.prodMkRight [MeasurableSingletonClass S]
-    [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U] [Countable U]
+    [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U] [Countable U] {μ}
     {κ : Kernel T S} (hκ : AEFiniteKernelSupport κ μ)
     (ν : Measure U) [SFinite ν] :
     AEFiniteKernelSupport (prodMkRight U κ) (μ.prod ν) := by
@@ -960,7 +960,7 @@ lemma FiniteKernelSupport.prodMkLeft {κ : Kernel T S} (hκ : FiniteKernelSuppor
   hκ.comap _
 
 protected lemma AEFiniteKernelSupport.prodMkLeft [MeasurableSingletonClass S]
-    [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U] [Countable U]
+    [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U] [Countable U] {μ}
     {κ : Kernel T S} (hκ : AEFiniteKernelSupport κ μ)
     (ν : Measure U) [SFinite μ] :
     AEFiniteKernelSupport (prodMkLeft U κ) (ν.prod μ) := by

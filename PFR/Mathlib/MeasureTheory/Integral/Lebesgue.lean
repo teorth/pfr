@@ -3,7 +3,7 @@ import Mathlib.MeasureTheory.Integral.Lebesgue
 open ENNReal
 
 namespace MeasureTheory
-variable {α : Type*}  [MeasurableSpace α]
+variable {α : Type*} [MeasurableSpace α]
 
 attribute [simp] lintegral_dirac
 

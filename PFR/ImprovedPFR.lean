@@ -10,6 +10,9 @@ An improvement to PFR that lowers the exponent from 12 to 11.
 *
 -/
 
+/- In this file the power notation will always mean the base and exponent are real numbers. -/
+local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
+
 open MeasureTheory ProbabilityTheory
 
 section GeneralInequality
@@ -18,7 +21,7 @@ variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
-variable {Ω₀ : Type*} [MeasureSpace Ω₀]  [IsProbabilityMeasure (ℙ : Measure Ω₀)]
+variable {Ω₀ : Type*} [MeasureSpace Ω₀] [IsProbabilityMeasure (ℙ : Measure Ω₀)]
 
 variable (Y : Ω₀ → G) (hY : Measurable Y)
 
@@ -153,7 +156,6 @@ lemma gen_ineq_aux2 :
             J.measure_inter_preimage_eq_mul _ _ (measurableSet_singleton x)
             (measurableSet_singleton y)]
           simp [h1, h2]
-          finiteness
         · finiteness
       have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := by
@@ -169,7 +171,6 @@ lemma gen_ineq_aux2 :
             J.symm.measure_inter_preimage_eq_mul _ _ (measurableSet_singleton y)
               (measurableSet_singleton x)]
           simp [h1, h2]
-          finiteness
         · finiteness
       exact IdentDistrib.rdist_eq A B
     · have I1 : H[Z₂ | Z₂ + Z₄] = H[Z₂ | ⟨Z₂ + Z₄, Z₁ + Z₃⟩] := by
@@ -195,7 +196,7 @@ lemma gen_ineq_aux2 :
 
 include hY hZ₁ hZ₂ hZ₃ hZ₄ h_indep in
 /-- Let `Z₁, Z₂, Z₃, Z₄` be independent `G`-valued random variables, and let `Y` be another
-`G`-valued random variable.  Set `S := Z₁ + Z₂ + Z₃ + Z₄`. Then
+`G`-valued random variable. Set `S := Z₁ + Z₂ + Z₃ + Z₄`. Then
 `(d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4`
 `+ (d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 4`
 `+ (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8`.
@@ -238,7 +239,7 @@ lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] �
   rw [← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₃ + Z₄) (⟨Z₁ + Z₃, Sum⟩)
       e (by fun_prop) (by fun_prop) (by fun_prop) e.injective ,
       ← condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
-        (⟨Z₁ + Z₃, Sum⟩) e (by fun_prop) (by fun_prop) (by fun_prop)  e.injective, A,
+        (⟨Z₁ + Z₃, Sum⟩) e (by fun_prop) (by fun_prop) (by fun_prop) e.injective, A,
       condRuzsaDist'_prod_eq_sum _ _ (hZ₃.add' hZ₄) hS (hZ₁.add' hZ₃),
       condRuzsaDist'_prod_eq_sum _ _ (hZ₁.add' hZ₂) hS (hZ₁.add' hZ₃)]
   congr with w
@@ -378,7 +379,7 @@ include hT hT₁ hT₂ hT₃ h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- In fact $k$ is at most
- $$ \delta + \frac{\eta}{6}  \sum_{i=1}^2 \sum_{1 \leq j,l \leq 3; j \neq l}
+ $$ \delta + \frac{\eta}{6} \sum_{i=1}^2 \sum_{1 \leq j,l \leq 3; j \neq l}
      (d[X^0_i;T_j|T_l] - d[X^0_i; X_i]).$$
 -/
 lemma construct_good_improved' :
@@ -429,7 +430,7 @@ end aux
 
 include hX₁ hX₂ hX₁' hX₂' h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] in
-/--   $k$ is at most
+/-- $k$ is at most
 $$ \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta}{6}
 \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B} (d[X^0_i;A|B,S] - d[X^0_i; X_i]).$$
 -/
@@ -487,9 +488,9 @@ lemma dist_diff_bound_1 :
   have C9 : d[X₁ # X₂'] = d[X₁ # X₂] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂.symm
   have C10 : d[X₂ # X₁'] = d[X₁' # X₂] := rdist_symm
   have C11 : d[X₁ # X₁'] = d[X₁ # X₁] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁.symm
-  have C12 : d[X₁' # X₂'] = d[X₁ # X₂] := h₁.symm.rdist_eq  h₂.symm
+  have C12 : d[X₁' # X₂'] = d[X₁ # X₂] := h₁.symm.rdist_eq h₂.symm
   have C13 : d[X₂ # X₂'] = d[X₂ # X₂] := (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂.symm
-  have C14 : d[X₁' # X₂] = d[X₁ # X₂] := h₁.symm.rdist_eq  (IdentDistrib.refl hX₂.aemeasurable)
+  have C14 : d[X₁' # X₂] = d[X₁ # X₂] := h₁.symm.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)
   have C15 : H[X₁' + X₂'] = H[U] := by
     apply ProbabilityTheory.IdentDistrib.entropy_eq
     have I : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂'⟩) := h₁.prod_mk h₂ (h_indep.indepFun zero_ne_one)
@@ -677,7 +678,7 @@ lemma averaged_final : k ≤ (6 * p.η * k - (1 - 5 * p.η) / (1 - p.η) * (2 * 
     dist_diff_bound_2 p hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep]
 
 include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min in
-/-- Suppose $0 < \eta < 1/8$.  Let $X_1, X_2$ be tau-minimizers.  Then $d[X_1;X_2] = 0$. The proof
+/-- Suppose $0 < \eta < 1/8$. Let $X_1, X_2$ be tau-minimizers. Then $d[X_1;X_2] = 0$. The proof
 of this lemma uses copies `X₁', X₂'` already in the context. For a version that does not assume
 these are given and constructs them instead, use `tau_strictly_decreases'`.
 -/
@@ -838,7 +839,7 @@ theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1/8) :
   obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, hP, htau_min, hdist⟩ := tau_minimizer_exists_rdist_eq_zero p
   obtain ⟨H, U, hU, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
   have : d[p.X₀₁ # p.X₀₂] = d[p.X₀₂ # p.X₀₁] := rdist_symm
-  have goal₁ :  d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] := by
+  have goal₁ : d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] := by
     have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
     rw [tau, tau, hpη] at h
     norm_num at h
@@ -849,20 +850,9 @@ theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1/8) :
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle p.hmeas2 p.hmeas1 hU
   refine ⟨H, Ω', inferInstance, U, inferInstance, hU, hH_unif, goal₁, by linarith, by linarith⟩
 
-
-
-
-
-
-
-
-
 end EntropicPFR
 
 section PFR
-
-/- In this file the power notation will always mean the base and exponent are real numbers. -/
-local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
 open Pointwise Set MeasureTheory ProbabilityTheory Real Fintype Function
 
@@ -875,7 +865,7 @@ such that $A$ can be covered by at most $K^6 |A|^{1/2} / |H|^{1/2}$ cosets of $H
 the same cardinality as $A$ up to a multiplicative factor $K^10$. -/
 lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
+    Nat.card c ≤ K ^ 6 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 10 * Nat.card A ∧ Nat.card A ≤ K ^ 10 * Nat.card H ∧ A ⊆ c + H := by
   have A_fin : Finite A := by infer_instance
   classical
@@ -916,29 +906,29 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have H_fin : Finite (H : Set G) := by infer_instance
 
   have : d[VA # VH] ≤ 10/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
-  have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
-    have : 0 < Nat.card (H : Set G) := Nat.card_pos
+  have H_pos : (0 : ℝ) < Nat.card H := by
+    have : 0 < Nat.card H := Nat.card_pos
     positivity
   have VA_ent : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' A_fin VAunif VAmeas
-  have VH_ent : H[VH] = log (Nat.card (H : Set G)) := IsUniform.entropy_eq' H_fin VHunif VHmeas
-  have Icard : |log (Nat.card A) - log (Nat.card (H : Set G))| ≤ 10 * log K := by
+  have VH_ent : H[VH] = log (Nat.card H) := IsUniform.entropy_eq' H_fin VHunif VHmeas
+  have Icard : |log (Nat.card A) - log (Nat.card H)| ≤ 10 * log K := by
     rw [← VA_ent, ← VH_ent]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
     linarith
-  have IAH : Nat.card A ≤ K ^ 10 * Nat.card (H : Set G) := by
-    have : log (Nat.card A) ≤ log K * 10 + log (Nat.card (H : Set G)) := by
+  have IAH : Nat.card A ≤ K ^ 10 * Nat.card H := by
+    have : log (Nat.card A) ≤ log K * 10 + log (Nat.card H) := by
       linarith [(le_abs_self _).trans Icard]
     convert exp_monotone this using 1
     · exact (exp_log A_pos).symm
     · rw [exp_add, exp_log H_pos, ← rpow_def_of_pos K_pos]
-  have IHA : Nat.card (H : Set G) ≤ K ^ 10 * Nat.card A := by
-    have : log (Nat.card (H : Set G)) ≤ log K * 10 + log (Nat.card A) := by
+  have IHA : Nat.card H ≤ K ^ 10 * Nat.card A := by
+    have : log (Nat.card H) ≤ log K * 10 + log (Nat.card A) := by
       linarith [(neg_le_abs _).trans Icard]
     convert exp_monotone this using 1
     · exact (exp_log H_pos).symm
     · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos]
   -- entropic PFR shows that the entropy of `VA - VH` is small
-  have I : log K * (-10/2) + log (Nat.card A) * (-1/2) + log (Nat.card (H : Set G)) * (-1/2)
+  have I : log K * (-10/2) + log (Nat.card A) * (-1/2) + log (Nat.card H) * (-1/2)
       ≤ - H[VA - VH] := by
     rw [Vindep.rdist_eq VAmeas VHmeas] at this
     linarith
@@ -946,12 +936,12 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
     prob_ge_exp_neg_entropy' _ ((VAmeas.sub VHmeas).comp measurable_id')
   -- massage the previous inequality to get that `A ∩ (H + {x₀})` is large
-  have J : K ^ (-10/2) * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (1/2) ≤
+  have J : K ^ (-10/2) * Nat.card A ^ (1/2) * Nat.card H ^ (1/2) ≤
       Nat.card (A ∩ (H + {x₀}) : Set G) := by
     rw [VA'unif.measureReal_preimage_sub VAmeas VH'unif VHmeas Vindep] at h₀
     have := (Real.exp_monotone I).trans h₀
     have hAA'_card : Nat.card A' = Nat.card A := congrArg Nat.card (congrArg Subtype hAA')
-    have hHH'_card : Nat.card H' = Nat.card (H : Set G) := congrArg Nat.card (congrArg Subtype hHH')
+    have hHH'_card : Nat.card H' = Nat.card H := congrArg Nat.card (congrArg Subtype hHH')
     rw [hAA'_card, hHH'_card, le_div_iff₀] at this
     convert this using 1
     · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos,
@@ -972,7 +962,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
   rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
     ⟨u, hu, Au, -⟩
-  have Iu : Nat.card u ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
+  have Iu : Nat.card u ≤ K ^ 6 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := by
     have : (0 : ℝ) ≤ Nat.card u := by simp
     have Z1 := mul_le_mul_of_nonneg_left J this
     have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
@@ -982,7 +972,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
       simp only [Nat.cast_le]
       apply Nat.card_mono (toFinite _)
       apply add_subset_add_left inter_subset_left
-    have : 0 ≤ K ^ (10/2) * Nat.card A ^ (-1/2) * Nat.card (H : Set G) ^ (-1/2) := by positivity
+    have : 0 ≤ K ^ (10/2) * Nat.card A ^ (-1/2) * Nat.card H ^ (-1/2) := by positivity
     have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
     convert T using 1 <;> rpow_ring <;> norm_num
   have A_subset_uH : A ⊆ u + H := by
@@ -1005,51 +995,51 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
     PFR_conjecture_pos_aux' h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2)
-      ∧ Nat.card (H : Set G) ≤ K ^ 10 * Nat.card A ∧ Nat.card A ≤ K ^ 10 * Nat.card (H : Set G)
+    Nat.card c ≤ K ^ 6 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
+      ∧ Nat.card H ≤ K ^ 10 * Nat.card A ∧ Nat.card A ≤ K ^ 10 * Nat.card H
       ∧ A ⊆ c + H :=
     PFR_conjecture_improv_aux h₀A hA
-  have H_pos : (0 : ℝ) < Nat.card (H : Set G) := by
-    have : 0 < Nat.card (H : Set G) := Nat.card_pos; positivity
-  rcases le_or_lt (Nat.card (H : Set G)) (Nat.card A) with h|h
+  have H_pos : (0 : ℝ) < Nat.card H := by
+    have : 0 < Nat.card H := Nat.card_pos; positivity
+  rcases le_or_lt (Nat.card H) (Nat.card A) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
-    Nat.card c ≤ K ^ 6 * (Nat.card A) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := hc
-    _ ≤ K ^ 6 * (K ^ 10 * Nat.card (H : Set G)) ^ (1/2) * (Nat.card (H : Set G)) ^ (-1/2) := by
+    Nat.card c ≤ K ^ 6 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := hc
+    _ ≤ K ^ 6 * (K ^ 10 * Nat.card H) ^ (1/2) * Nat.card H ^ (-1/2) := by
       gcongr
     _ = K ^ 11 := by rpow_ring; norm_num
     _ < 2 * K ^ 11 := by linarith [show 0 < K ^ 11 by positivity]
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
   -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
-  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card (H' : Set G) ≤ Nat.card A
-          ∧ Nat.card A < 2 * Nat.card (H' : Set G) ∧ H' ≤ H := by
+  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card H' ≤ Nat.card A
+          ∧ Nat.card A < 2 * Nat.card H' ∧ H' ≤ H := by
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
       exact ElementaryAddCommGroup.exists_subgroup_subset_card_le Nat.prime_two H h.le A_pos'.ne'
-    have : (Nat.card A / 2 : ℝ) < Nat.card (H' : Set G) := by
+    have : (Nat.card A / 2 : ℝ) < Nat.card H' := by
       rw [div_lt_iff zero_lt_two, mul_comm]; norm_cast
-    have H'_pos : (0 : ℝ) < Nat.card (H' : Set G) := by
-      have : 0 < Nat.card (H' : Set G) := Nat.card_pos; positivity
+    have H'_pos : (0 : ℝ) < Nat.card H' := by
+      have : 0 < Nat.card H' := Nat.card_pos; positivity
     obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := mod_cast card_add_le
-    _ ≤ (K ^ 6 * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
-          * (Nat.card (H : Set G) / Nat.card (H' : Set G)) := by
+    _ ≤ (K ^ 6 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+          * (Nat.card H / Nat.card H') := by
         gcongr
         apply le_of_eq
         rw [eq_div_iff H'_pos.ne']
         norm_cast
-    _ < (K ^ 6 * (Nat.card A) ^ (1 / 2) * (Nat.card (H : Set G) ^ (-1 / 2)))
-          * (Nat.card (H : Set G) / (Nat.card A / 2)) := by
+    _ < (K ^ 6 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+          * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
-    _ = 2 * K ^ 6 * (Nat.card A) ^ (-1/2) * (Nat.card (H : Set G)) ^ (1/2) := by
+    _ = 2 * K ^ 6 * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
         have : (0 : ℝ) < Nat.card H := H_pos
         field_simp
         rpow_ring
         norm_num
-    _ ≤ 2 * K ^ 6 * (Nat.card A) ^ (-1/2) * (K ^ 10 * Nat.card A) ^ (1/2) := by
+    _ ≤ 2 * K ^ 6 * Nat.card A ^ (-1/2) * (K ^ 10 * Nat.card A) ^ (1/2) := by
         gcongr
     _ = 2 * K ^ 11 := by
         rpow_ring

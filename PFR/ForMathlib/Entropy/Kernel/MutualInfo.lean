@@ -1,7 +1,6 @@
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Embedding
 import PFR.Mathlib.Probability.Kernel.Composition
 import PFR.ForMathlib.Entropy.Kernel.Basic
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Embedding
 
 /-!
 # Mutual Information of kernels
@@ -29,7 +28,7 @@ open scoped ENNReal NNReal Topology ProbabilityTheory
 
 namespace ProbabilityTheory.Kernel
 
-variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
+variable {Ω S T U V : Type*} [mΩ : MeasurableSpace Ω]
   [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U] [MeasurableSpace V]
   {κ : Kernel T S} {μ : Measure T} {X : Ω → S} {Y : Ω → U}
 
@@ -174,7 +173,7 @@ lemma mutualInfo_eq_snd_sub [Nonempty U]
     {κ : Kernel T (S × U)} [IsZeroOrMarkovKernel κ]
     {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) :
-    Ik[κ, μ] = Hk[snd κ, μ] - Hk[condKernel κ, μ ⊗ₘ (fst κ)]  := by
+    Ik[κ, μ] = Hk[snd κ, μ] - Hk[condKernel κ, μ ⊗ₘ (fst κ)] := by
   rw [mutualInfo, chain_rule hκ]
   ring
 

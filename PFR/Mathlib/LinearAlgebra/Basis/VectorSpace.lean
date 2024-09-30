@@ -7,10 +7,10 @@ variable {B F R : Type*} [DivisionRing R] [AddCommGroup B] [AddCommGroup F]
 open LinearMap
 
 /-- Given a submodule $E$ of $B \times F$, there is an equivalence $f : E \to B' \times F'$
-  given by the projections $E \to B$ and $E \to F$ "modulo" $φ : B \to F$. -/
+given by the projections $E \to B$ and $E \to F$ "modulo" some $φ : B \to F$. -/
 theorem exists_equiv_fst_sndModFst (E : Submodule R (B × F)) :
     ∃ (B' : Submodule R B) (F' : Submodule R F) (f : E ≃ₗ[R] B' × F') (φ : B →ₗ[R] F),
-    (∀ x : E, (f x).1.val = x.val.1 ∧ (f x).2.val = x.val.2 - φ x.val.1) ∧
+    (∀ x, (f x).1.val = x.val.1 ∧ (f x).2.val = x.val.2 - φ x.val.1) ∧
     (∀ (x₁ : B') (x₂ : F'), (f.symm (x₁, x₂)).val = (x₁.val, x₂.val + φ x₁.val)) := by
   let π₁ := LinearMap.fst R B F
   let f₁ := π₁.submoduleMap E
@@ -26,7 +26,7 @@ theorem exists_equiv_fst_sndModFst (E : Submodule R (B × F)) :
   let f₂ := f₂'.rangeRestrict
 
   have h_compl : IsCompl (ker f₁) (ker f₂) := by
-    refine IsCompl.of_eq ?_ ?_
+    refine .of_eq ?_ ?_
     · by_contra hc
       obtain ⟨x, h_ker, h_nezero⟩ := exists_mem_ne_zero_of_ne_bot hc
       rw [mem_inf, mem_ker, mem_ker] at h_ker
@@ -51,12 +51,12 @@ theorem exists_equiv_fst_sndModFst (E : Submodule R (B × F)) :
   let f := equivProdOfSurjectiveOfIsCompl f₁ f₂ f₁_surj f₂'.range_rangeRestrict h_compl
   refine ⟨E.map π₁, range f₂', f, p₂.comp φ, fun _ ↦ ⟨rfl, rfl⟩, fun x₁ x₂ ↦ ?_⟩
   let x : E := f.symm (x₁, x₂)
-  have hf : f₁ x = x₁ ∧ f₂ x = x₂ := (Prod.mk.injEq _ _ _ _).mp (f.apply_symm_apply (x₁, x₂))
+  have hf : f₁ x = x₁ ∧ f₂ x = x₂ := (Prod.mk.injEq ..).mp (f.apply_symm_apply (x₁, x₂))
   have : (f₂ x).val = x.val.2 - p₂ (φ x.val.1) := rfl
   have : x₂.val + p₂ (φ x.val.1) = x.val.2 :=
     eq_sub_iff_add_eq.mp (Eq.trans (Subtype.ext_iff.mp hf.right).symm this)
   show x.val = _
   rw [← hf.left]
-  exact (Prod.mk.injEq _ _ _ _).mpr ⟨rfl (a := x.val.1), this.symm⟩
+  exact (Prod.mk.injEq ..).mpr ⟨rfl (a := x.val.1), this.symm⟩
 
 end Submodule

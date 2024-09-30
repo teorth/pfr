@@ -1,8 +1,8 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import PFR.ForMathlib.Entropy.Measure
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
-import PFR.Mathlib.Probability.Kernel.Disintegration
 import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
+import PFR.Mathlib.Probability.Kernel.Disintegration
 
 /-!
 # Entropy of a kernel with respect to a measure
@@ -46,7 +46,7 @@ lemma entropy_zero_measure (κ : Kernel T S) : Hk[κ, (0 : Measure T)] = 0 := by
 @[simp]
 lemma entropy_zero_kernel (μ : Measure T) : Hk[(0 : Kernel T S), μ] = 0 := by simp [entropy]
 
-lemma entropy_congr {κ η : Kernel T S} (h : κ =ᵐ[μ] η) : Hk[κ, μ] = Hk[η, μ] := by
+lemma entropy_congr {μ} {κ η : Kernel T S} (h : κ =ᵐ[μ] η) : Hk[κ, μ] = Hk[η, μ] := by
   simp_rw [entropy]
   refine integral_congr_ae ?_
   filter_upwards [h] with x hx
@@ -151,7 +151,7 @@ lemma entropy_swapRight [MeasurableSingletonClass S] [MeasurableSingletonClass U
   rw [swapRight_eq, entropy_map_swap]
 
 lemma entropy_comap [MeasurableSingletonClass T]
-    {T' : Type*}  [MeasurableSpace T'] [MeasurableSingletonClass T']
+    {T' : Type*} [MeasurableSpace T'] [MeasurableSingletonClass T']
     (κ : Kernel T S) (μ : Measure T) (f : T' → T) (hf : MeasurableEmbedding f)
     (hf_range : Set.range f =ᵐ[μ] Set.univ)
     [IsFiniteMeasure μ] [IsFiniteMeasure (μ.comap f)] (hfμ : FiniteSupport (μ.comap f)) :
@@ -166,8 +166,8 @@ lemma entropy_comap [MeasurableSingletonClass T]
       exact MeasurableSet.compl (Finset.measurableSet A)
     exact ae_eq_univ.mp hf_range
   simp_rw [entropy]
-  simp_rw [integral_eq_sum' _ hA, integral_eq_sum' _ this, Measure.comap_apply f hf.injective hf.measurableSet_image' _
-    (measurableSet_singleton _)]
+  simp_rw [integral_eq_sum' _ hA, integral_eq_sum' _ this,
+    Measure.comap_apply f hf.injective hf.measurableSet_image' _ (measurableSet_singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
   simp_rw [comap_apply]
   rw [← Finset.sum_image (f := fun x ↦ (μ {x}).toReal * measureEntropy (κ x)) (g := f)]
@@ -222,7 +222,7 @@ lemma entropy_prodMkLeft_unit [MeasurableSingletonClass T]
   congr
 
 lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClass T]
-    [MeasurableSingletonClass U] [IsFiniteMeasure μ] {κ : Kernel T S} [IsZeroOrMarkovKernel κ]
+    [MeasurableSingletonClass U] {μ} [IsFiniteMeasure μ] {κ : Kernel T S} [IsZeroOrMarkovKernel κ]
     {η : Kernel (T × S) U} [IsMarkovKernel η] [FiniteSupport μ] (hκ : FiniteKernelSupport κ)
     (hη : FiniteKernelSupport η) :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ]
@@ -286,7 +286,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   ring
 
 lemma entropy_compProd' [MeasurableSingletonClass S] [Countable S] [MeasurableSingletonClass T]
-    [Countable T] [MeasurableSingletonClass U]
+    [Countable T] [MeasurableSingletonClass U] {μ}
     [IsFiniteMeasure μ] {κ : Kernel T S} [IsZeroOrMarkovKernel κ]
     {η : Kernel (T × S) U} [IsMarkovKernel η] [FiniteSupport μ]
     (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) :
@@ -300,7 +300,7 @@ lemma entropy_compProd' [MeasurableSingletonClass S] [Countable S] [MeasurableSi
     exact integrable_of_finiteSupport (μ ⊗ₘ κ)
 
 lemma entropy_compProd [Countable S] [MeasurableSingletonClass S]
-    [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
+    [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U] {μ}
     [IsFiniteMeasure μ] {κ : Kernel T S} [IsZeroOrMarkovKernel κ]
     {η : Kernel (T × S) U} [IsMarkovKernel η] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η (μ ⊗ₘ κ)) :

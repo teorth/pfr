@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Integral.SetIntegral
-import PFR.Mathlib.MeasureTheory.Integral.Bochner
 
 open scoped ENNReal
 

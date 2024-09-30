@@ -105,7 +105,8 @@ open MeasureTheory ProbabilityTheory Function Set
 
 namespace ProbabilityTheory
 section IdentDistrib
-variable {Ω Ω' α ι β β' : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
+universe u u' v
+variable {Ω Ω' α ι β β' T : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
   {mβ : MeasurableSpace β} {μ : Measure Ω} {ν : Measure Ω'} {f g : Ω → β} {f' g' : Ω' → β}
 
 variable [IsFiniteMeasure μ] [IsFiniteMeasure ν] in
@@ -169,21 +170,21 @@ lemma identDistrib_of_sum {X : Ω → α} {Y : Ω' → α} {μ : T → Measure �
 
 -- [TODO]
 -- theorem IdentDistrib.comp' {m : ℕ} {α : (i : Fin m) → Type*} {hα : (i : Fin m) → MeasurableSpace (α i)} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
---     (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (f : (i : Fin m) → (Ω i) → (α i)) (g : (i : Fin m) → (Ω' i) → (α i))
---     (hident : ∀ i, IdentDistrib (f i) (g i)) {u : ((i : Fin m) → α i) → β}
---     (hu : Measurable u) : IdentDistrib (u ∘ (fun i ↦ )) (u ∘ g) μ ν := sorry
+--   (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (f : (i : Fin m) → (Ω i) → (α i)) (g : (i : Fin m) → (Ω' i) → (α i))
+--   (hident : ∀ i, IdentDistrib (f i) (g i)) {u : ((i : Fin m) → α i) → β}
+--   (hu : Measurable u) : IdentDistrib (u ∘ (fun i ↦ )) (u ∘ g) μ ν := sorry
 
---   { aemeasurable_fst := hu.comp_aemeasurable h.aemeasurable_fst
---     aemeasurable_snd := by rw [h.map_eq] at hu; exact hu.comp_aemeasurable h.aemeasurable_snd
---     map_eq := by
---       rw [← AEMeasurable.map_map_of_aemeasurable hu h.aemeasurable_fst, ←
---         AEMeasurable.map_map_of_aemeasurable _ h.aemeasurable_snd, h.map_eq]
---       rwa [← h.map_eq] }
+-- { aemeasurable_fst := hu.comp_aemeasurable h.aemeasurable_fst
+--   aemeasurable_snd := by rw [h.map_eq] at hu; exact hu.comp_aemeasurable h.aemeasurable_snd
+--   map_eq := by
+--     rw [← AEMeasurable.map_map_of_aemeasurable hu h.aemeasurable_fst, ←
+--       AEMeasurable.map_map_of_aemeasurable _ h.aemeasurable_snd, h.map_eq]
+--     rwa [← h.map_eq] }
 -- #align probability_theory.ident_distrib.comp_of_ae_measurable ProbabilityTheory.IdentDistrib.comp_of_aemeasurable
 
 -- protected theorem comp {u : γ → δ} (h : IdentDistrib f g μ ν) (hu : Measurable u) :
---     IdentDistrib (u ∘ f) (u ∘ g) μ ν :=
---   h.comp_of_aemeasurable hu.aemeasurable
+--   IdentDistrib (u ∘ f) (u ∘ g) μ ν :=
+-- h.comp_of_aemeasurable hu.aemeasurable
 -- #align probability_theory.ident_distrib.comp ProbabilityTheory.IdentDistrib.comp
 
 /-- A random variable is identically distributed to its lift to a product space (in the first factor). -/

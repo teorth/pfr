@@ -70,7 +70,7 @@ lemma entropy_fst_sub_mutualInfo_le_entropy_map_mul
 @[to_additive]
 lemma entropy_fst_sub_mutualInfo_le_entropy_map_mul'
     (κ : Kernel T (G × G)) [IsZeroOrMarkovKernel κ] (μ : Measure T) [IsZeroOrProbabilityMeasure μ]
-    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     Hk[fst κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.2 * p.1), μ] := by
     have h := entropy_snd_sub_mutualInfo_le_entropy_map_mul (swapRight κ) μ hκ.swapRight
     simp only [snd_swapRight, mutualInfo_swapRight, map_swapRight] at h
@@ -81,14 +81,14 @@ lemma entropy_fst_sub_mutualInfo_le_entropy_map_mul'
 @[to_additive]
 lemma entropy_snd_sub_mutualInfo_le_entropy_map_div
     (κ : Kernel T (G × G)) [IsZeroOrMarkovKernel κ] (μ : Measure T) [IsZeroOrProbabilityMeasure μ]
-    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     Hk[snd κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.1 / p.2), μ] :=
   entropy_snd_sub_mutualInfo_le_entropy_map_of_injective κ μ _ (fun _ ↦ div_right_injective) hκ
 
 @[to_additive]
 lemma entropy_fst_sub_mutualInfo_le_entropy_map_div
     (κ : Kernel T (G × G)) [IsZeroOrMarkovKernel κ] (μ : Measure T) [IsZeroOrProbabilityMeasure μ]
-    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     Hk[fst κ, μ] - Ik[κ, μ] ≤ Hk[map κ (fun p ↦ p.1 / p.2), μ] := by
     have h := entropy_snd_sub_mutualInfo_le_entropy_map_div (swapRight κ) μ hκ.swapRight
     simp only [snd_swapRight, mutualInfo_swapRight, map_swapRight] at h
@@ -100,7 +100,7 @@ lemma entropy_fst_sub_mutualInfo_le_entropy_map_div
 @[to_additive]
 lemma max_entropy_sub_mutualInfo_le_entropy_mul
     (κ : Kernel T (G × G)) [IsZeroOrMarkovKernel κ] (μ : Measure T) [IsZeroOrProbabilityMeasure μ]
-    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     max (Hk[fst κ, μ]) (Hk[snd κ, μ]) - Ik[κ, μ]
       ≤ Hk[map κ (fun p ↦ p.1 * p.2), μ] := by
   rw [← max_sub_sub_right, max_le_iff]
@@ -110,7 +110,7 @@ lemma max_entropy_sub_mutualInfo_le_entropy_mul
 @[to_additive]
 lemma max_entropy_sub_mutualInfo_le_entropy_mul'
     (κ : Kernel T (G × G)) [IsZeroOrMarkovKernel κ] (μ : Measure T) [IsZeroOrProbabilityMeasure μ]
-    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ)  :
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
     max (Hk[fst κ, μ]) (Hk[snd κ, μ]) - Ik[κ, μ]
       ≤ Hk[map κ (fun p ↦ p.2 * p.1), μ] := by
   rw [← max_sub_sub_right, max_le_iff]

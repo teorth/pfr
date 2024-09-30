@@ -51,7 +51,7 @@ lemma mutual_comp_le [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (
 
 /-- Let `X, Y` be random variables. For any functions `f, g` on the ranges of `X, Y` respectively,
 we have `I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ]`. -/
-lemma mutual_comp_comp_le  [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
+lemma mutual_comp_comp_le [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
     (hY : Measurable Y) (f : S → U) (g : T → V) (hg : Measurable g)
     [FiniteRange X] [FiniteRange Y] :
     I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ] :=
@@ -85,7 +85,7 @@ end dataProcessing
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 
-variable {Ω Ω' Ω'' Ω''' G T : Type*}
+variable {Ω Ω' Ω'' Ω''' G S T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
@@ -104,7 +104,7 @@ given a r.v., we can construct another r.v. that is identically distributed, whi
 immersion of the range of the initial r.v. inside the codomain (this would be a sort of canonical
 version)-/
 
-/--   If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
+/-- If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
     (hY : Measurable Y) [Fintype G] :
     d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
@@ -352,7 +352,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       simp only [eq3]
       ring
 
-/--  If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
+/-- If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `H[Y i₀ + ∑ i in s, Y i; μ ] - H[Y i₀; μ ] ≤ ∑ i in s, (H[ Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.
 Feel free to modify it to make the proof easier, or the application easier. -/
@@ -395,7 +395,7 @@ lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
       rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
     · ring
 
-/--  If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
+/-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i in s, Y i; μ ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.-/
 lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     (hs' : Finset.Nonempty s) {Y : I → Ω → G} [∀ i, FiniteRange (Y i)]
@@ -527,7 +527,7 @@ lemma kvm_ineq_III {I : Type*} {i₀ i₁ : I} {s : Finset I}
 open Classical in
 /-- Let `X₁, ..., Xₘ` and `Y₁, ..., Yₗ` be tuples of jointly independent random variables (so the
 `X`'s and `Y`'s are also independent of each other), and let `f: {1,..., l} → {1,... ,m}` be a
-function, then  `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
+function, then `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
 lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
     (hs : Finset.Nonempty s) (ht : Finset.Nonempty t) (X : I → Ω → G) (hX : (i : I) → Measurable (X i))
     (hX' : (i : I) → FiniteRange (X i)) (hindep : iIndepFun (fun (i : I) ↦ hG) X μ ) (f : I → I)
@@ -603,13 +603,13 @@ lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange X] [FiniteRan
     _ = _ := by
       rw [add_comm, hident''.entropy_eq]
 
-/--  Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer.  Then
+/-- Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer. Then
   `H[X - aY] - H[X] ≤ 4 |a| d[X ; Y]`. -/
 lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
     (hX : Measurable X) (hY : Measurable Y) (hindep : IndepFun X Y μ) {a : ℤ} :
     H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by
   obtain ⟨Ω', mΩ', μ', X'₁, Y', X'₂, hμ', hindep', hX'₁, hY', hX'₂, idX₁, idY, idX₂⟩
-    := independent_copies3_nondep hX hY hX  μ μ μ
+    := independent_copies3_nondep hX hY hX μ μ μ
   have iX₁Y : IndepFun X'₁ Y' μ' := hindep'.indepFun (show 0 ≠ 1 by simp)
   have iYX₂ : IndepFun Y' X'₂ μ' := hindep'.indepFun (show 1 ≠ 2 by simp)
   have iX₂nY : IndepFun X'₂ (-Y') μ' := iYX₂.symm.comp measurable_id measurable_neg
@@ -716,9 +716,9 @@ section multiDistance
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 
-variable {G : Type*} [hG : MeasurableSpace G]  [AddCommGroup G]
+variable {G : Type*} [hG : MeasurableSpace G] [AddCommGroup G]
 
-/--  Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `X_i`.
+/-- Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `X_i`.
 Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'` are independent copies
 of the `X_i`.-/
 noncomputable
@@ -830,9 +830,9 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace 
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
 `d[X_i; U_{H_i}] = 0`. -/
-lemma multidist_eq_zero {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (X : (i : Fin m) → (Ω i) → G) (hvanish: D[X; hΩ] = 0) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0  := by sorry
+lemma multidist_eq_zero {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) (X : (i : Fin m) → (Ω i) → G) (hvanish: D[X; hΩ] = 0) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0 := by sorry
 
--- This is probably not the optimal spelling.  For instance one could use the `μ "[|" t "]"` notation from Mathlib.ProbabilityTheory.ConditionalProbability to simplify the invocation of `ProbabilityTheory.cond`
+-- This is probably not the optimal spelling. For instance one could use the `μ "[|" t "]"` notation from Mathlib.ProbabilityTheory.ConditionalProbability to simplify the invocation of `ProbabilityTheory.cond`
 /-- If `X_[m] = (X_1, ..., X_m)` and `Y_[m] = (Y_1, ..., Y_m)` are tuples of random variables,
 with the `X_i` being `G`-valued (but the `Y_i` need not be), then we define
 `D[ X_[m] | Y_[m]] = ∑_{(y_i)_{1 \leq i \leq m}} (∏ i, p_{Y_i}(y_i)) D[(X_i | Y_i = y_i)_{i=1}^m]`
@@ -845,7 +845,7 @@ def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → Measur
 @[inherit_doc multiDist] notation3:max "D[" X " | " Y " ; " hΩ "]" => condMultiDist hΩ X Y
 
 /-- Conditional multidistance is unchanged if we apply an injection to the conditioned variables -/
-theorem condMultiDist_of_inj {G: Type*} [hG : MeasurableSpace G] [AddCommGroup G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*} [Fintype S] {T: Type*} [Fintype T] (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) {f : S → T} (hf: Injective f)  : D[ X | fun i ↦ f ∘ (Y i); hΩ ] = D[ X | fun i ↦ Y i; hΩ ] := by
+theorem condMultiDist_of_inj {G: Type*} [hG : MeasurableSpace G] [AddCommGroup G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i)) {S: Type*} [Fintype S] {T: Type*} [Fintype T] (X : (i : Fin m) → (Ω i) → G) (Y : (i : Fin m) → (Ω i) → S) {f : S → T} (hf: Injective f) : D[ X | fun i ↦ f ∘ (Y i); hΩ ] = D[ X | fun i ↦ Y i; hΩ ] := by
   set e : (Fin m → S) → (Fin m → T) := fun y ↦ f ∘ y
 
   convert (Fintype.sum_of_injective e (Injective.comp_left hf) ?_ ?_ _ _).symm
@@ -932,12 +932,12 @@ private lemma cond_prob_of_inter
     {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω]
     {S : Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
     (X : (i : Fin m) → Ω → G) (Y : (i : Fin m) → Ω → S)
-    (hY : (i : Fin m) →  Measurable (Y i))
+    (hY : (i : Fin m) → Measurable (Y i))
     (hindep: ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩) )
     (y : Fin m → S) (s' s : Finset (Fin m)) (f' : _ → Set Ω)
     (hf' : ∀ i ∈ s, MeasurableSet[hG.comap (X i)] (f' i))
     (hy : ∀ (i : Fin m), ℙ ((Y i)⁻¹' {y i}) ≠ 0) (hss: s' ⊆ s) :
-    ℙ[|⋂ i, (Y i)⁻¹' {y i}] (⋂ i ∈ s', f' i) = ∏ i ∈ s', ℙ[|(Y i)⁻¹' {y i}] (f' i)  := by
+    ℙ[|⋂ i, (Y i)⁻¹' {y i}] (⋂ i ∈ s', f' i) = ∏ i ∈ s', ℙ[|(Y i)⁻¹' {y i}] (f' i) := by
   have : IsProbabilityMeasure (ℙ : Measure Ω) := hindep.isProbabilityMeasure
   let E := fun (i:Fin m) (yi:S) ↦ (Y i)⁻¹' {yi}
   let E' := fun (y : Fin m → S) ↦ ⋂ i, E i (y i)
@@ -1015,8 +1015,8 @@ private lemma ident_of_cond_of_indep
     {G : Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G]
     {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω]
     {S : Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
-    {X : (i : Fin m) → Ω → G} (hX : (i:Fin m) →  Measurable (X i))
-    {Y : (i : Fin m) → Ω → S} (hY : (i:Fin m) →  Measurable (Y i))
+    {X : (i : Fin m) → Ω → G} (hX : (i:Fin m) → Measurable (X i))
+    {Y : (i : Fin m) → Ω → S} (hY : (i:Fin m) → Measurable (Y i))
     (hindep : ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩))
     (y : Fin m → S) (i : Fin m) (hy: ∀ i, ℙ ((Y i)⁻¹' {y i}) ≠ 0) :
     IdentDistrib (X i) (X i) (cond ℙ ((Y i)⁻¹' {y i})) (cond ℙ (⋂ i, (Y i)⁻¹' {y i})) where
@@ -1053,8 +1053,8 @@ intersections of Y i events -/
 private lemma indep_of_cond {G : Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G]
     [Countable G] {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω]
     {S : Type*} [Fintype S] [hS : MeasurableSpace S] [MeasurableSingletonClass S]
-    {X : (i : Fin m) → Ω → G}  {Y : (i : Fin m) → Ω → S}
-    (hY : ∀ i,  Measurable (Y i))
+    {X : (i : Fin m) → Ω → G} {Y : (i : Fin m) → Ω → S}
+    (hY : ∀ i, Measurable (Y i))
     (hindep : iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨ X i, Y i ⟩))
     {y : Fin m → S} (hy : ∀ i, ℙ ((Y i)⁻¹' {y i}) ≠ 0) :
     iIndepFun (fun _ ↦ hG) X (cond ℙ (⋂ i, (Y i)⁻¹' {y i})) := by
@@ -1069,12 +1069,12 @@ private lemma indep_of_cond {G : Type*} [hG : MeasurableSpace G] [MeasurableSing
     have h := cond_prob_of_inter X Y hY hindep y s' s f' hf' hy hs'
     simp only [Finset.mem_singleton, Set.iInter_iInter_eq_left, Finset.prod_singleton, s'] at h
     exact h
-  rw [cond_prob_of_inter X Y hY hindep y s s f' hf' hy  (fun ⦃a⦄ a ↦ a)]
+  rw [cond_prob_of_inter X Y hY hindep y s s f' hf' hy (fun ⦃a⦄ a ↦ a)]
   apply Finset.prod_congr rfl
   intro i hi
   exact (h1 ⟨ i, hi ⟩).symm
 
-/-- If  `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then
+/-- If `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then
 `D[X_[m] | Y_[m]] = H[∑ i, X_i | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[X_i | Y_i]`
 -/
 lemma condMultiDist_eq {m : ℕ}
@@ -1135,7 +1135,7 @@ lemma condMultiDist_eq {m : ℕ}
           apply IdentDistrib.entropy_eq
           exact (ident_of_cond_of_indep hX hY hindep y i
             (prob_nonzero_of_prod_prob_nonzero hf)).symm
-        _ =  ∑ y ∈ Fintype.piFinset (fun _ ↦ Finset.univ), ∏ i', (ℙ (E i' (y i'))).toReal
+        _ = ∑ y ∈ Fintype.piFinset (fun _ ↦ Finset.univ), ∏ i', (ℙ (E i' (y i'))).toReal
                 * (if i'=i then H[X i; cond ℙ (E i (y i'))] else 1) := by
           simp only [Fintype.piFinset_univ]
           congr with y
@@ -1158,7 +1158,7 @@ lemma condMultiDist_eq {m : ℕ}
               · simp only [h, ↓reduceIte, mul_one, E]
                 exact (sum_measure_preimage_singleton' _ (hY i')).symm
 
-/-- If  `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then `D[X_[m] | Y_[m]] = ∑_{(y_i)_{1 ≤ i ≤ m}} P( Y_i=y_i ∀ i ) D[(X_i | Y_i=y_i ∀ i )_{i=1}^m]`
+/-- If `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then `D[X_[m] | Y_[m]] = ∑_{(y_i)_{1 ≤ i ≤ m}} P( Y_i=y_i ∀ i ) D[(X_i | Y_i=y_i ∀ i )_{i=1}^m]`
 -/
 lemma condMultiDist_eq' {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω]
     {S: Type*} [Fintype S] [hS: MeasurableSpace S] [MeasurableSingletonClass S]
@@ -1230,15 +1230,15 @@ lemma multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSing
 
   have eq1c : H[⟨ S, piX⟩ | ⇑π ∘ S] = H[⟨ S, piX⟩] - H[⇑π ∘ S] := by
     set g := fun (x : G × (Fin m → H)) ↦ ⇑π x.1
-    have : ⇑π ∘ S = g ∘ ⟨ S, piX⟩  := by
+    have : ⇑π ∘ S = g ∘ ⟨ S, piX⟩ := by
       ext x
       simp only [comp_apply, Finset.sum_apply, _root_.map_sum, S, g, piX]
     rw [this]
     apply condEntropy_comp_self (Measurable.prod_mk hSmes hpiXmes) .of_discrete
 
-  have eq2 : H[⟨ S, piX ⟩] = H[piX] + H[S | piX ]  :=  chain_rule _ hSmes hpiXmes
+  have eq2 : H[⟨ S, piX ⟩] = H[piX] + H[S | piX ] := chain_rule _ hSmes hpiXmes
 
-  have eq3 : D[X; fun _ ↦ hΩ] = H[S] - avg_HX :=  multiDist_indep _ _ hindep
+  have eq3 : D[X; fun _ ↦ hΩ] = H[S] - avg_HX := multiDist_indep _ _ hindep
 
   have eq4 : D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩ] = H[S | piX ] - avg_HXpiX := by
     dsimp [S, piX]
@@ -1272,7 +1272,7 @@ lemma multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSing
 (not necessarily `G`-valued). Suppose that the pairs `(X_i, Y_i)` are jointly independent of one
 another (but `X_i` need not be independent of `Y_i`). Then
 `D[X_[m] | Y_[m]] = D[X_[m] ,|, π(X_[m]), Y_[m]] + D[π(X_[m]) ,| , Y_[m]]`
-`+ I[∑ i, X_i : π(X_[m]) ; | ;  π(∑ i, X_i), Y_[m] ]`. -/
+`+ I[∑ i, X_i : π(X_[m]) ; | ; π(∑ i, X_i), Y_[m] ]`. -/
 lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G]
     [AddCommGroup G] [Fintype G]
     [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
@@ -1292,7 +1292,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
   set hΩc : (Fin m → S) → MeasureSpace Ω := fun y ↦ ⟨ cond ℙ (E' y) ⟩
 
   calc
-    _ = ∑ y, (f y) * D[X; fun _ ↦ hΩc y] :=  condMultiDist_eq' hX hY hindep
+    _ = ∑ y, (f y) * D[X; fun _ ↦ hΩc y] := condMultiDist_eq' hX hY hindep
     _ = ∑ y, (f y) * D[X | fun i ↦ π ∘ (X i); fun _ ↦ hΩc y]
         + ∑ y, (f y) * D[ fun i ↦ π ∘ (X i); fun _ ↦ hΩc y]
         + ∑ y, (f y) * I[ ∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) |
@@ -1404,7 +1404,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
           simp [E'] at hω ⊢
           rw [<-hω.2]
           simp only [implies_true]
-        have : IsProbabilityMeasure (hΩc y).volume :=  cond_isProbabilityMeasure _ pey
+        have : IsProbabilityMeasure (hΩc y).volume := cond_isProbabilityMeasure _ pey
         rw [condMutualInfo_eq_sum' hmes, Finset.mul_sum]
         congr with x
         dsimp [f, E']
@@ -1421,7 +1421,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
             exact funext_iff
           infer_instance
         dsimp [hΩc, E']
-        rw [ProbabilityTheory.cond_cond_eq_cond_inter _  (hey_mes y)]
+        rw [ProbabilityTheory.cond_cond_eq_cond_inter _ (hey_mes y)]
         . congr
           ext ω
           simp only [Set.mem_inter_iff, Set.mem_iInter, Set.mem_preimage, Set.mem_singleton_iff,
@@ -1450,7 +1450,7 @@ lemma iter_multiDist_chainRule {m : ℕ}
     {φ : ∀ i : Fin m, G (i.succ) →+ G i.castSucc} {π : ∀ d, G m →+ G d}
     (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ))
     {Ω : Type*} [hΩ : MeasureSpace Ω] {X : Fin m → Ω → (G m)}
-    (hX:  ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X) (n : Fin (m+1)) :
+    (hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X) (n : Fin (m+1)) :
     D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ]
       + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ]
       + I[ ∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) |
@@ -1512,7 +1512,7 @@ theorem sum_of_iio_last (N: ℕ) (f : Fin (N+1) → ℝ) :
 
 /--Under the preceding hypotheses,
 `D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
-lemma iter_multiDist_chainRule'  {m : ℕ} (hm : m > 0)
+lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
     {G : Fin (m+1) → Type*} [hG : ∀ i, MeasurableSpace (G i)]
     [hGs : ∀ i, MeasurableSingletonClass (G i)] [hGa : ∀ i, AddCommGroup (G i)]
     [hGcount : ∀ i, Fintype (G i)] {φ : ∀ i : Fin m, G (i.succ) →+ G i.castSucc}
@@ -1591,7 +1591,7 @@ is less than
 `∑_{j=1}^{m-1} (D[(X_{i, j})_{i=1}^m] - D[(X_{i, j})_{i = 1}^m | (X_{i,j} + ... + X_{i,m})_{i=1}^m])`
 `+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
-lemma cor_multiDist_chainRule [Fintype G] {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin (m+1) × Fin (m+1) → Ω → G) (hindep : iIndepFun (fun _ ↦ hG) X) : I[ fun ω ↦ (fun j ↦ ∑ i, X (i, j) ω) : fun ω ↦ (fun i ↦ ∑ j, X (i, j) ω) | ∑ p, X p] ≤ ∑ j, (D[ fun i ↦ X (i, j); fun _ ↦ hΩ] -  D[ fun i ↦ X (i, j) | fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k); fun _ ↦ hΩ]) + D[ fun i ↦ X (i, m); fun _ ↦ hΩ] - D[ fun i ↦ ∑ j, X (i, j); fun _ ↦ hΩ] := by sorry
+lemma cor_multiDist_chainRule [Fintype G] {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin (m+1) × Fin (m+1) → Ω → G) (hindep : iIndepFun (fun _ ↦ hG) X) : I[ fun ω ↦ (fun j ↦ ∑ i, X (i, j) ω) : fun ω ↦ (fun i ↦ ∑ j, X (i, j) ω) | ∑ p, X p] ≤ ∑ j, (D[ fun i ↦ X (i, j); fun _ ↦ hΩ] - D[ fun i ↦ X (i, j) | fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k); fun _ ↦ hΩ]) + D[ fun i ↦ X (i, m); fun _ ↦ hΩ] - D[ fun i ↦ ∑ j, X (i, j); fun _ ↦ hΩ] := by sorry
 
 end multiDistance_chainRule
 

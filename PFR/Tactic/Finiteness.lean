@@ -3,8 +3,8 @@ Copyright (c) 2023 Heather Macbeth. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Heather Macbeth
 -/
-import PFR.Tactic.Finiteness.Attr
 import Mathlib.MeasureTheory.Measure.Typeclasses
+import PFR.Tactic.Finiteness.Attr
 
 /-! # Finiteness tactic
 
@@ -14,9 +14,10 @@ This file implements a basic `finiteness` tactic, designed to solve goals of the
 It works recursively according to the syntax of the expression. It is implemented as an `aesop` rule
 set.
 
-TODO: improve `finiteness` to also deal with other situations, such as balls in proper spaces with
-a locally finite measure.
+## TODO
 
+Improve `finiteness` to also deal with other situations, such as balls in proper spaces with
+a locally finite measure.
 -/
 
 open ENNReal
@@ -26,7 +27,7 @@ open ENNReal
 theorem ENNReal.ofNat_ne_top (n : ℕ) [Nat.AtLeastTwo n] : no_index (OfNat.ofNat n) ≠ ∞ :=
   ENNReal.natCast_ne_top n
 
-theorem ENNReal.inv_ne_top' (h : a ≠ 0) : a⁻¹ ≠ ∞ := ENNReal.inv_ne_top.2 h
+theorem ENNReal.inv_ne_top' {a : ℝ≥0∞} (h : a ≠ 0) : a⁻¹ ≠ ∞ := ENNReal.inv_ne_top.2 h
 
 theorem ENNReal.add_ne_top' {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) : a + b ≠ ∞ :=
   ENNReal.add_ne_top.2 ⟨ha, hb⟩
@@ -73,4 +74,4 @@ example {a : ℝ≥0∞} (ha : a < ∞) : a + 3 < ∞ := by finiteness
 
 example (a : ℝ) : (ENNReal.ofReal (1 + a ^ 2))⁻¹ < ∞ := by finiteness
 
-example (f : α → ℕ) : ∀ i, (f i : ℝ≥0∞) ≠ ∞ := by finiteness
+example {α : Type*} (f : α → ℕ) : ∀ i, (f i : ℝ≥0∞) ≠ ∞ := by finiteness

@@ -17,7 +17,7 @@ noncomputable def FiniteRange.fintype {Ω G : Type*} (X : Ω → G) [hX : Finite
 noncomputable def FiniteRange.toFinset {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] : Finset G :=
     @Set.toFinset _ _ hX.fintype
 
-/-- If the codomain of X is finite, then X has finite range.  -/
+/-- If the codomain of X is finite, then X has finite range. -/
 instance {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X where
   finite := Set.toFinite (Set.range X)
 
@@ -50,11 +50,11 @@ instance {Ω G : Type*} (c : G) : FiniteRange (fun _ : Ω ↦ c) := by
   apply finiteRange_of_finset _ { c }
   simp
 
-/-- If X has finite range, then any function of X has finite range.  -/
+/-- If X has finite range, then any function of X has finite range. -/
 instance {Ω G H : Type*} (X : Ω → G) (f : G → H) [hX : FiniteRange X] : FiniteRange (f ∘ X) where
   finite := (Set.range_comp f X) ▸ Set.Finite.image f hX.finite
 
-/-- If X has finite range, then X of any function has finite range.  -/
+/-- If X has finite range, then X of any function has finite range. -/
 instance {Ω Ω' G : Type*} (X : Ω → G) (f : Ω' → Ω) [hX : FiniteRange X] : FiniteRange (X ∘ f) := by
   apply finiteRange_of_finset _ (FiniteRange.toFinset X)
   intro ω

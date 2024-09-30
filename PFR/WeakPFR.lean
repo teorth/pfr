@@ -1,12 +1,12 @@
 import Mathlib.Algebra.Order.Ring.Defs
 import Mathlib.Algebra.Quotient
 import Mathlib.GroupTheory.Torsion
-import Mathlib.GroupTheory.Torsion
 import Mathlib.LinearAlgebra.FreeModule.PID
-import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.EntropyPFR
-import PFR.ImprovedPFR
 import PFR.ForMathlib.Entropy.RuzsaSetDist
+import PFR.ImprovedPFR
+import PFR.Mathlib.Data.Finsupp.Defs
+import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.GroupTheory.Torsion
 
 /-!
@@ -81,19 +81,19 @@ section Torsion
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type u} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonClass G]
-  [Countable G] {Ω Ω' : Type u} [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
+variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonClass G]
+  [Countable G] {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
   (μ : Measure Ω := by volume_tac) (μ': Measure Ω' := by volume_tac)
   [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
-/-- If `G` is torsion-free and `X, Y` are `G`-valued random variables then `d[X ; 2Y] ≤ 5d[X ; Y]`.  -/
+/-- If `G` is torsion-free and `X, Y` are `G`-valued random variables then `d[X ; 2Y] ≤ 5d[X ; Y]`. -/
 lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
     (hX : Measurable X) (hY : Measurable Y) (hG : AddMonoid.IsTorsionFree G) :
     d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X; μ # Y ; μ'] := by
   obtain ⟨A, mA, μA, X', Y'₁, Y'₂, hμA, h_indep, hX'_meas, hY'₁_meas, hY'₂_meas, hX'_ident,
     hY'₁_ident, hY'₂_ident, _, _, _⟩ := independent_copies3_nondep_finiteRange hX hY hY μ μ' μ'
   have h_meas (i : Fin 3) : Measurable (![X', Y'₁, Y'₂] i) := by fin_cases i <;> assumption
-  haveI : NoZeroSMulDivisors ℕ G := hG.noZeroNsmulDivisors
+  haveI : NoZeroSMulDivisors ℕ G := hG.noZeroSMulDivisors_nat
   have : H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[X ; μ] + 2 * H[Y ; μ'] := calc
     H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[⟨X', ⟨Y'₁, Y'₂⟩⟩ ; μA] := by
       let f : G × G × G → G × G × G := fun ⟨x, y₁, y₂⟩ ↦ (x, y₁ - y₂, x - 2 • y₁)
@@ -210,7 +210,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
 
 /-- If `G` is a torsion-free group and `X, Y` are `G`-valued random variables and
 `φ : G → 𝔽₂^d` is a homomorphism then `H[φ ∘ X ; μ] ≤ 10 * d[X; μ # Y ; μ']`. -/
-lemma torsion_dist_shrinking {H : Type u} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
+lemma torsion_dist_shrinking {H : Type*} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
     (hY : Measurable Y) [AddCommGroup H] [ElementaryAddCommGroup H 2]
     [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H]
     (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
@@ -225,7 +225,7 @@ lemma torsion_dist_shrinking {H : Type u} [FiniteRange X] [FiniteRange Y] (hX : 
 
 end Torsion
 
-instance {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G]
+instance {G : Type*} [AddCommGroup G] [Fintype G] [MeasurableSpace G] [MeasurableSingletonClass G]
     (H : AddSubgroup G) : MeasurableSingletonClass (G ⧸ H) :=
   ⟨λ _ ↦ by { rw [measurableSet_quotient]; simp [MeasurableSet.of_discrete] }⟩
 
@@ -233,7 +233,7 @@ section F2_projection
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type u} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+variable {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
 [MeasurableSingletonClass G] {Ω Ω' : Type*}
 
 /-- Let $G=\mathbb{F}_2^n$ and `X, Y` be `G`-valued random variables such that
@@ -261,7 +261,7 @@ lemma app_ent_PFR' [MeasureSpace Ω] [MeasureSpace Ω'] (X : Ω → G) (Y : Ω' 
   let ψ := (QuotientAddGroup.mk' H)
   use H
   have H_fin : Finite H := Subtype.finite
-  -- Note that  H[ψ ∘ X] + H[ψ ∘ Y] ≤ 20 * d[X # Y]
+  -- Note that H[ψ ∘ X] + H[ψ ∘ Y] ≤ 20 * d[X # Y]
   have ent_le : H[ψ ∘ X] + H[ψ ∘ Y] ≤ 20 * d[X # Y] := calc
     H[ψ ∘ X] + H[ψ ∘ Y] ≤ 2 * d[X # U] + 2 * d[Y # U] := by
       gcongr
@@ -299,7 +299,7 @@ lemma app_ent_PFR (α : ℝ) (hent : 20 * d[X;μ # Y;μ'] < α * (H[X; μ] + H[Y
 
 set_option maxHeartbeats 300000 in
 /-- If $G=\mathbb{F}_2^d$ and `X, Y` are `G`-valued random variables and $\alpha < 1$ then there is
-a subgroup  $H\leq \mathbb{F}_2^d$ such that
+a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq (1 + α) / (2 * (1 - α)) * (\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 20/\alpha * d[\psi(X);\psi(Y)].\] -/
@@ -353,8 +353,8 @@ lemma PFR_projection'
     set ψ' : G' →+ G' ⧸ H' := QuotientAddGroup.mk' H'
     set ψ'' : G →+ G ⧸ H'' := QuotientAddGroup.mk' H''
     have diag : ψ' ∘ ψ = φ.symm ∘ ψ'' := rfl
-    rw [← Function.comp.assoc, ← Function.comp.assoc, diag, Function.comp.assoc,
-        Function.comp.assoc] at hup'
+    rw [← Function.comp_assoc, ← Function.comp_assoc, diag, Function.comp_assoc,
+        Function.comp_assoc] at hup'
 
     have cond : log (Nat.card H'') ≤
         (1 + α) / (2 * (1 - α)) * (1 - α * c) * (H[X; μ] + H[Y;μ']) := by
@@ -403,7 +403,7 @@ lemma PFR_projection'
         norm_num; exact add_le_add (entropy_comp_le μ hX _) (entropy_comp_le μ' hY _)⟩
 
 /-- If $G=\mathbb{F}_2^d$ and `X, Y` are `G`-valued random variables then there is
-a subgroup  $H\leq \mathbb{F}_2^d$ such that
+a subgroup $H\leq \mathbb{F}_2^d$ such that
 \[\log \lvert H\rvert \leq 2 * (\mathbb{H}(X)+\mathbb{H}(Y))\]
 and if $\psi:G \to G/H$ is the natural projection then
 \[\mathbb{H}(\psi(X))+\mathbb{H}(\psi(Y))\leq 34 * d[\psi(X);\psi(Y)].\] -/
@@ -447,7 +447,7 @@ If $x,y\in H$ then let $A_x=A\cap \phi^{-1}(x)$ and $B_y=B\cap \phi^{-1}(y)$.
 There exist $x,y\in H$ such that $A_x,B_y$ are both non-empty and
 \[d[\phi(U_A);\phi(U_B)]\log \frac{\lvert A\rvert\lvert B\rvert}{\lvert A_x\rvert\lvert B_y\rvert}
 \leq (\mathbb{H}(\phi(U_A))+\mathbb{H}(\phi(U_B)))(d(U_A,U_B)-d(U_{A_x},U_{B_y}).\] -/
-lemma single_fibres {G H Ω Ω': Type u}
+lemma single_fibres {G H Ω Ω': Type*}
     [AddCommGroup G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
     [AddCommGroup H] [Countable H] [MeasurableSpace H] [MeasurableSingletonClass H]
     [MeasureSpace Ω] [MeasureSpace Ω']
@@ -635,7 +635,7 @@ lemma dimension_le_rank [Module.Finite ℤ G] (A : Set G) :
 
 end dim
 
-variable {G : Type u} [AddCommGroup G] [Module.Free ℤ G]
+variable {G : Type*} [AddCommGroup G] [Module.Free ℤ G]
 
 /-- A free Z-module is torsion-free. Move to Mathlib? -/
 lemma torsion_free : AddMonoid.IsTorsionFree G := by
@@ -647,26 +647,6 @@ lemma torsion_free : AddMonoid.IsTorsionFree G := by
     linarith
 
 open Real MeasureTheory ProbabilityTheory Pointwise Set Function
-
-/-- Move to Mathlib? `Finsupp.mapRange` of a surjective function is surjective. -/
-lemma Finsupp.mapRange_surjective {α : Type u_1} {M : Type u_5} {N : Type u_7} [Zero M] [Zero N]
-    (f : M → N) (hf : f 0 = 0) (hs : Surjective f) :
-    Surjective (Finsupp.mapRange (α := α) f hf) := by
-  classical
-  let g (n : N) : M := if n = 0 then 0 else surjInv hs n
-  have : RightInverse g f := by
-    intro n
-    by_cases h : n = 0
-    · simp [g, h, hf]
-    · simp [g, h, surjInv_eq hs n]
-  have hg : g 0 = 0 := by simp [g]
-  have hfg : (f ∘ g) 0 = 0 := by simp [hf, hg]
-  intro F
-  use Finsupp.mapRange g hg F
-  rw [← Finsupp.mapRange_comp (h := hfg)]
-  convert Finsupp.mapRange_id F
-  convert this.id
-
 
 variable [Module.Finite ℤ G]
 
@@ -768,7 +748,7 @@ open QuotientAddGroup
 /-- A version of the third isomorphism theorem: if G₂ ≤ G and H' is a subgroup of G⧸G₂, then there
 is a canonical isomorphism between H⧸H' and G⧸N, where N is the preimage of H' in G. A bit clunky;
 may be a better way to do this -/
-lemma third_iso {G : Type u} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSubgroup (G ⧸ G₂)) :
+lemma third_iso {G : Type*} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSubgroup (G ⧸ G₂)) :
   let H := G ⧸ G₂
   let φ : G →+ H := mk' G₂
   let N := AddSubgroup.comap φ H'
@@ -793,7 +773,7 @@ lemma third_iso {G : Type u} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSu
   intro x
   convert (quotientQuotientEquivQuotientAux_mk_mk _ _ h1 x) using 1
 
-lemma single {Ω : Type u} [MeasurableSpace Ω] [DiscreteMeasurableSpace Ω] (μ : Measure Ω)
+lemma single {Ω : Type*} [MeasurableSpace Ω] [DiscreteMeasurableSpace Ω] (μ : Measure Ω)
     [IsProbabilityMeasure μ] {A : Set Ω} {z : Ω} (hA : μ.real A = 1) (hz : μ.real {z} > 0) :
     z ∈ A := by
   contrapose! hz
@@ -857,7 +837,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   -- using explicit .toFun casts as this saves a lot of heartbeats
   change H[φ.toFun ∘ UA] ≤ 10 * dᵤ[A # B] at h1
   change H[φ.toFun ∘ UB] ≤ 10 * dᵤ[A # B] at h2
-  replace hH1 : log (Nat.card H') ≤ 40  * dᵤ[A # B] := by
+  replace hH1 : log (Nat.card H') ≤ 40 * dᵤ[A # B] := by
     apply hH1.trans
     linarith
   replace h_card : log 2 * FiniteDimensional.finrank ℤ G
@@ -884,7 +864,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
     have hb : φ'.toFun ∘ UB = e.toFun ∘ Y := by ext x; exact (he (UB x)).symm
     have he_inj : Injective e.toFun := e.injective
     rw [ha, hb, entropy_comp_of_injective _ hX _ he_inj, entropy_comp_of_injective _ hY _ he_inj]
-    have : d[e.toFun ∘ X # e.toFun ∘ Y] = d[X # Y] :=  rdist_of_inj hX hY e.toAddMonoidHom he_inj
+    have : d[e.toFun ∘ X # e.toFun ∘ Y] = d[X # Y] := rdist_of_inj hX hY e.toAddMonoidHom he_inj
     rwa [this]
 
   set X : Ω → G ⧸ N := φ'.toFun ∘ UA
@@ -990,12 +970,11 @@ def WeakPFRAsymmConclusion (A B : Set G) : Prop :=
   max (dimension A') (dimension B') ≤ (40 / log 2) * dᵤ[A # B]
 
 /-- The property of two sets A,B of a group G not being contained in cosets of the same proper subgroup -/
-def not_in_coset {G : Type u} [AddCommGroup G] (A B : Set G) : Prop := AddSubgroup.closure ((A-A) ∪ (B-B)) = ⊤
-
+def not_in_coset {G : Type*} [AddCommGroup G] (A B : Set G) : Prop :=
+  AddSubgroup.closure ((A - A) ∪ (B - B)) = ⊤
 
 /-- In fact one has equality here, but this is tricker to prove and not needed for the argument. -/
-lemma dimension_of_shift {G : Type u} [AddCommGroup G]
-    {H : AddSubgroup G} (A : Set H) (x : G) :
+lemma dimension_of_shift {G : Type*} [AddCommGroup G] {H : AddSubgroup G} (A : Set H) (x : G) :
     dimension ((fun a : H ↦ (a : G) + x) '' A) ≤ dimension A := by
   classical
   rcases Nat.find_spec (exists_coset_cover A) with ⟨ S, v, hrank, hshift ⟩
@@ -1088,7 +1067,7 @@ $A'\subseteq A$ and $B'\subseteq B$ such that
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
 lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB : B.Nonempty) :
     WeakPFRAsymmConclusion A B := by
-  let P : ℕ → Prop := fun M ↦ (∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
+  let P : ℕ → Prop := fun M ↦ (∀ (G : Type _) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
     (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G)
     (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B)
     (_hA_non : A.Nonempty) (_hB_non : B.Nonempty)
@@ -1099,7 +1078,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› _ ‹_› A B ‹_› ‹_› ‹_› ‹_› hM
   intro M h_induct
   -- wlog we can assume A, B are not in cosets of a smaller subgroup
-  suffices ∀ (G : Type u) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
+  suffices ∀ (G : Type _) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
     (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G)
     (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B)
       (_hA_non : A.Nonempty) (_hB_non : B.Nonempty) (_hM : Nat.card A + Nat.card B ≤ M)
@@ -1195,7 +1174,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     rw [Nat.card_eq_one_iff_unique]
     constructor
     · rw [hN]
-      exact  QuotientAddGroup.subsingleton_quotient_top
+      exact QuotientAddGroup.subsingleton_quotient_top
     infer_instance
   simp only [this, Nat.cast_one, log_one, zero_add] at hdim
   rw [← le_div_iff₀' (by positivity)] at hdim

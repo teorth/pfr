@@ -15,13 +15,13 @@ import PFR.MultiTauFunctional
 universe u
 open MeasureTheory ProbabilityTheory
 
--- Spelling here is *very* janky.  Feel free to respell
+-- Spelling here is *very* janky. Feel free to respell
 /-- Suppose that $X_{i,j}$, $1 \leq i,j \leq m$, are jointly independent $G$-valued random variables, such that for each $j = 1,\dots,m$, the random variables $(X_{i,j})_{i = 1}^m$
 coincide in distribution with some permutation of $X_{[m]}$.
   Write
-$$    {\mathcal I} := \bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m}
+$$ {\mathcal I} := \bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m}
 : \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i = 1}^m
-\; \big| \; \sum_{i=1}^m \sum_{j = 1}^m  X_{i,j} ].
+\; \big| \; \sum_{i=1}^m \sum_{j = 1}^m X_{i,j} ].
  $$
  Then ${\mathcal I} \leq 4 m^2 \eta k.$
 -/

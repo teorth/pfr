@@ -35,13 +35,8 @@ open Function MeasureTheory Measure Real
 open scoped ENNReal NNReal Topology ProbabilityTheory
 
 namespace ProbabilityTheory
-
-universe uΩ uS uT uU
-
-variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} [mΩ : MeasurableSpace Ω]
-  [MeasurableSpace S] [MeasurableSpace U]
-  {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
-  {μ : Measure Ω}
+variable {Ω S T U T' : Type*} [mΩ : MeasurableSpace Ω] [MeasurableSpace S] [MeasurableSpace U]
+  {X : Ω → S} {Y : Ω → T} {Z : Ω → U} {μ : Measure Ω}
 
 section entropy
 
@@ -219,7 +214,7 @@ lemma entropy_eq_log_card {X : Ω → S} [Fintype S] [MeasurableSingletonClass S
   simp
 
 /-- If `X` is an `S`-valued random variable, then there exists `s ∈ S` such that
-`P[X = s] ≥ \exp(- H[X])`.  TODO: remove the probability measure hypothesis, which is unncessary here. -/
+`P[X = s] ≥ \exp(- H[X])`. TODO: remove the probability measure hypothesis, which is unncessary here. -/
 lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : Measure Ω)
     [IsProbabilityMeasure μ] (hX : Measurable X) [hX': FiniteRange X] :
     ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
@@ -410,17 +405,6 @@ lemma condEntropy_eq_kernel_entropy [Nonempty S] [Countable S] [MeasurableSingle
   ext s hs
   rw [condDistrib_apply' hX hY _ _ ht hs, Measure.map_apply hX hs,
       cond_apply _ (hY (measurableSet_singleton _))]
-
-/-- The law of `(X, Z)` is the image of the law of `(Z, X)`.-/
-lemma map_prod_comap_swap (hX : Measurable X) (hZ : Measurable Z) (μ : Measure Ω) :
-    (μ.map (fun ω ↦ (X ω, Z ω))).comap Prod.swap = μ.map (fun ω ↦ (Z ω, X ω)) := by
-  ext s hs
-  rw [Measure.map_apply (hZ.prod_mk hX) hs, Measure.comap_apply _ Prod.swap_injective _ _ hs]
-  · rw [Measure.map_apply (hX.prod_mk hZ)]
-    · congr with ω
-      simp only [Set.image_swap_eq_preimage_swap, Set.mem_preimage, Prod.swap_prod_mk]
-    · exact MeasurableEquiv.prodComm.measurableEmbedding.measurableSet_image' hs
-  · exact fun t ht ↦ MeasurableEquiv.prodComm.measurableEmbedding.measurableSet_image' ht
 
 variable [Countable T] [Nonempty T] [Nonempty S] [MeasurableSingletonClass S] [Countable S]
   [Countable U] [MeasurableSingletonClass U]

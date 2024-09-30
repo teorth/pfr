@@ -5,6 +5,7 @@ import PFR.ForMathlib.MeasureReal
 import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
+import PFR.Tactic.Finiteness
 
 /-!
 # Entropy of a measure
@@ -186,7 +187,7 @@ theorem Measure.ext_iff_singleton_finiteSupport
       · simp
       exact measure_mono_null (fun x ↦ by simp) hA2
     rw [h1, h2]
-    have hs : Set.Finite (s ∩ (A1 ∪ A2)) :=  Set.toFinite (s ∩ (↑A1 ∪ ↑A2))
+    have hs : Set.Finite (s ∩ (A1 ∪ A2)) := Set.toFinite (s ∩ (↑A1 ∪ ↑A2))
     rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
     simp_rw [h]
 
@@ -553,7 +554,7 @@ lemma measureMutualInfo_prod {μ : Measure S} {ν : Measure T} [FiniteSupport μ
   rw [measureMutualInfo_def, measureEntropy_prod]
   simp
 
-/-- An ambitious goal would be to replace FiniteSupport with finite entropy.  Proof is long and slow; needs to be optimized -/
+/-- An ambitious goal would be to replace FiniteSupport with finite entropy. Proof is long and slow; needs to be optimized -/
 lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     [IsZeroOrProbabilityMeasure μ] :
     0 ≤ Im[μ] ∧

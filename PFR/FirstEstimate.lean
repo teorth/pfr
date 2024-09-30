@@ -203,7 +203,7 @@ lemma ent_ofsum_le
     rw [add_comm X₂ X₁', k_eq', ← ElementaryAddCommGroup.sub_eq_add, ← HX₁_eq]
     ring
   calc H[X₁ + X₂ + X₁' + X₂']
-      ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + p.η) * k - I₁    := obs
+      ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + p.η) * k - I₁  := obs
     _ = (k + H[X₁] / 2 + H[X₂] / 2) / 2
-        + (k + H[X₁] / 2 + H[X₂] / 2) / 2 + (1 + p.η) * k - I₁    := by rw [rw₂, rw₃]
-    _ = H[X₁] / 2 + H[X₂] / 2 + (2 + p.η) * k - I₁                := by ring
+        + (k + H[X₁] / 2 + H[X₂] / 2) / 2 + (1 + p.η) * k - I₁  := by rw [rw₂, rw₃]
+    _ = H[X₁] / 2 + H[X₂] / 2 + (2 + p.η) * k - I₁              := by ring

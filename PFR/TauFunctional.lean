@@ -49,7 +49,7 @@ structure refPackage :=
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 variable {Ω₀₁ Ω₀₂ G}
 
-variable {Ω₁ Ω₂ Ω'₁ Ω'₂ : Type*}
+variable {Ω Ω' Ω₁ Ω₂ Ω'₁ Ω'₂ S T : Type*}
 
 /-- If $X_1,X_2$ are two $G$-valued random variables, then
 $$ \tau[X_1; X_2] := d[X_1; X_2] + \eta d[X^0_1; X_1] + \eta d[X^0_2; X_2].$$
