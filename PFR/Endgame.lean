@@ -395,7 +395,8 @@ lemma construct_good_prelim :
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
       simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const, measure_univ,
         ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum2]
-      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
+      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
+        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
 
     gcongr
@@ -405,7 +406,8 @@ lemma construct_good_prelim :
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
       simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const, measure_univ,
         ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum3]
-      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃, integral_eq_sum' _ (FiniteRange.null_of_compl _ T₃),
+      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
+        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
         Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]

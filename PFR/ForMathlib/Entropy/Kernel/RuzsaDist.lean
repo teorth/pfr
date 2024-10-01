@@ -4,21 +4,13 @@ import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 /-!
 # Ruzsa distance between kernels
 
-## Main definitions
-
-*
-
 ## Notations
 
 * `dk[κ ; μ # η ; ν] = `
-
 -/
 
-
 open Real MeasureTheory
-
 open scoped ENNReal NNReal Topology ProbabilityTheory
-
 
 namespace ProbabilityTheory.Kernel
 
@@ -305,8 +297,8 @@ lemma rdist_triangle_aux1 (κ : Kernel T G) (η : Kernel T' G)
       (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')) : Set ((T × T'') × T'))ᶜ
       = 0 :=
     Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
-  simp_rw [entropy, integral_eq_sum' _ hAB, integral_eq_sum' _ hACB, smul_eq_mul,
-    Measure.prod_apply_singleton, Finset.sum_product, ENNReal.toReal_mul, mul_assoc,
+  simp_rw [entropy, integral_eq_setIntegral hAB, integral_eq_setIntegral hACB, setIntegral_eq_sum,
+    smul_eq_mul, Measure.prod_apply_singleton, Finset.sum_product, ENNReal.toReal_mul, mul_assoc,
     ← Finset.mul_sum]
   congr with x
   have : ∀ z y, map (prodMkRight T' (prodMkRight T'' κ) ×ₖ prodMkLeft (T × T'') η)
@@ -336,8 +328,8 @@ lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
       (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')) : Set ((T × T'') × T'))ᶜ
       = 0 :=
     Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
-  simp_rw [entropy, integral_eq_sum' _ hACB, integral_eq_sum' _ hBC, smul_eq_mul,
-    Measure.prod_apply_singleton]
+  simp_rw [entropy, integral_eq_setIntegral hACB, integral_eq_setIntegral hBC, setIntegral_eq_sum,
+    smul_eq_mul, Measure.prod_apply_singleton]
   conv_rhs => rw [Finset.sum_product_right]
   conv_lhs => rw [Finset.sum_product, Finset.sum_product_right]
   simp_rw [ENNReal.toReal_mul, mul_assoc, ← Finset.mul_sum]

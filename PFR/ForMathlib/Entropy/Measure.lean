@@ -23,7 +23,7 @@ import PFR.Tactic.Finiteness
 
 -/
 
-open Real MeasureTheory
+open MeasureTheory Real Set
 open scoped ENNReal NNReal Topology
 
 namespace ProbabilityTheory
@@ -57,17 +57,22 @@ lemma measureEntropy_def' (μ : Measure S) :
 
 @[inherit_doc measureEntropy] notation:100 "Hm[" μ "]" => measureEntropy μ
 
-/-- A measure has finite support if there exsists a finite set whose complement has zero measure. -/
+/-- A measure has finite support if there exists a finite set whose complement has zero measure. -/
 class FiniteSupport (μ : Measure S := by volume_tac) : Prop where
   finite : ∃ A : Finset S, μ Aᶜ = 0
 
 /-- A set on which a measure with finite support is supported. -/
 noncomputable
 def _root_.MeasureTheory.Measure.support (μ : Measure S) [hμ : FiniteSupport μ] : Finset S :=
-  hμ.finite.choose
+  hμ.finite.choose.filter (μ {·} ≠ 0)
 
-lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] : μ μ.supportᶜ = 0 :=
-  hμ.finite.choose_spec
+lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] : μ μ.supportᶜ = 0 := by
+  simp [Measure.support, compl_setOf, not_and_or, -not_and, setOf_or]
+  refine ⟨hμ.finite.choose_spec, ?_⟩
+  sorry
+
+@[simp] lemma mem_support {μ : Measure S} [hμ : FiniteSupport μ] {x : S} :
+    x ∈ μ.support ↔ μ {x} ≠ 0 := sorry
 
 instance finiteSupport_zero : FiniteSupport (0 : Measure S) where
   finite := ⟨(∅ : Finset S), by simp⟩
@@ -154,14 +159,10 @@ lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
   apply measurable_of_countable
 
 lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*} [MeasurableSingletonClass Ω]
-    [NormedAddCommGroup G] [NormedSpace ℝ G] [CompleteSpace G] {f g : Ω → G}
-    [FiniteSupport μ] [IsFiniteMeasure μ] (hfg : ∀ x, μ {x} ≠ 0 → f x = g x) :
-    ∫ x, f x ∂μ = ∫ x, g x ∂μ := by
-  rw [integral_eq_sum' μ (measure_compl_support μ), integral_eq_sum' μ (measure_compl_support μ)]
-  congr with x
-  by_cases hx : μ {x} = 0
-  · simp [hx]
-  rw [hfg x hx]
+    [NormedAddCommGroup G] [NormedSpace ℝ G] {f g : Ω → G} [FiniteSupport μ]
+    (hfg : ∀ x, μ {x} ≠ 0 → f x = g x) : ∫ x, f x ∂μ = ∫ x, g x ∂μ := by
+  refine integral_congr_ae <| measure_mono_null ?_ <| measure_compl_support μ
+  exact fun x hx hx' ↦ hx <| hfg _ <| mem_support.1 hx'
 
 /-- This generalizes Measure.ext_iff_singleton in MeasureReal -/
 theorem Measure.ext_iff_singleton_finiteSupport
@@ -181,11 +182,12 @@ theorem Measure.ext_iff_singleton_finiteSupport
       apply (measure_eq_measure_of_null_diff _ _).symm
       · simp
       refine measure_mono_null ?_ hA1
-      intro x; simp; tauto
+      intro x
+      simp (config := { contextual := true })
     have h2 : μ2 s = μ2 (s ∩ (A1 ∪ A2)) := by
       apply (measure_eq_measure_of_null_diff _ _).symm
       · simp
-      exact measure_mono_null (fun x ↦ by simp) hA2
+      exact measure_mono_null (fun x ↦ by simp (config := { contextual := true })) hA2
     rw [h1, h2]
     have hs : Set.Finite (s ∩ (A1 ∪ A2)) := Set.toFinite (s ∩ (↑A1 ∪ ↑A2))
     rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
@@ -576,7 +578,8 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     contrapose!
     intro h
     simp at h ⊢
-    simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E, E2]
+    simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E, E2,
+      mem_support]
     constructor; use u; use s
   have hE1 : (μ.map Prod.fst) E1ᶜ = 0 := by
     rw [Measure.map_apply measurable_fst (MeasurableSet.compl (Finset.measurableSet E1))]
@@ -584,7 +587,8 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     intro ⟨s, u⟩
     simp
     contrapose!
-    simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E]
+    simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E,
+      mem_support]
     intro h; use u
   have hE1' : (μ.map Prod.fst).real E1 = 1 := by
     rw [prob_compl_eq_zero_iff E1.measurableSet] at hE1
@@ -597,7 +601,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     intro ⟨s, u⟩
     simp
     contrapose!
-    simp only [Finset.mem_image, Prod.exists, exists_eq_right, E2, E]
+    simp only [Finset.mem_image, Prod.exists, exists_eq_right, E2, E, mem_support]
     intro h; use s
   have hE2' : (μ.map Prod.snd).real E2 = 1 := by
     rw [prob_compl_eq_zero_iff E2.measurableSet] at hE2
@@ -629,7 +633,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         intro ⟨s, u⟩ ⟨h1, h2⟩
         contrapose! h2
         simp at h1 h2 ⊢
-        simp only [Finset.mem_image, Prod.exists, exists_eq_right, E2, E]
+        simp only [Finset.mem_image, Prod.exists, exists_eq_right, E2, E, mem_support]
         constructor; exact h1; use s
       · convert measure_empty (μ := μ)
         rw [Set.diff_eq_empty]
@@ -648,7 +652,8 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         intro ⟨s, u⟩ ⟨h1, h2⟩
         contrapose! h2
         simp at h1 h2 ⊢
-        simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E]
+        simp only [Finset.mem_image, Prod.exists, exists_and_right, exists_eq_right, E1, E,
+          mem_support]
         constructor; use u; exact h1
       · convert measure_empty (μ := μ)
         rw [Set.diff_eq_empty]

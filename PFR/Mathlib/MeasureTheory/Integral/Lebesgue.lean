@@ -1,5 +1,11 @@
 import Mathlib.MeasureTheory.Integral.Lebesgue
 
+/-!
+# TODO
+
+Rename `setLIntegral_congr` to `setLIntegral_congr_set`
+-/
+
 open ENNReal
 
 namespace MeasureTheory
@@ -13,6 +19,10 @@ lemma lintegral_eq_zero_of_ae_zero {μ : Measure α} {f : α → ℝ≥0∞} {E 
   · simp
   exact ae_of_all μ hf
 
+lemma lintegral_eq_setLIntegral {μ : Measure α} {s : Set α} (hs : μ sᶜ = 0) (f : α → ℝ≥0∞) :
+    ∫⁻ x, f x ∂μ = ∫⁻ x in s, f x ∂μ := by
+  rw [← setLIntegral_univ, ← setLIntegral_congr]; rwa [ae_eq_univ]
+
 variable [MeasurableSingletonClass α]
 
 -- TODO: Change RHS of `lintegral_fintype`
@@ -20,15 +30,14 @@ lemma lintegral_eq_sum (μ : Measure α) (f : α → ℝ≥0∞) [Fintype α] :
     ∫⁻ x, f x ∂μ = ∑ x, μ {x} * f x := by
   simp_rw [lintegral_fintype, mul_comm]
 
-lemma lintegral_eq_sum_countable
-    (μ : Measure α) (f : α → ℝ≥0∞) [Countable α] : ∫⁻ x, f x ∂μ = ∑' x, μ {x} * f x := by
+lemma lintegral_eq_tsum (μ : Measure α) (f : α → ℝ≥0∞) [Countable α] :
+    ∫⁻ x, f x ∂μ = ∑' x, μ {x} * f x := by
   simp_rw [lintegral_countable', mul_comm]
 
-lemma lintegral_eq_sum' (μ : Measure α) {s : Finset α} (hA : μ sᶜ = 0) (f : α → ℝ≥0∞) :
-    ∫⁻ x, f x ∂μ = ∑ x in s, (f x) * (μ {x}) := by
-  have hA' : (s : Set α) =ᵐ[μ] Set.univ := by rwa [MeasureTheory.ae_eq_univ]
-  rw [← MeasureTheory.setLIntegral_univ, ← MeasureTheory.setLIntegral_congr hA']
-  apply lintegral_finset
+-- TODO: Change RHS of `lintegral_finset`
+lemma setLIntegral_eq_sum (μ : Measure α) (s : Finset α) (f : α → ℝ≥0∞) :
+    ∫⁻ x in s, f x ∂μ = ∑ x ∈ s, μ {x} * f x := by
+  simp_rw [mul_comm, lintegral_finset]
 
 lemma lintegral_eq_single (μ : Measure α) (a : α) (f : α → ℝ≥0∞) (ha : ∀ b ≠ a, f b = 0) :
     ∫⁻ x, f x ∂μ = f a * μ {a} := by

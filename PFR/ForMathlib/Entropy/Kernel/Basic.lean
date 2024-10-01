@@ -77,10 +77,11 @@ lemma finiteSupport_of_compProd' [MeasurableSingletonClass S] [MeasurableSinglet
   have hA := measure_compl_support μ
   rcases (local_support_of_finiteKernelSupport hκ A) with ⟨B, hB⟩
   use A ×ˢ B
-  rw [Measure.compProd_apply (by measurability), lintegral_eq_sum' _ hA]
+  rw [Measure.compProd_apply (by measurability), lintegral_eq_setLIntegral hA, setLIntegral_eq_sum]
   apply Finset.sum_eq_zero
   intro t ht
-  simp; left
+  simp
+  right
   refine measure_mono_null ?_ (hB t ht)
   intro s
   simp; tauto
@@ -166,7 +167,7 @@ lemma entropy_comap [MeasurableSingletonClass T]
       exact MeasurableSet.compl (Finset.measurableSet A)
     exact ae_eq_univ.mp hf_range
   simp_rw [entropy]
-  simp_rw [integral_eq_sum' _ hA, integral_eq_sum' _ this,
+  simp_rw [integral_eq_setIntegral hA, integral_eq_setIntegral this, setIntegral_eq_sum,
     Measure.comap_apply f hf.injective hf.measurableSet_image' _ (measurableSet_singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
   simp_rw [comap_apply]
@@ -230,9 +231,8 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   rcases eq_zero_or_isMarkovKernel κ with rfl | hκ'
   · simp
   let A := μ.support
-  have hA := measure_compl_support μ
   have hsum (F : T → ℝ) : ∫ (t : T), F t ∂μ = ∑ t in A, (μ.real {t}) * (F t) := by
-    rw [integral_eq_sum' _ hA]
+    rw [integral_eq_setIntegral (measure_compl_support μ), setIntegral_eq_sum]
     congr with t ht
   simp_rw [entropy, hsum, ← Finset.sum_add_distrib]
   apply Finset.sum_congr rfl
@@ -241,19 +241,21 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   congr
   rcases (local_support_of_finiteKernelSupport hκ A) with ⟨B, hB⟩
   rcases (local_support_of_finiteKernelSupport hη (A ×ˢ B)) with ⟨C, hC⟩
-  rw [integral_eq_sum' _ (hB t ht)]
+  rw [integral_eq_setIntegral (hB t ht)]
   have hκη : ((κ ⊗ₖ η) t) (B ×ˢ C : Finset (S × U))ᶜ = 0 := by
-    rw [ProbabilityTheory.Kernel.compProd_apply, lintegral_eq_sum' _ (hB t ht)]
+    rw [ProbabilityTheory.Kernel.compProd_apply, lintegral_eq_setLIntegral (hB t ht),
+      setLIntegral_eq_sum]
     · apply Finset.sum_eq_zero
       intro s hs
-      simp; left
+      simp
+      right
       have hts : (t, s) ∈ A ×ˢ B := by simp [ht, hs]
       refine measure_mono_null ?_ (hC (t, s) hts)
       intro u hu
       simp at hu ⊢
       exact hu hs
     exact MeasurableSet.compl (Finset.measurableSet _)
-  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht),
+  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht), setIntegral_eq_sum,
     ← Finset.sum_add_distrib, Finset.sum_product]
   apply Finset.sum_congr rfl
   intro s hs
@@ -278,8 +280,8 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   congr with u
   have : ((κ ⊗ₖ η) t).real {(s, u)} = ((κ t).real {s}) * ((η (t, s)).real {u}) := by
     rw [measureReal_def, compProd_apply κ η _ (measurableSet_singleton _),
-      lintegral_eq_sum' _ (hB t ht), Finset.sum_eq_single_of_mem s hs]
-    · simp [measureReal_def]; ring
+      lintegral_eq_setLIntegral (hB t ht), setLIntegral_eq_sum, Finset.sum_eq_single_of_mem s hs]
+    · simp [measureReal_def]
     intro b _ hbs
     simp [hbs]
   rw [this, Kernel.comap_apply, negMulLog_mul, negMulLog, negMulLog, ← measureReal_def]

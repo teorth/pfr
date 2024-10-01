@@ -505,7 +505,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
       simp [← FiniteRange.range]
       measurability
     }
-  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_sum' _ this]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, setIntegral_eq_sum]
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, smul_eq_mul, Finset.sum_product,
     Measure.map_apply hZ (measurableSet_singleton _),
     Measure.map_apply hW (measurableSet_singleton _)]
@@ -586,7 +586,7 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
-  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_sum' _ this]
+  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, setIntegral_eq_sum]
   simp_rw [Measure.prod_apply_singleton, smul_eq_mul, Finset.sum_product]
   simp only [Finset.univ_unique, PUnit.default_eq_unit, MeasurableSpace.measurableSet_top,
     Measure.dirac_apply', Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, one_mul,
@@ -683,7 +683,8 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
-  convert symm $ integral_eq_sum' (μ'.map W) this (fun w ↦ d[X ; μ # Y ; (μ'[|W ← w])])
+  rw [integral_eq_setIntegral this]
+  convert symm $ setIntegral_eq_sum (μ'.map W) _ (fun w ↦ d[X ; μ # Y ; (μ'[|W ← w])])
   rw [Measure.map_apply hW (MeasurableSet.singleton _)]
 
 section
@@ -834,7 +835,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
       measurability
     }
   rw [condRuzsaDist_def, condRuzsaDist_def, Kernel.rdist, Kernel.rdist,
-    integral_eq_sum' _ hfull, integral_eq_sum' _ hfull']
+    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', setIntegral_eq_sum,
+    setIntegral_eq_sum]
   have hZZ' : μ.map Z = μ''.map Z' := (h1.comp measurable_snd).map_eq
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hZZ', ← hWW',
@@ -905,7 +907,8 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     simp [← FiniteRange.range]
     measurability
   rw [condRuzsaDist'_def, condRuzsaDist'_def, Kernel.rdist, Kernel.rdist,
-    integral_eq_sum' _ hfull, integral_eq_sum' _ hfull']
+    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', setIntegral_eq_sum,
+    setIntegral_eq_sum]
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hWW',
     Measure.map_apply hW (measurableSet_singleton _)]

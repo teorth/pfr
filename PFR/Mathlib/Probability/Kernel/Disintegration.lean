@@ -110,7 +110,7 @@ lemma disintegration (κ : Kernel T (S × U)) [IsFiniteKernel κ] :
   ext x s hs
   rw [compProd_apply _ _ _ hs, lintegral_fst]
   swap; · exact measurable_kernel_prod_mk_left' hs x
-  rw [lintegral_eq_sum_countable, ENNReal.tsum_prod']
+  rw [lintegral_eq_tsum, ENNReal.tsum_prod']
   change κ x s = ∑' a : S, ∑' b : U, κ x {(a, b)} * condKernel κ (x, a) (Prod.mk a ⁻¹' s)
   simp_rw [ENNReal.tsum_mul_right, ← measure_preimage_fst_singleton_eq_sum_countable (κ x)]
   have : ∑' a : S, (κ x (Prod.fst ⁻¹' {a})) * condKernel κ (x, a) (Prod.mk a ⁻¹' s)
@@ -145,7 +145,7 @@ lemma condKernel_compProd_ae_eq
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [condKernel_compProd_apply]
-  rw [Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_sum_countable] at hx
+  rw [Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_tsum] at hx
   simp only [Set.mem_singleton_iff, ne_eq, Finset.sum_eq_zero_iff, tsum_eq_zero_iff ENNReal.summable, mul_eq_zero,
     forall_true_left, not_forall] at hx
   obtain ⟨y, hy⟩ := hx
@@ -178,7 +178,7 @@ lemma condKernel_map_prod_mk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
           (measurable_of_countable _))) := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
-  rw [Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_sum_countable] at hx
+  rw [Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_tsum] at hx
   simp only [ne_eq, tsum_eq_zero_iff ENNReal.summable, Finset.mem_univ, mul_eq_zero, forall_true_left,
     not_forall] at hx
   obtain ⟨y, hy⟩ := hx
@@ -428,7 +428,7 @@ lemma map_compProd_condDistrib [Nonempty S] (hX : Measurable X) (hZ : Measurable
     (μ : Measure Ω) [IsProbabilityMeasure μ] :
     μ.map Z ⊗ₘ condDistrib X Z μ = μ.map (fun ω ↦ (Z ω, X ω)) := by
   ext A hA
-  rw [Measure.map_apply (hZ.prod_mk hX) hA, Measure.compProd_apply hA, lintegral_eq_sum_countable]
+  rw [Measure.map_apply (hZ.prod_mk hX) hA, Measure.compProd_apply hA, lintegral_eq_tsum]
   have : ∑' x : U, μ.map Z {x} * condDistrib X Z μ x (Prod.mk x ⁻¹' A)
       = ∑' x : U, μ (Z ⁻¹' {x} ∩ (fun ω ↦ (x, X ω)) ⁻¹' A) := by
     congr 1 with x
@@ -477,7 +477,7 @@ lemma condDistrib_eq_prod_of_indepFun [Nonempty S]
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod] at hx
   have hxZ : μ (Z ⁻¹' {x.1}) ≠ 0 := fun h0 ↦ hx (measure_mono_null Set.inter_subset_left h0)
   have hxW : μ (W ⁻¹' {x.2}) ≠ 0 := fun h0 ↦ hx (measure_mono_null Set.inter_subset_right h0)
-  simp_rw [lintegral_eq_sum_countable, condDistrib_apply hX hZ μ _ hxZ,
+  simp_rw [lintegral_eq_tsum, condDistrib_apply hX hZ μ _ hxZ,
     condDistrib_apply hY hW μ _ hxW, Measure.map_apply (hX.prod_mk hY) hs]
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod,
     cond_apply _ ((hZ (measurableSet_singleton _)).inter (hW (measurableSet_singleton _)))]
@@ -910,11 +910,13 @@ lemma FiniteKernelSupport.compProd [MeasurableSingletonClass S] [MeasurableSingl
   intro t
   rcases hκ t with ⟨A, hA⟩
   rcases (local_support_of_finiteKernelSupport hη ({t} ×ˢ A)) with ⟨B, hB⟩
-  use (A ×ˢ B)
-  rw [Kernel.compProd_apply _ _ _ (by measurability), lintegral_eq_sum' _ hA]
+  use A ×ˢ B
+  rw [Kernel.compProd_apply _ _ _ (by measurability), lintegral_eq_setLIntegral hA,
+    setLIntegral_eq_sum]
   apply Finset.sum_eq_zero
   intro s hs
-  simp; left
+  simp
+  right
   refine measure_mono_null ?_ (hB (t, s) (by simp [hs]))
   intro u; simp; tauto
 
