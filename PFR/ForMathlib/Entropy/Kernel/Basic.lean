@@ -1,6 +1,7 @@
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import PFR.ForMathlib.Entropy.Measure
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
+import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 import PFR.Mathlib.Probability.Kernel.Disintegration
 

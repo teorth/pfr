@@ -5,7 +5,6 @@ import PFR.ForMathlib.Entropy.Basic
 import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.Uniform
-import PFR.Mathlib.Data.Set.Pointwise.Finite
 
 section UniformMeasure
 

@@ -1,5 +1,5 @@
+import Mathlib.Algebra.Module.ZMod
 import Mathlib.Data.Finsupp.Fintype
-import Mathlib.Data.ZMod.Module
 import Mathlib.LinearAlgebra.Basis.VectorSpace
 import Mathlib.GroupTheory.Sylow
 

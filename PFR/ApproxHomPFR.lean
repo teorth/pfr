@@ -2,6 +2,7 @@ import Mathlib.Combinatorics.Additive.Energy
 import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import LeanAPAP.Extras.BSG
+import PFR.Mathlib.Data.Set.Pointwise.Finite
 import PFR.HomPFR
 
 /-!

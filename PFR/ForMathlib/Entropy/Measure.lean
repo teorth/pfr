@@ -1,10 +1,9 @@
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+import Mathlib.MeasureTheory.Integral.Bochner
 import Mathlib.Tactic.Positivity.Finset
 import PFR.ForMathlib.FiniteRange
 import PFR.ForMathlib.MeasureReal
 import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic
-import PFR.Mathlib.MeasureTheory.Integral.Bochner
-import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Tactic.Finiteness
 
 /-!

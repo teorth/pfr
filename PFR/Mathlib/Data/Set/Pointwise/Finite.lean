@@ -4,10 +4,6 @@ import PFR.Mathlib.Data.Set.Function
 open Function
 open scoped Pointwise
 
-@[to_additive]
-lemma Set.Finite.div {α : Type*} [Div α] {A B : Set α} (hA : A.Finite) (hB : B.Finite) :
-    Set.Finite (A / B) := Set.Finite.image2 _ hA hB
-
 namespace Set
 variable {α β γ : Type*} {f g : α → β} {x : α × β}
 

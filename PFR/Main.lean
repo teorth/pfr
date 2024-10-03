@@ -3,7 +3,6 @@ import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
 import Mathlib.GroupTheory.OrderOfElement
 import PFR.EntropyPFR
-import PFR.Mathlib.Data.Set.Pointwise.Finite
 import PFR.Tactic.RPowSimp
 import PFR.TauFunctional
 
