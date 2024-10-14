@@ -52,7 +52,7 @@ of the form `B ∈ t` of positive probability. -/
 lemma IndepFun.cond_right (h : IndepFun A B μ) {t : Set β}
     (ht : MeasurableSet t) (hB : Measurable B) :
     IndepFun A B (μ[| B⁻¹' t]) :=
-  (h.symm'.cond_left ht hB).symm'
+  (h.symm.cond_left ht hB).symm
 
 /-- If `A` is independent of `B`, then they remain independent when conditioning on an event
 of the form `A ∈ s ∩ B ∈ t` of positive probability. -/
@@ -113,7 +113,7 @@ lemma CondIndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi'
   rw [condIndepFun_iff] at hfg ⊢
   rw [← Measure.map_map hh hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
   refine hfg.mono $ fun c hc ↦ ?_
-  rw [preimage_comp, ← comap_cond _ hi hi' $ hh $ measurableSet_singleton _]
+  rw [preimage_comp, ← comap_cond _ hi hi' $ hh $ .singleton _]
   exact IndepFun.comp_right hi (cond_absolutelyContinuous.ae_le hi') hf hg hc
 
 end defs
@@ -142,7 +142,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     · have : (Y ⁻¹' {y}) ∩ { ω : Ω | Y ω = y }ᶜ = ∅ := by
         ext _; simp
       simp [this]
-    exact hY $ measurableSet_singleton y
+    exact hY $ .singleton y
   have h3 (y : β) : IdentDistrib (fun ω ↦ (X ω, y)) (⟨X, Y⟩) (μ[|Y ← y]) (μ[|Y ← y]) := by
     apply IdentDistrib.of_ae_eq (hX.prod_mk measurable_const).aemeasurable
     apply Filter.eventuallyEq_of_mem (h3' y)
@@ -184,7 +184,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       simp only [mul_one]
       rw [sum_measure_preimage_singleton]
       · rw [← FiniteRange.range Y, preimage_range, measure_univ]
-      · exact fun y _ ↦ hY <| measurableSet_singleton y
+      · exact fun y _ ↦ hY <| .singleton y
     rw [← this]
     congr with y
     rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
@@ -194,7 +194,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
   · rw [condIndepFun_iff, ae_iff_of_countable]
     intro y hy
     have hy' : ν (Prod.snd⁻¹' {y}) = μ (Y ⁻¹' {y}) := by
-      rw [← map_apply measurable_snd (by simp), ← map_apply hY $ measurableSet_singleton y, h1]
+      rw [← map_apply measurable_snd (by simp), ← map_apply hY $ .singleton y, h1]
     rw [h1] at hy
     have hy'' : μ (Y ⁻¹' {y}) ≠ 0 := by
       convert hy

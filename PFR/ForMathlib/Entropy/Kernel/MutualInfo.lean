@@ -1,4 +1,3 @@
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Embedding
 import PFR.Mathlib.Probability.Kernel.Composition
 import PFR.ForMathlib.Entropy.Kernel.Basic
 
@@ -214,7 +213,7 @@ lemma entropy_snd_sub_mutualInfo_le_entropy_map_of_injective {V : Type*} [Counta
   calc
     Hk[condKernel κ, μ ⊗ₘ fst κ] = Hk[snd ((condKernel κ) ⊗ₖ
         (deterministic (fun x : (T × S) × U ↦ f (x.1.2, x.2))
-        (measurable_of_countable _))), μ ⊗ₘ fst κ] := by
+        .of_discrete)), μ ⊗ₘ fst κ] := by
       symm
       apply entropy_snd_compProd_deterministic_of_injective _ _ (fun t ↦ hfi t.2)
     _ = Hk[condKernel (map κ (fun p ↦ (p.1, f p))),

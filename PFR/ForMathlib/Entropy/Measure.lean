@@ -154,8 +154,8 @@ lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
     simp at ha
     simp [f', g, ha]
   apply Integrable.congr _ this
-  apply Integrable.comp_measurable (.of_finite _ _)
-  apply measurable_of_countable
+  apply Integrable.comp_measurable .of_finite
+  fun_prop
 
 lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*} [MeasurableSingletonClass Ω]
     [NormedAddCommGroup G] [NormedSpace ℝ G] {f g : Ω → G} [FiniteSupport μ]
@@ -395,7 +395,7 @@ lemma measureEntropy_map_of_injective
       rw [Measure.map_apply hf_m MeasurableSet.univ]
       simp
   simp_rw [measureEntropy_def, Measure.smul_apply,
-    Measure.map_apply hf_m (measurableSet_singleton _)]
+    Measure.map_apply hf_m (.singleton _)]
   rw [this]
   classical
   let F : S → ℝ := fun x ↦ negMulLog ((μ Set.univ)⁻¹ • μ (f ⁻¹' {x})).toReal
@@ -417,7 +417,7 @@ lemma measureEntropy_comap (μ : Measure T) (f : S → T) (hf : MeasurableEmbedd
     (hf_range : Set.range f =ᵐ[μ] Set.univ) :
     Hm[μ.comap f] = Hm[μ] := by
   simp_rw [measureEntropy_def, Measure.smul_apply,
-    Measure.comap_apply f hf.injective hf.measurableSet_image' _ (measurableSet_singleton _),
+    Measure.comap_apply f hf.injective hf.measurableSet_image' _ (.singleton _),
     Measure.comap_apply f hf.injective hf.measurableSet_image' _ MeasurableSet.univ]
   simp only [Set.image_univ, Set.image_singleton, smul_eq_mul, ENNReal.toReal_mul]
   classical
@@ -539,7 +539,7 @@ lemma measureMutualInfo_swap (μ : Measure (S × T)) :
   congr 1
   simp_rw [measureEntropy_def, Measure.map_apply measurable_swap MeasurableSet.univ]
   simp only [Set.preimage_univ, Measure.smul_apply, smul_eq_mul, ENNReal.toReal_mul]
-  simp_rw [Measure.map_apply measurable_swap (measurableSet_singleton _)]
+  simp_rw [Measure.map_apply measurable_swap (.singleton _)]
   have : Set.range (Prod.swap : S × T → T × S) = Set.univ := Set.range_iff_surjective.mpr Prod.swap_surjective
   rw [← tsum_univ, ← this, tsum_range (fun x ↦ negMulLog (((μ Set.univ)⁻¹).toReal * (μ (Prod.swap⁻¹' {x}) ).toReal))]
   congr! with ⟨s, t⟩
@@ -609,7 +609,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     norm_num
   have h_fst_ne_zero : ∀ p, μ.real {p} ≠ 0 → (μ.map Prod.fst).real {p.1} ≠ 0 := by
     intro p hp
-    rw [map_measureReal_apply measurable_fst (measurableSet_singleton _)]
+    rw [map_measureReal_apply measurable_fst (.singleton _)]
     simp only [Set.mem_singleton_iff, ne_eq, ENNReal.toReal_eq_zero_iff, measure_ne_top μ,
       or_false]
     refine fun h_eq_zero ↦ hp ?_
@@ -617,14 +617,14 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     simp
   have h_snd_ne_zero : ∀ p, μ.real {p} ≠ 0 → (μ.map Prod.snd).real {p.2} ≠ 0 := by
     intro p hp
-    rw [map_measureReal_apply measurable_snd (measurableSet_singleton _)]
+    rw [map_measureReal_apply measurable_snd (.singleton _)]
     simp only [Set.mem_singleton_iff, ne_eq, ENNReal.toReal_eq_zero_iff, measure_ne_top μ,
       or_false]
     refine fun h_eq_zero ↦ hp ?_
     refine measureReal_mono_null ?_ h_eq_zero
     simp
   have h1 y : (μ.map Prod.fst).real {y} = ∑ z in E2, μ.real {(y, z)} := by
-    rw [map_measureReal_apply measurable_fst (measurableSet_singleton _), ← measureReal_biUnion_finset]
+    rw [map_measureReal_apply measurable_fst (.singleton _), ← measureReal_biUnion_finset]
     · apply measureReal_congr
       rw [MeasureTheory.ae_eq_set]
       constructor
@@ -640,10 +640,10 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         simp at h ⊢
         exact h.1
     · intro s1 _ s2 _ h; simp [h]
-    intros; exact measurableSet_singleton _
+    intros; exact .singleton _
 
   have h2 z : (μ.map Prod.snd).real {z} = ∑ y in E1, μ.real {(y, z)} := by
-    rw [map_measureReal_apply measurable_snd (measurableSet_singleton _), ← measureReal_biUnion_finset]
+    rw [map_measureReal_apply measurable_snd (.singleton _), ← measureReal_biUnion_finset]
     · apply measureReal_congr
       rw [MeasureTheory.ae_eq_set]
       constructor
@@ -660,7 +660,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         simp at h ⊢
         exact h.2
     · intro s1 _ s2 _ h; simp [h]
-    intros; exact measurableSet_singleton _
+    intros; exact .singleton _
   let w (p : S × U) := (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}
   let f (p : S × U) := ((μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2})⁻¹ * μ.real {p}
   have hw1 : ∀ p ∈ (E1 ×ˢ E2), 0 ≤ w p := by intros; positivity

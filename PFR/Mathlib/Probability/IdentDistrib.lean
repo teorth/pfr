@@ -402,7 +402,7 @@ lemma independent_copies_finiteRange {X : Ω → α} {Y : Ω' → β}
   rcases identDistrib_of_finiteRange hY' hIdY.symm with ⟨Y'', hY'', hY''_finite, hY''_eq⟩
   use ν, X'', Y''
   refine ⟨hν, hX'', hY'', ?_, ?_, ?_, hX''_finite, hY''_finite⟩
-  · exact IndepFun.ae_eq' hind hX''_eq.symm hY''_eq.symm
+  · exact hind.ae_eq hX''_eq.symm hY''_eq.symm
   · convert IdentDistrib.trans _ hIdX
     exact IdentDistrib.of_ae_eq (Measurable.aemeasurable hX'') hX''_eq
   · convert IdentDistrib.trans _ hIdY

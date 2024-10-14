@@ -2,7 +2,6 @@ import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import PFR.ForMathlib.Entropy.Measure
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
-import PFR.Mathlib.MeasureTheory.MeasurableSpace.Defs
 import PFR.Mathlib.Probability.Kernel.Disintegration
 
 /-!
@@ -169,7 +168,7 @@ lemma entropy_comap [MeasurableSingletonClass T]
     exact ae_eq_univ.mp hf_range
   simp_rw [entropy]
   simp_rw [integral_eq_setIntegral hA, integral_eq_setIntegral this, setIntegral_eq_sum,
-    Measure.comap_apply f hf.injective hf.measurableSet_image' _ (measurableSet_singleton _)]
+    Measure.comap_apply f hf.injective hf.measurableSet_image' _ (.singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
   simp_rw [comap_apply]
   rw [← Finset.sum_image (f := fun x ↦ (μ {x}).toReal * measureEntropy (κ x)) (g := f)]
@@ -206,19 +205,10 @@ lemma entropy_comap_swap [MeasurableSingletonClass T]
     Hk[comap κ Prod.swap measurable_swap, μ.comap Prod.swap] = Hk[κ, μ] :=
   entropy_comap_equiv κ MeasurableEquiv.prodComm
 
-/-- Measurable equivalence with the product with the one-point space `Unit`.-/
-def prodMKLeft_unit_equiv (T : Type*) [MeasurableSpace T] : (Unit × T) ≃ᵐ T where
-  toFun := fun p ↦ p.2
-  invFun:= Prod.mk ()
-  left_inv := by intro p; simp
-  right_inv := by intro t; simp
-  measurable_toFun := by simp; exact measurable_snd
-  measurable_invFun := by simp; exact measurable_prod_mk_left
-
 lemma entropy_prodMkLeft_unit [MeasurableSingletonClass T]
     (κ : Kernel T S) {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ] :
     Hk[prodMkLeft Unit κ, μ.map (Prod.mk ())] = Hk[κ, μ] := by
-  convert entropy_comap_equiv κ (prodMKLeft_unit_equiv T) (μ := μ)
+  convert entropy_comap_equiv κ (.punitProd) (μ := μ)
   funext μ
   rw [← MeasurableEquiv.map_symm]
   congr
@@ -280,7 +270,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   rw [this, Finset.mul_sum, ← Finset.sum_add_distrib]
   congr with u
   have : ((κ ⊗ₖ η) t).real {(s, u)} = ((κ t).real {s}) * ((η (t, s)).real {u}) := by
-    rw [measureReal_def, compProd_apply κ η _ (measurableSet_singleton _),
+    rw [measureReal_def, compProd_apply κ η _ (.singleton _),
       lintegral_eq_setLIntegral (hB t ht), setLIntegral_eq_sum, Finset.sum_eq_single_of_mem s hs]
     · simp [measureReal_def]
     intro b _ hbs
@@ -322,7 +312,7 @@ lemma entropy_compProd [Countable S] [MeasurableSingletonClass S]
 @[simp]
 lemma entropy_deterministic [MeasurableSingletonClass S]
     [Countable T] [MeasurableSingletonClass T] (f : T → S) (μ : Measure T) :
-    Hk[deterministic f (measurable_of_countable f), μ] = 0 := by
+    Hk[deterministic f .of_discrete, μ] = 0 := by
   simp_rw [entropy]
   convert integral_zero T ℝ
   apply measureEntropy_dirac
@@ -332,7 +322,7 @@ lemma entropy_compProd_deterministic [Countable S] [MeasurableSingletonClass S]
     [Countable T] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
     (κ : Kernel T S) [IsZeroOrMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ] (f : T × S → U)
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
-    Hk[κ ⊗ₖ (deterministic f (measurable_of_countable f)), μ] = Hk[κ, μ] := by
+    Hk[κ ⊗ₖ (deterministic f .of_discrete), μ] = Hk[κ, μ] := by
   simp [entropy_compProd hκ ((FiniteKernelSupport.deterministic f).aefiniteKernelSupport _)]
 
 lemma nonempty_of_isMarkovKernel

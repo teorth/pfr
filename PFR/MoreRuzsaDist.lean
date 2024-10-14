@@ -1,5 +1,5 @@
+import Mathlib.Algebra.Group.Fin.Basic
 import PFR.ForMathlib.Entropy.RuzsaDist
--- import Mathlib.Tactic.FunProp.Measurable
 
 /-!
 # More results about Ruzsa distance
@@ -111,7 +111,7 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
   obtain ⟨ν, X', Y', hν, mX', mY', h_indep', hXX', hYY'⟩ := independent_copies hX hY μ μ'
   rw [← IdentDistrib.rdist_eq hXX' hYY', ← IdentDistrib.rdist_eq hXX' (IdentDistrib.neg hYY')]
   obtain ⟨Ω₀, mΩ₀, XY'₁, XY'₂, Z', ν'₀, hν'₀, hXY'₁, hXY'₂, hZ', h_condIndep, h_id1sub, h_id2sub⟩
-    := condIndep_copies (⟨X', Y'⟩) (X' - Y') (mX'.prod_mk mY') (mX'.sub' mY') ν
+    := condIndep_copies (⟨X', Y'⟩) (X' - Y') (mX'.prod_mk mY') (by fun_prop) ν
   let X'₁ := fun ω ↦ (XY'₁ ω).fst
   let Y'₁ := fun ω ↦ (XY'₁ ω).snd
   let X'₂ := fun ω ↦ (XY'₂ ω).fst
@@ -425,7 +425,7 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
       ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
     calc
       _ = H[Y i₀ - ∑ i ∈ s, Y i ; μ] - H[Y i₀ ; μ] := by
-        rw [IndepFun.rdist_eq hindep2 (hY i₀) (s.measurable_sum' fun i _ ↦ hY i)]
+        rw [IndepFun.rdist_eq hindep2 (hY i₀) (by fun_prop)]
         ring
       _ ≤ ∑ i ∈ s, (H[Y i₀ - Y i ; μ] - H[Y i₀ ; μ]) := ineq1
       _ = _ := by
@@ -438,7 +438,7 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
   have ineq5 (j : I) (hj : j ∈ s) : H[Y j ; μ] ≤ H[∑ i ∈ s, Y i; μ] :=
     max_entropy_le_entropy_sum hj hY hindep
   have ineq6 : (s.card : ℝ)⁻¹ * ∑ i ∈ s, (H[Y i; μ] - H[Y i₀; μ]) ≤ H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ] := by
-    rw [inv_mul_le_iff (by exact_mod_cast Finset.card_pos.mpr hs'), ← smul_eq_mul,
+    rw [inv_mul_le_iff₀ (by exact_mod_cast Finset.card_pos.mpr hs'), ← smul_eq_mul,
       Nat.cast_smul_eq_nsmul, ← Finset.sum_const]
     refine Finset.sum_le_sum fun i hi ↦ ?_
     gcongr
@@ -471,7 +471,7 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
       gcongr ∑ i ∈ s, (d[Y i₀ ; μ # Y i ; μ] + (s.card - 1) * ((s.card : ℝ)⁻¹ * ?_))
       · simp only [sub_nonneg, Nat.one_le_cast]
         exact Nat.one_le_iff_ne_zero.mpr <| Finset.card_ne_zero.mpr hs'
-      · exact (inv_mul_le_iff zero_lt_two).mpr (ineq8 _)
+      · exact (inv_mul_le_iff₀ zero_lt_two).mpr (ineq8 _)
     _ ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + d[Y i₀; μ # Y i; μ]) := by
       gcongr ∑ i ∈ s, (d[Y i₀ ; μ # Y i ; μ] + ?_) with i
       refine mul_le_of_le_one_left (rdist_nonneg (hY i₀) (hY i)) ?_
@@ -521,7 +521,7 @@ lemma kvm_ineq_III {I : Type*} {i₀ i₁ : I} {s : Finset I}
   have hindep' : iIndepFun (fun _ ↦ hG) ![Y i₀, Y i₁, ∑ i ∈ s, Y i] μ := by
     convert iIndepFun.finsets_comp S h_dis hindep hY φ hφ with j x
     fin_cases j <;> simp [φ, (s.sum_attach _).symm]
-  exact kvm_ineq_III_aux (hY i₀) (hY i₁) (s.measurable_sum' fun i _ ↦ hY i) hindep'
+  exact kvm_ineq_III_aux (hY i₀) (hY i₁) (by fun_prop) hindep'
 
 
 open Classical in
@@ -614,7 +614,7 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
   have iYX₂ : IndepFun Y' X'₂ μ' := hindep'.indepFun (show 1 ≠ 2 by simp)
   have iX₂nY : IndepFun X'₂ (-Y') μ' := iYX₂.symm.comp measurable_id measurable_neg
   have inX₁YX₂ : iIndepFun (fun _ ↦ hG) ![-X'₁, Y', X'₂] μ' := by
-    convert hindep'.comp ![-id, id, id] (by measurability) with i
+    convert hindep'.comp ![-id, id, id] (by fun_prop) with i
     match i with | 0 => rfl | 1 => rfl | 2 => rfl
   have idX₁X₂' : IdentDistrib X'₁ X'₂ μ' μ' := idX₁.trans idX₂.symm
   have idX₁Y : IdentDistrib (⟨X, Y⟩) (⟨X'₁, Y'⟩) μ μ' :=
@@ -912,7 +912,7 @@ private lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommM
     congr
     simp only [prod_ite_eq', mem_univ, ↓reduceIte]
   _ = _ := by
-    rw [<-Finset.prod_mul_distrib]
+    rw [← Finset.prod_mul_distrib]
     apply Finset.prod_congr rfl
     intro i _
     by_cases h : i = i₀
@@ -953,7 +953,7 @@ private lemma cond_prob_of_inter
     use A ×ˢ Set.univ
     constructor
     . exact DiscreteMeasurableSpace.forall_measurableSet _
-    rw [<-hA']
+    rw [← hA']
     ext p
     simp only [Set.mem_preimage, Set.mem_prod, Set.mem_univ, and_true]
   calc
@@ -961,7 +961,7 @@ private lemma cond_prob_of_inter
       rw [cond_apply]
       apply MeasurableSet.iInter
       intro i
-      exact MeasurableSet.preimage (measurableSet_singleton (y i)) (hY i)
+      exact MeasurableSet.preimage (.singleton (y i)) (hY i)
     _ = (ℙ (E' y))⁻¹ * ℙ ( ⋂ i, g i ) := by
       congr
       calc
@@ -990,9 +990,9 @@ private lemma cond_prob_of_inter
     _ = (∏ i, ℙ (E i (y i)))⁻¹ * ∏ i, (ℙ (E i (y i))) * ((ℙ (E i (y i)))⁻¹ * ℙ (g i)) := by
       congr
       ext i
-      rw [<-mul_assoc, ENNReal.mul_inv_cancel (hy i) (measure_ne_top ℙ _), one_mul]
+      rw [← mul_assoc, ENNReal.mul_inv_cancel (hy i) (measure_ne_top ℙ _), one_mul]
     _ = ∏ i, (ℙ (E i (y i)))⁻¹ * ℙ (g i) := by
-      rw [Finset.prod_mul_distrib, <-mul_assoc, ENNReal.inv_mul_cancel, one_mul]
+      rw [Finset.prod_mul_distrib, ← mul_assoc, ENNReal.inv_mul_cancel, one_mul]
       . exact Finset.prod_ne_zero_iff.mpr fun a _ ↦ hy a
       apply LT.lt.ne
       apply ENNReal.prod_lt_top
@@ -1004,7 +1004,7 @@ private lemma cond_prob_of_inter
       by_cases h : i ∈ s'
       . simp only [h, ↓reduceIte, g]
         rw [cond_apply]
-        exact MeasurableSet.preimage (measurableSet_singleton (y i)) (hY i)
+        exact MeasurableSet.preimage (.singleton (y i)) (hY i)
       simp only [h, ↓reduceIte, g]
       rw [ENNReal.inv_mul_cancel (hy i) (measure_ne_top ℙ _)]
     _ = _ := by
@@ -1102,7 +1102,7 @@ lemma condMultiDist_eq {m : ℕ}
         (fun i ↦ ident_of_cond_of_indep hX hY hindep y i (prob_nonzero_of_prod_prob_nonzero hf))]
       exact multiDist_indep _ _ (indep_of_cond hY hindep (prob_nonzero_of_prod_prob_nonzero hf))
     _ = ∑ y, (f y) * H[∑ i, X i; cond ℙ (E' y) ] - (∑ i, ∑ y, (f y) * H[X i; cond ℙ (E' y) ])/m := by
-      rw [Finset.sum_comm, Finset.sum_div, <-Finset.sum_sub_distrib]
+      rw [Finset.sum_comm, Finset.sum_div, ← Finset.sum_sub_distrib]
       congr with y
       rw [← Finset.mul_sum, mul_div_assoc, ← mul_sub]
     _ = _ := by
@@ -1203,12 +1203,7 @@ lemma multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSing
   set avg_HX := (∑ i, H[X i]) / m
   set avg_HpiX := (∑ i, H[π ∘ (X i)])/m
   set avg_HXpiX := (∑ i, H[X i | π ∘ (X i)])/m
-
-  have hSmes : Measurable S := by
-    apply Finset.measurable_sum'
-    intro i _
-    exact hmes i
-
+  have hSmes : Measurable S := by fun_prop
   have hpiXmes : Measurable piX := by
     rw [measurable_pi_iff]
     intro i
@@ -1260,7 +1255,7 @@ lemma multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSing
 
   have eq6: avg_HX = avg_HpiX + avg_HXpiX := by
     dsimp [avg_HX, avg_HpiX, avg_HXpiX]
-    rw [<-add_div, <-Finset.sum_add_distrib]
+    rw [← add_div, ← Finset.sum_add_distrib]
     congr with i
     rw [condEntropy_comp_self (hmes i) .of_discrete]
     abel
@@ -1306,7 +1301,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
       apply indep_of_cond hY hindep
       apply prob_nonzero_of_prod_prob_nonzero
       convert hf
-      rw [<-ENNReal.toReal_prod]
+      rw [← ENNReal.toReal_prod]
       congr
       exact (iIndepFun.meas_iInter hindep (mes_of_comap X Y y)).symm
     _ = _ := by
@@ -1334,7 +1329,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
 
       congr 2
       . rw [condMultiDist_eq' hX _ hpi_indep']
-        . rw [<-Equiv.sum_comp (Equiv.arrowProdEquivProdArrow H S (Fin m)).symm, Fintype.sum_prod_type, Finset.sum_comm]
+        . rw [← Equiv.sum_comp (Equiv.arrowProdEquivProdArrow H S (Fin m)).symm, Fintype.sum_prod_type, Finset.sum_comm]
           congr with y
           by_cases pey : ℙ (E' y) = 0
           . simp only [pey, ENNReal.zero_toReal, zero_mul, f]
@@ -1350,11 +1345,11 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
           rw [condMultiDist_eq' (hΩ := hΩc y) hX, Finset.mul_sum]
           . congr with s
             dsimp [f, E', Equiv.arrowProdEquivProdArrow]
-            rw [<-mul_assoc, <-ENNReal.toReal_mul]
+            rw [← mul_assoc, ← ENNReal.toReal_mul]
             congr 2
             . rw [mul_comm]
               convert ProbabilityTheory.cond_mul_eq_inter ?_ (hey_mes y) ?_
-              . rw [<-Set.iInter_inter_distrib]
+              . rw [← Set.iInter_inter_distrib]
                 apply Set.iInter_congr
                 intro i
                 ext ω
@@ -1364,7 +1359,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
             funext _
             congr 1
             dsimp [hΩc, E']
-            rw [ProbabilityTheory.cond_cond_eq_cond_inter _ (hey_mes y), <-Set.iInter_inter_distrib]
+            rw [ProbabilityTheory.cond_cond_eq_cond_inter _ (hey_mes y), ← Set.iInter_inter_distrib]
             . congr 1
               apply Set.iInter_congr
               intro i
@@ -1402,13 +1397,13 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
           apply measure_mono_null _ pey
           intro ω hω
           simp [E'] at hω ⊢
-          rw [<-hω.2]
+          rw [← hω.2]
           simp only [implies_true]
         have : IsProbabilityMeasure (hΩc y).volume := cond_isProbabilityMeasure _ pey
         rw [condMutualInfo_eq_sum' hmes, Finset.mul_sum]
         congr with x
         dsimp [f, E']
-        rw [<-mul_assoc, <-ENNReal.toReal_mul]
+        rw [← mul_assoc, ← ENNReal.toReal_mul]
         congr 2
         . rw [mul_comm]
           convert ProbabilityTheory.cond_mul_eq_inter ?_ (hey_mes y) ?_
@@ -1444,32 +1439,32 @@ Let `X_[m] = (X_1, ..., X_m)` be a jointly independent tuple of `G_m`-valued ran
 Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
 ` + ∑_{d=1}^{m-1}, I[∑ i, X_i : π_d(X_[m]) | π_d(∑ i, X_i), π_(d-1})(X_[m])]`.-/
 lemma iter_multiDist_chainRule {m : ℕ}
-    {G : Fin (m+1) → Type*}
+    {G : Fin (m + 1) → Type*}
     [hG : ∀ i, MeasurableSpace (G i)] [hGs : ∀ i, MeasurableSingletonClass (G i)]
     [∀ i, AddCommGroup (G i)] [hGcount: ∀ i, Fintype (G i)]
     {φ : ∀ i : Fin m, G (i.succ) →+ G i.castSucc} {π : ∀ d, G m →+ G d}
     (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ))
     {Ω : Type*} [hΩ : MeasureSpace Ω] {X : Fin m → Ω → (G m)}
-    (hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X) (n : Fin (m+1)) :
+    (hX: ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ (hG m)) X) (n : Fin (m + 1)) :
     D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ]
       + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ]
       + I[ ∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) |
             ⟨ (π (d+1)) ∘ ∑ i, X i, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ]) := by
   set S := ∑ i, X i
-  set motive := fun n:Fin (m+1) ↦ D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ]
+  set motive := fun n:Fin (m + 1) ↦ D[X | fun i ↦ (π 0) ∘ (X i); fun _ ↦ hΩ]
     = D[X | fun i ↦ (π n) ∘ (X i); fun _ ↦ hΩ]
       + ∑ d ∈ Finset.Iio n, (D[ fun i ↦ (π (d+1)) ∘ (X i) | fun i ↦ (π d) ∘ (X i); fun _ ↦ hΩ]
       + I[ S : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) |
             ⟨ (π (d+1)) ∘ S, fun ω ↦ (fun i ↦ (π d) (X i ω))⟩ ])
   have zero : motive 0 := by
-    have : (Finset.Iio 0 : Finset (Fin (m+1))) = ∅ := rfl
+    have : (Finset.Iio 0 : Finset (Fin (m + 1))) = ∅ := rfl
     simp [motive, this]
   have succ : (n : Fin m) → motive n.castSucc → motive n.succ := by
     intro n hn
     dsimp [motive] at hn ⊢
     have h2 : n.castSucc ∈ Finset.Iio n.succ := by
       simp only [Nat.succ_eq_add_one, Finset.mem_Iio, Fin.castSucc_lt_succ_iff, le_refl]
-    rw [hn, <-Finset.add_sum_erase _ _ h2, Iio_of_succ_eq_Iic_of_castSucc, Finset.Iic_erase, <-add_assoc, <-add_assoc, Fin.coeSucc_eq_succ]
+    rw [hn, ← Finset.add_sum_erase _ _ h2, Iio_of_succ_eq_Iic_of_castSucc, Finset.Iic_erase, ← add_assoc, ← add_assoc, Fin.coeSucc_eq_succ]
     congr 1
     convert cond_multiDist_chainRule (X := X) (Y := fun i ↦ ⇑(π n.castSucc) ∘ X i) (π n.succ) hX ?_ ?_
     . set g : G n.succ → G n.succ × G n.castSucc := fun x ↦ ⟨ x, ⇑(φ n) x⟩
@@ -1503,7 +1498,7 @@ theorem Finset.map_compl {α : Type u_1} {β : Type u_2} [Fintype α] [Decidable
 theorem sum_of_iio_last (N: ℕ) (f : Fin (N+1) → ℝ) :
     ∑ d in Finset.Iio (N : Fin (N+1)), f d = ∑ d : Fin N, f d.castSucc := by
   convert Finset.sum_image (s := Finset.univ) (g := Fin.castSucc) (f := f) ?_
-  . rw [Fin.image_castSucc, <-Finset.map_inj (f := Fin.valEmbedding), Finset.map_compl]
+  . rw [Fin.image_castSucc, ← Finset.map_inj (f := Fin.valEmbedding), Finset.map_compl]
     simp only [Fin.map_valEmbedding_Iio, Fin.map_valEmbedding_univ, Fin.coe_castSucc,
       Finset.map_singleton, Fin.valEmbedding_apply, Fin.natCast_eq_last, Fin.val_last,Finset.sdiff_singleton_eq_erase]
     convert (Finset.Iic_erase N).symm using 1
@@ -1513,7 +1508,7 @@ theorem sum_of_iio_last (N: ℕ) (f : Fin (N+1) → ℝ) :
 /--Under the preceding hypotheses,
 `D[ X_[m]] ≥ ∑ d, D[π_d(X_[m])| π_(d-1})(X_[m])] + I[∑ i, X_i : π_1(X_[m]) | π_1(∑ i, X_i)]`. -/
 lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
-    {G : Fin (m+1) → Type*} [hG : ∀ i, MeasurableSpace (G i)]
+    {G : Fin (m + 1) → Type*} [hG : ∀ i, MeasurableSpace (G i)]
     [hGs : ∀ i, MeasurableSingletonClass (G i)] [hGa : ∀ i, AddCommGroup (G i)]
     [hGcount : ∀ i, Fintype (G i)] {φ : ∀ i : Fin m, G (i.succ) →+ G i.castSucc}
     {π : ∀ d, G m →+ G d} (hπ0 : π 0 = 0) (hcomp : ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ))
@@ -1528,61 +1523,44 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
     rw [hπ0]
     convert (condMultiDist_of_const (fun _ ↦ (0: G 0)) X).symm
   _ = D[X | fun i ↦ ⇑(π m) ∘ X i ; fun _ ↦ hΩ] +
-    ∑ d ∈ Finset.Iio (m : Fin (m+1)),
-      (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ ⇑(π d) ∘ X i ; fun _ ↦ hΩ] +
+    ∑ d ∈ Finset.Iio (m : Fin (m + 1)),
+      (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ π d ∘ X i ; fun _ ↦ hΩ] +
         I[∑ i : Fin m, X i : fun ω i ↦ (π (d + 1)) (X i ω)|⟨⇑(π (d + 1)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) :=
-    iter_multiDist_chainRule hcomp hX hindep (m : Fin (m+1))
-  _ ≥ ∑ d ∈ Finset.Iio (m : Fin (m+1)),
-      (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ ⇑(π d) ∘ X i ; fun _ ↦ hΩ] +
+    iter_multiDist_chainRule hcomp hX hindep (m : Fin (m + 1))
+  _ ≥ ∑ d ∈ Finset.Iio (m : Fin (m + 1)),
+      (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ π d ∘ X i ; fun _ ↦ hΩ] +
         I[∑ i : Fin m, X i : fun ω i ↦ (π (d + 1)) (X i ω)|⟨⇑(π (d + 1)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) := by
       apply le_add_of_nonneg_left (condMultiDist_nonneg _ X _)
   _ = ∑ d : Fin m,
       (D[fun i ↦ ⇑(π (d.succ)) ∘ X i | fun i ↦ ⇑(π d.castSucc) ∘ X i ; fun _ ↦ hΩ] +
-        I[∑ i : Fin m, X i : fun ω i ↦ (π (d.succ)) (X i ω)|⟨⇑(π (d.succ)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) := by
+        I[∑ i : Fin m, X i : fun ω i ↦ π d.succ (X i ω)|⟨π d.succ ∘ ∑ i : Fin m, X i, fun ω i ↦ π d (X i ω)⟩]) := by
       rw [sum_of_iio_last]
       congr with d
       rw [Fin.coeSucc_eq_succ, Fin.coe_eq_castSucc]
   _ ≥ _ := by
       rw [Finset.sum_add_distrib]
       gcongr
-      set f := fun i : Fin m ↦ I[∑ i' : Fin m, X i' : fun ω i' ↦ (π i.succ) (X i' ω)|⟨⇑(π i.succ) ∘ ∑ i' : Fin m, X i', fun ω i' ↦ (π i) (X i' ω)⟩]
-      set a := Fin.ofNat' 0 hm
-      have hsum_mes := Finset.measurable_sum' Finset.univ fun i _ ↦ hX i
-      convert Finset.single_le_sum (a := a) (s := Finset.univ) (f := f) ?_ ?_
-      . have a0 : ((a:ℕ):Fin (m+1)) = 0 := rfl
-        have a1 : a.succ = 1 := by
-          rw [<-Fin.val_inj]
-          simp only [Nat.succ_eq_add_one, Fin.val_succ, Fin.val_ofNat', Nat.zero_mod, zero_add,
-            Fin.val_one', a]
-          exact (Nat.mod_eq_of_lt (Nat.lt_add_of_pos_left hm)).symm
-        simp [f]
-        rw [a0, a1]
-        set F : G 1 → G 1 × (Fin m → G 0):= fun (x : G 1) ↦ ⟨ x, (fun _ ↦ 0) ⟩
-        convert (condMutualInfo_of_inj (f := F) _ _ _ _ _).symm
-        . simp only [hπ0, AddMonoidHom.zero_apply, comp_apply, Finset.sum_apply, _root_.map_sum, F]
-        . exact hGs m
-        . infer_instance
-        . exact Finite.to_countable
-        . infer_instance
-        . exact hsum_mes
-        . apply measurable_pi_lambda
-          intro i'
-          exact Measurable.comp .of_discrete (hX i')
-        . exact Measurable.comp .of_discrete hsum_mes
-        . infer_instance
-        . infer_instance
-        . infer_instance
-        · infer_instance
-        intro x y hxy
-        simp only [Prod.mk.injEq, and_true, F] at hxy
-        exact hxy
-      . intro i _
-        apply condMutualInfo_nonneg hsum_mes
-        apply measurable_pi_lambda
-        intro i'
-        apply Measurable.comp .of_discrete (hX i')
-      exact Finset.mem_univ a
-
+      have : NeZero m := ⟨hm.ne'⟩
+      let f (i : Fin m) :=
+        I[∑ i', X i' : fun ω i' ↦ π i.succ (X i' ω)|
+          ⟨π i.succ ∘ ∑ i', X i', fun ω i' ↦ π i (X i' ω)⟩]
+      have hf i : 0 ≤ f i := condMutualInfo_nonneg (by fun_prop) (by fun_prop)
+      let F (x : G 1) : G 1 × (Fin m → G 0) := (x, fun _ ↦ 0)
+      have hF : Injective F := fun x y ↦ congr_arg Prod.fst
+      calc
+        I[∑ i, X i : fun ω i ↦ π 1 (X i ω) | π 1 ∘ ∑ i, X i]
+          = I[∑ i, X i : fun ω i ↦ π 1 (X i ω) | F ∘ π 1 ∘ ∑ i, X i] := by
+          exact (condMutualInfo_of_inj (by fun_prop) (by fun_prop) (by fun_prop) _ hF).symm
+        _ = f 0 := ?_
+        _ ≤ ∑ j, f j := Finset.single_le_sum (f := f) (fun _ _ ↦ hf _) (Finset.mem_univ _)
+      . simp [f]
+        simp [hπ0, AddMonoidHom.zero_apply, comp_apply, Finset.sum_apply, _root_.map_sum, F,
+          Fin.succ_zero_eq_one']
+        congr
+        any_goals congr!
+        any_goals simp [Fin.succ_zero_eq_one']
+        simp [Function.comp_def]
+        sorry
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
@@ -1591,7 +1569,12 @@ is less than
 `∑_{j=1}^{m-1} (D[(X_{i, j})_{i=1}^m] - D[(X_{i, j})_{i = 1}^m | (X_{i,j} + ... + X_{i,m})_{i=1}^m])`
 `+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
-lemma cor_multiDist_chainRule [Fintype G] {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin (m+1) × Fin (m+1) → Ω → G) (hindep : iIndepFun (fun _ ↦ hG) X) : I[ fun ω ↦ (fun j ↦ ∑ i, X (i, j) ω) : fun ω ↦ (fun i ↦ ∑ j, X (i, j) ω) | ∑ p, X p] ≤ ∑ j, (D[ fun i ↦ X (i, j); fun _ ↦ hΩ] - D[ fun i ↦ X (i, j) | fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k); fun _ ↦ hΩ]) + D[ fun i ↦ X (i, m); fun _ ↦ hΩ] - D[ fun i ↦ ∑ j, X (i, j); fun _ ↦ hΩ] := by sorry
+lemma cor_multiDist_chainRule [Fintype G] {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω)
+    (X : Fin (m + 1) × Fin (m + 1) → Ω → G) (hindep : iIndepFun (fun _ ↦ hG) X) :
+    I[ fun ω ↦ (fun j ↦ ∑ i, X (i, j) ω) : fun ω ↦ (fun i ↦ ∑ j, X (i, j) ω) | ∑ p, X p]
+      ≤ ∑ j, (D[ fun i ↦ X (i, j); fun _ ↦ hΩ] - D[ fun i ↦ X (i, j) |
+        fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k); fun _ ↦ hΩ]) + D[ fun i ↦ X (i, m); fun _ ↦ hΩ]
+         - D[ fun i ↦ ∑ j, X (i, j); fun _ ↦ hΩ] := by sorry
 
 end multiDistance_chainRule
 

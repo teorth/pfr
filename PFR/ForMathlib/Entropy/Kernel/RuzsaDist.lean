@@ -1,5 +1,4 @@
 import PFR.ForMathlib.Entropy.Kernel.Group
-import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 
 /-!
 # Ruzsa distance between kernels
@@ -142,11 +141,10 @@ lemma ruzsa_triangle_aux {T : Type*} [MeasurableSpace T] (κ : Kernel T (G × G)
     map (κ ×ₖ η) (fun p ↦ p.2 - p.1.2)
       = map (η ×ₖ snd κ) (fun p ↦ p.1 - p.2) := by
   have : (fun p : G × G ↦ p.1 - p.2) = (fun p ↦ p.2 - p.1) ∘ Prod.swap := by ext1 p; simp
-  rw [this, ← map_map _ measurable_swap (measurable_of_countable _), map_prod_swap]
+  rw [this, ← map_map _ measurable_swap .of_discrete, map_prod_swap]
   ext x s hs
   rw [map_apply' _ (by fun_prop) _ hs, map_apply' _ (by fun_prop) _ hs,
-    prod_apply' _ _ _ (measurable_of_countable _ hs),
-    prod_apply' _ _ _ (measurable_of_countable _ hs), lintegral_snd _ _ (measurable_of_countable _)]
+    prod_apply' _ _ _ .of_discrete, prod_apply' _ _ _ .of_discrete, lintegral_snd _ _ .of_discrete]
   congr
 
 lemma abs_sub_entropy_le_rdist {κ : Kernel T G} {η : Kernel T' G}
@@ -190,8 +188,8 @@ lemma ent_of_diff_le (κ : Kernel T (G × G)) (η : Kernel T G) [IsMarkovKernel 
         + Hk[map κ (fun p ↦ (p.2, p.1 - p.2)), μ] := by
     have h := entropy_triple_add_entropy_le
       (map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, (p.1.2, p.1.1 - p.1.2)))) μ
-    simp only [snd_map_prod _ (measurable_of_countable _)] at h
-    rw [deleteMiddle_map_prod _ (measurable_of_countable _)] at h
+    simp only [snd_map_prod _ .of_discrete] at h
+    rw [deleteMiddle_map_prod _ .of_discrete] at h
     have : map (κ ×ₖ η) (fun x ↦ x.1.1 - x.1.2)
         = map κ (fun p ↦ p.1 - p.2) := by
       have : (fun x : (G × G) × G ↦ x.1.1 - x.1.2)
@@ -224,8 +222,8 @@ lemma ent_of_diff_le (κ : Kernel T (G × G)) (η : Kernel T G) [IsMarkovKernel 
               - Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2)), μ] := by
             have h' := mutualInfo_nonneg (κ := map (κ ×ₖ η)
               (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2))) (μ := μ) ?_
-            rwa [mutualInfo, fst_map_prod _ (measurable_of_countable _),
-              snd_map_prod _ (measurable_of_countable _)] at h'
+            rwa [mutualInfo, fst_map_prod _ .of_discrete,
+              snd_map_prod _ .of_discrete] at h'
             apply FiniteKernelSupport.aefiniteKernelSupport
             apply hκη.map
           linarith
@@ -268,9 +266,9 @@ lemma ent_of_diff_le (κ : Kernel T (G × G)) (η : Kernel T G) [IsMarkovKernel 
           rw [map_apply' _ (by fun_prop) _ hs, map_apply' _ (by fun_prop) _ hs,
             prod_apply', prod_apply', lintegral_fst]
           · congr with x
-          · exact measurable_of_countable _
+          · exact .of_discrete
           · exact measurable_sub hs
-          · exact measurable_of_countable _ hs
+          · exact .of_discrete
         · exact ruzsa_triangle_aux κ η
 
 end
@@ -309,7 +307,7 @@ lemma rdist_triangle_aux1 (κ : Kernel T G) (η : Kernel T' G)
     rw [map_apply' _ (by fun_prop) _ hs, map_apply' _ (by fun_prop) _ hs, prod_apply, prod_apply]
     simp
   simp_rw [this, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
-    full_measure_of_null_compl (measure_compl_support μ'')]
+    measure_of_measure_compl_eq_zero (measure_compl_support μ'')]
   simp
 
 lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
@@ -342,8 +340,9 @@ lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
     rw [map_apply' _ (by fun_prop) _ hs, map_apply' _ (by fun_prop) _ hs, prod_apply, prod_apply]
     simp
   simp_rw [this, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
-    full_measure_of_null_compl (measure_compl_support μ), measure_univ, ENNReal.one_toReal,
-    one_mul, ← mul_assoc, mul_comm _ (μ'' {z}).toReal, mul_assoc, ← Finset.mul_sum]
+    measure_of_measure_compl_eq_zero (measure_compl_support μ),
+    measure_univ, ENNReal.one_toReal, one_mul, ← mul_assoc, mul_comm _ (μ'' {z}).toReal, mul_assoc,
+    ← Finset.mul_sum]
   congr with y
   congr 2 with s _hs
   rw [map_apply _ (by fun_prop), map_apply _ (by fun_prop), prod_apply, prod_apply]

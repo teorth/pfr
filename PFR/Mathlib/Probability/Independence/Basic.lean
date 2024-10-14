@@ -333,27 +333,6 @@ lemma iIndepFun.prod {hf : ∀ (i : ι), Measurable (f i)} {ST : ι' → Finset 
 
 variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
 
-/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
-theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}
-    {g g' : Ω → β'} (hfg : IndepFun f g μ)
-    (hf : f =ᵐ[μ] f') (hg : g =ᵐ[μ] g') : IndepFun f' g' μ := by
-  refine Kernel.IndepFun.ae_eq' hfg ?_ ?_ <;>
-    simp only [ae_dirac_eq, Filter.eventually_pure, Kernel.const_apply]
-  exacts [hf, hg]
-
-/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
-theorem Kernel.IndepFun.symm' {Ω α β γ : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace α}
-    {_ : MeasurableSpace β} {_ : MeasurableSpace γ} {κ : Kernel α Ω} {f : Ω → β} {g : Ω → γ}
-    {μ : Measure α}
-    (hfg : Kernel.IndepFun f g κ μ) : Kernel.IndepFun g f κ μ :=
-  Kernel.Indep.symm hfg
-
-/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
-theorem IndepFun.symm' {γ β Ω : Type*} {_ : MeasurableSpace γ}
-    {_ : MeasurableSpace β} {_ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → γ}
-    (hfg : IndepFun f g μ) :
-    IndepFun g f μ := Kernel.IndepFun.symm' hfg
-
 /-- The new Mathlib tool `Finset.eventuallyEq_iInter` will supersede this result. -/
 theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} (s: Finset ι)
     {E : ι → Set α} {F : ι → Set α}

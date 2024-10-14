@@ -305,7 +305,7 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
       exact ElementaryAddCommGroup.exists_subgroup_subset_card_le Nat.prime_two H h.le A_pos'.ne'
     have : (Nat.card A / 2 : ℝ) < Nat.card H' := by
-      rw [div_lt_iff zero_lt_two, mul_comm]; norm_cast
+      rw [div_lt_iff₀ zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card H' := by
       have : 0 < Nat.card H' := Nat.card_pos; positivity
     obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H

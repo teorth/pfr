@@ -157,7 +157,7 @@ lemma entropy_comp_of_injective [MeasurableSpace T] [Countable S] [MeasurableSin
     [MeasurableSingletonClass T]
     (μ : Measure Ω) (hX : Measurable X) (f : S → T) (hf : Function.Injective f) :
     H[f ∘ X ; μ] = H[X ; μ] := by
-  have hf_m : Measurable f := measurable_of_countable f
+  have hf_m : Measurable f := .of_discrete
   rw [entropy_def, ← Measure.map_map hf_m hX, measureEntropy_map_of_injective _ _ hf_m hf,
     entropy_def]
 
@@ -172,9 +172,9 @@ open Set
 open Function
 
 /-- If `X` is uniformly distributed on `H`, then `H[X] = log |H|`. -/
-lemma IsUniform.entropy_eq [DiscreteMeasurableSpace S]
-    (H : Finset S) (X : Ω → S) {μ : Measure Ω} [IsProbabilityMeasure μ]
-    (hX : IsUniform H X μ) (hX' : Measurable X) : H[X ; μ] = log (Nat.card H) := by
+lemma IsUniform.entropy_eq [DiscreteMeasurableSpace S] {H : Finset S} {X : Ω → S} {μ : Measure Ω}
+    [IsProbabilityMeasure μ] (hX : IsUniform H X μ) (hX' : Measurable X) :
+    H[X ; μ] = log (Nat.card H) := by
   haveI : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX'.aemeasurable
   have (t : S) : negMulLog ((μ.map X).real {t}) = ((μ.map X).real {t}) * log (Nat.card H) := by
     by_cases ht : t ∈ H
@@ -399,12 +399,12 @@ lemma condEntropy_eq_kernel_entropy [Nonempty S] [Countable S] [MeasurableSingle
   apply integral_congr_finiteSupport
   intro t ht
   simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top (μ.map Y), or_false] at ht
-  rw [Measure.map_apply hY (measurableSet_singleton _)] at ht
+  rw [Measure.map_apply hY (.singleton _)] at ht
   simp only [entropy_def]
   congr
   ext s hs
   rw [condDistrib_apply' hX hY _ _ ht hs, Measure.map_apply hX hs,
-      cond_apply _ (hY (measurableSet_singleton _))]
+      cond_apply _ (hY (.singleton _))]
 
 variable [Countable T] [Nonempty T] [Nonempty S] [MeasurableSingletonClass S] [Countable S]
   [Countable U] [MeasurableSingletonClass U]
@@ -456,7 +456,7 @@ lemma condEntropy_eq_sum_fintype
     [IsFiniteMeasure μ] (hY : Measurable Y) [Fintype T] :
     H[X | Y ; μ] = ∑ y, (μ (Y ⁻¹' {y})).toReal * H[X | Y ← y ; μ] := by
   rw [condEntropy_def, integral_eq_sum]
-  simp_rw [smul_eq_mul, Measure.map_apply hY (measurableSet_singleton _)]
+  simp_rw [smul_eq_mul, Measure.map_apply hY (.singleton _)]
 
 variable [MeasurableSingletonClass T]
 
@@ -473,7 +473,7 @@ lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [Mea
   have A : (fun a ↦ (Y a, Z a)) ⁻¹' {(x, y)} = Z ⁻¹' {y} ∩ Y ⁻¹' {x} := by
     ext p; simp [and_comm]
   congr 2
-  · rw [cond_apply _ (hZ (measurableSet_singleton y)), ← mul_assoc, A]
+  · rw [cond_apply _ (hZ (.singleton y)), ← mul_assoc, A]
     rcases eq_or_ne (μ (Z ⁻¹' {y})) 0 with hy|hy
     · have : μ (Z ⁻¹' {y} ∩ Y ⁻¹' {x}) = 0 :=
         le_antisymm ((measure_mono Set.inter_subset_left).trans hy.le) bot_le
@@ -514,7 +514,7 @@ lemma condEntropy_of_injective
     intro y
     refine entropy_congr ?_
     have : ∀ᵐ ω ∂μ[|Y ← y], Y ω = y := by
-      rw [ae_iff, cond_apply _ (hY (measurableSet_singleton _))]
+      rw [ae_iff, cond_apply _ (hY (.singleton _))]
       have : {a | ¬Y a = y} = (Y ⁻¹' {y})ᶜ := by ext; simp
       rw [this, Set.inter_compl_self, measure_empty, mul_zero]
     filter_upwards [this] with ω hω
@@ -645,7 +645,7 @@ To upgrade this to equality, see `entropy_of_comp_eq_of_comp` or `entropy_comp_o
 lemma entropy_comp_le (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (f : S → U) [FiniteRange X]:
     H[f ∘ X ; μ] ≤ H[X ; μ] := by
-  have hfX : Measurable (f ∘ X) := (measurable_of_countable _).comp hX
+  have hfX : Measurable (f ∘ X) := by fun_prop
   have : H[X ; μ] = H[⟨X, f ∘ X⟩ ; μ] := by
     refine (entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) ?_).symm
     intro x y hxy
@@ -838,18 +838,18 @@ lemma condMutualInfo_eq_kernel_mutualInfo
     by_cases hx : (μ.map Z) {x} = 0
     · simp [hx]
     rw [h hx, condDistrib_apply hX hZ]
-    rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
+    rwa [Measure.map_apply hZ (.singleton _)] at hx
   · have h := condDistrib_snd_ae_eq hX hY hZ μ
     rw [Filter.EventuallyEq, ae_iff_of_countable] at h
     specialize h x
     by_cases hx : (μ.map Z) {x} = 0
     · simp [hx]
     rw [h hx, condDistrib_apply hY hZ]
-    rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
+    rwa [Measure.map_apply hZ (.singleton _)] at hx
   · by_cases hx : (μ.map Z) {x} = 0
     · simp [hx]
     rw [condDistrib_apply (hX.prod_mk hY) hZ]
-    rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
+    rwa [Measure.map_apply hZ (.singleton _)] at hx
 
 end
 
@@ -882,7 +882,7 @@ section
 variable [MeasurableSingletonClass S] [MeasurableSingletonClass T]
 
 /-- Conditional information is non-nonegative. -/
-lemma condMutualInfo_nonneg (hX : Measurable X) (hY : Measurable Y) (Z : Ω → U) (μ : Measure Ω)
+lemma condMutualInfo_nonneg (hX : Measurable X) (hY : Measurable Y) {Z : Ω → U} {μ : Measure Ω}
     [FiniteRange X] [FiniteRange Y] :
     0 ≤ I[X : Y | Z ; μ] := by
   refine integral_nonneg (fun z ↦ ?_)
@@ -928,8 +928,7 @@ lemma condMutualInfo_of_inj_map [Countable U] [IsZeroOrProbabilityMeasure μ]
     (f : U → S → V) (hf : ∀ t, Function.Injective (f t)) [FiniteRange Z] :
     I[fun ω ↦ f (Z ω) (X ω) : Y | Z ; μ] =
     I[X : Y | Z ; μ] := by
-  have hM : Measurable (Function.uncurry f ∘ ⟨Z, X⟩) :=
-    (measurable_of_countable _).comp (hZ.prod_mk hX)
+  have hM : Measurable (Function.uncurry f ∘ ⟨Z, X⟩) := by fun_prop
   have hM : Measurable fun ω ↦ f (Z ω) (X ω) := hM
   rw [condMutualInfo_eq hM hY hZ, condMutualInfo_eq hX hY hZ]
   let g : U → (S × T) → (V × T) := fun z (x, y) ↦ (f z x, y)
@@ -943,7 +942,7 @@ lemma condMutualInfo_of_inj [Countable U]
     {V : Type*} [MeasurableSpace V] [MeasurableSingletonClass V] [Countable V]
     {f : U → V} (hf : Function.Injective f) :
     I[X : Y | f ∘ Z; μ] = I[X : Y | Z; μ] := by
-  have hfZ : Measurable (f ∘ Z) := (measurable_of_countable _).comp hZ
+  have hfZ : Measurable (f ∘ Z) := by fun_prop
   rw [condMutualInfo_eq hX hY hZ, condMutualInfo_eq hX hY hfZ, condEntropy_of_injective' _ hX hZ _ hf hfZ, condEntropy_of_injective' _ hY hZ _ hf hfZ, condEntropy_of_injective' _ (hX.prod_mk hY) hZ _ hf hfZ]
 
 lemma condEntropy_prod_eq_of_indepFun [Fintype T] [Fintype U] [IsZeroOrProbabilityMeasure μ]
@@ -1045,7 +1044,7 @@ lemma condEntropy_comp_ge
     refine entropy_comp_of_injective μ (by exact Measurable.prod hY hX) g (fun _ _ h => ?_)
     repeat rewrite [Prod.mk.injEq] at h
     exact Prod.ext h.1 h.2.1
-  have hZ : Measurable (f ∘ X) := (measurable_of_countable _).comp hX
+  have hZ : Measurable (f ∘ X) := by fun_prop
   rewrite [chain_rule'' μ hY hX, ← entropy_prod_comp hX μ f, ← h_joint,
     ← chain_rule'' μ hY (Measurable.prod (by exact hX) (by exact hZ))]
   exact entropy_submodular μ hY hX hZ

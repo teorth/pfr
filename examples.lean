@@ -41,9 +41,9 @@ example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+
 open Classical Real
 
 /-- The dimension of a subset A of a Z-module G is the minimal rank of a coset of G that covers A. -/
-example {G : Type*} [AddCommGroup G] (A : Set G) : ∃ (S : Submodule ℤ G) (v : G), FiniteDimensional.finrank ℤ S = dimension A ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_spec (exists_coset_cover A)
+example {G : Type*} [AddCommGroup G] (A : Set G) : ∃ (S : Submodule ℤ G) (v : G), Module.finrank ℤ S = dimension A ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_spec (exists_coset_cover A)
 
-example {G : Type*} [AddCommGroup G] (A : Set G) (d:ℕ) (h: d < dimension A): ¬ ∃ (S : Submodule ℤ G) (v : G), FiniteDimensional.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_min (exists_coset_cover A) h
+example {G : Type*} [AddCommGroup G] (A : Set G) (d:ℕ) (h: d < dimension A): ¬ ∃ (S : Submodule ℤ G) (v : G), Module.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_min (exists_coset_cover A) h
 
 
 #print axioms weak_PFR_int

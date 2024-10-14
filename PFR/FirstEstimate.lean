@@ -85,7 +85,7 @@ lemma condRuzsaDist_of_sums_ge :
     d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] ≥
       k - p.η * (d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁])
         - p.η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
-  condRuzsaDistance_ge_of_min _ h_min hX₁ hX₂ _ _ (by measurability) (by measurability)
+  condRuzsaDistance_ge_of_min _ h_min hX₁ hX₂ _ _ (by fun_prop) (by fun_prop)
 
 variable [ElementaryAddCommGroup G 2]
 
@@ -135,7 +135,7 @@ lemma first_estimate
     I₁ ≤ 2 * p.η * k := by
   have v1 := rdist_add_rdist_add_condMutual_eq X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› ‹_›
   have v2 := rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_›
-  have v3 := condRuzsaDist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› (by measurability) (by measurability)
+  have v3 := condRuzsaDist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› (by fun_prop) (by aesop)
   have v4 := (mul_le_mul_left p.hη).2 (diff_rdist_le_1 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
   have v5 := (mul_le_mul_left p.hη).2 (diff_rdist_le_2 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
   have v6 := (mul_le_mul_left p.hη).2 (diff_rdist_le_3 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
@@ -159,7 +159,7 @@ lemma ent_ofsum_le
   have lem68 : D + Dcc + I₁ = 2 * k :=
     rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep
   have lem610 : Dcc ≥ k - p.η * (Dc1 - D1) - p.η * (Dc2 - D2) :=
-    condRuzsaDist_of_sums_ge p X₁ X₂ X₁' X₂' hX₁ hX₂ (by measurability) (by measurability) h_min
+    condRuzsaDist_of_sums_ge p X₁ X₂ X₁' X₂' hX₁ hX₂ (by fun_prop) (by aesop) h_min
   have lem611c : Dc1 - D1 ≤ k / 2 + H[X₁] / 4 - H[X₂] / 4 :=
     diff_rdist_le_3 p X₁ X₂ X₁' X₂' hX₁ hX₂' h₂ h_indep
   have lem611d : Dc2 - D2 ≤ k / 2 + H[X₂] / 4 - H[X₁] / 4 :=
@@ -179,7 +179,7 @@ lemma ent_ofsum_le
     exact iIndepFun.indepFun_add_add h_indep (fun i ↦ by fin_cases i <;> assumption) 0 2 1 3
       (by decide) (by decide) (by decide) (by decide)
   have ind : D = H[X₁ + X₂' - (X₂ + X₁')] - H[X₁ + X₂'] / 2 - H[X₂ + X₁'] / 2 :=
-    ind_aux.rdist_eq (by measurability) (by measurability)
+    ind_aux.rdist_eq (by fun_prop) (by fun_prop)
   rw [ind, ent_sub_eq_ent_add, rw₁] at aux
   have obs : H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + p.η) * k - I₁ := by
     linarith

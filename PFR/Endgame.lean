@@ -118,7 +118,7 @@ lemma I₃_eq [IsProbabilityMeasure (ℙ : Measure Ω)] : I[V : W | S] = I₂ :=
   have hU : Measurable U := Measurable.add hX₁ hX₂
   have hV : Measurable V := Measurable.add hX₁' hX₂
   have hW : Measurable W := Measurable.add hX₁' hX₁
-  have hS : Measurable S := by measurability
+  have hS : Measurable S := by fun_prop
   rw [condMutualInfo_eq hV hW hS, condMutualInfo_eq hU hW hS, chain_rule'' ℙ hU hS,
     chain_rule'' ℙ hV hS, chain_rule'' ℙ hW hS, chain_rule'' ℙ _ hS, chain_rule'' ℙ _ hS,
     IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
@@ -133,10 +133,7 @@ include h_indep hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_min in
 lemma sum_condMutual_le [ElementaryAddCommGroup G 2] [IsProbabilityMeasure (ℙ : Measure Ω)] :
     I[U : V | S] + I[V : W | S] + I[W : U | S]
       ≤ 6 * p.η * k - (1 - 5 * p.η) / (1 - p.η) * (2 * p.η * k - I₁) := by
-  have : I[W:U|S] = I₂ := by
-    rw [condMutualInfo_comm]
-    · exact Measurable.add' hX₁' hX₁
-    · exact Measurable.add' hX₁ hX₂
+  have : I[W : U | S] = I₂ := condMutualInfo_comm (by fun_prop) (by fun_prop) ..
   rw [I₃_eq, this]
   have h₂ := second_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h := add_le_add (add_le_add_left h₂ I₁) h₂
@@ -338,9 +335,9 @@ omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ 
 lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
     {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable Z) : c[Y | Z # Y | Z] =
     (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ← z] # Y ; ℙ[|Z ← z]]] := by
-  simp only [integral_eq_sum, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
+  simp only [integral_fintype _ .of_finite, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
     Finset.sum_add_distrib]
-  simp_rw [← integral_eq_sum]
+  simp_rw [← integral_fintype _ .of_finite]
   rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
@@ -393,32 +390,32 @@ lemma construct_good_prelim :
 
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2) := by
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
-      simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const, measure_univ,
+      simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
         ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum2]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
-        Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
+        Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
 
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
 
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2) := by
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
-      simp only [integral_sub (.of_finite _ _) (.of_finite _ _), integral_const, measure_univ,
+      simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
         ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum3]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
-        Measure.map_apply hT₃ (measurableSet_singleton _), smul_eq_mul]
+        Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
 
   have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2 := by
     suffices sum4 = sum1 + p.η * (sum2 + sum3) by linarith
-    simp only [sum4, integral_add (.of_finite _ _) (.of_finite _ _), integral_mul_left]
+    simp only [sum4, integral_add .of_finite .of_finite, integral_mul_left]
 
   have hk : k ≤ sum4 := by
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
-    refine integral_mono_ae (.of_finite _ _) (.of_finite _ _) $ ae_iff_of_countable.2 fun t ht ↦ ?_
+    refine integral_mono_ae .of_finite .of_finite $ ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
       cond_isProbabilityMeasure ℙ (by simpa [hT₃] using ht)
     dsimp only
@@ -469,10 +466,10 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
     k ≤ δ' + (p.η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
-  simp_rw [integral_eq_sum, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum, mul_smul_comm,
+  simp_rw [integral_fintype _ .of_finite, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum, mul_smul_comm,
     ← Finset.sum_add_distrib, ← smul_add]
-  simp_rw [← integral_eq_sum]
-  have : IsProbabilityMeasure (Measure.map R ℙ) := isProbabilityMeasure_map (by measurability)
+  simp_rw [← integral_fintype _ .of_finite]
+  have : IsProbabilityMeasure (Measure.map R ℙ) := isProbabilityMeasure_map (by fun_prop)
   calc
     k = (Measure.map R ℙ)[fun _r => k] := by
       rw [integral_const]; simp
@@ -499,8 +496,8 @@ theorem tau_strictly_decreases_aux
     [IsProbabilityMeasure (ℙ : Measure Ω)] [ElementaryAddCommGroup G 2]
     (hpη : p.η = 1/9) : d[X₁ # X₂] = 0 := by
   have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)
-    (show Measurable U by measurability) (show Measurable V by measurability)
-    (show Measurable W by measurability) (show Measurable S by measurability)
+    (show Measurable U by fun_prop) (show Measurable V by fun_prop)
+    (show Measurable W by fun_prop) (show Measurable S by fun_prop)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by

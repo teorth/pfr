@@ -76,7 +76,8 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀
       exact inv_nonneg_of_nonneg (le_of_lt hη)
     _ ≤ p.η⁻¹ * (p.m * d[p.X₀ # p.X₀] + 1 * (p.m * d[p.X₀ # p.X₀])) := by
       gcongr
-      · apply multidist_ruzsa_III p.hm (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀) _ (Fin.ofNat' 0 hm)
+      · have : NeZero p.m := ⟨hm.ne'⟩
+        apply multidist_ruzsa_III p.hm (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀) _ 0
         intro _ _
         simp
         exact ProbabilityTheory.IdentDistrib.refl ( Measurable.aemeasurable p.hmeas)
@@ -99,7 +100,7 @@ lemma sub_multiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [hΩ₀: M
     _ ≤ _ := by
       have hη : p.η > 0 := p.hη
       have hprob := p.hprob
-      rw [<- mul_add, <-Finset.sum_add_distrib]
+      rw [←  mul_add, ← Finset.sum_add_distrib]
       gcongr with i _
       rw [add_comm, rdist_symm (Y := X' i)]
       apply rdist_triangle (hmeasX' i) (hmeasX i) p.hmeas
@@ -114,7 +115,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
 
   have probmes (i : Fin p.m) : ∑ ωi : S, (ℙ (Y i ⁻¹' {ωi})).toReal = 1 := by
     convert Finset.sum_toReal_measure_singleton (s := Finset.univ) (Measure.map (Y i) ℙ) with ω _ i _
-    · exact (MeasureTheory.Measure.map_apply (hY i) ( measurableSet_singleton ω)).symm
+    · exact (MeasureTheory.Measure.map_apply (hY i) ( .singleton ω)).symm
     replace hΩ'prob := hΩ'prob i
     rw [MeasureTheory.Measure.map_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ, measure_univ, ENNReal.one_toReal]
 -- μ has total mass one
@@ -132,9 +133,9 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
   calc
     _ = ∑ (ω: Fin p.m → S), μ ω * D[X; hΩ] - ∑ (ω: Fin p.m → S), μ ω * D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]] := by
       congr
-      rw [<-Finset.sum_mul, total, one_mul]
+      rw [← Finset.sum_mul, total, one_mul]
     _ = ∑ (ω: Fin p.m → S), μ ω * (D[X; hΩ] - D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]]) := by
-      rw [<-Finset.sum_sub_distrib]
+      rw [← Finset.sum_sub_distrib]
       apply Finset.sum_congr rfl
       intro _ _
       exact (mul_sub_left_distrib _ _ _).symm
@@ -176,7 +177,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
           intro j _
           by_cases hij : i = j
           · simp only [hij, mul_ite, mul_one, ↓reduceIte, f]
-            rw [condRuzsaDist'_eq_sum' (hmeasX' i) (hY i), <-hij]
+            rw [condRuzsaDist'_eq_sum' (hmeasX' i) (hY i), ← hij]
           simp only [mul_ite, mul_one, hij, ↓reduceIte, f]
           exact probmes j
         _ = _ := by

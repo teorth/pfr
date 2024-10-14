@@ -9,7 +9,8 @@ import PFR.MultiTauFunctional
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
-open MeasureTheory ProbabilityTheory
+open MeasureTheory ProbabilityTheory Set
+open scoped Pointwise
 
 section AnalyzeMinimizer
 
@@ -19,8 +20,7 @@ variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : mu
 
 local notation3 "k" => multiTau p Ω hΩ X
 
-variable (Ω': Type u) (Y: Fin p.m × Fin p.m → Ω' → G)
-
+variable (Ω' : Type u) (Y : Fin p.m × Fin p.m → Ω' → G)
 
 local notation3 "W" => ∑ i, ∑ j, Y (i, j)
 local notation3 "Z1" => ∑ i: Fin p.m, ∑ j, (i:ℤ) • Y (i, j)
@@ -32,13 +32,13 @@ local notation3 "R" => fun r ↦ ∑ i, ∑ j, if (i+j+r = 0) then Y r else 0
 
 /-- Z_1+Z_2+Z_3= 0 -/
 lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
-  rw [<-Finset.sum_add_distrib, <-Finset.sum_add_distrib]
+  rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
   apply Finset.sum_eq_zero
   intro i _
-  rw [<-Finset.sum_add_distrib, <-Finset.sum_add_distrib]
+  rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
   apply Finset.sum_eq_zero
   intro j _
-  rw [<-add_zsmul, <-add_zsmul]
+  rw [← add_zsmul, ← add_zsmul]
   convert zero_zsmul ?_
   simp
 
@@ -88,9 +88,6 @@ lemma dist_of_X_U_H_le {G : Type*} [AddCommGroup G] [Fintype G] [MeasurableSpace
   [MeasurableSingletonClass G] (m:ℕ) (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) (Ω: Type*) [MeasureSpace Ω] (X: Ω → G): ∃ H : AddSubgroup G, ∃ Ω' : Type*, ∃ mΩ : MeasureSpace Ω', ∃ U : Ω' → G,
     IsUniform H U ∧ d[X # U] ≤ 64 * m^3 * d[X # X] := sorry
 
-
-open Pointwise
-
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. If $A \subset G$ is non-empty and
   $|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^
   {(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
@@ -103,14 +100,6 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ
     Nat.card c ≤ K ^ (64 * m^3 + 2) * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2 : ℝ )
       ∧ Nat.card H ≤ K ^ (64 * m^3) * Nat.card A
       ∧ Nat.card A ≤ K ^ (64 * m^3) * Nat.card H ∧ A ⊆ c + H := sorry
-
-
--- A silly little set lemma
-lemma set_avoid {G : Type*} {A B : Set G} (hA: A ⊆ B) (hneq: A ≠ B) : ∃ a:G, a ∈ B ∧ a ∉ A := by
-  contrapose! hneq
-  exact Set.Subset.antisymm hA hneq
-
-open Pointwise
 
 /-- Every subgroup H of a finite m-torsion abelian group G contains a subgroup H' of order between k and mk, if 0 < k < |H|. -/
 lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2)
@@ -132,13 +121,13 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
         contrapose! heq
         simp only [SetLike.coe_set_eq] at heq
         simp only [heq, lt_self_iff_false, not_false_eq_true]
-      obtain ⟨ a, ⟨ ha, ha' ⟩⟩ := set_avoid hK.1 hneq
+      obtain ⟨a, ha, ha'⟩ := exists_of_ssubset (ssubset_of_subset_of_ne hK.1 hneq)
       let Z := AddSubgroup.zmultiples a
       let H' := K ⊔ Z
       contrapose! ha'
       have hcard : Nat.card H' ≤ k := by
         apply le_trans _ ha'
-        rw [<-SetLike.coe_sort_coe, <-SetLike.coe_sort_coe, AddSubgroup.normal_add K Z, Nat.mul_comm]
+        rw [← SetLike.coe_sort_coe, ← SetLike.coe_sort_coe, AddSubgroup.normal_add K Z, Nat.mul_comm]
         calc
           _ ≤ (Nat.card (K:Set G)) * (Nat.card (Z:Set G)) := Set.card_add_le
           _ ≤ _ := by
@@ -149,12 +138,12 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
         simpa only [sup_le_iff, hK.1, AddSubgroup.zmultiples_le, true_and, H', Z]
       have hsub : (K:Set G) ⊆ (H':Set G) := SetLike.coe_subset_coe.mpr le_sup_left
       have hcard' : Nat.card K ≤ Nat.card H' := by
-          rw [<-SetLike.coe_sort_coe, <-SetLike.coe_sort_coe, Set.Nat.card_coe_set_eq (K:Set G), Set.Nat.card_coe_set_eq (H':Set G)]
+          rw [← SetLike.coe_sort_coe, ← SetLike.coe_sort_coe, Set.Nat.card_coe_set_eq (K:Set G), Set.Nat.card_coe_set_eq (H':Set G)]
           exact Set.ncard_le_ncard hsub (Set.toFinite H')
       have : (K:Set G) = (H':Set G) := by
           apply (Set.subset_iff_eq_of_ncard_le ?_ ?_).mp hsub
           · apply Eq.le
-            rw [<-Set.Nat.card_coe_set_eq (H':Set G), <-Set.Nat.card_coe_set_eq (K:Set G)]
+            rw [← Set.Nat.card_coe_set_eq (H':Set G), ← Set.Nat.card_coe_set_eq (K:Set G)]
             exact ((hK' H' ⟨ hH', hcard ⟩) hcard').symm
           exact Set.toFinite (H':Set G)
       rw [this]
@@ -205,7 +194,7 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
       exact torsion_exists_subgroup_subset_card_le hm htorsion H h.le A_pos'.ne'
     have : (Nat.card A / m : ℝ) < Nat.card H' := by
-      rw [div_lt_iff, mul_comm]
+      rw [div_lt_iff₀, mul_comm]
       · norm_cast
       norm_cast; exact Nat.zero_lt_of_lt hm
     have H'_pos : (0 : ℝ) < Nat.card H' := by

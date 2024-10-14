@@ -8,17 +8,6 @@ namespace ProbabilityTheory.Kernel
 variable {ι α β β' γ γ' Ω : Type*} {_mα : MeasurableSpace α} {_mΩ : MeasurableSpace Ω}
   {κ : Kernel α Ω} {μ : Measure α} {f : Ω → β} {g : Ω → β'}
 
-/-- in mathlib as of `4d385393cd569f08ac30425ef886a57bb10daaa5` (TODO: bump) -/
-theorem IndepFun.ae_eq' {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'} {f f' : Ω → β}
-    {g g' : Ω → β'} (hfg : IndepFun f g κ μ) (hf : ∀ᵐ a ∂μ, f =ᵐ[κ a] f')
-    (hg : ∀ᵐ a ∂μ, g =ᵐ[κ a] g') : IndepFun f' g' κ μ := by
-  rintro _ _ ⟨A, hA, rfl⟩ ⟨B, hB, rfl⟩
-  filter_upwards [hf, hg, hfg _ _ ⟨_, hA, rfl⟩ ⟨_, hB, rfl⟩] with a hf' hg' hfg'
-  have h1 : f ⁻¹' A =ᵐ[κ a] f' ⁻¹' A := hf'.fun_comp A
-  have h2 : g ⁻¹' B =ᵐ[κ a] g' ⁻¹' B := hg'.fun_comp B
-  rwa [← measure_congr h1, ← measure_congr h2, ← measure_congr (h1.inter h2)]
-
-
 section iIndepFun
 
 variable {β γ : ι → Type*} {m : ∀ i, MeasurableSpace (β i)} {mγ : ∀ i, MeasurableSpace (γ i)} {f : ∀ i, Ω → β i}
@@ -48,7 +37,7 @@ lemma iIndepFun.finsets {J : Type*} [Fintype J]
   let πβ (j : J) := Set.pi Set.univ '' Set.pi Set.univ fun (i : S j) => { s | MeasurableSet[m i] s }
   apply iIndepSets.iIndep
   · intro j
-    rw [<-measurable_iff_comap_le, measurable_pi_iff]
+    rw [← measurable_iff_comap_le, measurable_pi_iff]
     intro ω
     simp [F]
     exact hf_meas ω

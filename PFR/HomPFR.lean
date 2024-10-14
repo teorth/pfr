@@ -1,8 +1,9 @@
 import Mathlib.Data.Set.Card
-import PFR.ImprovedPFR
 import PFR.Mathlib.Algebra.Group.Pointwise.Set.Basic
+import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.SetTheory.Cardinal.Finite
+import PFR.ImprovedPFR
 
 /-!
 # The homomorphism form of PFR
@@ -20,7 +21,8 @@ few values.
   such that $f(x)-\phi(x)$ takes at most $K^{12}$ values.
 -/
 
-open Pointwise
+open Set
+open scoped Pointwise
 
 variable {G G' : Type*} [AddCommGroup G] [AddCommGroup G']
   [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2]
@@ -126,23 +128,22 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
       _ = (Nat.card H / Nat.card G : ℝ) * Nat.card c := by field_simp
       _ = (Nat.card H / Nat.card A) * Nat.card c := by congr; simp [-Nat.card_eq_fintype_card, A]
   let T := (fun p ↦ p.2 - φ p.1) '' (c + {0} ×ˢ (H₁: Set G'))
-  have : A ⊆ ⋃ (c ∈ T), {(x, φ x + c) | x : G} := by
-    have : (H : Set (G × G')) ⊆ ({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G} := by
-      rintro ⟨g, g'⟩ hg
-      simp only [SetLike.mem_coe, hH₀₁] at hg
-      refine ⟨(0, g' - φ g), ?_, (g, φ g), ?_⟩
-      · simp only [singleton_prod, mem_image, SetLike.mem_coe,
-          Prod.mk.injEq, true_and, exists_eq_right, hg.2]
-      · simp only [mem_setOf_eq, Prod.mk.injEq, exists_eq_left, Prod.mk_add_mk, zero_add, true_and,
-          sub_add_cancel]
-    have hA_sub : A ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G}) :=
-      calc
-        A ⊆ c + (H : Set _) := hAcH
-        _ ⊆ c + (({0} ×ˢ (H₁:Set G')) + {(x, φ x) | x : G}) := add_subset_add_left this
-    rw [← add_assoc] at hA_sub
-    convert hA_sub
-    rw [← Set.iUnion_add_left_image, ← range, ← graphOn_univ_eq_range]
-    simp_rw [graphOn_add, Set.biUnion_image]
+  have :=
+    calc
+      A ⊆ c + H := hAcH
+      _ ⊆ c + (({0} ×ˢ (H₁ : Set G')) + {(x, φ x) | x : G}) := by
+        gcongr
+        rintro ⟨g, g'⟩ hg
+        simp only [SetLike.mem_coe, hH₀₁] at hg
+        refine ⟨(0, g' - φ g), ?_, (g, φ g), ?_⟩
+        · simp only [singleton_prod, mem_image, SetLike.mem_coe,
+            Prod.mk.injEq, true_and, exists_eq_right, hg.2]
+        · simp only [mem_setOf_eq, Prod.mk.injEq, exists_eq_left, Prod.mk_add_mk, zero_add, true_and,
+            sub_add_cancel]
+      _ = ⋃ (a ∈ T), {(x, a + φ x) | x : G} := by
+        rw [← add_assoc, ← vadd_eq_add, ← Set.iUnion_vadd_set, Set.biUnion_image]
+        congr! 3 with a
+        rw [← range, ← range, ← graphOn_univ_eq_range, ← graphOn_univ_eq_range, vadd_graphOn_univ]
   refine ⟨φ, T, ?_, ?_⟩
   · have : (Nat.card T : ℝ) ≤ (Nat.card S : ℝ) ^ (12 : ℝ) := by calc
       (Nat.card T : ℝ) ≤ Nat.card (c + {(0 : G)} ×ˢ (H₁ : Set G')) := by
@@ -168,7 +169,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
   · intro g
     specialize this (⟨g, by simp⟩ : (g, f g) ∈ A)
     simp only [mem_iUnion, mem_setOf_eq, Prod.mk.injEq, exists_eq_left] at this
-    obtain ⟨t, ⟨ht, h⟩⟩ := this
+    obtain ⟨t, ht, h⟩ := this
     rw [← h]
     convert ht
     abel

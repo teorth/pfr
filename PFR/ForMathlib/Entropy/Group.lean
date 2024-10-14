@@ -253,13 +253,13 @@ lemma max_entropy_le_entropy_prod {G : Type*} [Countable G] [hG : MeasurableSpac
     · calc
         _ ≤ max H[X i₀ ; μ] H[∏ i ∈ s, X i ; μ] := le_max_left _ _
         _ ≤ H[X i₀ * ∏ i ∈ s, X i ; μ] := by
-          refine max_entropy_le_entropy_mul (hX i₀) (s.measurable_prod' fun i _ ↦ hX i) ?_
+          refine max_entropy_le_entropy_mul (hX i₀) (by fun_prop) ?_
           exact iIndepFun.indepFun_finset_prod_of_not_mem hindep hX Hnot |>.symm
     · calc
         _ ≤ H[∏ i ∈ s, X i ; μ] := Hind hi₀
         _ ≤ max H[X j ; μ] H[∏ i ∈ s, X i ; μ] := le_max_right _ _
         _ ≤ H[X j * ∏ x ∈ s, X x ; μ] := by
-          refine max_entropy_le_entropy_mul (hX j) (s.measurable_prod' fun i _ ↦ hX i) ?_
+          refine max_entropy_le_entropy_mul (hX j) (by fun_prop) ?_
           exact iIndepFun.indepFun_finset_prod_of_not_mem hindep hX Hnot |>.symm
 
 end IsProbabilityMeasure

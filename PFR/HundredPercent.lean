@@ -75,14 +75,14 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
       rw [hindep.rdist_eq hX' hY', ← (hidX.trans hidY.symm).entropy_eq] at this
       linarith
   have I : IndepFun (X' - Y') Y' := by
-    refine (mutualInfo_eq_zero (hX'.sub' hY') hY').1 ?_
-    rw [mutualInfo_eq_entropy_sub_condEntropy (hX'.sub' hY') hY', A, sub_self]
+    refine (mutualInfo_eq_zero (by fun_prop) hY').1 ?_
+    rw [mutualInfo_eq_entropy_sub_condEntropy (by fun_prop) hY', A, sub_self]
   have M : ∀ c, ℙ (Y' ⁻¹' {c}) ≠ 0 → IdentDistrib (fun ω ↦ X' ω - c) (X' - Y') := by
     intro c hc
     let F := fun ω ↦ X' ω - c
-    refine ⟨(hX'.sub_const _).aemeasurable, (hX'.sub' hY').aemeasurable, ?_⟩
+    refine ⟨by fun_prop, by fun_prop, ?_⟩
     ext s hs
-    rw [Measure.map_apply (hX'.sub_const _) hs, Measure.map_apply (hX'.sub' hY') hs]
+    rw [Measure.map_apply (by fun_prop) hs, Measure.map_apply (by fun_prop) hs]
     have : ℙ (F ⁻¹' s) * ℙ (Y' ⁻¹' {c}) = ℙ ((X' - Y') ⁻¹' s) * ℙ (Y' ⁻¹' {c}) := by calc
       ℙ (F ⁻¹' s) * ℙ (Y' ⁻¹' {c}) = ℙ (F ⁻¹' s ∩ Y' ⁻¹' {c}) := by
         have hFY' : IndepFun F Y' := by

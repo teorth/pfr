@@ -17,32 +17,6 @@ We can write `κ : Kernel S (T × U)` as a composition-product `(fst κ) ⊗ₖ 
 open Real MeasureTheory Measure ProbabilityTheory
 open scoped ENNReal NNReal Topology ProbabilityTheory
 
-lemma _root_.MeasureTheory.lintegral_piecewise {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}
-    {s : Set α} (hs : MeasurableSet s) (f g : α → ℝ≥0∞) [∀ j, Decidable (j ∈ s)] :
-    ∫⁻ a, s.piecewise f g a ∂μ = ∫⁻ a in s, f a ∂μ + ∫⁻ a in sᶜ, g a ∂μ := by
-  rw [← lintegral_add_compl _ hs]
-  congr 1
-  · refine setLIntegral_congr_fun hs ?_
-    exact ae_of_all μ (fun a ha ↦ Set.piecewise_eq_of_mem _ _ _ ha)
-  · refine setLIntegral_congr_fun hs.compl ?_
-    exact ae_of_all μ (fun a ha ↦ Set.piecewise_eq_of_not_mem _ _ _ ha)
-
-/-
-lemma MeasureTheory.Measure.condKernel_apply {α β : Type*} {mα : MeasurableSpace α}
-    {mβ : MeasurableSpace β} [MeasurableSingletonClass α] [StandardBorelSpace β] [Nonempty β]
-    (μ : Measure (α × β)) [IsFiniteMeasure μ] {x : α} (hx : μ.fst {x} ≠ 0)
-    {s : Set β} (hs : MeasurableSet s) :
-    μ.condKernel x s = (μ.fst {x})⁻¹ * μ ({x} ×ˢ s) :=
-  condKernel_apply_of_ne_zero_of_measurableSet hx hs
--/
-
-instance instStandardBorelSpace_discreteMeasurableSpace {α : Type*} [MeasurableSpace α]
-    [DiscreteMeasurableSpace α] [Countable α] :
-    StandardBorelSpace α := by
-  let bot : TopologicalSpace α := ⊥
-  have : DiscreteTopology α := ⟨rfl⟩
-  infer_instance
-
 namespace ProbabilityTheory
 
 variable {Ω S T U : Type*} [mΩ : MeasurableSpace Ω]
@@ -61,7 +35,7 @@ noncomputable
 def condKernel (κ : Kernel T (S × U)) [IsFiniteKernel κ] :
     kernel (T × S) U where
   val := fun ts ↦ (κ ts.1).condKernel ts.2
-  property := measurable_of_countable _
+  property := .of_discrete
 -/
 
 lemma condKernel_apply (κ : Kernel T (S × U)) [IsFiniteKernel κ] (x : T × S)
@@ -70,22 +44,22 @@ lemma condKernel_apply (κ : Kernel T (S × U)) [IsFiniteKernel κ] (x : T × S)
   have h := condKernel_apply_eq_condKernel κ x.1
   rw [Filter.EventuallyEq, ae_iff_of_countable] at h
   refine h x.2 ?_
-  rwa [fst_apply' _ _ (measurableSet_singleton _)]
+  rwa [fst_apply' _ _ (.singleton _)]
 
 lemma condKernel_apply' (κ : Kernel T (S × U)) [IsFiniteKernel κ]
     (x : T × S) (hx : κ x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0) (s : Set U) :
     condKernel κ x s
       = (κ x.1 (Prod.fst ⁻¹' {x.2}))⁻¹ * (κ x.1) ({x.2} ×ˢ s) := by
   rw [condKernel_apply _ _ hx, Measure.condKernel_apply_of_ne_zero,
-    Measure.fst_apply (measurableSet_singleton _)]
-  rwa [Measure.fst_apply (measurableSet_singleton _)]
+    Measure.fst_apply (.singleton _)]
+  rwa [Measure.fst_apply (.singleton _)]
 
 lemma condKernel_compProd_apply' (κ : Kernel T S) [IsFiniteKernel κ]
     (η : Kernel (T × S) U) [IsMarkovKernel η]
     (x : T × S) (hx : κ x.1 {x.2} ≠ 0) {s : Set U} (hs : MeasurableSet s) :
     condKernel (κ ⊗ₖ η) x s = η x s := by
   have hx' : (κ ⊗ₖ η) x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0 := by
-    rwa [compProd_preimage_fst _ _ (measurableSet_singleton _)]
+    rwa [compProd_preimage_fst _ _ (.singleton _)]
   rw [condKernel_apply' _ _ hx', compProd_apply _ _ _ ((measurableSet_singleton _).prod hs),
     Kernel.compProd_apply, lintegral_eq_single _ x.2, lintegral_eq_single _ x.2]
   · simp
@@ -133,7 +107,7 @@ lemma disintegration (κ : Kernel T (S × U)) [IsFiniteKernel κ] :
       Set.mem_empty_iff_false, and_imp]
     intro h1 _ h1' _
     exact haa' (h1.symm.trans h1')
-  · refine fun _ ↦ (measurable_fst (measurableSet_singleton _)).inter ?_
+  · refine fun _ ↦ (measurable_fst (.singleton _)).inter ?_
     exact measurable_prod_mk_left.comp measurable_snd hs
 
 variable [Countable T] [MeasurableSingletonClass S] [MeasurableSingletonClass T]
@@ -145,7 +119,7 @@ lemma condKernel_compProd_ae_eq
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [condKernel_compProd_apply]
-  rw [Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_tsum] at hx
+  rw [Measure.compProd_apply (.singleton _), lintegral_eq_tsum] at hx
   simp only [Set.mem_singleton_iff, ne_eq, Finset.sum_eq_zero_iff, tsum_eq_zero_iff ENNReal.summable, mul_eq_zero,
     forall_true_left, not_forall] at hx
   obtain ⟨y, hy⟩ := hx
@@ -175,15 +149,15 @@ lemma condKernel_map_prod_mk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
     (f : (S × U) → V) :
     condKernel (map κ (fun p ↦ (p.1, f p)))
       =ᵐ[μ ⊗ₘ fst κ] snd ((condKernel κ) ⊗ₖ (deterministic (fun x : (T × S) × U ↦ f (x.1.2, x.2))
-          (measurable_of_countable _))) := by
+          .of_discrete)) := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
-  rw [Measure.compProd_apply (measurableSet_singleton _), lintegral_eq_tsum] at hx
+  rw [Measure.compProd_apply (.singleton _), lintegral_eq_tsum] at hx
   simp only [ne_eq, tsum_eq_zero_iff ENNReal.summable, Finset.mem_univ, mul_eq_zero, forall_true_left,
     not_forall] at hx
   obtain ⟨y, hy⟩ := hx
   push_neg at hy
-  rw [fst_apply' _ _ (measurable_prod_mk_left (measurableSet_singleton _))] at hy
+  rw [fst_apply' _ _ (measurable_prod_mk_left (.singleton _))] at hy
   simp only [ne_eq, Set.mem_preimage, Set.mem_singleton_iff] at hy
   have hyx1 : y = x.1 := by
     by_contra hy_ne
@@ -206,12 +180,12 @@ lemma condKernel_map_prod_mk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
   have h_preimage : (fun p ↦ (p.1, f p)) ⁻¹' (Prod.fst ⁻¹' {x.2}) = Prod.fst ⁻¹' {x.2} := by
     ext p; simp
   rw [condKernel_apply' _ _ _, condKernel_apply' _ _ h_ne_zero]; swap
-  · rw [map_apply' _ (measurable_of_countable _) _ (measurable_fst (measurableSet_singleton _)),
+  · rw [map_apply' _ .of_discrete _ (measurable_fst (.singleton _)),
       h_preimage]
     exact h_ne_zero
-  rw [map_apply' _ .of_discrete _ (measurable_fst (measurableSet_singleton _)), h_preimage]
+  rw [map_apply' _ .of_discrete _ (measurable_fst (.singleton _)), h_preimage]
   congr
-  rw [map_apply' _ (measurable_of_countable _) _ ((measurableSet_singleton _).prod hs)]
+  rw [map_apply' _ .of_discrete _ ((measurableSet_singleton _).prod hs)]
   congr
   ext p
   simp only [Set.singleton_prod, Set.mem_preimage, Set.mem_image, Prod.mk.injEq,
@@ -238,10 +212,10 @@ lemma condDistrib_apply' [Nonempty S] (hX : Measurable X) (hY : Measurable Y) (�
     [IsFiniteMeasure μ] (x : T) (hYx : μ (Y ⁻¹' {x}) ≠ 0) {s : Set S} (hs : MeasurableSet s) :
     condDistrib X Y μ x s = (μ (Y ⁻¹' {x}))⁻¹ * μ (Y ⁻¹' {x} ∩ X ⁻¹' s) := by
   rw [condDistrib_apply_of_ne_zero hX]
-  · rw [Measure.map_apply hY (measurableSet_singleton _),
+  · rw [Measure.map_apply hY (.singleton _),
       Measure.map_apply (hY.prod_mk hX) ((measurableSet_singleton _).prod hs)]
     congr
-  · rwa [Measure.map_apply hY (measurableSet_singleton _)]
+  · rwa [Measure.map_apply hY (.singleton _)]
 
 lemma condDistrib_apply [Nonempty S] (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
     [IsFiniteMeasure μ]
@@ -249,7 +223,7 @@ lemma condDistrib_apply [Nonempty S] (hX : Measurable X) (hY : Measurable Y) (μ
     condDistrib X Y μ x = (μ[|Y ⁻¹' {x}]).map X := by
   ext s hs
   rw [condDistrib_apply' hX hY μ x hYx hs, Measure.map_apply hX hs,
-    cond_apply _ (hY (measurableSet_singleton _))]
+    cond_apply _ (hY (.singleton _))]
 
 variable [Countable T]
 
@@ -258,7 +232,7 @@ lemma condDistrib_ae_eq [Nonempty S] (hX : Measurable X) (hY : Measurable Y) (μ
     condDistrib X Y μ =ᵐ[μ.map Y] fun x ↦ (μ[|Y ⁻¹' {x}]).map X := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
-  rw [Measure.map_apply hY (measurableSet_singleton _)] at hx
+  rw [Measure.map_apply hY (.singleton _)] at hx
   exact condDistrib_apply hX hY μ x hx
 
 lemma condDistrib_comp [Nonempty S] [Nonempty U]
@@ -266,13 +240,13 @@ lemma condDistrib_comp [Nonempty S] [Nonempty U]
     [IsFiniteMeasure μ] (f : S → U) :
     condDistrib (f ∘ X) Y μ
       =ᵐ[μ.map Y] Kernel.map (condDistrib X Y μ) f := by
-  have hf : Measurable f := measurable_of_countable _
+  have hf : Measurable f := .of_discrete
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
-  rw [Measure.map_apply hY (measurableSet_singleton _)] at hx
+  rw [Measure.map_apply hY (.singleton _)] at hx
   ext s hs
   rw [condDistrib_apply' (hf.comp hX) hY _ _ hx hs,
-    Kernel.map_apply' _ (measurable_of_countable _) _ hs,
+    Kernel.map_apply' _ .of_discrete _ hs,
     condDistrib_apply' hX hY _ _ hx (hf hs), Set.preimage_comp]
 
 variable [Nonempty T]
@@ -295,7 +269,7 @@ lemma condDistrib_fst_ae_eq [Nonempty S] (hX : Measurable X) (hY : Measurable Y)
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [condDistrib_fst_of_ne_zero hX hY hZ]
-  rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
+  rwa [Measure.map_apply hZ (.singleton _)] at hx
 
 lemma condDistrib_snd_of_ne_zero [Nonempty S]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
@@ -315,7 +289,7 @@ lemma condDistrib_snd_ae_eq [Nonempty S] (hX : Measurable X) (hY : Measurable Y)
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [condDistrib_snd_of_ne_zero hX hY hZ]
-  rwa [Measure.map_apply hZ (measurableSet_singleton _)] at hx
+  rwa [Measure.map_apply hZ (.singleton _)] at hx
 
 lemma condKernel_condDistrib_ae_eq [Nonempty S]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω)
@@ -324,7 +298,7 @@ lemma condKernel_condDistrib_ae_eq [Nonempty S]
     condDistrib Y (fun ω ↦ (Z ω, X ω)) μ := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
-  rw [Measure.map_apply (hZ.prod_mk hX) (measurableSet_singleton _)] at hx
+  rw [Measure.map_apply (hZ.prod_mk hX) (.singleton _)] at hx
   ext A hA
   have hx1 : μ (Z ⁻¹' {x.1}) ≠ 0 := by
     refine fun h_null ↦ hx (measure_mono_null ?_ h_null)
@@ -336,7 +310,7 @@ lemma condKernel_condDistrib_ae_eq [Nonempty S]
   swap
   · rw [condDistrib_apply' (hX.prod_mk hY) hZ _ _ hx1]
     swap
-    · exact measurable_fst (measurableSet_singleton _)
+    · exact measurable_fst (.singleton _)
     simp only [ne_eq, mul_eq_zero, ENNReal.inv_eq_zero, measure_ne_top μ, false_or]
     convert hx
     ext ω
@@ -345,10 +319,10 @@ lemma condKernel_condDistrib_ae_eq [Nonempty S]
     exact Prod.mk.inj_iff.symm
   rw [condDistrib_apply' (hX.prod_mk hY) hZ _ _ hx1]
   swap
-  · exact measurable_fst (measurableSet_singleton _)
+  · exact measurable_fst (.singleton _)
   rw [condDistrib_apply' (hX.prod_mk hY) hZ _ _ hx1]
   swap
-  · exact (measurable_fst (measurableSet_singleton _)).inter (measurable_snd hA)
+  · exact (measurable_fst (.singleton _)).inter (measurable_snd hA)
   rw [condDistrib_apply' hY (hZ.prod_mk hX) _ _ hx hA]
   have : (fun a ↦ (X a, Y a)) ⁻¹' (Prod.fst ⁻¹' {x.2}) = X ⁻¹' {x.2} := by rfl
   simp_rw [this]
@@ -385,9 +359,9 @@ lemma swap_condDistrib_ae_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measu
     simp only [Set.mem_preimage, Set.mem_singleton_iff]
     rw [← Prod.eta x, Prod.swap_prod_mk, Prod.mk.inj_iff, Prod.mk.inj_iff, and_comm]
   rw [condDistrib_apply' hY (hX.prod_mk hZ) _ _ _ hA]
-  swap; · rwa [Measure.map_apply (hZ.prod_mk hX) (measurableSet_singleton _), ← h_swap] at hx
+  swap; · rwa [Measure.map_apply (hZ.prod_mk hX) (.singleton _), ← h_swap] at hx
   rw [condDistrib_apply' hY (hZ.prod_mk hX) _ _ _ hA]
-  swap; · rwa [Measure.map_apply (hZ.prod_mk hX) (measurableSet_singleton _)] at hx
+  swap; · rwa [Measure.map_apply (hZ.prod_mk hX) (.singleton _)] at hx
   rw [h_swap]
 
 lemma condDistrib_const_unit (hX : Measurable X) (hY : Measurable Y)
@@ -401,15 +375,15 @@ lemma condDistrib_const_unit (hX : Measurable X) (hY : Measurable Y)
     simp only [Set.mem_preimage, Set.mem_singleton_iff]
     rw [← Prod.eta x, Prod.mk.inj_iff]
     simp
-  rw [Measure.map_apply (measurable_const.prod_mk hX) (measurableSet_singleton _), this] at hx
+  rw [Measure.map_apply (measurable_const.prod_mk hX) (.singleton _), this] at hx
   ext s hs
   rw [Kernel.condKernel_apply']
   swap
   · rw [Kernel.const_apply,
-      Measure.map_apply (hX.prod_mk hY) (measurable_fst (measurableSet_singleton _))]
+      Measure.map_apply (hX.prod_mk hY) (measurable_fst (.singleton _))]
     exact hx
   simp_rw [Kernel.const_apply,
-    Measure.map_apply (hX.prod_mk hY) (measurable_fst (measurableSet_singleton _)),
+    Measure.map_apply (hX.prod_mk hY) (measurable_fst (.singleton _)),
     Measure.map_apply (hX.prod_mk hY) ((measurableSet_singleton _).prod hs)]
   rw [Kernel.prodMkLeft_apply', condDistrib_apply' hY hX _ _ hx hs]
   rfl
@@ -432,7 +406,7 @@ lemma map_compProd_condDistrib [Nonempty S] (hX : Measurable X) (hZ : Measurable
   have : ∑' x : U, μ.map Z {x} * condDistrib X Z μ x (Prod.mk x ⁻¹' A)
       = ∑' x : U, μ (Z ⁻¹' {x} ∩ (fun ω ↦ (x, X ω)) ⁻¹' A) := by
     congr 1 with x
-    rw [Measure.map_apply hZ (measurableSet_singleton _)]
+    rw [Measure.map_apply hZ (.singleton _)]
     by_cases hx : μ (Z ⁻¹' {x}) = 0
     · simp only [hx, zero_mul, Set.mem_setOf_eq, Set.preimage_setOf_eq]
       exact (measure_mono_null Set.inter_subset_left hx).symm
@@ -454,7 +428,7 @@ lemma map_compProd_condDistrib [Nonempty S] (hX : Measurable X) (hZ : Measurable
       and_imp]
     exact fun hi hj ↦ hij (hi.symm.trans hj)
   intro u
-  exact (hZ (measurableSet_singleton _)).inter (measurable_const.prod_mk hX hA)
+  exact (hZ (.singleton _)).inter (measurable_const.prod_mk hX hA)
 
 section Independence
 
@@ -470,7 +444,7 @@ lemma condDistrib_eq_prod_of_indepFun [Nonempty S]
         ×ₖ Kernel.prodMkLeft U (condDistrib Y W μ) := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
-  rw [Measure.map_apply (hZ.prod_mk hW) (measurableSet_singleton _)] at hx
+  rw [Measure.map_apply (hZ.prod_mk hW) (.singleton _)] at hx
   ext s hs
   rw [condDistrib_apply (hX.prod_mk hY) (hZ.prod_mk hW) _ _ hx, Kernel.prod_apply' _ _ _ hs]
   simp_rw [Kernel.prodMkLeft_apply, Kernel.prodMkRight_apply]
@@ -480,22 +454,22 @@ lemma condDistrib_eq_prod_of_indepFun [Nonempty S]
   simp_rw [lintegral_eq_tsum, condDistrib_apply hX hZ μ _ hxZ,
     condDistrib_apply hY hW μ _ hxW, Measure.map_apply (hX.prod_mk hY) hs]
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod,
-    cond_apply _ ((hZ (measurableSet_singleton _)).inter (hW (measurableSet_singleton _)))]
-  simp_rw [Measure.map_apply hX (measurableSet_singleton _),
-    cond_apply _ (hZ (measurableSet_singleton _))]
+    cond_apply _ ((hZ (.singleton _)).inter (hW (.singleton _)))]
+  simp_rw [Measure.map_apply hX (.singleton _),
+    cond_apply _ (hZ (.singleton _))]
   change (μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2}))⁻¹
       * μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2} ∩ (fun a ↦ (X a, Y a)) ⁻¹' s)
     = ∑' x_1, (μ (Z ⁻¹' {x.1}))⁻¹ * μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {x_1})
       * ((μ[|W ⁻¹' {x.2}]).map Y) (Prod.mk x_1 ⁻¹' s)
   simp_rw [Measure.map_apply hY (measurable_prod_mk_left hs),
-    cond_apply _ (hW (measurableSet_singleton _))]
+    cond_apply _ (hW (.singleton _))]
   have hZW : IndepFun Z W μ := by
     have h' := IndepFun.comp h measurable_snd measurable_snd
     exact h'
   have h_indep1 : (μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2}))⁻¹
       = (μ (Z ⁻¹' {x.1}))⁻¹ * (μ (W ⁻¹' {x.2}))⁻¹ := by
-    rw [indepFun_iff_measure_inter_preimage_eq_mul.mp hZW _ _ (measurableSet_singleton _)
-      (measurableSet_singleton _), ENNReal.mul_inv (Or.inl hxZ) (Or.inl (measure_ne_top _ _))]
+    rw [indepFun_iff_measure_inter_preimage_eq_mul.mp hZW _ _ (.singleton _)
+      (.singleton _), ENNReal.mul_inv (Or.inl hxZ) (Or.inl (measure_ne_top _ _))]
   rw [h_indep1]
   simp_rw [mul_assoc, ENNReal.tsum_mul_left]
   congr 1
@@ -512,8 +486,8 @@ lemma condDistrib_eq_prod_of_indepFun [Nonempty S]
       and_imp]
     exact fun _ _ h3 _ _ _ h7 _ ↦ hij (h3.symm.trans h7)
   · intro b
-    refine ((hZ (measurableSet_singleton _)).inter (hW (measurableSet_singleton _))).inter ?_
-    exact (hX (measurableSet_singleton _)).inter (hY (measurable_prod_mk_left hs))
+    refine ((hZ (.singleton _)).inter (hW (.singleton _))).inter ?_
+    exact (hX (.singleton _)).inter (hY (measurable_prod_mk_left hs))
   congr with b
   calc μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2} ∩ (X ⁻¹' {b} ∩ Y ⁻¹' (Prod.mk b ⁻¹' s)))
     = μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {b} ∩ (W ⁻¹' {x.2} ∩ Y ⁻¹' (Prod.mk b ⁻¹' s))) := by
@@ -525,8 +499,8 @@ lemma condDistrib_eq_prod_of_indepFun [Nonempty S]
           Set.mk_preimage_prod, Set.inter_comm (W ⁻¹' {x.2})]
   _ = μ ((fun ω ↦ (X ω, Z ω)) ⁻¹' {(b, x.1)})
       * μ ((fun ω ↦ (Y ω, W ω)) ⁻¹' ((Prod.mk b ⁻¹' s) ×ˢ {x.2})) := by
-        refine indepFun_iff_measure_inter_preimage_eq_mul.mp h _ _ (measurableSet_singleton _) ?_
-        exact (measurable_prod_mk_left hs).prod (measurableSet_singleton _)
+        refine indepFun_iff_measure_inter_preimage_eq_mul.mp h _ _ (.singleton _) ?_
+        exact (measurable_prod_mk_left hs).prod (.singleton _)
   _ = μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {b}) * μ (W ⁻¹' {x.2} ∩ Y ⁻¹' (Prod.mk b ⁻¹' s)) := by
         rw [← Set.singleton_prod_singleton, Set.mk_preimage_prod, Set.inter_comm (Z ⁻¹' {x.1}),
           Set.mk_preimage_prod, Set.inter_comm (W ⁻¹' {x.2})]
@@ -552,7 +526,7 @@ lemma _root_.MeasureTheory.Measure.compProd_apply_singleton
     (μ : Measure T) [SFinite μ]
     (κ : Kernel T S) [IsSFiniteKernel κ] (t : T) (s : S) :
     (μ ⊗ₘ κ) {(t, s)} = κ t {s} * μ {t} := by
-  rw [Measure.compProd_apply (measurableSet_singleton _)]
+  rw [Measure.compProd_apply (.singleton _)]
   have : ∀ a, κ a (Prod.mk a ⁻¹' {(t, s)}) = ({t} : Set T).indicator (fun _ ↦ κ t {s}) a := by
     intro a
     by_cases ha : a = t
@@ -565,7 +539,7 @@ lemma _root_.MeasureTheory.Measure.compProd_apply_singleton
       ext y
       simp [ha]
   simp_rw [this]
-  rw [lintegral_indicator _ (measurableSet_singleton _)]
+  rw [lintegral_indicator _ (.singleton _)]
   simp
 
 lemma _root_.MeasureTheory.Measure.ae_of_compProd_eq_zero {α β : Type*}
@@ -747,9 +721,9 @@ lemma finiteKernelSupport_of_finite_range [Fintype S] (κ : Kernel T S) : Finite
 lemma FiniteKernelSupport.deterministic [Countable S] [Countable T]
     [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
     (f : T × S → U) :
-    FiniteKernelSupport (deterministic f (measurable_of_countable f)) := by
-  intro (t,s)
-  use { f (t,s) }
+    FiniteKernelSupport (deterministic f .of_discrete) := by
+  intro (t, s)
+  use {f (t, s)}
   rw [Kernel.deterministic_apply' (by measurability) _ (by measurability)]
   simp
 
@@ -846,7 +820,7 @@ lemma aefiniteKernelSupport_of_cond {κ : Kernel T (S × U)} [hU : Nonempty U]
   classical
   use Finset.image Prod.snd A
   rw [condKernel_apply']; swap
-  · rw [Kernel.fst_apply' _ _ (measurableSet_singleton _)] at hts
+  · rw [Kernel.fst_apply' _ _ (.singleton _)] at hts
     exact hts.1
   simp only [Finset.coe_image, Set.singleton_prod, mul_eq_zero, ENNReal.inv_eq_zero]
   right
@@ -954,7 +928,7 @@ protected lemma AEFiniteKernelSupport.prodMkRight [MeasurableSingletonClass S]
   · filter_upwards [hκ.ae_eq_mk] with x hx
     simp [hx]
   · simp only [prodMkRight_apply, measurableSet_setOf]
-    exact measurable_of_countable _
+    exact .of_discrete
 
 /-- prodMkLeft preserves finite kernel support. -/
 lemma FiniteKernelSupport.prodMkLeft {κ : Kernel T S} (hκ : FiniteKernelSupport κ) :
@@ -975,6 +949,6 @@ protected lemma AEFiniteKernelSupport.prodMkLeft [MeasurableSingletonClass S]
     filter_upwards [hκ.ae_eq_mk] with x hx
     simp [hx]
   · simp only [prodMkRight_apply, measurableSet_setOf]
-    exact measurable_of_countable _
+    exact .of_discrete
 
 end ProbabilityTheory.Kernel

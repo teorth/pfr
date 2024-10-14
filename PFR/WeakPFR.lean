@@ -2,12 +2,10 @@ import Mathlib.Algebra.Order.Ring.Defs
 import Mathlib.Algebra.Quotient
 import Mathlib.GroupTheory.Torsion
 import Mathlib.LinearAlgebra.FreeModule.PID
-import PFR.EntropyPFR
-import PFR.ForMathlib.Entropy.RuzsaSetDist
-import PFR.ImprovedPFR
-import PFR.Mathlib.Data.Finsupp.Defs
 import PFR.Mathlib.Data.Set.Pointwise.SMul
-import PFR.Mathlib.GroupTheory.Torsion
+import PFR.ForMathlib.Entropy.RuzsaSetDist
+import PFR.EntropyPFR
+import PFR.ImprovedPFR
 
 /-!
 # Weak PFR over the integers
@@ -22,11 +20,10 @@ Here we use the entropic form of PFR to deduce a weak form of PFR over the integ
 
 -/
 
-section AddCommGroup
-variable {G : Type*} [AddCommGroup G] {A B : Set G}
-
 open Set
 open scoped Pointwise
+section AddCommGroup
+variable {G : Type*} [AddCommGroup G] {A B : Set G}
 
 /-- A set `A` is a shift of a set `B` if it can be written as `x + B`. -/
 def IsShift (A B : Set G) : Prop := ∃ x : G, A = x +ᵥ B
@@ -127,13 +124,13 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       · exact Measurable.sub hY'₁_meas hY'₂_meas
       · exact Measurable.sub (Measurable.sub hX'_meas hY'₁_meas) hY'₂_meas
     _ ≤ H[Y'₁ - Y'₂ ; μA] + H[X' - Y'₁ - Y'₂ ; μA] :=
-      entropy_pair_le_add (hY'₁_meas.sub' hY'₂_meas) (hX'_meas.sub' hY'₁_meas |>.sub' hY'₂_meas) μA
+      entropy_pair_le_add (hY'₁_meas.sub hY'₂_meas) (hX'_meas.sub hY'₁_meas |>.sub hY'₂_meas) μA
   have : H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] + H[X' - 2 • Y'₁ ; μA] ≤
       H[⟨X', X' - 2 • Y'₁⟩ ; μA] + H[⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩ ; μA] := by
     haveI : FiniteRange (Y'₁ - Y'₂) := FiniteRange.sub Y'₁ Y'₂
     haveI : FiniteRange (2 • Y'₁) := by show FiniteRange ((fun x ↦ 2 • x) ∘ Y'₁); infer_instance
     apply entropy_triple_add_entropy_le μA hX'_meas (Measurable.sub hY'₁_meas hY'₂_meas)
-    exact Measurable.sub' hX'_meas <| Measurable.const_smul hY'₁_meas 2
+    exact Measurable.sub hX'_meas <| Measurable.const_smul hY'₁_meas 2
   have : H[⟨Y'₁, ⟨Y'₂, X' - Y'₁ - Y'₂⟩⟩ ; μA] = H[X ; μ] + 2 * H[Y ; μ'] := calc
     H[⟨Y'₁, ⟨Y'₂, X' - Y'₁ - Y'₂⟩⟩ ; μA] = H[⟨Y'₁, ⟨Y'₂, X'⟩⟩ ; μA] := by
       let f : G × G × G → G × G × G := fun ⟨y₁, y₂, x⟩ ↦ (y₁, y₂, x - y₁ - y₂)
@@ -429,7 +426,7 @@ lemma four_logs {a b c d : ℝ} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hd : 0 <
 
 lemma sum_prob_preimage {G H : Type*} {X : Finset H} {A : Set G} [Finite A] {φ : A → X}
     {A_ : H → Set G} (hA : A.Nonempty) (hφ : ∀ x : X, A_ x = Subtype.val '' (φ ⁻¹' {x})) :
-    ∑ x in X, (Nat.card (A_ x) : ℝ) / (Nat.card A) = 1 := by
+    ∑ x in X, (Nat.card (A_ x) : ℝ) / Nat.card A = 1 := by
   rw [← Finset.sum_div]
   apply (div_eq_one_iff_eq <| Nat.cast_ne_zero.mpr
     <| Nat.pos_iff_ne_zero.mp (@Nat.card_pos _ hA.to_subtype _)).mpr
@@ -459,7 +456,7 @@ lemma single_fibres {G H Ω Ω': Type*}
     ∃ (x y : H) (Ax By : Set G),
     Ax = A ∩ φ.toFun ⁻¹' {x} ∧ By = B ∩ φ.toFun ⁻¹' {y} ∧ Ax.Nonempty ∧ By.Nonempty ∧
     d[φ.toFun ∘ UA # φ.toFun ∘ UB]
-    * log ((Nat.card A) * (Nat.card B) / ((Nat.card Ax) * (Nat.card By))) ≤
+    * log (Nat.card A * Nat.card B / ((Nat.card Ax) * (Nat.card By))) ≤
     (H[φ.toFun ∘ UA] + H[φ.toFun ∘ UB]) * (d[UA # UB] - dᵤ[Ax # By]) := by
   have : Nonempty A := hA.to_subtype
   have : Nonempty B := hB.to_subtype
@@ -614,21 +611,21 @@ variable {G : Type*} [AddCommGroup G]
   proof carries over automatically-/
 lemma exists_coset_cover (A : Set G) :
     ∃ (d : ℕ), ∃ (S : Submodule ℤ G) (v : G),
-      FiniteDimensional.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S := by
-  existsi FiniteDimensional.finrank ℤ (⊤ : Submodule ℤ G), ⊤, 0
+      Module.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S := by
+  existsi Module.finrank ℤ (⊤ : Submodule ℤ G), ⊤, 0
   refine ⟨rfl, fun a _ ↦ trivial⟩
 
 /-- The dimension of the affine span over `ℤ` of a subset of an additive group. -/
 noncomputable def dimension (A : Set G) : ℕ := Nat.find (exists_coset_cover A)
 
 lemma dimension_le_of_coset_cover (A : Set G) (S : Submodule ℤ G) (v : G)
-    (hA : ∀ a ∈ A, a - v ∈ S) : dimension A ≤ FiniteDimensional.finrank ℤ S := by
+    (hA : ∀ a ∈ A, a - v ∈ S) : dimension A ≤ Module.finrank ℤ S := by
   apply Nat.find_le
   existsi S , v
   exact ⟨rfl, hA⟩
 
 lemma dimension_le_rank [Module.Finite ℤ G] (A : Set G) :
-    dimension A ≤ FiniteDimensional.finrank ℤ G := by
+    dimension A ≤ Module.finrank ℤ G := by
   obtain ⟨S, v, hs, _⟩ := Nat.find_spec (exists_coset_cover A)
   rw [dimension, ←hs]
   apply Submodule.finrank_le S
@@ -654,7 +651,7 @@ variable [Module.Finite ℤ G]
 Code is slow, needs to be golfed -/
 lemma weak_PFR_quotient_prelim :
   let H := G ⧸ (AddMonoidHom.range (zsmulAddGroupHom 2))
-  ElementaryAddCommGroup H 2 ∧ Finite H ∧ Nat.card H = 2^(FiniteDimensional.finrank ℤ G) := by
+  ElementaryAddCommGroup H 2 ∧ Finite H ∧ Nat.card H = 2^(Module.finrank ℤ G) := by
   set ψ : G →+ G := zsmulAddGroupHom 2
   set G₂ := AddMonoidHom.range ψ
   set H := G ⧸ G₂
@@ -668,8 +665,8 @@ lemma weak_PFR_quotient_prelim :
   let B := Module.Free.ChooseBasisIndex ℤ G
   let bG : Basis B ℤ G := Module.Free.chooseBasis ℤ G
   have hB_fin : Fintype B := by infer_instance
-  have hB_card : Nat.card B = FiniteDimensional.finrank ℤ G := by
-    rw [FiniteDimensional.finrank_eq_card_basis bG, Nat.card_eq_fintype_card]
+  have hB_card : Nat.card B = Module.finrank ℤ G := by
+    rw [Module.finrank_eq_card_basis bG, Nat.card_eq_fintype_card]
   have hH_module : Module (ZMod 2) H := by infer_instance
   let mod : (B →₀ ℤ) →+ (B →₀ ZMod 2) := Finsupp.mapRange.addMonoidHom (Int.castAddHom (ZMod 2))
   let f : G →+ (B →₀ ℤ) := bG.repr
@@ -738,7 +735,7 @@ lemma weak_PFR_quotient_prelim :
         exact AddMonoidHom.map_zsmul g x n
     }
   have hH_fin : Fintype H := Module.fintypeOfFintype bH
-  have hH_card : Nat.card H = 2^(FiniteDimensional.finrank ℤ G) := by
+  have hH_card : Nat.card H = 2^(Module.finrank ℤ G) := by
     rw [Nat.card_eq_fintype_card, Module.card_fintype bH, ← Nat.card_eq_fintype_card (α := B), hB_card]
     congr
   exact ⟨ hH_elem, Finite.of_fintype H, hH_card ⟩
@@ -794,7 +791,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
     ∃ (N : AddSubgroup G) (x y : G ⧸ N) (Ax By : Set G), Ax.Nonempty ∧ By.Nonempty ∧
     Set.Finite Ax ∧ Set.Finite By ∧ Ax = {z : G | z ∈ A ∧ QuotientAddGroup.mk' N z = x } ∧
     By = {z : G | z ∈ B ∧ QuotientAddGroup.mk' N z = y } ∧
-    (log 2) * FiniteDimensional.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) +
+    (log 2) * Module.finrank ℤ G ≤ log (Nat.card (G ⧸ N)) +
       40 * dᵤ[ A # B ] ∧ log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By)
       ≤ 34 * (dᵤ[ A # B ] - dᵤ[ Ax # By ]) := by
   have : Nonempty A := hnA.to_subtype
@@ -840,7 +837,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   replace hH1 : log (Nat.card H') ≤ 40 * dᵤ[A # B] := by
     apply hH1.trans
     linarith
-  replace h_card : log 2 * FiniteDimensional.finrank ℤ G
+  replace h_card : log 2 * Module.finrank ℤ G
       ≤ log (Nat.card (G ⧸ N)) + 40 * dᵤ[A # B] := by
     rw [mul_comm, ← log_rpow (by norm_num)]
     norm_cast
@@ -936,7 +933,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
     simp [hxx, hyy]
 
   have := calc d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By))
-    _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * log ((Nat.card A) * (Nat.card B) / ((Nat.card Ax) * (Nat.card By))) := by
+    _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * log (Nat.card A * Nat.card B / ((Nat.card Ax) * (Nat.card By))) := by
       congr
       convert (four_logs ?_ ?_ ?_ ?_).symm
       all_goals norm_cast; exact Nat.card_pos
@@ -950,7 +947,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
       apply le_trans _ hcard_ineq
       rw [mul_zero]
       change 0 ≤ d[φ'.toFun ∘ UA # φ'.toFun ∘ UB]
-        * log ((Nat.card A) * (Nat.card B) / ((Nat.card Ax) * (Nat.card By)))
+        * log (Nat.card A * Nat.card B / ((Nat.card Ax) * (Nat.card By)))
       rw [← mul_zero d[φ'.toFun ∘ UA # φ'.toFun ∘ UB], mul_le_mul_left h]
       apply Real.log_nonneg
       rw [one_le_div]
@@ -960,13 +957,13 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
       · exact_mod_cast mul_pos Nat.card_pos Nat.card_pos
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (34 * (d[UA # UB] - dᵤ[Ax # By])) := by ring
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (34 * (dᵤ[A # B] - dᵤ[Ax # By])) := by
-      rw [<- rdist_set_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes]
+      rw [←  rdist_set_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes]
   exact (mul_le_mul_left h).mp this
 
 /-- Separating out the conclusion of `weak_PFR_asymm` for convenience of induction arguments.-/
 def WeakPFRAsymmConclusion (A B : Set G) : Prop :=
   ∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ A'.Nonempty ∧ B'.Nonempty ∧
-  log (((Nat.card A) * (Nat.card B)) / ((Nat.card A') * (Nat.card B'))) ≤ 34 * dᵤ[A # B] ∧
+  log ((Nat.card A * Nat.card B) / (Nat.card A' * (Nat.card B'))) ≤ 34 * dᵤ[A # B] ∧
   max (dimension A') (dimension B') ≤ (40 / log 2) * dᵤ[A # B]
 
 /-- The property of two sets A,B of a group G not being contained in cosets of the same proper subgroup -/
@@ -978,7 +975,7 @@ lemma dimension_of_shift {G : Type*} [AddCommGroup G] {H : AddSubgroup G} (A : S
     dimension ((fun a : H ↦ (a : G) + x) '' A) ≤ dimension A := by
   classical
   rcases Nat.find_spec (exists_coset_cover A) with ⟨ S, v, hrank, hshift ⟩
-  change FiniteDimensional.finrank ℤ S = dimension A at hrank
+  change Module.finrank ℤ S = dimension A at hrank
   rw [← hrank]
   convert dimension_le_of_coset_cover _ (Submodule.map H.subtype.toIntLinearMap S) (x+v) ?_
   · apply LinearEquiv.finrank_eq
@@ -1012,8 +1009,8 @@ lemma conclusion_transfers {A B : Set G}
     simp_rw [hB, ← Set.image_vadd, Set.image_image, vadd_eq_add, g, add_comm]; rfl
   use f '' A'', g '' B''
   have : dᵤ[A # B] = dᵤ[A' # B'] := by
-    rw [<-rdist_set_of_inj _ _ (φ := G'.subtype) Subtype.val_injective,
-      <-rdist_set_add_const (G'.subtype '' A') (G'.subtype '' B') x y]
+    rw [← rdist_set_of_inj _ _ (φ := G'.subtype) Subtype.val_injective,
+      ← rdist_set_add_const (G'.subtype '' A') (G'.subtype '' B') x y]
     congr
     · rw [hA]
       ext y
@@ -1071,10 +1068,10 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G)
     (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B)
     (_hA_non : A.Nonempty) (_hB_non : B.Nonempty)
-    (_hM : (Nat.card A) + (Nat.card B) ≤ M), WeakPFRAsymmConclusion A B)
+    (_hM : Nat.card A + Nat.card B ≤ M), WeakPFRAsymmConclusion A B)
   suffices ∀ M, (∀ M', M' < M → P M') → P M by
-    set M := (Nat.card A) + (Nat.card B)
-    have hM : (Nat.card A) + (Nat.card B) ≤ M := Nat.le_refl _
+    set M := Nat.card A + Nat.card B
+    have hM : Nat.card A + Nat.card B ≤ M := Nat.le_refl _
     convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› _ ‹_› A B ‹_› ‹_› ‹_› ‹_› hM
   intro M h_induct
   -- wlog we can assume A, B are not in cosets of a smaller subgroup
@@ -1188,12 +1185,12 @@ there exists a non-empty $A'\subseteq A$ such that $\lvert A'\rvert\geq K^{-17}\
 and $\dim A'\leq \frac{40}{\log 2} \log K$. -/
 lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
     (hdist : dᵤ[A # A] ≤ log K) :
-    ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-17 : ℝ) * (Nat.card A)
-    ∧ (dimension A') ≤ (40 / log 2) * log K := by
+    ∃ A' : Set G, A' ⊆ A ∧ K^(-17 : ℝ) * Nat.card A ≤ Nat.card A' ∧
+      dimension A' ≤ (40 / log 2) * log K := by
   rcases weak_PFR_asymm A A hA hA with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
 
-  have : ∃ B : Set G, B ⊆ A ∧ (Nat.card B) ≥ (Nat.card A') ∧ (Nat.card B) ≥ (Nat.card A'')
-      ∧ (dimension B) ≤ max (dimension A') (dimension A'') := by
+  have : ∃ B : Set G, B ⊆ A ∧ Nat.card B ≥ Nat.card A' ∧ Nat.card B ≥ Nat.card A''
+      ∧ dimension B ≤ max (dimension A') (dimension A'') := by
     rcases lt_or_ge (Nat.card A') (Nat.card A'') with h | h
     · exact ⟨A'', hA'', by linarith, by linarith, le_max_right _ _⟩
     · exact ⟨A', hA', by linarith, by linarith, le_max_left _ _⟩
@@ -1212,12 +1209,12 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
   have hBpos : Nat.card B > 0 := by linarith
 
   refine ⟨hB, ?_, ?_⟩
-  · have := calc 2 * log ((Nat.card A) / (Nat.card B))
-      _ = log ( ((Nat.card A) * (Nat.card A)) / ((Nat.card B) * (Nat.card B)) ) := by
-        convert (log_pow (((Nat.card A) : ℝ)/(Nat.card B)) 2).symm
+  · have := calc 2 * log (Nat.card A / Nat.card B)
+      _ = log ((Nat.card A * Nat.card A) / (Nat.card B * Nat.card B) ) := by
+        convert (log_pow ((Nat.card A : ℝ)/Nat.card B) 2).symm
         field_simp
         rw [← pow_two, ← pow_two]
-      _ ≤ log ( ((Nat.card A) * (Nat.card A)) / ((Nat.card A') * (Nat.card A'')) ) := by
+      _ ≤ log ((Nat.card A * Nat.card A) / (Nat.card A' * Nat.card A'')) := by
         apply log_le_log
         · positivity
         gcongr
@@ -1228,7 +1225,7 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
         congr
         convert (log_pow K 17).symm
     rw [mul_le_mul_left (by norm_num), log_le_log_iff (by positivity) (by positivity),
-      div_le_iff₀ (by positivity), <- mul_inv_le_iff (by positivity), <-ge_iff_le, mul_comm] at this
+      div_le_iff₀ (by positivity), ← mul_inv_le_iff₀' (by positivity), mul_comm] at this
     convert this using 2
     convert zpow_neg K 17 using 1
     norm_cast
@@ -1242,7 +1239,7 @@ There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-17}\lvert A\rve
 and $\dim A' \leq \frac{40}{\log 2} \log K$.-/
 theorem weak_PFR_int {A : Set G} [A_fin : Finite A] (hnA : A.Nonempty) {K : ℝ} (hK : 0 < K)
     (hA : Nat.card (A-A) ≤ K * Nat.card A) :
-    ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-17 : ℝ) * (Nat.card A) ∧
+    ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-17 : ℝ) * Nat.card A ∧
       dimension A' ≤ (40 / log 2) * log K := by
   apply weak_PFR hnA hK ((rdist_set_le A A hnA hnA).trans _)
   suffices log (Nat.card (A-A)) ≤ log K + log (Nat.card A) by linarith

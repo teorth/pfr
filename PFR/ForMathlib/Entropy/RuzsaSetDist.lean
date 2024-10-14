@@ -33,7 +33,7 @@ lemma discreteUniform_apply (A : Set S) :
     · simp only [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one, smul_eq_mul,
         Nat.card_eq_fintype_card, Set.Nat.card_coe_set_eq, Set.ncard_def, ENNReal.div_eq_inv_mul]
       congr
-      rw [<-ENat.coe_toNat (n := Set.encard H) _]
+      rw [← ENat.coe_toNat (n := Set.encard H) _]
       · rfl
       · simp [H.toFinite]
     simp
@@ -55,7 +55,7 @@ lemma map_discreteUniform_of_inj {T : Type*} [MeasurableSpace T] [MeasurableSing
     {f : S → T} (hmes : Measurable f) (hf : Function.Injective f) :
     (discreteUniform H).map f = discreteUniform (f '' H) := by
   ext A hA
-  simp_rw [map_apply hmes hA, discreteUniform_apply, Nat.card_image_of_injective hf, Set.Nat.card_coe_set_eq, <-Set.ncard_image_of_injective (f⁻¹' A ∩ H) hf]
+  simp_rw [map_apply hmes hA, discreteUniform_apply, Nat.card_image_of_injective hf, Set.Nat.card_coe_set_eq, ← Set.ncard_image_of_injective (f⁻¹' A ∩ H) hf]
   congr; ext t; simp only [Set.mem_image, Set.mem_inter_iff, Set.mem_preimage]
   constructor
   · rintro ⟨ s, ⟨ hs, hs' ⟩, hs'' ⟩
@@ -74,7 +74,7 @@ lemma isUniform_iff_uniform_dist {Ω : Type*} [mΩ : MeasurableSpace Ω] (μ : M
     have h_unif': ProbabilityTheory.IsUniform Hf U μ := (Set.Finite.coe_toFinset H.toFinite).symm ▸ h_unif
     let AHf := (A ∩ H).toFinite.toFinset
 
-    rw [discreteUniform_apply, <-MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hA]
+    rw [discreteUniform_apply, ← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hA]
     classical
     calc ∑' x, Set.indicator A (fun x => (μ.map U) {x}) x
       _ = ∑' x, (if x ∈ (A ∩ H) then (1:ENNReal) / (Nat.card H) else 0) := by
@@ -94,15 +94,15 @@ lemma isUniform_iff_uniform_dist {Ω : Type*} [mΩ : MeasurableSpace Ω] (μ : M
         simp at hx
         simpa
       _ = (Nat.card (A ∩ H :Set S)) / (Nat.card H) := by
-        simp [Finset.sum_const, <-Set.ncard_eq_toFinset_card (A ∩ H), Set.Nat.card_coe_set_eq]
+        simp [Finset.sum_const, ← Set.ncard_eq_toFinset_card (A ∩ H), Set.Nat.card_coe_set_eq]
         rfl
   intro this
   constructor
   · intro x y hx hy
     replace hx : {x} ∩ H = {x} := by simp [hx]
     replace hy : {y} ∩ H = {y} := by simp [hy]
-    simp [<-map_apply hU (MeasurableSet.singleton _), this, discreteUniform_apply, hx, hy]
-  rw [<-map_apply hU (by measurability), this, discreteUniform_apply]
+    simp [← map_apply hU (MeasurableSet.singleton _), this, discreteUniform_apply, hx, hy]
+  rw [← map_apply hU (by measurability), this, discreteUniform_apply]
   simp
 
 open Real ProbabilityTheory
@@ -226,7 +226,7 @@ lemma rdist_set_of_inj (A B: Set G) [hA : Finite A] [hB : Finite B] [Nonempty A]
     exists_isUniform_measureSpace' A hA Set.nonempty_of_nonempty_subtype
   obtain ⟨Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, - ⟩ :=
     exists_isUniform_measureSpace' B hB Set.nonempty_of_nonempty_subtype
-  rw [rdist_set_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes, <-rdist_of_inj hUA_mes hUB_mes φ hφ]
+  rw [rdist_set_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes, ← rdist_of_inj hUA_mes hUB_mes φ hφ]
   classical
   convert rdist_set_eq_rdist (A := φ '' A) (B := φ '' B) (μ := (volume : Measure Ω))
       (μ' := (volume : Measure Ω')) ?_ ?_ ?_ ?_

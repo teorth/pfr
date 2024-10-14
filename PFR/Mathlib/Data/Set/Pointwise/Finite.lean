@@ -1,5 +1,4 @@
 import Mathlib.Data.Set.Pointwise.Finite
-import PFR.Mathlib.Data.Set.Function
 
 open Function
 open scoped Pointwise

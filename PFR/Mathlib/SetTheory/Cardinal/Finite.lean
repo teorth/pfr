@@ -1,5 +1,4 @@
 import Mathlib.SetTheory.Cardinal.Finite
-import PFR.Mathlib.Data.Set.Function
 
 namespace Set
 variable {α β : Type*} {s : Set α}
