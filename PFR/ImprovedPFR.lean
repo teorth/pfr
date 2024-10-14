@@ -17,7 +17,7 @@ open MeasureTheory ProbabilityTheory
 
 section GeneralInequality
 variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
-  [MeasurableSingletonClass G] [ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
+  [MeasurableSingletonClass G] [Module (ZMod 2) G] [MeasurableAdd₂ G]
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
@@ -257,7 +257,7 @@ section MainEstimates
 open MeasureTheory ProbabilityTheory
 
 variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
-  [MeasurableSingletonClass G] [ElementaryAddCommGroup G 2]
+  [MeasurableSingletonClass G] [Module (ZMod 2) G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
@@ -376,7 +376,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     linarith only [distance_ge_of_min' (μ := ℙ[|T₃ ⁻¹' {t}]) (μ' := ℙ[|T₃ ⁻¹' {t}]) p h_min hT₁ hT₂]
   exact hk.trans h4
 
-open ElementaryAddCommGroup
+open Module
 
 include hT hT₁ hT₂ hT₃ h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
@@ -646,8 +646,7 @@ lemma dist_diff_bound_2 :
   have C27 : H[X₂ | X₁ + X₂] = H[X₁ | X₁ + X₂] := by
     have := condEntropy_of_injective ℙ hX₁ (hX₁.add hX₂) _ (fun p ↦ add_right_injective p)
     convert this with ω
-    simp only [Pi.add_apply, add_comm (X₁ ω), add_assoc (X₂ ω), ElementaryAddCommGroup.add_self,
-      add_zero]
+    simp only [Pi.add_apply, add_comm (X₁ ω), add_assoc (X₂ ω), Module.add_self, add_zero]
   have C28 : H[V] = H[U] := by
     apply ProbabilityTheory.IdentDistrib.entropy_eq
     have I : IdentDistrib (⟨X₁', X₂⟩) (⟨X₁, X₂⟩) :=
@@ -729,7 +728,7 @@ open Filter Set
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
-variable {G : Type uG} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+variable {G : Type uG} [AddCommGroup G] [Module (ZMod 2) G] [Fintype G] [MeasurableSpace G]
   [MeasurableSingletonClass G]
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 
@@ -817,12 +816,12 @@ lemma tau_minimizer_exists_rdist_eq_zero :
 /-- `entropic_PFR_conjecture_improv`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
     subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$. -/
 theorem entropic_PFR_conjecture_improv (hpη : p.η = 1/8) :
-    ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
+    ∃ (H : Submodule (ZMod 2) G) (Ω : Type uG) (mΩ : MeasureSpace Ω) (U : Ω → G),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
     IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] := by
   obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, hP, htau_min, hdist⟩ := tau_minimizer_exists_rdist_eq_zero p
   obtain ⟨H, U, hU, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
-  refine ⟨H, Ω', inferInstance, U, inferInstance, hU, hH_unif , ?_⟩
+  refine ⟨AddSubgroup.toZModSubmodule 2 H, Ω', inferInstance, U, inferInstance, hU, hH_unif , ?_⟩
   have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
   rw [tau, tau, hpη] at h
   norm_num at h
@@ -859,7 +858,7 @@ section PFR
 
 open Pointwise Set MeasureTheory ProbabilityTheory Real Fintype Function
 
-variable {G Ω : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G]
+variable {G Ω : Type*} [AddCommGroup G] [Module (ZMod 2) G] [Fintype G]
     {A B : Set G} {K : ℝ}
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
@@ -867,7 +866,7 @@ an elementary abelian 2-group of doubling constant at most $K$, then there exist
 such that $A$ can be covered by at most $K^6 |A|^{1/2} / |H|^{1/2}$ cosets of $H$, and $H$ has
 the same cardinality as $A$ up to a multiplicative factor $K^10$. -/
 lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : AddSubgroup G) (c : Set G),
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G),
     Nat.card c ≤ K ^ 6 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 10 * Nat.card A ∧ Nat.card A ≤ K ^ 10 * Nat.card H ∧ A ⊆ c + H := by
   have A_fin : Finite A := by infer_instance
@@ -985,19 +984,19 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     apply (sub_subset_sub inter_subset_right inter_subset_right).trans
     rintro - ⟨-, ⟨y, hy, xy, hxy, rfl⟩, -, ⟨z, hz, xz, hxz, rfl⟩, rfl⟩
     simp only [mem_singleton_iff] at hxy hxz
-    simpa [hxy, hxz, -ElementaryAddCommGroup.sub_eq_add] using H.sub_mem hy hz
+    simpa [hxy, hxz, -Module.sub_eq_add] using H.sub_mem hy hz
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
 2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{11$} cosets of
 a subgroup of cardinality at most $|A|$. -/
 theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-     ∃ (H : AddSubgroup G) (c : Set G),
+     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
       Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
-  obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
+  obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : Submodule (ZMod 2) G) (c : Set G),
     Nat.card c ≤ K ^ 6 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 10 * Nat.card A ∧ Nat.card A ≤ K ^ 10 * Nat.card H
       ∧ A ⊆ c + H :=
@@ -1015,15 +1014,17 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
     _ < 2 * K ^ 11 := by linarith [show 0 < K ^ 11 by positivity]
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
   -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
-  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card H' ≤ Nat.card A
+  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : Submodule (ZMod 2) G, Nat.card H' ≤ Nat.card A
           ∧ Nat.card A < 2 * Nat.card H' ∧ H' ≤ H := by
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
-      exact ElementaryAddCommGroup.exists_subgroup_subset_card_le Nat.prime_two H h.le A_pos'.ne'
+      exact Module.exists_submodule_subset_card_le Nat.prime_two H h.le A_pos'.ne'
     have : (Nat.card A / 2 : ℝ) < Nat.card H' := by
       rw [div_lt_iff₀ zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card H' := by
       have : 0 < Nat.card H' := Nat.card_pos; positivity
-    obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H
+    obtain ⟨u, HH'u, hu⟩ :=
+      H'.toAddSubgroup.exists_left_transversal_of_le (H := H.toAddSubgroup) H'H
+    dsimp at HH'u
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
@@ -1050,31 +1051,29 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 
 /-- Corollary of `PFR_conjecture_improv` in which the ambient group is not required to be finite
 (but) then $H$ and $c$ are finite. -/
-theorem PFR_conjecture_improv' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
+theorem PFR_conjecture_improv' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  let G' := AddSubgroup.closure A
-  let G'fin : Fintype G' := by
-    exact Finite.fintype (ElementaryAddCommGroup.finite_closure Afin)
-  have G'Elem : ElementaryAddCommGroup G' 2 := ElementaryAddCommGroup.subgroup _
-  let ι : G'→+ G := G'.subtype
-  have ι_inj : Injective ι := AddSubgroup.subtype_injective G'
+  let G' := Submodule.span (ZMod 2) A
+  let G'fin : Fintype G' := Afin.submoduleSpan.fintype
+  let ι : G'→ₗ[ZMod 2] G := G'.subtype
+  have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
   let A' : Set G' := ι ⁻¹' A
   have A_rg : A ⊆ range ι := by
-    simp only [AddSubgroup.coeSubtype, Subtype.range_coe_subtype, SetLike.mem_coe, ι]
-    exact AddSubgroup.subset_closure
+    simp only [AddMonoidHom.coe_coe, Submodule.coe_subtype, Subtype.range_coe_subtype, G', ι]
+    exact Submodule.subset_span
   have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
   have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
     rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
          Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
   rcases PFR_conjecture_improv (h₀A.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
-  refine ⟨AddSubgroup.map ι H', ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
+  refine ⟨H'.map ι , ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
   · rwa [Nat.card_image_of_injective ι_inj]
   · erw [Nat.card_image_of_injective ι_inj, ← cardA']
     exact hH'
   · erw [← image_add]
-    exact ⟨⟨x, AddSubgroup.subset_closure hx⟩, hH'₂ hx, rfl⟩
+    exact ⟨⟨x, Submodule.subset_span hx⟩, hH'₂ hx, rfl⟩
 
 end PFR

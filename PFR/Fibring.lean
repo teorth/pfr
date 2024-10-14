@@ -187,7 +187,7 @@ $$d[Y_1+Y_3; Y_2+Y_4] + d[Y_1|Y_1+Y_3; Y_2|Y_2+Y_4] $$
 $$ + I[Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
 -/
 lemma sum_of_rdist_eq_char_2
-  [ElementaryAddCommGroup G 2] (Y : Fin 4 → Ω → G) (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
+  [Module (ZMod 2) G] (Y : Fin 4 → Ω → G) (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
   (h_meas : ∀ i, Measurable (Y i)) :
     d[Y 0; μ # Y 1; μ] + d[Y 2; μ # Y 3; μ]
       = d[(Y 0) + (Y 2); μ # (Y 1) + (Y 3); μ]

@@ -24,8 +24,7 @@ few values.
 open Set
 open scoped Pointwise
 
-variable {G G' : Type*} [AddCommGroup G] [AddCommGroup G']
-  [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2]
+variable {G G' : Type*} [AddCommGroup G] [AddCommGroup G'] [Module (ZMod 2) G] [Module (ZMod 2) G']
 
 /-- Let $H_0$ be a subgroup of $G$. Then every homomorphism $\phi: H_0 \to G'$ can be extended to a
 homomorphism $\tilde \phi: G \to G'$. -/
@@ -39,12 +38,12 @@ lemma hahn_banach (H₀ : AddSubgroup G) (φ : H₀ →+ G') : ∃ (φ' : G →+
 subgroup $H_1$ of $G'$, and a homomorphism $\phi: G \to G'$ such that
 $$ H := \{ (x, \phi(x) + y): x \in H_0, y \in H_1 \}.$$
 In particular, $|H| = |H_0| |H_1|$. -/
-lemma goursat (H : AddSubgroup (G × G')): ∃ (H₀ : AddSubgroup G) (H₁ : AddSubgroup G') (φ : G →+ G'),
-    (∀ x : G × G', x ∈ H ↔ (x.1 ∈ H₀ ∧ x.2 - φ x.1 ∈ H₁)) ∧
-    (Nat.card H) = (Nat.card H₀) * (Nat.card H₁) := by
-  let H := AddSubgroup.toZModSubmodule 2 H
+lemma goursat (H : Submodule (ZMod 2) (G × G')) :
+    ∃ (H₀ : Submodule (ZMod 2) G) (H₁ : Submodule (ZMod 2) G') (φ : G →+ G'),
+      (∀ x : G × G', x ∈ H ↔ (x.1 ∈ H₀ ∧ x.2 - φ x.1 ∈ H₁)) ∧
+        Nat.card H = Nat.card H₀ * Nat.card H₁ := by
   obtain ⟨S₁, S₂, f, φ, hf, hf_inv⟩ := H.exists_equiv_fst_sndModFst
-  use S₁.toAddSubgroup, S₂.toAddSubgroup, φ
+  use S₁, S₂, φ
   constructor ; swap
   · show Nat.card H = _
     exact Eq.trans (Nat.card_eq_of_bijective f f.bijective) (Nat.card_prod S₁ S₂)
@@ -100,13 +99,10 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
     exact this.card_pos c.toFinite
   obtain ⟨H₀, H₁, φ, hH₀₁, hH_card⟩ := goursat H
   have hG_card_le : Nat.card G ≤ Nat.card c * Nat.card H₀ := by
-    let c' := (Prod.fst) '' c
+    let c' := Prod.fst '' c
     have hc'_card : Nat.card c' ≤ Nat.card c := Nat.card_image_le (toFinite c)
-    have h_fstH : Prod.fst '' (H : Set (G × G')) = (H₀ : Set G) := by
-      ext x
-      simp only [mem_image, SetLike.mem_coe, hH₀₁, Prod.exists,
-        exists_and_right, exists_and_left, exists_eq_right, and_iff_left_iff_imp]
-      exact fun _ ↦ ⟨φ x, by simp only [sub_self, AddSubgroup.zero_mem]⟩
+    have h_fstH : Prod.fst '' (H : Set (G × G')) = H₀:= by
+      ext x; simpa [hH₀₁] using fun _ ↦ ⟨φ x, by simp⟩
     have hG_cover : (univ : Set G) = c' + (H₀:Set G) := by
       apply (eq_univ_of_forall (fun g ↦ ?_)).symm
       have := image_subset Prod.fst hAcH
@@ -162,7 +158,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
           have : S.Nonempty := ⟨f (0 + 0) - f 0 - f 0, hS 0 0⟩
           exact this.card_pos S.toFinite
         have : 0 < Nat.card A := hA_nonempty.card_pos A.toFinite
-        have : 0 < Nat.card H := H.coe_nonempty.card_pos $ toFinite _
+        have : 0 < Nat.card H := H.nonempty.card_pos $ toFinite _
         rpow_ring
         norm_num
     exact_mod_cast this

@@ -1,6 +1,5 @@
 import PFR.FirstEstimate
 import PFR.SecondEstimate
-import PFR.ForMathlib.Elementary
 
 /-!
 # Endgame
@@ -130,7 +129,7 @@ include h_indep hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_min in
 `I[U : V | S] + I[V : W | S] + I[W : U | S]` is less than or equal to
 `6 * η * k - (1 - 5 * η) / (1 - η) * (2 * η * k - I₁)`.
 -/
-lemma sum_condMutual_le [ElementaryAddCommGroup G 2] [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma sum_condMutual_le [Module (ZMod 2) G] [IsProbabilityMeasure (ℙ : Measure Ω)] :
     I[U : V | S] + I[V : W | S] + I[W : U | S]
       ≤ 6 * p.η * k - (1 - 5 * p.η) / (1 - p.η) * (2 * p.η * k - I₁) := by
   have : I[W : U | S] = I₂ := condMutualInfo_comm (by fun_prop) (by fun_prop) ..
@@ -207,7 +206,7 @@ $$ \sum_{i=1}^2 \sum_{A\in\{U,V,W\}} \big(d[X^0_i;A|S] - d[X^0_i;X_i]\big)$$
 is less than or equal to
 $$ \leq (6 - 3\eta) k + 3(2 \eta k - I_1).$$
 -/
-lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [ElementaryAddCommGroup G 2] :
+lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2) G] :
     c[U|S # U|S] + c[V|S # V|S] + c[W|S # W|S] ≤ (6 - 3 * p.η)*k + 3 * (2*p.η*k - I₁) := by
   let X₀₁ := p.X₀₁
   let X₀₂ := p.X₀₂
@@ -325,8 +324,8 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [ElementaryAddC
 
 omit [Fintype G] hG [MeasurableSingletonClass G] mΩ in
 /-- `U + V + W = 0`. -/
-lemma sum_uvw_eq_zero [ElementaryAddCommGroup G 2] : U+V+W = 0 := by
-  rw [add_comm X₁' X₂, ElementaryAddCommGroup.sum_add_sum_add_sum_eq_zero]
+lemma sum_uvw_eq_zero [Module (ZMod 2) G] : U + V + W = 0 := by
+  simp [add_assoc, add_left_comm (a := X₁), add_left_comm (a := X₂)]
 
 section construct_good
 variable {Ω' : Type*} [MeasureSpace Ω']
@@ -345,7 +344,7 @@ lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
 
 variable {T₁ T₂ T₃ : Ω' → G} (hT : T₁+T₂+T₃ = 0)
 variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
-  [IsProbabilityMeasure (ℙ : Measure Ω')] [ElementaryAddCommGroup G 2]
+  [IsProbabilityMeasure (ℙ : Measure Ω')] [Module (ZMod 2) G]
   --[IsProbabilityMeasure (ℙ : Measure Ω)]
 
 local notation3:max "δ[" μ "]" => I[T₁ : T₂ ; μ] + I[T₂ : T₃ ; μ] + I[T₃ : T₁ ; μ]
@@ -493,7 +492,7 @@ include hX₁ hX₂ h_min h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂' in
 /-- If `d[X₁ ; X₂] > 0` then there are `G`-valued random variables `X'₁, X'₂` such that
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases_aux
-    [IsProbabilityMeasure (ℙ : Measure Ω)] [ElementaryAddCommGroup G 2]
+    [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2) G]
     (hpη : p.η = 1/9) : d[X₁ # X₂] = 0 := by
   have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)
     (show Measurable U by fun_prop) (show Measurable V by fun_prop)

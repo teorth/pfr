@@ -1,5 +1,5 @@
-import PFR.FirstEstimate
 import PFR.Mathlib.Probability.Independence.FourVariables
+import PFR.FirstEstimate
 
 /-!
 # Second estimate
@@ -19,10 +19,10 @@ Assumptions:
 * `second_estimate` : $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
 -/
 
-open MeasureTheory ProbabilityTheory ElementaryAddCommGroup
+open MeasureTheory Module ProbabilityTheory
 
-variable {G : Type*} [addgroup : AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
-  [MeasurableSingletonClass G] [elem : ElementaryAddCommGroup G 2] [MeasurableAdd₂ G]
+variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+  [MeasurableSingletonClass G] [Module (ZMod 2) G] [MeasurableAdd₂ G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]

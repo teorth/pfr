@@ -1,10 +1,10 @@
 import Mathlib.Algebra.Group.Pointwise.Set.Card
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
-import Mathlib.GroupTheory.OrderOfElement
+import PFR.Mathlib.RingTheory.Finiteness
+import PFR.ForMathlib.ZModModule
 import PFR.EntropyPFR
 import PFR.Tactic.RPowSimp
-import PFR.TauFunctional
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
@@ -147,9 +147,9 @@ theorem rdist_le_of_isUniform_of_card_add_le [A_fin : Finite A] [MeasurableSpace
     linarith
   rwa [idU.rdist_eq idU'] at IU
 
-variable [ElementaryAddCommGroup G 2] [Fintype G]
+variable [Module (ZMod 2) G] [Fintype G]
 
-lemma sumset_eq_sub {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2] (A : Set G) :
+lemma sumset_eq_sub {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] (A : Set G) :
     A + A = A - A := by
   rw [← Set.image2_add, ← Set.image2_sub]
   congr! 1 with a _ b _
@@ -161,7 +161,7 @@ an elementary abelian 2-group of doubling constant at most $K$, then there exist
 such that `A` can be covered by at most `K^(13/2) |A|^(1/2) / |H|^(1/2)` cosets of `H`, and `H` has
 the same cardinality as `A` up to a multiplicative factor `K^11`. -/
 lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : AddSubgroup G) (c : Set G),
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G),
     Nat.card c ≤ K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)
       ∧ Nat.card H ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card H ∧ A ⊆ c + H := by
   classical
@@ -278,12 +278,12 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
 2-group of doubling constant at most `K`, then `A` can be covered by at most `2 * K ^ 12` cosets of
 a subgroup of cardinality at most `|A|`. -/
 theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-     ∃ (H : AddSubgroup G) (c : Set G),
+     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
-  obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
+  obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : Submodule (ZMod 2) G) (c : Set G),
     Nat.card c ≤ K ^ (13/2) * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 11 * Nat.card A ∧ Nat.card A ≤ K ^ 11 * Nat.card H
       ∧ A ⊆ c + H :=
@@ -300,15 +300,17 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
     _ < 2 * K ^ 12 := by linarith [show 0 < K ^ 12 by positivity]
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
   -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
-  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card H' ≤ Nat.card A
+  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : Submodule (ZMod 2) G, Nat.card H' ≤ Nat.card A
           ∧ Nat.card A < 2 * Nat.card H' ∧ H' ≤ H := by
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
-      exact ElementaryAddCommGroup.exists_subgroup_subset_card_le Nat.prime_two H h.le A_pos'.ne'
+      exact Module.exists_submodule_subset_card_le Nat.prime_two H h.le A_pos'.ne'
     have : (Nat.card A / 2 : ℝ) < Nat.card H' := by
       rw [div_lt_iff₀ zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card H' := by
       have : 0 < Nat.card H' := Nat.card_pos; positivity
-    obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H
+    obtain ⟨u, HH'u, hu⟩ :=
+      H'.toAddSubgroup.exists_left_transversal_of_le (H := H.toAddSubgroup) H'H
+    dsimp at HH'u
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
@@ -335,29 +337,27 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
 
 /-- Corollary of `PFR_conjecture` in which the ambient group is not required to be finite (but) then
 `H` and `c` are finite. -/
-theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [ElementaryAddCommGroup G 2]
+theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  let G' := AddSubgroup.closure A
-  let G'fin : Fintype G' := by
-    exact Finite.fintype (ElementaryAddCommGroup.finite_closure Afin)
-  have G'Elem : ElementaryAddCommGroup G' 2 := ElementaryAddCommGroup.subgroup _
-  let ι : G'→+ G := G'.subtype
-  have ι_inj : Injective ι := AddSubgroup.subtype_injective G'
+  let G' := Submodule.span (ZMod 2) A
+  let G'fin : Fintype G' := Afin.submoduleSpan.fintype
+  let ι : G'→ₗ[ZMod 2] G := G'.subtype
+  have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
   let A' : Set G' := ι ⁻¹' A
   have A_rg : A ⊆ range ι := by
-    simp only [AddSubgroup.coeSubtype, Subtype.range_coe_subtype, SetLike.mem_coe, G', ι]
-    exact AddSubgroup.subset_closure
+    simp only [AddMonoidHom.coe_coe, Submodule.coe_subtype, Subtype.range_coe_subtype, G', ι]
+    exact Submodule.subset_span
   have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
   have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
     rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
          Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
   rcases PFR_conjecture (h₀A.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
-  refine ⟨AddSubgroup.map ι H', ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
+  refine ⟨H'.map ι , ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
   · rwa [Nat.card_image_of_injective ι_inj]
   · erw [Nat.card_image_of_injective ι_inj, ← cardA']
     exact hH'
   · erw [← image_add]
-    exact ⟨⟨x, AddSubgroup.subset_closure hx⟩, hH'₂ hx, rfl⟩
+    exact ⟨⟨x, Submodule.subset_span hx⟩, hH'₂ hx, rfl⟩

@@ -23,7 +23,7 @@ open Finset
 open scoped Classical Pointwise Combinatorics.Additive
 
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
-  [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2] (A : Finset G)
+  [Module (ZMod 2) G] [Module (ZMod 2) G'] (A : Finset G)
 
 /-- Let $G, G'$ be finite abelian $2$-groups.
 Let $f : G \to G'$ be a function, and suppose that there are at least

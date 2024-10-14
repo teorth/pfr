@@ -1,10 +1,10 @@
 import Mathlib.Algebra.BigOperators.Group.Finset
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
-import PFR.ForMathlib.Elementary
+import PFR.Mathlib.Data.ZMod.Basic
+import PFR.Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.ProbabilityMeasureProdCont
-import PFR.Mathlib.Probability.IdentDistrib
 
 /-!
 # Ruzsa distance
@@ -984,7 +984,7 @@ lemma condRuzsaDist_of_inj_map {G' : Type*} [Countable G'] [AddCommGroup G']
     ← condEntropy_of_injective μ (h_meas 1) (h_meas 3) f hπ]
   rfl
 
-lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCommGroup G 2]
+lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [Module (ZMod 2) G]
   {X B C : Ω → G}
     (hX : Measurable X) (hB : Measurable B) (hC : Measurable C)
     (h_indep : IndepFun X (⟨B, C⟩) μ) [FiniteRange X] [FiniteRange B] [FiniteRange C] :
@@ -992,8 +992,7 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
   let π : G × G →+ G :=
   { toFun := fun x ↦ x.2 - x.1
     map_zero' := by simp
-    map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add,
-      ElementaryAddCommGroup.sub_eq_add]; abel }
+    map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add, Module.sub_eq_add]; abel }
   let Y : Fin 4 → Ω → G := ![-X, C, fun _ ↦ 0, B + C]
   have _ : FiniteRange (Y 0) := by simp [Y]; infer_instance
   have _ : FiniteRange (Y 1) := by simp [Y]; infer_instance
@@ -1020,7 +1019,7 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
         · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp [Y]
           have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
             ext1 ω;
-            simp only [ElementaryAddCommGroup.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
+            simp only [Module.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
               comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
               Matrix.cons_val_fin_one, true_and, Y]
             congr
@@ -1029,11 +1028,11 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [elem: ElementaryAddCo
           · exact measurable_neg.prod_mk measurable_const
           · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
   _ = d[-X ; μ # C | B + C ; μ] := by rw [condRuzsaDist_of_const]; exact hX.neg
-  _ = d[X ; μ # C | B + C ; μ] := by -- because ElementaryAddCommGroup G 2
+  _ = d[X ; μ # C | B + C ; μ] := by -- because Module.G 2
         congr
         simp
 
-lemma condRuzsaDist'_of_inj_map' [elem: ElementaryAddCommGroup G 2] [IsProbabilityMeasure μ]
+lemma condRuzsaDist'_of_inj_map' [Module (ZMod 2) G] [IsProbabilityMeasure μ]
     [IsProbabilityMeasure μ''] {A : Ω'' → G} {B C : Ω → G} (hA : Measurable A) (hB : Measurable B)
     (hC : Measurable C) [FiniteRange A] [FiniteRange B] [FiniteRange C] :
     d[A ; μ'' # B | B + C ; μ] = d[A ; μ'' # C | B + C ; μ] := by
@@ -1338,7 +1337,7 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ')
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     d[X ; μ # Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y + Z; μ'] - H[Y; μ']) / 2 ∧
-    (ElementaryAddCommGroup G 2 →
+    (Module (ZMod 2) G →
       H[Y + Z; μ'] - H[Y; μ'] = d[Y; μ' # Z; μ'] + H[Z; μ'] / 2 - H[Y; μ'] / 2) := by
   obtain ⟨Ω'', mΩ'', μ'', X', Y', Z', hμ, hi, hX', hY', hZ', h2X', h2Y', h2Z', _, _, _⟩ :=
     independent_copies3_nondep_finiteRange hX hY hZ μ μ' μ'
@@ -1357,7 +1356,7 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
   constructor
   · linarith [kaimanovich_vershik' hi hX' hY' hZ']
   · intro hG
-    rw [ElementaryAddCommGroup.sub_eq_add Y' Z']
+    rw [Module.sub_eq_add Y' Z']
     ring
 
 variable (μ) in
@@ -1376,7 +1375,7 @@ lemma condRuzsaDist_diff_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     d[X ; μ # Y+ Z ; μ'] - d[X ; μ # Y ; μ'] ≤ (H[Y + Z; μ'] - H[Y; μ']) / 2 :=
   (comparison_of_ruzsa_distances μ hX hY hZ h).1
 
-variable (μ) [ElementaryAddCommGroup G 2] in
+variable (μ) [Module (ZMod 2) G] in
 lemma entropy_sub_entropy_eq_condRuzsaDist_add [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ')
@@ -1384,7 +1383,7 @@ lemma entropy_sub_entropy_eq_condRuzsaDist_add [IsProbabilityMeasure μ] [IsProb
     H[Y + Z; μ'] - H[Y; μ'] = d[Y; μ' # Z; μ'] + H[Z; μ'] / 2 - H[Y; μ'] / 2 :=
   (comparison_of_ruzsa_distances μ hX hY hZ h).2 ‹_›
 
-variable (μ) [ElementaryAddCommGroup G 2] in
+variable (μ) [Module (ZMod 2) G] in
 lemma condRuzsaDist_diff_le' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ')
@@ -1402,7 +1401,7 @@ lemma condRuzsaDist_diff_le'' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ
   rw [← mutualInfo_add_right hY hZ h]
   linarith [condRuzsaDist_le' (W := Y + Z) μ μ' hX hY (by fun_prop)]
 
-variable (μ) [ElementaryAddCommGroup G 2] in
+variable (μ) [Module (ZMod 2) G] in
 lemma condRuzsaDist_diff_le''' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (h : IndepFun Y Z μ')

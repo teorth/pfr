@@ -22,7 +22,7 @@ variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀
 variable {Ω Ω' : Type*} [mΩ : MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
-variable {G : Type uG} [AddCommGroup G] [ElementaryAddCommGroup G 2] [Fintype G] [MeasurableSpace G]
+variable {G : Type uG} [AddCommGroup G] [Module (ZMod 2) G] [Fintype G] [MeasurableSpace G]
   [MeasurableSingletonClass G]
 variable (p : refPackage Ω₀₁ Ω₀₂ G) {X₁ : Ω → G} {X₂ : Ω → G} (hX₁ : Measurable X₁) (hX₂ : Measurable X₂)
 
@@ -43,13 +43,13 @@ theorem tau_strictly_decreases (h_min : tau_minimizes p X₁ X₂) (hpη : p.η 
 /-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
     subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$. -/
 theorem entropic_PFR_conjecture (hpη : p.η = 1/9):
-    ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
+    ∃ H : Submodule (ZMod 2) G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
     IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 11 * d[p.X₀₁ # p.X₀₂] := by
   obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, _, htau_min⟩ := tau_minimizer_exists p
   have hdist : d[X₁ # X₂] = 0 := tau_strictly_decreases p hX₁ hX₂ htau_min hpη
   obtain ⟨H, U, hU, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
-  refine ⟨H, Ω', inferInstance, U, inferInstance, hU, hH_unif , ?_⟩
+  refine ⟨AddSubgroup.toZModSubmodule _ H, Ω', inferInstance, U, inferInstance, hU, hH_unif , ?_⟩
   have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
   rw [tau, tau, hpη] at h
   norm_num at h
@@ -59,7 +59,7 @@ theorem entropic_PFR_conjecture (hpη : p.η = 1/9):
   linarith
 
 theorem entropic_PFR_conjecture' (hpη : p.η = 1/9):
-    ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
+    ∃ H : Submodule (ZMod 2) G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsUniform H U ∧ d[p.X₀₁ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] ∧
       d[p.X₀₂ # U] ≤ 6 * d[p.X₀₁ # p.X₀₂] := by
   have : d[p.X₀₁ # p.X₀₂] = d[p.X₀₂ # p.X₀₁] := rdist_symm

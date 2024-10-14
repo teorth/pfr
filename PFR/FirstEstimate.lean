@@ -50,7 +50,7 @@ $$ d[X_1+\tilde X_2;X_2+\tilde X_1] + d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1] 
 and
 $$ I[X_1+ X_2 : \tilde X_1 + X_2 \,|\, X_1 + X_2 + \tilde X_1 + \tilde X_2] $$
 is equal to $2k$. -/
-lemma rdist_add_rdist_add_condMutual_eq [ElementaryAddCommGroup G 2] :
+lemma rdist_add_rdist_add_condMutual_eq [Module (ZMod 2) G] :
     d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁']
       + I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂'] = 2 * k := by
   have h0 : ![X₁, X₂, X₂', X₁'] 0 = X₁ := rfl
@@ -87,7 +87,7 @@ lemma condRuzsaDist_of_sums_ge :
         - p.η * (d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂]) :=
   condRuzsaDistance_ge_of_min _ h_min hX₁ hX₂ _ _ (by fun_prop) (by fun_prop)
 
-variable [ElementaryAddCommGroup G 2]
+variable [Module (ZMod 2) G]
 
 include hX₁ hX₂' h_indep h₂ in
 /--`d[X₀₁ # X₁ + X₂'] - d[X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4`. -/
@@ -190,7 +190,7 @@ lemma ent_ofsum_le
       have k_eq_aux : k = d[X₁ # X₂'] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂
       rw [k_eq_aux]
       exact (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)).rdist_eq hX₁ hX₂'
-    rw [k_eq, ← ElementaryAddCommGroup.sub_eq_add, ← HX₂_eq]
+    rw [k_eq, ← Module.sub_eq_add, ← HX₂_eq]
     ring
   have rw₃ : H[X₂ + X₁'] = k + H[X₁]/2 + H[X₂]/2 := by
     have HX₁_eq : H[X₁] = H[X₁'] :=
@@ -200,7 +200,7 @@ lemma ent_ofsum_le
         IdentDistrib.rdist_eq h₁ (IdentDistrib.refl hX₂.aemeasurable)
       rw [k_eq_aux]
       exact IndepFun.rdist_eq (h_indep.indepFun (show (3 : Fin 4) ≠ 1 by decide)) hX₁' hX₂
-    rw [add_comm X₂ X₁', k_eq', ← ElementaryAddCommGroup.sub_eq_add, ← HX₁_eq]
+    rw [add_comm X₂ X₁', k_eq', ← Module.sub_eq_add, ← HX₁_eq]
     ring
   calc H[X₁ + X₂ + X₁' + X₂']
       ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + p.η) * k - I₁  := obs

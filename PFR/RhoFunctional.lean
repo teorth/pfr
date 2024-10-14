@@ -112,7 +112,7 @@ lemma condRho_plus_le {Ω S : Type*} [MeasureSpace Ω] [MeasurableSpace S] (X : 
 /-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z] )$$ -/
 lemma condRho_le {Ω S : Type*} [MeasureSpace Ω] [MeasurableSpace S] (X : Ω → G) (Z : Ω → S) (A : Finset G) : condRho X Z A ≤ rho X A + (H[ X ] - H[ X | Z ]) / 2 := by sorry
 
-variable [ElementaryAddCommGroup G 2]
+variable [Module (ZMod 2) G]
 
 /-- If $X,Y$ are independent, then
   $$ \rho(X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$
