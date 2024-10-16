@@ -87,7 +87,8 @@ noncomputable def condRho_plus {Ω S : Type*} [MeasureSpace Ω] (X : Ω → G) (
 
 
 /-- For any $s\in G$, $\rho(X+s|Y)=\rho(X|Y)$. -/
-lemma condRho_of_translate {Ω S : Type*} [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) (s:G) : condRho (fun ω ↦ X ω + s) Y A = condRho X Y A := by sorry
+lemma condRho_of_translate {Ω S : Type*} [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) (s:G) : condRho (fun ω ↦ X ω + s) Y A = condRho X Y A := by
+  simp only [condRho, rho_of_translate]
 
 /-- If $f$ is injective, then $\rho(X|f(Y))=\rho(X|Y)$. -/
 lemma condRho_of_injective {Ω S T : Type*} [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) (f: S → T) (hf: Function.Injective f) : condRho X (f ∘ Y) A = condRho X Y A := by sorry
