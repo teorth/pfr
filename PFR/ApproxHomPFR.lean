@@ -1,14 +1,15 @@
 import Mathlib.Combinatorics.Additive.Energy
-import Mathlib.Analysis.NormedSpace.PiLp
+import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import LeanAPAP.Extras.BSG
+import PFR.Mathlib.Data.Set.Pointwise.Finite
 import PFR.HomPFR
 
 /-!
 # The approximate homomorphism form of PFR
 
 Here we apply PFR to show that almost homomorphisms f from a 2-group to a 2-group often coincide
-with a (shifted) actual homomorphisms.  Here, approximate is in the sense that f(x+y)=f(x)+f(y)
+with a (shifted) actual homomorphisms. Here, approximate is in the sense that f(x+y)=f(x)+f(y)
 is true for a positive proportion of x,y.
 
 ## Main result
@@ -19,12 +20,11 @@ is true for a positive proportion of x,y.
 -/
 
 open Finset
-open scoped BigOperators Classical Pointwise Combinatorics.Additive
+open scoped Classical Pointwise Combinatorics.Additive
 
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
-  [ElementaryAddCommGroup G 2] [ElementaryAddCommGroup G' 2] (A : Finset G)
+  [Module (ZMod 2) G] [Module (ZMod 2) G'] (A : Finset G)
 
-set_option maxHeartbeats 400000 in
 /-- Let $G, G'$ be finite abelian $2$-groups.
 Let $f : G \to G'$ be a function, and suppose that there are at least
 $|G|^2 / K$ pairs $(x,y) \in G^2$ such that $$ f(x+y) = f(x) + f(y).$$
@@ -33,7 +33,7 @@ $f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {172} * K ^ {146})$ values of $x \in
 theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     (hf : Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2} ≥ Nat.card G ^ 2 / K) :
     ∃ (φ : G →+ G') (c : G'), Nat.card {x | f x = φ x + c} ≥ Nat.card G / (2 ^ 172 * K ^ 146) := by
-  let A := (Set.graph f).toFinite.toFinset
+  let A := (Set.univ.graphOn f).toFinite.toFinset
 
   have h_cs : ((A ×ˢ A).filter (fun (a, a') ↦ a + a' ∈ A) |>.card : ℝ) ^ 2 ≤
       Finset.card A * E[A] := by
@@ -43,23 +43,23 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     Nat.card_congr (Set.equivFilterGraph f)] at h_cs
 
   have hA : Nat.card A = Nat.card G := by
-    rewrite [← Set.card_graph f, Nat.card_eq_finsetCard, Set.Finite.card_toFinset]; simp
+    rw [← Nat.card_univ (α := G), ← Set.card_graphOn _ f, Nat.card_eq_finsetCard,
+      Set.Finite.card_toFinset]
+    simp
   have hA_pos : 0 < (Nat.card A : ℝ) := Nat.cast_pos.mpr <| Nat.card_pos.trans_eq hA.symm
-  have : ((Nat.card G)^2 / K)^2 ≤ Nat.card A * E[A] := LE.le.trans (by gcongr) h_cs
+  have : (Nat.card G ^2 / K)^2 ≤ Nat.card A * E[A] := LE.le.trans (by gcongr) h_cs
   rewrite [← hA] at this
   replace : E[A] ≥ (Finset.card A)^3 / K^2 := calc
-    _ ≥ ((Nat.card A)^2 / K)^2 / Nat.card A := (div_le_iff' <| hA_pos).mpr this
-    _ = ((Nat.card A)^4 / (Nat.card A)) / K^2 := by ring
-    _ = (Finset.card A)^3 / K^2 := by
+    _ ≥ (Nat.card A ^ 2 / K)^2 / Nat.card A := (div_le_iff₀' <| hA_pos).mpr this
+    _ = (Nat.card A ^ 4 / Nat.card A) / K^2 := by ring
+    _ = A.card ^ 3 / K ^ 2 := by
       rw [pow_succ, mul_div_assoc, div_self (ne_of_gt hA_pos), mul_one,
         Nat.card_eq_finsetCard]
-  have hA_nonempty : A.Nonempty := (Set.Finite.toFinset_nonempty _).2 $ Set.graph_nonempty _
+  have hA_nonempty : A.Nonempty := by simp [-Set.Finite.toFinset_setOf, A]
   obtain ⟨A', hA', hA'1, hA'2⟩ :=
     BSG_self' (sq_nonneg K) hA_nonempty (by simpa only [inv_mul_eq_div] using this)
   clear h_cs hf this
-  have hA'₀ : A'.Nonempty := Finset.card_pos.1 $ Nat.cast_pos.1 $ hA'1.trans_lt' $ by
-    have := hA_nonempty.card_pos; positivity
-
+  have hA'₀ : A'.Nonempty := Finset.card_pos.1 $ Nat.cast_pos.1 $ hA'1.trans_lt' $ by positivity
   let A'' := A'.toSet
   have hA''_coe : Nat.card A'' = Finset.card A' := Nat.card_eq_finsetCard A'
   have hA''_pos : 0 < Nat.card A'' := by rw [hA''_coe]; exact hA'₀.card_pos
@@ -78,7 +78,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     have h_le := Nat.card_mono (Set.toFinite _) (Set.image_subset Prod.fst hH_cover)
     have h_proj_A'' : Nat.card A'' = Nat.card (Prod.fst '' A'') := Nat.card_congr
       (Equiv.Set.imageOfInjOn Prod.fst A'' <|
-        Set.InjOn.mono (Set.Finite.subset_toFinset.mp hA') (Set.fst_injOn_graph f))
+        Set.fst_injOn_graph.mono (Set.Finite.subset_toFinset.mp hA'))
     have h_proj_c : Prod.fst '' (c + H : Set (G × G')) = (Prod.fst '' c) + H₀ := by
       ext x ; constructor <;> intro hx
       · obtain ⟨x, ⟨⟨c, hc, h, hh, hch⟩, hx⟩⟩ := hx
@@ -108,21 +108,21 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       · exact ne_of_gt hH₀_pos
   clear h_le_H₀ hA''_pos hH₀_pos hH₀H₁_card
 
-  let translate (c : G × G') (h : G') := A'' ∩ ({c} + {(0, h)} + Set.graph φ.toFun)
+  let translate (c : G × G') (h : G') := A'' ∩ ({c} + {(0, h)} + Set.univ.graphOn φ)
   have h_translate (c : G × G') (h : G') :
       Prod.fst '' translate c h ⊆ { x : G | f x = φ x + (-φ c.1 + c.2 + h) } := by
     intro x hx
-    obtain ⟨x, ⟨⟨hxA'', ⟨_, ⟨c', hc, h', hh, hch⟩, x', hx, hchx⟩⟩, hxx⟩⟩ := hx
+    obtain ⟨x, ⟨hxA'', _, ⟨c', hc, h', hh, hch⟩, x', hx, hchx⟩, hxx⟩ := hx
     show f _ = φ _ + (-φ c.1 + c.2 + h)
-    replace := (Set.mem_graph x).mp <| (Set.graph f).toFinite.mem_toFinset.mp (hA' hxA'')
+    replace := by simpa [-Set.Finite.toFinset_setOf, A] using hA' hxA''
     rewrite [← hxx, this, ← hchx, ← hch, hc, hh]
     show c.2 + h + x'.2 = φ (c.1 + 0 + x'.1) + (-φ c.1 + c.2 + h)
-    replace : φ x'.1 = x'.2 := (Set.mem_graph x').mp hx
+    replace : φ x'.1 = x'.2 := (Set.mem_graphOn.mp hx).2
     rw [map_add, map_add, map_zero, add_zero, this, add_comm (φ c.1), add_assoc x'.2,
-      ← add_assoc (φ c.1), ← add_assoc (φ c.1), add_neg_self, zero_add, add_comm]
+      ← add_assoc (φ c.1), ← add_assoc (φ c.1), ← sub_eq_add_neg, sub_self, zero_add, add_comm]
   have h_translate_card c h : Nat.card (translate c h) = Nat.card (Prod.fst '' translate c h) :=
     Nat.card_congr (Equiv.Set.imageOfInjOn Prod.fst (translate c h) <|
-      Set.InjOn.mono (fun _ hx ↦ Set.Finite.subset_toFinset.mp hA' hx.1) (Set.fst_injOn_graph f))
+      Set.fst_injOn_graph.mono fun _ hx ↦ Set.Finite.subset_toFinset.mp hA' hx.1)
 
   let cH₁ := (c ×ˢ H₁).toFinite.toFinset
   haveI A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
@@ -137,7 +137,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       refine Finset.mem_biUnion.mpr ⟨(c', h.2 - φ h.1), ?_⟩
       refine ⟨(Set.Finite.mem_toFinset _).mpr ⟨hc, ((hH₀H₁ h).mp hh).2⟩, ?_⟩
       refine (Set.Finite.mem_toFinset _).mpr ⟨hx, c' + (0, h.2 - φ h.1), ?_⟩
-      refine ⟨⟨c', rfl, (0, h.2 - φ h.1), rfl, rfl⟩, (h.1, φ h.1), ⟨h.1, rfl⟩, ?_⟩
+      refine ⟨⟨c', rfl, (0, h.2 - φ h.1), rfl, rfl⟩, (h.1, φ h.1), ⟨h.1, by simp⟩, ?_⟩
       beta_reduce
       rewrite [add_assoc]
       show c' + (0 + h.1, h.2 - φ h.1 + φ h.1) = x
@@ -194,8 +194,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     mul_comm _ (_ / _), mul_assoc (_^6)]
   conv => { lhs; rhs; rw [← mul_assoc, ← mul_div_assoc, mul_comm_div, mul_div_assoc] }
   rw [div_self <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, mul_one]
-  push_cast
-  rw [mul_inv_cancel <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, one_mul, ← sq,
+  rw [mul_inv_cancel₀ <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, one_mul, ← sq,
     ← Real.rpow_two, ← Real.rpow_mul (by positivity), Real.mul_rpow (by positivity) (by positivity)]
   have : K ^ (12 : ℕ) = K ^ (12 : ℝ) := (Real.rpow_natCast K 12).symm
   rw [this, ← Real.rpow_mul (by positivity)]

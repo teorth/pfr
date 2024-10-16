@@ -1,17 +1,16 @@
-import Mathlib.Probability.Kernel.MeasureCompProd
 import Mathlib.Probability.Kernel.Composition
 
 /-!
 # Composition-Product of a measure and a kernel
 
-This operation, denoted by `⊗ₘ`, takes `μ : Measure α` and `κ : kernel α β` and creates
+This operation, denoted by `⊗ₘ`, takes `μ : Measure α` and `κ : Kernel α β` and creates
 `μ ⊗ₘ κ : Measure (α × β)`.
 
-It is defined as `((kernel.const Unit μ) ⊗ₖ (kernel.prodMkLeft Unit κ)) ()`.
+It is defined as `((Kernel.const Unit μ) ⊗ₖ (Kernel.prodMkLeft Unit κ)) ()`.
 
 ## Main definitions
 
-* `Measure.compProd`: from `μ : Measure α` and `κ : kernel α β`, get a `Measure (α × β)`.
+* `Measure.compProd`: from `μ : Measure α` and `κ : Kernel α β`, get a `Measure (α × β)`.
 
 ## Notations
 
@@ -19,14 +18,14 @@ It is defined as `((kernel.const Unit μ) ⊗ₖ (kernel.prodMkLeft Unit κ)) ()
 -/
 
 open Real MeasureTheory
-open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
+open scoped ENNReal NNReal Topology ProbabilityTheory
 
-namespace ProbabilityTheory.kernel
+namespace ProbabilityTheory.Kernel
 
 variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
 
-lemma compProd_preimage_fst (κ : kernel α β) (η : kernel (α × β) γ) [IsSFiniteKernel κ]
+lemma compProd_preimage_fst (κ : Kernel α β) (η : Kernel (α × β) γ) [IsSFiniteKernel κ]
     [IsMarkovKernel η] {x : α} {s : Set β} (hs : MeasurableSet s) :
     (κ ⊗ₖ η) x (Prod.fst ⁻¹' s) = κ x s := by
   rw [compProd_apply _ _ _ (measurable_fst hs)]
@@ -39,7 +38,7 @@ lemma compProd_preimage_fst (κ : kernel α β) (η : kernel (α × β) γ) [IsS
   rw [lintegral_indicator_const hs, one_mul]
 
 lemma compProd_deterministic_apply [MeasurableSingletonClass γ]
-    (κ : kernel α β) [IsSFiniteKernel κ]
+    (κ : Kernel α β) [IsSFiniteKernel κ]
     {f : α × β → γ} (hf : Measurable f) (x : α) {s : Set (β × γ)} (hs : MeasurableSet s) :
     (κ ⊗ₖ deterministic f hf) x s = κ x {b | (b, f (x, b)) ∈ s} := by
   rw [compProd_apply _ _ _ hs]
@@ -51,13 +50,13 @@ lemma compProd_deterministic_apply [MeasurableSingletonClass γ]
   rw [← lintegral_add_compl _ ht]
   have h1 : ∫⁻ b in t, if (b, f (x, b)) ∈ s then 1 else 0 ∂(κ x) = κ x {b | (b, f (x, b)) ∈ s} := by
     suffices ∀ b ∈ t, (if (b, f (x, b)) ∈ s then (1 : ℝ≥0∞) else 0) = 1 by
-      rw [set_lintegral_congr_fun ht (ae_of_all _ this), set_lintegral_one]
+      rw [setLIntegral_congr_fun ht (ae_of_all _ this), setLIntegral_one]
     intro b hb
     simp only [t, Set.mem_setOf_eq] at hb
     simp [hb]
   have h2 : ∫⁻ b in tᶜ, if (b, f (x, b)) ∈ s then 1 else 0 ∂(κ x) = 0 := by
     suffices ∀ b ∈ tᶜ, (if (b, f (x, b)) ∈ s then (1 : ℝ≥0∞) else 0) = 0 by
-      rw [set_lintegral_congr_fun ht.compl (ae_of_all _ this), lintegral_zero]
+      rw [setLIntegral_congr_fun ht.compl (ae_of_all _ this), lintegral_zero]
     intro b hb
     simp only [t, Set.mem_compl_iff, Set.mem_setOf_eq] at hb
     simp [hb]
@@ -75,12 +74,12 @@ lemma _root_.MeasureTheory.Measure.comap_swap (μ : Measure (α × β)) :
   rw [Set.image_swap_eq_preimage_swap]
   exact measurable_swap hs
 
-lemma comap_prod_swap (κ : kernel α β) (η : kernel γ δ) [IsFiniteKernel κ] [IsFiniteKernel η] :
+lemma comap_prod_swap (κ : Kernel α β) (η : Kernel γ δ) [IsFiniteKernel κ] [IsFiniteKernel η] :
     comap (prodMkRight α η ×ₖ prodMkLeft γ κ) Prod.swap measurable_swap
-      = map (prodMkRight γ κ ×ₖ prodMkLeft α η) Prod.swap measurable_swap := by
+      = map (prodMkRight γ κ ×ₖ prodMkLeft α η) Prod.swap := by
   rw [ext_fun_iff]
   intro x f hf
-  rw [lintegral_comap, lintegral_map _ _ _ hf, lintegral_prod _ _ _ hf,
+  rw [lintegral_comap, lintegral_map _ measurable_swap _ hf, lintegral_prod _ _ _ hf,
     lintegral_prod]
   swap; · exact hf.comp measurable_swap
   simp only [prodMkRight_apply, Prod.fst_swap, Prod.swap_prod_mk, lintegral_prodMkLeft,
@@ -88,13 +87,13 @@ lemma comap_prod_swap (κ : kernel α β) (η : kernel γ δ) [IsFiniteKernel κ
   refine (lintegral_lintegral_swap ?_).symm
   exact (hf.comp measurable_swap).aemeasurable
 
-lemma map_prod_swap (κ : kernel α β) (η : kernel α γ) [IsMarkovKernel κ] [IsMarkovKernel η] :
-    map (κ ×ₖ η) Prod.swap measurable_swap = η ×ₖ κ := by
+lemma map_prod_swap (κ : Kernel α β) (η : Kernel α γ) [IsMarkovKernel κ] [IsMarkovKernel η] :
+    map (κ ×ₖ η) Prod.swap = η ×ₖ κ := by
   rw [ext_fun_iff]
   intro x f hf
-  rw [lintegral_map _ _ _ hf, lintegral_prod, lintegral_prod _ _ _ hf]
+  rw [lintegral_map _ measurable_swap _ hf, lintegral_prod, lintegral_prod _ _ _ hf]
   swap; · exact hf.comp measurable_swap
   refine (lintegral_lintegral_swap ?_).symm
   exact hf.aemeasurable
 
-end ProbabilityTheory.kernel
+end ProbabilityTheory.Kernel

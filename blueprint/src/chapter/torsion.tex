@@ -29,7 +29,7 @@ thanks to \Cref{relabeled-entropy} and \Cref{chain-rule}, giving the claim.
 on the ranges of $X, Y$ respectively, we have $\bbI[f(X) : g(Y )|Z] \leq \bbI[X :Y |Z]$.
 \end{lemma}
 
-\begin{proof}\uses{data-process-unc, conditional-mutual-def}  Apply \Cref{data-process-unc} to $X,Y$ conditioned to the event $Z=z$, multiply by ${\bf P}[Z=z]$, and sum using \Cref{conditional-mutual-def}.
+\begin{proof}\uses{data-process-unc, conditional-mutual-def}\leanok  Apply \Cref{data-process-unc} to $X,Y$ conditioned to the event $Z=z$, multiply by ${\bf P}[Z=z]$, and sum using \Cref{conditional-mutual-def}.
 \end{proof}
 
 \section{More Ruzsa distance estimates}
@@ -191,7 +191,7 @@ for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
 \begin{lemma}[Relabeling]\label{multidist-perm}\lean{multiDist_of_perm}\uses{multidist-def}\leanok If $\phi: \{1,\dots,m\} \to \{1,\dots,m\}$ is a bijection, then $D[X_{[m]}] = D[(X_{\phi(j)})_{1 \leq j \leq m}]$.
 \end{lemma}
 
-\begin{proof} Trivial.
+\begin{proof}\leanok Trivial.
 \end{proof}
 
 \begin{lemma}[Multidistance and Ruzsa distance, I]\label{multidist-ruzsa-I}\lean{multidist_ruzsa_I}\uses{multidist-def}\leanok
@@ -290,7 +290,7 @@ $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1
 \begin{proposition}[Minimizer close to reference variables]\label{tau-ref}\lean{multiTau_min_sum_le}\leanok  If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$.
 \end{proposition}
 
-\begin{proof}\uses{tau-min-multi, multidist-nonneg, multidist-ruzsa-III}  By \Cref{tau-min-multi} we have
+\begin{proof}\uses{tau-min-multi, multidist-nonneg, multidist-ruzsa-III}\leanok  By \Cref{tau-min-multi} we have
   $$ \tau[ (X_i)_{1 \leq i \leq m}] \leq \tau[ (X^0)_{1 \leq i \leq m}]$$
 and hence by \Cref{tau-def-multi} and \Cref{multidist-nonneg}
 $$ \eta \sum_{i=1}^m d[X_i; X^0] \leq D[(X^0)_{1 \leq i \leq m}] + m d[X^0; X^0].$$
@@ -301,7 +301,7 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
   $$ k - D[(X'_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i].$$
 \end{lemma}
 
-\begin{proof}\uses{tau-min-multi, ruzsa-triangle}
+\begin{proof}\uses{tau-min-multi, ruzsa-triangle}\leanok
   By \Cref{tau-min-multi} we have
   $$ \tau[ (X_i)_{1 \leq i \leq m}] \leq \tau[ (X'_i)_{1 \leq i \leq m}]$$
   and hence by \Cref{tau-def-multi}
@@ -313,20 +313,20 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
 
 \begin{definition}[Conditional multidistance]\label{cond-multidist-def}\uses{multidist-def}\lean{condMultiDist}
   \leanok If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, with the $X_i$ being $G$-valued (but the $Y_i$ need not be), then we define
-  \begin{equation}\label{multi-def-cond}
-  D[ X_{[m]} | Y_{[m]}] := \bbH[\sum_{i=1}^m \tilde X_i \big| (\tilde Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \bbH[ \tilde X_i | \tilde Y_i]
-    \end{equation}
-  where $(\tilde X_i,\tilde Y_i)$, $1 \leq i \leq m$ are independent copies of $(X_i,Y_i), 1 \leq i \leq m$ (but note here that we do \emph{not} assume $X_i$ are independent of $Y_i$, or $\tilde X_i$ independent of $\tilde Y_i$).
-\end{definition}
-
-\begin{lemma}[Alternate form of conditional multidistance]\label{cond-multidist-alt}\lean{condMultiDist_eq}\leanok  With the above notation, we have
   \begin{equation}\label{multi-def-cond-alt}
     D[ X_{[m]} | Y_{[m]} ] = \sum_{(y_i)_{1 \leq i \leq m}} \biggl(\prod_{1 \leq i \leq m} p_{Y_i}(y_i)\biggr) D[ (X_i \,|\, Y_i \mathop{=}y_i)_{1 \leq i \leq m}]
   \end{equation}
   where each $y_i$ ranges over the support of $p_{Y_i}$ for $1 \leq i \leq m$.
+\end{definition}
+
+\begin{lemma}[Alternate form of conditional multidistance]\label{cond-multidist-alt}\lean{condMultiDist_eq}\leanok
+If the $(X_i,Y_i)$ are independent,
+  \begin{equation}\label{multi-def-cond}
+  D[ X_{[m]} | Y_{[m]}] := \bbH[\sum_{i=1}^m X_i \big| (Y_j)_{1 \leq j \leq m} ] - \frac{1}{m} \sum_{i=1}^m \bbH[ X_i | Y_i].
+    \end{equation}
 \end{lemma}
 
-\begin{proof}\uses{conditional-entropy-def, multidist-def, cond-multidist-def}
+\begin{proof}\uses{conditional-entropy-def, multidist-def, cond-multidist-def}\leanok
   This is routine from \Cref{conditional-entropy-def} and Definitions \ref{multidist-def} and \ref{cond-multidist-def}.
 \end{proof}
 
@@ -334,7 +334,7 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
   $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$
 \end{lemma}
 
-\begin{proof}\uses{multidist-lower, cond-multidist-def, cond-multidist-alt}
+\begin{proof}\uses{multidist-lower, cond-multidist-def, cond-multidist-alt}\leanok
   Immediate from \Cref{multidist-lower}, \Cref{cond-multidist-alt}, and \Cref{cond-dist-def}.
 \end{proof}
 
@@ -345,7 +345,7 @@ The claim now follows from \Cref{multidist-ruzsa-III}.
 for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
 \end{corollary}
 
-\begin{proof}\uses{cond-multidist-lower, multidist-perm}  This follows from \Cref{cond-multidist-lower} and \Cref{multidist-perm}.
+\begin{proof}\uses{cond-multidist-lower, multidist-perm}\leanok  This follows from \Cref{cond-multidist-lower} and \Cref{multidist-perm}.
 \end{proof}
 
 \section{The multidistance chain rule}
@@ -358,7 +358,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
   where $\pi(X_{[m]}) := (\pi(X_i))_{1 \leq i \leq m}$.
   \end{lemma}
 
-  \begin{proof}\uses{conditional-mutual-alt, relabeled-entropy, chain-rule} For notational brevity during this proof, write $S := \sum_{i=1}^m X_i$.
+  \begin{proof}\uses{conditional-mutual-alt, relabeled-entropy, chain-rule}\leanok For notational brevity during this proof, write $S := \sum_{i=1}^m X_i$.
 
     From \Cref{conditional-mutual-alt} and \Cref{relabeled-entropy}, noting that $\pi(S)$ is determined both by $S$ and by $\pi(X_{[m]})$, we have
   \begin{equation*}
@@ -366,7 +366,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
   \end{equation*}
   and by \Cref{chain-rule} the right-hand side is equal to
   \begin{equation*}
-  \bbH[S]-\bbH[S|\pi(X_{[m]})]-\bbH[\pi(\S)].
+  \bbH[S]-\bbH[S|\pi(X_{[m]})]-\bbH[\pi(S)].
   \end{equation*}
   Therefore,
   \begin{equation}\label{chain-1}
@@ -392,7 +392,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
     \end{align}
   \end{lemma}
 
-  \begin{proof}\uses{multidist-chain-rule}
+  \begin{proof}\uses{multidist-chain-rule}\leanok
   For each $y_i$ in the support of $p_{Y_i}$, apply \Cref{multidist-chain-rule} with $X_i$ replaced by the conditioned random variable $(X_i|Y_i=y_i)$, and the claim~\eqref{chain-eq-cond} follows by averaging~\eqref{chain-eq} in the $y_i$ using the weights $p_{Y_i}$.
   \end{proof}
 
@@ -419,7 +419,7 @@ for any permutation $\sigma : \{1,\dots,m\} \rightarrow \{1,\dots,m\}$.
     \end{align}
   \end{lemma}
 
-  \begin{proof}\uses{multidist-chain-rule-cond, conditional-nonneg}
+  \begin{proof}\uses{multidist-chain-rule-cond, conditional-nonneg}\leanok
   From \Cref{multidist-chain-rule-cond} (taking $Y_{[m]} = \pi_{d-1}(X_{[m]})$ and $\pi = \pi_d$ there, and noting that $\pi_d(X_{[m]})$ determines $Y_{[m]}$) we have
   \begin{align*}
     D[ X_{[m]} \,|\, \pi_{d-1}(X_{[m]}) ] &=  D[ X_{[m]} \,|\, \pi_d(X_{[m]}) ] + D[  \pi_d(X_{[m]})\,|\,\pi_{d-1}(X_{[m]}) ] \\
@@ -595,7 +595,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   \end{equation}
 \end{lemma}
 
-\begin{proof}\uses{more-random}  Clear from definition.
+\begin{proof}\uses{more-random}\leanok  Clear from definition.
 \end{proof}
 
 \begin{proposition}[Mutual information bound]\label{prop:52}\lean{mutual_information_le_t_12, mutual_information_le_t_13, mutual_information_le_t_23}\uses{more-random}\leanok
@@ -850,7 +850,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \begin{theorem}[Entropy form of PFR]\label{main-entropy}\lean{dist_of_X_U_H_le}\leanok Suppose that $G$ is a finite abelian group of torsion $m$.  Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\]
 \end{theorem}
 
-\begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from \Cref{eta-def-multi}.
+\begin{proof}\uses{k-vanish, ruzsa-triangle, tau-def, multi-zero, eta-def-multi, tau-ref, tau-min-exist-multi}  Set $X^0 := X$. By \Cref{tau-min-exist-multi}, there exists a $\tau$-minimizer $X_{[m]} = (X_i)_{1 \leq i \leq m}$.  By \Cref{k-vanish}, we have $D[X_{[m]}]=0$. By \Cref{tau-ref} and the pigeonhole principle, there exists $1 \leq i \leq m$ such that $d[X_i; X] \leq \frac{2}{\eta} d[X;X]$.  By \Cref{multi-zero}, we have $d[X_i;U_H]=0$ for some subgroup $H \leq G$, hence by \Cref{ruzsa-triangle} we have $d[U_H; X] \leq \frac{2}{\eta} d[X;X]$. The claim then follows from \Cref{eta-def-multi}.
 \end{proof}
 
 \begin{lemma}\label{pfr_aux_torsion}\lean{torsion_PFR_conjecture_aux}\leanok  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
@@ -866,8 +866,8 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 \end{proof}
 
 \begin{theorem}[PFR]\label{pfr-torsion}\lean{torsion_PFR}\leanok  Suppose that $G$ is a finite abelian group of torsion $m$.
-  If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
+  If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{96m^3+2}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
   \end{theorem}
 
-  \begin{proof}\uses{pfr_aux_torsion} Repeat the proof of \Cref{pfr}, but with \Cref{pfr_aux_torsion} in place of \Cref{pfr_aux}.
+  \begin{proof}\uses{pfr_aux_torsion}\leanok Repeat the proof of \Cref{pfr}, but with \Cref{pfr_aux_torsion} in place of \Cref{pfr_aux}.
   \end{proof}

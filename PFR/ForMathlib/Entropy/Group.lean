@@ -2,16 +2,14 @@ import PFR.ForMathlib.Entropy.Basic
 import PFR.ForMathlib.Entropy.Kernel.Group
 
 open Function MeasureTheory Measure Real
-open scoped ENNReal NNReal Topology ProbabilityTheory BigOperators
+open scoped ENNReal NNReal Topology ProbabilityTheory
 
 universe uΩ uS uT uU
 variable {Ω : Type uΩ} {G : Type uS} {T : Type uT} {U : Type uU} [mΩ : MeasurableSpace Ω]
   [Countable G] [Countable T] [Countable U]
-  [Nonempty G] [Nonempty T] [Nonempty U]
   [hG : MeasurableSpace G] [MeasurableSpace T] [MeasurableSpace U]
   [MeasurableSingletonClass G] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
   [Group G] {X Y : Ω → G} {μ : Measure Ω}
-  [FiniteRange X] [FiniteRange Y]
 
 namespace ProbabilityTheory
 section entropy
@@ -97,10 +95,30 @@ lemma entropy_inv (hX : Measurable X) : H[X⁻¹ ; μ] = H[X ; μ] :=
 lemma entropy_div_comm {Y : Ω → G} (hX : Measurable X) (hY : Measurable Y) :
     H[X / Y ; μ] = H[Y / X ; μ] := by rw [← inv_div]; exact entropy_inv (hY.div hX)
 
+
+/-- `max(H[X | Z], H[Y | Z]) - I[X : Y | Z] ≤ H[X / Y | Z]` -/
+@[to_additive "`max(H[X | Z], H[Y | Z]) - I[X : Y | Z] ≤ H[X - Y | Z]`"]
+lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div [FiniteRange X] [FiniteRange Y]
+    {Z : Ω → T} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    [IsProbabilityMeasure μ] [FiniteRange Z] :
+    (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X / Y | Z ; μ] := by
+  rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
+    condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
+    condEntropy_eq_kernel_entropy ?_ hZ]
+  swap ; · exact hX.div hY
+  rw [Kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
+    Kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm, max_comm]
+  refine (Kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _ ?_).trans_eq ?_
+  · exact Kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
+  rw [Kernel.entropy_div_comm]
+  have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 / x.1)
+  rw [Kernel.entropy_congr h.symm]
+  rfl
+
 end entropy
 
 section condEntropy
-variable [IsFiniteMeasure μ]
+variable [IsFiniteMeasure μ] [FiniteRange Y]
 
 /-- `H[Y * X | Y] = H[X | Y]` -/
 @[to_additive "`H[Y + X | Y] = H[X | Y]`"]
@@ -130,6 +148,8 @@ end condEntropy
 
 section mutualInfo
 
+variable [FiniteRange X] [FiniteRange Y]
+
 /-- `I[X : X * Y] = H[X * Y] - H[Y]` iff `X, Y` are independent. -/
 @[to_additive "`I[X : X + Y] = H[X + Y] - H[Y]` iff `X, Y` are independent."]
 lemma mutualInfo_mul_right (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
@@ -141,7 +161,7 @@ lemma mutualInfo_mul_right (hX : Measurable X) (hY : Measurable Y) {μ : Measure
 end mutualInfo
 
 section IsProbabilityMeasure
-variable [IsProbabilityMeasure μ] {Y : Ω → G} [FiniteRange Y]
+variable [IsProbabilityMeasure μ] {Y : Ω → G} [FiniteRange X] [FiniteRange Y]
 
 /-- `H[X] - I[X : Y] ≤ H[X * Y]` -/
 @[to_additive "`H[X] - I[X : Y] ≤ H[X + Y]`"]
@@ -191,38 +211,18 @@ lemma max_entropy_sub_mutualInfo_le_entropy_div (hX : Measurable X) (hY : Measur
 lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T} [FiniteRange Z]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) :
     max H[X | Z ; μ] H[Y | Z ; μ] - I[X : Y | Z ; μ] ≤ H[X * Y | Z ; μ] := by
-  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
     condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
     condEntropy_eq_kernel_entropy (show Measurable (X * Y) from hX.mul hY) hZ]
-  rw [kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
-    kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm,
+  rw [Kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
+    Kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm,
     max_comm]
-  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _ ?_).trans_eq ?_
-  . exact kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
+  refine (Kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _ ?_).trans_eq ?_
+  · exact Kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
   have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 * x.1)
-  rw [kernel.entropy_congr h.symm]
+  rw [Kernel.entropy_congr h.symm]
   rfl
 
-/-- `max(H[X | Z], H[Y | Z]) - I[X : Y | Z] ≤ H[X / Y | Z]` -/
-@[to_additive "`max(H[X | Z], H[Y | Z]) - I[X : Y | Z] ≤ H[X - Y | Z]`"]
-lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div {Z : Ω → T}
-    (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    [IsProbabilityMeasure μ] [FiniteRange Z] :
-    (max H[X | Z ; μ] H[Y | Z ; μ]) - I[X : Y | Z ; μ] ≤ H[X / Y | Z ; μ] := by
-  have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
-  rw [condMutualInfo_comm hX hY, condEntropy_eq_kernel_entropy hX hZ,
-    condEntropy_eq_kernel_entropy hY hZ, condMutualInfo_eq_kernel_mutualInfo hY hX hZ,
-    condEntropy_eq_kernel_entropy ?_ hZ]
-  swap ; · exact hX.div hY
-  rw [kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
-    kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm, max_comm]
-  refine (kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _ ?_).trans_eq ?_
-  . exact kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
-  rw [kernel.entropy_div_comm]
-  have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 / x.1)
-  rw [kernel.entropy_congr h.symm]
-  rfl
 
 /-- If `X, Y` are independent, then `max(H[X], H[Y]) ≤ H[X * Y]`. -/
 @[to_additive "If `X, Y` are independent, then `max(H[X], H[Y]) ≤ H[X + Y]`"]
@@ -253,13 +253,13 @@ lemma max_entropy_le_entropy_prod {G : Type*} [Countable G] [hG : MeasurableSpac
     · calc
         _ ≤ max H[X i₀ ; μ] H[∏ i ∈ s, X i ; μ] := le_max_left _ _
         _ ≤ H[X i₀ * ∏ i ∈ s, X i ; μ] := by
-          refine max_entropy_le_entropy_mul (hX i₀) (s.measurable_prod' fun i _ ↦ hX i) ?_
+          refine max_entropy_le_entropy_mul (hX i₀) (by fun_prop) ?_
           exact iIndepFun.indepFun_finset_prod_of_not_mem hindep hX Hnot |>.symm
     · calc
         _ ≤ H[∏ i ∈ s, X i ; μ] := Hind hi₀
         _ ≤ max H[X j ; μ] H[∏ i ∈ s, X i ; μ] := le_max_right _ _
         _ ≤ H[X j * ∏ x ∈ s, X x ; μ] := by
-          refine max_entropy_le_entropy_mul (hX j) (s.measurable_prod' fun i _ ↦ hX i) ?_
+          refine max_entropy_le_entropy_mul (hX j) (by fun_prop) ?_
           exact iIndepFun.indepFun_finset_prod_of_not_mem hindep hX Hnot |>.symm
 
 end IsProbabilityMeasure

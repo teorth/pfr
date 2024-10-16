@@ -26,8 +26,7 @@ lemma prod_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : Measura
 lemma prod_of_full_measure_finset {μ : Measure α} {ν : Measure β} [SigmaFinite ν]
     {A : Finset α} {B : Finset β} (hA : μ Aᶜ = 0) (hB : ν Bᶜ = 0) :
     (μ.prod ν) (A ×ˢ B : Finset (α × β))ᶜ = 0 := by
-  have : ((A ×ˢ B : Finset (α × β)) : Set (α × β))ᶜ = ((A : Set α)ᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ (B : Set β)ᶜ) := by
-    ext ⟨s, t⟩
-    simp; tauto
+  have : (↑(A ×ˢ B) : Set (α × β))ᶜ = ((A : Set α)ᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ (B : Set β)ᶜ) := by
+    ext ⟨s, t⟩; simp; tauto
   rw [this]
   simp [hA, hB]

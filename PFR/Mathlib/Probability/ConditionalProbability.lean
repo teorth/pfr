@@ -8,7 +8,6 @@ Less explicit arguments to `cond_eq_zero_of_meas_eq_zero`
 
 namespace ProbabilityTheory
 open MeasureTheory Set
-open scoped BigOperators
 
 /- [TODO]: `sum_meas_smul_cond_fiber'` should substitute `sum_meas_smul_cond_fiber` in Mathlib once
 the definition of `FiniteRange` is in Mathlib.-/

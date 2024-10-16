@@ -35,23 +35,23 @@ example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈
 -- Todo: replace the constants C₁, C₂, C₃, C₄ below with actual values
 
 /-- The approximate homomorphism version of PFR -/
-example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ (Nat.card G)^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (C₁ * C₃^12 * K^(24 * C₄ + 2 * C₂)) := by
+example (f : G → G') (K : ℝ) (hK: K > 0) (hf: Nat.card { x : G × G| f (x.1+x.2) = (f x.1) + (f x.2) } ≥ Nat.card G ^2/ K) : ∃ (φ : G →+ G') (c : G'), Nat.card { x : G | f x = φ x + c } ≥ (Nat.card G) / (C₁ * C₃^12 * K^(24 * C₄ + 2 * C₂)) := by
   convert approx_hom_pfr f K hK hf
 
 open Classical Real
 
 /-- The dimension of a subset A of a Z-module G is the minimal rank of a coset of G that covers A. -/
-example {G : Type*} [AddCommGroup G] (A : Set G) :  ∃ (S : Submodule ℤ G) (v : G), FiniteDimensional.finrank ℤ S = dimension A  ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_spec (exists_coset_cover A)
+example {G : Type*} [AddCommGroup G] (A : Set G) : ∃ (S : Submodule ℤ G) (v : G), Module.finrank ℤ S = dimension A ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_spec (exists_coset_cover A)
 
-example {G : Type*} [AddCommGroup G] (A : Set G) (d:ℕ) (h: d < dimension A): ¬ ∃ (S : Submodule ℤ G) (v : G), FiniteDimensional.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_min (exists_coset_cover A) h
+example {G : Type*} [AddCommGroup G] (A : Set G) (d:ℕ) (h: d < dimension A): ¬ ∃ (S : Submodule ℤ G) (v : G), Module.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S := Nat.find_min (exists_coset_cover A) h
 
 
 #print axioms weak_PFR_int
 
-variable  {G : Type u} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G]  [MeasurableSpace G] [MeasurableSingletonClass G]
+variable {G : Type u} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G] [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
 
 /-- Weak PFR over the integers -/
-example (A : Set G) [Finite A]  [hn: Nonempty A] (K : ℝ) (hK: 0 < K) (hA : Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-17 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40/log 2) * log K := weak_PFR_int (Set.nonempty_coe_sort.mp hn) hK hA
+example (A : Set G) [Finite A] [hn: Nonempty A] (K : ℝ) (hK: 0 < K) (hA : Nat.card (A-A) ≤ K * Nat.card A) : ∃ A' : Set G, A' ⊆ A ∧ (Nat.card A') ≥ K^(-17 : ℝ) * (Nat.card A) ∧ (dimension A') ≤ (40/log 2) * log K := weak_PFR_int (Set.nonempty_coe_sort.mp hn) hK hA
 
 end PFR
 
@@ -60,7 +60,7 @@ end PFR
 section RealMeasure
 -- some examples to showcase real-valued measures in a self-contained fashion.
 
-open MeasureTheory ProbabilityTheory BigOperators
+open MeasureTheory ProbabilityTheory
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
@@ -74,7 +74,7 @@ example : ℙᵣ Set.univ = 1 := by simp
 example {A : Type*} [Fintype A] (E : A → Set Ω) : ℙᵣ (⋃ a, E a) ≤ ∑ a, ℙᵣ (E a) :=
   measureReal_iUnion_fintype_le E
 
-example {A : Type*} [Fintype A] (E : A → Set Ω)   (hn : Pairwise (Disjoint on E)) (h : ∀ i, MeasurableSet (E i))
+example {A : Type*} [Fintype A] (E : A → Set Ω) (hn : Pairwise (Disjoint on E)) (h : ∀ i, MeasurableSet (E i))
 : ℙᵣ (⋃ a, E a) = ∑ a, ℙᵣ (E a) :=
   measureReal_iUnion_fintype hn h
 
@@ -86,7 +86,7 @@ example (E F : Set Ω) (h : NullMeasurableSet F ℙ)
 
 example (E : Set Ω) : 0 ≤ ℙᵣ E ∧ ℙᵣ E ≤ 1 := by
   constructor
-  . simp
+  · simp
   have : E ⊆ Set.univ := by simp
   convert measureReal_mono (μ := ℙ) this
   simp
@@ -96,9 +96,9 @@ end RealMeasure
 
 
 section Entropy
--- some examples to showcase Shannon entropy in a self-contained fashion.  For simplicity we only illustrate the notation for probability spaces with a canonical probability measure, but one can also decouple the measure from the space if desired.
+-- some examples to showcase Shannon entropy in a self-contained fashion. For simplicity we only illustrate the notation for probability spaces with a canonical probability measure, but one can also decouple the measure from the space if desired.
 
-open MeasureTheory ProbabilityTheory BigOperators
+open MeasureTheory ProbabilityTheory
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
@@ -116,7 +116,7 @@ example :
     H[X] =
       -∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
   rw [entropy_eq_sum hX ℙ, ← Finset.sum_neg_distrib, tsum_eq_sum]
-  . congr with x
+  · congr with x
     unfold Real.negMulLog
     ring
   intro x hx

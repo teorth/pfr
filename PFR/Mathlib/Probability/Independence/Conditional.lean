@@ -4,7 +4,7 @@ import PFR.Tactic.Finiteness
 import PFR.Mathlib.Probability.ConditionalProbability
 
 open MeasureTheory Measure Set
-open scoped BigOperators ENNReal
+open scoped ENNReal
 
 namespace ProbabilityTheory
 
@@ -23,7 +23,7 @@ theorem IndepFun.identDistrib_cond [IsProbabilityMeasure μ]
   refine ⟨hA.aemeasurable, hA.aemeasurable, ?_⟩
   ext t ht
   rw [Measure.map_apply hA ht, Measure.map_apply hA ht, cond_apply _ (hB hs), Set.inter_comm,
-    hi.measure_inter_preimage_eq_mul ht hs, mul_comm, mul_assoc,
+    hi.measure_inter_preimage_eq_mul _ _ ht hs, mul_comm, mul_assoc,
     ENNReal.mul_inv_cancel h (by finiteness), mul_one]
 
 /-- If `A` is independent of `B`, then they remain independent when conditioning on an event
@@ -39,12 +39,12 @@ lemma IndepFun.cond_left (hi : IndepFun A B μ) {s : Set α}
   rcases eq_or_ne (μ (A ⁻¹' s)) 0 with h'|h'
   · have I : μ (A ⁻¹' (s ∩ u) ∩ B ⁻¹' v) = 0 := by
       apply le_antisymm ((measure_mono _).trans h'.le) bot_le
-      exact (inter_subset_left _ _).trans (preimage_mono (inter_subset_left _ _))
+      exact inter_subset_left.trans (preimage_mono inter_subset_left)
     have J : μ (A ⁻¹' s ∩ B ⁻¹' v) = 0 :=
-      le_antisymm ((measure_mono (inter_subset_left _ _)).trans h'.le) bot_le
+      le_antisymm ((measure_mono inter_subset_left).trans h'.le) bot_le
     simp only [I, J, mul_zero]
-  · rw [hi.measure_inter_preimage_eq_mul (hs.inter hu) hv, Set.preimage_inter,
-      hi.measure_inter_preimage_eq_mul hs hv, ← mul_assoc (μ (A ⁻¹' s))⁻¹,
+  · rw [hi.measure_inter_preimage_eq_mul _ _ (hs.inter hu) hv, Set.preimage_inter,
+      hi.measure_inter_preimage_eq_mul _ _ hs hv, ← mul_assoc (μ (A ⁻¹' s))⁻¹,
       ← mul_assoc (μ (A ⁻¹' s))⁻¹, ENNReal.inv_mul_cancel h' h, one_mul]
 
 /-- If `A` is independent of `B`, then they remain independent when conditioning on an event
@@ -52,7 +52,7 @@ of the form `B ∈ t` of positive probability. -/
 lemma IndepFun.cond_right (h : IndepFun A B μ) {t : Set β}
     (ht : MeasurableSet t) (hB : Measurable B) :
     IndepFun A B (μ[| B⁻¹' t]) :=
-  (h.symm'.cond_left ht hB).symm'
+  (h.symm.cond_left ht hB).symm
 
 /-- If `A` is independent of `B`, then they remain independent when conditioning on an event
 of the form `A ∈ s ∩ B ∈ t` of positive probability. -/
@@ -69,21 +69,21 @@ lemma IndepFun.cond (hi : IndepFun A B μ) {s : Set α} {t : Set β}
   rcases eq_or_ne (μ (A ⁻¹' s ∩ B⁻¹' t)) 0 with h'|h'
   · have I : μ (A ⁻¹' (s ∩ u) ∩ B ⁻¹' (t ∩ v)) = 0 := by
       apply le_antisymm ((measure_mono _).trans h'.le) bot_le
-      exact inter_subset_inter (preimage_mono (inter_subset_left _ _))
-        (preimage_mono (inter_subset_left _ _))
+      exact inter_subset_inter (preimage_mono inter_subset_left)
+        (preimage_mono inter_subset_left)
     have J : μ (A ⁻¹' (s ∩ u) ∩ B ⁻¹' t) = 0 := by
       apply le_antisymm ((measure_mono _).trans h'.le) bot_le
-      exact inter_subset_inter_left _ (preimage_mono (inter_subset_left _ _))
+      exact inter_subset_inter_left _ (preimage_mono inter_subset_left)
     simp only [I, J, mul_zero, zero_mul]
-  · simp only [hi.measure_inter_preimage_eq_mul hs ht, ne_eq, mul_eq_zero, not_or] at h'
-    simp only [hi.measure_inter_preimage_eq_mul hs ht, ne_eq, ENNReal.mul_eq_top, h'.1,
+  · simp only [hi.measure_inter_preimage_eq_mul _ _ hs ht, ne_eq, mul_eq_zero, not_or] at h'
+    simp only [hi.measure_inter_preimage_eq_mul _ _ hs ht, ne_eq, ENNReal.mul_eq_top, h'.1,
       not_false_eq_true, true_and, h'.2, and_true, not_or] at h
     rw [mul_assoc]
     congr 1
-    rw [hi.measure_inter_preimage_eq_mul (hs.inter hu) (ht.inter hv),
-      hi.measure_inter_preimage_eq_mul (hs.inter hu) ht,
-      hi.measure_inter_preimage_eq_mul hs ht,
-      hi.measure_inter_preimage_eq_mul hs (ht.inter hv),
+    rw [hi.measure_inter_preimage_eq_mul _ _ (hs.inter hu) (ht.inter hv),
+      hi.measure_inter_preimage_eq_mul _ _ (hs.inter hu) ht,
+      hi.measure_inter_preimage_eq_mul _ _ hs ht,
+      hi.measure_inter_preimage_eq_mul _ _ hs (ht.inter hv),
       ENNReal.mul_inv (Or.inl h'.1) (Or.inr h'.2), mul_assoc]
     congr 1
     have : μ (B ⁻¹' t) * ((μ (A ⁻¹' s))⁻¹ * (μ (B ⁻¹' t))⁻¹ * (μ (A ⁻¹' s) * μ (B ⁻¹' (t ∩ v))))
@@ -113,7 +113,7 @@ lemma CondIndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi'
   rw [condIndepFun_iff] at hfg ⊢
   rw [← Measure.map_map hh hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
   refine hfg.mono $ fun c hc ↦ ?_
-  rw [preimage_comp, ← comap_cond _ hi hi' $ hh $ measurableSet_singleton _]
+  rw [preimage_comp, ← comap_cond _ hi hi' $ hh $ .singleton _]
   exact IndepFun.comp_right hi (cond_absolutelyContinuous.ae_le hi') hf hg hc
 
 end defs
@@ -139,10 +139,10 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
   let ν : Measure ((α × α) × β) := ∑ y ∈ finY.toFinset, ((μ (Y ⁻¹' {y})) • (m y))
   have h3' (y : β) : { ω : Ω | Y ω = y } ∈ ae (μ[|Y ← y]) := by
     rw [mem_ae_iff, ← cond_inter_self]
-    . have : (Y ⁻¹' {y}) ∩ { ω : Ω | Y ω = y }ᶜ = ∅ := by
+    · have : (Y ⁻¹' {y}) ∩ { ω : Ω | Y ω = y }ᶜ = ∅ := by
         ext _; simp
       simp [this]
-    exact hY $ measurableSet_singleton y
+    exact hY $ .singleton y
   have h3 (y : β) : IdentDistrib (fun ω ↦ (X ω, y)) (⟨X, Y⟩) (μ[|Y ← y]) (μ[|Y ← y]) := by
     apply IdentDistrib.of_ae_eq (hX.prod_mk measurable_const).aemeasurable
     apply Filter.eventuallyEq_of_mem (h3' y)
@@ -163,7 +163,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     simp only [_root_.map_sum, LinearMapClass.map_smul, ν]
     congr with y
     rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
-    . simp [hy]
+    · simp [hy]
     have h6 : IsProbabilityMeasure (m' y) := h5 hy
     have h7 : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy
     congr 3
@@ -177,29 +177,28 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
   refine ⟨(α × α) × β, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_,
     measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst,
     measurable_snd, ?_, ?_, ?_⟩
-  . constructor
+  · constructor
     simp only [coe_finset_sum, smul_toOuterMeasure, OuterMeasure.coe_smul, Finset.sum_apply,
       Pi.smul_apply, smul_eq_mul, ν]
     have : ∑ y ∈ finY.toFinset, μ (Y ⁻¹' {y}) * 1 = 1 := by
       simp only [mul_one]
       rw [sum_measure_preimage_singleton]
       · rw [← FiniteRange.range Y, preimage_range, measure_univ]
-      · exact fun y _ ↦ hY <| measurableSet_singleton y
+      · exact fun y _ ↦ hY <| .singleton y
     rw [← this]
     congr with y
     rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
-    . simp [hy]
-    congr 1
+    · simp [hy]
     have : IsProbabilityMeasure (m' y) := h5 hy
     simp
   · rw [condIndepFun_iff, ae_iff_of_countable]
     intro y hy
     have hy' : ν (Prod.snd⁻¹' {y}) = μ (Y ⁻¹' {y}) := by
-      rw [← map_apply measurable_snd (by simp), ← map_apply hY $ measurableSet_singleton y, h1]
+      rw [← map_apply measurable_snd (by simp), ← map_apply hY $ .singleton y, h1]
     rw [h1] at hy
     have hy'' : μ (Y ⁻¹' {y}) ≠ 0 := by
       convert hy
-      exact (map_apply hY $ measurableSet_discrete _).symm
+      exact (map_apply hY .of_discrete).symm
     have h2 : ν[| Prod.snd⁻¹' {y}] = m y := by
       rw [Measure.ext_iff]
       intro E _
@@ -218,22 +217,22 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
           one_ne_zero, imp_false]; right; exact hx
       simp only [coe_finset_sum, coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul, ν]
       rw [Finset.sum_eq_single_of_mem y ?_]
-      . rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
+      · rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
         finiteness
       · intro _ _ hx
         rw [h3' hx]
         simp
       · convert FiniteRange.range Y ▸ Set.preimage_singleton_nonempty.mp (nonempty_of_measure_ne_zero hy'')
     rw [h2, indepFun_iff_map_prod_eq_prod_map_map]
-    . let f : (α × α) × β → α × α := Prod.fst
+    · let f : (α × α) × β → α × α := Prod.fst
       show ((m y).map f) = ((m y).map (Prod.fst ∘ f)).prod ((m y).map (Prod.snd ∘ f))
       have : IsProbabilityMeasure (m' y) := h5 hy''
       have : (m y).map f = (m' y).prod (m' y) := by simp [f, m]
       rw [← map_map measurable_fst measurable_fst, ← map_map measurable_snd measurable_fst, this]
       simp
-    . exact (measurable_fst.comp measurable_fst).aemeasurable
+    · exact (measurable_fst.comp measurable_fst).aemeasurable
     exact (measurable_snd.comp measurable_fst).aemeasurable
-  . rw [← sum_meas_smul_cond_fiber' hY μ]
+  · rw [← sum_meas_smul_cond_fiber' hY μ]
     refine identDistrib_of_sum _ ((measurable_fst.comp measurable_fst).prod_mk measurable_snd) (hX.prod_mk hY) ?_
     intro y hy
     have h1 : IdentDistrib (fun ω ↦ (ω.1.1, ω.2)) (fun ω ↦ (ω.1.1, y)) (m y) (m y) := by

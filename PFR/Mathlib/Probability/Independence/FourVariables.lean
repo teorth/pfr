@@ -1,15 +1,16 @@
-import PFR.Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Notation
+import PFR.Mathlib.Probability.Independence.Basic
 
 open MeasureTheory ProbabilityTheory
 
 namespace ProbabilityTheory.iIndepFun
 
-variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
+variable {Ω : Type*} [MeasureSpace Ω]
   {G : Type*} [hG : MeasurableSpace G]
 
 variable {Z₁ Z₂ Z₃ Z₄ : Ω → G} (h_indep : iIndepFun (fun _i => hG) ![Z₁, Z₂, Z₃, Z₄])
-  (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
+
+include h_indep
 
 lemma reindex_four_abcd :
     iIndepFun (fun _ => hG) ![Z₁, Z₂, Z₃, Z₄] := h_indep
@@ -206,9 +207,9 @@ lemma reindex_four_dbca :
   ext i
   fin_cases i <;> rfl
 
-abbrev κ : Fin 3 → Type
+private abbrev κ : Fin 3 → Type
   | 0 | 1 => Fin 1
-  | 2     => Fin 2
+  | 2   => Fin 2
 
 private def κ_equiv : (Σ i, κ i) ≃ Fin 4 where
   toFun := fun x ↦ match x with
@@ -226,20 +227,23 @@ private def fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
 
 attribute [local instance] fintype_kappa in
 /-- If `(Z₁, Z₂, Z₃, Z₄)` are independent, so are `(Z₁, Z₂, φ Z₃ Z₄)` for any measurable `φ`. -/
-lemma apply_two_last {phi : G → G → G} (hphi : Measurable phi.uncurry) :
+lemma apply_two_last
+    (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
+    {phi : G → G → G} (hphi : Measurable phi.uncurry) :
     iIndepFun (fun _ ↦ hG) ![Z₁, Z₂, (fun ω ↦ phi (Z₃ ω) (Z₄ ω))] := by
   -- deduce from the assumption the independence of `Z₁`, `Z₂` and `(Z₃, Z₄)`.
-  have T := iIndepFun.pi' (m := fun  _ _ ↦ hG) ?_ (h_indep.reindex_symm κ_equiv); swap
+  have T := iIndepFun.pi' (m := fun _ _ ↦ hG) ?_ (h_indep.reindex_symm κ_equiv); swap
   · rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> assumption
   -- apply to this triplet of independent variables the function `phi` applied to `Z₃` and `Z₄`
   -- which does not change the other variables. It retains independence, proving the conclusion.
   let phi_third : ∀ (i : Fin 3), (κ i → G) → G
     | 0 | 1 => (fun f ↦ f ⟨0, zero_lt_one⟩)
-    | 2     => (fun f ↦ phi (f ⟨0, zero_lt_two⟩) (f ⟨1, one_lt_two⟩))
+    | 2   => (fun f ↦ phi (f ⟨0, zero_lt_two⟩) (f ⟨1, one_lt_two⟩))
   convert T.comp phi_third ?_ with i
   · fin_cases i <;> rfl
   · intro i
     match i with
-      | 0 | 1 => exact measurable_pi_apply _
-      | 2     => have : Measurable (fun (p : Fin 2 → G) ↦ (p 0, p 1)) := by measurability
-                 exact hphi.comp this
+    | 0 | 1 => exact measurable_pi_apply _
+    | 2 =>
+      have : Measurable (fun (p : Fin 2 → G) ↦ (p 0, p 1)) := by fun_prop
+      exact hphi.comp this
