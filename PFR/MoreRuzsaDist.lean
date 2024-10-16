@@ -634,7 +634,8 @@ def multiDist {m:ℕ} {Ω: Fin m → Type*} (hΩ: (i:Fin m) → MeasureSpace (Ω
 lemma multiDist_copy {m:ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
     (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (X : (i : Fin m) → (Ω i) → G) (X' : (i : Fin m) → (Ω' i) → G)
     (hident: ∀ i, IdentDistrib (X i) (X' i) (hΩ i).volume (hΩ' i).volume) :
-    D[X ; hΩ] = D[X' ; hΩ'] := by sorry
+    D[X ; hΩ] = D[X' ; hΩ'] := by
+  rfl
 
 /-- If `X_i` are independent, then `D[X_[m]] = D[Y_[m]]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
@@ -648,7 +649,8 @@ lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ: (i : Fin m) → Me
 /-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
 lemma multiDist_of_perm {m:ℕ} {Ω: Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
     (X : (i : Fin m) → (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
-    D[X ; hΩ] = D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by sorry
+    D[X ; hΩ] = D[fun i ↦ X (φ i); fun i ↦ hΩ (φ i)]:= by
+  rfl
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ (1 \≤ j, k ≤ m, j ≠ k), d[X_j; -X_k] ≤ m(m-1) D[X_[m]].` -/
