@@ -3,7 +3,6 @@ import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Kernel.CondDistrib
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
 import PFR.Mathlib.Probability.Kernel.MeasureCompProd
 
 /-!
@@ -539,7 +538,7 @@ lemma _root_.MeasureTheory.Measure.compProd_apply_singleton
       ext y
       simp [ha]
   simp_rw [this]
-  rw [lintegral_indicator _ (.singleton _)]
+  rw [lintegral_indicator (.singleton _)]
   simp
 
 lemma _root_.MeasureTheory.Measure.ae_of_compProd_eq_zero {α β : Type*}
@@ -669,7 +668,7 @@ instance AEFiniteKernelSupport.isMarkovKernel_mk
   rcases isEmpty_or_nonempty T with hT | hT
   · exact ⟨fun x ↦ (IsEmpty.false x).elim⟩
   inhabit T
-  have : Nonempty S := nonempty_of_isProbabilityMeasure ((κ default))
+  have : Nonempty S := (κ default).nonempty_of_neZero
   rw [AEFiniteKernelSupport.mk_eq]
   infer_instance
 

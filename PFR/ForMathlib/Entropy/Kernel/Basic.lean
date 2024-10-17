@@ -230,8 +230,8 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   intro t ht
   rw [← mul_add]
   congr
-  rcases (local_support_of_finiteKernelSupport hκ A) with ⟨B, hB⟩
-  rcases (local_support_of_finiteKernelSupport hη (A ×ˢ B)) with ⟨C, hC⟩
+  obtain ⟨B, hB⟩ := local_support_of_finiteKernelSupport hκ A
+  obtain ⟨C, hC⟩ := local_support_of_finiteKernelSupport hη (A ×ˢ B)
   rw [integral_eq_setIntegral (hB t ht)]
   have hκη : ((κ ⊗ₖ η) t) (B ×ˢ C : Finset (S × U))ᶜ = 0 := by
     rw [ProbabilityTheory.Kernel.compProd_apply, lintegral_eq_setLIntegral (hB t ht),
@@ -252,16 +252,12 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   intro s hs
   simp
   have hts : (t, s) ∈ A ×ˢ B := by simp [ht, hs]
-  have hη': (comap η (Prod.mk t) measurable_prod_mk_left) s Cᶜ = 0 := by
-    rw [Kernel.comap_apply]
-    exact hC (t, s) hts
-  rw [measureEntropy_def_finite' hη']
+  rw [measureEntropy_def_finite' (hC (t, s) hts)]
   simp
   have : negMulLog ((κ t).real {s}) = ∑ u in C, negMulLog ((κ t).real {s}) *
       ((comap η (Prod.mk t) measurable_prod_mk_left) s).real {u} := by
     rw [← Finset.mul_sum]
     simp
-    rw [Kernel.comap_apply]
     suffices (η (t, s)).real ↑C = (η (t, s)).real Set.univ by simp [this]
     have := hC (t, s) hts
     rw [← measureReal_eq_zero_iff] at this
@@ -325,18 +321,14 @@ lemma entropy_compProd_deterministic [Countable S] [MeasurableSingletonClass S]
     Hk[κ ⊗ₖ (deterministic f .of_discrete), μ] = Hk[κ, μ] := by
   simp [entropy_compProd hκ ((FiniteKernelSupport.deterministic f).aefiniteKernelSupport _)]
 
-lemma nonempty_of_isMarkovKernel
-    {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] (κ : Kernel α β) [IsMarkovKernel κ]
-    [Nonempty α] : Nonempty β := by
-  inhabit α
-  let ν : Measure β := κ default
-  have : IsProbabilityMeasure ν := IsMarkovKernel.isProbabilityMeasure default
-  exact nonempty_of_isProbabilityMeasure ν
+lemma nonempty_of_isMarkovKernel {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    (κ : Kernel α β) [IsMarkovKernel κ] [Nonempty α] : Nonempty β :=
+  (κ <| Classical.arbitrary _).nonempty_of_neZero
 
 lemma nonempty_of_isProbabilityMeasure_of_isMarkovKernel
     {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] (μ : Measure α) [IsProbabilityMeasure μ]
     (κ : Kernel α β) [IsMarkovKernel κ] : Nonempty β := by
-  have : Nonempty α := nonempty_of_isProbabilityMeasure μ
+  have : Nonempty α := μ.nonempty_of_neZero
   exact nonempty_of_isMarkovKernel κ
 
 lemma chain_rule [Countable S] [MeasurableSingletonClass S] [Countable T]

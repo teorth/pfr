@@ -1,7 +1,7 @@
 import Mathlib.Probability.IdentDistrib
 import Mathlib.Probability.ConditionalProbability
 import PFR.ForMathlib.MeasureReal
-import PFR.ForMathlib.FiniteRange
+import PFR.ForMathlib.FiniteRange.Defs
 
 open Function MeasureTheory Set
 open scoped ENNReal

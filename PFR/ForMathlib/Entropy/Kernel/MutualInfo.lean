@@ -287,7 +287,7 @@ lemma entropy_submodular_compProd {ξ : Kernel T S} [IsZeroOrMarkovKernel ξ]
   rcases eq_zero_or_isMarkovKernel ξ with rfl | hξ'
   · simp
   have : Nonempty S := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ ξ
-  have : Nonempty T := nonempty_of_isProbabilityMeasure μ
+  have : Nonempty T := μ.nonempty_of_neZero
   rcases eq_zero_or_isMarkovKernel κ with rfl | hκ'
   · simp
   have : Nonempty U := nonempty_of_isMarkovKernel κ
@@ -325,7 +325,7 @@ lemma entropy_compProd_triple_add_entropy_le {ξ : Kernel T S} [IsZeroOrMarkovKe
   rcases eq_zero_or_isMarkovKernel ξ with rfl | hξ'
   · simp
   have : Nonempty S := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ ξ
-  have : Nonempty T := nonempty_of_isProbabilityMeasure μ
+  have : Nonempty T := μ.nonempty_of_neZero
   have : Nonempty U := nonempty_of_isMarkovKernel κ
   have : Nonempty V := nonempty_of_isMarkovKernel η
   rw [chain_rule,

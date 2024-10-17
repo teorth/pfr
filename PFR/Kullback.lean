@@ -1,4 +1,4 @@
-import PFR.ForMathlib.FiniteRange
+import PFR.ForMathlib.FiniteRange.Defs
 import Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Basic
 

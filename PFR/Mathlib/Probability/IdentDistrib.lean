@@ -2,8 +2,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.Probability.Independence.Basic
-import PFR.ForMathlib.FiniteRange
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
+import PFR.ForMathlib.FiniteRange.Defs
 
 -- TODO: Change `ae_snd` to assume `Measurable p`
 
@@ -395,8 +394,8 @@ lemma independent_copies_finiteRange {X : Ω → α} {Y : Ω' → β}
     Y' : α × β → β, IsProbabilityMeasure ν
       ∧ Measurable X' ∧ Measurable Y' ∧ IndepFun X' Y' ν
       ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' ∧ FiniteRange X' ∧ FiniteRange Y' := by
-  have : Nonempty α := Nonempty.map X (nonempty_of_isProbabilityMeasure μ)
-  have : Nonempty β := Nonempty.map Y (nonempty_of_isProbabilityMeasure μ')
+  have : Nonempty α := μ.nonempty_of_neZero.map X
+  have : Nonempty β := μ'.nonempty_of_neZero.map Y
   obtain ⟨ν, X', Y', hν, hX', hY', hind, hIdX, hIdY⟩ := independent_copies hX hY μ μ'
   rcases identDistrib_of_finiteRange hX' hIdX.symm with ⟨X'', hX'', hX''_finite, hX''_eq⟩
   rcases identDistrib_of_finiteRange hY' hIdY.symm with ⟨Y'', hY'', hY''_finite, hY''_eq⟩
@@ -427,7 +426,7 @@ lemma independent_copies3_nondep_finiteRange {α : Type u}
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
       IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ ∧
       FiniteRange X₁' ∧ FiniteRange X₂' ∧ FiniteRange X₃' := by
-    have : Nonempty α := Nonempty.map X₁ (nonempty_of_isProbabilityMeasure μ₁)
+    have : Nonempty α := μ₁.nonempty_of_neZero.map X₁
     obtain ⟨A, mA, μA, X₁', X₂', X₃', hμA, hind, hX₁, hX₂, hX₃, hId₁, hId₂, hId₃⟩ :=
       independent_copies3_nondep hX₁ hX₂ hX₃ μ₁ μ₂ μ₃
     rcases identDistrib_of_finiteRange hX₁ hId₁.symm with ⟨X₁'', hX₁'', hX₁''_finite, hX₁''_eq⟩
@@ -465,7 +464,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
       ∧ IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃
       ∧ IdentDistrib X₄' X₄ μA μ₄ ∧ FiniteRange X₁' ∧ FiniteRange X₂'
       ∧ FiniteRange X₃' ∧ FiniteRange X₄' := by
-    have : Nonempty α := Nonempty.map X₁ (nonempty_of_isProbabilityMeasure μ₁)
+    have : Nonempty α := μ₁.nonempty_of_neZero.map X₁
     obtain ⟨A, mA, μA, X₁', X₂', X₃', X₄', hμA, hind, hX₁, hX₂, hX₃, hX₄, hId₁, hId₂, hId₃, hId₄⟩ :=
       independent_copies4_nondep hX₁ hX₂ hX₃ hX₄ μ₁ μ₂ μ₃ μ₄
     rcases identDistrib_of_finiteRange hX₁ hId₁.symm with ⟨X₁'', hX₁'', hX₁''_finite, hX₁''_eq⟩

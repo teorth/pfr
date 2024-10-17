@@ -1,7 +1,6 @@
+import PFR.ForMathlib.ConditionalIndependence
 import PFR.ForMathlib.Entropy.Kernel.MutualInfo
-import PFR.ForMathlib.Entropy.Kernel.Basic
 import PFR.ForMathlib.Uniform
-import PFR.Mathlib.Probability.Independence.Conditional
 
 /-!
 # Entropy and conditional entropy
@@ -218,7 +217,7 @@ lemma entropy_eq_log_card {X : Ω → S} [Fintype S] [MeasurableSingletonClass S
 lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : Measure Ω)
     [IsProbabilityMeasure μ] (hX : Measurable X) [hX': FiniteRange X] :
     ∃ s : S, μ.map X {s} ≥ (μ Set.univ) * (rexp (- H[X ; μ])).toNNReal := by
-  have : Nonempty Ω := nonempty_of_isProbabilityMeasure μ
+  have : Nonempty Ω := μ.nonempty_of_neZero
   have : Nonempty S := Nonempty.map X (by infer_instance)
   let μS := μ.map X
   let μs s := μS {s}
@@ -551,7 +550,7 @@ lemma chain_rule' (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
     H[⟨X, Y⟩ ; μ] = H[X ; μ] + H[Y | X ; μ] := by
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
-  have : Nonempty T := Nonempty.map Y (nonempty_of_isProbabilityMeasure μ)
+  have : Nonempty T := Nonempty.map Y (μ.nonempty_of_neZero)
   rw [entropy_eq_kernel_entropy, Kernel.chain_rule]
   simp_rw [← Kernel.map_const _ (hX.prod_mk hY), Kernel.fst_map_prod _ hY, Kernel.map_const _ hX,
     Kernel.map_const _ (hX.prod_mk hY)]
@@ -623,8 +622,8 @@ lemma cond_chain_rule' (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
     H[⟨X, Y⟩ | Z ; μ] = H[X | Z ; μ] + H[Y | ⟨X, Z⟩ ; μ] := by
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
-  have : Nonempty S := Nonempty.map X (nonempty_of_isProbabilityMeasure μ)
-  have : Nonempty T := Nonempty.map Y (nonempty_of_isProbabilityMeasure μ)
+  have : Nonempty S := Nonempty.map X (μ.nonempty_of_neZero)
+  have : Nonempty T := Nonempty.map Y (μ.nonempty_of_neZero)
   rw [condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ, Kernel.chain_rule]
   · congr 1
     · rw [condEntropy_eq_kernel_entropy hX hZ]
@@ -905,8 +904,8 @@ lemma condMutualInfo_eq [Countable U]
     I[X : Y | Z ; μ] = H[X | Z ; μ] + H[Y | Z; μ] - H[⟨X, Y⟩ | Z ; μ] := by
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
-  have : Nonempty S := Nonempty.map X (nonempty_of_isProbabilityMeasure μ)
-  have : Nonempty T := Nonempty.map Y (nonempty_of_isProbabilityMeasure μ)
+  have : Nonempty S := Nonempty.map X (μ.nonempty_of_neZero)
+  have : Nonempty T := Nonempty.map Y (μ.nonempty_of_neZero)
   rw [condMutualInfo_eq_kernel_mutualInfo hX hY hZ, Kernel.mutualInfo,
     Kernel.entropy_congr (condDistrib_fst_ae_eq hX hY hZ _),
     Kernel.entropy_congr (condDistrib_snd_ae_eq hX hY hZ _),
@@ -1025,8 +1024,8 @@ lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurabl
     H[X | ⟨Y, Z⟩ ; μ] ≤ H[X | Z ; μ] := by
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
-  have : Nonempty S := Nonempty.map X (nonempty_of_isProbabilityMeasure μ)
-  have : Nonempty T := Nonempty.map Y (nonempty_of_isProbabilityMeasure μ)
+  have : Nonempty S := Nonempty.map X (μ.nonempty_of_neZero)
+  have : Nonempty T := Nonempty.map Y (μ.nonempty_of_neZero)
   rw [condEntropy_eq_kernel_entropy hX hZ, condEntropy_two_eq_kernel_entropy hX hY hZ]
   refine (Kernel.entropy_condKernel_le_entropy_snd ?_).trans_eq ?_
   · apply Kernel.aefiniteKernelSupport_condDistrib

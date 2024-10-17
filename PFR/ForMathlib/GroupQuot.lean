@@ -1,7 +1,5 @@
 import Mathlib.LinearAlgebra.Dimension.Free
 import PFR.ForMathlib.ZModModule
-import PFR.Mathlib.Data.Finsupp.Fintype
-import PFR.Mathlib.RingTheory.Finiteness
 
 /-!
 If `G` is a rank `d` free `ℤ`-module, then `G/nG` is a finite group of cardinality `n ^ d`.
