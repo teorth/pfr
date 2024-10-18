@@ -1,22 +1,5 @@
 import Mathlib.Probability.Kernel.Composition
 
-/-!
-# Composition-Product of a measure and a kernel
-
-This operation, denoted by `⊗ₘ`, takes `μ : Measure α` and `κ : Kernel α β` and creates
-`μ ⊗ₘ κ : Measure (α × β)`.
-
-It is defined as `((Kernel.const Unit μ) ⊗ₖ (Kernel.prodMkLeft Unit κ)) ()`.
-
-## Main definitions
-
-* `Measure.compProd`: from `μ : Measure α` and `κ : Kernel α β`, get a `Measure (α × β)`.
-
-## Notations
-
-* `μ ⊗ₘ κ = μ.compProd κ`
--/
-
 open Real MeasureTheory
 open scoped ENNReal NNReal Topology ProbabilityTheory
 
@@ -26,7 +9,7 @@ variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace
   {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
 
 lemma compProd_preimage_fst (κ : Kernel α β) (η : Kernel (α × β) γ) [IsSFiniteKernel κ]
-    [IsMarkovKernel η] {x : α} {s : Set β} (hs : MeasurableSet s) :
+    [IsMarkovKernel η] {s : Set β} (hs : MeasurableSet s) (x : α) :
     (κ ⊗ₖ η) x (Prod.fst ⁻¹' s) = κ x s := by
   rw [compProd_apply _ _ _ (measurable_fst hs)]
   simp only [Set.mem_preimage]
@@ -64,15 +47,6 @@ lemma compProd_deterministic_apply [MeasurableSingletonClass γ]
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {f : β → γ} {g : γ → α}
-
-lemma _root_.MeasureTheory.Measure.comap_swap (μ : Measure (α × β)) :
-    μ.comap Prod.swap = μ.map Prod.swap := by
-  ext s hs
-  rw [Measure.comap_apply _ Prod.swap_injective _ _ hs, Measure.map_apply measurable_swap hs,
-    ← Set.image_swap_eq_preimage_swap]
-  intro s hs
-  rw [Set.image_swap_eq_preimage_swap]
-  exact measurable_swap hs
 
 lemma comap_prod_swap (κ : Kernel α β) (η : Kernel γ δ) [IsFiniteKernel κ] [IsFiniteKernel η] :
     comap (prodMkRight α η ×ₖ prodMkLeft γ κ) Prod.swap measurable_swap
