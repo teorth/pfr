@@ -1028,7 +1028,7 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
-      ≤ Nat.card c * Nat.card u := mod_cast card_add_le
+      ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
     _ ≤ (K ^ 6 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
           * (Nat.card H / Nat.card H') := by
         gcongr

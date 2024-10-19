@@ -1,8 +1,5 @@
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.MeasureTheory.Constructions.SubmoduleQuotient
-import PFR.Mathlib.Algebra.Module.Submodule.Ker
-import PFR.Mathlib.Algebra.Module.Submodule.Map
-import PFR.Mathlib.Algebra.Module.Submodule.Range
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.ForMathlib.AffineSpaceDim
 import PFR.ForMathlib.Entropy.RuzsaSetDist

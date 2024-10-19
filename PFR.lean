@@ -32,9 +32,6 @@ import PFR.ImprovedPFR
 import PFR.Kullback
 import PFR.Main
 import PFR.Mathlib.Algebra.Group.Pointwise.Set.Basic
-import PFR.Mathlib.Algebra.Module.Submodule.Ker
-import PFR.Mathlib.Algebra.Module.Submodule.Map
-import PFR.Mathlib.Algebra.Module.Submodule.Range
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Set.Pointwise.Finite
 import PFR.Mathlib.Data.Set.Pointwise.SMul

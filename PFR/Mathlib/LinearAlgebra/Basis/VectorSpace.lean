@@ -1,3 +1,4 @@
+import Mathlib.Algebra.Module.Projective
 import Mathlib.LinearAlgebra.Basis.VectorSpace
 
 namespace Submodule
