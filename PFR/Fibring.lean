@@ -193,4 +193,4 @@ lemma sum_of_rdist_eq_char_2
       = d[(Y 0) + (Y 2); μ # (Y 1) + (Y 3); μ]
         + d[Y 0 | (Y 0) + (Y 2); μ # Y 1 | (Y 1) + (Y 3); μ]
         + I[(Y 0) + (Y 1) : (Y 1) + (Y 3) | (Y 0) + (Y 1) + (Y 2) + (Y 3); μ] := by
-  simpa using sum_of_rdist_eq Y h_indep h_meas
+  simpa [ZModModule.sub_eq_add] using sum_of_rdist_eq Y h_indep h_meas

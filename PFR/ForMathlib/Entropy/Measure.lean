@@ -1,10 +1,10 @@
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import Mathlib.MeasureTheory.Integral.Bochner
+import Mathlib.Tactic.Finiteness
 import Mathlib.Tactic.Positivity.Finset
+import PFR.Mathlib.MeasureTheory.Measure.Prod
 import PFR.ForMathlib.FiniteRange.Defs
 import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic
-import PFR.Tactic.Finiteness
 
 /-!
 # Entropy of a measure

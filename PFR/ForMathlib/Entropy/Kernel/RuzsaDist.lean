@@ -1,4 +1,3 @@
-import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.ForMathlib.Entropy.Kernel.Group
 
 /-!

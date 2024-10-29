@@ -1,6 +1,6 @@
-import Mathlib.MeasureTheory.Constructions.Prod.Basic
+import Mathlib.MeasureTheory.Measure.Prod
+import Mathlib.Tactic.Finiteness
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
-import PFR.Tactic.Finiteness
 
 /-!
 # Measures as real valued-functions
@@ -465,21 +465,6 @@ theorem measureReal_prod_prod {μ : Measure α} {ν : Measure β} [SigmaFinite �
     (t : Set β) :
     (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
-
--- find this in library? generalize?
-/-- Generalized in Measure.ext_iff_singleton_finiteSupport at Entropy.Measure -/
-theorem Measure.ext_iff_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    {μ1 μ2 : Measure S} :
-    μ1 = μ2 ↔ ∀ x, μ1 {x} = μ2 {x} := by
-  classical
-  constructor
-  · rintro rfl
-    simp
-  · intro h
-    ext s
-    have hs : Set.Finite s := Set.toFinite s
-    rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
-    simp_rw [h]
 
 theorem ext_iff_measureReal_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     {μ1 μ2 : Measure S} [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :

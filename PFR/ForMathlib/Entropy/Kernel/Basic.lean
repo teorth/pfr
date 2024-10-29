@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Constructions.Prod.Integral
+import Mathlib.MeasureTheory.Integral.Prod
 import PFR.ForMathlib.Entropy.Measure
 import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
@@ -266,8 +266,8 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   rw [this, Finset.mul_sum, ← Finset.sum_add_distrib]
   congr with u
   have : ((κ ⊗ₖ η) t).real {(s, u)} = ((κ t).real {s}) * ((η (t, s)).real {u}) := by
-    rw [measureReal_def, compProd_apply κ η _ (.singleton _),
-      lintegral_eq_setLIntegral (hB t ht), setLIntegral_eq_sum, Finset.sum_eq_single_of_mem s hs]
+    rw [measureReal_def, compProd_apply (.singleton _), lintegral_eq_setLIntegral (hB t ht),
+      setLIntegral_eq_sum, Finset.sum_eq_single_of_mem s hs]
     · simp [measureReal_def]
     intro b _ hbs
     simp [hbs]

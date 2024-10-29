@@ -145,10 +145,9 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
       rcases eq_or_ne (μ ω) 0 with hω | hω
       · simp [hω]
       gcongr
-      set hΩ'_cond := fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]
-      have hΩ'prob_cond : ∀ i, IsProbabilityMeasure (hΩ'_cond i).volume := by
-        intro i
-        refine cond_isProbabilityMeasure (hΩ' i).volume ?_
+      let hΩ'_cond i := MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]
+      have hΩ'prob_cond i : IsProbabilityMeasure (hΩ'_cond i).volume := by
+        refine cond_isProbabilityMeasure ?_
         contrapose! hω
         apply Finset.prod_eq_zero (Finset.mem_univ i)
         simp only [hω, ENNReal.zero_toReal]
@@ -182,9 +181,6 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
           exact probmes j
         _ = _ := by
           simp only [Finset.prod_ite_eq, Finset.mem_univ, ↓reduceIte]
-
-
-
 
 /-- With the notation of the previous lemma, we have
   \begin{equation}\label{5.3-conv}

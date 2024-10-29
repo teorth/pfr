@@ -1,7 +1,6 @@
 import Mathlib.Algebra.Module.ZMod
 import Mathlib.Data.Finsupp.Fintype
 import Mathlib.GroupTheory.Sylow
-import PFR.Mathlib.Data.ZMod.Basic
 
 open Function Set ZMod
 
@@ -15,7 +14,8 @@ section general
 variable [Module (ZMod n) G]
 
 lemma isPGroup_multiplicative : IsPGroup n (Multiplicative G) := by
-  simpa [IsPGroup, Multiplicative.forall] using fun _ ↦ ⟨1, by simp [← ofAdd_nsmul]⟩
+  simpa [IsPGroup, Multiplicative.forall] using
+    fun _ ↦ ⟨1, by simp [← ofAdd_nsmul, ZModModule.char_nsmul_eq_zero]⟩
 
 variable (n) in
 lemma exists_finsupp {A : Set G} {x : G} (hx : x ∈ Submodule.span ℤ A) :
@@ -32,7 +32,7 @@ lemma exists_finsupp {A : Set G} {x : G} (hx : x ∈ Submodule.span ℤ A) :
   obtain ⟨k, hk⟩ : ∃ k : ℤ, (ZMod.cast (r : ZMod n) : ℤ) = r + n * k := by
     use -(r / n)
     rw_mod_cast [ZMod.coe_intCast, Int.emod_def, sub_eq_add_neg, mul_neg]
-  simp [hk, add_smul, mul_smul]
+  simp [hk, add_smul, mul_smul, ZModModule.char_nsmul_eq_zero]
 
 end general
 

@@ -67,8 +67,8 @@ lemma compProd_assoc (ξ : Kernel T S) [IsSFiniteKernel ξ]
       = ξ ⊗ₖ (κ ⊗ₖ (comap η MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable)) := by
   ext x s hs
   rw [map_apply' _ (by fun_prop) _ hs,
-    compProd_apply _ _ _ (MeasurableEquiv.prodAssoc.measurable hs),
-    compProd_apply _ _ _ hs, lintegral_compProd]
+    compProd_apply (MeasurableEquiv.prodAssoc.measurable hs),
+    compProd_apply hs, lintegral_compProd]
   swap; · exact measurable_kernel_prod_mk_left' (MeasurableEquiv.prodAssoc.measurable hs) _
   congr with a
   rw [compProd_apply]
@@ -86,7 +86,7 @@ lemma Measure.compProd_compProd (μ : Measure T)
     Measure.lintegral_compProd]
   swap; · exact measurable_kernel_prod_mk_left (MeasurableEquiv.prodAssoc.measurable hs)
   congr with a
-  rw [compProd_apply _ _ _ (measurable_prod_mk_left hs)]
+  rw [compProd_apply (measurable_prod_mk_left hs)]
   congr
 
 lemma Measure.compProd_compProd' (μ : Measure T)

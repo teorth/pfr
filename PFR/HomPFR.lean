@@ -85,7 +85,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
         exact ⟨hS a.1 a'.1,
           by rw [← Prod.fst_add, ha.2, ha'.2, sub_sub, ← Prod.snd_add, haa', sub_sub_self]⟩
     have hB_card : Nat.card B ≤ Nat.card S * Nat.card A :=
-      card_sub_le.trans_eq $ by simp only [mul_comm, Set.card_singleton_prod]
+      natCard_sub_le.trans_eq $ by simp only [mul_comm, Set.card_singleton_prod]
     norm_cast
     exact (Nat.card_mono (toFinite B) hAB).trans hB_card
   have hA_nonempty : A.Nonempty := by simp [A]
@@ -112,7 +112,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
     rw [Nat.card_coe_set_eq, Set.ncard_univ] at hG_cover
     rw [hG_cover]
     calc
-      (Nat.card (c'+ (H₀:Set G))) ≤ Nat.card c' * Nat.card H₀ := card_add_le
+      Nat.card (c' + (H₀ : Set G)) ≤ Nat.card c' * Nat.card H₀ := natCard_add_le
       _ ≤ Nat.card c * Nat.card H₀ := by gcongr
   have : (Nat.card H₁ : ℝ) ≤ (Nat.card H / Nat.card A) * Nat.card c := by calc
       (Nat.card H₁ : ℝ) = (Nat.card H : ℝ) / Nat.card H₀ := by field_simp [hH_card, mul_comm]
@@ -145,7 +145,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
         norm_cast; apply Nat.card_image_le (toFinite _)
       _ ≤ Nat.card c * Nat.card H₁ := by
         norm_cast
-        apply card_add_le.trans
+        apply natCard_add_le.trans
         rw [Set.card_singleton_prod] ; rfl
       _ ≤ Nat.card c * ((Nat.card H / Nat.card A) * Nat.card c) := by gcongr
       _ = Nat.card c ^ 2 * (Nat.card H / Nat.card A) := by ring

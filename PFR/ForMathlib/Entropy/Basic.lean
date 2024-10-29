@@ -136,7 +136,7 @@ lemma entropy_eq_sum_finiteRange' [MeasurableSingletonClass S] (hX : Measurable 
 lemma entropy_cond_eq_sum (μ : Measure Ω) (y : T) :
     H[X | Y ← y ; μ] = ∑' x, negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
   by_cases hy : μ (Y ⁻¹' {y}) = 0
-  · rw [entropy_def, cond_eq_zero_of_meas_eq_zero _ hy]
+  · rw [entropy_def, cond_eq_zero_of_meas_eq_zero hy]
     simp
   · rw [entropy_eq_sum]
 
@@ -144,7 +144,7 @@ lemma entropy_cond_eq_sum_finiteRange [MeasurableSingletonClass S]
     (hX : Measurable X) (μ : Measure Ω) (y : T) [FiniteRange X]:
     H[X | Y ← y ; μ] = ∑ x in FiniteRange.toFinset X, negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
   by_cases hy : μ (Y ⁻¹' {y}) = 0
-  · rw [entropy_def, cond_eq_zero_of_meas_eq_zero _ hy]
+  · rw [entropy_def, cond_eq_zero_of_meas_eq_zero hy]
     simp
   · rw [entropy_eq_sum_finiteRange hX]
 
@@ -403,7 +403,7 @@ lemma condEntropy_eq_kernel_entropy [Nonempty S] [Countable S] [MeasurableSingle
   congr
   ext s hs
   rw [condDistrib_apply' hX hY _ _ ht hs, Measure.map_apply hX hs,
-      cond_apply _ (hY (.singleton _))]
+      cond_apply (hY (.singleton _))]
 
 variable [Countable T] [Nonempty T] [Nonempty S] [MeasurableSingletonClass S] [Countable S]
   [Countable U] [MeasurableSingletonClass U]
@@ -472,13 +472,13 @@ lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [Mea
   have A : (fun a ↦ (Y a, Z a)) ⁻¹' {(x, y)} = Z ⁻¹' {y} ∩ Y ⁻¹' {x} := by
     ext p; simp [and_comm]
   congr 2
-  · rw [cond_apply _ (hZ (.singleton y)), ← mul_assoc, A]
+  · rw [cond_apply (hZ (.singleton y)), ← mul_assoc, A]
     rcases eq_or_ne (μ (Z ⁻¹' {y})) 0 with hy|hy
     · have : μ (Z ⁻¹' {y} ∩ Y ⁻¹' {x}) = 0 :=
         le_antisymm ((measure_mono Set.inter_subset_left).trans hy.le) bot_le
       simp [this, hy]
     · rw [ENNReal.mul_inv_cancel hy (by finiteness), one_mul]
-  · rw [A, cond_cond_eq_cond_inter _ (hZ (.singleton y)) (hY (.singleton x))]
+  · rw [A, cond_cond_eq_cond_inter (hZ (.singleton y)) (hY (.singleton x))]
 
 variable [MeasurableSingletonClass S]
 
@@ -513,7 +513,7 @@ lemma condEntropy_of_injective
     intro y
     refine entropy_congr ?_
     have : ∀ᵐ ω ∂μ[|Y ← y], Y ω = y := by
-      rw [ae_iff, cond_apply _ (hY (.singleton _))]
+      rw [ae_iff, cond_apply (hY (.singleton _))]
       have : {a | ¬Y a = y} = (Y ⁻¹' {y})ᶜ := by ext; simp
       rw [this, Set.inter_compl_self, measure_empty, mul_zero]
     filter_upwards [this] with ω hω
@@ -958,7 +958,7 @@ lemma condEntropy_prod_eq_of_indepFun [Fintype T] [Fintype U] [IsZeroOrProbabili
   rcases eq_or_ne (μ (Z ⁻¹' {w})) 0 with hw|hw
   · simp [hw]
   congr 1
-  have : IsProbabilityMeasure (μ[|Z ⁻¹' {w}]) := cond_isProbabilityMeasure μ hw
+  have : IsProbabilityMeasure (μ[|Z ⁻¹' {w}]) := cond_isProbabilityMeasure hw
   apply IdentDistrib.condEntropy_eq hX hY hX hY
   exact (h.identDistrib_cond (MeasurableSet.singleton w) (hX.prod_mk hY) hZ hw).symm
 
@@ -986,7 +986,7 @@ lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y)
     rw [Pi.le_def]
     intro z; simp
     by_cases hz : μ (Z ⁻¹' {z}) = 0
-    · have : μ[| Z ⁻¹' {z}] = 0 := cond_eq_zero_of_meas_eq_zero _ hz
+    · have : μ[| Z ⁻¹' {z}] = 0 := cond_eq_zero_of_meas_eq_zero hz
       simp [this]
       rw [mutualInfo_def]
       simp

@@ -25,7 +25,7 @@ variable {G Ω : Type*} [AddCommGroup G] [Fintype G]
     [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G}
 
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
-and `B`, then `U = V` with probability `# (A ∩ B) / #A ⬝ #B`. -/
+and `B`, then `U = V` with probability `#(A ∩ B) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : Measurable U)
     (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {0})
@@ -153,7 +153,7 @@ lemma sumset_eq_sub {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] (A : Set G)
   rw [← Set.image2_add, ← Set.image2_sub]
   congr! 1 with a _ b _
   show a + b = a - b
-  simp
+  simp [ZModModule.sub_eq_add]
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup `H`
@@ -313,7 +313,7 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
-      ≤ Nat.card c * Nat.card u := mod_cast card_add_le
+      ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
     _ ≤ (K ^ (13/2 : ℝ) * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
           * (Nat.card H / Nat.card H') := by
         gcongr

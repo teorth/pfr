@@ -1240,7 +1240,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
             rw [← mul_assoc, ← ENNReal.toReal_mul]
             congr 2
             . rw [mul_comm]
-              convert ProbabilityTheory.cond_mul_eq_inter ?_ (hey_mes y) ?_
+              convert ProbabilityTheory.cond_mul_eq_inter (hey_mes y) ?_ _
               . rw [← Set.iInter_inter_distrib]
                 apply Set.iInter_congr
                 intro i
@@ -1251,7 +1251,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
             funext _
             congr 1
             dsimp [hΩc, E']
-            rw [ProbabilityTheory.cond_cond_eq_cond_inter _ (hey_mes y), ← Set.iInter_inter_distrib]
+            rw [ProbabilityTheory.cond_cond_eq_cond_inter (hey_mes y), ← Set.iInter_inter_distrib]
             . congr 1
               apply Set.iInter_congr
               intro i
@@ -1289,14 +1289,14 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
           simp [E'] at hω ⊢
           rw [← hω.2]
           simp only [implies_true]
-        have : IsProbabilityMeasure (hΩc y).volume := cond_isProbabilityMeasure _ pey
+        have : IsProbabilityMeasure (hΩc y).volume := cond_isProbabilityMeasure pey
         rw [condMutualInfo_eq_sum' hmes, Finset.mul_sum]
         congr with x
         dsimp [f, E']
         rw [← mul_assoc, ← ENNReal.toReal_mul]
         congr 2
         . rw [mul_comm]
-          convert ProbabilityTheory.cond_mul_eq_inter ?_ (hey_mes y) ?_
+          convert ProbabilityTheory.cond_mul_eq_inter (hey_mes y) ?_ _
           . ext ω
             simp only [Set.mem_preimage, Set.mem_singleton_iff, Prod.mk.injEq, comp_apply,
               Finset.sum_apply, _root_.map_sum, Set.mem_inter_iff, Set.mem_iInter, E']
@@ -1306,7 +1306,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
             exact funext_iff
           infer_instance
         dsimp [hΩc, E']
-        rw [ProbabilityTheory.cond_cond_eq_cond_inter _ (hey_mes y)]
+        rw [ProbabilityTheory.cond_cond_eq_cond_inter (hey_mes y)]
         . congr
           ext ω
           simp only [Set.mem_inter_iff, Set.mem_iInter, Set.mem_preimage, Set.mem_singleton_iff,

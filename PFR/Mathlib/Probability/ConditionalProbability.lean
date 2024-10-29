@@ -63,7 +63,7 @@ lemma cond_iInter [Finite ι] (hY : ∀ i, Measurable (Y i))
       apply Finset.prod_congr rfl
       intro i _
       by_cases h : i ∈ s
-      . simp only [h, ↓reduceIte, g, cond_apply _ (hY i (ht i))]
+      . simp only [h, ↓reduceIte, g, cond_apply (hY i (ht i))]
       · simp only [h, ↓reduceIte, g, ENNReal.inv_mul_cancel (hy i) (measure_ne_top μ _)]
     _ = _ := by simp
 

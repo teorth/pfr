@@ -88,7 +88,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
         refine ⟨c + (h, φ h), ⟨⟨c, hc.1, (h, φ h), ?_⟩, by rwa [← hc.2] at hch⟩⟩
         exact ⟨(hH₀H₁ ⟨h, φ h⟩).mpr ⟨hh, by rw [sub_self]; apply zero_mem⟩, rfl⟩
     rewrite [← h_proj_A'', h_proj_c] at h_le
-    apply (h_le.trans Set.card_add_le).trans
+    apply (h_le.trans Set.natCard_add_le).trans
     gcongr
     exact Nat.card_image_le c.toFinite
 

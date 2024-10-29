@@ -58,7 +58,7 @@ protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (
   map_eq := by
     ext t ht
     rw [map_apply₀ _ ht.nullMeasurableSet, map_apply₀ _ ht.nullMeasurableSet,
-      cond_apply _ (hg' hs), cond_apply _ (hf' hs)]
+      cond_apply (hg' hs), cond_apply (hf' hs)]
     congr
     · simpa only [map_apply₀ (hfg.comp measurable_snd).aemeasurable_fst hs.nullMeasurableSet,
         map_apply₀ (hfg.comp measurable_snd).aemeasurable_snd hs.nullMeasurableSet]

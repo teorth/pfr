@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Constructions.Prod.Basic
+import Mathlib.MeasureTheory.Measure.Prod
 
 open Function
 open scoped ENNReal NNReal
