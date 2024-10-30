@@ -349,14 +349,14 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp only [sum2, integral_sub .of_finite .of_finite, integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
+      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
       Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
+      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
       Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
@@ -1013,7 +1013,7 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
   · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : Submodule (ZMod 2) G, Nat.card H' ≤ Nat.card A
           ∧ Nat.card A < 2 * Nat.card H' ∧ H' ≤ H := by
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
-      exact Module.exists_submodule_subset_card_le Nat.prime_two H h.le A_pos'.ne'
+      exact ZModModule.exists_submodule_subset_card_le Nat.prime_two H h.le A_pos'.ne'
     have : (Nat.card A / 2 : ℝ) < Nat.card H' := by
       rw [div_lt_iff₀ zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card H' := by

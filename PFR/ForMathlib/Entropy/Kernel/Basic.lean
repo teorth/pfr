@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Integral.Prod
 import PFR.ForMathlib.Entropy.Measure
-import PFR.Mathlib.MeasureTheory.Integral.Bochner
+import PFR.Mathlib.MeasureTheory.Integral.IntegrableOn
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.Probability.Kernel.Disintegration
 
@@ -167,7 +167,8 @@ lemma entropy_comap [MeasurableSingletonClass T]
       exact MeasurableSet.compl (Finset.measurableSet A)
     exact ae_eq_univ.mp hf_range
   simp_rw [entropy]
-  simp_rw [integral_eq_setIntegral hA, integral_eq_setIntegral this, setIntegral_eq_sum,
+  simp_rw [integral_eq_setIntegral hA, integral_eq_setIntegral this,
+    integral_finset _ _ IntegrableOn.finset,
     Measure.comap_apply f hf.injective hf.measurableSet_image' _ (.singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
   simp_rw [comap_apply]
@@ -223,7 +224,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   · simp
   let A := μ.support
   have hsum (F : T → ℝ) : ∫ (t : T), F t ∂μ = ∑ t in A, (μ.real {t}) * (F t) := by
-    rw [integral_eq_setIntegral (measure_compl_support μ), setIntegral_eq_sum]
+    rw [integral_eq_setIntegral (measure_compl_support μ), integral_finset _ _ IntegrableOn.finset]
     congr with t ht
   simp_rw [entropy, hsum, ← Finset.sum_add_distrib]
   apply Finset.sum_congr rfl
@@ -246,7 +247,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
       simp at hu ⊢
       exact hu hs
     exact MeasurableSet.compl (Finset.measurableSet _)
-  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht), setIntegral_eq_sum,
+  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht), integral_finset _ _ IntegrableOn.finset,
     ← Finset.sum_add_distrib, Finset.sum_product]
   apply Finset.sum_congr rfl
   intro s hs

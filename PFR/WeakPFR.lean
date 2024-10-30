@@ -815,31 +815,30 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
 def WeakPFRAsymmConclusion (A B : Set G) : Prop :=
   ∃ A' B' : Set G, A' ⊆ A ∧ B' ⊆ B ∧ A'.Nonempty ∧ B'.Nonempty ∧
   log ((Nat.card A * Nat.card B) / (Nat.card A' * (Nat.card B'))) ≤ 34 * dᵤ[A # B] ∧
-  max (dimension A') (dimension B') ≤ (40 / log 2) * dᵤ[A # B]
+  max (AffineSpace.finrank ℤ A') (AffineSpace.finrank ℤ B') ≤ (40 / log 2) * dᵤ[A # B]
 
 /-- The property of two sets A,B of a group G not being contained in cosets of the same proper subgroup -/
 def not_in_coset {G : Type*} [AddCommGroup G] (A B : Set G) : Prop :=
   AddSubgroup.closure ((A - A) ∪ (B - B)) = ⊤
 
-/-- In fact one has equality here, but this is tricker to prove and not needed for the argument. -/
-lemma dimension_of_shift {G : Type*} [AddCommGroup G] {H : AddSubgroup G} (A : Set H) (x : G) :
-    dimension ((fun a : H ↦ (a : G) + x) '' A) ≤ dimension A := by
+/-- In fact one has equality here, but this is trickier to prove and not needed for the argument. -/
+lemma dimension_of_shift {G : Type*} [AddCommGroup G] [Module.Finite ℤ G] {H : AddSubgroup G}
+    (A : Set H) (x : G) :
+    AffineSpace.finrank ℤ ((fun a : H ↦ (a : G) + x) '' A) = AffineSpace.finrank ℤ A := by
   classical
-  rcases Nat.find_spec (exists_coset_cover A) with ⟨S, v, hrank, hshift⟩
-  change Module.finrank ℤ S = dimension A at hrank
-  rw [← hrank]
-  convert dimension_le_of_coset_cover _ (Submodule.map H.subtype.toIntLinearMap S) (x+v) ?_
-  · apply LinearEquiv.finrank_eq
-    exact Submodule.equivMapOfInjective _ (by simpa using Subtype.val_injective) _
-  intro a ha
-  rw [Set.mem_image] at ha
-  obtain ⟨b, hb, hb'⟩ := ha
-  rw [Submodule.mem_map]
-  use b - v, hshift b hb
-  simp [← hb']
-  abel
+  calc
+    _ = AffineSpace.finrank ℤ (x +ᵥ Subtype.val '' A) := by
+      simp [← image_vadd, image_image, add_comm]
+    _ = AffineSpace.finrank ℤ (Subtype.val '' A) := by rw [AffineSpace.finrank_vadd_set]
+    _ = ((vectorSpan ℤ A).map H.subtype.toIntLinearMap).finrank := by
+      simp [AffineSpace.finrank, vectorSpan, Submodule.map_span]
+      congr! 2
+      symm
+      exact image_image2_distrib fun _ _ ↦ rfl
+    _ = AffineSpace.finrank ℤ A :=
+      (Submodule.equivMapOfInjective _ Subtype.val_injective _).symm.finrank_eq
 
-omit [Module.Free ℤ G] [Module.Finite ℤ G] in
+omit [Module.Free ℤ G] in
 lemma conclusion_transfers {A B : Set G}
     (G': AddSubgroup G) (A' B' : Set (G' : Set G))
     (hA : IsShift A A') (hB : IsShift B B') [Finite A'] [Finite B']
@@ -906,8 +905,8 @@ lemma conclusion_transfers {A B : Set G}
   · convert LE.le.trans _ hdim_ineq using 2
     norm_cast
     apply max_le_max
-    · exact dimension_of_shift A'' x
-    · exact dimension_of_shift B'' y
+    · exact (dimension_of_shift A'' x).le
+    · exact (dimension_of_shift B'' y).le
 
 /-- If $A,B\subseteq \mathbb{Z}^d$ are finite non-empty sets then there exist non-empty
 $A'\subseteq A$ and $B'\subseteq B$ such that
@@ -1029,7 +1028,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
   convert le_trans ?_ hdim using 1
   · field_simp
   simp only [Nat.cast_max, max_le_iff, Nat.cast_le]
-  exact ⟨dimension_le_rank A, dimension_le_rank B⟩
+  exact ⟨AffineSpace.finrank_le_moduleFinrank, AffineSpace.finrank_le_moduleFinrank⟩
 
 /-- If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then
 there exists a non-empty $A'\subseteq A$ such that $\lvert A'\rvert\geq K^{-17}\lvert A\rvert$
@@ -1037,11 +1036,11 @@ and $\dim A'\leq \frac{40}{\log 2} \log K$. -/
 lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
     (hdist : dᵤ[A # A] ≤ log K) :
     ∃ A' : Set G, A' ⊆ A ∧ K^(-17 : ℝ) * Nat.card A ≤ Nat.card A' ∧
-      dimension A' ≤ (40 / log 2) * log K := by
+      AffineSpace.finrank ℤ A' ≤ (40 / log 2) * log K := by
   rcases weak_PFR_asymm A A hA hA with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
 
   have : ∃ B : Set G, B ⊆ A ∧ Nat.card B ≥ Nat.card A' ∧ Nat.card B ≥ Nat.card A''
-      ∧ dimension B ≤ max (dimension A') (dimension A'') := by
+      ∧ AffineSpace.finrank ℤ B ≤ max (AffineSpace.finrank ℤ A') (AffineSpace.finrank ℤ A'') := by
     rcases lt_or_ge (Nat.card A') (Nat.card A'') with h | h
     · exact ⟨A'', hA'', by linarith, by linarith, le_max_right _ _⟩
     · exact ⟨A', hA', by linarith, by linarith, le_max_left _ _⟩
@@ -1080,8 +1079,8 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
     convert this using 2
     convert zpow_neg K 17 using 1
     norm_cast
-  calc (dimension B : ℝ)
-    _ ≤ (((max (dimension A') (dimension A'')) : ℕ) : ℝ) := by norm_cast
+  calc (AffineSpace.finrank ℤ B : ℝ)
+    _ ≤ (((max (AffineSpace.finrank ℤ A') (AffineSpace.finrank ℤ A'')) : ℕ) : ℝ) := by norm_cast
     _ ≤ (40 / log 2) * dᵤ[A # A] := hdim
     _ ≤ (40 / log 2) * log K := mul_le_mul_of_nonneg_left hdist (by positivity)
 
@@ -1091,7 +1090,7 @@ and $\dim A' \leq \frac{40}{\log 2} \log K$.-/
 theorem weak_PFR_int {A : Set G} [A_fin : Finite A] (hnA : A.Nonempty) {K : ℝ} (hK : 0 < K)
     (hA : Nat.card (A-A) ≤ K * Nat.card A) :
     ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-17 : ℝ) * Nat.card A ∧
-      dimension A' ≤ (40 / log 2) * log K := by
+      AffineSpace.finrank ℤ A' ≤ (40 / log 2) * log K := by
   apply weak_PFR hnA hK ((rdist_set_le A A hnA hnA).trans _)
   suffices log (Nat.card (A-A)) ≤ log K + log (Nat.card A) by linarith
   rw [← log_mul (by positivity) _]

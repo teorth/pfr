@@ -393,7 +393,7 @@ lemma construct_good_prelim :
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
         ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum2]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
-        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
+        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
 
     gcongr
@@ -404,7 +404,7 @@ lemma construct_good_prelim :
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
         ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum3]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
-        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
+        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
@@ -458,7 +458,7 @@ local notation3:max "δ'" => I[T₁ : T₂|R] + I[T₂ : T₃|R] + I[T₃ : T₁
 omit [AddCommGroup G] in
 lemma delta'_eq_integral :
     δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
-  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum, smul_add,
+  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_fintype _ .of_finite, smul_add,
     Finset.sum_add_distrib]
 
 include hT₁ hT₂ hT₃ hT h_min hR hX₁ hX₂ in
@@ -474,7 +474,7 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
     k = (Measure.map R ℙ)[fun _r => k] := by
       rw [integral_const]; simp
     _ ≤ _ := ?_
-  simp_rw [integral_eq_sum]
+  simp_rw [integral_fintype _ .of_finite]
   apply Finset.sum_le_sum
   intro r _
   by_cases hr : ℙ (R⁻¹' {r}) = 0

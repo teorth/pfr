@@ -6,12 +6,6 @@ import PFR.ForMathlib.Entropy.Basic
 # Kullback-Leibler divergence
 
 Definition of Kullback-Leibler divergence and basic facts
-
-## Main definitions:
-
-
-## Main results
-
 -/
 
 open MeasureTheory ProbabilityTheory Real

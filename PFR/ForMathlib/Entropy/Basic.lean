@@ -446,7 +446,7 @@ lemma condEntropy_le_log_card [MeasurableSingletonClass S] [Fintype S]
 lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
     [IsFiniteMeasure μ] (hY : Measurable Y) [FiniteRange Y]:
     H[X | Y ; μ] = ∑ y in FiniteRange.toFinset Y, (μ.map Y {y}).toReal * H[X | Y ← y ; μ] := by
-  rw [condEntropy_def, integral_eq_setIntegral (full_measure_of_finiteRange hY), setIntegral_eq_sum]
+  rw [condEntropy_def, integral_eq_setIntegral (full_measure_of_finiteRange hY), integral_finset _ _ IntegrableOn.finset]
   simp_rw [smul_eq_mul]
 
 /-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`$.-/
@@ -454,7 +454,7 @@ lemma condEntropy_eq_sum_fintype
     [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
     [IsFiniteMeasure μ] (hY : Measurable Y) [Fintype T] :
     H[X | Y ; μ] = ∑ y, (μ (Y ⁻¹' {y})).toReal * H[X | Y ← y ; μ] := by
-  rw [condEntropy_def, integral_eq_sum]
+  rw [condEntropy_def, integral_fintype _ .of_finite]
   simp_rw [smul_eq_mul, Measure.map_apply hY (.singleton _)]
 
 variable [MeasurableSingletonClass T]
@@ -828,7 +828,7 @@ lemma condMutualInfo_eq_kernel_mutualInfo
     I[X : Y | Z ; μ] = Ik[condDistrib (⟨X, Y⟩) Z μ, μ.map Z] := by
   rcases finiteSupport_of_finiteRange (μ := μ) (X := Z) with ⟨A, hA⟩
   simp_rw [condMutualInfo_def, entropy_def, Kernel.mutualInfo, Kernel.entropy,
-    integral_eq_setIntegral hA, setIntegral_eq_sum, smul_eq_mul, mul_sub, mul_add,
+    integral_eq_setIntegral hA, integral_finset _ _ IntegrableOn.finset, smul_eq_mul, mul_sub, mul_add,
     Finset.sum_sub_distrib, Finset.sum_add_distrib]
   congr with x
   · have h := condDistrib_fst_ae_eq hX hY hZ μ
@@ -857,7 +857,7 @@ lemma condMutualInfo_eq_sum [MeasurableSingletonClass U] [IsFiniteMeasure μ]
     I[X : Y | Z ; μ] = ∑ z in FiniteRange.toFinset Z,
       (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
   rw [condMutualInfo_eq_integral_mutualInfo,
-    integral_eq_setIntegral (FiniteRange.null_of_compl _ Z), setIntegral_eq_sum]
+    integral_eq_setIntegral (FiniteRange.null_of_compl _ Z), integral_finset _ _ IntegrableOn.finset]
   congr 1 with z
   rw [map_apply hZ (MeasurableSet.singleton z)]
   rfl
