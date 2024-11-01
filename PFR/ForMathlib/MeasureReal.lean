@@ -60,6 +60,20 @@ lemma sum_toReal_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace 
     ∑ x : S, (μ {x}).toReal = (μ Set.univ).toReal := by
   simp
 
+lemma measure_eq_univ_of_forall_singleton {X : Type*} [Countable X] [MeasurableSpace X]
+    {μ : Measure X} {s : Set X} (hμ : ∀ x ∈ sᶜ, μ {x} = 0) : μ s = μ Set.univ := by
+  apply le_antisymm (measure_mono (subset_univ _))
+  rw [← Set.union_compl_self s]
+  apply (measure_union_le _ _).trans
+  have : μ sᶜ = 0 := by
+    apply (measure_null_iff_singleton (Set.to_countable _)).2 (fun i hi ↦ ?_)
+    exact hμ _ hi
+  simp [this]
+
+lemma measure_eq_one_of_forall_singleton {X : Type*} [Countable X] [MeasurableSpace X]
+    {μ : Measure X} [IsProbabilityMeasure μ] {s : Set X} (hμ : ∀ x ∈ sᶜ, μ {x} = 0) : μ s = 1 := by
+  rw [measure_eq_univ_of_forall_singleton hμ, measure_univ]
+
 variable [MeasurableSpace Ω]
 
 /-- Variant of `sum_measure_preimage_singleton` using real numbers rather than extended nonnegative
