@@ -2,7 +2,6 @@ import Mathlib.Combinatorics.Additive.Energy
 import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import LeanAPAP.Extras.BSG
-import PFR.Mathlib.Data.Set.Function
 import PFR.HomPFR
 
 /-!
@@ -45,7 +44,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       congr
       rw [← Nat.card_eq_finsetCard, ← Finset.coe_sort_coe, Finset.coe_filter,
         Set.Finite.toFinset_prod]
-      simp only [Set.Finite.mem_toFinset, A, graphOn_prod_graphOn]
+      simp only [Set.Finite.mem_toFinset, A, Set.graphOn_prod_graphOn]
       rw [← Set.card_graphOn _ (Prod.map f f),
         ← Nat.card_image_equiv (Equiv.prodProdProdComm G G' G G'), Set.image_equiv_eq_preimage_symm]
       congr

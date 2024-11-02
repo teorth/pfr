@@ -32,10 +32,8 @@ import PFR.ImprovedPFR
 import PFR.Kullback
 import PFR.Main
 import PFR.Mathlib.Algebra.AddTorsor
-import PFR.Mathlib.Algebra.Group.Pointwise.Set.Basic
 import PFR.Mathlib.Algebra.Module.ZMod
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.Data.Set.Function
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.GroupTheory.PGroup
 import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace

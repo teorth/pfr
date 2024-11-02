@@ -1,5 +1,4 @@
 import Mathlib.Data.Set.Card
-import PFR.Mathlib.Algebra.Group.Pointwise.Set.Basic
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.SetTheory.Cardinal.Finite
 import PFR.ImprovedPFR
