@@ -154,7 +154,7 @@ The first inequality follows from \Cref{kl-sums}. The second and third inequalit
 \begin{definition}[Conditional Rho functional]\label{rho-cond-def}\lean{condRho}\leanok We define $\rho(X|Y) := \sum_y {\bf P}(Y=y) \rho(X|Y=y)$.
 \end{definition}
 
-\begin{lemma}\label{rho-cond-invariant}\lean{condRho_of_translate}\leanok
+\begin{lemma}[Conditional rho and translation]\label{rho-cond-invariant}\lean{condRho_of_translate}\leanok
   For any $s\in G$, $\rho(X+s|Y)=\rho(X|Y)$.
 \end{lemma}
 \begin{proof}
@@ -162,7 +162,7 @@ The first inequality follows from \Cref{kl-sums}. The second and third inequalit
   Direct corollary of \Cref{rho-invariant}.
 \end{proof}
 
-\begin{lemma}\label{rho-cond-relabeled}\lean{condRho_of_injective}\leanok
+\begin{lemma}[Conditional rho and relabeling]\label{rho-cond-relabeled}\lean{condRho_of_injective}\leanok
   If $f$ is injective, then $\rho(X|f(Y))=\rho(X|Y)$.
 \end{lemma}
 \begin{proof}
