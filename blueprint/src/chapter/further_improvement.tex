@@ -11,13 +11,13 @@ In the definitions below, $G$ is a set.
 \begin{lemma}[Kullback--Leibler divergence of copy]\label{kl-div-copy}\lean{KL_div_eq_of_equiv}\leanok  If $X'$ is a copy of $X$, and $Y'$ is a copy of $Y$, then $D_{KL}(X'\Vert Y') = D_{KL}(X\Vert Y)$.
 \end{lemma}
 
-\begin{proof}\uses{kl-div}  Clear from definition.
+\begin{proof}\uses{kl-div}\leanok  Clear from definition.
 \end{proof}
 
 \begin{lemma}[Gibbs inequality]\label{Gibbs}\uses{kl-div}\lean{KL_div_nonneg}\leanok  $D_{KL}(X\Vert Y) \geq 0$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
   \uses{log-sum}
   Apply \Cref{log-sum} on the definition.
 \end{proof}
@@ -25,7 +25,7 @@ In the definitions below, $G$ is a set.
 \begin{lemma}[Converse Gibbs inequality]\label{Gibbs-converse}\lean{KL_div_eq_zero_iff_identDistrib}\leanok  If $D_{KL}(X\Vert Y) = 0$, then $Y$ is a copy of $X$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
   \uses{converse-log-sum}
   Apply \Cref{converse-log-sum}.
 \end{proof}
@@ -34,7 +34,7 @@ In the definitions below, $G$ is a set.
 $$D_{KL}(X\Vert Y) \le \sum_{s\in S} w_s D_{KL}(X_s\Vert Y_s).$$
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
   \uses{kl-div,log-sum}
 For each $x$, replace $\log \frac{\mathbf{P}(X_s=x)}{\mathbf{P}(Y_s=x)}$ in the definition with $\log \frac{w_s\mathbf{P}(X_s=x)}{w_s\mathbf{P}(Y_s=x)}$ for each $s$, and apply \Cref{log-sum}.
 \end{proof}
@@ -43,7 +43,7 @@ For each $x$, replace $\log \frac{\mathbf{P}(X_s=x)}{\mathbf{P}(Y_s=x)}$ in the 
 \begin{lemma}[Kullback--Leibler and injections]\label{kl-div-inj}\lean{KL_div_of_comp_inj}\leanok  If $f:G \to H$ is an injection, then $D_{KL}(f(X)\Vert f(Y)) = D_{KL}(X\Vert Y)$.
 \end{lemma}
 
-\begin{proof}\uses{kl-div} Clear from definition.
+\begin{proof}\leanok\uses{kl-div} Clear from definition.
 \end{proof}
 
 Now let $G$ be an additive group.

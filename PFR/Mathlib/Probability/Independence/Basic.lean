@@ -43,14 +43,6 @@ lemma iIndepFun.reindex_symm (g : ι' ≃ ι) (h : iIndepFun n f μ) : iIndepFun
 lemma iIndepFun_reindex_iff (g : ι' ≃ ι) : iIndepFun (n ∘' g) (f ∘' g) μ ↔ iIndepFun n f μ :=
   ⟨fun h ↦ h.reindex g, fun h ↦ h.reindex_symm g⟩
 
-lemma iIndepFun.comp (h : iIndepFun n f μ) (g : ∀ i, α i → β i) (hg : ∀ i, Measurable (g i)) :
-    iIndepFun m (fun i ↦ g i ∘ f i) μ := by
-  rw [iIndepFun_iff] at h ⊢
-  refine fun t s hs ↦ h t (fun i hi ↦ ?_)
-  simp_rw [measurable_iff_comap_le] at hg
-  simp_rw [← MeasurableSpace.comap_comp] at hs
-  exact MeasurableSpace.comap_mono (hg i) (s i) (hs i hi)
-
 variable (i : ι) [Inv (α i)] [MeasurableInv (α i)] [DecidableEq ι] in
 @[to_additive]
 lemma iIndepFun.inv (h : iIndepFun n f μ) : iIndepFun n (update f i (f i)⁻¹) μ := by

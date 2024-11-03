@@ -325,7 +325,8 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
 omit [Fintype G] hG [MeasurableSingletonClass G] mΩ in
 /-- `U + V + W = 0`. -/
 lemma sum_uvw_eq_zero [Module (ZMod 2) G] : U + V + W = 0 := by
-  simp [add_assoc, add_left_comm (a := X₁), add_left_comm (a := X₂)]
+  simp [add_assoc, add_left_comm (a := X₁), add_left_comm (a := X₂), ← ZModModule.sub_eq_add X₁',
+    ZModModule.add_self]
 
 section construct_good
 variable {Ω' : Type*} [MeasureSpace Ω']
@@ -373,10 +374,10 @@ lemma construct_good_prelim :
   have hp.η : 0 ≤ p.η := by linarith [p.hη]
   have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
   have h2T₃ : T₃ = T₁ + T₂ :=
-    calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp
+    calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp [ZModModule.neg_eq_self]
       _ = T₁ + T₂ := by rw [add_sub_cancel_right]
-  have h2T₁ : T₁ = T₂ + T₃ := by simp [h2T₃, add_left_comm]
-  have h2T₂ : T₂ = T₃ + T₁ := by simp [h2T₁, add_left_comm]
+  have h2T₁ : T₁ = T₂ + T₃ := by simp [h2T₃, add_left_comm, ZModModule.add_self]
+  have h2T₂ : T₂ = T₃ + T₁ := by simp [h2T₁, add_left_comm, ZModModule.add_self]
 
   have h1 : sum1 ≤ δ := by
     have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := by
@@ -392,7 +393,7 @@ lemma construct_good_prelim :
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
         ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum2]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
-        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
+        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
 
     gcongr
@@ -403,7 +404,7 @@ lemma construct_good_prelim :
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
         ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum3]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
-        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
+        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
@@ -416,7 +417,7 @@ lemma construct_good_prelim :
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
     refine integral_mono_ae .of_finite .of_finite $ ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
-      cond_isProbabilityMeasure ℙ (by simpa [hT₃] using ht)
+      cond_isProbabilityMeasure (by simpa [hT₃] using ht)
     dsimp only
     linarith only [distance_ge_of_min' (μ := ℙ[|T₃ ⁻¹' {t}]) (μ' := ℙ[|T₃ ⁻¹' {t}]) p h_min hT₁ hT₂]
   exact hk.trans h4
@@ -457,7 +458,7 @@ local notation3:max "δ'" => I[T₁ : T₂|R] + I[T₂ : T₃|R] + I[T₃ : T₁
 omit [AddCommGroup G] in
 lemma delta'_eq_integral :
     δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
-  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_eq_sum, smul_add,
+  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_fintype _ .of_finite, smul_add,
     Finset.sum_add_distrib]
 
 include hT₁ hT₂ hT₃ hT h_min hR hX₁ hX₂ in
@@ -473,7 +474,7 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
     k = (Measure.map R ℙ)[fun _r => k] := by
       rw [integral_const]; simp
     _ ≤ _ := ?_
-  simp_rw [integral_eq_sum]
+  simp_rw [integral_fintype _ .of_finite]
   apply Finset.sum_le_sum
   intro r _
   by_cases hr : ℙ (R⁻¹' {r}) = 0
@@ -483,7 +484,7 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
   gcongr (?_ * ?_)
   · apply rdist_nonneg hX₁ hX₂
   · rfl
-  have : IsProbabilityMeasure (ℙ[|R ⁻¹' {r}]) := cond_isProbabilityMeasure ℙ hr
+  have : IsProbabilityMeasure (ℙ[|R ⁻¹' {r}]) := cond_isProbabilityMeasure hr
   apply construct_good' p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 
 end construct_good

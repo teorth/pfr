@@ -3,8 +3,6 @@ import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Kernel.CondDistrib
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
-import PFR.Mathlib.Probability.Kernel.MeasureCompProd
 
 /-!
 # Disintegration of kernels in finite spaces
@@ -59,8 +57,8 @@ lemma condKernel_compProd_apply' (κ : Kernel T S) [IsFiniteKernel κ]
     (x : T × S) (hx : κ x.1 {x.2} ≠ 0) {s : Set U} (hs : MeasurableSet s) :
     condKernel (κ ⊗ₖ η) x s = η x s := by
   have hx' : (κ ⊗ₖ η) x.1 (Prod.fst ⁻¹' {x.2}) ≠ 0 := by
-    rwa [compProd_preimage_fst _ _ (.singleton _)]
-  rw [condKernel_apply' _ _ hx', compProd_apply _ _ _ ((measurableSet_singleton _).prod hs),
+    rwa [compProd_preimage_fst (.singleton _)]
+  rw [condKernel_apply' _ _ hx', compProd_apply ((measurableSet_singleton _).prod hs),
     Kernel.compProd_apply, lintegral_eq_single _ x.2, lintegral_eq_single _ x.2]
   · simp
     rw [mul_comm, mul_assoc]
@@ -82,7 +80,7 @@ lemma condKernel_compProd_apply (κ : Kernel T S) [IsFiniteKernel κ]
 lemma disintegration (κ : Kernel T (S × U)) [IsFiniteKernel κ] :
     κ = (Kernel.fst κ) ⊗ₖ (condKernel κ) := by
   ext x s hs
-  rw [compProd_apply _ _ _ hs, lintegral_fst]
+  rw [compProd_apply hs, lintegral_fst]
   swap; · exact measurable_kernel_prod_mk_left' hs x
   rw [lintegral_eq_tsum, ENNReal.tsum_prod']
   change κ x s = ∑' a : S, ∑' b : U, κ x {(a, b)} * condKernel κ (x, a) (Prod.mk a ⁻¹' s)
@@ -223,7 +221,7 @@ lemma condDistrib_apply [Nonempty S] (hX : Measurable X) (hY : Measurable Y) (μ
     condDistrib X Y μ x = (μ[|Y ⁻¹' {x}]).map X := by
   ext s hs
   rw [condDistrib_apply' hX hY μ x hYx hs, Measure.map_apply hX hs,
-    cond_apply _ (hY (.singleton _))]
+    cond_apply (hY (.singleton _))]
 
 variable [Countable T]
 
@@ -454,15 +452,15 @@ lemma condDistrib_eq_prod_of_indepFun [Nonempty S]
   simp_rw [lintegral_eq_tsum, condDistrib_apply hX hZ μ _ hxZ,
     condDistrib_apply hY hW μ _ hxW, Measure.map_apply (hX.prod_mk hY) hs]
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod,
-    cond_apply _ ((hZ (.singleton _)).inter (hW (.singleton _)))]
+    cond_apply ((hZ (.singleton _)).inter (hW (.singleton _)))]
   simp_rw [Measure.map_apply hX (.singleton _),
-    cond_apply _ (hZ (.singleton _))]
+    cond_apply (hZ (.singleton _))]
   change (μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2}))⁻¹
       * μ (Z ⁻¹' {x.1} ∩ W ⁻¹' {x.2} ∩ (fun a ↦ (X a, Y a)) ⁻¹' s)
     = ∑' x_1, (μ (Z ⁻¹' {x.1}))⁻¹ * μ (Z ⁻¹' {x.1} ∩ X ⁻¹' {x_1})
       * ((μ[|W ⁻¹' {x.2}]).map Y) (Prod.mk x_1 ⁻¹' s)
   simp_rw [Measure.map_apply hY (measurable_prod_mk_left hs),
-    cond_apply _ (hW (.singleton _))]
+    cond_apply (hW (.singleton _))]
   have hZW : IndepFun Z W μ := by
     have h' := IndepFun.comp h measurable_snd measurable_snd
     exact h'
@@ -539,7 +537,7 @@ lemma _root_.MeasureTheory.Measure.compProd_apply_singleton
       ext y
       simp [ha]
   simp_rw [this]
-  rw [lintegral_indicator _ (.singleton _)]
+  rw [lintegral_indicator (.singleton _)]
   simp
 
 lemma _root_.MeasureTheory.Measure.ae_of_compProd_eq_zero {α β : Type*}
@@ -578,7 +576,7 @@ lemma compProd_congr {μ} [SFinite μ] {κ κ' : Kernel T S} [IsSFiniteKernel κ
   have hη' := Measure.ae_of_ae_compProd hη
   filter_upwards [hκ, hη'] with a haκ haη
   ext s hs
-  rw [compProd_apply _ _ _ hs, compProd_apply _ _ _ hs, ← haκ]
+  rw [compProd_apply hs, compProd_apply hs, ← haκ]
   refine lintegral_congr_ae ?_
   filter_upwards [haη] with b hb
   rw [hb]
@@ -669,7 +667,7 @@ instance AEFiniteKernelSupport.isMarkovKernel_mk
   rcases isEmpty_or_nonempty T with hT | hT
   · exact ⟨fun x ↦ (IsEmpty.false x).elim⟩
   inhabit T
-  have : Nonempty S := nonempty_of_isProbabilityMeasure ((κ default))
+  have : Nonempty S := (κ default).nonempty_of_neZero
   rw [AEFiniteKernelSupport.mk_eq]
   infer_instance
 
@@ -885,7 +883,7 @@ lemma FiniteKernelSupport.compProd [MeasurableSingletonClass S] [MeasurableSingl
   rcases hκ t with ⟨A, hA⟩
   rcases (local_support_of_finiteKernelSupport hη ({t} ×ˢ A)) with ⟨B, hB⟩
   use A ×ˢ B
-  rw [Kernel.compProd_apply _ _ _ (by measurability), lintegral_eq_setLIntegral hA,
+  rw [Kernel.compProd_apply (by measurability), lintegral_eq_setLIntegral hA,
     setLIntegral_eq_sum]
   apply Finset.sum_eq_zero
   intro s hs

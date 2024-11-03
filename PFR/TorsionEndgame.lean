@@ -129,7 +129,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
         apply le_trans _ ha'
         rw [← SetLike.coe_sort_coe, ← SetLike.coe_sort_coe, AddSubgroup.normal_add K Z, Nat.mul_comm]
         calc
-          _ ≤ (Nat.card (K:Set G)) * (Nat.card (Z:Set G)) := Set.card_add_le
+          _ ≤ Nat.card (K : Set G) * Nat.card (Z : Set G) := Set.natCard_add_le
           _ ≤ _ := by
             gcongr
             rw [SetLike.coe_sort_coe, Nat.card_zmultiples a]
@@ -203,7 +203,7 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
-      ≤ Nat.card c * Nat.card u := mod_cast Set.card_add_le
+      ≤ Nat.card c * Nat.card u := mod_cast Set.natCard_add_le
     _ ≤ (K ^ ((64*m^3+2)) * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
           * (Nat.card H / Nat.card H') := by
         gcongr

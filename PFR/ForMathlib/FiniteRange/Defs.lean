@@ -1,9 +1,4 @@
-import Mathlib.Data.Set.Image
-import Mathlib.Data.Set.Finite
-import Mathlib.Data.Fintype.Basic
-import Mathlib.Algebra.Group.Defs
 import Mathlib.MeasureTheory.Measure.MeasureSpace
-import PFR.ForMathlib.Pair
 
 /-- The property of having a finite range. -/
 class FiniteRange {Ω G : Type*} (X : Ω → G) : Prop where
@@ -62,20 +57,14 @@ instance {Ω Ω' G : Type*} (X : Ω → G) (f : Ω' → Ω) [hX : FiniteRange X]
 
 /-- If X, Y have finite range, then so does the pair ⟨X, Y⟩. -/
 instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX : FiniteRange X] [hY : FiniteRange Y] :
-    FiniteRange (⟨X, Y⟩) where
-  finite := by
-    have : Set.range (⟨X, Y⟩) ⊆ (Set.range X) ×ˢ (Set.range Y) := by
-      intro ⟨x, y⟩ hz
-      simp only [Set.mem_range, Prod.mk.injEq, Set.mem_prod] at hz ⊢
-      rcases hz with ⟨ω, hω⟩
-      exact ⟨⟨ω, hω.1⟩, ω, hω.2⟩
-    exact Set.Finite.subset (Set.Finite.prod hX.finite hY.finite) this
+    FiniteRange fun ω ↦ (X ω, Y ω) where
+  finite := (hX.finite.prod hY.finite).subset (Set.range_pair_subset ..)
 
 /-- The product of functions of finite range, has finite range. -/
 @[to_additive "The sum of functions of finite range, has finite range."]
 instance FiniteRange.mul {Ω G : Type*} (X Y : Ω → G) [Mul G]
     [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X * Y) := by
-  show FiniteRange ((fun p ↦ p.1 * p.2) ∘ ⟨X, Y⟩)
+  show FiniteRange ((fun p ↦ p.1 * p.2) ∘ fun ω ↦ (X ω, Y ω))
   infer_instance
 
 /-- The product of functions of finite range, has finite range. -/
@@ -87,7 +76,7 @@ instance FiniteRange.mul' {Ω G : Type*} (X Y : Ω → G) [Mul G] [FiniteRange X
 @[to_additive "The difference of functions of finite range, has finite range."]
 instance FiniteRange.div {Ω G : Type*} (X Y : Ω → G) [Div G]
     [hX : FiniteRange X] [hY : FiniteRange Y] : FiniteRange (X/Y) := by
-  show FiniteRange ((fun p ↦ p.1 / p.2) ∘ ⟨X, Y⟩)
+  show FiniteRange ((fun p ↦ p.1 / p.2) ∘ fun ω ↦ (X ω, Y ω))
   infer_instance
 
 /-- The product of functions of finite range, has finite range. -/

@@ -12,18 +12,6 @@ section iIndepFun
 
 variable {β γ : ι → Type*} {m : ∀ i, MeasurableSpace (β i)} {mγ : ∀ i, MeasurableSpace (γ i)} {f : ∀ i, Ω → β i}
 
-lemma iIndepFun.comp (h : iIndepFun m f κ μ) (g : ∀ i, β i → γ i) (hg : ∀ i, Measurable (g i)) :
-    iIndepFun mγ (fun i ↦ g i ∘ f i) κ μ := by
-  rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at h ⊢
-  refine fun t s hs ↦ ?_
-  have := h t (sets := fun i ↦ g i ⁻¹' (s i)) (fun i a ↦ hg i (hs i a))
-  filter_upwards [this] with a ha
-  simp_rw [Set.preimage_comp]
-  exact ha
-
--- #check Kernel.iIndepFun.indepFun_finset
--- #check iIndepFun.indepFun_finset
-
 -- maybe `Fintype J` is not necessary?
 /-- If `f` is a family of mutually independent random variables, `(S j)ⱼ` are pairwise disjoint
 finite index sets, then the tuples formed by `f i` for `i ∈ S j` are mutually independent,

@@ -1,6 +1,5 @@
 import Mathlib.Algebra.BigOperators.Group.Finset
-import Mathlib.MeasureTheory.Constructions.Prod.Integral
-import PFR.Mathlib.Data.ZMod.Basic
+import Mathlib.MeasureTheory.Integral.Prod
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
@@ -467,7 +466,7 @@ lemma condRuzsaDist_eq_sum' {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : �
     d[X | Z ; μ # Y | W ; μ']
       = ∑ z, ∑ w, (μ (Z ⁻¹' {z})).toReal * (μ' (W ⁻¹' {w})).toReal
           * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
-  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_sum]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_fintype _ .of_finite]
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, smul_eq_mul, Fintype.sum_prod_type,
     Measure.map_apply hZ (.singleton _),
     Measure.map_apply hW (.singleton _)]
@@ -503,7 +502,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
       simp [← FiniteRange.range]
       measurability
     }
-  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, setIntegral_eq_sum]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ IntegrableOn.finset]
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, smul_eq_mul, Finset.sum_product,
     Measure.map_apply hZ (.singleton _),
     Measure.map_apply hW (.singleton _)]
@@ -584,7 +583,7 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
-  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, setIntegral_eq_sum]
+  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ IntegrableOn.finset]
   simp_rw [Measure.prod_apply_singleton, smul_eq_mul, Finset.sum_product]
   simp only [Finset.univ_unique, PUnit.default_eq_unit, MeasurableSpace.measurableSet_top,
     Measure.dirac_apply', Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, one_mul,
@@ -650,7 +649,7 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
     · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.one_toReal, one_mul]
       exacts [hw.ne', by finiteness]
   · congr 1
-    rw [A, cond_cond_eq_cond_inter' _ (hW (.singleton w)) (hW' (.singleton w')), Set.inter_comm]
+    rw [A, cond_cond_eq_cond_inter' (hW (.singleton _)) (hW' (.singleton _)), Set.inter_comm]
     finiteness
 
 /-- Version of `condRuzsaDist'_prod_eq_sum` when `W` has finite codomain. -/
@@ -681,9 +680,8 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
-  rw [integral_eq_setIntegral this]
-  convert symm $ setIntegral_eq_sum (μ'.map W) _ (fun w ↦ d[X ; μ # Y ; (μ'[|W ← w])])
-  rw [Measure.map_apply hW (MeasurableSet.singleton _)]
+  rw [integral_eq_setIntegral this, integral_finset _ _ IntegrableOn.finset]
+  simp [Measure.map_apply hW (MeasurableSet.singleton _)]
 
 section
 
@@ -833,8 +831,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
       measurability
     }
   rw [condRuzsaDist_def, condRuzsaDist_def, Kernel.rdist, Kernel.rdist,
-    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', setIntegral_eq_sum,
-    setIntegral_eq_sum]
+    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', integral_finset _ _ IntegrableOn.finset,
+    integral_finset _ _ IntegrableOn.finset]
   have hZZ' : μ.map Z = μ''.map Z' := (h1.comp measurable_snd).map_eq
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hZZ', ← hWW',
@@ -905,8 +903,8 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     simp [← FiniteRange.range]
     measurability
   rw [condRuzsaDist'_def, condRuzsaDist'_def, Kernel.rdist, Kernel.rdist,
-    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', setIntegral_eq_sum,
-    setIntegral_eq_sum]
+    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', integral_finset _ _ IntegrableOn.finset,
+    integral_finset _ _ IntegrableOn.finset]
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hWW',
     Measure.map_apply hW (.singleton _)]
@@ -992,45 +990,39 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [Module (ZMod 2) G]
   let π : G × G →+ G :=
   { toFun := fun x ↦ x.2 - x.1
     map_zero' := by simp
-    map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add, Module.sub_eq_add]; abel }
+    map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add, ZModModule.sub_eq_add]; abel }
   let Y : Fin 4 → Ω → G := ![-X, C, fun _ ↦ 0, B + C]
   have _ : FiniteRange (Y 0) := by simp [Y]; infer_instance
   have _ : FiniteRange (Y 1) := by simp [Y]; infer_instance
   have _ : FiniteRange (Y 2) := by simp [Y]; infer_instance
   have _ : FiniteRange (Y 3) := by simp [Y]; infer_instance
-
-  have hY_meas : ∀ i, Measurable (Y i) := by
-    intro i
-    fin_cases i
-    exacts [hX.neg, hC, measurable_const, hB.add hC]
+  have hY_meas i : Measurable (Y i) := by
+    fin_cases i; exacts [hX.neg, hC, measurable_const, hB.add hC]
   calc d[X ; μ # B | B + C ; μ]
-    = d[X | fun _ : Ω ↦ (0 : G) ; μ # B | B + C ; μ] := by
-        rw [condRuzsaDist_of_const hX _ _]
+    = d[X | fun _ : Ω ↦ (0 : G) ; μ # B | B + C ; μ] := by rw [condRuzsaDist_of_const hX]
   _ = d[π ∘ ⟨-X, fun _ : Ω ↦ (0 : G)⟩ | fun _ : Ω ↦ (0 : G) ; μ # π ∘ ⟨C, B + C⟩ | B + C ; μ] := by
-        congr
-        · ext1 ω; simp [π]
-        · ext1 ω
-          simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, Pi.add_apply, π]
-          abel
+    congr
+    · ext1 ω; simp [π]
+    · ext1 ω
+      simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, Pi.add_apply, π]
+      abel
   _ = d[π ∘ ⟨Y 0, Y 2⟩ | Y 2 ; μ # π ∘ ⟨Y 1, Y 3⟩ | Y 3 ; μ] := by congr
   _ = d[-X | fun _ : Ω ↦ (0 : G) ; μ # C | B + C ; μ] := by
-        rw [condRuzsaDist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
-        · congr
-        · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp [Y]
-          have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
-            ext1 ω;
-            simp only [Module.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
-              comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
-              Matrix.cons_val_fin_one, true_and, Y]
-            congr
-          rw [h1, h2]
-          refine h_indep.comp ?_ ?_
-          · exact measurable_neg.prod_mk measurable_const
-          · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
-  _ = d[-X ; μ # C | B + C ; μ] := by rw [condRuzsaDist_of_const]; exact hX.neg
-  _ = d[X ; μ # C | B + C ; μ] := by -- because Module.G 2
+    rw [condRuzsaDist_of_inj_map _ _ hY_meas π (fun _ ↦ sub_right_injective)]
+    · congr
+    · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp [Y]
+      have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
+        ext1 ω;
+        simp only [ZModModule.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
+          comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
+          Matrix.cons_val_fin_one, true_and, Y]
         congr
-        simp
+      rw [h1, h2]
+      refine h_indep.comp ?_ ?_
+      · exact measurable_neg.prod_mk measurable_const
+      · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
+  _ = d[-X ; μ # C | B + C ; μ] := by rw [condRuzsaDist_of_const]; exact hX.neg
+  _ = d[X ; μ # C | B + C ; μ] := by simp_rw [ZModModule.neg_eq_self]
 
 lemma condRuzsaDist'_of_inj_map' [Module (ZMod 2) G] [IsProbabilityMeasure μ]
     [IsProbabilityMeasure μ''] {A : Ω'' → G} {B C : Ω → G} (hA : Measurable A) (hB : Measurable B)
@@ -1327,7 +1319,7 @@ lemma condRuzsaDist_le'_prod [Countable T] {X : Ω → G} {Y : Ω' → G} {W Z :
   rw [mul_div_assoc, ← mul_add]
   rcases eq_or_ne (μ' (Z ⁻¹' {z})) 0 with hz | hz
   · simp [hz]
-  · have : IsProbabilityMeasure (μ'[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure μ' hz
+  · have : IsProbabilityMeasure (μ'[|Z ⁻¹' {z}]) := cond_isProbabilityMeasure hz
     gcongr
     exact condRuzsaDist_le' _ _ hX hY hW
 
@@ -1356,7 +1348,7 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
   constructor
   · linarith [kaimanovich_vershik' hi hX' hY' hZ']
   · intro hG
-    rw [Module.sub_eq_add Y' Z']
+    rw [ZModModule.sub_eq_add Y' Z']
     ring
 
 variable (μ) in

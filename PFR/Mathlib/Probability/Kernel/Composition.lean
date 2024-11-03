@@ -94,7 +94,7 @@ lemma deleteMiddle_compProd (ξ : Kernel α β) [IsSFiniteKernel ξ]
     (κ : Kernel (α × β) (γ × δ)) [IsSFiniteKernel κ] :
     deleteMiddle (ξ ⊗ₖ κ) = ξ ⊗ₖ snd κ := by
   ext x s hs
-  rw [deleteMiddle_eq, map_apply' _ (by fun_prop) _ hs, compProd_apply _ _ _ hs, compProd_apply]
+  rw [deleteMiddle_eq, map_apply' _ (by fun_prop) _ hs, compProd_apply hs, compProd_apply]
   swap; · exact measurable_fst.prod_mk measurable_snd.snd hs
   congr with b
   simp only [Set.mem_preimage]
