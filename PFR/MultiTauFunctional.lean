@@ -57,7 +57,7 @@ lemma multiTau_continuous {G Ω₀ : Type u} [MeasureableFinGroup G] [Topologica
 lemma multiTau_min_exists {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) : ∃ (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G), multiTauMinimizes p Ω hΩ X := by sorry
 
 /-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/
-lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀: MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X):
+lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀: MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (hprobΩ : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) (X : ∀ i, Ω i → G) (hX : ∀ i, Measurable (X i)) (hmin : multiTauMinimizes p Ω hΩ X):
   ∑ i, d[X i # p.X₀] ≤ 2 * p.m * p.η⁻¹ * d[p.X₀ # p.X₀] := by
   have hη : p.η > 0 := p.hη
   have hm : p.m > 0 := by linarith [p.hm]
@@ -67,7 +67,7 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀
       field_simp
     _ ≤ p.η⁻¹ * (D[X ; hΩ] + p.η * ∑ i, d[X i # p.X₀]) := by
       gcongr
-      exact multiDist_nonneg hΩ X
+      exact multiDist_nonneg hΩ hprobΩ X hX
     _ ≤ p.η⁻¹ * (D[fun _ ↦ p.X₀ ; fun _ ↦ hΩ₀] + p.η * (p.m * d[p.X₀ # p.X₀])) := by
       apply mul_le_mul_of_nonneg_left
       · have ineq := hmin (fun _ ↦ Ω₀) (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀)

@@ -745,9 +745,37 @@ lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m 
     (hindep : iIndepFun (fun _ ↦ hG) X) :
     D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (∑ i, H[X i]) / m := by sorry
 
+lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
+    (hprob : IsProbabilityMeasure (ℙ : Measure Ω)) (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
+    (hindep : iIndepFun (fun i => inferInstance) X ℙ) :
+    D[X ; fun _ ↦ hΩ] ≥ 0 := by
+  rw [multiDist_indep hΩ X hindep]
+  by_cases hm : m = 0
+  · subst hm
+    simp only [Finset.univ_eq_empty, Finset.sum_empty, CharP.cast_eq_zero, div_zero, sub_zero,
+      ge_iff_le]
+    erw [entropy_const]
+  have : NeZero m := ⟨hm⟩
+  norm_num
+  calc
+    (∑ i, H[X i]) / m ≤
+      (∑ i : Fin m, H[∑ i, X i]) / m:= by
+      gcongr with i
+      convert ProbabilityTheory.max_entropy_le_entropy_sum (Finset.mem_univ i) hX hindep
+    _ = H[∑ i, X i] := by
+      simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+      field_simp
+
 /-- We have `D[X_[m]] ≥ 0`. -/
-lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
-    (X : ∀ i, (Ω i) → G) : D[X ; hΩ] ≥ 0 := by sorry
+lemma multiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+    (hprob : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) (X : ∀ i, (Ω i) → G)
+    (hX : ∀ i, Measurable (X i)) :
+    D[X ; hΩ] ≥ 0 := by
+  obtain ⟨A, mA, μA, Y, isProb, hindep, hY⟩ :=
+    ProbabilityTheory.independent_copies' X hX (fun i => ℙ)
+  convert multiDist_nonneg_of_indep ⟨μA⟩ isProb Y (fun i => (hY i).1) hindep using 1
+  apply multiDist_copy
+  exact fun i => (hY i).2.symm
 
 /-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
 lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
@@ -901,7 +929,7 @@ theorem condMultiDist_of_const {G : Type*} [hG : MeasurableSpace G] [AddCommGrou
   simp only [Finset.mem_univ, not_true_eq_false, false_implies]
 
 /--Conditional multidistance is nonnegative. -/
-theorem condMultiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) {S : Type*} [Fintype S] (X : ∀ i, (Ω i) → G) (Y : ∀ i, (Ω i) → S) : 0 ≤ D[X | Y; hΩ] := by
+theorem condMultiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) (hprob : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) {S : Type*} [Fintype S] (X : ∀ i, (Ω i) → G) (Y : ∀ i, (Ω i) → S) (hX : ∀ i, Measurable (X i)) : 0 ≤ D[X | Y; hΩ] := by
   dsimp [condMultiDist]
   apply Finset.sum_nonneg
   intro y _
@@ -909,7 +937,11 @@ theorem condMultiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, Meas
   . apply Finset.prod_nonneg
     intro i _
     exact ENNReal.toReal_nonneg
-  exact multiDist_nonneg _ X
+  have (i : Fin m) : ℙ (Y i ⁻¹' {y i}) ≠ 0 := by
+    -- This probably requires additional assumptions on Y.
+    sorry
+  exact multiDist_nonneg (fun i => ⟨ℙ[|Y i ⁻¹' {y i}]⟩)
+    (fun i => ProbabilityTheory.cond_isProbabilityMeasure (this i)) X hX
 
 /-- A technical lemma: can push a constant into a product at a specific term -/
 private lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β] (f:α → β) (c: β) (i₀:α) : (∏ i, f i) * c = ∏ i, (if i=i₀ then f i * c else f i) := calc
@@ -1420,7 +1452,7 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
   _ ≥ ∑ d ∈ Finset.Iio (m : Fin (m + 1)),
       (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ π d ∘ X i ; fun _ ↦ hΩ] +
         I[∑ i : Fin m, X i : fun ω i ↦ (π (d + 1)) (X i ω)|⟨⇑(π (d + 1)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) := by
-      apply le_add_of_nonneg_left (condMultiDist_nonneg _ X _)
+      apply le_add_of_nonneg_left (condMultiDist_nonneg _ (fun _ => this) X _ hX)
   _ = ∑ d : Fin m,
       (D[fun i ↦ ⇑(π (d.succ)) ∘ X i | fun i ↦ ⇑(π d.castSucc) ∘ X i ; fun _ ↦ hΩ] +
         I[∑ i : Fin m, X i : fun ω i ↦ π d.succ (X i ω)|⟨π d.succ ∘ ∑ i : Fin m, X i, fun ω i ↦ π d (X i ω)⟩]) := by
