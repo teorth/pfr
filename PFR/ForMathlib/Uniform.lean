@@ -2,6 +2,7 @@ import Mathlib.Probability.IdentDistrib
 import Mathlib.Probability.ConditionalProbability
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.FiniteRange.Defs
+import PFR.Mathlib.Probability.UniformOn
 
 open Function MeasureTheory Set
 open scoped ENNReal
@@ -14,16 +15,29 @@ variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} [mΩ : MeasurableSpace Ω]
 /-- The assertion that the law of $X$ is the uniform probability measure on a finite set $H$.
 While in applications $H$ will be non-empty finite set, $X$ measurable, and and $μ$ a probability
 measure, it could be technically convenient to have a definition that works even without these
-hypotheses. (For instance, `isUniform` would be well-defined, but false, for infinite `H`) -/
+hypotheses. (For instance, `isUniform` would be well-defined, but false, for infinite `H`).
+
+This should probably be refactored, requiring instead that `μ.map X = uniformOn H` -- but at the
+time of writing `uniformOn` did not exist in mathlib. -/
 structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop :=
   eq_of_mem : ∀ x y, x ∈ H → y ∈ H → μ (X ⁻¹' {x}) = μ (X ⁻¹' {y})
   measure_preimage_compl : μ (X ⁻¹' Hᶜ) = 0
+
+lemma isUniform_uniformOn [MeasurableSingletonClass Ω] {A : Set Ω} :
+    IsUniform A id (uniformOn A) := by
+  constructor
+  · intro x y hx hy
+    have h'x : {x} ∩ A = {x} := by ext y; simp (config := {contextual := true}) [hx]
+    have h'y : {y} ∩ A = {y} := by ext y; simp (config := {contextual := true}) [hy]
+    simp [uniformOn, cond, h'x, h'y]
+  · exact uniformOn_apply_eq_zero (by simp)
 
 /-- Uniform distributions exist. -/
 lemma exists_isUniform [MeasurableSpace S] [MeasurableSingletonClass S]
     (H : Finset S) (h : H.Nonempty) :
     ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
-    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ (∀ ω : Ω, X ω ∈ H) ∧ FiniteRange X := by
+    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ (∀ ω : Ω, X ω ∈ H)
+      ∧ FiniteRange X := by
   refine ⟨H, Subtype.instMeasurableSpace, (fun x ↦ x),
       (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, Measure.dirac i, ?_, measurable_subtype_coe, ?_, fun x ↦ x.2, ?_⟩
   · constructor
@@ -153,7 +167,7 @@ lemma IsUniform.measureReal_preimage_of_mem' {H : Finset S} [IsProbabilityMeasur
 
 /-- $\mathbb{P}(U_H \in H') = \dfrac{|H' \cap H|}{|H|}$ -/
 lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Measurable X)
-    (H' : Set S) : μ (X ⁻¹' H') = (μ univ) * (Nat.card (H' ∩ H.toSet).Elem) / Nat.card H := calc
+    (H' : Set S) : μ (X ⁻¹' H') = (μ univ) * (Nat.card (H' ∩ H.toSet : Set S)) / Nat.card H := calc
   _ = μ (X ⁻¹' (H' ∩ H.toSet) ∪ X ⁻¹' (H' \ H.toSet)) := by simp
   _ = μ (X ⁻¹' (H' ∩ H.toSet)) + μ (X ⁻¹' (H' \ H.toSet)) :=
     measure_union (Disjoint.preimage X disjoint_inf_sdiff) (by measurability)
@@ -249,3 +263,12 @@ lemma IdentDistrib.of_isUniform {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measu
     simp
   · rw [IsUniform.measure_preimage_of_nmem hX_unif' h,
       IsUniform.measure_preimage_of_nmem hX'_unif' h]
+
+lemma IsUniform.map_eq_uniformOn [Countable S] [IsProbabilityMeasure μ]
+    {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) (hH : H.Finite) (h'H : H.Nonempty) :
+    μ.map X = uniformOn H := by
+  have : Finite H := hH
+  have : IsProbabilityMeasure (uniformOn H) := uniformOn_isProbabilityMeasure hH h'H
+  have : IdentDistrib X id μ (uniformOn (H : Set S)) :=
+    IdentDistrib.of_isUniform (H := H) hX measurable_id h isUniform_uniformOn
+  simpa using this.map_eq

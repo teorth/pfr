@@ -33,6 +33,7 @@ import PFR.Kullback
 import PFR.Main
 import PFR.Mathlib.Algebra.AddTorsor
 import PFR.Mathlib.Algebra.Module.ZMod
+import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.GroupTheory.PGroup
@@ -53,6 +54,7 @@ import PFR.Mathlib.Probability.Independence.FourVariables
 import PFR.Mathlib.Probability.Independence.Kernel
 import PFR.Mathlib.Probability.Kernel.Composition
 import PFR.Mathlib.Probability.Kernel.Disintegration
+import PFR.Mathlib.Probability.UniformOn
 import PFR.Mathlib.SetTheory.Cardinal.Finite
 import PFR.MoreRuzsaDist
 import PFR.MultiTauFunctional

@@ -486,10 +486,22 @@ variable [MeasurableSingletonClass S]
 lemma condEntropy_eq_sum_sum (hX : Measurable X) {Y : Ω → T} (hY : Measurable Y)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[X | Y ; μ]
-      = ∑ y in FiniteRange.toFinset Y, ∑ x in FiniteRange.toFinset X, (μ.map Y {y}).toReal * negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
+      = ∑ y in FiniteRange.toFinset Y, ∑ x in FiniteRange.toFinset X,
+        (μ.map Y {y}).toReal * negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
   rw [condEntropy_eq_sum _ _ _ hY]
   congr with y
   rw [entropy_cond_eq_sum_finiteRange hX, Finset.mul_sum]
+
+omit [MeasurableSingletonClass S] in
+/-- `H[X|Y] = ∑_y ∑_x P[Y=y] P[X=x|Y=y] log ⧸(P[X=x|Y=y])`$.-/
+lemma condEntropy_eq_sum_sum_fintype {Y : Ω → T} (hY : Measurable Y)
+    (μ : Measure Ω) [IsProbabilityMeasure μ] [Fintype S] [Fintype T] :
+    H[X | Y ; μ] = ∑ y, ∑ x,
+        (μ.map Y {y}).toReal * negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
+  rw [condEntropy_eq_sum_fintype _ _ _ hY]
+  congr with y
+  rw [entropy_cond_eq_sum, tsum_fintype, Finset.mul_sum,
+    Measure.map_apply hY (measurableSet_singleton _)]
 
 /-- Same as previous lemma, but with a sum over a product space rather than a double sum. -/
 lemma condEntropy_eq_sum_prod (hX : Measurable X) {Y : Ω → T}

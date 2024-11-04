@@ -98,6 +98,16 @@ lemma IdentDistrib.comp_right {i : δ → β} (hi : MeasurableEmbedding i) (hi' 
     (hg : Measurable g) (hfg : IdentDistrib f g μ ν) : IdentDistrib f (g ∘ i) μ (ν.comap i) :=
   hfg.trans $ identDistrib_comp_right hi hi' hg
 
+lemma _root_.MeasureTheory.MeasurePreserving.identDistrib {α β γ : Type*} {X : β → γ} {f : α → β}
+    [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ] {μ : Measure α}
+    {ν : Measure β} (hf : MeasurePreserving f μ ν) (hX : AEMeasurable X ν) :
+    IdentDistrib X (X ∘ f) ν μ := by
+  have A : AEMeasurable X (Measure.map f μ) := by rwa [hf.map_eq]
+  constructor
+  · exact hX
+  · exact AEMeasurable.comp_aemeasurable A hf.aemeasurable
+  · rw [← AEMeasurable.map_map_of_aemeasurable A hf.aemeasurable, hf.map_eq]
+
 end ProbabilityTheory
 
 open MeasureTheory ProbabilityTheory Function Set
