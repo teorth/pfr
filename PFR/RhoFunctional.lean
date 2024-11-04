@@ -477,13 +477,13 @@ noncomputable def condRho {Ω S : Type*}
   ∑' s, (volume (Y ⁻¹' {s})).toReal * @rho G _ _ Ω ⟨ ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
 
 /-- Average of rhoMinus along the fibers-/
-noncomputable def condrhoMinus {Ω S : Type*}
+noncomputable def condRhoMinus {Ω S : Type*}
     [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) : ℝ :=
   ∑' s, (volume (Y ⁻¹' {s})).toReal *
     @rhoMinus G _ _ Ω ⟨ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
 
 /-- Average of rhoPlus along the fibers-/
-noncomputable def condrhoPlus {Ω S : Type*}
+noncomputable def condRhoPlus {Ω S : Type*}
     [MeasureSpace Ω] (X : Ω → G) (Y : Ω → S) (A : Finset G) : ℝ :=
   ∑' s, (volume (Y ⁻¹' {s})).toReal *
     @rhoPlus G _ _ Ω ⟨ ProbabilityTheory.cond volume (Y⁻¹' {s}) ⟩ X A
@@ -501,13 +501,13 @@ lemma condRho_of_injective {Ω S T : Type*} [MeasureSpace Ω]
   sorry
 
 /-- $$ \rho^-(X|Z) \leq \rho^-(X) + \bbH[X] - \bbH[X|Z]$$ -/
-lemma condrhoMinus_le {Ω S : Type*} [MeasureSpace Ω] [MeasurableSpace S]
+lemma condRhoMinus_le {Ω S : Type*} [MeasureSpace Ω] [MeasurableSpace S]
     (X : Ω → G) (Z : Ω → S) (A : Finset G) :
-    condrhoMinus X Z A ≤ rhoMinus X A + H[ X ] - H[ X | Z ] := by sorry
+    condRhoMinus X Z A ≤ rhoMinus X A + H[ X ] - H[ X | Z ] := by sorry
 
 /-- $$ \rho^+(X|Z) \leq \rho^+(X)$$ -/
-lemma condrhoPlus_le {Ω S : Type*} [MeasureSpace Ω] [MeasurableSpace S]
-    (X : Ω → G) (Z : Ω → S) (A : Finset G) : condrhoPlus X Z A ≤ rhoPlus X A := by sorry
+lemma condRhoPlus_le {Ω S : Type*} [MeasureSpace Ω] [MeasurableSpace S]
+    (X : Ω → G) (Z : Ω → S) (A : Finset G) : condRhoPlus X Z A ≤ rhoPlus X A := by sorry
 
 /-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z] )$$ -/
 lemma condRho_le {Ω S : Type*} [MeasureSpace Ω] [MeasurableSpace S]
