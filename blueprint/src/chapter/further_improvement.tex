@@ -52,7 +52,7 @@ Now let $G$ be an additive group.
   $$D_{KL}(X+Z\Vert Y+Z) \leq D_{KL}(X\Vert Y).$$
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
   \uses{kl-div-inj,kl-div-convex}
 For each $z$, $D_{KL}(X+z\Vert Y+z)=D_{KL}(X\Vert Y)$ by \Cref{kl-div-inj}. Then apply \Cref{kl-div-convex} with $w_z=\mathbf{P}(Z=z)$.
 \end{proof}
@@ -66,14 +66,14 @@ $$ D_{KL}(X|Z \Vert  Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert  Y).$$
   $$D_{KL}((X|Z)\Vert Y) = D_{KL}(X\Vert Y) + \bbH[X] - \bbH[X|Z].$$
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
   \uses{ckl-div} Compare the terms correspond to each $x\in G$ on both sides.
 \end{proof}
 
 \begin{lemma}[Conditional Gibbs inequality]\label{Conditional-Gibbs}\lean{condKLDiv_nonneg}\leanok  $D_{KL}((X|W)\Vert Y) \geq 0$.
 \end{lemma}
 
-\begin{proof}\uses{Gibbs, ckl-div}  Clear from Definition \ref{ckl-div} and Lemma \ref{Gibbs}.
+\begin{proof}\leanok \uses{Gibbs, ckl-div}  Clear from Definition \ref{ckl-div} and Lemma \ref{Gibbs}.
 \end{proof}
 
 \section{Rho functionals}
@@ -89,13 +89,13 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{lemma}[Rho minus non-negative]\label{rhominus-nonneg}\label{rhoMinus_nonneg}\uses{rhominus-def}\leanok  We have $\rho^-(X) \geq 0$.
 \end{lemma}
 
-\begin{proof}\uses{Conditional-Gibbs} Clear from Lemma \ref{Conditional-Gibbs}.
+\begin{proof}\leanok \uses{Conditional-Gibbs} Clear from Lemma \ref{Conditional-Gibbs}.
 \end{proof}
 
 \begin{lemma}[Rho minus of subgroup]\label{rhominus-subgroup}\lean{rhoMinus_of_subgroup}\uses{rhominus-def}\leanok If $H$ is a finite subgroup of $G$, then $\rho^-(U_H) = \log |A| - \log \max_t |A \cap (H+t)|$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
   \uses{log-sum}
   For every $G$-valued random variable $T$ that is independent of $Y$,
   $$D_{KL}(U_H \Vert U_A+T) = \sum_{h\in H} \frac{1}{|H|}\log\frac{1/|H|}{\mathbf{P}[U_A+T=h]}\ge -\log(\mathbf{P}[U_A+T\in H]),$$
@@ -107,7 +107,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{corollary}[Rho plus of subgroup]\label{rhoplus-subgroup}\lean{rhoPlus_of_subgroup}\uses{rhoplus-def}\leanok If $H$ is a finite subgroup of $G$, then $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$.
 \end{corollary}
 
-\begin{proof}\uses{rhominus-subgroup} Straightforward by definition and \Cref{rhominus-subgroup}.
+\begin{proof}\leanok \uses{rhominus-subgroup} Straightforward by definition and \Cref{rhominus-subgroup}.
 \end{proof}
 
 \begin{definition}[Rho functional]\label{rho-def}\lean{rho}\uses{rhoplus-def}\leanok  We define $\rho(X) := (\rho^+(X) + \rho^-(X))/2$.
@@ -116,13 +116,16 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{lemma}\label{rho-init}\label{rho_of_uniform}\uses{rho-def}\leanok  We have $\rho(U_A) = 0$.
 \end{lemma}
 
-\begin{proof}\uses{rhominus-nonneg} $\rho^-(U_A)\le 0$ by the choice $T=0$. The claim then follows from \Cref{rhominus-nonneg}.
+\begin{proof}\leanok \uses{rhominus-nonneg} $\rho^-(U_A)\le 0$ by the choice $T=0$. The claim then follows from \Cref{rhominus-nonneg}.
 \end{proof}
 
-\begin{lemma}[Rho of subgroup]\label{rho-subgroup}\uses{rho-def}\lean{rho_of_subgroup}\leanok  If $H$ is a finite subgroup of $G$, and $\rho(U_H) \leq r$, then there exists $t$ such that $|A \cap (H+t)| \geq 2^{-r} \sqrt{|A||H|}$, and $|H|/|A|\in[2^{-2r},2^{2r}]$.
+\begin{lemma}[Rho of subgroup]\label{rho-subgroup}\uses{rho-def}\lean{rho_of_subgroup}\leanok
+If $H$ is a finite subgroup of $G$, and $\rho(U_H) \leq r$, then there exists
+$t$ such that $|A \cap (H+t)| \geq e^{-r} \sqrt{|A||H|}$, and
+$|H|/|A|\in[e^{-2r},e^{2r}]$.
 \end{lemma}
 
-\begin{proof}\uses{rhominus-subgroup, rhoplus-subgroup} The first claim is a direct corollary of \Cref{rhominus-subgroup} and \Cref{rhoplus-subgroup}. To see the second claim, observe that \Cref{rhominus-nonneg} and \Cref{rhoplus-subgroup} imply $\rho^-(U_H),\rho^+(U_H)\ge 0$. Therefore $$|H(U_A)-H(U_H)|=|\rho^+(U_H)-\rho^-(U_H)|\le \rho^-(U_H)+\rho^+(U_H)= 2\rho(U_H)\le 2r,$$
+\begin{proof}\leanok\uses{rhominus-subgroup, rhoplus-subgroup} The first claim is a direct corollary of \Cref{rhominus-subgroup} and \Cref{rhoplus-subgroup}. To see the second claim, observe that \Cref{rhominus-nonneg} and \Cref{rhoplus-subgroup} imply $\rho^-(U_H),\rho^+(U_H)\ge 0$. Therefore $$|H(U_A)-H(U_H)|=|\rho^+(U_H)-\rho^-(U_H)|\le \rho^-(U_H)+\rho^+(U_H)= 2\rho(U_H)\le 2r,$$
   which implies the second claim.
 \end{proof}
 
