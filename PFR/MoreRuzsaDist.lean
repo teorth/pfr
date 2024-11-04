@@ -929,7 +929,7 @@ theorem condMultiDist_of_const {G : Type*} [hG : MeasurableSpace G] [AddCommGrou
   simp only [Finset.mem_univ, not_true_eq_false, false_implies]
 
 /--Conditional multidistance is nonnegative. -/
-theorem condMultiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) {S : Type*} [Fintype S] (X : ∀ i, (Ω i) → G) (Y : ∀ i, (Ω i) → S) : 0 ≤ D[X | Y; hΩ] := by
+theorem condMultiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) (hprob : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) {S : Type*} [Fintype S] (X : ∀ i, (Ω i) → G) (Y : ∀ i, (Ω i) → S) (hX : ∀ i, Measurable (X i)) : 0 ≤ D[X | Y; hΩ] := by
   dsimp [condMultiDist]
   apply Finset.sum_nonneg
   intro y _
@@ -937,7 +937,11 @@ theorem condMultiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, Meas
   . apply Finset.prod_nonneg
     intro i _
     exact ENNReal.toReal_nonneg
-  exact multiDist_nonneg _ X
+  have (i : Fin m) : ℙ (Y i ⁻¹' {y i}) ≠ 0 := by
+    -- This probably requires additional assumptions on Y.
+    sorry
+  exact multiDist_nonneg (fun i => ⟨ℙ[|Y i ⁻¹' {y i}]⟩)
+    (fun i => ProbabilityTheory.cond_isProbabilityMeasure (this i)) X hX
 
 /-- A technical lemma: can push a constant into a product at a specific term -/
 private lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β] (f:α → β) (c: β) (i₀:α) : (∏ i, f i) * c = ∏ i, (if i=i₀ then f i * c else f i) := calc
@@ -1448,7 +1452,7 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
   _ ≥ ∑ d ∈ Finset.Iio (m : Fin (m + 1)),
       (D[fun i ↦ ⇑(π (d + 1)) ∘ X i | fun i ↦ π d ∘ X i ; fun _ ↦ hΩ] +
         I[∑ i : Fin m, X i : fun ω i ↦ (π (d + 1)) (X i ω)|⟨⇑(π (d + 1)) ∘ ∑ i : Fin m, X i, fun ω i ↦ (π d) (X i ω)⟩]) := by
-      apply le_add_of_nonneg_left (condMultiDist_nonneg _ X _)
+      apply le_add_of_nonneg_left (condMultiDist_nonneg _ (fun _ => this) X _ hX)
   _ = ∑ d : Fin m,
       (D[fun i ↦ ⇑(π (d.succ)) ∘ X i | fun i ↦ ⇑(π d.castSucc) ∘ X i ; fun _ ↦ hΩ] +
         I[∑ i : Fin m, X i : fun ω i ↦ π d.succ (X i ω)|⟨π d.succ ∘ ∑ i : Fin m, X i, fun ω i ↦ π d (X i ω)⟩]) := by
