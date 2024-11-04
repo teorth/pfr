@@ -2,6 +2,7 @@ import Mathlib.Probability.IdentDistrib
 import Mathlib.Probability.ConditionalProbability
 import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.FiniteRange.Defs
+import PFR.Mathlib.Probability.UniformOn
 
 open Function MeasureTheory Set
 open scoped ENNReal
@@ -14,29 +15,13 @@ variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} [mΩ : MeasurableSpace Ω]
 /-- The assertion that the law of $X$ is the uniform probability measure on a finite set $H$.
 While in applications $H$ will be non-empty finite set, $X$ measurable, and and $μ$ a probability
 measure, it could be technically convenient to have a definition that works even without these
-hypotheses. (For instance, `isUniform` would be well-defined, but false, for infinite `H`) -/
+hypotheses. (For instance, `isUniform` would be well-defined, but false, for infinite `H`).
+
+This should probably be refactored, requiring instead that `μ.map X = uniformOn H` -- but at the
+time of writing `uniformOn` did not exist in mathlib. -/
 structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop :=
   eq_of_mem : ∀ x y, x ∈ H → y ∈ H → μ (X ⁻¹' {x}) = μ (X ⁻¹' {y})
   measure_preimage_compl : μ (X ⁻¹' Hᶜ) = 0
-
-lemma uniformOn_apply_singleton_of_mem [MeasurableSingletonClass Ω]
-    {A : Set Ω} {x : Ω} (hx : x ∈ A) (h'A : A.Finite) :
-    uniformOn A {x} = 1 / Nat.card A := by
-  have : {x} ∩ A = {x} := by ext y; simp (config := {contextual := true}) [hx]
-  simp only [uniformOn, cond, Measure.smul_apply, MeasurableSet.singleton, Measure.restrict_apply,
-    this, Measure.count_singleton', smul_eq_mul, mul_one, one_div, inv_inj]
-  rw [Measure.count_apply_finite _ h'A, Nat.card_eq_card_finite_toFinset h'A]
-
-lemma uniformOn_apply_singleton_of_nmem [MeasurableSingletonClass Ω]
-    {A : Set Ω} {x : Ω} (hx : x ∉ A) :
-    uniformOn A {x} = 0 := by
-  simp [uniformOn, cond, hx]
-
-theorem uniformOn_apply_eq_zero [MeasurableSingletonClass Ω]
-    {s t : Set Ω} (hst : s ∩ t = ∅) : uniformOn s t = 0 := by
-  rcases Set.finite_or_infinite s with hs | hs
-  · exact (uniformOn_eq_zero_iff hs).mpr hst
-  · simp [uniformOn, cond, Measure.count_apply_infinite hs]
 
 lemma isUniform_uniformOn [MeasurableSingletonClass Ω] {A : Set Ω} :
     IsUniform A id (uniformOn A) := by
