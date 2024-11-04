@@ -4,17 +4,17 @@
 
 In the definitions below, $G$ is a set.
 
-\begin{definition}[Kullback--Leibler divergence]\label{kl-div}\lean{KL_div}\leanok If $X,Y$ are two $G$-valued random variables, the Kullback--Leibler divergence is defined as
+\begin{definition}[Kullback--Leibler divergence]\label{kl-div}\lean{KLDiv}\leanok If $X,Y$ are two $G$-valued random variables, the Kullback--Leibler divergence is defined as
   $$ D_{KL}(X\Vert Y) := \sum_x \mathbf{P}(X=x) \log \frac{\mathbf{P}(X=x)}{\mathbf{P}(Y=x)}.$$
 \end{definition}
 
-\begin{lemma}[Kullback--Leibler divergence of copy]\label{kl-div-copy}\lean{KL_div_eq_of_equiv}\leanok  If $X'$ is a copy of $X$, and $Y'$ is a copy of $Y$, then $D_{KL}(X'\Vert Y') = D_{KL}(X\Vert Y)$.
+\begin{lemma}[Kullback--Leibler divergence of copy]\label{kl-div-copy}\lean{KLDiv_eq_of_equiv}\leanok  If $X'$ is a copy of $X$, and $Y'$ is a copy of $Y$, then $D_{KL}(X'\Vert Y') = D_{KL}(X\Vert Y)$.
 \end{lemma}
 
 \begin{proof}\uses{kl-div}\leanok  Clear from definition.
 \end{proof}
 
-\begin{lemma}[Gibbs inequality]\label{Gibbs}\uses{kl-div}\lean{KL_div_nonneg}\leanok  $D_{KL}(X\Vert Y) \geq 0$.
+\begin{lemma}[Gibbs inequality]\label{Gibbs}\uses{kl-div}\lean{KLDiv_nonneg}\leanok  $D_{KL}(X\Vert Y) \geq 0$.
 \end{lemma}
 
 \begin{proof}\leanok
@@ -22,7 +22,7 @@ In the definitions below, $G$ is a set.
   Apply \Cref{log-sum} on the definition.
 \end{proof}
 
-\begin{lemma}[Converse Gibbs inequality]\label{Gibbs-converse}\lean{KL_div_eq_zero_iff_identDistrib}\leanok  If $D_{KL}(X\Vert Y) = 0$, then $Y$ is a copy of $X$.
+\begin{lemma}[Converse Gibbs inequality]\label{Gibbs-converse}\lean{KLDiv_eq_zero_iff_identDistrib}\leanok  If $D_{KL}(X\Vert Y) = 0$, then $Y$ is a copy of $X$.
 \end{lemma}
 
 \begin{proof}\leanok
@@ -30,7 +30,7 @@ In the definitions below, $G$ is a set.
   Apply \Cref{converse-log-sum}.
 \end{proof}
 
-\begin{lemma}[Convexity of Kullback--Leibler]\label{kl-div-convex}\lean{KL_div_of_convex}\leanok  If $S$ is a finite set, $\sum_{s \in S} w_s = 1$ for some non-negative $w_s$, and ${\bf P}(X=x) = \sum_{s\in S} w_s  {\bf P}(X_s=x)$, ${\bf P}(Y=x) = \sum_{s\in S} w_s  {\bf P}(Y_s=x)$ for all $x$, then
+\begin{lemma}[Convexity of Kullback--Leibler]\label{kl-div-convex}\lean{KLDiv_of_convex}\leanok  If $S$ is a finite set, $\sum_{s \in S} w_s = 1$ for some non-negative $w_s$, and ${\bf P}(X=x) = \sum_{s\in S} w_s  {\bf P}(X_s=x)$, ${\bf P}(Y=x) = \sum_{s\in S} w_s  {\bf P}(Y_s=x)$ for all $x$, then
 $$D_{KL}(X\Vert Y) \le \sum_{s\in S} w_s D_{KL}(X_s\Vert Y_s).$$
 \end{lemma}
 
@@ -40,7 +40,7 @@ For each $x$, replace $\log \frac{\mathbf{P}(X_s=x)}{\mathbf{P}(Y_s=x)}$ in the 
 \end{proof}
 
 
-\begin{lemma}[Kullback--Leibler and injections]\label{kl-div-inj}\lean{KL_div_of_comp_inj}\leanok  If $f:G \to H$ is an injection, then $D_{KL}(f(X)\Vert f(Y)) = D_{KL}(X\Vert Y)$.
+\begin{lemma}[Kullback--Leibler and injections]\label{kl-div-inj}\lean{KLDiv_of_comp_inj}\leanok  If $f:G \to H$ is an injection, then $D_{KL}(f(X)\Vert f(Y)) = D_{KL}(X\Vert Y)$.
 \end{lemma}
 
 \begin{proof}\leanok\uses{kl-div} Clear from definition.
@@ -48,7 +48,7 @@ For each $x$, replace $\log \frac{\mathbf{P}(X_s=x)}{\mathbf{P}(Y_s=x)}$ in the 
 
 Now let $G$ be an additive group.
 
-\begin{lemma}[Kullback--Leibler and sums]\label{kl-sums}\lean{KL_div_add_le_KL_div_of_indep}\leanok If $X, Y, Z$ are independent $G$-valued random variables, then
+\begin{lemma}[Kullback--Leibler and sums]\label{kl-sums}\lean{KLDiv_add_le_KLDiv_of_indep}\leanok If $X, Y, Z$ are independent $G$-valued random variables, then
   $$D_{KL}(X+Z\Vert Y+Z) \leq D_{KL}(X\Vert Y).$$
 \end{lemma}
 
@@ -62,7 +62,7 @@ For each $z$, $D_{KL}(X+z\Vert Y+z)=D_{KL}(X\Vert Y)$ by \Cref{kl-div-inj}. Then
 $$ D_{KL}(X|Z \Vert  Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert  Y).$$
 \end{definition}
 
-\begin{lemma}[Kullback--Leibler and conditioning]\label{kl-cond}\lean{condKL_div_eq}\leanok If $X, Y$ are independent $G$-valued random variables, and $Z$ is another random variable defined on the same sample space as $X$, then
+\begin{lemma}[Kullback--Leibler and conditioning]\label{kl-cond}\lean{condKLDiv_eq}\leanok If $X, Y$ are independent $G$-valued random variables, and $Z$ is another random variable defined on the same sample space as $X$, then
   $$D_{KL}((X|Z)\Vert Y) = D_{KL}(X\Vert Y) + \bbH[X] - \bbH[X|Z].$$
 \end{lemma}
 
@@ -70,7 +70,7 @@ $$ D_{KL}(X|Z \Vert  Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert  Y).$$
   \uses{ckl-div} Compare the terms correspond to each $x\in G$ on both sides.
 \end{proof}
 
-\begin{lemma}[Conditional Gibbs inequality]\label{Conditional-Gibbs}\lean{condKL_div_nonneg}\leanok  $D_{KL}((X|W)\Vert Y) \geq 0$.
+\begin{lemma}[Conditional Gibbs inequality]\label{Conditional-Gibbs}\lean{condKLDiv_nonneg}\leanok  $D_{KL}((X|W)\Vert Y) \geq 0$.
 \end{lemma}
 
 \begin{proof}\uses{Gibbs, ckl-div}  Clear from Definition \ref{ckl-div} and Lemma \ref{Gibbs}.
@@ -80,19 +80,19 @@ $$ D_{KL}(X|Z \Vert  Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert  Y).$$
 
 Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 
-\begin{definition}[Rho minus]\label{rhominus-def}\lean{rho_minus}\leanok  For any $G$-valued random variable $X$, we define $\rho^-(X)$ to be the infimum of $D_{KL}(X \Vert  U_A + T)$, where $U_A$ is uniform on $A$ and $T$ ranges over $G$-valued random variables independent of $U_A$.
+\begin{definition}[Rho minus]\label{rhominus-def}\lean{rhoMinus}\leanok  For any $G$-valued random variable $X$, we define $\rho^-(X)$ to be the infimum of $D_{KL}(X \Vert  U_A + T)$, where $U_A$ is uniform on $A$ and $T$ ranges over $G$-valued random variables independent of $U_A$.
 \end{definition}
 
-\begin{definition}[Rho plus]\label{rhoplus-def}\lean{rho_plus}\uses{rhominus-def}\leanok  For any $G$-valued random variable $X$, we define $\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$.
+\begin{definition}[Rho plus]\label{rhoplus-def}\lean{rhoPlus}\uses{rhominus-def}\leanok  For any $G$-valued random variable $X$, we define $\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$.
 \end{definition}
 
-\begin{lemma}[Rho minus non-negative]\label{rhominus-nonneg}\label{rho_minus_nonneg}\uses{rhominus-def}\leanok  We have $\rho^-(X) \geq 0$.
+\begin{lemma}[Rho minus non-negative]\label{rhominus-nonneg}\label{rhoMinus_nonneg}\uses{rhominus-def}\leanok  We have $\rho^-(X) \geq 0$.
 \end{lemma}
 
 \begin{proof}\uses{Conditional-Gibbs} Clear from Lemma \ref{Conditional-Gibbs}.
 \end{proof}
 
-\begin{lemma}[Rho minus of subgroup]\label{rhominus-subgroup}\lean{rho_minus_of_subgroup}\uses{rhominus-def}\leanok If $H$ is a finite subgroup of $G$, then $\rho^-(U_H) = \log |A| - \log \max_t |A \cap (H+t)|$.
+\begin{lemma}[Rho minus of subgroup]\label{rhominus-subgroup}\lean{rhoMinus_of_subgroup}\uses{rhominus-def}\leanok If $H$ is a finite subgroup of $G$, then $\rho^-(U_H) = \log |A| - \log \max_t |A \cap (H+t)|$.
 \end{lemma}
 
 \begin{proof}
@@ -104,7 +104,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
   To get the equality, let $t^*:=\arg\max_t |A \cap (H+t)|$ and observe that $$\rho^-(U_H)\le D_{KL}(U_H \Vert  U_A+(U_H-t^*))= \log |A| - \log \max_t|A \cap (H+t)|.$$
 \end{proof}
 
-\begin{corollary}[Rho plus of subgroup]\label{rhoplus-subgroup}\lean{rho_plus_of_subgroup}\uses{rhoplus-def}\leanok If $H$ is a finite subgroup of $G$, then $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$.
+\begin{corollary}[Rho plus of subgroup]\label{rhoplus-subgroup}\lean{rhoPlus_of_subgroup}\uses{rhoplus-def}\leanok If $H$ is a finite subgroup of $G$, then $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$.
 \end{corollary}
 
 \begin{proof}\uses{rhominus-subgroup} Straightforward by definition and \Cref{rhominus-subgroup}.
@@ -138,7 +138,7 @@ Let $G$ be an additive group, and let $A$ be a non-empty subset of $G$.
 \begin{proof}  Clear from definition.
 \end{proof}
 
-\begin{lemma}[Rho and sums]\label{rho-sums}\lean{rho_minus_of_sum, rho_plus_of_sum, rho_of_sum}\leanok  If $X,Y$ are independent, one has
+\begin{lemma}[Rho and sums]\label{rho-sums}\lean{rhoMinus_of_sum, rhoPlus_of_sum, rho_of_sum}\leanok  If $X,Y$ are independent, one has
   $$ \rho^-(X+Y) \leq \rho^-(X)$$
   $$ \rho^+(X+Y) \leq \rho^+(X) + \bbH[X+Y] - \bbH[X]$$
 and
@@ -170,7 +170,7 @@ The first inequality follows from \Cref{kl-sums}. The second and third inequalit
   Clear from the definition.
 \end{proof}
 
-\begin{lemma}[Rho and conditioning]\label{rho-cond}\lean{condRho_minus_le, condRho_plus_le, condRho_le}\leanok  If $X,Z$ are defined on the same space, one has
+\begin{lemma}[Rho and conditioning]\label{rho-cond}\lean{condrhoMinus_le, condrhoPlus_le, condRho_le}\leanok  If $X,Z$ are defined on the same space, one has
   $$ \rho^-(X|Z) \leq \rho^-(X) + \bbH[X] - \bbH[X|Z]$$
   $$ \rho^+(X|Z) \leq \rho^+(X)$$
 and

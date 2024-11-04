@@ -19,11 +19,40 @@ structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac
   eq_of_mem : ∀ x y, x ∈ H → y ∈ H → μ (X ⁻¹' {x}) = μ (X ⁻¹' {y})
   measure_preimage_compl : μ (X ⁻¹' Hᶜ) = 0
 
+lemma uniformOn_apply_singleton_of_mem [MeasurableSingletonClass Ω]
+    {A : Set Ω} {x : Ω} (hx : x ∈ A) (h'A : A.Finite) :
+    uniformOn A {x} = 1 / Nat.card A := by
+  have : {x} ∩ A = {x} := by ext y; simp (config := {contextual := true}) [hx]
+  simp only [uniformOn, cond, Measure.smul_apply, MeasurableSet.singleton, Measure.restrict_apply,
+    this, Measure.count_singleton', smul_eq_mul, mul_one, one_div, inv_inj]
+  rw [Measure.count_apply_finite _ h'A, Nat.card_eq_card_finite_toFinset h'A]
+
+lemma uniformOn_apply_singleton_of_nmem [MeasurableSingletonClass Ω]
+    {A : Set Ω} {x : Ω} (hx : x ∉ A) :
+    uniformOn A {x} = 0 := by
+  simp [uniformOn, cond, hx]
+
+theorem uniformOn_apply_eq_zero [MeasurableSingletonClass Ω]
+    {s t : Set Ω} (hst : s ∩ t = ∅) : uniformOn s t = 0 := by
+  rcases Set.finite_or_infinite s with hs | hs
+  · exact (uniformOn_eq_zero_iff hs).mpr hst
+  · simp [uniformOn, cond, Measure.count_apply_infinite hs]
+
+lemma isUniform_uniformOn [MeasurableSingletonClass Ω] {A : Set Ω} :
+    IsUniform A id (uniformOn A) := by
+  constructor
+  · intro x y hx hy
+    have h'x : {x} ∩ A = {x} := by ext y; simp (config := {contextual := true}) [hx]
+    have h'y : {y} ∩ A = {y} := by ext y; simp (config := {contextual := true}) [hy]
+    simp [uniformOn, cond, h'x, h'y]
+  · exact uniformOn_apply_eq_zero (by simp)
+
 /-- Uniform distributions exist. -/
 lemma exists_isUniform [MeasurableSpace S] [MeasurableSingletonClass S]
     (H : Finset S) (h : H.Nonempty) :
     ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
-    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ (∀ ω : Ω, X ω ∈ H) ∧ FiniteRange X := by
+    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ (∀ ω : Ω, X ω ∈ H)
+      ∧ FiniteRange X := by
   refine ⟨H, Subtype.instMeasurableSpace, (fun x ↦ x),
       (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, Measure.dirac i, ?_, measurable_subtype_coe, ?_, fun x ↦ x.2, ?_⟩
   · constructor
@@ -153,7 +182,7 @@ lemma IsUniform.measureReal_preimage_of_mem' {H : Finset S} [IsProbabilityMeasur
 
 /-- $\mathbb{P}(U_H \in H') = \dfrac{|H' \cap H|}{|H|}$ -/
 lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Measurable X)
-    (H' : Set S) : μ (X ⁻¹' H') = (μ univ) * (Nat.card (H' ∩ H.toSet).Elem) / Nat.card H := calc
+    (H' : Set S) : μ (X ⁻¹' H') = (μ univ) * (Nat.card (H' ∩ H.toSet : Set S)) / Nat.card H := calc
   _ = μ (X ⁻¹' (H' ∩ H.toSet) ∪ X ⁻¹' (H' \ H.toSet)) := by simp
   _ = μ (X ⁻¹' (H' ∩ H.toSet)) + μ (X ⁻¹' (H' \ H.toSet)) :=
     measure_union (Disjoint.preimage X disjoint_inf_sdiff) (by measurability)
@@ -249,3 +278,12 @@ lemma IdentDistrib.of_isUniform {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measu
     simp
   · rw [IsUniform.measure_preimage_of_nmem hX_unif' h,
       IsUniform.measure_preimage_of_nmem hX'_unif' h]
+
+lemma IsUniform.map_eq_uniformOn [Countable S] [IsProbabilityMeasure μ]
+    {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) (hH : H.Finite) (h'H : H.Nonempty) :
+    μ.map X = uniformOn H := by
+  have : Finite H := hH
+  have : IsProbabilityMeasure (uniformOn H) := uniformOn_isProbabilityMeasure hH h'H
+  have : IdentDistrib X id μ (uniformOn (H : Set S)) :=
+    IdentDistrib.of_isUniform (H := H) hX measurable_id h isUniform_uniformOn
+  simpa using this.map_eq
