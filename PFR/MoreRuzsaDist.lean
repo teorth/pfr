@@ -777,6 +777,7 @@ lemma multiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i
   apply multiDist_copy
   exact fun i => (hY i).2.symm
 
+/-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
 lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
     (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume)
     (X : ∀ i, (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
