@@ -745,11 +745,38 @@ lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m 
     (hindep : iIndepFun (fun _ ↦ hG) X) :
     D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (∑ i, H[X i]) / m := by sorry
 
-/-- We have `D[X_[m]] ≥ 0`. -/
-lemma multiDist_nonneg {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
-    (X : ∀ i, (Ω i) → G) : D[X ; hΩ] ≥ 0 := by sorry
+lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
+    (hprob : IsProbabilityMeasure (ℙ : Measure Ω)) (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
+    (hindep : iIndepFun (fun i => inferInstance) X ℙ) :
+    D[X ; fun _ ↦ hΩ] ≥ 0 := by
+  rw [multiDist_indep hΩ X hindep]
+  by_cases hm : m = 0
+  · subst hm
+    simp only [Finset.univ_eq_empty, Finset.sum_empty, CharP.cast_eq_zero, div_zero, sub_zero,
+      ge_iff_le]
+    erw [entropy_const]
+  have : NeZero m := ⟨hm⟩
+  norm_num
+  calc
+    (∑ i, H[X i]) / m ≤
+      (∑ i : Fin m, H[∑ i, X i]) / m:= by
+      gcongr with i
+      convert ProbabilityTheory.max_entropy_le_entropy_sum (Finset.mem_univ i) hX hindep
+    _ = H[∑ i, X i] := by
+      simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+      field_simp
 
-/-- If `φ : {1, ..., m} → {1, ...,m}` is a bijection, then `D[X_[m]] = D[(X_φ(1), ..., X_φ(m))]`-/
+/-- We have `D[X_[m]] ≥ 0`. -/
+lemma multiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+    (hprob : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) (X : ∀ i, (Ω i) → G)
+    (hX : ∀ i, Measurable (X i)) :
+    D[X ; hΩ] ≥ 0 := by
+  obtain ⟨A, mA, μA, Y, isProb, hindep, hY⟩ :=
+    ProbabilityTheory.independent_copies' X hX (fun i => ℙ)
+  convert multiDist_nonneg_of_indep ⟨μA⟩ isProb Y (fun i => (hY i).1) hindep using 1
+  apply multiDist_copy
+  exact fun i => (hY i).2.symm
+
 lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
     (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩprob: ∀ i, IsProbabilityMeasure (hΩ i).volume)
     (X : ∀ i, (Ω i) → G) (φ : Equiv.Perm (Fin m)) :
