@@ -933,15 +933,20 @@ theorem condMultiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ :
   dsimp [condMultiDist]
   apply Finset.sum_nonneg
   intro y _
-  apply mul_nonneg
-  . apply Finset.prod_nonneg
-    intro i _
-    exact ENNReal.toReal_nonneg
-  have (i : Fin m) : ℙ (Y i ⁻¹' {y i}) ≠ 0 := by
-    -- This probably requires additional assumptions on Y.
-    sorry
-  exact multiDist_nonneg (fun i => ⟨ℙ[|Y i ⁻¹' {y i}]⟩)
-    (fun i => ProbabilityTheory.cond_isProbabilityMeasure (this i)) X hX
+  by_cases h: ∀ i : Fin m, ℙ (Y i ⁻¹' {y i}) ≠ 0
+  . apply mul_nonneg
+    . apply Finset.prod_nonneg
+      intro i _
+      exact ENNReal.toReal_nonneg
+    exact multiDist_nonneg (fun i => ⟨ℙ[|Y i ⁻¹' {y i}]⟩)
+      (fun i => ProbabilityTheory.cond_isProbabilityMeasure (h i)) X hX
+  simp only [ne_eq, not_forall, Decidable.not_not] at h
+  obtain ⟨i, hi⟩ := h
+  apply le_of_eq
+  symm
+  convert zero_mul ?_
+  apply Finset.prod_eq_zero (Finset.mem_univ i)
+  simp only [hi, ENNReal.zero_toReal]
 
 /-- A technical lemma: can push a constant into a product at a specific term -/
 private lemma Finset.prod_mul {α β:Type*} [Fintype α] [DecidableEq α] [CommMonoid β] (f:α → β) (c: β) (i₀:α) : (∏ i, f i) * c = ∏ i, (if i=i₀ then f i * c else f i) := calc
