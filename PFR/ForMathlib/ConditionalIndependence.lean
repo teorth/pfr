@@ -131,7 +131,7 @@ open Function Set Measure
 /-- For `X, Y` random variables, there exist conditionally independent trials `X_1, X_2, Y'`. -/
 lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY : Measurable Y)
     [finY : FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ] :
-    ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
+    ∃ (Ω' : Type u) (_ : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
       IsProbabilityMeasure ν ∧ Measurable X₁ ∧ Measurable X₂ ∧ Measurable Y' ∧
       CondIndepFun X₁ X₂ Y' ν ∧ IdentDistrib (⟨X₁, Y'⟩) (⟨X, Y⟩) ν μ ∧
       IdentDistrib (⟨X₂, Y'⟩) (⟨X, Y⟩) ν μ := by
@@ -265,7 +265,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
 lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY : Measurable Y)
     [FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ] (p : α → β → Prop)
     (hp : Measurable (uncurry p)) (hp' : ∀ᵐ ω ∂μ, p (X ω) (Y ω)) :
-    ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
+    ∃ (Ω' : Type u) (_ : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
       IsProbabilityMeasure ν ∧ Measurable X₁ ∧ Measurable X₂ ∧ Measurable Y' ∧
       CondIndepFun X₁ X₂ Y' ν ∧ IdentDistrib (⟨X₁, Y'⟩) (⟨X, Y⟩) ν μ ∧
        IdentDistrib (⟨X₂, Y'⟩) (⟨X, Y⟩) ν μ ∧ (∀ ω, p (X₁ ω) (Y' ω)) ∧ (∀ ω, p (X₂ ω) (Y' ω)) := by

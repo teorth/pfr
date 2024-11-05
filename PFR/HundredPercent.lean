@@ -122,7 +122,7 @@ lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X]
       have Z := (mem_symmGroup hX).1 (AddSubgroup.neg_mem (symmGroup X hX) hz)
       simp [← sub_eq_add_neg] at Z
       exact Z.symm.measure_mem_eq $ .of_discrete
-    intro x y hx hy
+    intro x hx y hy
     rw [A x hx, A y hy]
   measure_preimage_compl := by
     apply (measure_preimage_eq_zero_iff_of_countable (Set.to_countable _)).2

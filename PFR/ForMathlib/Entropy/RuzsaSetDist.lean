@@ -98,7 +98,7 @@ lemma isUniform_iff_uniform_dist {Ω : Type*} [mΩ : MeasurableSpace Ω] (μ : M
         rfl
   intro this
   constructor
-  · intro x y hx hy
+  · intro x hx y hy
     replace hx : {x} ∩ H = {x} := by simp [hx]
     replace hy : {y} ∩ H = {y} := by simp [hy]
     simp [← map_apply hU (MeasurableSet.singleton _), this, discreteUniform_apply, hx, hy]

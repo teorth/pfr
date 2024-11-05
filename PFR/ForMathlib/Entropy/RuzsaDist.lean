@@ -32,8 +32,6 @@ variable {Ω Ω' Ω'' Ω''' G S T : Type*}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
   [mΩ''' : MeasurableSpace Ω'''] {μ''' : Measure Ω'''}
   [hG : MeasurableSpace G]
-  --[Countable S] [Nonempty S] [MeasurableSpace S]
-  --[Countable T] [Nonempty T] [MeasurableSpace T]
 
 /-- Entropy depends continuously on the measure. -/
 -- TODO: Use notation `Hm[μ]` here? (figure out how)

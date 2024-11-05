@@ -1,6 +1,6 @@
 import Mathlib.Algebra.Module.ZMod
+import Mathlib.GroupTheory.PGroup
 import Mathlib.GroupTheory.Sylow
-import PFR.Mathlib.GroupTheory.PGroup
 
 open Function Set ZMod
 

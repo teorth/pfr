@@ -2,7 +2,6 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Kernel.CondDistrib
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
-import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
 
 /-!
 # Disintegration of kernels in finite spaces
@@ -84,7 +83,7 @@ lemma disintegration (κ : Kernel T (S × U)) [IsFiniteKernel κ] :
   swap; · exact measurable_kernel_prod_mk_left' hs x
   rw [lintegral_eq_tsum, ENNReal.tsum_prod']
   change κ x s = ∑' a : S, ∑' b : U, κ x {(a, b)} * condKernel κ (x, a) (Prod.mk a ⁻¹' s)
-  simp_rw [ENNReal.tsum_mul_right, ← measure_preimage_fst_singleton_eq_sum_countable (κ x)]
+  simp_rw [ENNReal.tsum_mul_right, ← measure_preimage_fst_singleton_eq_tsum (κ x)]
   have : ∑' a : S, (κ x (Prod.fst ⁻¹' {a})) * condKernel κ (x, a) (Prod.mk a ⁻¹' s)
       = ∑' a : S, κ x (Prod.fst ⁻¹' {a} ∩ {su | (a, su.2) ∈ s}) := by
     congr with a

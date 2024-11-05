@@ -736,7 +736,7 @@ variable (p : refPackage Ω₀₁ Ω₀₂ G)
 all minimizers are fine, by `tau_strictly_decreases'`. For `p.η = 1/8`, we use a limit of
 minimizers for `η < 1/8`, which exists by compactness. -/
 lemma tau_minimizer_exists_rdist_eq_zero :
-    ∃ (Ω : Type uG) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+    ∃ (Ω : Type uG) (_ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
       Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧ tau_minimizes p X₁ X₂
       ∧ d[X₁ # X₂] = 0 := by
   -- let `uₙ` be a sequence converging from below to `η`. In particular, `uₙ < 1/8`.

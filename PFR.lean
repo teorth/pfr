@@ -32,11 +32,9 @@ import PFR.ImprovedPFR
 import PFR.Kullback
 import PFR.Main
 import PFR.Mathlib.Algebra.AddTorsor
-import PFR.Mathlib.Algebra.Module.ZMod
 import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Set.Pointwise.SMul
-import PFR.Mathlib.GroupTheory.PGroup
 import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
@@ -44,8 +42,6 @@ import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.MeasureTheory.Integral.IntegrableOn
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
-import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
-import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import PFR.Mathlib.MeasureTheory.Measure.Prod
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib

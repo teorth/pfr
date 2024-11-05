@@ -23,8 +23,8 @@ open MeasureTheory ProbabilityTheory
 universe uG
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
-[IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
+  [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+  variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
 
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
@@ -33,7 +33,7 @@ variables.
 
 The η parameter has now been incorporated into the package, in preparation for being able to
 manipulate the package. -/
-structure refPackage :=
+structure refPackage where
   /-- The first variable in a package. -/
   X₀₁ : Ω₀₁ → G
   /-- The second variable in a package. -/
@@ -140,7 +140,7 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
 
 /-- A pair of random variables minimizing $τ$ exists. -/
 lemma tau_minimizer_exists [MeasurableSingletonClass G] :
-    ∃ (Ω : Type uG) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+    ∃ (Ω : Type uG) (_ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
     Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
     tau_minimizes p X₁ X₂ := by
   let μ := (tau_min_exists_measure p).choose

@@ -253,7 +253,7 @@ lemma independent_copies' {I : Type u} [Fintype I] {α : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (α i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → α i) (hX : ∀ i : I, Measurable (X i))
     (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] :
-    ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
+    ∃ (A : Type (max u v)) (_ : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
     IsProbabilityMeasure μA ∧
     iIndepFun mS X' μA ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by
@@ -277,10 +277,9 @@ lemma independent_copies3_nondep {α : Type u}
     (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂] [hμ₃ : IsProbabilityMeasure μ₃] :
-    ∃ (A : Type (max u_1 u_2 u_3)) (mA : MeasurableSpace A) (μA : Measure A)
-      (X₁' X₂' X₃' : A → α),
-    IsProbabilityMeasure μA ∧
-    iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
+    ∃ (A : Type (max u_1 u_2 u_3)) (_ : MeasurableSpace A) (μA : Measure A) (X₁' X₂' X₃' : A → α),
+      IsProbabilityMeasure μA ∧
+      iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
       IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by
   let Ω₁' : Type (max u_1 u_2 u_3) := ULift.{max u_2 u_3} Ω₁
@@ -325,7 +324,7 @@ lemma independent_copies4_nondep {α : Type u}
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) (μ₄ : Measure Ω₄)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂]
     [hμ₃ : IsProbabilityMeasure μ₃] [hμ₄ : IsProbabilityMeasure μ₄] :
-    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (mA : MeasurableSpace A) (μA : Measure A)
+    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' X₄' : A → α),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃', X₄'] μA ∧
@@ -429,7 +428,7 @@ lemma independent_copies3_nondep_finiteRange {α : Type u}
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂]
     [hμ₃ : IsProbabilityMeasure μ₃] :
-    ∃ (A : Type (max u_1 u_2 u_3)) (mA : MeasurableSpace A) (μA : Measure A)
+    ∃ (A : Type (max u_1 u_2 u_3)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' : A → α),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
@@ -466,7 +465,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) (μ₄ : Measure Ω₄)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂] [hμ₃ : IsProbabilityMeasure μ₃]
     [hμ₄ : IsProbabilityMeasure μ₄]:
-    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (mA : MeasurableSpace A) (μA : Measure A)
+    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' X₄' : A → α),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃', X₄'] μA ∧

@@ -69,6 +69,9 @@ def ExBase.toProd {a : Q(ℝ)} (va : ExBase a) : ExProd q($a * 1) := .mul va .on
 
 nonrec abbrev Result := Ring.Result (u := .zero) (α := q(ℝ))
 
+instance (e : Q(ℝ)) : Inhabited (Result ExProd e) :=
+  inferInstanceAs (Inhabited (Ring.Result ExProd e))
+
 theorem atom_pf (a : ℝ) : a = a * 1 := by simp
 theorem atom_pf' {a a' : ℝ} (p : a = a') : a = a * 1 := by simp [*]
 theorem atom_pow_pf (a : ℝ) : a = a ^ (1 : ℝ) * 1 := by simp

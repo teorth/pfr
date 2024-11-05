@@ -17,16 +17,15 @@ While in applications $H$ will be non-empty finite set, $X$ measurable, and and 
 measure, it could be technically convenient to have a definition that works even without these
 hypotheses. (For instance, `isUniform` would be well-defined, but false, for infinite `H`).
 
-This should probably be refactored, requiring instead that `μ.map X = uniformOn H` -- but at the
-time of writing `uniformOn` did not exist in mathlib. -/
-structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop :=
-  eq_of_mem : ∀ x y, x ∈ H → y ∈ H → μ (X ⁻¹' {x}) = μ (X ⁻¹' {y})
+This should probably be refactored, requiring instead that `μ.map X = uniformOn H`. -/
+structure IsUniform (H : Set S) (X : Ω → S) (μ : Measure Ω := by volume_tac) : Prop where
+  eq_of_mem ⦃x⦄ (hx : x ∈ H) ⦃y⦄ (hy : y ∈ H) : μ (X ⁻¹' {x}) = μ (X ⁻¹' {y})
   measure_preimage_compl : μ (X ⁻¹' Hᶜ) = 0
 
 lemma isUniform_uniformOn [MeasurableSingletonClass Ω] {A : Set Ω} :
     IsUniform A id (uniformOn A) := by
   constructor
-  · intro x y hx hy
+  · intro x hx y hy
     have h'x : {x} ∩ A = {x} := by ext y; simp (config := {contextual := true}) [hx]
     have h'y : {y} ∩ A = {y} := by ext y; simp (config := {contextual := true}) [hy]
     simp [uniformOn, cond, h'x, h'y]
@@ -35,45 +34,43 @@ lemma isUniform_uniformOn [MeasurableSingletonClass Ω] {A : Set Ω} :
 /-- Uniform distributions exist. -/
 lemma exists_isUniform [MeasurableSpace S] [MeasurableSingletonClass S]
     (H : Finset S) (h : H.Nonempty) :
-    ∃ (Ω : Type uS) (mΩ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
-    IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ (∀ ω : Ω, X ω ∈ H)
-      ∧ FiniteRange X := by
-  refine ⟨H, Subtype.instMeasurableSpace, (fun x ↦ x),
-      (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, Measure.dirac i, ?_, measurable_subtype_coe, ?_, fun x ↦ x.2, ?_⟩
+    ∃ (Ω : Type uS) (_ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
+      IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ (∀ ω, X ω ∈ H) ∧ FiniteRange X := by
+  refine ⟨H, Subtype.instMeasurableSpace, fun x ↦ x, (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, .dirac i, ?_,
+    measurable_subtype_coe, ⟨?_, ?_⟩, fun x ↦ x.2, ?_⟩
   · constructor
     simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finset_sum, Finset.sum_apply,
       measure_univ, Finset.sum_const, Finset.card_attach, nsmul_eq_mul, mul_one, smul_eq_mul]
     rw [ENNReal.inv_mul_cancel]
     · simpa using h.ne_empty
     · simp
-  · constructor
-    · intro x y hx hy
-      simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finset_sum,
-        Finset.sum_apply, Measure.dirac_apply, smul_eq_mul]
-      rw [Finset.sum_eq_single ⟨x, hx⟩, Finset.sum_eq_single ⟨y, hy⟩]
-      · simp
-      · rintro ⟨b, bH⟩ _hb h'b
-        simp only [ne_eq, Subtype.mk.injEq] at h'b
-        simp [h'b]
-      · simp
-      · rintro ⟨b, bH⟩ _hb h'b
-        simp only [ne_eq, Subtype.mk.injEq] at h'b
-        simp [h'b]
-      · simp
+  · intro x hx y hy
+    simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finset_sum,
+      Finset.sum_apply, Measure.dirac_apply, smul_eq_mul]
+    rw [Finset.sum_eq_single ⟨x, hx⟩, Finset.sum_eq_single ⟨y, hy⟩]
     · simp
-  apply finiteRange_of_finset _ H _
-  simp
+    · rintro ⟨b, bH⟩ _hb h'b
+      simp only [ne_eq, Subtype.mk.injEq] at h'b
+      simp [h'b]
+    · simp
+    · rintro ⟨b, bH⟩ _hb h'b
+      simp only [ne_eq, Subtype.mk.injEq] at h'b
+      simp [h'b]
+    · simp
+  · simp
+  · apply finiteRange_of_finset _ H _
+    simp
 
 /-- The image of a uniform random variable under an injective map is uniform on the image. -/
 lemma IsUniform.comp [DecidableEq T] {H : Finset S} (h : IsUniform H X μ) {f : S → T} (hf : Injective f) :
     IsUniform (Finset.image f H) (f ∘ X) μ where
   eq_of_mem := by
-    intro x y hx hy
+    intro x hx y hy
     simp only [Finset.coe_image, mem_image, Finset.mem_coe] at hx hy
     rcases hx with ⟨x, hx, rfl⟩
     rcases hy with ⟨y, hy, rfl⟩
     have A z : f ⁻¹' {f z} = {z} := by ext; simp [hf.eq_iff]
-    simp [preimage_comp, A, h.eq_of_mem x y hx hy]
+    simp [preimage_comp, A, h.eq_of_mem hx hy]
   measure_preimage_compl := by simpa [preimage_comp, hf] using h.measure_preimage_compl
 
 /-- Uniform distributions exist, version giving a measure space -/
@@ -140,7 +137,7 @@ lemma IsUniform.measure_preimage_of_mem
       · intro y _hy
         exact hX .of_discrete
     _ = ∑ _x in H, μ (X ⁻¹' {s}) :=
-      Finset.sum_congr rfl (fun x hx ↦ h.eq_of_mem x s (by simpa using hx) hs)
+      Finset.sum_congr rfl fun x hx ↦ h.eq_of_mem (by simpa using hx) hs
     _ = H.card * μ (X ⁻¹' {s}) := by simp
     _ = (Nat.card H) * μ (X ⁻¹' {s}) := by
       congr; simp
@@ -206,10 +203,10 @@ lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] (h : IsUnifo
     {X' : Ω' → S} {μ' : Measure Ω'} (h' : IdentDistrib X X' μ μ') (hH : MeasurableSet (H : Set S)) :
     IsUniform H X' μ' := by
   constructor
-  · intro x y hx hy
+  · intro x hx y hy
     rw [← h'.measure_mem_eq (MeasurableSet.singleton x),
       ← h'.measure_mem_eq (MeasurableSet.singleton y)]
-    apply h.eq_of_mem x y hx hy
+    apply h.eq_of_mem hx hy
   · rw [← h'.measure_mem_eq hH.compl]
     exact h.measure_preimage_compl
 
@@ -225,10 +222,10 @@ lemma IsUniform.measure_preimage_ne_zero {H : Finset S} [NeZero μ] (h : IsUnifo
 $H'$ on $H' \cap H$. -/
 lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) (H' : Set S) :
     IsUniform (H' ∩ H) X (μ[|X ⁻¹' H']) where
-  eq_of_mem := fun x y hx hy ↦ by
+  eq_of_mem := fun x hx y hy ↦ by
     simp only [cond, Measure.smul_apply, smul_eq_mul]
     rw [μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hx.1)),
-      μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hy.1)), h.eq_of_mem x y hx.2 hy.2]
+      μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hy.1)), h.eq_of_mem hx.2 hy.2]
   measure_preimage_compl := le_zero_iff.mp <| by
     rewrite [Set.compl_inter, Set.preimage_union]
     calc

@@ -1,6 +1,6 @@
 import Mathlib.Algebra.EuclideanDomain.Int
+import Mathlib.Algebra.Module.ZMod
 import Mathlib.LinearAlgebra.Dimension.Free
-import PFR.Mathlib.Algebra.Module.ZMod
 
 /-!
 If `G` is a rank `d` free `ℤ`-module, then `G/nG` is a finite group of cardinality `n ^ d`.
@@ -13,7 +13,7 @@ variable {G : Type*} [AddCommGroup G] [Module.Free ℤ G] {n : ℕ}
 variable (G n) in
 abbrev modN : Type _ := G ⧸ LinearMap.range (LinearMap.lsmul ℤ G n)
 
-instance : Module (ZMod n) (modN G n) := QuotientAddGroup.instZModModule (by simp)
+instance : Module (ZMod n) (modN G n) := QuotientAddGroup.zmodModule (by simp)
 
 variable [NeZero n]
 
