@@ -439,9 +439,56 @@ lemma rho_of_subgroup (H: AddSubgroup G) {Ω : Type*} [MeasureSpace Ω]
     have := exp_monotone this
     rwa [exp_log Hpos, exp_add, exp_log Apos] at this
 
-/-- For any $s \in G$, $\rho(X+s) = \rho(X)$. -/
+#check entropy_add_const
+
+/-- For any $s \in G$, $\rho(X+s) ≤ \rho(X)$. -/
+private lemma rhoMinus_le_translate {Ω : Type*} [MeasureSpace Ω]
+    [IsProbabilityMeasure (ℙ : Measure Ω)]
+    (X : Ω → G) (A : Finset G) (hX : Measurable X) (hA : A.Nonempty) (s:G) :
+    rhoMinus (fun ω ↦ X ω + s) A ≤ rhoMinus X A := by
+  apply le_csInf (nonempty_rhoMinusSet X A hX hA)
+  rintro - ⟨μ, μ_prob, habs, rfl⟩
+  apply csInf_le (bddBelow_rhoMinusSet _ _ (by fun_prop))
+  simp only [rhoMinusSet, mem_setOf_eq]
+  refine ⟨Measure.map (· - s) μ, ?_, ?_, ?_⟩
+  · exact isProbabilityMeasure_map (by fun_prop)
+  · sorry
+  · simp [KLDiv]
+    let e : G ≃ G := Equiv.addLeft (-s)
+    rw [← Equiv.tsum_eq e]
+    congr with g
+    have : Measure.map X ℙ {e g} = Measure.map (fun ω ↦ X ω + s) ℙ {g} := by
+      rw [Measure.map_apply hX (measurableSet_singleton _),
+        Measure.map_apply (by fun_prop) (measurableSet_singleton _)]
+      congr
+      ext z
+      simp [e, ← sub_eq_zero]
+      abel_nf
+    simp only [this]
+    congr 4
+
+
+
+#exit
+
+/-- For any $s \in G$, $\rho(X+s) ≤ \rho(X)$. -/
+private lemma rho_le_translate {Ω : Type*} [MeasureSpace Ω]
+    (X : Ω → G) (A : Finset G) (hX : Measurable X) (s:G) : rho (fun ω ↦ X ω + s) A ≤ rho X A := by
+  simp only [rho, rhoPlus]
+  have := rhoMinus_le_translate X A hX s
+  have : H[fun ω ↦ X ω + s] = H[X] := entropy_add_const hX _
+  linarith
+
 lemma rho_of_translate {Ω : Type*} [MeasureSpace Ω]
-    (X : Ω → G) (A : Finset G) (s:G) : rho (fun ω ↦ X ω + s) A = rho X A := by sorry
+    (X : Ω → G) (A : Finset G) (hX : Measurable X) (s:G) : rho (fun ω ↦ X ω + s) A = rho X A := by
+  apply le_antisymm (rho_le_translate X A hX s)
+  convert rho_le_translate (fun ω ↦ X ω + s) A (by fun_prop) (-s) with ω
+  abel
+
+
+
+
+#exit
 
 /-- \rho(X)$ depends continuously on the distribution of $X$. -/
 lemma rho_continuous [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] {A} :
