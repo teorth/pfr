@@ -39,7 +39,7 @@ noncomputable def KLDiv (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by vo
 @[simp] lemma KLDiv_self : KL[X ; μ # X ; μ] = 0 := by simp [KLDiv]
 
 /-- If `X'` is a copy of `X`, and `Y'` is a copy of `Y`, then `KL(X' ‖ Y') = KL(X ‖ Y)`. -/
-lemma KLDiv_eq_of_equiv (X' : Ω'' → G) (Y' : Ω''' → G)
+lemma ProbabilityTheory.IdentDistrib.KLDiv_eq (X' : Ω'' → G) (Y' : Ω''' → G)
     (hX : IdentDistrib X X' μ μ'') (hY : IdentDistrib Y Y' μ' μ''') :
     KL[X ; μ # Y ; μ'] = KL[X' ; μ'' # Y' ; μ'''] := by
   simp only [KLDiv]
@@ -171,6 +171,11 @@ lemma KLDiv_of_comp_inj {H : Type*} [MeasurableSpace H] [DiscreteMeasurableSpace
     simp only [Set.mem_preimage, Function.comp_apply, Set.mem_singleton_iff] at hz
     exact Set.mem_range.2 ⟨X z, hz⟩
 
+lemma KLDiv_add_const [AddCommGroup G] [DiscreteMeasurableSpace G]
+    {X : Ω → G} {Y : Ω' → G} (hX : Measurable X) (hY : Measurable Y) (s : G) :
+    KL[(fun ω ↦ X ω + s) ; μ # (fun ω ↦ Y ω + s) ; μ'] = KL[X ; μ # Y ; μ'] :=
+  KLDiv_of_comp_inj (f := fun g ↦ g + s) (add_left_injective s) hX hY
+
 open Set
 
 open scoped Pointwise
@@ -226,6 +231,21 @@ lemma ProbabilityTheory.IndepFun.map_add_singleton_eq_sum
   congr
   simp
   abel
+
+lemma absolutelyContinuous_add_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
+    {X Y Z : Ω → G} (hindep : IndepFun (⟨X, Y⟩) Z μ) (hX : Measurable X) (hY : Measurable Y)
+    (hZ : Measurable Z)
+    (habs : ∀ x, μ.map Y {x} = 0 → μ.map X {x} = 0) :
+    ∀ x, μ.map (Y + Z) {x} = 0 → μ.map (X + Z) {x} = 0 := by
+  intro x hx
+  have IX : IndepFun X Z μ := hindep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
+  have IY : IndepFun Y Z μ := hindep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
+  rw [IY.map_add_singleton_eq_sum hY hZ, Finset.sum_eq_zero_iff] at hx
+  rw [IX.map_add_singleton_eq_sum hX hZ, Finset.sum_eq_zero_iff]
+  intro i hi
+  rcases mul_eq_zero.1 (hx i hi) with h'i | h'i
+  · simp [h'i]
+  · simp [habs _ h'i]
 
 /-- If $X, Y, Z$ are independent $G$-valued random variables, then
   $$D_{KL}(X+Z\Vert Y+Z) \leq D_{KL}(X\Vert Y).$$ -/
