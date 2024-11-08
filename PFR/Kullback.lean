@@ -304,7 +304,7 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
 
 /-- If $X,Y,Z$ are random variables, with $X,Z$ defined on the same sample space, we define
 $$ D_{KL}(X|Z \Vert Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert Y).$$ -/
-noncomputable def condKLDiv {S: Type*} (X : Ω → G) (Y : Ω' → G) (Z : Ω → S)
+noncomputable def condKLDiv {S : Type*} (X : Ω → G) (Y : Ω' → G) (Z : Ω → S)
     (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ :=
   ∑' z, (μ (Z⁻¹' {z})).toReal * KL[X ; (ProbabilityTheory.cond μ (Z⁻¹' {z})) # Y ; μ']
 
