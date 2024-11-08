@@ -104,12 +104,13 @@ lemma pair_last_of_three
     IndepFun Z₁ (⟨Z₂, Z₃⟩) := by
   have T := iIndepFun.pi' (m := fun _ _ ↦ hG) ?_ (h_indep.reindex_symm κ_equiv); swap
   · rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> assumption
-  -- apply to this triplet of independent variables the function `phi` applied to `Z₃` and `Z₄`
-  -- which does not change the other variables. It retains independence, proving the conclusion.
+  -- apply to this pair of independent variables the function mapping the latter pair (as
+  -- a function on `Fin 2`) to the same pair, but in the product space sense.
+  -- It retains independence, proving the conclusion.
   let phi_third : ∀ (i : Fin 2), (κ i → G) → (self_or_prod G i)
     | 0 => (fun f ↦ f ⟨0, zero_lt_one⟩)
     | 1 => (fun f ↦ (f ⟨0, zero_lt_two⟩, f ⟨1, one_lt_two⟩))
-  let mmouk i : MeasurableSpace (self_or_prod G i) := by match i with | 0 | 1 => infer_instance
+  let M i : MeasurableSpace (self_or_prod G i) := by match i with | 0 | 1 => infer_instance
   have := T.comp phi_third
   refine (this ?_).indepFun (i := 0) (j := 1) zero_ne_one
   intro i
