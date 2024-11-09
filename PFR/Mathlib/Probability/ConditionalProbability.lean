@@ -15,6 +15,9 @@ variable {ι Ω α β : Type*} {mΩ : MeasurableSpace Ω} {mα : MeasurableSpace
   {mβ : MeasurableSpace β} {μ : Measure Ω} {X : ι → Ω → α} {Y : ι → Ω → β} {f : _ → Set Ω}
   {t : ι → Set β} {s : Finset ι}
 
+lemma ae_cond_mem {s : Set Ω} (hs : MeasurableSet s) : ∀ᵐ x ∂μ[|s], x ∈ s :=
+  ae_smul_measure (ae_restrict_mem hs) _
+
 /-- The probability of an intersection of preimaαes conditioninα on another intersection factors
 into a product. -/
 lemma cond_iInter [Finite ι] (hY : ∀ i, Measurable (Y i))

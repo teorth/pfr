@@ -132,7 +132,7 @@ $|H|/|A|\in[e^{-2r},e^{2r}]$.
 \begin{lemma}[Rho invariant]\label{rho-invariant}\lean{rho_of_translate}\leanok\uses{rho-def}  For any $s \in G$, $\rho(X+s) = \rho(X)$.
 \end{lemma}
 
-\begin{proof}\uses{kl-div-inj} Observe that by \Cref{kl-div-inj}, $$\inf_T D_{KL}(X\Vert U_A+T)=\inf_T D_{KL}(X+s\Vert U_A+T+s)=\inf_{T'} D_{KL}(X+s\Vert U_A+T').$$
+\begin{proof}\leanok\uses{kl-div-inj} Observe that by \Cref{kl-div-inj}, $$\inf_T D_{KL}(X\Vert U_A+T)=\inf_T D_{KL}(X+s\Vert U_A+T+s)=\inf_{T'} D_{KL}(X+s\Vert U_A+T').$$
 \end{proof}
 
 \begin{lemma}[Rho continuous]\label{rho-cts}\lean{rho_continuous}\leanok\uses{rho-def} $\rho(X)$ depends continuously on the distribution of $X$.
@@ -148,7 +148,7 @@ and
   $$ \rho(X+Y) \leq \rho(X) + \frac{1}{2}( \bbH[X+Y] - \bbH[X] ).$$
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
   \uses{kl-sums}
 The first inequality follows from \Cref{kl-sums}. The second and third inequalities are direct corollaries of the first.
 \end{proof}
@@ -180,7 +180,7 @@ and
   $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z] ).$$
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
   \uses{kl-cond}
   The first inequality follows from \Cref{kl-cond}. The second and third inequalities are direct corollaries of the first.
 \end{proof}
@@ -190,7 +190,7 @@ The following lemmas hold for $G=\mathbb{F}_2^n$.
 \begin{lemma}[Rho and sums, symmetrized]\label{rho-sums-sym}\lean{rho_of_sum_le}\leanok  If $X,Y$ are independent, then
   $$ \rho(X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$
 \end{lemma}
-\begin{proof}
+\begin{proof}\leanok
   \uses{rho-sums}
 Apply \Cref{rho-sums} for $(X,Y)$ and $(Y,X)$ and take their average.
 \end{proof}
@@ -199,7 +199,7 @@ Apply \Cref{rho-sums} for $(X,Y)$ and $(Y,X)$ and take their average.
   If $X,Y$ are independent, then
   $$ \rho(X | X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$
 \end{lemma}
-\begin{proof}
+\begin{proof}\leanok
   \uses{rho-invariant,rho-cond}
   First apply \Cref{rho-cond} to get $\rho(X|X+Y)\le \rho(X) + \frac{1}{2}(\bbH[X+Y]-\bbH[Y])$, and $\rho(Y|X+Y)\le \rho(Y)+\frac{1}{2}(\bbH[X+Y]-\bbH[X])$. Then apply \Cref{rho-invariant} to get $\rho(Y|X+Y)=\rho(X|X+Y)$ and take the average of the two inequalities.
 \end{proof}

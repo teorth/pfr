@@ -183,6 +183,18 @@ lemma reindex_four_dabc :
   ext i
   fin_cases i <;> rfl
 
+lemma reindex_four_dacb :
+    iIndepFun (fun _ => hG) ![Z₄, Z₁, Z₃, Z₂] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![3, 0, 2, 1],
+    invFun := ![1, 3, 2, 0],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
 lemma reindex_four_dbac :
     iIndepFun (fun _ => hG) ![Z₄, Z₂, Z₁, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
