@@ -39,7 +39,6 @@ import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
-import PFR.Mathlib.MeasureTheory.Integral.IntegrableOn
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.MeasureTheory.Measure.Prod
@@ -48,6 +47,7 @@ import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Probability.Independence.Basic
 import PFR.Mathlib.Probability.Independence.FourVariables
 import PFR.Mathlib.Probability.Independence.Kernel
+import PFR.Mathlib.Probability.Independence.ThreeVariables
 import PFR.Mathlib.Probability.Kernel.Composition
 import PFR.Mathlib.Probability.Kernel.Disintegration
 import PFR.Mathlib.Probability.UniformOn

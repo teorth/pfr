@@ -747,7 +747,7 @@ lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m 
 
 lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
     (hprob : IsProbabilityMeasure (ℙ : Measure Ω)) (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
-    (hindep : iIndepFun (fun i => inferInstance) X ℙ) :
+    (hindep : iIndepFun (fun _ => inferInstance) X ℙ) :
     D[X ; fun _ ↦ hΩ] ≥ 0 := by
   rw [multiDist_indep hΩ X hindep]
   by_cases hm : m = 0

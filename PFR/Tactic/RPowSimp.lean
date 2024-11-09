@@ -301,7 +301,7 @@ macro "rpow_simp" extras:(simpArgs)? loc:(location)? : tactic => `(tactic|
       [abs_one, abs_mul, abs_inv, abs_div, abs_abs, abs_zero, mul_rpow, ← rpow_mul, div_rpow,
        ← rpow_natCast, abs_rpow_of_nonneg, rpow_one, ← rpow_add, ← rpow_sub, zero_rpow, one_rpow,
        rpow_one, inv_rpow', rpow_inv] $(loc)? <;> try push_cast) <;>
-   try rpow_ring) <;> try field_simp only $(extras)? $(loc)?) <;> try ring_nf (config:={}) $(loc)?) <;>
+   try rpow_ring) <;> try field_simp only $(extras)? $(loc)?)) <;>
    try simp (discharger := positivity) only [abs_one, abs_zero, one_rpow, rpow_one, rpow_zero,
      mul_zero, zero_mul, mul_one, one_mul, fix_cast₁, fix_cast₂, fix_cast₃, Nat.cast_one, inv_rpow',
      rpow_inv] $(loc)?)

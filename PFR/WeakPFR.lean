@@ -515,7 +515,7 @@ lemma single_fibres {G H Ω Ω': Type*}
   let M := H[φ.toFun ∘ UA] + H[φ.toFun ∘ UB]
   have hM : M = ∑ x in X, ∑ y in Y, Real.negMulLog (p x y) := by
     have h_compl {x y} (h_notin : (x, y) ∉ X ×ˢ Y) : Real.negMulLog (p x y) = 0 := by
-      unfold_let p; beta_reduce
+      unfold p
       rewrite [Finset.mem_product, not_and_or] at h_notin
       suffices A_ x = ∅ ∨ B_ y = ∅ by obtain h | h := this <;> rw [h] <;> simp
       refine h_notin.imp ?_ ?_
@@ -525,7 +525,7 @@ lemma single_fibres {G H Ω Ω': Type*}
       · rw [← not_nonempty_iff_eq_empty]
         rintro h ⟨a, ha, rfl⟩
         exact h (h_BY ⟨a, ha⟩)
-    unfold_let M
+    unfold M
     unfold entropy
     haveI := isProbabilityMeasure_map (μ := ℙ)
       ((Measurable.of_discrete (f := φ)).comp hUA').aemeasurable
@@ -555,7 +555,7 @@ lemma single_fibres {G H Ω Ω': Type*}
       rewrite [← left_distrib]
       apply mul_le_mul_of_nonneg_left
       · linarith
-      · unfold_let M
+      · unfold M
         linarith only [entropy_nonneg (φ.toFun ∘ UA) ℙ, entropy_nonneg (φ.toFun ∘ UB) ℙ]
   have : ∃ x : X, ∃ y : Y,
       M * dᵤ[A_ x.val # B_ y.val] + d[φ.toFun ∘ UA # φ.toFun ∘ UB] * -Real.log (p x.val y.val) ≤

@@ -162,7 +162,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   obtain ⟨c', h, hch⟩ := this
   use φ, -φ c'.1 + c'.2 + h
   refine le_trans ?_ hch
-  unfold_let cH₁
+  unfold cH₁
   rewrite [hA, ← mul_inv, inv_mul_eq_div, div_div]
   apply div_le_div (Nat.cast_nonneg _) le_rfl
   · apply mul_pos
