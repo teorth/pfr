@@ -4,6 +4,7 @@ import PFR.Kullback
 import Mathlib.MeasureTheory.Measure.AEMeasurable
 import PFR.Mathlib.Probability.Independence.FourVariables
 import PFR.Mathlib.Probability.Independence.ThreeVariables
+import PFR.FirstEstimate
 
 
 /-!
@@ -25,6 +26,8 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 open MeasureTheory ProbabilityTheory Real Set
 open scoped Pointwise ENNReal
 universe uG
+
+section
 
 variable {G : Type uG} [AddCommGroup G] [Fintype G] [hGm : MeasurableSpace G]
 [DiscreteMeasurableSpace G] {Ω : Type*} [MeasureSpace Ω]
@@ -777,37 +780,287 @@ lemma condRho_of_sum_le [IsProbabilityMeasure (ℙ : Measure Ω)]
   rw [hindep.rdist_eq hX hY, sub_eq_add_neg, this]
   linarith
 
+end
+
 section phiMinimizer
+
+
+variable {G : Type uG} [AddCommGroup G] [Fintype G] [hGm : MeasurableSpace G]
+[DiscreteMeasurableSpace G] {Ω : Type*} [MeasureSpace Ω]
+{X Y Z : Ω → G} {A : Finset G}
 
 /-- Given $G$-valued random variables $X,Y$, define
 $$ \phi[X;Y] := d[X;Y] + \eta(\rho(X) + \rho(Y))$$. -/
-noncomputable def phi {Ω : Type*} [MeasureSpace Ω] (X Y : Ω → G) (η : ℝ) (A : Finset G) : ℝ :=
+noncomputable def phi (X Y : Ω → G) (η : ℝ) (A : Finset G) : ℝ :=
   d[ X # Y ] + η * (rho X A + rho Y A)
 
 /-- Given $G$-valued random variables $X,Y$, define
 $$ \phi[X;Y] := d[X;Y] + \eta(\rho(X) + \rho(Y))$$
 and define a \emph{$\phi$-minimizer} to be a pair of random variables $X,Y$ which minimizes $\phi[X;Y]$.-/
-def phiMinimizes {Ω: Type uG} [MeasureSpace Ω] (X Y : Ω → G) (η:ℝ) (A: Finset G) : Prop := ∀ (Ω': Type uG) (_: MeasureSpace Ω') (X' Y' : Ω' → G), phi X Y η A ≤ phi X' Y' η A
+def phiMinimizes {Ω : Type*} [MeasureSpace Ω] (X Y : Ω → G) (η : ℝ) (A : Finset G) : Prop :=
+  ∀ (Ω' : Type uG) (_ : MeasureSpace Ω') (X' Y' : Ω' → G),
+    IsProbabilityMeasure (ℙ : Measure Ω') → Measurable X' → Measurable Y' →
+    phi X Y η A ≤ phi X' Y' η A
 
-variable (η:ℝ) (hη: η > 0) (A: Finset G)
+variable {η : ℝ} (hη : η > 0)
 
 /-- There exists a $\phi$-minimizer. -/
-lemma phi_min_exists : ∃ (Ω: Type uG) (_:MeasureSpace Ω) (X Y : Ω → G), phiMinimizes X Y η A := by sorry
+lemma phi_min_exists :
+  ∃ (Ω : Type uG) (_ : MeasureSpace Ω) (X Y : Ω → G), phiMinimizes X Y η A := by sorry
 
--- Let $(X_1, X_2)$ be a $\phi$-minimizer, and $\tilde X_1, \tilde X_2$ be independent copies of $X_1,X_2$ respectively.
-variable {Ω: Type uG} [MeasureSpace Ω] (X₁ X₂ X'₁ X'₂ : Ω → G) (hmin: phiMinimizes X₁ X₂ η A) (hident₁: IdentDistrib X₁ X'₁) (hident₁: IdentDistrib X₂ X'₂) (hindep: iIndepFun (fun _ ↦ hGm) ![X₁, X₂, X'₁, X'₂])
+-- Let $(X_1, X_2)$ be a $\phi$-minimizer, and $\tilde X_1, \tilde X_2$ be independent copies
+-- of $X_1,X_2$ respectively.
+variable {X₁ X₂ X₁' X₂' : Ω → G} (h_min : phiMinimizes X₁ X₂ η A)
+  (h₁ : IdentDistrib X₁ X₁')
+  (h₂ : IdentDistrib X₂ X₂')
+  (h_indep : iIndepFun (fun _ ↦ hGm) ![X₁, X₂, X₁', X₂'])
+  (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
 
-local notation3 "I₁" => I[X₁ + X₂ : X'₁ + X₂ | X₁ + X₂ + X'₁ + X'₂]
-local notation3 "I₂" => I[X₁ + X₂ : X₁ + X'₁ | X₁ + X₂ + X'₁ + X'₂]
 
+local notation3 "I₁" => I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂']
+local notation3 "I₂" => I[X₁ + X₂ : X₁ + X₁' | X₁ + X₂ + X₁' + X₂']
+/-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
+local notation3 "k" => d[X₁ # X₂]
+
+lemma le_rdist_of_phiMinimizes (h_min : phiMinimizes X₁ X₂ η A) {Ω₁ Ω₂ : Type*} [MeasurableSpace Ω₁]
+    [MeasurableSpace Ω₂] {μ₁ : Measure Ω₁} {μ₂ : Measure Ω₂}
+    [IsProbabilityMeasure μ₁] [IsProbabilityMeasure μ₂]
+    {X₁' : Ω₁ → G} {X₂' : Ω₂ → G} (hX₁' : Measurable X₁') (hX₂' : Measurable X₂') :
+    d[X₁ # X₂] - η * (rho' μ₁ X₁' A - rho X₁ A) - η * (rho' μ₂ X₂' A - rho X₂ A)
+      ≤ d[X₁' ; μ₁ # X₂' ; μ₂] := by
+  let Ω' : Type uG := G × G
+  have : IsProbabilityMeasure (Measure.map X₁' μ₁) := isProbabilityMeasure_map hX₁'.aemeasurable
+  have : IsProbabilityMeasure (Measure.map X₂' μ₂) := isProbabilityMeasure_map hX₂'.aemeasurable
+  let m : Measure Ω' := (Measure.map X₁' μ₁).prod (Measure.map X₂' μ₂)
+  have m_prob : IsProbabilityMeasure m := by infer_instance
+  let _ : MeasureSpace Ω' := ⟨m⟩
+  have hP : (ℙ : Measure Ω') = m := rfl
+  let Y₁ : G × G → G := Prod.fst
+  let Y₂ : G × G → G := Prod.snd
+  have : phi X₁ X₂ η A ≤ phi Y₁ Y₂ η A := h_min _ _ _ _ m_prob measurable_fst measurable_snd
+  have Id₁ : IdentDistrib Y₁ X₁' ℙ μ₁ :=
+    ⟨measurable_fst.aemeasurable, hX₁'.aemeasurable, by simp [Y₁, hP, m]⟩
+  have Id₂ : IdentDistrib Y₂ X₂' ℙ μ₂ :=
+    ⟨measurable_snd.aemeasurable, hX₂'.aemeasurable, by simp [Y₂, hP, m]⟩
+  have I : d[Y₁ # Y₂] = d[X₁' ; μ₁ # X₂' ; μ₂] := Id₁.rdist_eq Id₂
+  have J : rho Y₁ A = rho' μ₁ X₁' A := by
+    let _ : MeasureSpace Ω₁ := ⟨μ₁⟩
+    exact rho_eq_of_identDistrib Id₁
+  have K : rho Y₂ A = rho' μ₂ X₂' A := by
+    let _ : MeasureSpace Ω₂ := ⟨μ₂⟩
+    exact rho_eq_of_identDistrib Id₂
+  simp only [phi, I, J, K] at this
+  linarith
+
+variable [IsProbabilityMeasure (ℙ : Measure Ω)]
+
+lemma condRho_le_condRuzsaDist_of_phiMinimizes {S T : Type*}
+    [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
+    (h : phiMinimizes X₁ X₂ η A) (h1 : Measurable X₁') (h2 : Measurable X₂')
+    {Z : Ω → S} {W : Ω → T} (hZ : Measurable Z) (hW : Measurable W) :
+    k - η * (condRho X₁' Z A - rho X₁ A) - η * (condRho X₂' W A - rho X₂ A)
+      ≤ d[X₁' | Z # X₂' | W] := by
+  have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
+  have : IsProbabilityMeasure (Measure.map W ℙ) := isProbabilityMeasure_map hW.aemeasurable
+  have hz (a : ℝ) : a = ∑ z, (ℙ (Z ⁻¹' {z})).toReal * a := by
+    simp_rw [← Finset.sum_mul,← Measure.map_apply hZ (MeasurableSet.singleton _),
+      Finset.sum_toReal_measure_singleton]
+    simp
+  have hw (a : ℝ) : a = ∑ w, (ℙ (W ⁻¹' {w})).toReal * a := by
+    simp_rw [← Finset.sum_mul,← Measure.map_apply hW (MeasurableSet.singleton _),
+      Finset.sum_toReal_measure_singleton]
+    simp
+  rw [condRuzsaDist_eq_sum' h1 hZ h2 hW, hz d[X₁ # X₂],
+    hz (rho X₁ A), hz (η * (condRho X₂' W A - rho X₂ A)), condRho, tsum_fintype,
+    ← Finset.sum_sub_distrib, Finset.mul_sum, ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib]
+  apply Finset.sum_le_sum
+  intro z _
+  rw [condRho, tsum_fintype, hw (rho X₂ A),
+    hw ( (ℙ (Z ⁻¹' {z})).toReal * k -
+      η * ((ℙ (Z ⁻¹' {z})).toReal * rho' ℙ[|Z ⁻¹' {z}] X₁' A - (ℙ (Z ⁻¹' {z})).toReal * rho X₁ A)),
+    ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
+  apply Finset.sum_le_sum
+  intro w _
+  rcases eq_or_ne (ℙ (Z ⁻¹' {z})) 0 with hpz | hpz
+  · simp [hpz]
+  rcases eq_or_ne (ℙ (W ⁻¹' {w})) 0 with hpw | hpw
+  · simp [hpw]
+  set μ := ℙ[|Z ← z]
+  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure hpz
+  set μ' := ℙ[|W ← w]
+  have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure hpw
+  suffices d[X₁ # X₂] - η * (rho' μ X₁' A - rho X₁ A) -
+      η * (rho' μ' X₂' A - rho X₂ A) ≤ d[X₁' ; μ # X₂'; μ'] by
+    replace this := mul_le_mul_of_nonneg_left this
+      (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)
+    convert this using 1
+    ring
+  exact le_rdist_of_phiMinimizes h h1 h2
+
+
+/- *****************************************
+First estimate
+********************************************* -/
+
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min hη in
 /-- $I_1\le 2\eta d[X_1;X_2]$ -/
-lemma I_one_le : I₁ ≤ 2 * η * d[ X₁ # X₂ ] := by sorry
+lemma I_one_le [Module (ZMod 2) G] (hA : A.Nonempty) : I₁ ≤ 2 * η * d[ X₁ # X₂ ] := by
+  have : d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] + I₁ = 2 * k :=
+    rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep.reindex_four_abdc
+  have : k - η * (condRho X₁ (X₁ + X₂') A - rho X₁ A)
+      - η * (condRho X₂ (X₂ + X₁') A - rho X₂ A) ≤ d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] :=
+    condRho_le_condRuzsaDist_of_phiMinimizes h_min hX₁ hX₂ (by fun_prop) (by fun_prop)
+  have : k - η * (rho (X₁ + X₂') A - rho X₁ A)
+      - η * (rho (X₂ + X₁') A - rho X₂ A) ≤ d[X₁ + X₂' # X₂ + X₁'] :=
+    le_rdist_of_phiMinimizes h_min (hX₁.add hX₂') (hX₂.add hX₁')
+  have : rho (X₁ + X₂') A ≤ (rho X₁ A + rho X₂ A + d[ X₁ # X₂ ]) / 2 := by
+    rw [rho_eq_of_identDistrib h₂, (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
+    apply rho_of_sum_le hX₁ hX₂' hA
+    simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
+  have : rho (X₂ + X₁') A ≤ (rho X₁ A + rho X₂ A + d[ X₁ # X₂ ]) / 2 := by
+    rw [add_comm, rho_eq_of_identDistrib h₁, h₁.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)]
+    apply rho_of_sum_le hX₁' hX₂ hA
+    simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 1 by decide)
+  have : condRho X₁ (X₁ + X₂') A ≤ (rho X₁ A + rho X₂ A + d[ X₁ # X₂ ]) / 2 := by
+    rw [rho_eq_of_identDistrib h₂, (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
+    apply condRho_of_sum_le hX₁ hX₂' hA
+    simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
+  have : condRho X₂ (X₂ + X₁') A ≤ (rho X₁ A + rho X₂ A + d[ X₁ # X₂ ]) / 2 := by
+    have : condRho X₂ (X₂ + X₁') A ≤ (rho X₂ A + rho X₁' A + d[ X₂ # X₁' ]) / 2 := by
+      apply condRho_of_sum_le hX₂ hX₁' hA
+      simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 2 by decide)
+    have I : rho X₁' A = rho X₁ A := rho_eq_of_identDistrib h₁.symm
+    have J : d[X₂ # X₁'] = d[X₁ # X₂] := by
+      rw [rdist_symm, h₁.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)]
+    linarith
+  nlinarith
 
+/- *****************************************
+Second estimate
+********************************************* -/
+
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep in
+lemma I_two_aux [Module (ZMod 2) G] :
+    d[X₁ # X₁] + d[X₂ # X₂] = d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] + I₂ := by
+  have Z : d[X₁' # X₁] + d[X₂' # X₂] = d[X₁' + X₂' # X₁ + X₂] + d[X₁' | X₁' + X₂' # X₁ | X₁ + X₂]
+      + I[X₁' + X₁ : X₁ + X₂|X₁' + X₁ + X₂' + X₂] :=
+    sum_of_rdist_eq_char_2' X₁' X₁ X₂' X₂ h_indep.reindex_four_cadb hX₁' hX₁ hX₂' hX₂
+  have C₁ : X₁' + X₁ + X₂' + X₂ = X₁ + X₂ + X₁' + X₂' := by abel
+  have C₂ : X₁' + X₁ = X₁ + X₁' := by abel
+  have C₃ : d[X₁' # X₁] = d[X₁ # X₁] := h₁.symm.rdist_eq (IdentDistrib.refl hX₁.aemeasurable)
+  have C₄ : d[X₂' # X₂] = d[X₂ # X₂] := h₂.symm.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)
+  have C₅ : d[X₁' + X₂' # X₁ + X₂] = d[X₁ + X₂' # X₂ + X₁'] := by
+    apply IdentDistrib.rdist_eq
+    · apply IdentDistrib.add h₁.symm (IdentDistrib.refl hX₂'.aemeasurable)
+      · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)
+      · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
+    · rw [add_comm]
+      apply IdentDistrib.add (IdentDistrib.refl hX₂.aemeasurable) h₁
+      · simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 0 by decide)
+      · simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 2 by decide)
+  have C₆ : d[X₁' | X₁' + X₂' # X₁ | X₁ + X₂] = d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] := by
+    have A : d[X₁' | X₁' + X₂' # X₁ | X₁ + X₂] = d[X₁ | X₁ + X₂' # X₁' | X₂ + X₁'] := by
+      apply condRuzsaDist_of_copy hX₁' (by fun_prop) hX₁ (by fun_prop) hX₁ (by fun_prop) hX₁'
+        (by fun_prop)
+      · have : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂'⟩) := by
+          apply h₁.symm.prod_mk (IdentDistrib.refl hX₂'.aemeasurable)
+          · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)
+          · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
+        exact this.comp (u := fun (a : G × G) ↦ (a.1, a.1 + a.2)) (by fun_prop)
+      · rw [add_comm]
+        have : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂⟩) := by
+          apply h₁.prod_mk (IdentDistrib.refl hX₂.aemeasurable)
+          · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 1 by decide)
+          · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 1 by decide)
+        exact this.comp (u := fun (a : G × G) ↦ (a.1, a.2 + a.1)) (by fun_prop)
+    have B : d[X₁ | X₁ + X₂' # X₁' | X₂ + X₁'] = d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] := by
+      have J z w : d[X₁ ; ℙ[|(X₁ + X₂') ⁻¹' {z}] # X₁' ; ℙ[|(X₂ + X₁') ⁻¹' {w}]]
+          = d[X₁ ; ℙ[|(X₁ + X₂') ⁻¹' {z}] # X₂ ; ℙ[|(X₂ + X₁') ⁻¹' {w}]] := by
+        rw [← rdist_add_const hX₁ hX₂ (c := w)]
+        apply ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable)
+        apply IdentDistrib.of_ae_eq hX₁'.aemeasurable
+        filter_upwards [ae_cond_mem (hX₂.add hX₁' (measurableSet_singleton _))] with x hx
+        simp only [mem_preimage, Pi.add_apply, mem_singleton_iff] at hx
+        simp [← hx, ← add_assoc, ZModModule.add_self (X₂ x)]
+      rw [condRuzsaDist_eq_sum' hX₁ (by fun_prop) hX₁' (by fun_prop),
+        condRuzsaDist_eq_sum' hX₁ (by fun_prop) hX₂ (by fun_prop)]
+      simp [J]
+    exact A.trans B
+  rwa [condMutualInfo_comm (by fun_prop) (by fun_prop), C₁, C₂, C₃, C₄, C₅, C₆] at Z
+
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep in
 /-- $d[X_1;X_1]+d[X_2;X_2]= 2d[X_1;X_2]+(I_2-I_1)$. -/
-lemma dist_add_dist_eq : d[ X₁ # X₁ ] + d[ X₂ # X₂ ] = 2 * d[ X₁ # X₂ ] + (I₂ - I₁) := by sorry
+lemma rdist_add_rdist_eq [Module (ZMod 2) G] :
+    d[ X₁ # X₁ ] + d[ X₂ # X₂ ] = 2 * k + (I₂ - I₁) := by
+  have : d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] + I₁ = 2 * k :=
+    rdist_add_rdist_add_condMutual_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep.reindex_four_abdc
+  have : d[X₁ # X₁] + d[X₂ # X₂]
+      = d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] + I₂ :=
+    I_two_aux h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂'
+  linarith
 
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep in
+lemma I_two_aux' [Module (ZMod 2) G] :
+    2 * k = d[X₁ + X₁' # X₂ + X₂'] + d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂'] + I₂ := by
+  have Z : d[X₂ # X₁] + d[X₂' # X₁'] = d[X₂ + X₂' # X₁ + X₁'] + d[X₂ | X₂ + X₂' # X₁ | X₁ + X₁']
+      + I[X₂ + X₁ : X₁ + X₁' | X₂ + X₁ + X₂' + X₁'] :=
+    sum_of_rdist_eq_char_2' X₂ X₁ X₂' X₁' h_indep.reindex_four_badc hX₂ hX₁ hX₂' hX₁'
+  have C₁ : X₂ + X₁ = X₁ + X₂ := by abel
+  have C₂ : X₁ + X₂ + X₂' + X₁' = X₁ + X₂ + X₁' + X₂' := by abel
+  have C₃ : d[X₂ # X₁] = d[X₁ # X₂] := rdist_symm
+  have C₄ : d[X₂' # X₁'] = d[X₁ # X₂] := by rw [rdist_symm]; exact h₁.symm.rdist_eq h₂.symm
+  have C₅ : d[X₂ + X₂' # X₁ + X₁'] = d[X₁ + X₁' # X₂ + X₂'] := rdist_symm
+  have C₆ : d[X₂ | X₂ + X₂' # X₁ | X₁ + X₁'] = d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂'] :=
+    condRuzsaDist_symm (by fun_prop) (by fun_prop)
+  rw [C₁, C₂, C₃, C₄, C₅] at Z
+  linarith
+
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min hη in
 /-- $I_2\le 2\eta d[X_1;X_2] + \frac{\eta}{1-\eta}(2\eta d[X_1;X_2]-I_1)$. -/
-lemma I_two_le : I₂ ≤ 2 * η * d[ X₁ # X₂ ] + (η / (1 - η)) * (2 * η * d[ X₁ # X₂ ] - I₁) := by sorry
+lemma I_two_le [Module (ZMod 2) G] (hA : A.Nonempty) (h'η : η < 1) :
+    I₂ ≤ 2 * η * k + (η / (1 - η)) * (2 * η * k - I₁) := by
+  have W : k - η * (rho (X₁ + X₁') A - rho X₁ A) - η * (rho (X₂ + X₂') A - rho X₂ A) ≤
+      d[X₁ + X₁' # X₂ + X₂'] :=
+    le_rdist_of_phiMinimizes h_min (hX₁.add hX₁') (hX₂.add hX₂') (μ₁ := ℙ) (μ₂ := ℙ)
+  have W' : k - η * (condRho X₁ (X₁ + X₁') A - rho X₁ A)
+      - η * (condRho X₂ (X₂ + X₂') A - rho X₂ A) ≤ d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂'] :=
+    condRho_le_condRuzsaDist_of_phiMinimizes h_min hX₁ hX₂ (hX₁.add hX₁') (hX₂.add hX₂')
+  have Z : 2 * k = d[X₁ + X₁' # X₂ + X₂'] + d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂'] + I₂ :=
+    I_two_aux' h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂'
+  have : rho (X₁ + X₁') A ≤ (rho X₁ A + rho X₁ A + d[ X₁ # X₁ ]) / 2 := by
+    refine (rho_of_sum_le hX₁ hX₁' hA
+      (by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide))).trans_eq ?_
+    rw [rho_eq_of_identDistrib h₁.symm,
+      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁]
+  have : rho (X₂ + X₂') A ≤ (rho X₂ A + rho X₂ A + d[ X₂ # X₂ ]) / 2 := by
+    refine (rho_of_sum_le hX₂ hX₂' hA
+      (by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide))).trans_eq ?_
+    rw [rho_eq_of_identDistrib h₂.symm,
+      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂]
+  have : condRho X₁ (X₁ + X₁') A ≤ (rho X₁ A + rho X₁ A + d[ X₁ # X₁ ]) / 2 := by
+    refine (condRho_of_sum_le hX₁ hX₁' hA
+      (by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide))).trans_eq ?_
+    rw [rho_eq_of_identDistrib h₁.symm,
+      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁]
+  have : condRho X₂ (X₂ + X₂') A ≤ (rho X₂ A + rho X₂ A + d[ X₂ # X₂ ]) / 2 := by
+    refine (condRho_of_sum_le hX₂ hX₂' hA
+      (by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide))).trans_eq ?_
+    rw [rho_eq_of_identDistrib h₂.symm,
+      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂]
+  have : I₂ ≤ η * (d[X₁ # X₁] + d[X₂ # X₂]) := by nlinarith
+  rw [rdist_add_rdist_eq h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂'] at this
+  have one_eta : 0 < 1 - η := by linarith
+  apply (mul_le_mul_iff_of_pos_left one_eta).1
+  have : (1 - η) * I₂ ≤ 2 * η * k - I₁ * η := by linarith
+  apply this.trans_eq
+  field_simp
+  ring
+
+/- ****************************************
+End Game
+******************************************* -/
+
 
 /-- If $G$-valued random variables $T_1,T_2,T_3$ satisfy $T_1+T_2+T_3=0$, then
   $$d[X_1;X_2]\le 3\bbI[T_1:T_2\mid T_3] + (2\bbH[T_3]-\bbH[T_1]-\bbH[T_2])+ \eta(\rho(T_1|T_3)+\rho(T_2|T_3)-\rho(X_1)-\rho(X_2)).$$ -/

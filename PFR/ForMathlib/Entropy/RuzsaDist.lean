@@ -336,9 +336,13 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
   linarith only [this, (abs_le.mp (diff_ent_le_rdist hX' hUH' (μ := ν) (μ' := ν))).2]
 
 /-- Adding a constant to a random variable does not change the Rusza distance. -/
-lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma rdist_add_const [IsZeroOrProbabilityMeasure μ] [IsZeroOrProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) {c} :
     d[X ; μ # Y + fun _ ↦ c; μ'] = d[X ; μ # Y ; μ'] := by
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp [rdist_def, entropy_add_const hY]
+  rcases eq_zero_or_isProbabilityMeasure μ' with rfl | hμ'
+  · simp [rdist_def]
   obtain ⟨ν, X', Y', _, hX', hY', hind, hIdX, hIdY, _, _⟩ := independent_copies_finiteRange hX hY μ μ'
   have A : IdentDistrib (Y' + fun _ ↦ c) (Y + fun _ ↦ c) ν μ' := by
     change IdentDistrib (fun ω ↦ Y' ω + c) (fun ω ↦ Y ω + c) ν μ'
@@ -353,8 +357,8 @@ lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
   exact hX'.sub hY'
 
 /-- A variant of `rdist_add_const` where one adds constants to both variables. -/
-lemma rdist_add_const' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (c : G) (c' : G)
-    (hX : Measurable X) (hY : Measurable Y) :
+lemma rdist_add_const' [IsZeroOrProbabilityMeasure μ] [IsZeroOrProbabilityMeasure μ']
+    (c : G) (c' : G) (hX : Measurable X) (hY : Measurable Y) :
     d[X + fun _ ↦ c; μ # Y + fun _ ↦ c'; μ'] = d[X ; μ # Y ; μ'] := by
   rw [rdist_add_const _ hY, rdist_symm, rdist_add_const hY hX, rdist_symm]
   fun_prop
