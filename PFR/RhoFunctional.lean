@@ -1332,13 +1332,12 @@ $S:=Y_1+Y_2+Y_3+Y_4$, $T_1:=Y_1+Y_2$, $T_2:=Y_1+Y_3$. Then
   $$\rho(T_1|T_2,S)+\rho(T_2|T_1,S) - \frac{1}{2}\sum_{i} \rho(Y_i)
     \le \frac{1}{2}(d[Y_1;Y_2]+d[Y_3;Y_4]+d[Y_1;Y_3]+d[Y_2;Y_4]).$$
 -/
-lemma condRho_sum_le {Ω' : Type*} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ : Measure Ω')]
-    {Y₁ Y₂ Y₃ Y₄ : Ω' → G}
+lemma condRho_sum_le {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
     (hindep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
-     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] + ρ[Y₁ + Y₃ | ⟨Y₁ + Y₂, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] -
-    (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 2 ≤
-       (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 2 := by
+    ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] + ρ[Y₁ + Y₃ | ⟨Y₁ + Y₂, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] -
+      (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 2 ≤
+        (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 2 := by
   set S := Y₁ + Y₂ + Y₃ + Y₄
   set T₁ := Y₁ + Y₂
   set T₂ := Y₁ + Y₃
@@ -1361,37 +1360,56 @@ lemma condRho_sum_le {Ω' : Type*} [MeasureSpace Ω'] [IsProbabilityMeasure (ℙ
     + I[Y₁ + Y₃ : Y₁ + Y₂|S] + d[Y₁ | Y₁ + Y₂ # Y₃ | Y₃ + Y₄]
       = (d[Y₁ # Y₂] + d[Y₃ # Y₄]) + (d[Y₁ # Y₃] + d[Y₂ # Y₄]) := by
     have K : Y₁ + Y₃ + Y₂ + Y₄ = S := by simp only [S]; abel
-    have K' : I[Y₁ + Y₃ : Y₁ + Y₂|Y₁ + Y₂ + Y₃ + Y₄] = I[Y₁ + Y₃ : Y₃ + Y₄|Y₁ + Y₂ + Y₃ + Y₄] := sorry
-    have K'' : I[Y₁ + Y₂ : Y₁ + Y₃|Y₁ + Y₂ + Y₃ + Y₄] = I[Y₁ + Y₂ : Y₂ + Y₄|Y₁ + Y₂ + Y₃ + Y₄] := sorry
+    have K' : I[Y₁ + Y₃ : Y₁ + Y₂|Y₁ + Y₂ + Y₃ + Y₄] = I[Y₁ + Y₃ : Y₃ + Y₄|Y₁ + Y₂ + Y₃ + Y₄] := by
+      have : Measurable (Y₁ + Y₃) := by fun_prop
+      rw [condMutualInfo_comm this (by fun_prop), condMutualInfo_comm this (by fun_prop)]
+      have B := condMutualInfo_of_inj_map (X := Y₃ + Y₄) (Y := Y₁ + Y₃) (Z := Y₁ + Y₂ + Y₃ + Y₄)
+        (by fun_prop) (by fun_prop) (by fun_prop) (fun a b ↦ a - b) (fun a ↦ sub_right_injective)
+        (μ := ℙ)
+      convert B with g
+      simp
+    have K'' : I[Y₁ + Y₂ : Y₁ + Y₃|Y₁ + Y₂ + Y₃ + Y₄] = I[Y₁ + Y₂ : Y₂ + Y₄|Y₁ + Y₂ + Y₃ + Y₄] := by
+      have : Measurable (Y₁ + Y₂) := by fun_prop
+      rw [condMutualInfo_comm this (by fun_prop), condMutualInfo_comm this (by fun_prop)]
+      have B := condMutualInfo_of_inj_map (X := Y₂ + Y₄) (Y := Y₁ + Y₂) (Z := Y₁ + Y₂ + Y₃ + Y₄)
+        (by fun_prop) (by fun_prop) (by fun_prop) (fun a b ↦ a - b) (fun a ↦ sub_right_injective)
+        (μ := ℙ)
+      convert B with g
+      simp
+      abel
     rw [sum_of_rdist_eq_char_2' Y₁ Y₂ Y₃ Y₄ hindep hY₁ hY₂ hY₃ hY₄,
       sum_of_rdist_eq_char_2' Y₁ Y₃ Y₂ Y₄ hindep.reindex_four_acbd hY₁ hY₃ hY₂ hY₄, K, K', K'']
-    simp only [S]
     abel
   linarith
 
-
-
-#exit
-
-
-
-
-
-
-#exit
-
-/-- For independent random variables $Y_1,Y_2,Y_3,Y_4$ over $G$, define $T_1:=Y_1+Y_2,T_2:=Y_1+Y_3,T_3:=Y_2+Y_3$ and $S:=Y_1+Y_2+Y_3+Y_4$. Then
-  $$\sum_{1 \leq i < j \leq 3} (\rho(T_i|T_j,S) + \rho(T_j|T_i,S) - \frac{1}{2}\sum_{i} \rho(Y_i))\le \sum_{1\leq i < j \leq 4}d[Y_i;Y_j]$$ -/
-lemma condRho_sum_le' {Ω' : Type*} [MeasureSpace Ω']
-    {Y₁ Y₂ Y₃ Y₄ : Ω' → G}
-      (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄) :
+/-- For independent random variables $Y_1,Y_2,Y_3,Y_4$ over $G$, define
+$T_1:=Y_1+Y_2, T_2:=Y_1+Y_3, T_3:=Y_2+Y_3$ and $S:=Y_1+Y_2+Y_3+Y_4$. Then
+  $$\sum_{1 \leq i < j \leq 3} (\rho(T_i|T_j,S) + \rho(T_j|T_i,S)
+    - \frac{1}{2}\sum_{i} \rho(Y_i))\le \sum_{1\leq i < j \leq 4}d[Y_i;Y_j]$$ -/
+lemma condRho_sum_le' {Y₁ Y₂ Y₃ Y₄ : Ω → G}
+      (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
+      (hindep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     let S := Y₁ + Y₂ + Y₃ + Y₄
     let T₁ := Y₁ + Y₂
     let T₂ := Y₁ + Y₃
     let T₃ := Y₂ + Y₃
-    condRho T₁ T₂ A + condRho T₂ T₁ A + condRho T₁ T₃ A + condRho T₃ T₁ A + condRho T₂ T₃ A
-      + condRho T₃ T₂ A - 3 * (rho Y₁ A + rho Y₂ A + rho Y₃ A + rho Y₄ A) / 2 ≤
-    d[ Y₁ # Y₂ ] + d[ Y₁ # Y₃ ] + d[ Y₁ # Y₄ ] + d[ Y₂ # Y₃ ] + d[ Y₂ # Y₄ ] + d[ Y₃ # Y₄ ] := by sorry
+    ρ[T₁ | ⟨T₂, S⟩ # A] + ρ[T₂ | ⟨T₁, S⟩ # A] + ρ[T₁ | ⟨T₃, S⟩ # A] + ρ[T₃ | ⟨T₁, S⟩ # A]
+      + ρ[T₂ | ⟨T₃, S⟩ # A] + ρ[T₃ | ⟨T₂, S⟩ # A]
+      - 3 * (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 2 ≤
+    d[Y₁ # Y₂] + d[Y₁ # Y₃] + d[Y₁ # Y₄] + d[Y₂ # Y₃] + d[Y₂ # Y₄] + d[Y₃ # Y₄] := by
+  have K₁ := condRho_sum_le hY₁ hY₂ hY₃ hY₄ hindep hA
+  have K₂ := condRho_sum_le hY₂ hY₁ hY₃ hY₄ hindep.reindex_four_bacd hA
+  have Y₂₁ : Y₂ + Y₁ = Y₁ + Y₂ := by abel
+  have dY₂₁ : d[Y₂ # Y₁] = d[Y₁ # Y₂] := rdist_symm
+  rw [Y₂₁, dY₂₁] at K₂
+  have K₃ := condRho_sum_le hY₃ hY₁ hY₂ hY₄ hindep.reindex_four_cabd hA
+  have Y₃₁ : Y₃ + Y₁ = Y₁ + Y₃ := by abel
+  have Y₃₂ : Y₃ + Y₂ = Y₂ + Y₃ := by abel
+  have S₃ : Y₁ + Y₃ + Y₂ + Y₄ = Y₁ + Y₂ + Y₃ + Y₄ := by abel
+  have dY₃₁ : d[Y₃ # Y₁] = d[Y₁ # Y₃] := rdist_symm
+  have dY₃₂ : d[Y₃ # Y₂] = d[Y₂ # Y₃] := rdist_symm
+  rw [Y₃₁, Y₃₂, S₃, dY₃₁, dY₃₂] at K₃
+  linarith
 
 /-- If $X_1,X_2$ is a $\phi$-minimizer, then $d[X_1;X_2] = 0$. -/
 lemma dist_of_min_eq_zero (hη': η < 1/8) : d[ X₁ # X₂ ] = 0 := by sorry
@@ -1410,7 +1428,7 @@ theorem rho_PFR_conjecture [hGm : MeasurableSpace G] [DiscreteMeasurableSpace G]
     (Y₁ Y₂ : Ω → G) (A : Finset G) (hA : A.Nonempty) :
     ∃ (H : Submodule (ZMod 2) G) (Ω' : Type uG) (mΩ' : MeasureSpace Ω) (U : Ω → G),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
-    IsUniform H U ∧ 2 * rho U A ≤ rho Y₁ A + rho Y₂ A + 8 * d[Y₁ # Y₂] := sorry
+    IsUniform H U ∧ 2 * ρ[U # A] ≤ ρ[Y₁ # A] + ρ[Y₂ # A] + 8 * d[Y₁ # Y₂] := sorry
 
 /-- If $|A+A| \leq K|A|$, then there exists a subgroup $H$ and $t\in G$ such that
 $|A \cap (H+t)| \geq K^{-4} \sqrt{|A||V|}$, and $|H|/|A|\in[K^{-8},K^8]$.

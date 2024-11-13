@@ -159,6 +159,18 @@ lemma reindex_four_cadb :
   ext i
   fin_cases i <;> rfl
 
+lemma reindex_four_cabd :
+    iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₂, Z₄] := by
+  let σ : Fin 4 ≃ Fin 4 :=
+  { toFun := ![2, 0, 1, 3],
+    invFun := ![1, 2, 0, 3],
+    left_inv := by intro i; fin_cases i <;> rfl,
+    right_inv := by intro i; fin_cases i <;> rfl }
+  refine iIndepFun.reindex σ.symm ?_
+  convert h_indep using 1
+  ext i
+  fin_cases i <;> rfl
+
 lemma reindex_four_cbad :
     iIndepFun (fun _ => hG) ![Z₃, Z₂, Z₁, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
