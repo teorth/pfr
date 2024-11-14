@@ -118,7 +118,7 @@ lemma rhoMinus_le [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hA : A.Nonempty)
     {Ω' : Type*} [MeasurableSpace Ω'] {T : Ω' → G} {U : Ω' → G} {μ' : Measure Ω'}
     [IsProbabilityMeasure μ'] (hunif : IsUniform A U μ') (hT : Measurable T)
-    (hU : Measurable U) (hindep : IndepFun T U μ')
+    (hU : Measurable U) (h_indep : IndepFun T U μ')
     (habs : ∀ y, (μ'.map (T + U)) {y} = 0 → μ.map X {y} = 0) :
     ρ⁻[X ; μ # A] ≤ KL[X ; μ # T + U ; μ'] := by
   have : IsProbabilityMeasure (Measure.map T μ') := isProbabilityMeasure_map hT.aemeasurable
@@ -128,7 +128,7 @@ lemma rhoMinus_le [IsZeroOrProbabilityMeasure μ]
   have M : (Measure.map (Prod.fst + Prod.snd) ((Measure.map T μ').prod (uniformOn ↑A))) =
       (Measure.map (T + U) μ') := by
     ext s _
-    rw [hindep.map_add_eq_sum hT hU]
+    rw [h_indep.map_add_eq_sum hT hU]
     have : IndepFun Prod.fst Prod.snd ((Measure.map T μ').prod (uniformOn (A : Set G))) :=
       ProbabilityTheory.indepFun_fst_snd
     rw [this.map_add_eq_sum measurable_fst measurable_snd,
@@ -505,7 +505,7 @@ lemma rho_continuous [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] {A
   $$ \rho^-(X+Y) \leq \rho^-(X)$$ -/
 lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y)
-    (hA : A.Nonempty) (hindep : IndepFun X Y μ) :
+    (hA : A.Nonempty) (h_indep : IndepFun X Y μ) :
     ρ⁻[X + Y ; μ # A] ≤ ρ⁻[X ; μ # A] := by
   rcases eq_zero_or_isProbabilityMeasure μ with hμ | hμ
   · simp [rhoMinus_zero_measure hμ]
@@ -513,7 +513,7 @@ lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
     uniformOn_isProbabilityMeasure A.finite_toSet hA
   rintro - ⟨μ', μ'_prob, habs, rfl⟩
-  obtain ⟨Ω', hΩ', m, X', Y', T, U, hm, hindep', hX', hY', hT, hU, hXX', hYY', hTμ, hU_unif⟩ :=
+  obtain ⟨Ω', hΩ', m, X', Y', T, U, hm, h_indep', hX', hY', hT, hU, hXX', hYY', hTμ, hU_unif⟩ :=
     independent_copies4_nondep (X₁ := X) (X₂ := Y) (X₃ := id) (X₄ := id) hX hY measurable_id
     measurable_id μ μ μ' (uniformOn (A : Set G))
   let _ : MeasureSpace Ω' := ⟨m⟩
@@ -522,19 +522,19 @@ lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
     apply IdentDistrib.add
     · exact hTμ.trans IdentDistrib.fst_id.symm
     · exact hU_unif.trans IdentDistrib.snd_id.symm
-    · exact hindep'.indepFun (i := 2) (j := 3) (by simp)
+    · exact h_indep'.indepFun (i := 2) (j := 3) (by simp)
     · exact indepFun_fst_snd
   have hXY : IdentDistrib (X + Y) (X' + Y') μ ℙ := by
-    apply IdentDistrib.add hXX'.symm hYY'.symm hindep
-    exact hindep'.indepFun zero_ne_one
+    apply IdentDistrib.add hXX'.symm hYY'.symm h_indep
+    exact h_indep'.indepFun zero_ne_one
   have hX'TUY' : IndepFun (⟨X', T + U⟩) Y' ℙ := by
     have I : iIndepFun (fun x ↦ hGm) ![X', Y', T + U] m :=
-      ProbabilityTheory.iIndepFun.apply_two_last hindep' hX' hY' hT hU
+      ProbabilityTheory.iIndepFun.apply_two_last h_indep' hX' hY' hT hU
         (phi := fun a b ↦ a + b) (by fun_prop)
     exact (I.reindex_three_bac.pair_last_of_three hY' hX' (by fun_prop)).symm
   have I₁ : ρ⁻[X + Y ; μ # A] ≤ KL[X + Y ; μ # (T + Y') + U ; ℙ] := by
     apply rhoMinus_le (by fun_prop) hA _ (by fun_prop) (by fun_prop)
-    · have : iIndepFun (fun x ↦ hGm) ![U, X', T, Y'] := hindep'.reindex_four_dacb
+    · have : iIndepFun (fun x ↦ hGm) ![U, X', T, Y'] := h_indep'.reindex_four_dacb
       have : iIndepFun (fun x ↦ hGm) ![U, X', T + Y'] :=
         this.apply_two_last (phi := fun a b ↦ a + b) hU hX' hT hY' (by fun_prop)
       apply this.indepFun (i := 2) (j := 0)
@@ -564,20 +564,20 @@ lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
 /-- If $X,Y$ are independent, one has
 $$ \rho^+(X+Y) \leq \rho^+(X) + \bbH[X+Y] - \bbH[X]$$ -/
 lemma rhoPlus_of_sum [IsZeroOrProbabilityMeasure μ]
-    (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (hindep : IndepFun X Y μ) :
+    (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (h_indep : IndepFun X Y μ) :
     ρ⁺[X + Y ; μ # A] ≤ ρ⁺[X ; μ # A] + H[X + Y ; μ] - H[X ; μ] := by
   simp [rhoPlus]
-  have := rhoMinus_of_sum hX hY hA hindep
+  have := rhoMinus_of_sum hX hY hA h_indep
   linarith
 
 /-- If $X,Y$ are independent, one has
   $$ \rho(X+Y) \leq \rho(X) + \frac{1}{2}( \bbH[X+Y] - \bbH[X] ).$$
   -/
 lemma rho_of_sum [IsZeroOrProbabilityMeasure μ]
-    (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (hindep : IndepFun X Y μ) :
+    (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (h_indep : IndepFun X Y μ) :
     ρ[X + Y ; μ # A] ≤ ρ[X ; μ # A] + (H[X+Y ; μ] - H[X ; μ])/2 := by
   simp [rho, rhoPlus]
-  have := rhoMinus_of_sum hX hY hA hindep
+  have := rhoMinus_of_sum hX hY hA h_indep
   linarith
 
 private lemma rho_le_translate [IsZeroOrProbabilityMeasure μ]
@@ -798,33 +798,33 @@ variable [Module (ZMod 2) G]
   $$ \rho(X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$
  -/
 lemma rho_of_sum_le [IsZeroOrProbabilityMeasure μ]
-    (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (hindep : IndepFun X Y μ) :
+    (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (h_indep : IndepFun X Y μ) :
     ρ[X + Y ; μ # A] ≤ (ρ[X ; μ # A] + ρ[Y ; μ # A] + d[ X ; μ # Y ; μ]) / 2 := by
-  have I : ρ[X + Y ; μ # A] ≤ ρ[X ; μ # A] + (H[X+Y ; μ] - H[X ; μ])/2 := rho_of_sum hX hY hA hindep
+  have I : ρ[X + Y ; μ # A] ≤ ρ[X ; μ # A] + (H[X+Y ; μ] - H[X ; μ])/2 := rho_of_sum hX hY hA h_indep
   have J : ρ[Y + X ; μ # A] ≤ ρ[Y ; μ # A] + (H[Y+X ; μ] - H[Y ; μ ])/2 :=
-    rho_of_sum hY hX hA hindep.symm
+    rho_of_sum hY hX hA h_indep.symm
   have : Y + X = X + Y := by abel
   rw [this] at J
   have : X - Y = X + Y := ZModModule.sub_eq_add _ _
-  rw [hindep.rdist_eq hX hY, sub_eq_add_neg, this]
+  rw [h_indep.rdist_eq hX hY, sub_eq_add_neg, this]
   linarith
 
 /-- If $X,Y$ are independent, then
   $$ \rho(X | X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$ -/
 lemma condRho_of_sum_le [IsProbabilityMeasure μ]
-    (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (hindep : IndepFun X Y μ) :
+    (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (h_indep : IndepFun X Y μ) :
     ρ[X | X + Y ; μ # A] ≤ (ρ[X ; μ # A] + ρ[Y ; μ # A] + d[ X ; μ # Y ; μ ]) / 2 := by
   have I : ρ[X | X + Y ; μ # A] ≤ ρ[X ; μ # A] + (H[X ; μ] - H[X | X + Y ; μ]) / 2 :=
     condRho_le hX (by fun_prop) hA
   have I' : H[X ; μ] - H[X | X + Y ; μ] = H[X + Y ; μ] - H[Y ; μ] := by
     rw [ProbabilityTheory.chain_rule'' _ hX (by fun_prop), entropy_add_right hX hY,
-      IndepFun.entropy_pair_eq_add hX hY hindep]
+      IndepFun.entropy_pair_eq_add hX hY h_indep]
     abel
   have J : ρ[Y | Y + X ; μ # A] ≤ ρ[Y ; μ # A] + (H[Y ; μ] - H[Y | Y + X ; μ]) / 2 :=
     condRho_le hY (by fun_prop) hA
   have J' : H[Y ; μ] - H[Y | Y + X ; μ] = H[Y + X ; μ] - H[X ; μ] := by
     rw [ProbabilityTheory.chain_rule'' _ hY (by fun_prop), entropy_add_right hY hX,
-      IndepFun.entropy_pair_eq_add hY hX hindep.symm]
+      IndepFun.entropy_pair_eq_add hY hX h_indep.symm]
     abel
   have : Y + X = X + Y := by abel
   simp only [this] at J J'
@@ -846,7 +846,7 @@ lemma condRho_of_sum_le [IsProbabilityMeasure μ]
     nth_rewrite 1 [← ZModModule.neg_eq_self (X a)]
     abel
   have : X - Y = X + Y := ZModModule.sub_eq_add _ _
-  rw [hindep.rdist_eq hX hY, sub_eq_add_neg, this]
+  rw [h_indep.rdist_eq hX hY, sub_eq_add_neg, this]
   linarith
 
 end
@@ -1266,7 +1266,7 @@ lemma dist_le_of_sum_zero_cond' {Ω' : Type*} [MeasureSpace Ω']
 
 lemma new_gen_ineq_aux1 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (hindep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₂] + d[Y₃ # Y₄]) / 4 + (d[Y₁ + Y₂ # Y₃ + Y₄]
@@ -1283,17 +1283,17 @@ lemma new_gen_ineq_aux1 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     have S_eq : S = T₁ + T₁' := by simp only [S, T₁, T₁']; abel
     rw [S_eq]
     apply condRho_of_sum_le (by fun_prop) (by fun_prop) hA
-    exact hindep.indepFun_add_add (ι := Fin 4) (by intro i; fin_cases i <;> assumption) 0 1 2 3
+    exact h_indep.indepFun_add_add (ι := Fin 4) (by intro i; fin_cases i <;> assumption) 0 1 2 3
       (by decide) (by decide) (by decide) (by decide)
   have : ρ[T₁ # A] ≤ (ρ[Y₁ # A] + ρ[Y₂ # A] + d[Y₁ # Y₂]) / 2 :=
-    rho_of_sum_le hY₁ hY₂ hA (hindep.indepFun (i := 0) (j := 1) (by decide))
+    rho_of_sum_le hY₁ hY₂ hA (h_indep.indepFun (i := 0) (j := 1) (by decide))
   have : ρ[T₁' # A] ≤ (ρ[Y₃ # A] + ρ[Y₄ # A] + d[Y₃ # Y₄]) / 2 :=
-    rho_of_sum_le hY₃ hY₄ hA (hindep.indepFun (i := 2) (j := 3) (by decide))
+    rho_of_sum_le hY₃ hY₄ hA (h_indep.indepFun (i := 2) (j := 3) (by decide))
   linarith
 
 lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (hindep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
        (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 4 + d[Y₁ | Y₁ + Y₃ # Y₂ | Y₂ + Y₄] / 2 := by
@@ -1303,7 +1303,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
   set T₁' := Y₃ + Y₄
   set T₂' := Y₂ + Y₄
   have I : IndepFun (⟨Y₁, Y₃⟩) (⟨Y₂, Y₄⟩) := by
-    refine (hindep.indepFun_prod_mk_prod_mk ?_ 0 2 1 3
+    refine (h_indep.indepFun_prod_mk_prod_mk ?_ 0 2 1 3
       (by decide) (by decide) (by decide) (by decide))
     intro i; fin_cases i <;> assumption
   calc
@@ -1393,20 +1393,20 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
   _ ≤ ((ρ[Y₁ # A] + ρ[Y₃ # A] + d[Y₁ # Y₃]) / 2 +
        (ρ[Y₂ # A] + ρ[Y₄ # A] + d[Y₂ # Y₄]) / 2 + d[Y₁ | T₂ # Y₂ | T₂']) / 2 := by
     gcongr
-    · exact condRho_of_sum_le hY₁ hY₃ hA (hindep.indepFun (i := 0) (j := 2) (by decide))
-    · exact condRho_of_sum_le hY₂ hY₄ hA (hindep.indepFun (i := 1) (j := 3) (by decide))
+    · exact condRho_of_sum_le hY₁ hY₃ hA (h_indep.indepFun (i := 0) (j := 2) (by decide))
+    · exact condRho_of_sum_le hY₂ hY₄ hA (h_indep.indepFun (i := 1) (j := 3) (by decide))
   _ = (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 4 + d[Y₁ | Y₁ + Y₃ # Y₂ | Y₂ + Y₄] / 2 := by ring
 
 lemma new_gen_ineq {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (hindep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 8 + (d[Y₁ + Y₂ # Y₃ + Y₄]
           + I[Y₁ + Y₂ : Y₁ + Y₃ | Y₁ + Y₂ + Y₃ + Y₄] + d[Y₁ | Y₁ + Y₃ # Y₂ | Y₂ + Y₄]) / 4 := by
-  have := new_gen_ineq_aux1 hY₁ hY₂ hY₃ hY₄ hindep hA
-  have := new_gen_ineq_aux2 hY₁ hY₂ hY₃ hY₄ hindep hA
+  have := new_gen_ineq_aux1 hY₁ hY₂ hY₃ hY₄ h_indep hA
+  have := new_gen_ineq_aux2 hY₁ hY₂ hY₃ hY₄ h_indep hA
   linarith
 
 /-- For independent random variables $Y_1,Y_2,Y_3,Y_4$ over $G$, define
@@ -1416,7 +1416,7 @@ $S:=Y_1+Y_2+Y_3+Y_4$, $T_1:=Y_1+Y_2$, $T_2:=Y_1+Y_3$. Then
 -/
 lemma condRho_sum_le {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (hindep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] + ρ[Y₁ + Y₃ | ⟨Y₁ + Y₂, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] -
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 2 ≤
         (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 2 := by
@@ -1429,12 +1429,12 @@ lemma condRho_sum_le {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
       + (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 8 + (d[Y₁ + Y₂ # Y₃ + Y₄]
         + I[Y₁ + Y₂ : Y₁ + Y₃ | Y₁ + Y₂ + Y₃ + Y₄] + d[Y₁ | Y₁ + Y₃ # Y₂ | Y₂ + Y₄]) / 4 :=
-    new_gen_ineq hY₁ hY₂ hY₃ hY₄ hindep hA
+    new_gen_ineq hY₁ hY₂ hY₃ hY₄ h_indep hA
   have J' : ρ[T₂ | ⟨T₁, Y₁ + Y₃ + Y₂ + Y₄⟩ # A] ≤
     (ρ[Y₁ # A] + ρ[Y₃ # A] + ρ[Y₂ # A] + ρ[Y₄ # A]) / 4
       + (d[Y₁ # Y₃] + d[Y₂ # Y₄] + d[Y₁ # Y₂] + d[Y₃ # Y₄]) / 8 + (d[Y₁ + Y₃ # Y₂ + Y₄]
         + I[Y₁ + Y₃ : Y₁ + Y₂|Y₁ + Y₃ + Y₂ + Y₄] + d[Y₁ | Y₁ + Y₂ # Y₃ | Y₃ + Y₄]) / 4 :=
-    new_gen_ineq hY₁ hY₃ hY₂ hY₄ hindep.reindex_four_acbd hA
+    new_gen_ineq hY₁ hY₃ hY₂ hY₄ h_indep.reindex_four_acbd hA
   have : Y₁ + Y₃ + Y₂ + Y₄ = S := by simp only [S]; abel
   rw [this] at J'
   have : d[Y₁ + Y₂ # Y₃ + Y₄] + I[Y₁ + Y₂ : Y₁ + Y₃ | Y₁ + Y₂ + Y₃ + Y₄]
@@ -1459,8 +1459,8 @@ lemma condRho_sum_le {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       convert B with g
       simp
       abel
-    rw [sum_of_rdist_eq_char_2' Y₁ Y₂ Y₃ Y₄ hindep hY₁ hY₂ hY₃ hY₄,
-      sum_of_rdist_eq_char_2' Y₁ Y₃ Y₂ Y₄ hindep.reindex_four_acbd hY₁ hY₃ hY₂ hY₄, K, K', K'']
+    rw [sum_of_rdist_eq_char_2' Y₁ Y₂ Y₃ Y₄ h_indep hY₁ hY₂ hY₃ hY₄,
+      sum_of_rdist_eq_char_2' Y₁ Y₃ Y₂ Y₄ h_indep.reindex_four_acbd hY₁ hY₃ hY₂ hY₄, K, K', K'']
     abel
   linarith
 
@@ -1470,7 +1470,7 @@ $T_1:=Y_1+Y_2, T_2:=Y_1+Y_3, T_3:=Y_2+Y_3$ and $S:=Y_1+Y_2+Y_3+Y_4$. Then
     - \frac{1}{2}\sum_{i} \rho(Y_i))\le \sum_{1\leq i < j \leq 4}d[Y_i;Y_j]$$ -/
 lemma condRho_sum_le' {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-      (hindep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+      (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     let S := Y₁ + Y₂ + Y₃ + Y₄
     let T₁ := Y₁ + Y₂
     let T₂ := Y₁ + Y₃
@@ -1479,12 +1479,12 @@ lemma condRho_sum_le' {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       + ρ[T₂ | ⟨T₃, S⟩ # A] + ρ[T₃ | ⟨T₂, S⟩ # A]
       - 3 * (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 2 ≤
     d[Y₁ # Y₂] + d[Y₁ # Y₃] + d[Y₁ # Y₄] + d[Y₂ # Y₃] + d[Y₂ # Y₄] + d[Y₃ # Y₄] := by
-  have K₁ := condRho_sum_le hY₁ hY₂ hY₃ hY₄ hindep hA
-  have K₂ := condRho_sum_le hY₂ hY₁ hY₃ hY₄ hindep.reindex_four_bacd hA
+  have K₁ := condRho_sum_le hY₁ hY₂ hY₃ hY₄ h_indep hA
+  have K₂ := condRho_sum_le hY₂ hY₁ hY₃ hY₄ h_indep.reindex_four_bacd hA
   have Y₂₁ : Y₂ + Y₁ = Y₁ + Y₂ := by abel
   have dY₂₁ : d[Y₂ # Y₁] = d[Y₁ # Y₂] := rdist_symm
   rw [Y₂₁, dY₂₁] at K₂
-  have K₃ := condRho_sum_le hY₃ hY₁ hY₂ hY₄ hindep.reindex_four_cabd hA
+  have K₃ := condRho_sum_le hY₃ hY₁ hY₂ hY₄ h_indep.reindex_four_cabd hA
   have Y₃₁ : Y₃ + Y₁ = Y₁ + Y₃ := by abel
   have Y₃₂ : Y₃ + Y₂ = Y₂ + Y₃ := by abel
   have S₃ : Y₁ + Y₃ + Y₂ + Y₄ = Y₁ + Y₂ + Y₃ + Y₄ := by abel

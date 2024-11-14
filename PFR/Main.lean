@@ -27,7 +27,7 @@ variable {G Ω : Type*} [AddCommGroup G] [Fintype G]
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V` with probability `#(A ∩ B) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : Measurable U)
-    (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) :
+    (Vunif : IsUniform B V) (Vmeas : Measurable V) (h_indep : IndepFun U V) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {0})
       = Nat.card (A ∩ B : Set G) / (Nat.card A * Nat.card B) := by
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
@@ -44,7 +44,7 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
     ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p} ∩ V ⁻¹' {p})
       = ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply sum_congr _ _ (fun g ↦ ?_)
-        rw [hindep.measureReal_inter_preimage_eq_mul .of_discrete .of_discrete]
+        rw [h_indep.measureReal_inter_preimage_eq_mul .of_discrete .of_discrete]
     _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply (Finset.sum_subset W.subset_univ _).symm
         intro i _ hi
@@ -66,7 +66,7 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V + x` with probability `# (A ∩ (B + x)) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measurable U)
-    (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) (x : G) :
+    (Vunif : IsUniform B V) (Vmeas : Measurable V) (h_indep : IndepFun U V) (x : G) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {x})
       = Nat.card (A ∩ (B + {x}) : Set G) / (Nat.card A * Nat.card B) := by
   classical
@@ -77,7 +77,7 @@ lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measur
   have Wmeas : Measurable W := Vmeas.add_const _
   have UWindep : IndepFun U W := by
     have : Measurable (fun g ↦ g + x) := measurable_add_const x
-    exact hindep.comp measurable_id this
+    exact h_indep.comp measurable_id this
   have : (U - V) ⁻¹' {x} = (U - W) ⁻¹' {0} := by
     ext ω
     simp only [W, mem_preimage, Pi.add_apply, mem_singleton_iff, Pi.sub_apply, ← sub_eq_zero (b := x)]

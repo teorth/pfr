@@ -185,7 +185,7 @@ random variables are independent.
 Probably already available somewhere in some form, but I couldn't locate it. -/
 lemma ProbabilityTheory.IndepFun.map_add_eq_sum
     [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
-    {X Z : Ω → G} (hindep : IndepFun X Z μ)
+    {X Z : Ω → G} (h_indep : IndepFun X Z μ)
     (hX : Measurable X) (hZ : Measurable Z) (S : Set G) :
     μ.map (X + Z) S = ∑ s, μ.map Z {s} * μ.map X ({-s} + S) := by
   rw [Measure.map_apply (by fun_prop) (DiscreteMeasurableSpace.forall_measurableSet S)]
@@ -213,7 +213,7 @@ lemma ProbabilityTheory.IndepFun.map_add_eq_sum
   · intro i
     exact (hX (DiscreteMeasurableSpace.forall_measurableSet _)).inter (hZ (measurableSet_singleton _))
   congr with i
-  rw [hindep.measure_inter_preimage_eq_mul _ _ (DiscreteMeasurableSpace.forall_measurableSet _)
+  rw [h_indep.measure_inter_preimage_eq_mul _ _ (DiscreteMeasurableSpace.forall_measurableSet _)
     (measurableSet_singleton _), mul_comm,
     Measure.map_apply hZ (measurableSet_singleton _),
     Measure.map_apply hX (DiscreteMeasurableSpace.forall_measurableSet _)]
@@ -223,23 +223,23 @@ random variables are independent.
 Probably already available somewhere in some form, but I couldn't locate it. -/
 lemma ProbabilityTheory.IndepFun.map_add_singleton_eq_sum
     [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
-    {X Z : Ω → G} (hindep : IndepFun X Z μ)
+    {X Z : Ω → G} (h_indep : IndepFun X Z μ)
     (hX : Measurable X) (hZ : Measurable Z) (x : G) :
     μ.map (X + Z) {x} = ∑ s, μ.map Z {s} * μ.map X {x - s} := by
-  rw [hindep.map_add_eq_sum hX hZ]
+  rw [h_indep.map_add_eq_sum hX hZ]
   congr with s
   congr
   simp
   abel
 
 lemma absolutelyContinuous_add_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
-    {X Y Z : Ω → G} (hindep : IndepFun (⟨X, Y⟩) Z μ) (hX : Measurable X) (hY : Measurable Y)
+    {X Y Z : Ω → G} (h_indep : IndepFun (⟨X, Y⟩) Z μ) (hX : Measurable X) (hY : Measurable Y)
     (hZ : Measurable Z)
     (habs : ∀ x, μ.map Y {x} = 0 → μ.map X {x} = 0) :
     ∀ x, μ.map (Y + Z) {x} = 0 → μ.map (X + Z) {x} = 0 := by
   intro x hx
-  have IX : IndepFun X Z μ := hindep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
-  have IY : IndepFun Y Z μ := hindep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
+  have IX : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
+  have IY : IndepFun Y Z μ := h_indep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
   rw [IY.map_add_singleton_eq_sum hY hZ, Finset.sum_eq_zero_iff] at hx
   rw [IX.map_add_singleton_eq_sum hX hZ, Finset.sum_eq_zero_iff]
   intro i hi
@@ -251,7 +251,7 @@ lemma absolutelyContinuous_add_of_indep [Fintype G] [AddCommGroup G] [DiscreteMe
   $$D_{KL}(X+Z\Vert Y+Z) \leq D_{KL}(X\Vert Y).$$ -/
 lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
     {X Y Z : Ω → G} [IsZeroOrProbabilityMeasure μ]
-    (hindep : IndepFun (⟨X, Y⟩) Z μ)
+    (h_indep : IndepFun (⟨X, Y⟩) Z μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (habs : ∀ x, μ.map Y {x} = 0 → μ.map X {x} = 0) :
     KL[X + Z ; μ # Y + Z ; μ] ≤ KL[X ; μ # Y ; μ] := by
@@ -277,14 +277,14 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
     have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
     simp [w]
   have A x : (μ.map (X + Z) {x}).toReal = ∑ s ∈ S, w s * (μ.map (X' s) {x}).toReal := by
-    have : IndepFun X Z μ := hindep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
+    have : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
     rw [this.map_add_singleton_eq_sum hX hZ, ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top])]
     simp only [ENNReal.toReal_mul]
     congr with i
     congr 1
     rw [AX']
   have B x : (μ.map (Y + Z) {x}).toReal = ∑ s ∈ S, w s * (μ.map (Y' s) {x}).toReal := by
-    have : IndepFun Y Z μ := hindep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
+    have : IndepFun Y Z μ := h_indep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
     rw [this.map_add_singleton_eq_sum hY hZ, ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top])]
     simp only [ENNReal.toReal_mul]
     congr with i

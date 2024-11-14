@@ -21,11 +21,11 @@ lemma ae_cond_mem {s : Set Ω} (hs : MeasurableSet s) : ∀ᵐ x ∂μ[|s], x �
 /-- The probability of an intersection of preimaαes conditioninα on another intersection factors
 into a product. -/
 lemma cond_iInter [Finite ι] (hY : ∀ i, Measurable (Y i))
-    (hindep : iIndepFun (fun _ ↦ mα.prod mβ) (fun i ω ↦ (X i ω, Y i ω)) μ)
+    (h_indep : iIndepFun (fun _ ↦ mα.prod mβ) (fun i ω ↦ (X i ω, Y i ω)) μ)
     (hf : ∀ i ∈ s, MeasurableSet[mα.comap (X i)] (f i))
     (hy : ∀ i, μ (Y i ⁻¹' t i) ≠ 0) (ht : ∀ i, MeasurableSet (t i)) :
     μ[|⋂ i, Y i ⁻¹' t i] (⋂ i ∈ s, f i) = ∏ i ∈ s, μ[|Y i ⁻¹' t i] (f i) := by
-  have : IsProbabilityMeasure (μ : Measure Ω) := hindep.isProbabilityMeasure
+  have : IsProbabilityMeasure (μ : Measure Ω) := h_indep.isProbabilityMeasure
   classical
   cases nonempty_fintype ι
   let g (i' : ι) := if i' ∈ s then Y i' ⁻¹' t i' ∩ f i' else Y i' ⁻¹' t i'
@@ -42,10 +42,10 @@ lemma cond_iInter [Finite ι] (hY : ∀ i, Measurable (Y i))
         _ = ⋂ i, Y i ⁻¹' t i ∩ (if i ∈ s then f i else Set.univ) := by rw [Set.iInter_inter_distrib]
         _ = _ := Set.iInter_congr fun i ↦ by by_cases hi : i ∈ s <;> simp [hi, g]
     _ = (∏ i, μ (Y i ⁻¹' t i))⁻¹ * μ (⋂ i, g i) := by
-      rw [iIndepFun.meas_iInter hindep]
+      rw [iIndepFun.meas_iInter h_indep]
       exact fun i ↦ ⟨.univ ×ˢ t i, MeasurableSet.univ.prod (ht _), by ext; simp [eq_comm]⟩
     _ = (∏ i, μ (Y i ⁻¹' t i))⁻¹ * ∏ i, μ (g i) := by
-      rw [iIndepFun.meas_iInter hindep]
+      rw [iIndepFun.meas_iInter h_indep]
       intro i
       by_cases hi : i ∈ s
       . simp only [hi, ↓reduceIte, g]
@@ -71,10 +71,10 @@ lemma cond_iInter [Finite ι] (hY : ∀ i, Measurable (Y i))
     _ = _ := by simp
 
 lemma iIndepFun.cond [Finite ι] (hY : ∀ i, Measurable (Y i))
-    (hindep : iIndepFun (fun _ ↦ mα.prod mβ) (fun i ω ↦ (X i ω, Y i ω)) μ)
+    (h_indep : iIndepFun (fun _ ↦ mα.prod mβ) (fun i ω ↦ (X i ω, Y i ω)) μ)
     (hy : ∀ i, μ (Y i ⁻¹' t i) ≠ 0) (ht : ∀ i, MeasurableSet (t i)) :
     iIndepFun (fun _ ↦ mα) X μ[|⋂ i, Y i ⁻¹' t i] := by
-  have : IsProbabilityMeasure μ := hindep.isProbabilityMeasure
+  have : IsProbabilityMeasure μ := h_indep.isProbabilityMeasure
   rw [iIndepFun_iff]
   intro s f' hf'
   have h1 : ∀ i : s, μ[|⋂ i, Y i ⁻¹' t i] (f' i) = μ[|Y i ⁻¹' t i] (f' i) := by
@@ -82,10 +82,10 @@ lemma iIndepFun.cond [Finite ι] (hY : ∀ i, Measurable (Y i))
     let s' : Finset ι := {i.val}
     have hs' : s' ⊆ s := by
       simp only [Finset.singleton_subset_iff, Finset.coe_mem, s']
-    have h := cond_iInter hY hindep (fun i hi ↦ hf' _ <| hs' hi) hy ht
+    have h := cond_iInter hY h_indep (fun i hi ↦ hf' _ <| hs' hi) hy ht
     simp only [Finset.mem_singleton, Set.iInter_iInter_eq_left, Finset.prod_singleton, s'] at h
     exact h
-  rw [cond_iInter hY hindep hf' hy ht]
+  rw [cond_iInter hY h_indep hf' hy ht]
   apply Finset.prod_congr rfl
   intro i hi
   exact (h1 ⟨i, hi⟩).symm
