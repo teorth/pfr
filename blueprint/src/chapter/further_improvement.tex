@@ -233,7 +233,7 @@ $I_1\le 2\eta d[X_1;X_2]$
 Similar to \Cref{first-estimate}: get upper bounds for $d[X_1;X_2]$ by $\phi[X_1;X_2]\le \phi[X_1+X_2;\tilde X_1+\tilde X_2]$ and $\phi[X_1;X_2]\le \phi[X_1|X_1+X_2;\tilde X_2|\tilde X_1+\tilde X_2]$, and then apply \Cref{first-fibre} to get an upper bound for $I_1$.
 \end{proof}
 
-\begin{lemma}\label{I1-I2-diff}\lean{dist_add_dist_eq}\leanok
+\begin{lemma}\label{I1-I2-diff}\lean{rdist_add_rdist_eq}\leanok
   $d[X_1;X_1]+d[X_2;X_2]= 2d[X_1;X_2]+(I_2-I_1)$.
 \end{lemma}
 \begin{proof}
@@ -328,7 +328,7 @@ $$\sum_{1 \leq i<j \leq 3} (\rho(T_i|T_j,S) + \rho(T_j|T_i,S) -  \rho(X_1)-\rho(
 by \Cref{I1-I2-diff}. Plug in the inequality above to (\ref{eq:further-bsg}), we get
 $$d[X_1;X_2] \le (I_1+2I_2)+2\eta d[X_1;X_2]+\frac{\eta}{3}(I_2-I_1).$$
 By \Cref{phi-second-estimate} we can conclude that
-$$d[X_1;X_2] \le 8\eta d[X_1;X_2]+\frac{3+4\eta}{3-3\eta} (2\eta d[X_1;X_2]-I_1).$$
+$$d[X_1;X_2] \le 8\eta d[X_1;X_2]-\frac{3-10\eta}{3-3\eta} (2\eta d[X_1;X_2]-I_1).$$
 Finally by \Cref{phi-first-estimate} and $\eta<1$ we get that the second term is $\le 0$, and thus $d[X_1;X_2] \le 8\eta d[X_1;X_2]$. By the choice $\eta<1/8$ and the non-negativity of $d$ we have $d[X_1;X_2]=0$.
 \end{proof}
 

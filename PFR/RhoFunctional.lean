@@ -485,6 +485,18 @@ lemma rho_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G} {U : Ω → 
     have := exp_monotone this
     rwa [exp_log Hpos, exp_add, exp_log Apos] at this
 
+/-- If $H$ is a finite subgroup of $G$, and $\rho(U_H) \leq r$, then there exists $t$ such
+that $|A \cap (H+t)| \geq e^{-r} \sqrt{|A||H|}$, and $|H|/|A| \in [e^{-2r}, e^{2r}]$. -/
+lemma rho_of_submodule [IsProbabilityMeasure μ] [Module (ZMod 2) G]
+    {H : Submodule (ZMod 2) G} {U : Ω → G}
+    (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U)
+    (r : ℝ) (hr : ρ[U ; μ # A] ≤ r) :
+    ∃ t : G,
+      exp (-r) * (Nat.card A * Nat.card H) ^ (1/2) ≤ Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)
+      ∧ Nat.card A ≤ exp (2 * r) * Nat.card H
+      ∧ Nat.card H ≤ exp (2 * r) * Nat.card A :=
+  rho_of_subgroup (H := H.toAddSubgroup) hunif hA hU r hr
+
 /-- \rho(X)$ depends continuously on the distribution of $X$. -/
 lemma rho_continuous [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] {A} :
     Continuous fun μ : ProbabilityMeasure G ↦ ρ[(id : G → G) ; μ # A] := by sorry
@@ -852,13 +864,31 @@ noncomputable def phi (X Y : Ω → G) (η : ℝ) (A : Finset G) : ℝ :=
 
 /-- Given $G$-valued random variables $X,Y$, define
 $$ \phi[X;Y] := d[X;Y] + \eta(\rho(X) + \rho(Y))$$
-and define a \emph{$\phi$-minimizer} to be a pair of random variables $X,Y$ which minimizes $\phi[X;Y]$.-/
+and define a \emph{$\phi$-minimizer} to be a pair of random variables $X,Y$ which
+minimizes $\phi[X;Y]$.-/
 def phiMinimizes {Ω : Type*} [MeasureSpace Ω] (X Y : Ω → G) (η : ℝ) (A : Finset G) : Prop :=
   ∀ (Ω' : Type uG) (_ : MeasureSpace Ω') (X' Y' : Ω' → G),
     IsProbabilityMeasure (ℙ : Measure Ω') → Measurable X' → Measurable Y' →
     phi X Y η A ≤ phi X' Y' η A
 
-variable {η : ℝ} (hη : η > 0)
+lemma phiMinimizes_of_identDistrib {Ω' : Type*} [MeasureSpace Ω']
+    {X Y : Ω → G} {X' Y' : Ω' → G} {η : ℝ} {A : Finset G}
+    (h_min : phiMinimizes X Y η A) (h₁ : IdentDistrib X X') (h₂ : IdentDistrib Y Y') :
+    phiMinimizes X' Y' η A := by
+  have : phi X Y η A = phi X' Y' η A := by
+    simp only [phi]
+    rw [h₁.rdist_eq h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
+  simpa [phiMinimizes, this] using h_min
+
+lemma phiMinimizes_comm [IsProbabilityMeasure (ℙ : Measure Ω)] {X Y : Ω → G} {η : ℝ} {A : Finset G}
+    (h_min : phiMinimizes X Y η A) : phiMinimizes Y X η A := by
+  have : phi Y X η A = phi X Y η A := by
+    simp only [phi]
+    rw [rdist_symm]
+    linarith
+  simpa [phiMinimizes, this] using h_min
+
+variable {η : ℝ} (hη : 0 < η)
 
 /-- There exists a $\phi$-minimizer. -/
 lemma phi_min_exists :
@@ -1124,14 +1154,17 @@ End Game
 ******************************************* -/
 
 include h_min in
-omit  [IsProbabilityMeasure (ℙ : Measure Ω)] in
+omit [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- If $G$-valued random variables $T_1,T_2,T_3$ satisfy $T_1+T_2+T_3=0$, then
   $$d[X_1;X_2]\le 3\bbI[T_1:T_2\mid T_3] + (2\bbH[T_3]-\bbH[T_1]-\bbH[T_2])+ \eta(\rho(T_1|T_3)+\rho(T_2|T_3)-\rho(X_1)-\rho(X_2)).$$ -/
-lemma dist_le_of_sum_zero {Ω' : Type*} [MeasureSpace Ω']
-    [IsProbabilityMeasure (ℙ : Measure Ω')] {T₁ T₂ T₃ : Ω' → G}
-    (hsum: T₁ + T₂ + T₃ = 0) (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃) :
-    k ≤ 3 * I[T₁ : T₂] + (2 * H[T₃] - H[T₁] - H[T₂])
-      + η * (ρ[T₁ | T₃ # A] + ρ[T₂ | T₃ #  A] - ρ[X₁ # A] - ρ[X₂ # A]) := by
+lemma dist_le_of_sum_zero {Ω' : Type*} [MeasurableSpace Ω'] {μ : Measure Ω'}
+    [IsProbabilityMeasure μ] {T₁ T₂ T₃ : Ω' → G}
+    (hsum : T₁ + T₂ + T₃ = 0) (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃) :
+    k ≤ 3 * I[T₁ : T₂ ; μ] + (2 * H[T₃ ; μ] - H[T₁ ; μ] - H[T₂ ; μ])
+      + η * (ρ[T₁ | T₃ ; μ # A] + ρ[T₂ | T₃ ; μ #  A] - ρ[X₁ # A] - ρ[X₂ # A]) := by
+  let _ : MeasureSpace Ω' := ⟨μ⟩
+  have : μ = ℙ := rfl
+  simp only [this]
   have : ∑ t, (ℙ (T₃ ⁻¹' {t})).toReal * d[ X₁ # X₂ ] ≤ ∑ t, (ℙ (T₃ ⁻¹' {t})).toReal *
       (d[T₁ ; ℙ[|T₃ ← t] # T₂ ; ℙ[|T₃ ← t]]
         + η * (ρ[T₁ ; ℙ[|T₃ ← t] # A] - ρ[X₁ # A]) + η * (ρ[T₂ ; ℙ[|T₃ ← t] # A] - ρ[X₂ # A])) := by
@@ -1165,6 +1198,34 @@ lemma dist_le_of_sum_zero {Ω' : Type*} [MeasureSpace Ω']
 include h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- If $G$-valued random variables $T_1,T_2,T_3$ satisfy $T_1+T_2+T_3=0$, then
+  $$d[X_1;X_2]\le 3\bbI[T_1:T_2\mid T_3] + (2\bbH[T_3]-\bbH[T_1]-\bbH[T_2])+ \eta(\rho(T_1|T_3)+\rho(T_2|T_3)-\rho(X_1)-\rho(X_2)).$$ -/
+lemma dist_le_of_sum_zero_cond {Ω' : Type*} [MeasureSpace Ω']
+    [IsProbabilityMeasure (ℙ : Measure Ω')] {T₁ T₂ T₃ S : Ω' → G}
+    (hsum : T₁ + T₂ + T₃ = 0) (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
+    (hS : Measurable S) :
+    k ≤ 3 * I[T₁ : T₂ | S] + (2 * H[T₃ | S] - H[T₁ | S] - H[T₂ | S])
+      + η * (ρ[T₁ | ⟨T₃, S⟩ # A] + ρ[T₂ | ⟨T₃, S⟩ #  A] - ρ[X₁ # A] - ρ[X₂ # A]) := by
+  have hw (a : ℝ) : a = ∑ w, (ℙ (S ⁻¹' {w})).toReal * a := by
+    have : IsProbabilityMeasure (map S ℙ) := isProbabilityMeasure_map hS.aemeasurable
+    simp_rw [← Finset.sum_mul,← Measure.map_apply hS (MeasurableSet.singleton _),
+      Finset.sum_toReal_measure_singleton]
+    simp
+  rw [condMutualInfo_eq_sum' hS, condEntropy_eq_sum_fintype _ _ _ hS,
+    condEntropy_eq_sum_fintype _ _ _ hS, condEntropy_eq_sum_fintype _ _ _ hS,
+    condRho_prod_eq_sum hT₃ hS, condRho_prod_eq_sum hT₃ hS, hw k, hw ρ[X₁ # A], hw ρ[X₂ # A]]
+  simp only [Finset.mul_sum, ← Finset.sum_sub_distrib, ← Finset.sum_add_distrib, mul_sub, mul_add]
+  gcongr with g hg
+  rcases eq_or_ne (ℙ (S ⁻¹' {g})) 0 with hpg | hpg
+  · simp [hpg]
+  set μ := ℙ[|S ← g]
+  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure hpg
+  have := dist_le_of_sum_zero (μ := μ) h_min hsum hT₁ hT₂ hT₃
+  have := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (S ⁻¹' {g})).toReal by simp)
+  linarith
+
+include h_min in
+omit [IsProbabilityMeasure (ℙ : Measure Ω)] in
+/-- If $G$-valued random variables $T_1,T_2,T_3$ satisfy $T_1+T_2+T_3=0$, then
   $$d[X_1;X_2] \leq \sum_{1 \leq i < j \leq 3} \bbI[T_i:T_j]
   + \frac{\eta}{3} \sum_{1 \leq i < j \leq 3} (\rho(T_i|T_j) + \rho(T_j|T_i) -\rho(X_1)-\rho(X_2))$$
 -/
@@ -1175,11 +1236,32 @@ lemma dist_le_of_sum_zero' {Ω' : Type*} [MeasureSpace Ω']
       + (η / 3) * ((ρ[T₁ | T₂ # A] + ρ[T₂ | T₁ # A] - ρ[X₁ # A] - ρ[X₂ # A])
                  + (ρ[T₁ | T₃ # A] + ρ[T₃ | T₁ # A] - ρ[X₁ # A] - ρ[X₂ # A])
                  + (ρ[T₂ | T₃ # A] + ρ[T₃ | T₂ # A] - ρ[X₁ # A] - ρ[X₂ # A])) := by
-  have := dist_le_of_sum_zero h_min hsum hT₁ hT₂ hT₃
+  have := dist_le_of_sum_zero h_min hsum hT₁ hT₂ hT₃ (μ := ℙ)
   have : T₁ + T₃ + T₂ = 0 := by convert hsum using 1; abel
-  have := dist_le_of_sum_zero h_min this hT₁ hT₃ hT₂
+  have := dist_le_of_sum_zero h_min this hT₁ hT₃ hT₂ (μ := ℙ)
   have : T₂ + T₃ + T₁ = 0 := by convert hsum using 1; abel
-  have := dist_le_of_sum_zero h_min this hT₂ hT₃ hT₁
+  have := dist_le_of_sum_zero h_min this hT₂ hT₃ hT₁ (μ := ℙ)
+  linarith
+
+include h_min in
+omit [IsProbabilityMeasure (ℙ : Measure Ω)] in
+/-- If $G$-valued random variables $T_1,T_2,T_3$ satisfy $T_1+T_2+T_3=0$, then
+  $$d[X_1;X_2] \leq \sum_{1 \leq i < j \leq 3} \bbI[T_i:T_j]
+  + \frac{\eta}{3} \sum_{1 \leq i < j \leq 3} (\rho(T_i|T_j) + \rho(T_j|T_i) -\rho(X_1)-\rho(X_2))$$
+-/
+lemma dist_le_of_sum_zero_cond' {Ω' : Type*} [MeasureSpace Ω']
+    [IsProbabilityMeasure (ℙ : Measure Ω')] {T₁ T₂ T₃ : Ω' → G} (S : Ω' → G)
+    (hsum : T₁ + T₂ + T₃ = 0)
+    (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃) (hS : Measurable S) :
+    k ≤ I[T₁ : T₂ | S] + I[T₁ : T₃| S] + I[T₂ : T₃ | S]
+      + (η / 3) * ((ρ[T₁ | ⟨T₂, S⟩ # A] + ρ[T₂ | ⟨T₁, S⟩ # A] - ρ[X₁ # A] - ρ[X₂ # A])
+                 + (ρ[T₁ | ⟨T₃, S⟩ # A] + ρ[T₃ | ⟨T₁, S⟩ # A] - ρ[X₁ # A] - ρ[X₂ # A])
+                 + (ρ[T₂ | ⟨T₃, S⟩ # A] + ρ[T₃ | ⟨T₂, S⟩ # A] - ρ[X₁ # A] - ρ[X₂ # A])) := by
+  have := dist_le_of_sum_zero_cond h_min hsum hT₁ hT₂ hT₃ hS
+  have : T₁ + T₃ + T₂ = 0 := by convert hsum using 1; abel
+  have := dist_le_of_sum_zero_cond h_min this hT₁ hT₃ hT₂ hS
+  have : T₂ + T₃ + T₁ = 0 := by convert hsum using 1; abel
+  have := dist_le_of_sum_zero_cond h_min this hT₂ hT₃ hT₁ hS
   linarith
 
 lemma new_gen_ineq_aux1 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
@@ -1411,46 +1493,255 @@ lemma condRho_sum_le' {Y₁ Y₂ Y₃ Y₄ : Ω → G}
   rw [Y₃₁, Y₃₂, S₃, dY₃₁, dY₃₂] at K₃
   linarith
 
-/-- If $X_1,X_2$ is a $\phi$-minimizer, then $d[X_1;X_2] = 0$. -/
-lemma dist_of_min_eq_zero (hη': η < 1/8) : d[ X₁ # X₂ ] = 0 := by sorry
+include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min hη in
+/-- If $X_1, X_2$ is a $\phi$-minimizer, then $d[X_1;X_2] = 0$. -/
+lemma dist_of_min_eq_zero' (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] = 0 := by
+  let T₁ := X₁ + X₂
+  let T₂ := X₁ + X₁'
+  let T₃ := X₁' + X₂
+  have hsum : T₁ + T₂ + T₃ = 0 := by
+    have : T₁ + T₂ + T₃ = 2 • (X₁ + X₁' + X₂) := by simp only [T₁, T₂, T₃]; abel
+    rwa [ZModModule.char_nsmul_eq_zero 2 (X₁ + X₁' + X₂)] at this
+  let S := X₁ + X₂ + X₁' + X₂'
+  have J₁ : k ≤ I₁ + 2 * I₂ + η / 3 *
+      (ρ[T₁ | ⟨T₂, S⟩ # A] + ρ[T₂ | ⟨T₁, S⟩ # A] + ρ[T₁ | ⟨T₃, S⟩ # A] + ρ[T₃ | ⟨T₁, S⟩ # A]
+        + ρ[T₂ | ⟨T₃, S⟩ # A] + ρ[T₃ | ⟨T₂, S⟩ # A] - 3 * (ρ[X₁ # A] + ρ[X₂ # A])) := by
+    have K := dist_le_of_sum_zero_cond' h_min S hsum
+      (by fun_prop) (by fun_prop) (by fun_prop) (by fun_prop)
+    have : I[T₂ : T₃ | S] = I₂ := by
+      rw [condMutualInfo_comm (by fun_prop) (by fun_prop)]
+      have : X₁ + X₁' = X₁' + X₁ := by abel
+      convert I₃_eq _ _ _ _ hX₁ hX₂ hX₁' hX₂' h₁ h_indep using 2
+    linarith
+  have J₂ : k ≤ I₁ + 2 * I₂ +
+      η / 3 * (k + d[X₁ # X₁'] + d[X₁ # X₂'] + d[X₂ # X₁'] + d[X₂ # X₂'] + d[X₁' # X₂']) := by
+    apply J₁.trans
+    gcongr
+    have W : X₂ + X₁' = X₁' + X₂ := by abel
+    have := condRho_sum_le' hX₁ hX₂ hX₁' hX₂' h_indep hA
+    simp only [W] at this
+    have : ρ[X₁' # A] = ρ[X₁ # A] := rho_eq_of_identDistrib h₁.symm
+    have : ρ[X₂' # A] = ρ[X₂ # A] := rho_eq_of_identDistrib h₂.symm
+    linarith
+  have J₃ : k ≤ I₁ + 2 * I₂ + η / 3 * (6 * k + I₂ - I₁) := by
+    apply J₂.trans_eq
+    congr 2
+    have : d[X₁ # X₁'] = d[X₁ # X₁] :=
+      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁.symm
+    have : d[X₁ # X₂'] = d[X₁ # X₂] :=
+      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂.symm
+    have : d[X₂ # X₁'] = d[X₁ # X₂] := by
+      rw [rdist_symm]
+      exact IdentDistrib.rdist_eq h₁.symm (IdentDistrib.refl hX₂.aemeasurable)
+    have : d[X₂ # X₂'] = d[X₂ # X₂] :=
+      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂.symm
+    have : d[X₁' # X₂'] = d[X₁ # X₂] := IdentDistrib.rdist_eq h₁.symm h₂.symm
+    have := rdist_add_rdist_eq h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂'
+    linarith
+  let D := 2 * η * k - I₁
+  have J₄ : k ≤ 8 * η * k - (3 - 10 * η) / (3 * (1 - η)) * D := by
+    have I₁_eq : I₁ = 2 * η * k - D := by simp only [D]; abel
+    have : I₂ ≤ 2 * η * k + η / (1 - η) * D :=
+      I_two_le hη h_min h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂' hA (by linarith)
+    calc
+    k ≤ I₁ + 2 * I₂ + η / 3 * (6 * k + I₂ - I₁) := J₃
+    _ = 2 * η * k + I₁ + 2 * I₂ + η / 3 * (I₂ - I₁) := by ring
+    _ ≤ 2 * η * k + (2 * η * k - D) + 2 * (2 * η * k + η / (1 - η) * D)
+        + η / 3 * ((2 * η * k + η / (1 - η) * D) - (2 * η * k - D)) := by
+      rw [I₁_eq]
+      gcongr
+    _ = 8 * η * k - (3 - 10 * η) / (3 * (1 - η)) * D := by
+      have : 1 - η ≠ 0 := ne_of_gt (by linarith)
+      field_simp
+      ring
+  have J₅ : k ≤ 8 * η * k - 0 := by
+    apply J₄.trans
+    gcongr
+    have : 0 ≤ D := sub_nonneg_of_le (I_one_le hη h_min h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂' hA)
+    apply mul_nonneg _ this
+    exact div_nonneg (by linarith) (by linarith)
+  have : k ≤ 0 := by nlinarith
+  exact le_antisymm this (rdist_nonneg hX₁ hX₂)
+
+include hX₁ hX₂ h_min hη in
+theorem dist_of_min_eq_zero (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] = 0 := by
+  let ⟨Ω', m', μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
+    := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
+  rw [← h_id1.rdist_eq h_id2]
+  letI : MeasureSpace Ω' := ⟨μ⟩
+  have : IsProbabilityMeasure (ℙ : Measure Ω') := hμ
+  have h'_min : phiMinimizes Y₁ Y₂ η A := phiMinimizes_of_identDistrib h_min h_id1.symm h_id2.symm
+  exact dist_of_min_eq_zero' hη h'_min (h_id1.trans h_id1'.symm) (h_id2.trans h_id2'.symm)
+     h_indep hY₁ hY₂ hY₁' hY₂'  hA hη'
+
+open Filter
+open scoped Topology
+
+/-- For `η ≤ 1/8`, there exist τ-minimizers `X₁, X₂` at zero Rusza distance. For `η < 1/8`,
+all minimizers are fine, by `tau_strictly_decreases'`. For `η = 1/8`, we use a limit of
+minimizers for `η < 1/8`, which exists by compactness. -/
+lemma phiMinimizer_exists_rdist_eq_zero (hA : A.Nonempty) :
+    ∃ (Ω : Type uG) (_ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+      Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω)
+      ∧ phiMinimizes X₁ X₂ (1/8 : ℝ) A ∧ d[X₁ # X₂] = 0 := by sorry
 
 end phiMinimizer
 
 section PFR
 
 variable {G : Type uG} [AddCommGroup G] [Fintype G]  [Module (ZMod 2) G]
-{Ω : Type*} [MeasureSpace Ω] {A : Finset G}
+{Ω : Type uG} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {A : Finset G}
 
 /-- For any random variables $Y_1,Y_2$, there exist a subgroup $H$ such that
   $$ 2\rho(U_H) \leq \rho(Y_1) + \rho(Y_2) + 8 d[Y_1;Y_2].$$ -/
-theorem rho_PFR_conjecture [hGm : MeasurableSpace G] [DiscreteMeasurableSpace G]
-    (η : ℝ) (hη : η > 0) (hη' : η < 1/8)
-    (Y₁ Y₂ : Ω → G) (A : Finset G) (hA : A.Nonempty) :
-    ∃ (H : Submodule (ZMod 2) G) (Ω' : Type uG) (mΩ' : MeasureSpace Ω) (U : Ω → G),
-    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
-    IsUniform H U ∧ 2 * ρ[U # A] ≤ ρ[Y₁ # A] + ρ[Y₂ # A] + 8 * d[Y₁ # Y₂] := sorry
+theorem rho_PFR_conjecture [MeasurableSpace G] [DiscreteMeasurableSpace G]
+    (Y₁ Y₂ : Ω → G) (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (A : Finset G) (hA : A.Nonempty) :
+    ∃ (H : Submodule (ZMod 2) G) (Ω' : Type uG) (mΩ' : MeasureSpace Ω') (U : Ω' → G),
+    IsProbabilityMeasure (ℙ : Measure Ω') ∧ Measurable U ∧
+    IsUniform H U ∧ 2 * ρ[U # A] ≤ ρ[Y₁ # A] + ρ[Y₂ # A] + 8 * d[Y₁ # Y₂] := by
+  obtain ⟨Ω', mΩ', X₁, X₂, hX₁, hX₂, hP, htau_min, hdist⟩ := phiMinimizer_exists_rdist_eq_zero hA
+  wlog h : ρ[X₁ # A] ≤ ρ[X₂ # A] generalizing X₁ X₂
+  · rw [rdist_symm] at hdist
+    exact this X₂ X₁ hX₂ hX₁ (phiMinimizes_comm htau_min) hdist (by linarith)
+  -- use for `U` a translate of `X` to make sure that `0` is in its support.
+  obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X₁⁻¹' {x₀}) ≠ 0 := by
+    by_contra! h
+    have A a : (ℙ : Measure Ω').map X₁ {a} = 0 := by
+      rw [Measure.map_apply hX₁ $ .of_discrete]
+      exact h _
+    have B : (ℙ : Measure Ω').map X₁ = 0 := by
+      rw [← Measure.sum_smul_dirac (μ := (ℙ : Measure Ω').map X₁)]
+      simp [A]
+    have : IsProbabilityMeasure ((ℙ : Measure Ω').map X₁) :=
+      isProbabilityMeasure_map hX₁.aemeasurable
+    exact IsProbabilityMeasure.ne_zero _ B
+  have h_unif : IsUniform (symmGroup X₁ hX₁) (fun ω ↦ X₁ ω - x₀) := by
+    have h' : d[X₁ # X₁] = 0 := by
+      apply le_antisymm _ (rdist_nonneg hX₁ hX₁)
+      calc
+        d[X₁ # X₁] ≤ d[X₁ # X₂] + d[X₂ # X₁] := rdist_triangle hX₁ hX₂ hX₁
+        _ = 0 := by rw [hdist, rdist_symm, hdist, zero_add]
+    exact isUniform_sub_const_of_rdist_eq_zero hX₁ h' h₀
+  refine ⟨AddSubgroup.toZModSubmodule 2 (symmGroup X₁ hX₁), Ω', by infer_instance,
+    fun ω ↦ X₁ ω - x₀, by infer_instance, by fun_prop, by exact h_unif, ?_⟩
+  have J : d[X₁ # X₂] + (1/8) * (ρ[X₁ # A] + ρ[X₂ # A])
+      ≤ d[Y₁ # Y₂] + (1/8) * (ρ[Y₁ # A] + ρ[Y₂ # A]) := by
+    have Z := le_rdist_of_phiMinimizes htau_min hY₁ hY₂ (μ₁ := ℙ) (μ₂ := ℙ)
+    linarith
+  rw [hdist, zero_add] at J
+  have : ρ[fun ω ↦ X₁ ω - x₀ # A] = ρ[X₁ # A] := by
+    simp_rw [sub_eq_add_neg, rho_of_translate hX₁ hA]
+  linarith
 
 /-- If $|A+A| \leq K|A|$, then there exists a subgroup $H$ and $t\in G$ such that
-$|A \cap (H+t)| \geq K^{-4} \sqrt{|A||V|}$, and $|H|/|A|\in[K^{-8},K^8]$.
-\end{corollary} -/
+$|A \cap (H+t)| \geq K^{-4} \sqrt{|A||V|}$, and $|H|/|A|\in[K^{-8},K^8]$. -/
+lemma better_PFR_conjecture_aux0 {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
+    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : Submodule (ZMod 2) G) (t : G),
+    K ^ (-4) * (Nat.card A * Nat.card H) ^ (1/2) ≤ Nat.card (A ∩ (H + {t}) : Set G)
+      ∧ Nat.card A ≤ K ^ 8 * Nat.card H ∧ Nat.card H ≤ K ^ 8 * Nat.card A := by
+  have A_fin : Finite A := by infer_instance
+  classical
+  let mG : MeasurableSpace G := ⊤
+  have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+    PFR_conjecture_pos_aux' h₀A hA
+  let A' := A.toFinite.toFinset
+  have h₀A' : Finset.Nonempty A' := by
+    simp [A', Finset.Nonempty]
+    exact h₀A
+  have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
+  rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
+  rw [hAA'] at UAunif
+  have hadd_sub : A + A = A - A := by ext; simp [mem_add, mem_sub, ZModModule.sub_eq_add]
+  rw [hadd_sub] at hA
+  have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
+  rw [← hadd_sub] at hA
+  -- entropic PFR gives a subgroup `H` which is close to `A` for the rho functional
+  rcases rho_PFR_conjecture UA UA UAmeas UAmeas A' h₀A'
+    with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
+  have ineq : ρ[UH # A'] ≤ 4 * log K := by
+    rw [← hAA'] at UAunif
+    have : ρ[UA # A'] = 0 := rho_of_uniform UAunif UAmeas h₀A'
+    linarith
+  set r := 4 * log K with hr
+  have J : K ^ (-4) = exp (-r) := by
+    rw [hr, ← neg_mul, mul_comm, exp_mul, exp_log K_pos]
+  have J' : K ^ 8 = exp (2 * r) := by
+    have : 2 * r = 8 * log K := by ring
+    rw [this, mul_comm, exp_mul, exp_log K_pos]
+  rw [J, J']
+  refine ⟨H, ?_⟩
+  have Z := rho_of_submodule UHunif h₀A' UHmeas r ineq
+  have : Nat.card A = Nat.card A' := by simp [← hAA']
+  have I t : t +ᵥ (H : Set G) = (H : Set G) + {t} := by
+    ext z; simp [mem_vadd_set_iff_neg_vadd_mem, add_comm]
+  simp_rw [← I]
+  convert Z
+  exact hAA'.symm
+
+/-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
+an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup $H$
+such that $A$ can be covered by at most $K^5 |A|^{1/2} / |H|^{1/2}$ cosets of $H$, and $H$ has
+the same cardinality as $A$ up to a multiplicative factor $K^8$. -/
 lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-    Nat.card c ≤ K ^ 4 * Nat.card A ^ (1/2) * (Nat.card H : ℝ) ^ (-1/2)
-      ∧ Nat.card H ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * Nat.card H ∧ A ⊆ c + H := sorry
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1/2) * (Nat.card H : ℝ) ^ (-1/2)
+      ∧ Nat.card H ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * Nat.card H ∧ A ⊆ c + H := by
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+    PFR_conjecture_pos_aux' h₀A hA
+  rcases better_PFR_conjecture_aux0 h₀A hA with ⟨H, x₀, J, IAH, IHA⟩
+  have H_pos : (0 : ℝ) < Nat.card H := by
+    have : 0 < Nat.card H := Nat.card_pos
+    positivity
+  have Hne : Set.Nonempty (A ∩ (H + {x₀})) := by
+    by_contra h'
+    have : 0 < Nat.card H := Nat.card_pos
+    have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
+    simp only [Nat.card_eq_fintype_card, Nat.card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
+      not_nonempty_iff_eq_empty.1 h', Fintype.card_ofIsEmpty] at this
+    /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
+  (which is contained in `H`). The number of translates is at most
+  `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
+  a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
+  rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
+    ⟨u, hu, Au, -⟩
+  have Iu : Nat.card u ≤ K ^ 5 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := by
+    have : (0 : ℝ) ≤ Nat.card u := by simp
+    have Z1 := mul_le_mul_of_nonneg_left J this
+    have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
+      ≤ Nat.card (A + A ∩ (↑H + {x₀})) := by norm_cast
+    have Z3 : (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ K * Nat.card A := by
+      apply le_trans _ hA
+      simp only [Nat.cast_le]
+      apply Nat.card_mono (toFinite _)
+      apply add_subset_add_left inter_subset_left
+    have : 0 ≤ K ^ (4) * Nat.card A ^ (-1/2) * Nat.card H ^ (-1/2) := by positivity
+    have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
+    convert T using 1 <;> rpow_ring <;> norm_num
+  have A_subset_uH : A ⊆ u + H := by
+    apply Au.trans
+    rw [add_sub_assoc]
+    apply add_subset_add_left
+    apply (sub_subset_sub inter_subset_right inter_subset_right).trans
+    rintro - ⟨-, ⟨y, hy, xy, hxy, rfl⟩, -, ⟨z, hz, xz, hxz, rfl⟩, rfl⟩
+    simp only [mem_singleton_iff] at hxy hxz
+    simpa [hxy, hxz] using H.sub_mem hy hz
+  exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
 /-- If $A \subset {\bf F}_2^n$ is finite non-empty with $|A+A| \leq K|A|$, then there exists a
-subgroup $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$ such that $A$ can be covered by at most $2K^8$
+subgroup $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$ such that $A$ can be covered by at most $2K^9$
 translates of $H$. -/
 lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-      Nat.card c < 2 * K ^ 8 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-    Nat.card c ≤ K ^ 4 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
       ∧ Nat.card H ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * Nat.card H
       ∧ A ⊆ c + H :=
     better_PFR_conjecture_aux h₀A hA
@@ -1460,11 +1751,11 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
-    Nat.card c ≤ K ^ 4 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := hc
-    _ ≤ K ^ 4 * (K ^ 8 * Nat.card H) ^ (1/2) * Nat.card H ^ (-1/2) := by
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := hc
+    _ ≤ K ^ 5 * (K ^ 8 * Nat.card H) ^ (1/2) * Nat.card H ^ (-1/2) := by
       gcongr
-    _ = K ^ 8 := by rpow_ring; norm_num
-    _ < 2 * K ^ 8 := by linarith [show 0 < K ^ 8 by positivity]
+    _ = K ^ 9 := by rpow_ring; norm_num
+    _ < 2 * K ^ 9 := by linarith [show 0 < K ^ 9 by positivity]
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
   -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
   · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : Submodule (ZMod 2) G, Nat.card H' ≤ Nat.card A
@@ -1482,27 +1773,24 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
-    _ ≤ (K ^ 4 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+    _ ≤ (K ^ 5 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
           * (Nat.card H / Nat.card H') := by
         gcongr
         apply le_of_eq
         rw [eq_div_iff H'_pos.ne']
         norm_cast
-    _ < (K ^ 4 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+    _ < (K ^ 5 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
-    _ = 2 * K ^ 4 * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
-        have : (0 : ℝ) < Nat.card H := H_pos
+    _ = 2 * K ^ 5 * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
         field_simp
         rpow_ring
         norm_num
-    _ ≤ 2 * K ^ 4 * Nat.card A ^ (-1/2) * (K ^ 8 * Nat.card A) ^ (1/2) := by
+    _ ≤ 2 * K ^ 5 * Nat.card A ^ (-1/2) * (K ^ 8 * Nat.card A) ^ (1/2) := by
         gcongr
-    _ = 2 * K ^ 8 := by
+    _ = 2 * K ^ 9 := by
         rpow_ring
         norm_num
-
-open Function
 
 /-- Corollary of `better_PFR_conjecture` in which the ambient group is not required to be finite
 (but) then $H$ and $c$ are finite. -/
@@ -1510,7 +1798,7 @@ theorem better_PFR_conjecture' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
-      Nat.card c < 2 * K ^ 8 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   let G' := Submodule.span (ZMod 2) A
   let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
   let ι : G'→ₗ[ZMod 2] G := G'.subtype
