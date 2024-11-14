@@ -479,7 +479,7 @@ theorem measureReal_prod_prod {μ : Measure α} {ν : Measure β} [SigmaFinite �
     (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
-theorem ext_iff_measureReal_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+theorem ext_iff_measureReal_singleton [Fintype S] [MeasurableSpace S]
     {μ1 μ2 : Measure S} [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :
     μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
   rw [Measure.ext_iff_singleton]

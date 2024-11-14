@@ -214,7 +214,6 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
           * (Nat.card H / (Nat.card A / m)) := by
         gcongr
     _ = m * K ^ ((64*m^3+2)) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
-        have : (0 : ℝ) < Nat.card H := H_pos
         field_simp
         rpow_ring
         norm_num

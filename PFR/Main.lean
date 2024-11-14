@@ -324,7 +324,6 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
     _ = 2 * K ^ (13/2) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
-        have : (0 : ℝ) < Nat.card H := H_pos
         field_simp
         rpow_ring
         norm_num

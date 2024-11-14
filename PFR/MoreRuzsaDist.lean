@@ -748,14 +748,13 @@ lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m 
 lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
     (hprob : IsProbabilityMeasure (ℙ : Measure Ω)) (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
     (h_indep : iIndepFun (fun _ => inferInstance) X ℙ) :
-    D[X ; fun _ ↦ hΩ] ≥ 0 := by
+    0 ≤ D[X ; fun _ ↦ hΩ] := by
   rw [multiDist_indep hΩ X h_indep]
   by_cases hm : m = 0
   · subst hm
     simp only [Finset.univ_eq_empty, Finset.sum_empty, CharP.cast_eq_zero, div_zero, sub_zero,
       ge_iff_le]
     erw [entropy_const]
-  have : NeZero m := ⟨hm⟩
   norm_num
   calc
     (∑ i, H[X i]) / m ≤
@@ -770,7 +769,7 @@ lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : Measur
 lemma multiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     (hprob : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) (X : ∀ i, (Ω i) → G)
     (hX : ∀ i, Measurable (X i)) :
-    D[X ; hΩ] ≥ 0 := by
+    0 ≤ D[X ; hΩ] := by
   obtain ⟨A, mA, μA, Y, isProb, h_indep, hY⟩ :=
     ProbabilityTheory.independent_copies' X hX (fun i => ℙ)
   convert multiDist_nonneg_of_indep ⟨μA⟩ isProb Y (fun i => (hY i).1) h_indep using 1

@@ -74,7 +74,6 @@ lemma iIndepFun.cond [Finite ι] (hY : ∀ i, Measurable (Y i))
     (h_indep : iIndepFun (fun _ ↦ mα.prod mβ) (fun i ω ↦ (X i ω, Y i ω)) μ)
     (hy : ∀ i, μ (Y i ⁻¹' t i) ≠ 0) (ht : ∀ i, MeasurableSet (t i)) :
     iIndepFun (fun _ ↦ mα) X μ[|⋂ i, Y i ⁻¹' t i] := by
-  have : IsProbabilityMeasure μ := h_indep.isProbabilityMeasure
   rw [iIndepFun_iff]
   intro s f' hf'
   have h1 : ∀ i : s, μ[|⋂ i, Y i ⁻¹' t i] (f' i) = μ[|Y i ⁻¹' t i] (f' i) := by

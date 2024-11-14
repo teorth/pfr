@@ -157,7 +157,7 @@ lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
   apply Integrable.comp_measurable .of_finite
   fun_prop
 
-lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*} [MeasurableSingletonClass Ω]
+lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*}
     [NormedAddCommGroup G] [NormedSpace ℝ G] {f g : Ω → G} [FiniteSupport μ]
     (hfg : ∀ x, μ {x} ≠ 0 → f x = g x) : ∫ x, f x ∂μ = ∫ x, g x ∂μ := by
   refine integral_congr_ae <| measure_mono_null ?_ <| measure_compl_support μ
