@@ -15,7 +15,7 @@ lemma continuous_finiteMeasure_apply_of_isClopen
     {α : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
     {s : Set α} (s_clopen : IsClopen s) :
     Continuous fun μ : FiniteMeasure α ↦ (μ : Measure α).real s := by
-  convert FiniteMeasure.continuous_integral_boundedContinousFunction
+  convert FiniteMeasure.continuous_integral_boundedContinuousFunction
     (BoundedContinuousFunction.indicator s s_clopen)
   have s_mble : MeasurableSet s := s_clopen.isOpen.measurableSet
   simp [integral_indicator, s_mble, Measure.real]

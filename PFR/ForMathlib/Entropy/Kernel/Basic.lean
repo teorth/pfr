@@ -1,6 +1,5 @@
 import Mathlib.MeasureTheory.Integral.Prod
 import PFR.ForMathlib.Entropy.Measure
-import PFR.Mathlib.MeasureTheory.Integral.IntegrableOn
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.Probability.Kernel.Disintegration
 

@@ -546,7 +546,7 @@ lemma _root_.MeasureTheory.Measure.ae_of_compProd_eq_zero {α β : Type*}
     ∀ᵐ a ∂μ, κ a (Prod.mk a ⁻¹' s) = 0 := by
   let t := toMeasurable (μ ⊗ₘ κ) s
   have ht : (μ ⊗ₘ κ) t = 0 := by
-    unfold_let t
+    unfold t
     rwa [measure_toMeasurable]
   rw [Measure.compProd_apply (measurableSet_toMeasurable _ _), lintegral_eq_zero_iff] at ht
   swap; · exact measurable_kernel_prod_mk_left (measurableSet_toMeasurable _ _)
