@@ -1,6 +1,7 @@
 import PFR.ForMathlib.FiniteRange.Defs
 import Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Basic
+import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 
@@ -375,3 +376,11 @@ lemma condKLDiv_nonneg {S : Type*} [MeasurableSingletonClass G] [Fintype G]
   specialize habs s hs
   rw [Measure.map_apply hX (measurableSet_singleton s)] at habs ⊢
   exact cond_absolutelyContinuous habs
+
+open Filter
+open scoped Topology
+
+lemma tendsto_KLDiv [TopologicalSpace G] [DiscreteTopology G] [Fintype G]
+    {α : Type*} {l : Filter α} {ν : α → ProbabilityMeasure G} {ν' : ProbabilityMeasure G}
+    (h : Tendsto ν l (𝓝 ν')) :
+    Tendsto (fun n ↦ KL[X ; μ # id ; ν n]) l (𝓝 (KL[X ; μ # id ; ν'])) := sorry

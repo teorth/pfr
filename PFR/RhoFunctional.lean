@@ -138,16 +138,52 @@ lemma rhoMinus_le [IsZeroOrProbabilityMeasure μ]
   simp only [rhoMinusSet, Set.mem_setOf_eq]
   exact ⟨μ'.map T, isProbabilityMeasure_map hT.aemeasurable, by rwa [M], by simp [KLDiv, M]⟩
 
+open scoped Topology
+
 lemma rhoMinus_continuous_aux1 (hX : Measurable X) (hA : A.Nonempty) {ε : ℝ} (hε : 0 < ε)
-    [IsProbabilityMeasure μ] :
+    [IsProbabilityMeasure μ] [TopologicalSpace G] [DiscreteTopology G] :
     ∃ (μ' : Measure G), IsProbabilityMeasure μ' ∧ (∀ y, 0 < μ' {y}) ∧
     KL[X ; μ # Prod.fst + Prod.snd ; μ'.prod (uniformOn A)] < ρ⁻[X ; μ # A] + ε := by
   have : ρ⁻[X ; μ # A] < ρ⁻[X ; μ # A] + ε := by linarith
   rcases (csInf_lt_iff (bddBelow_rhoMinusSet hX) (nonempty_rhoMinusSet hX hA)).1 this
     with ⟨-, ⟨μ₀, hPμ₀, habs, rfl⟩, h₀⟩
+  let μ₀P : ProbabilityMeasure G := ⟨μ₀, hPμ₀⟩
   obtain ⟨u, -, u_mem, hu⟩ := exists_seq_strictAnti_tendsto' (x := (0 : ℝ≥0∞)) zero_lt_one
   let ν : ℕ → Measure G := fun n ↦ (1 - u n) • μ₀ + u n • uniformOn univ
-  have : ∀ n, IsProbabilityMeasure (ν n) := sorry
+  have : IsProbabilityMeasure (uniformOn (univ : Set G)) :=
+    uniformOn_isProbabilityMeasure finite_univ univ_nonempty
+  have P n : IsProbabilityMeasure (ν n) := by
+    simp only [isProbabilityMeasure_iff, coe_add, coe_smul, Pi.add_apply, Pi.smul_apply,
+      measure_univ, smul_eq_mul, mul_one, ν]
+    rw [ENNReal.sub_add_eq_add_sub, ENNReal.add_sub_cancel_right]
+    · exact ne_of_lt ((u_mem n).2.trans ENNReal.one_lt_top)
+    · exact (u_mem n).2.le
+    · exact ne_of_lt ((u_mem n).2.trans ENNReal.one_lt_top)
+  let νP n : ProbabilityMeasure G := ⟨ν n, P n⟩
+  have L : Tendsto νP atTop (𝓝 μ₀P) := by
+    rw [ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal]
+    intro g
+    simp only [ProbabilityMeasure.coe_mk, coe_add, coe_smul, Pi.add_apply, Pi.smul_apply,
+      smul_eq_mul, νP, ν, μ₀P]
+    have : 𝓝 (μ₀ {g}) = 𝓝 ((1 - 0) * μ₀ {g} + 0 * (uniformOn univ {g})) := by simp
+    rw [this]
+    apply Tendsto.add
+    · apply ENNReal.Tendsto.mul_const _ (by simp)
+      exact ENNReal.Tendsto.sub tendsto_const_nhds hu (by simp)
+    · exact ENNReal.Tendsto.mul_const hu (by simp)
+  let PA : ProbabilityMeasure G := ⟨uniformOn (univ : Set G), by infer_instance⟩
+  have : Tendsto (fun n ↦ (νP n).prod PA) atTop (𝓝 (μ₀P.prod PA)) :=
+    ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto _ _ L _ _ tendsto_const_nhds
+  have Z := ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous _ _ this
+    (f := Prod.fst + Prod.snd) (by fun_prop)
+
+
+
+  have Q n g : 0 < ν n {g} := by
+    have : 0 < (uniformOn univ) {g} := by
+      simp [uniformOn_apply_singleton_of_mem (mem_univ _) (finite_univ)]
+    simp [ν, (u_mem n).1, (u_mem n).2, this]
+
 
 
 #exit
