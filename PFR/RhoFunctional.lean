@@ -24,7 +24,7 @@ Definition of the rho functional and basic facts
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
 
-open MeasureTheory ProbabilityTheory Real Set Function Measure
+open MeasureTheory ProbabilityTheory Real Set Function Measure Filter
 open scoped Pointwise ENNReal
 universe uG
 
@@ -137,6 +137,20 @@ lemma rhoMinus_le [IsZeroOrProbabilityMeasure μ]
   apply csInf_le (bddBelow_rhoMinusSet hX)
   simp only [rhoMinusSet, Set.mem_setOf_eq]
   exact ⟨μ'.map T, isProbabilityMeasure_map hT.aemeasurable, by rwa [M], by simp [KLDiv, M]⟩
+
+lemma rhoMinus_continuous_aux1 (hX : Measurable X) (hA : A.Nonempty) {ε : ℝ} (hε : 0 < ε)
+    [IsProbabilityMeasure μ] :
+    ∃ (μ' : Measure G), IsProbabilityMeasure μ' ∧ (∀ y, 0 < μ' {y}) ∧
+    KL[X ; μ # Prod.fst + Prod.snd ; μ'.prod (uniformOn A)] < ρ⁻[X ; μ # A] + ε := by
+  have : ρ⁻[X ; μ # A] < ρ⁻[X ; μ # A] + ε := by linarith
+  rcases (csInf_lt_iff (bddBelow_rhoMinusSet hX) (nonempty_rhoMinusSet hX hA)).1 this
+    with ⟨-, ⟨μ₀, hPμ₀, habs, rfl⟩, h₀⟩
+  obtain ⟨u, -, u_mem, hu⟩ := exists_seq_strictAnti_tendsto' (x := (0 : ℝ≥0∞)) zero_lt_one
+  let ν : ℕ → Measure G := fun n ↦ (1 - u n) • μ₀ + u n • uniformOn univ
+  have : ∀ n, IsProbabilityMeasure (ν n) := sorry
+
+
+#exit
 
 /-- For any $G$-valued random variable $X$, we define $\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$. -/
 noncomputable def rhoPlus (X : Ω → G) (A : Finset G) (μ : Measure Ω) : ℝ :=
@@ -497,9 +511,13 @@ lemma rho_of_submodule [IsProbabilityMeasure μ] [Module (ZMod 2) G]
       ∧ Nat.card H ≤ exp (2 * r) * Nat.card A :=
   rho_of_subgroup (H := H.toAddSubgroup) hunif hA hU r hr
 
+
 /-- \rho(X)$ depends continuously on the distribution of $X$. -/
 lemma rho_continuous [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] {A} :
     Continuous fun μ : ProbabilityMeasure G ↦ ρ[(id : G → G) ; μ # A] := by sorry
+
+
+#exit
 
 /-- If $X,Y$ are independent, one has
   $$ \rho^-(X+Y) \leq \rho^-(X)$$ -/
