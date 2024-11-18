@@ -490,7 +490,7 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
 end construct_good
 
 include hX₁ hX₂ h_min h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂' in
-/-- If `d[X₁ ; X₂] > 0` then there are `G`-valued random variables `X'₁, X'₂` such that
+/-- If `d[X₁ ; X₂] > 0` then there are `G`-valued random variables `X₁', X₂'` such that
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases_aux
     [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2) G]

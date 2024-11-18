@@ -822,7 +822,7 @@ def not_in_coset {G : Type*} [AddCommGroup G] (A B : Set G) : Prop :=
   AddSubgroup.closure ((A - A) ∪ (B - B)) = ⊤
 
 /-- In fact one has equality here, but this is trickier to prove and not needed for the argument. -/
-lemma dimension_of_shift {G : Type*} [AddCommGroup G] [Module.Finite ℤ G] {H : AddSubgroup G}
+lemma dimension_of_shift {G : Type*} [AddCommGroup G] {H : AddSubgroup G}
     (A : Set H) (x : G) :
     AffineSpace.finrank ℤ ((fun a : H ↦ (a : G) + x) '' A) = AffineSpace.finrank ℤ A := by
   classical
@@ -838,7 +838,7 @@ lemma dimension_of_shift {G : Type*} [AddCommGroup G] [Module.Finite ℤ G] {H :
     _ = AffineSpace.finrank ℤ A :=
       (Submodule.equivMapOfInjective _ Subtype.val_injective _).symm.finrank_eq
 
-omit [Module.Free ℤ G] in
+omit [Module.Finite ℤ G] [Module.Free ℤ G] in
 lemma conclusion_transfers {A B : Set G}
     (G': AddSubgroup G) (A' B' : Set (G' : Set G))
     (hA : IsShift A A') (hB : IsShift B B') [Finite A'] [Finite B']

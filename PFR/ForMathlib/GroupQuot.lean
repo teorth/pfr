@@ -11,12 +11,15 @@ open Finsupp Function
 variable {G : Type*} [AddCommGroup G] [Module.Free ℤ G] {n : ℕ}
 
 variable (G n) in
+/-- `modN G n` denotes the quotient of `G` by multiples of `n` -/
 abbrev modN : Type _ := G ⧸ LinearMap.range (LinearMap.lsmul ℤ G n)
 
 instance : Module (ZMod n) (modN G n) := QuotientAddGroup.zmodModule (by simp)
 
 variable [NeZero n]
 
+/-- Given a free module `G` over `ℤ`, construct the corresponding basis
+of `G / ⟨n⟩` over `ℤ / nℤ`. -/
 noncomputable def modNBasis : Basis (Module.Free.ChooseBasisIndex ℤ G) (ZMod n) (modN G n) := by
   set ψ : G →+ G := zsmulAddGroupHom n
   set nG := LinearMap.range (LinearMap.lsmul ℤ G n)

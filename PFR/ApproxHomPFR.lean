@@ -35,7 +35,6 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   let A := (Set.univ.graphOn f).toFinite.toFinset
   have hA : #A = Nat.card G := by rw [Set.Finite.card_toFinset]; simp [← Nat.card_eq_fintype_card]
   have hA_nonempty : A.Nonempty := by simp [-Set.Finite.toFinset_setOf, A]
-  have hA_pos : 0 < #A := by positivity
   have := calc
     (#A ^ 3 / K ^ 2 : ℝ)
       = (Nat.card G ^ 2 / K) ^ 2 / #A := by field_simp [hA]; ring
@@ -45,7 +44,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       rw [← Nat.card_eq_finsetCard, ← Finset.coe_sort_coe, Finset.coe_filter,
         Set.Finite.toFinset_prod]
       simp only [Set.Finite.mem_toFinset, A, Set.graphOn_prod_graphOn]
-      rw [← Set.card_graphOn _ (Prod.map f f),
+      rw [← Set.natCard_graphOn _ (Prod.map f f),
         ← Nat.card_image_equiv (Equiv.prodProdProdComm G G' G G'), Set.image_equiv_eq_preimage_symm]
       congr
       aesop
@@ -66,7 +65,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     rewrite [← this, hA''_coe]
     simpa [← pow_mul] using hA'2
   obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := PFR_conjecture_improv_aux hA''_nonempty this
-  clear hA'2 hA''_coe hH_le hH_ge hA_pos
+  clear hA'2 hA''_coe hH_le hH_ge
   obtain ⟨H₀, H₁, φ, hH₀H₁, hH₀H₁_card⟩ := goursat H
 
   have h_le_H₀ : Nat.card A'' ≤ Nat.card c * Nat.card H₀ := by

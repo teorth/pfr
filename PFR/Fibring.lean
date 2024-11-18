@@ -194,3 +194,11 @@ lemma sum_of_rdist_eq_char_2
         + d[Y 0 | (Y 0) + (Y 2); μ # Y 1 | (Y 1) + (Y 3); μ]
         + I[(Y 0) + (Y 1) : (Y 1) + (Y 3) | (Y 0) + (Y 1) + (Y 2) + (Y 3); μ] := by
   simpa [ZModModule.sub_eq_add] using sum_of_rdist_eq Y h_indep h_meas
+
+lemma sum_of_rdist_eq_char_2' [Module (ZMod 2) G] (X Y X' Y' : Ω → G)
+  (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) ![X, Y, X', Y'] μ)
+  (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y') :
+  d[X ; μ # Y ; μ] + d[X' ; μ # Y' ; μ]
+    = d[X + X' ; μ # Y + Y' ; μ] + d[X | X + X' ; μ # Y | Y + Y' ; μ]
+      + I[X + Y : Y + Y' | X + Y + X' + Y' ; μ] := by
+  apply sum_of_rdist_eq_char_2 _ h_indep (fun i ↦ by fin_cases i <;> assumption)

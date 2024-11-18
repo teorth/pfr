@@ -25,6 +25,7 @@ Here we define Ruzsa distance and establish its basic properties.
 -/
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
+open scoped Topology
 
 variable {Ω Ω' Ω'' Ω''' G S T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
@@ -130,6 +131,28 @@ lemma ProbabilityTheory.IdentDistrib.rdist_eq {X' : Ω'' → G} {Y' : Ω''' → 
     d[X ; μ # Y ; μ'] = d[X' ; μ'' # Y' ; μ'''] := by
   simp [rdist, hX.map_eq, hY.map_eq, hX.entropy_eq, hY.entropy_eq]
 
+lemma tendsto_rdist_probabilityMeasure {α : Type*} {l : Filter α}
+    [TopologicalSpace Ω] [BorelSpace Ω] [TopologicalSpace G] [BorelSpace G] [Fintype G]
+    [DiscreteTopology G]
+    {X Y : Ω → G} (hX : Continuous X) (hY : Continuous Y)
+    {μ : α → ProbabilityMeasure Ω} {ν : ProbabilityMeasure Ω} (hμ : Tendsto μ l (𝓝 ν)) :
+    Tendsto (fun n ↦ d[X ; (μ n : Measure Ω) # Y ; (μ n : Measure Ω)]) l
+      (𝓝 (d[X ; ν # Y ; ν])) := by
+  have J (η : ProbabilityMeasure Ω) :
+      d[X ; η # Y ; η] = d[(id : G → G) ; η.map hX.aemeasurable # id ; η.map hY.aemeasurable] := by
+    apply ProbabilityTheory.IdentDistrib.rdist_eq
+    · exact ⟨hX.aemeasurable, aemeasurable_id, by simp⟩
+    · exact ⟨hY.aemeasurable, aemeasurable_id, by simp⟩
+  simp_rw [J]
+  have Z := ((continuous_rdist_restrict_probabilityMeasure (G := G)).tendsto
+    ((ν.map hX.aemeasurable), (ν.map hY.aemeasurable)))
+  have T : Tendsto (fun n ↦ (((μ n).map hX.aemeasurable), ((μ n).map hY.aemeasurable)))
+      l (𝓝 (((ν.map hX.aemeasurable), (ν.map hY.aemeasurable)))) := by
+    apply Tendsto.prod_mk_nhds
+    · exact ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous μ ν hμ hX
+    · exact ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous μ ν hμ hY
+  apply Z.comp T
+
 section rdist
 
 variable [Countable G] [MeasurableSingletonClass G]
@@ -151,10 +174,10 @@ lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRan
   [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     d[X ; μ # Y ; μ'] ≤ (H[X ; μ] + H[Y ; μ'])/2 := by
   rcases ProbabilityTheory.independent_copies_finiteRange hX hY μ μ'
-    with ⟨ν, X', Y', hprob, hX', hY', hindep, hidentX, hidentY, hfinX, hfinY⟩
+    with ⟨ν, X', Y', hprob, hX', hY', h_indep, hidentX, hidentY, hfinX, hfinY⟩
   rw [← ProbabilityTheory.IdentDistrib.rdist_eq hidentX hidentY,
     ← IdentDistrib.entropy_eq hidentX, ← IdentDistrib.entropy_eq hidentY,
-    ProbabilityTheory.IndepFun.rdist_eq hindep hX' hY']
+    ProbabilityTheory.IndepFun.rdist_eq h_indep hX' hY']
   suffices H[X' - Y'; ν] ≤ H[X'; ν] + H[Y'; ν] by linarith
   change H[(fun x ↦ x.1 - x.2) ∘ ⟨X',Y' ⟩; ν] ≤ H[X'; ν] + H[Y'; ν]
   exact ((entropy_comp_le ν (by fun_prop) _).trans) (entropy_pair_le_add hX' hY' ν)
@@ -336,9 +359,13 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
   linarith only [this, (abs_le.mp (diff_ent_le_rdist hX' hUH' (μ := ν) (μ' := ν))).2]
 
 /-- Adding a constant to a random variable does not change the Rusza distance. -/
-lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+lemma rdist_add_const [IsZeroOrProbabilityMeasure μ] [IsZeroOrProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) {c} :
     d[X ; μ # Y + fun _ ↦ c; μ'] = d[X ; μ # Y ; μ'] := by
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp [rdist_def, entropy_add_const hY]
+  rcases eq_zero_or_isProbabilityMeasure μ' with rfl | hμ'
+  · simp [rdist_def]
   obtain ⟨ν, X', Y', _, hX', hY', hind, hIdX, hIdY, _, _⟩ := independent_copies_finiteRange hX hY μ μ'
   have A : IdentDistrib (Y' + fun _ ↦ c) (Y + fun _ ↦ c) ν μ' := by
     change IdentDistrib (fun ω ↦ Y' ω + c) (fun ω ↦ Y ω + c) ν μ'
@@ -353,8 +380,8 @@ lemma rdist_add_const [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
   exact hX'.sub hY'
 
 /-- A variant of `rdist_add_const` where one adds constants to both variables. -/
-lemma rdist_add_const' [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (c : G) (c' : G)
-    (hX : Measurable X) (hY : Measurable Y) :
+lemma rdist_add_const' [IsZeroOrProbabilityMeasure μ] [IsZeroOrProbabilityMeasure μ']
+    (c : G) (c' : G) (hX : Measurable X) (hY : Measurable Y) :
     d[X + fun _ ↦ c; μ # Y + fun _ ↦ c'; μ'] = d[X ; μ # Y ; μ'] := by
   rw [rdist_add_const _ hY, rdist_symm, rdist_add_const hY hX, rdist_symm]
   fun_prop

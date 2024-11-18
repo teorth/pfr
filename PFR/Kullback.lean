@@ -1,6 +1,8 @@
+import PFR.ForMathlib.CompactProb
 import PFR.ForMathlib.FiniteRange.Defs
 import Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Basic
+import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 
@@ -10,7 +12,8 @@ import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 Definition of Kullback-Leibler divergence and basic facts
 -/
 
-open MeasureTheory ProbabilityTheory Real
+open MeasureTheory ProbabilityTheory Real Filter
+open scoped Topology
 
 variable {Ω Ω' Ω'' Ω''' G: Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
@@ -53,6 +56,18 @@ lemma KLDiv_eq_sum [Fintype G] :
     KL[X ; μ # Y ; μ'] = ∑ x,
       (μ.map X {x}).toReal * log ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal) :=
   tsum_eq_sum (by simp)
+
+lemma KLDiv_eq_sum_negMulLog [Fintype G] :
+    KL[X ; μ # Y ; μ'] = ∑ x, - (μ'.map Y {x}).toReal *
+      negMulLog ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal) := by
+  rw [KLDiv_eq_sum]
+  congr with g
+  rcases eq_or_ne ((Measure.map X μ) {g}).toReal 0 with h | h
+  · simp [h]
+  rcases eq_or_ne ((Measure.map Y μ') {g}).toReal 0 with h' | h'
+  · simp [h']
+  simp only [negMulLog, ← mul_assoc]
+  field_simp
 
 /-- `KL(X ‖ Y) ≥ 0`.-/
 lemma KLDiv_nonneg [Fintype G] [MeasurableSingletonClass G] [IsZeroOrProbabilityMeasure μ]
@@ -185,7 +200,7 @@ random variables are independent.
 Probably already available somewhere in some form, but I couldn't locate it. -/
 lemma ProbabilityTheory.IndepFun.map_add_eq_sum
     [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
-    {X Z : Ω → G} (hindep : IndepFun X Z μ)
+    {X Z : Ω → G} (h_indep : IndepFun X Z μ)
     (hX : Measurable X) (hZ : Measurable Z) (S : Set G) :
     μ.map (X + Z) S = ∑ s, μ.map Z {s} * μ.map X ({-s} + S) := by
   rw [Measure.map_apply (by fun_prop) (DiscreteMeasurableSpace.forall_measurableSet S)]
@@ -213,7 +228,7 @@ lemma ProbabilityTheory.IndepFun.map_add_eq_sum
   · intro i
     exact (hX (DiscreteMeasurableSpace.forall_measurableSet _)).inter (hZ (measurableSet_singleton _))
   congr with i
-  rw [hindep.measure_inter_preimage_eq_mul _ _ (DiscreteMeasurableSpace.forall_measurableSet _)
+  rw [h_indep.measure_inter_preimage_eq_mul _ _ (DiscreteMeasurableSpace.forall_measurableSet _)
     (measurableSet_singleton _), mul_comm,
     Measure.map_apply hZ (measurableSet_singleton _),
     Measure.map_apply hX (DiscreteMeasurableSpace.forall_measurableSet _)]
@@ -223,23 +238,23 @@ random variables are independent.
 Probably already available somewhere in some form, but I couldn't locate it. -/
 lemma ProbabilityTheory.IndepFun.map_add_singleton_eq_sum
     [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
-    {X Z : Ω → G} (hindep : IndepFun X Z μ)
+    {X Z : Ω → G} (h_indep : IndepFun X Z μ)
     (hX : Measurable X) (hZ : Measurable Z) (x : G) :
     μ.map (X + Z) {x} = ∑ s, μ.map Z {s} * μ.map X {x - s} := by
-  rw [hindep.map_add_eq_sum hX hZ]
+  rw [h_indep.map_add_eq_sum hX hZ]
   congr with s
   congr
   simp
   abel
 
 lemma absolutelyContinuous_add_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
-    {X Y Z : Ω → G} (hindep : IndepFun (⟨X, Y⟩) Z μ) (hX : Measurable X) (hY : Measurable Y)
+    {X Y Z : Ω → G} (h_indep : IndepFun (⟨X, Y⟩) Z μ) (hX : Measurable X) (hY : Measurable Y)
     (hZ : Measurable Z)
     (habs : ∀ x, μ.map Y {x} = 0 → μ.map X {x} = 0) :
     ∀ x, μ.map (Y + Z) {x} = 0 → μ.map (X + Z) {x} = 0 := by
   intro x hx
-  have IX : IndepFun X Z μ := hindep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
-  have IY : IndepFun Y Z μ := hindep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
+  have IX : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
+  have IY : IndepFun Y Z μ := h_indep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
   rw [IY.map_add_singleton_eq_sum hY hZ, Finset.sum_eq_zero_iff] at hx
   rw [IX.map_add_singleton_eq_sum hX hZ, Finset.sum_eq_zero_iff]
   intro i hi
@@ -251,7 +266,7 @@ lemma absolutelyContinuous_add_of_indep [Fintype G] [AddCommGroup G] [DiscreteMe
   $$D_{KL}(X+Z\Vert Y+Z) \leq D_{KL}(X\Vert Y).$$ -/
 lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
     {X Y Z : Ω → G} [IsZeroOrProbabilityMeasure μ]
-    (hindep : IndepFun (⟨X, Y⟩) Z μ)
+    (h_indep : IndepFun (⟨X, Y⟩) Z μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (habs : ∀ x, μ.map Y {x} = 0 → μ.map X {x} = 0) :
     KL[X + Z ; μ # Y + Z ; μ] ≤ KL[X ; μ # Y ; μ] := by
@@ -277,14 +292,14 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
     have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
     simp [w]
   have A x : (μ.map (X + Z) {x}).toReal = ∑ s ∈ S, w s * (μ.map (X' s) {x}).toReal := by
-    have : IndepFun X Z μ := hindep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
+    have : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
     rw [this.map_add_singleton_eq_sum hX hZ, ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top])]
     simp only [ENNReal.toReal_mul]
     congr with i
     congr 1
     rw [AX']
   have B x : (μ.map (Y + Z) {x}).toReal = ∑ s ∈ S, w s * (μ.map (Y' s) {x}).toReal := by
-    have : IndepFun Y Z μ := hindep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
+    have : IndepFun Y Z μ := h_indep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
     rw [this.map_add_singleton_eq_sum hY hZ, ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top])]
     simp only [ENNReal.toReal_mul]
     congr with i
@@ -375,3 +390,40 @@ lemma condKLDiv_nonneg {S : Type*} [MeasurableSingletonClass G] [Fintype G]
   specialize habs s hs
   rw [Measure.map_apply hX (measurableSet_singleton s)] at habs ⊢
   exact cond_absolutelyContinuous habs
+
+lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Fintype G]
+    [DiscreteMeasurableSpace G] [IsFiniteMeasure μ]
+    {α : Type*} {l : Filter α} {ν : α → ProbabilityMeasure G} {ν' : ProbabilityMeasure G}
+    (h : Tendsto ν l (𝓝 ν')) (habs : ∀ x, ν' {x} = 0 → μ.map X {x} = 0) :
+    Tendsto (fun n ↦ KL[X ; μ # id ; ν n]) l (𝓝 (KL[X ; μ # id ; ν'])) := by
+  simp_rw [KLDiv_eq_sum]
+  apply tendsto_finset_sum _ (fun g hg ↦ ?_)
+  rcases eq_or_ne (Measure.map X μ {g}) 0 with h'g | h'g
+  · simpa [h'g] using tendsto_const_nhds
+  apply Tendsto.mul tendsto_const_nhds
+  have νg : ((ν' : Measure G) {g}).toReal ≠ 0 := by
+    intro h
+    simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h
+    apply h'g (habs _ _)
+    exact (ν'.null_iff_toMeasure_null {g}).mpr h
+  apply Tendsto.log; swap
+  · have : ((Measure.map X μ) {g}).toReal ≠ 0 := by simp [ENNReal.toReal_eq_zero_iff, h'g]
+    simp only [Measure.map_id, ne_eq, div_eq_zero_iff, this, false_or, νg, not_false_eq_true]
+  apply Tendsto.div tendsto_const_nhds _ (by simp [νg])
+  simp only [Measure.map_id]
+  rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]
+  exact (ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal _ _).1 h g
+
+lemma tendsto_KLDiv_id_left [TopologicalSpace G] [DiscreteTopology G] [Fintype G]
+    [DiscreteMeasurableSpace G] {Y : Ω → G} {μ : Measure Ω}
+    {α : Type*} {l : Filter α} {ν : α → ProbabilityMeasure G} {ν' : ProbabilityMeasure G}
+    (h : Tendsto ν l (𝓝 ν')) :
+    Tendsto (fun n ↦ KL[id ; ν n # Y ; μ]) l (𝓝 (KL[id ; ν' # Y ; μ])) := by
+  simp_rw [KLDiv_eq_sum_negMulLog]
+  apply tendsto_finset_sum _ (fun g hg ↦ ?_)
+  apply Tendsto.const_mul
+  apply continuous_negMulLog.continuousAt.tendsto.comp
+  apply Tendsto.div_const
+  simp only [Measure.map_id]
+  rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]
+  exact (ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal _ _).1 h g

@@ -243,7 +243,7 @@ lemma max_entropy_le_entropy_div (hX : Measurable X) (hY : Measurable Y) (h : In
 lemma max_entropy_le_entropy_prod {G : Type*} [Countable G] [hG : MeasurableSpace G]
     [MeasurableSingletonClass G] [CommGroup G] [MeasurableMul₂ G]
     {I : Type*} {s : Finset I} {i₀ : I} (hi₀ : i₀ ∈ s) {X : I → Ω → G} [∀ i, FiniteRange (X i)]
-    (hX : (i : I) → Measurable (X i)) (hindep : iIndepFun (fun (_ : I) => hG) X μ) :
+    (hX : (i : I) → Measurable (X i)) (h_indep : iIndepFun (fun (_ : I) => hG) X μ) :
     H[X i₀ ; μ] ≤ H[∏ i in s, X i ; μ] := by
   have hs : s.Nonempty := ⟨i₀, hi₀⟩
   induction' hs using Finset.Nonempty.cons_induction with i j s Hnot _ Hind
@@ -254,13 +254,13 @@ lemma max_entropy_le_entropy_prod {G : Type*} [Countable G] [hG : MeasurableSpac
         _ ≤ max H[X i₀ ; μ] H[∏ i ∈ s, X i ; μ] := le_max_left _ _
         _ ≤ H[X i₀ * ∏ i ∈ s, X i ; μ] := by
           refine max_entropy_le_entropy_mul (hX i₀) (by fun_prop) ?_
-          exact iIndepFun.indepFun_finset_prod_of_not_mem hindep hX Hnot |>.symm
+          exact iIndepFun.indepFun_finset_prod_of_not_mem h_indep hX Hnot |>.symm
     · calc
         _ ≤ H[∏ i ∈ s, X i ; μ] := Hind hi₀
         _ ≤ max H[X j ; μ] H[∏ i ∈ s, X i ; μ] := le_max_right _ _
         _ ≤ H[X j * ∏ x ∈ s, X x ; μ] := by
           refine max_entropy_le_entropy_mul (hX j) (by fun_prop) ?_
-          exact iIndepFun.indepFun_finset_prod_of_not_mem hindep hX Hnot |>.symm
+          exact iIndepFun.indepFun_finset_prod_of_not_mem h_indep hX Hnot |>.symm
 
 end IsProbabilityMeasure
 end ProbabilityTheory
