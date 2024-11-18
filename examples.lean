@@ -1,6 +1,7 @@
 import PFR.ApproxHomPFR
 import PFR.ImprovedPFR
 import PFR.WeakPFR
+import PFR.RhoFunctional
 
 section PFR
 
@@ -12,7 +13,7 @@ variable {G' : Type*} [AddCommGroup G'] [Module (ZMod 2) G'] [Fintype G']
 
 /-- A self-contained version of the PFR conjecture using only Mathlib definitions. -/
 example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : AddSubgroup G) (c : Set G),
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G),
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   convert PFR_conjecture h₀A hA
   norm_cast
@@ -21,12 +22,22 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 
 /-- The improved version -/
 example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : AddSubgroup G) (c : Set G),
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G),
       Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   convert PFR_conjecture_improv h₀A hA
   norm_cast
 
 #print axioms PFR_conjecture_improv
+
+/-- The even more improved version -/
+example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G),
+      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  convert better_PFR_conjecture h₀A hA
+  norm_cast
+
+#print axioms better_PFR_conjecture
+
 
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
