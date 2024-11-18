@@ -29,7 +29,7 @@ lemma ProbabilityMeasure.tendsto_iff_forall_apply_tendsto {ι α : Type*} {L : F
     simp only [ne_eq, ennreal_coeFn_eq_coeFn_toMeasure]
 
 /-- Probability measures on a finite space tend to a limit if and only if the probability masses
-of all points tend to the corresponding limits. Version in ℝ≥0. -/
+of all points tend to the corresponding limits. Version in ℝ≥0∞. -/
 lemma ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal
     {ι α : Type*} {L : Filter ι} [Finite α]
     [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α] [BorelSpace α]
