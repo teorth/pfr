@@ -25,6 +25,7 @@ Here we define Ruzsa distance and establish its basic properties.
 -/
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
+open scoped Topology
 
 variable {Ω Ω' Ω'' Ω''' G S T : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
@@ -129,6 +130,28 @@ lemma ProbabilityTheory.IdentDistrib.rdist_eq {X' : Ω'' → G} {Y' : Ω''' → 
     (hX : IdentDistrib X X' μ μ'') (hY : IdentDistrib Y Y' μ' μ''') :
     d[X ; μ # Y ; μ'] = d[X' ; μ'' # Y' ; μ'''] := by
   simp [rdist, hX.map_eq, hY.map_eq, hX.entropy_eq, hY.entropy_eq]
+
+lemma tendsto_rdist_probabilityMeasure {α : Type*} {l : Filter α}
+    [TopologicalSpace Ω] [BorelSpace Ω] [TopologicalSpace G] [BorelSpace G] [Fintype G]
+    [DiscreteTopology G]
+    {X Y : Ω → G} (hX : Continuous X) (hY : Continuous Y)
+    {μ : α → ProbabilityMeasure Ω} {ν : ProbabilityMeasure Ω} (hμ : Tendsto μ l (𝓝 ν)) :
+    Tendsto (fun n ↦ d[X ; (μ n : Measure Ω) # Y ; (μ n : Measure Ω)]) l
+      (𝓝 (d[X ; ν # Y ; ν])) := by
+  have J (η : ProbabilityMeasure Ω) :
+      d[X ; η # Y ; η] = d[(id : G → G) ; η.map hX.aemeasurable # id ; η.map hY.aemeasurable] := by
+    apply ProbabilityTheory.IdentDistrib.rdist_eq
+    · exact ⟨hX.aemeasurable, aemeasurable_id, by simp⟩
+    · exact ⟨hY.aemeasurable, aemeasurable_id, by simp⟩
+  simp_rw [J]
+  have Z := ((continuous_rdist_restrict_probabilityMeasure (G := G)).tendsto
+    ((ν.map hX.aemeasurable), (ν.map hY.aemeasurable)))
+  have T : Tendsto (fun n ↦ (((μ n).map hX.aemeasurable), ((μ n).map hY.aemeasurable)))
+      l (𝓝 (((ν.map hX.aemeasurable), (ν.map hY.aemeasurable)))) := by
+    apply Tendsto.prod_mk_nhds
+    · exact ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous μ ν hμ hX
+    · exact ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous μ ν hμ hY
+  apply Z.comp T
 
 section rdist
 

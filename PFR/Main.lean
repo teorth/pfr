@@ -272,7 +272,6 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     simp
   exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
 
-
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of an elementary abelian
 2-group of doubling constant at most `K`, then `A` can be covered by at most `2 * K ^ 12` cosets of
 a subgroup of cardinality at most `|A|`. -/

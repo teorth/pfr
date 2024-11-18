@@ -246,7 +246,8 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
       simp at hu ⊢
       exact hu hs
     exact MeasurableSet.compl (Finset.measurableSet _)
-  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht), integral_finset _ _ IntegrableOn.finset,
+  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht),
+    integral_finset _ _ IntegrableOn.finset,
     ← Finset.sum_add_distrib, Finset.sum_product]
   apply Finset.sum_congr rfl
   intro s hs

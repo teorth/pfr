@@ -1,3 +1,4 @@
+import PFR.ForMathlib.CompactProb
 import PFR.ForMathlib.FiniteRange.Defs
 import Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Basic
@@ -11,7 +12,8 @@ import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 Definition of Kullback-Leibler divergence and basic facts
 -/
 
-open MeasureTheory ProbabilityTheory Real
+open MeasureTheory ProbabilityTheory Real Filter
+open scoped Topology
 
 variable {Ω Ω' Ω'' Ω''' G: Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
@@ -54,6 +56,18 @@ lemma KLDiv_eq_sum [Fintype G] :
     KL[X ; μ # Y ; μ'] = ∑ x,
       (μ.map X {x}).toReal * log ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal) :=
   tsum_eq_sum (by simp)
+
+lemma KLDiv_eq_sum_negMulLog [Fintype G] :
+    KL[X ; μ # Y ; μ'] = ∑ x, - (μ'.map Y {x}).toReal *
+      negMulLog ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal) := by
+  rw [KLDiv_eq_sum]
+  congr with g
+  rcases eq_or_ne ((Measure.map X μ) {g}).toReal 0 with h | h
+  · simp [h]
+  rcases eq_or_ne ((Measure.map Y μ') {g}).toReal 0 with h' | h'
+  · simp [h']
+  simp only [negMulLog, ← mul_assoc]
+  field_simp
 
 /-- `KL(X ‖ Y) ≥ 0`.-/
 lemma KLDiv_nonneg [Fintype G] [MeasurableSingletonClass G] [IsZeroOrProbabilityMeasure μ]
@@ -377,10 +391,39 @@ lemma condKLDiv_nonneg {S : Type*} [MeasurableSingletonClass G] [Fintype G]
   rw [Measure.map_apply hX (measurableSet_singleton s)] at habs ⊢
   exact cond_absolutelyContinuous habs
 
-open Filter
-open scoped Topology
+lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Fintype G]
+    [DiscreteMeasurableSpace G] [IsFiniteMeasure μ]
+    {α : Type*} {l : Filter α} {ν : α → ProbabilityMeasure G} {ν' : ProbabilityMeasure G}
+    (h : Tendsto ν l (𝓝 ν')) (habs : ∀ x, ν' {x} = 0 → μ.map X {x} = 0) :
+    Tendsto (fun n ↦ KL[X ; μ # id ; ν n]) l (𝓝 (KL[X ; μ # id ; ν'])) := by
+  simp_rw [KLDiv_eq_sum]
+  apply tendsto_finset_sum _ (fun g hg ↦ ?_)
+  rcases eq_or_ne (Measure.map X μ {g}) 0 with h'g | h'g
+  · simpa [h'g] using tendsto_const_nhds
+  apply Tendsto.mul tendsto_const_nhds
+  have νg : ((ν' : Measure G) {g}).toReal ≠ 0 := by
+    intro h
+    simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h
+    apply h'g (habs _ _)
+    exact (ν'.null_iff_toMeasure_null {g}).mpr h
+  apply Tendsto.log; swap
+  · have : ((Measure.map X μ) {g}).toReal ≠ 0 := by simp [ENNReal.toReal_eq_zero_iff, h'g]
+    simp only [Measure.map_id, ne_eq, div_eq_zero_iff, this, false_or, νg, not_false_eq_true]
+  apply Tendsto.div tendsto_const_nhds _ (by simp [νg])
+  simp only [Measure.map_id]
+  rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]
+  exact (ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal _ _).1 h g
 
-lemma tendsto_KLDiv [TopologicalSpace G] [DiscreteTopology G] [Fintype G]
+lemma tendsto_KLDiv_id_left [TopologicalSpace G] [DiscreteTopology G] [Fintype G]
+    [DiscreteMeasurableSpace G] {Y : Ω → G} {μ : Measure Ω}
     {α : Type*} {l : Filter α} {ν : α → ProbabilityMeasure G} {ν' : ProbabilityMeasure G}
     (h : Tendsto ν l (𝓝 ν')) :
-    Tendsto (fun n ↦ KL[X ; μ # id ; ν n]) l (𝓝 (KL[X ; μ # id ; ν'])) := sorry
+    Tendsto (fun n ↦ KL[id ; ν n # Y ; μ]) l (𝓝 (KL[id ; ν' # Y ; μ])) := by
+  simp_rw [KLDiv_eq_sum_negMulLog]
+  apply tendsto_finset_sum _ (fun g hg ↦ ?_)
+  apply Tendsto.const_mul
+  apply continuous_negMulLog.continuousAt.tendsto.comp
+  apply Tendsto.div_const
+  simp only [Measure.map_id]
+  rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]
+  exact (ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal _ _).1 h g
