@@ -344,8 +344,9 @@ By \Cref{ruzsa-triangle} and \Cref{ruzsa-nonneg} we have $d[X_1;X_1]=d[X_2;X_2]=
 By \Cref{rho-invariant} we get $\rho(U_{H_1})+\rho(U_{H_2})\le \rho(Y_1) + \rho(Y_2) + 8 d[Y_1;Y_2]$, and thus the claim holds for $H=H_1$ or $H=H_2$.
 \end{proof}
 
-\begin{corollary}\label{pfr-9-aux}\lean{better_PFR_conjecture_aux}\leanok
-If $|A+A| \leq K|A|$, then there exists a subgroup $H$ and $t\in G$ such that $|A \cap (H+t)| \geq K^{-4} \sqrt{|A||V|}$, and $|H|/|A|\in[K^{-8},K^8]$.
+\begin{corollary}\label{pfr-9-aux}\lean{better_PFR_conjecture_aux0}\leanok
+If $|A+A| \leq K|A|$, then there exists a subgroup $H$ and $t\in G$ such that
+$|A \cap (H+t)| \geq K^{-4} \sqrt{|A||H|}$, and $|H|/|A|\in[K^{-8},K^8]$.
 \end{corollary}
 
 \begin{proof}\leanok
@@ -353,10 +354,24 @@ If $|A+A| \leq K|A|$, then there exists a subgroup $H$ and $t\in G$ such that $|
   Apply \Cref{pfr-rho} on $U_A,U_A$ to get a subspace such that $2\rho(U_H)\le 2\rho(U_A)+8d[U_A;U_A]$. Recall that $d[U_A;U_A]\le \log K$ as proved in \Cref{pfr_aux}, and $\rho(U_A)=0$ by \Cref{rho-init}. Therefore $\rho(U_H)\le 4\log(K)$. The claim then follows from \Cref{rho-subgroup}.
 \end{proof}
 
+
+\begin{corollary}\label{pfr-9-aux'}\lean{better_PFR_conjecture_aux}\leanok
+If $|A+A| \leq K|A|$, then there exist a subgroup $H$ and a subset $c$ of $G$
+with $A \subseteq c + H$, such that $|c| \leq K^{5} |A|^{1/2}/|H|^{1/2}$ and
+$|H|/|A|\in[K^{-8},K^8]$.
+\end{corollary}
+
+\begin{proof}\leanok
+  \uses{pfr-9-aux, ruz-cov}
+Apply \Cref{pfr-9-aux} and \Cref{ruz-cov} to get the result, as in the proof
+of \Cref{pfr_aux}.
+\end{proof}
+
+
 \begin{theorem}[PFR with \texorpdfstring{$C=9$}{C=9}]\label{pfr-9}\lean{better_PFR_conjecture}\leanok  If $A \subset {\bf F}_2^n$ is finite non-empty with $|A+A| \leq K|A|$, then there exists a subgroup $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$ such that $A$ can be covered by at most $2K^9$ translates of $H$.
 \end{theorem}
 
 \begin{proof}\leanok
   \uses{pfr-9-aux,ruz-cov}
-Apply \Cref{pfr-9-aux} and \Cref{ruz-cov} to get a variant of \Cref{pfr_aux}. The remaining part is the same as \Cref{pfr}.
+Given \Cref{pfr-9-aux'}, the proof is the same as that of \Cref{pfr}.
 \end{proof}

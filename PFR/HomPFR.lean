@@ -17,7 +17,7 @@ few values.
   abelian 2-groups.
 * `homomorphism_pfr` : If $f : G → G'$ is a map between finite abelian elementary 2-groups such
   that $f(x+y)-f(x)-f(y)$ takes at most $K$ values, then there is a homomorphism $\phi: G \to G'$
-  such that $f(x)-\phi(x)$ takes at most $K^{12}$ values.
+  such that $f(x)-\phi(x)$ takes at most $K^{10}$ values.
 -/
 
 open Set
