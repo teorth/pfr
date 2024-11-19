@@ -3,6 +3,7 @@ import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import LeanAPAP.Extras.BSG
 import PFR.HomPFR
+import PFR.RhoFunctional
 
 /-!
 # The approximate homomorphism form of PFR
@@ -28,10 +29,10 @@ variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype 
 Let $f : G \to G'$ be a function, and suppose that there are at least
 $|G|^2 / K$ pairs $(x,y) \in G^2$ such that $$ f(x+y) = f(x) + f(y).$$
 Then there exists a homomorphism $\phi : G \to G'$ and a constant $c \in G'$ such that
-$f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {172} * K ^ {146})$ values of $x \in G$. -/
+$f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {144} * K ^ {122})$ values of $x \in G$. -/
 theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
-    ∃ (φ : G →+ G') (c : G'), Nat.card {x | f x = φ x + c} ≥ Nat.card G / (2 ^ 172 * K ^ 146) := by
+    ∃ (φ : G →+ G') (c : G'), Nat.card {x | f x = φ x + c} ≥ Nat.card G / (2 ^ 144 * K ^ 122) := by
   let A := (Set.univ.graphOn f).toFinite.toFinset
   have hA : #A = Nat.card G := by rw [Set.Finite.card_toFinset]; simp [← Nat.card_eq_fintype_card]
   have hA_nonempty : A.Nonempty := by simp [-Set.Finite.toFinset_setOf, A]
@@ -64,7 +65,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   replace : Nat.card (A'' + A'') ≤ 2 ^ 14 * K ^ 12 * Nat.card A'' := by
     rewrite [← this, hA''_coe]
     simpa [← pow_mul] using hA'2
-  obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := PFR_conjecture_improv_aux hA''_nonempty this
+  obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := better_PFR_conjecture_aux hA''_nonempty this
   clear hA'2 hA''_coe hH_le hH_ge
   obtain ⟨H₀, H₁, φ, hH₀H₁, hH₀H₁_card⟩ := goursat H
 
@@ -168,7 +169,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     · positivity
     · rewrite [Nat.cast_pos, Finset.card_pos, Set.Finite.toFinset_nonempty _]
       exact h_nonempty
-  rw [show 146 = 2 + 144 by norm_num, show 172 = 4 + 168 by norm_num, pow_add, pow_add,
+  rw [show 122 = 2 + 120 by norm_num, show 144 = 4 + 140 by norm_num, pow_add, pow_add,
     mul_mul_mul_comm]
   gcongr
   rewrite [← c.toFinite.toFinset_prod (H₁ : Set G').toFinite, Finset.card_product]
@@ -178,12 +179,12 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   refine (mul_le_mul_of_nonneg_right hc_card (by positivity)).trans ?_
   rewrite [mul_div_left_comm, mul_assoc]
   refine (mul_le_mul_of_nonneg_right hc_card (by positivity)).trans_eq ?_
-  rw [mul_assoc ((_ * _)^6), mul_mul_mul_comm, mul_comm (_ ^ (1/2) * _), mul_comm_div,
+  rw [mul_assoc ((_ * _)^5), mul_mul_mul_comm, mul_comm (_ ^ (1/2) * _), mul_comm_div,
     ← mul_assoc _ (_^_) (_^_), mul_div_assoc, mul_mul_mul_comm _ (_^_) (_^_),
     ← mul_div_assoc, mul_assoc _ (_^(1/2)) (_^(1/2)),
     ← Real.rpow_add (Nat.cast_pos.mpr Nat.card_pos), add_halves, Real.rpow_one,
     ← Real.rpow_add (Nat.cast_pos.mpr Nat.card_pos), add_halves, Real.rpow_neg_one,
-    mul_comm _ (_ / _), mul_assoc (_^6)]
+    mul_comm _ (_ / _), mul_assoc (_^5)]
   conv => { lhs; rhs; rw [← mul_assoc, ← mul_div_assoc, mul_comm_div, mul_div_assoc] }
   rw [div_self <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, mul_one]
   rw [mul_inv_cancel₀ <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, one_mul, ← sq,
@@ -191,4 +192,4 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   have : K ^ (12 : ℕ) = K ^ (12 : ℝ) := (Real.rpow_natCast K 12).symm
   rw [this, ← Real.rpow_mul (by positivity)]
   norm_num
-  exact Real.rpow_natCast K 144
+  exact Real.rpow_natCast K 120
