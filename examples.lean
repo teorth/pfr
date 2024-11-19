@@ -38,7 +38,6 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 
 #print axioms better_PFR_conjecture
 
-
 /-- The homomorphism version of PFR. -/
 example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈ S) :
     ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ (Nat.card S)^10 ∧ ∀ x, f x - φ x ∈ T :=
@@ -88,8 +87,7 @@ example {A : Type*} [Fintype A] (E : A → Set Ω) (hn : Pairwise (Disjoint on E
   measureReal_iUnion_fintype hn h
 
 /-- A simple example of applying real-valued subtraction. -/
-example (E F : Set Ω) (h : NullMeasurableSet F ℙ)
- : ℙᵣ (E ∩ F) = ℙᵣ E - ℙᵣ (E \ F) := by
+example (E F : Set Ω) (h : NullMeasurableSet F ℙ) : ℙᵣ (E ∩ F) = ℙᵣ E - ℙᵣ (E \ F) := by
   rw [← measureReal_inter_add_diff₀ E h]
   ring
 
@@ -103,7 +101,9 @@ end RealMeasure
 
 
 section Entropy
--- some examples to showcase Shannon entropy in a self-contained fashion. For simplicity we only illustrate the notation for probability spaces with a canonical probability measure, but one can also decouple the measure from the space if desired.
+-- some examples to showcase Shannon entropy in a self-contained fashion. For simplicity we only
+-- illustrate the notation for probability spaces with a canonical probability measure, but one can
+-- also decouple the measure from the space if desired.
 
 open MeasureTheory ProbabilityTheory
 
@@ -119,8 +119,8 @@ variable (X : Ω → S) (hX : Measurable X) (Y : Ω → T) (hY : Measurable Y) (
   (hZ : Measurable Z)
 
 /-- $H[X]$ is the Shannon entropy of $X$. -/
-example : H[X] = - ∑ x, ((ℙ : Measure Ω).map X {x}).toReal
-      * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
+example : H[X] =
+    - ∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
   rw [entropy_eq_sum ℙ, ← Finset.sum_neg_distrib, tsum_eq_sum]
   · congr with x
     unfold Real.negMulLog
