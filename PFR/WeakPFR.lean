@@ -1,6 +1,8 @@
+import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.MeasureTheory.Constructions.SubmoduleQuotient
 import PFR.Mathlib.Data.Set.Pointwise.SMul
+import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import PFR.ForMathlib.AffineSpaceDim
 import PFR.ForMathlib.Entropy.RuzsaSetDist
 import PFR.ForMathlib.GroupQuot
@@ -599,10 +601,10 @@ variable [Module.Finite ℤ G]
 is a canonical isomorphism between H⧸H' and G⧸N, where N is the preimage of H' in G. A bit clunky;
 may be a better way to do this -/
 lemma third_iso {G : Type*} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSubgroup (G ⧸ G₂)) :
-  let H := G ⧸ G₂
-  let φ : G →+ H := mk' G₂
-  let N := AddSubgroup.comap φ H'
-  ∃ e : H ⧸ H' ≃+ G ⧸ N, ∀ x : G, e (mk' H' (φ x))= mk' N x := by
+    let H := G ⧸ G₂
+    let φ : G →+ H := mk' G₂
+    let N := AddSubgroup.comap φ H'
+    ∃ e : H ⧸ H' ≃+ G ⧸ N, ∀ x : G, e (mk' H' (φ x)) = mk' N x := by
   set H := G ⧸ G₂
   let φ : G →+ H := mk' G₂
   let N := AddSubgroup.comap φ H'
@@ -624,7 +626,7 @@ lemma third_iso {G : Type*} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSub
   convert (quotientQuotientEquivQuotientAux_mk_mk _ _ h1 x) using 1
 
 lemma single {Ω : Type*} [MeasurableSpace Ω] [DiscreteMeasurableSpace Ω] (μ : Measure Ω)
-    [IsProbabilityMeasure μ] {A : Set Ω} {z : Ω} (hA : μ.real A = 1) (hz : μ.real {z} > 0) :
+    [IsProbabilityMeasure μ] {A : Set Ω} {z : Ω} (hA : μ.real A = 1) (hz : 0 < μ.real {z}) :
     z ∈ A := by
   contrapose! hz
   have : Disjoint {z} A := by simp [hz]
@@ -1087,16 +1089,24 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
 /-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A-A\rvert\leq K\lvert A\rvert$.
 There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-17}\lvert A\rvert$
 and $\dim A' \leq \frac{40}{\log 2} \log K$.-/
-theorem weak_PFR_int {A : Set G} [A_fin : Finite A] (hnA : A.Nonempty) {K : ℝ} (hK : 0 < K)
+theorem weak_PFR_int
+    {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
+    {A : Set G} [A_fin : Finite A] (hnA : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A-A) ≤ K * Nat.card A) :
     ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-17 : ℝ) * Nat.card A ∧
       AffineSpace.finrank ℤ A' ≤ (40 / log 2) * log K := by
+  have : Nonempty (A - A) := (hnA.sub hnA).coe_sort
+  have : Finite (A - A) := Set.Finite.sub A_fin A_fin
+  have hK : 0 < K := by
+    have : 0 < K * Nat.card A := lt_of_lt_of_le (mod_cast Nat.card_pos) hA
+    have : (0 : ℝ) ≤ Nat.card A := Nat.cast_nonneg' _
+    nlinarith
+  have : Countable G := countable_of_finiteDimensional ℤ G
+  let m : MeasurableSpace G := ⊤
   apply weak_PFR hnA hK ((rdist_set_le A A hnA hnA).trans _)
   suffices log (Nat.card (A-A)) ≤ log K + log (Nat.card A) by linarith
   rw [← log_mul (by positivity) _]
   · apply log_le_log _ hA
     norm_cast
-    have : Nonempty (A - A) := (hnA.sub hnA).coe_sort
-    have : Finite (A - A) := Set.Finite.sub A_fin A_fin
     exact Nat.card_pos
   exact_mod_cast ne_of_gt (@Nat.card_pos _ hnA.to_subtype _)
