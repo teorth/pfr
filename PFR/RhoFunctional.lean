@@ -19,11 +19,6 @@ Definition of the rho functional and basic facts
 
 -/
 
-
-/- In this file the power notation will always mean the base and exponent are real numbers. -/
-local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
-
-
 open MeasureTheory ProbabilityTheory Real Set Function Measure Filter
 open scoped Pointwise ENNReal Topology
 universe uG
@@ -701,7 +696,7 @@ lemma rho_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G} {U : Ω → 
     (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U)
     (r : ℝ) (hr : ρ[U ; μ # A] ≤ r) :
     ∃ t : G,
-      exp (-r) * (Nat.card A * Nat.card H) ^ (1/2) ≤ Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)
+      exp (-r) * (Nat.card A * Nat.card H) ^ (1/2 : ℝ) ≤ Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)
       ∧ Nat.card A ≤ exp (2 * r) * Nat.card H
       ∧ Nat.card H ≤ exp (2 * r) * Nat.card A := by
   have hr' : ρ[U ; μ # A] ≤ r := hr
@@ -730,7 +725,7 @@ lemma rho_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G} {U : Ω → 
     _ = 2 * ρ[U ; μ # A] := by simp [rho]; ring
     _ ≤ 2 * r := by linarith
   refine ⟨t, ?_, ?_, ?_⟩
-  · have : - r + (log (Nat.card A) + log (Nat.card H)) * (1/2) ≤
+  · have : - r + (log (Nat.card A) + log (Nat.card H)) * (1 / 2 : ℝ) ≤
       log (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)) := by linarith
     have := exp_monotone this
     rwa [exp_add, exp_log (by exact_mod_cast hpos), exp_mul, exp_add,
@@ -751,7 +746,7 @@ lemma rho_of_submodule [IsProbabilityMeasure μ] [Module (ZMod 2) G]
     (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U)
     (r : ℝ) (hr : ρ[U ; μ # A] ≤ r) :
     ∃ t : G,
-      exp (-r) * (Nat.card A * Nat.card H) ^ (1/2) ≤ Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)
+      exp (-r) * (Nat.card A * Nat.card H) ^ (1 / 2 : ℝ) ≤ Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)
       ∧ Nat.card A ≤ exp (2 * r) * Nat.card H
       ∧ Nat.card H ≤ exp (2 * r) * Nat.card A :=
   rho_of_subgroup (H := H.toAddSubgroup) hunif hA hU r hr
@@ -1996,7 +1991,7 @@ $|A \cap (H+t)| \geq K^{-4} \sqrt{|A||V|}$, and $|H|/|A|\in[K^{-8},K^8]$. -/
 lemma better_PFR_conjecture_aux0 {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (t : G),
-    K ^ (-4) * (Nat.card A * Nat.card H) ^ (1/2) ≤ Nat.card (A ∩ (H + {t}) : Set G)
+    K ^ (-4 : ℤ) * (Nat.card A * Nat.card H) ^ (1 / 2 : ℝ) ≤ Nat.card (A ∩ (H + {t}) : Set G)
       ∧ Nat.card A ≤ K ^ 8 * Nat.card H ∧ Nat.card H ≤ K ^ 8 * Nat.card A := by
   have A_fin : Finite A := by infer_instance
   classical
@@ -2023,11 +2018,13 @@ lemma better_PFR_conjecture_aux0 {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     have : ρ[UA # A'] = 0 := rho_of_uniform UAunif UAmeas h₀A'
     linarith
   set r := 4 * log K with hr
-  have J : K ^ (-4) = exp (-r) := by
+  have J : K ^ (-4 : ℤ) = exp (-r) := by
     rw [hr, ← neg_mul, mul_comm, exp_mul, exp_log K_pos]
+    norm_cast
   have J' : K ^ 8 = exp (2 * r) := by
     have : 2 * r = 8 * log K := by ring
     rw [this, mul_comm, exp_mul, exp_log K_pos]
+    norm_cast
   rw [J, J']
   refine ⟨H, ?_⟩
   have Z := rho_of_submodule UHunif h₀A' UHmeas r ineq
@@ -2045,7 +2042,7 @@ the same cardinality as $A$ up to a multiplicative factor $K^8$. -/
 lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1/2) * (Nat.card H : ℝ) ^ (-1/2)
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H : ℝ) ^ (-1 / 2 : ℝ)
       ∧ Nat.card H ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * Nat.card H ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' h₀A hA
@@ -2065,7 +2062,7 @@ lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
   rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
     ⟨u, hu, Au, -⟩
-  have Iu : Nat.card u ≤ K ^ 5 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := by
+  have Iu : Nat.card u ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ) := by
     have : (0 : ℝ) ≤ Nat.card u := by simp
     have Z1 := mul_le_mul_of_nonneg_left J this
     have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
@@ -2075,9 +2072,9 @@ lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
       simp only [Nat.cast_le]
       apply Nat.card_mono (toFinite _)
       apply add_subset_add_left inter_subset_left
-    have : 0 ≤ K ^ (4) * Nat.card A ^ (-1/2) * Nat.card H ^ (-1/2) := by positivity
+    have : 0 ≤ K ^ (4) * Nat.card A ^ (-1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ) := by positivity
     have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
-    convert T using 1 <;> rpow_ring <;> norm_num
+    convert T using 1 <;> simp only [← rpow_natCast, ← rpow_intCast] <;> rpow_ring <;> norm_num
   have A_subset_uH : A ⊆ u + H := by
     apply Au.trans
     rw [add_sub_assoc]
@@ -2099,7 +2096,7 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     PFR_conjecture_pos_aux' h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)
       ∧ Nat.card H ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * Nat.card H
       ∧ A ⊆ c + H :=
     better_PFR_conjecture_aux h₀A hA
@@ -2109,10 +2106,10 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
-    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := hc
-    _ ≤ K ^ 5 * (K ^ 8 * Nat.card H) ^ (1/2) * Nat.card H ^ (-1/2) := by
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ) := hc
+    _ ≤ K ^ 5 * (K ^ 8 * Nat.card H) ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ) := by
       gcongr
-    _ = K ^ 9 := by rpow_ring; norm_num
+    _ = K ^ 9 := by simp_rw [← rpow_natCast]; rpow_ring; norm_num
     _ < 2 * K ^ 9 := by linarith [show 0 < K ^ 9 by positivity]
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
   -- `#A / 2 < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
@@ -2131,22 +2128,24 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
-    _ ≤ (K ^ 5 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+    _ ≤ (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
           * (Nat.card H / Nat.card H') := by
         gcongr
         apply le_of_eq
         rw [eq_div_iff H'_pos.ne']
         norm_cast
-    _ < (K ^ 5 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+    _ < (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
-    _ = 2 * K ^ 5 * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
+    _ = 2 * K ^ 5 * Nat.card A ^ (-1 / 2 : ℝ) * Nat.card H ^ (1 / 2 : ℝ) := by
         field_simp
+        simp_rw [← rpow_natCast]
         rpow_ring
         norm_num
-    _ ≤ 2 * K ^ 5 * Nat.card A ^ (-1/2) * (K ^ 8 * Nat.card A) ^ (1/2) := by
+    _ ≤ 2 * K ^ 5 * Nat.card A ^ (-1 / 2 : ℝ) * (K ^ 8 * Nat.card A) ^ (1 / 2 : ℝ) := by
         gcongr
     _ = 2 * K ^ 9 := by
+        simp_rw [← rpow_natCast]
         rpow_ring
         norm_num
 

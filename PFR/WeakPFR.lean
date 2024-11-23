@@ -616,7 +616,7 @@ lemma third_iso {G : Type*} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSub
   set H'' := AddSubgroup.map (mk' G₂) N
   have h2 : H' = H'' := by
     change H' = AddSubgroup.map (mk' G₂) N
-    rw [AddSubgroup.map_comap_eq, AddMonoidHom.range_top_of_surjective _ (mk'_surjective G₂)]
+    rw [AddSubgroup.map_comap_eq, AddMonoidHom.range_eq_top_of_surjective _ (mk'_surjective G₂)]
     simp
   let e1 : H ⧸ H'' ≃+ G ⧸ N := quotientQuotientEquivQuotient _ _ h1
   let e2 := quotientAddEquivOfEq h2

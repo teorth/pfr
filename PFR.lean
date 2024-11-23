@@ -38,9 +38,11 @@ import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
+import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
+import PFR.Mathlib.MeasureTheory.Measure.Comap
 import PFR.Mathlib.MeasureTheory.Measure.Prod
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
@@ -51,6 +53,7 @@ import PFR.Mathlib.Probability.Independence.ThreeVariables
 import PFR.Mathlib.Probability.Kernel.Composition
 import PFR.Mathlib.Probability.Kernel.Disintegration
 import PFR.Mathlib.Probability.UniformOn
+import PFR.Mathlib.SetTheory.Cardinal.Arithmetic
 import PFR.Mathlib.SetTheory.Cardinal.Finite
 import PFR.MoreRuzsaDist
 import PFR.MultiTauFunctional

@@ -7,7 +7,7 @@ import Mathlib.Probability.Independence.Basic
 Less explicit arguments to `cond_eq_zero_of_meas_eq_zero`
 -/
 
-open MeasureTheory Set
+open MeasureTheory Measure Set
 
 namespace ProbabilityTheory
 

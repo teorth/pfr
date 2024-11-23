@@ -40,7 +40,7 @@ lemma sum_mul_log_div_leq {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) (hb :
     exact ⟨i, hi, lt_of_le_of_ne (hb i hi) (Ne.symm h'i)⟩
   suffices - (∑ i ∈ s, a i * log (a i / b i)) / B ≤
         - ((∑ i ∈ s, a i) * log ((∑ i ∈ s, a i) / (∑ i ∈ s, b i))) / B by
-    rwa [div_le_div_right B_pos, neg_le_neg_iff] at this
+    rwa [div_le_div_iff_of_pos_right B_pos, neg_le_neg_iff] at this
   have A : ∑ i ∈ s, b i / B = 1 := by
     simpa [← Finset.sum_div] using div_self B_pos.ne'
   have A' : ∀ i ∈ s, 0 ≤ b i / B := fun i hi ↦ div_nonneg (hb i hi) B_pos.le

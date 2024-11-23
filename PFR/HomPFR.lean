@@ -149,7 +149,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
         rw [Set.card_singleton_prod] ; rfl
       _ ≤ Nat.card c * ((Nat.card H / Nat.card A) * Nat.card c) := by gcongr
       _ = Nat.card c ^ 2 * (Nat.card H / Nat.card A) := by ring
-      _ ≤ (Nat.card S ^ (5 : ℝ) * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2
+      _ ≤ (Nat.card S ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2
           * (Nat.card H / Nat.card A) := by gcongr
       _ = (Nat.card S : ℝ) ^ (10 : ℝ) := by
         rw [← Real.rpow_two, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]
@@ -158,6 +158,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
           exact this.card_pos S.toFinite
         have : 0 < Nat.card A := hA_nonempty.card_pos A.toFinite
         have : 0 < Nat.card H := H.nonempty.card_pos $ toFinite _
+        simp_rw [← Real.rpow_natCast]
         rpow_ring
         norm_num
     exact_mod_cast this

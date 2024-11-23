@@ -563,7 +563,7 @@ lemma measureMutualInfo_swap (μ : Measure (S × T)) :
   simp_rw [measureEntropy_def, Measure.map_apply measurable_swap MeasurableSet.univ]
   simp only [Set.preimage_univ, Measure.smul_apply, smul_eq_mul, ENNReal.toReal_mul]
   simp_rw [Measure.map_apply measurable_swap (.singleton _)]
-  have : Set.range (Prod.swap : S × T → T × S) = Set.univ := Set.range_iff_surjective.mpr Prod.swap_surjective
+  have : Set.range (Prod.swap : S × T → T × S) = Set.univ := Set.range_eq_univ.mpr Prod.swap_surjective
   rw [← tsum_univ, ← this, tsum_range (fun x ↦ negMulLog (((μ Set.univ)⁻¹).toReal * (μ (Prod.swap⁻¹' {x}) ).toReal))]
   congr! with ⟨s, t⟩
   simp
