@@ -2,6 +2,7 @@ import PFR.ApproxHomPFR
 import PFR.BoundingMutual
 import PFR.Endgame
 import PFR.EntropyPFR
+import PFR.Examples
 import PFR.Fibring
 import PFR.FirstEstimate
 import PFR.ForMathlib.AffineSpaceDim
