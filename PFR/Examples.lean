@@ -32,9 +32,8 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 /-- The even more improved version -/
 example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  convert better_PFR_conjecture h₀A hA
-  norm_cast
+      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H :=
+  better_PFR_conjecture h₀A hA
 
 #print axioms better_PFR_conjecture
 
@@ -200,13 +199,12 @@ example {a : ℝ≥0∞} (ha : a < ∞) : a + 3 < ∞ := by finiteness
 
 example (a : ℝ) : (ENNReal.ofReal (1 + a ^ 2))⁻¹ < ∞ := by finiteness
 
-example (f : α → ℕ) : ∀ i, (f i : ℝ≥0∞) ≠ ∞ := by finiteness
+example {α : Type*} (f : α → ℕ) : ∀ i, (f i : ℝ≥0∞) ≠ ∞ := by finiteness
 
 open MeasureTheory
 
 example {Ω Ω' : Type*} [MeasurableSpace Ω] (ν : Measure Ω) [IsFiniteMeasure ν] [MeasurableSpace Ω']
     (ν' : Measure Ω') [IsFiniteMeasure ν'] (E : Set (Ω × Ω')) :
     (ν.prod ν') E < ∞ := by finiteness
-
 
 end Finiteness
