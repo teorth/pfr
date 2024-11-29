@@ -1,5 +1,3 @@
-import Mathlib.Algebra.Group.Fin.Basic
-import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
@@ -987,7 +985,7 @@ private lemma ident_of_cond_of_indep
       intro i' hi'
       simp only [Finset.mem_singleton.mp hi']
       exact MeasurableSet.preimage hs (comap_measurable (X i))
-    have h := cond_iInter hY h_indep hf' hy fun _ ↦ .singleton _
+    have h := cond_iInter hY h_indep hf' (fun _ _ ↦ hy _) fun _ ↦ .singleton _
     simp only [Finset.mem_singleton, Set.iInter_iInter_eq_left, Finset.prod_singleton,
       s'] at h
     exact h.symm

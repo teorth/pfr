@@ -1,5 +1,4 @@
 import Mathlib.Tactic.Finiteness
-import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.FiniteRange.ConditionalProbability
 import PFR.ForMathlib.Pair

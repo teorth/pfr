@@ -22,7 +22,8 @@ import PFR.ForMathlib.FiniteMeasureProd
 import PFR.ForMathlib.FiniteRange.ConditionalProbability
 import PFR.ForMathlib.FiniteRange.Defs
 import PFR.ForMathlib.GroupQuot
-import PFR.ForMathlib.MeasureReal
+import PFR.ForMathlib.MeasureReal.Defs
+import PFR.ForMathlib.MeasureReal.UniformOn
 import PFR.ForMathlib.Pair
 import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.ForMathlib.Uniform

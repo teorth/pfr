@@ -1,22 +1,12 @@
-import PFR.ForMathlib.CompactProb
-import PFR.ForMathlib.Entropy.RuzsaDist
-import PFR.Kullback
-import Mathlib.MeasureTheory.Measure.AEMeasurable
-import PFR.Mathlib.Probability.Independence.FourVariables
+import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.Independence.ThreeVariables
-import PFR.FirstEstimate
-import PFR.ImprovedPFR
-
+import PFR.Kullback
+import PFR.Main
 
 /-!
 # The rho functional
 
 Definition of the rho functional and basic facts
-
-## Main definitions:
-
-## Main results
-
 -/
 
 open MeasureTheory ProbabilityTheory Real Set Function Measure Filter
@@ -566,7 +556,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   simp only [rhoMinusSet, Nat.card_eq_fintype_card, Fintype.card_coe, mem_setOf_eq]
   refine ⟨μ', this, fun y h ↦ ?_, ?_⟩
   · rw [mapU]
-    apply uniformOn_apply_singleton_of_nmem (fun yH ↦ ?_)
+    apply uniformOn_apply_singleton_of_not_mem (fun yH ↦ ?_)
     rw [h_indep.map_add_singleton_eq_sum measurable_fst measurable_snd,
       Finset.sum_eq_zero_iff_of_nonneg (fun i _ ↦ by simp), Measure.map_snd_prod,
       Measure.map_fst_prod] at h
@@ -601,18 +591,17 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     rw [h_indep.map_add_singleton_eq_sum measurable_fst measurable_snd, Measure.map_snd_prod,
       Measure.map_fst_prod]
     simp only [measure_univ, one_smul, μ'_sing]
-    let F : Finset G := Set.Finite.toFinset (toFinite (A ∩ (t +ᵥ (H : Set G)) : Set G))
-    rw [← Finset.sum_subset (Finset.subset_univ F)]; swap
+    let F : Finset G := (toFinite (A ∩ (t +ᵥ (H : Set G)) : Set G)).toFinset
+    rw [← Finset.sum_subset F.subset_univ]; swap
     · intro i _ hi
       simp only [Finite.mem_toFinset, mem_inter_iff, Finset.mem_coe, not_and, F] at hi
       simp only [mul_eq_zero]
       by_cases h'i : i ∈ A
       · right
-        apply uniformOn_apply_singleton_of_nmem (fun h'x ↦ ?_)
-        apply hi h'i
+        apply uniformOn_apply_singleton_of_not_mem fun h'x ↦  hi h'i ?_
         exact ⟨x - (x-i+t), H.sub_mem xH h'x, by simp; abel⟩
       · left
-        exact uniformOn_apply_singleton_of_nmem h'i
+        exact uniformOn_apply_singleton_of_not_mem h'i
     have : ∑ i ∈ F, (uniformOn ↑A) {i} * (uniformOn ↑H) {x - i + t} =
         ∑ i ∈ F, (1 / Nat.card A * (1 / Nat.card H) : ℝ≥0∞) := by
       apply Finset.sum_congr rfl (fun i hi ↦ ?_)
@@ -652,7 +641,7 @@ lemma rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G}
   rcases exists_card_inter_add_eq_sSup (A := A) H hA with ⟨t, ht, hpos⟩
   rw [← ht]
   have : Nonempty (A ∩ (t +ᵥ (H : Set G)) : Set G) :=  (Nat.card_pos_iff.1 hpos).1
-  exact rhoMinus_le_of_subgroup t hunif hA nonempty_of_nonempty_subtype hU
+  exact rhoMinus_le_of_subgroup t hunif hA .of_subtype hU
 
 /-- If $H$ is a finite subgroup of $G$, then
 $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$. -/
@@ -696,7 +685,8 @@ lemma rho_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G} {U : Ω → 
     (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U)
     (r : ℝ) (hr : ρ[U ; μ # A] ≤ r) :
     ∃ t : G,
-      exp (-r) * (Nat.card A * Nat.card H) ^ (1/2 : ℝ) ≤ Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)
+      exp (-r) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ) ≤
+        Nat.card ↑(↑A ∩ (t +ᵥ (H : Set G)))
       ∧ Nat.card A ≤ exp (2 * r) * Nat.card H
       ∧ Nat.card H ≤ exp (2 * r) * Nat.card A := by
   have hr' : ρ[U ; μ # A] ≤ r := hr
@@ -728,8 +718,8 @@ lemma rho_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G} {U : Ω → 
   · have : - r + (log (Nat.card A) + log (Nat.card H)) * (1 / 2 : ℝ) ≤
       log (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)) := by linarith
     have := exp_monotone this
-    rwa [exp_add, exp_log (by exact_mod_cast hpos), exp_mul, exp_add,
-      exp_log Hpos, exp_log Apos] at this
+    rwa [exp_add, exp_log (mod_cast hpos), exp_mul, exp_add,
+      exp_log Hpos, exp_log Apos, mul_rpow, ← mul_assoc] at this <;> positivity
   · have : log (Nat.card A) ≤ 2 * r + log (Nat.card H) := by
       linarith [(abs_sub_le_iff.1 I).2]
     have := exp_monotone this
@@ -746,7 +736,8 @@ lemma rho_of_submodule [IsProbabilityMeasure μ] [Module (ZMod 2) G]
     (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U)
     (r : ℝ) (hr : ρ[U ; μ # A] ≤ r) :
     ∃ t : G,
-      exp (-r) * (Nat.card A * Nat.card H) ^ (1 / 2 : ℝ) ≤ Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)
+      exp (-r) * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (1 / 2 : ℝ) ≤
+        Nat.card ↑(↑A ∩ (t +ᵥ (H : Set G)))
       ∧ Nat.card A ≤ exp (2 * r) * Nat.card H
       ∧ Nat.card H ≤ exp (2 * r) * Nat.card A :=
   rho_of_subgroup (H := H.toAddSubgroup) hunif hA hU r hr
@@ -1991,8 +1982,8 @@ $|A \cap (H+t)| \geq K^{-4} \sqrt{|A||V|}$, and $|H|/|A|\in[K^{-8},K^8]$. -/
 lemma better_PFR_conjecture_aux0 {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (t : G),
-    K ^ (-4 : ℤ) * (Nat.card A * Nat.card H) ^ (1 / 2 : ℝ) ≤ Nat.card (A ∩ (H + {t}) : Set G)
-      ∧ Nat.card A ≤ K ^ 8 * Nat.card H ∧ Nat.card H ≤ K ^ 8 * Nat.card A := by
+    K ^ (-4 : ℤ) * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (1 / 2 : ℝ) ≤ Nat.card ↑(A ∩ (H + {t})) ∧
+      Nat.card A ≤ K ^ 8 * Nat.card H ∧ Nat.card H ≤ K ^ 8 * Nat.card A := by
   have A_fin : Finite A := by infer_instance
   classical
   let mG : MeasurableSpace G := ⊤
@@ -2060,30 +2051,27 @@ lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
-  rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
-    ⟨u, hu, Au, -⟩
-  have Iu : Nat.card u ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ) := by
-    have : (0 : ℝ) ≤ Nat.card u := by simp
-    have Z1 := mul_le_mul_of_nonneg_left J this
-    have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
-      ≤ Nat.card (A + A ∩ (↑H + {x₀})) := by norm_cast
-    have Z3 : (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ K * Nat.card A := by
-      apply le_trans _ hA
-      simp only [Nat.cast_le]
-      apply Nat.card_mono (toFinite _)
-      apply add_subset_add_left inter_subset_left
-    have : 0 ≤ K ^ (4) * Nat.card A ^ (-1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ) := by positivity
-    have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
-    convert T using 1 <;> simp only [← rpow_natCast, ← rpow_intCast] <;> rpow_ring <;> norm_num
+  have Z3 :
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ (K ^ 5 * Nat.card A ^ (1/2 : ℝ) *
+        Nat.card H ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
+    calc
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ)
+      _ ≤ Nat.card (A + A) := by
+        gcongr; exact Nat.card_mono (toFinite _) <| add_subset_add_left inter_subset_left
+      _ ≤ K * Nat.card A := hA
+      _ = (K ^ 5 * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+          (K ^ (-4 : ℤ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ)) := by
+        simp_rw [← rpow_natCast, ← rpow_intCast]; rpow_ring; norm_num
+      _ ≤ (K ^ 5 * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+        Nat.card ↑(A ∩ (↑H + {x₀})) := by gcongr
+  obtain ⟨u, huA, hucard, hAu, -⟩ :=
+    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
-    apply Au.trans
-    rw [add_sub_assoc]
-    apply add_subset_add_left
-    apply (sub_subset_sub inter_subset_right inter_subset_right).trans
-    rintro - ⟨-, ⟨y, hy, xy, hxy, rfl⟩, -, ⟨z, hz, xz, hxz, rfl⟩, rfl⟩
-    simp only [mem_singleton_iff] at hxy hxz
-    simpa [hxy, hxz] using H.sub_mem hy hz
-  exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
+    refine hAu.trans $ add_subset_add_left $
+      (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
+    rw [add_sub_add_comm, singleton_sub_singleton, _root_.sub_self]
+    simp
+  exact ⟨H, u, hucard, IHA, IAH, A_subset_uH⟩
 
 /-- If $A \subset {\bf F}_2^n$ is finite non-empty with $|A+A| \leq K|A|$, then there exists a
 subgroup $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$ such that $A$ can be covered by at most $2K^9$

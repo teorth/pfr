@@ -188,7 +188,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   rw [← hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm .of_discrete
   let H' := (H : Set G).toFinite.toFinset
-  have hHH' : H' = (H : Set G) := Finite.coe_toFinset (toFinite (H : Set G))
+  have hHH' : H' = (H : Set G) := (toFinite (H : Set G)).coe_toFinset
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
 
@@ -238,7 +238,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     · rw [hAA', hHH']
     positivity
 
-  have Hne : Set.Nonempty (A ∩ (H + {x₀} : Set G)) := by
+  have Hne : (A ∩ (H + {x₀} : Set G)).Nonempty := by
     by_contra h'
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
     simp only [Nat.card_eq_fintype_card, card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
@@ -247,30 +247,27 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
-  rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
-    ⟨u, hu, Au, -⟩
-  have Iu :
-    Nat.card u ≤ K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ) := by
-    have : (0 : ℝ) ≤ Nat.card u := by simp
-    have Z1 := mul_le_mul_of_nonneg_left J this
-    have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
-      ≤ Nat.card (A + A ∩ (↑H + {x₀})) := by norm_cast
-    have Z3 : (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ K * Nat.card A := by
-      apply le_trans _ hA
-      simp only [Nat.cast_le]
-      apply Nat.card_mono (toFinite _)
-      apply add_subset_add_left inter_subset_left
-    have : 0 ≤ K ^ (11/2 : ℝ) * Nat.card A ^ (-1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ) := by
-      positivity
-    have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
-    convert T using 1 <;> rpow_ring <;> norm_num
+  have Z3 :
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) *
+        Nat.card H ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
+    calc
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ)
+      _ ≤ Nat.card (A + A) := by
+        gcongr; exact Nat.card_mono (toFinite _) <| add_subset_add_left inter_subset_left
+      _ ≤ K * Nat.card A := hA
+      _ = (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+          (K ^ (-11/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ)) := by
+        rpow_ring; norm_num
+      _ ≤ (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+        Nat.card ↑(A ∩ (↑H + {x₀})) := by gcongr
+  obtain ⟨u, huA, hucard, hAu, -⟩ :=
+    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
-    rw [add_sub_assoc] at Au
-    refine Au.trans $ add_subset_add_left $
+    refine hAu.trans $ add_subset_add_left $
       (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
     rw [add_sub_add_comm, singleton_sub_singleton, sub_self]
     simp
-  exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
+  exact ⟨H, u, hucard, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of an elementary abelian
 2-group of doubling constant at most `K`, then `A` can be covered by at most `2 * K ^ 12` cosets of

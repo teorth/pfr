@@ -494,18 +494,18 @@ lemma single_fibres {G H Ω Ω': Type*}
         rw [Set.preimage_comp]
         apply hUA_coe.measure_preimage_ne_zero hUA'
         rw [Set.inter_comm, Set.Finite.coe_toFinset]
-        exact nonempty_of_nonempty_subtype
+        exact .of_subtype
       let μy := (ℙ : Measure Ω')[|(φ.toFun ∘ UB) ⁻¹' {y}]
       have hμy : IsProbabilityMeasure μy := by
         apply ProbabilityTheory.cond_isProbabilityMeasure
         rw [Set.preimage_comp]
         apply hUB_coe.measure_preimage_ne_zero hUB'
         rw [Set.inter_comm, Set.Finite.coe_toFinset]
-        exact nonempty_of_nonempty_subtype
+        exact .of_subtype
       have h_μ_unif : IsUniform (A_ x) UA μx ∧ IsUniform (B_ y) UB μy := by
         have : _ ∧ _ := ⟨hUA.restrict hUA' (φ.toFun ⁻¹' {x}), hUB.restrict hUB' (φ.toFun ⁻¹' {y})⟩
         rwa [Set.inter_comm _ A, Set.inter_comm _ B] at this
-      rw [rdist_set_eq_rdist h_μ_unif.1 h_μ_unif.2 hUA' hUB']
+      rw [setRuzsaDist_eq_rdist h_μ_unif.1 h_μ_unif.2 hUA' hUB']
       show _ = (Measure.real _ (UA ⁻¹' (_ ⁻¹' _))) * (Measure.real _ (UB ⁻¹' (_ ⁻¹' _))) * _
       rewrite [hUA_coe.measureReal_preimage hUA', hUB_coe.measureReal_preimage hUB']
       simp_rw [p, A_, B_, IsProbabilityMeasure.measureReal_univ, one_mul]
@@ -583,8 +583,7 @@ lemma single_fibres {G H Ω Ω': Type*}
     rewrite [← Finset.sum_mul, h_p_one, one_mul, Finset.sum_product] at hc
     exact not_le_of_gt hc h_sum
   obtain ⟨x, y, hxy⟩ := this
-  refine ⟨x, y, A_ x.val, B_ y.val, rfl, rfl, @nonempty_of_nonempty_subtype _ _ (h_Ax x),
-    @nonempty_of_nonempty_subtype _ _ (h_By y), ?_⟩
+  refine ⟨x, y, A_ x.val, B_ y.val, rfl, rfl, .of_subtype, .of_subtype, ?_⟩
   rewrite [← inv_div, Real.log_inv]
   show _ * -log (p x.val y.val) ≤ M * _
   linarith only [hxy]
@@ -684,7 +683,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   have h1 := torsion_dist_shrinking (G := G) (H := H) UA UB ℙ ℙ hUA_mes hUB_mes h_torsionfree φ
   have h2 := torsion_dist_shrinking (G := G) (H := H) UB UA ℙ ℙ hUB_mes hUA_mes h_torsionfree φ
   rw [rdist_symm] at h2
-  rw [← rdist_set_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes] at h1 h2
+  rw [← setRuzsaDist_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes] at h1 h2
   -- using explicit .toFun casts as this saves a lot of heartbeats
   change H[φ ∘ UA] ≤ 10 * dᵤ[A # B] at h1
   change H[φ ∘ UB] ≤ 10 * dᵤ[A # B] at h2
@@ -810,7 +809,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
       · exact_mod_cast mul_pos Nat.card_pos Nat.card_pos
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (34 * (d[UA # UB] - dᵤ[Ax # By])) := by ring
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (34 * (dᵤ[A # B] - dᵤ[Ax # By])) := by
-      rw [←  rdist_set_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes]
+      rw [←  setRuzsaDist_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes]
   exact (mul_le_mul_left h).mp this
 
 /-- Separating out the conclusion of `weak_PFR_asymm` for convenience of induction arguments.-/
@@ -861,8 +860,8 @@ lemma conclusion_transfers {A B : Set G}
     simp_rw [hB, ← Set.image_vadd, Set.image_image, vadd_eq_add, g, add_comm]; rfl
   use f '' A'', g '' B''
   have : dᵤ[A # B] = dᵤ[A' # B'] := by
-    rw [← rdist_set_of_inj _ _ (φ := G'.subtype) Subtype.val_injective,
-      ← rdist_set_add_const (G'.subtype '' A') (G'.subtype '' B') x y]
+    rw [← setRuzsaDist_of_inj _ _ (φ := G'.subtype) Subtype.val_injective,
+      ← setRuzsaDist_add_const (G'.subtype '' A') (G'.subtype '' B') x y]
     congr
     · rw [hA]
       ext y
@@ -949,13 +948,9 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     rw [hAA'_card, hBB'_card] at hM
 
     have hA'_nonfin : A'.Nonempty ∧ Finite A' := by
-      have := Nat.card_pos (α := A)
-      rw [hAA'_card, Nat.card_pos_iff] at this
-      exact ⟨@nonempty_of_nonempty_subtype _ _ this.1, this.2⟩
+      simpa [-Subtype.exists, hAA'_card, Nat.card_pos_iff] using Nat.card_pos (α := A)
     have hB'_nonfin : B'.Nonempty ∧ Finite B' := by
-      have := Nat.card_pos (α := B)
-      rw [hBB'_card, Nat.card_pos_iff] at this
-      exact ⟨@nonempty_of_nonempty_subtype _ _ this.1, this.2⟩
+      simpa [-Subtype.exists, hBB'_card, Nat.card_pos_iff] using Nat.card_pos (α := B)
     obtain ⟨hA'_non, hA'_fin⟩ := hA'_nonfin
     obtain ⟨hB'_non, hB'_fin⟩ := hB'_nonfin
 
@@ -998,7 +993,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
   refine ⟨Eq.subset rfl, Eq.subset rfl, hA_non, hB_non, ?_, ?_⟩
   · have := hA_non.to_subtype
     have := hB_non.to_subtype
-    apply LE.le.trans _ <| mul_nonneg (by norm_num) <| rdist_set_nonneg A B
+    apply LE.le.trans _ <| mul_nonneg (by norm_num) <| setRuzsaDist_nonneg A B
     rw [div_self (by positivity)]
     simp
   have hAx_eq : Ax = A := by
@@ -1103,7 +1098,7 @@ theorem weak_PFR_int
     nlinarith
   have : Countable G := countable_of_finiteDimensional ℤ G
   let m : MeasurableSpace G := ⊤
-  apply weak_PFR hnA hK ((rdist_set_le A A hnA hnA).trans _)
+  apply weak_PFR hnA hK ((setRuzsaDist_le A A hnA hnA).trans _)
   suffices log (Nat.card (A-A)) ≤ log K + log (Nat.card A) by linarith
   rw [← log_mul (by positivity) _]
   · apply log_le_log _ hA

@@ -20,8 +20,7 @@ variable {T T' T'' G : Type*} [MeasurableSpace T] [MeasurableSpace T'] [Measurab
 /-- The Rusza distance between two measures, defined as `H[X - Y] - H[X]/2 - H[Y]/2` where `X`
 and `Y` are independent variables distributed according to the two measures. -/
 noncomputable
-def rdistm (μ : Measure G) (ν : Measure G) : ℝ :=
-    Hm[(μ.prod ν).map (fun x ↦ x.1 - x.2)] - Hm[μ]/2 - Hm[ν]/2
+def rdistm (μ ν : Measure G) : ℝ := Hm[(μ.prod ν).map (fun x ↦ x.1 - x.2)] - Hm[μ]/2 - Hm[ν]/2
 
 /-- The Rusza distance between two kernels taking values in the same space, defined as the average
 Rusza distance between the image measures. -/
