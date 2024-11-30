@@ -524,35 +524,99 @@ lemma kvm_ineq_III {I : Type*} {i₀ i₁ : I} {s : Finset I}
   exact kvm_ineq_III_aux (hY i₀) (hY i₁) (by fun_prop) hindep'
 
 
+#check kvm_ineq_I
+#check Finset.univ_eq_attach
+#check kaimanovich_vershik
+#check iIndepFun.finsets
+
+section
+
+variable {Ω ι γ β : Type*} {κ : ι → Type*}
+variable {β' γ γ' : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → β'}
+variable {Ω ι ι' : Type*} [MeasurableSpace Ω]{α : ι → Type*}
+  [n : ∀ i, MeasurableSpace (α i)]
+  [m : MeasurableSpace (β)]
+ {f : ∀ i, Ω → α i}
+  {μ : Measure Ω}
+
+lemma iIndepFun.finsets_sum [AddCommMonoid β] {f : ι → Ω → β} {J : Type*} [Fintype J]
+    (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
+    (hf_Indep : iIndepFun (fun _ ↦ m) f μ) (hf_meas : ∀ i, Measurable (f i)) :
+    iIndepFun (fun _ ↦ m) (fun (j : J) ↦ fun a ↦ ∑ i ∈ S j, f i a) μ :=
+  by sorry
+
+end
+
 open Classical in
 /-- Let $(X_i)_{1 \leq i \leq m}$ and $(Y_j)_{1 \leq j \leq l}$ be tuples of jointly independent random variables (so the $X$'s and $Y$'s are also independent of each other), and let $f: \{1,\dots,l\} \to \{1,\dots,m\}$ be a function, then
   $$ \mathbb{H}[\sum_{j=1}^l Y_j] \leq \mathbb{H}[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\mathbb{H}[ Y_j - X_{f(j)}] - \mathbb{H}[X_{f(j)}]).$$
 -/
 
-lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t : Finset I} (hdisj : Disjoint s t)
+lemma ent_of_sum_le_ent_of_sum' {I:Type*} {s t : Finset I} (hdisj : Disjoint s t)
   (hs: Finset.Nonempty s) (ht: Finset.Nonempty t) (X : I → Ω → G) (hX: (i : I) → Measurable (X i))
+  [∀ (i : I), FiniteRange (X i)]
   (hindep: iIndepFun (fun (i : I) => hG) X μ ) (f : I → I) (hf: Finset.image f t ⊆ s) :
     H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by
-  set W := ∑ i in s, X i
-  set U := ∑ i in t, X i
-  haveI : FiniteRange U := sorry
-  haveI : FiniteRange W := sorry
-  have U_meas : Measurable U := by measurability
-  have W_meas : Measurable W := by measurability
+  set W := ∑ i in s, X i with hW
+  set U := ∑ i in t, X i with hU
+  haveI : FiniteRange U := FiniteRange.finsum X
+  haveI : FiniteRange W := FiniteRange.finsum X
+  have U_meas : Measurable U := by
+    rw [hU]
+    convert Finset.measurable_sum t (fun i _ => hX i)
+    simp only [Finset.sum_apply]
+  have W_meas : Measurable W := by
+    rw [hW]
+    convert Finset.measurable_sum s (fun i _ => hX i)
+    simp only [Finset.sum_apply]
   calc
     _ ≤ H[-W + U ; μ ] := by sorry
       /-rw [neg_add_eq_sub]
       apply le_trans (le_max_left H[U ; μ] H[W ; μ]) (ProbabilityTheory.max_entropy_le_entropy_sub U_meas W_meas _)
       sorry-/
     _ ≤ H[- W ; μ] + ∑ i in t, (H[-W + X i ; μ] - H[- W ; μ]) := by
-
-      sorry --apply kvm_ineq_I
+      set Y : Option {x // x ∈ t} → Ω → G := fun i => match i with| some i => X i | none => - W with hY
+      have Y_meas : ∀ i, Measurable (Y i) := by
+        intro i
+        match i with | some i => simpa only [hY] using hX i | none => simpa only [hY] using W_meas.neg
+      haveI : ∀ i, FiniteRange (Y i) := by
+        intro i
+        match i with | some i => simp only [hY] ; infer_instance | none => simp only [hY] ; infer_instance
+      have Y_indep : iIndepFun (fun i => hG) Y μ := by
+        set S : Option {x // x ∈ t} → Finset I := fun i => match i with | some i => {i.val} | none => s with hS
+        have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
+          intro i _ j _ hij
+          match i, j with
+          | some i, some j => simp only [hS]; sorry
+          | some i, none => sorry --simp only [hS] at hij ; exact (hij rfl).elim
+          | none, some j => sorry --simp only [hS] at hij ; exact (hij rfl).elim
+          | none, none => sorry --simp only [hS] at hij ; exact (hdisj hij)
+        have h_sum : Y = (fun (j : Option {x // x ∈ t}) ↦ fun a ↦ ∑ i ∈ S j, X i a) := by sorry
+        apply h_sum ▸ iIndepFun.finsets_sum S h_disjoint hindep hX
+      have temp := kvm_ineq_I (show none ∉ t.attach.image some by sorry) Y_meas Y_indep
+      have lem₁ : ∑ i ∈ t.attach.image some, Y i = ∑ i in t, X i := by
+        rw [Finset.sum_image, Finset.sum_attach]
+        intro x hx y hy hxy
+        apply Option.some.inj hxy
+      have lem₂ : ∑ x ∈ t.attach, (H[Y none + Y (some x) ; μ] - H[Y none ; μ])
+        = ∑ i in t, (H[- W + X i; μ] - H[- W ; μ]) :=
+        calc
+          _ = ∑ x in t.attach, (fun i : I => H[- W + X i; μ] - H[- W ; μ]) x.val := by
+              apply Finset.sum_congr rfl
+              intro x hx
+              simp only [hY, sub_left_inj]
+          _ = ∑ i in t, (H[- W + X i ; μ] - H[- W ; μ]) := by
+              rw [t.sum_attach (fun i : I => H[- W + X i; μ] - H[- W ; μ])]
+      --have lem₂ : ∑ i ∈ s.attach.image some, Y i = ∑ i in s, X i
+      rw [lem₁, Finset.sum_image (fun x hx y hy =>  Option.some.inj), lem₂, tsub_le_iff_right,
+        add_comm _ (H[Y none ; μ])] at temp
+      simp only [Finset.card_attach, nsmul_eq_mul, hY, ←hU] at temp
+      apply temp
     _ ≤ H[- W ; μ] + ∑ i in t, (H[X i - X (f i) ; μ] - H[X (f i) ; μ]) := by
       rw [add_le_add_iff_left]
       apply Finset.sum_le_sum
       intro i hi
       sorry
-      --apply kaimanovich_vershik
     _ = H[W ; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
       rw [ProbabilityTheory.entropy_neg]
       measurability
