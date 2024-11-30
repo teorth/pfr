@@ -19,7 +19,7 @@ In particular, $|H| = |H_0| |H_1|$.
 \begin{theorem}[Homomorphism form of PFR]\label{hom-pfr}\lean{homomorphism_pfr}\leanok  Let $f: G \to G'$ be a function, and let $S$ denote the set
 $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
-$$ |\{ f(x) - \phi(x): x \in G \}| \leq |S|^{12}.$$
+$$ |\{ f(x) - \phi(x): x \in G \}| \leq |S|^{10}.$$
 \end{theorem}
 
 \begin{proof}\uses{goursat, pfr_aux-improv}\leanok
@@ -27,12 +27,11 @@ Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have
 $$ A+A \subset \{ (x,f(x)+s): x \in G, s \in S\}$$
-and hence $|A+A| \leq |S| |A|$.  Applying \Cref{pfr_aux-improv}, we may
-find a subspace $H \subset G \times G'$ such that $|H|/ |A| \in [K^{-10},
-K^{10}]$ and $A$ is covered by $c + H$ with $|c| \le |S|^6|A|^{1/2} /
-|H|^{1/2}$. If we let $H_0, H_1$ be as in \Cref{goursat}, this implies
-on taking projections that $G$ is covered by at most $|c|$ translates of
-$H_0$. This implies that
+and hence $|A+A| \leq |S| |A|$.  Applying \Cref{pfr-9-aux'}, we may find a
+subspace $H \subset G \times G'$ such that $|H|/ |A| \in [|S|^{-8}, |S|^{8}]$
+and $A$ is covered by $c + H$ with $|c| \le |S|^5|A|^{1/2} / |H|^{1/2}$. If
+we let $H_0, H_1$ be as in \Cref{goursat}, this implies on taking projections
+that $G$ is covered by at most $|c|$ translates of $H_0$. This implies that
 $$ |c| |H_0| \geq |G|;$$
 since $|H_0| |H_1| = |H|$, we conclude that
 $$ |H_1| \leq |c| |H|/|G| = |c| |H|/|A|.$$
@@ -41,8 +40,8 @@ by at most $|c| |H_1|$ translates of $\{ (x,\phi(x)): x \in G \}$. As $\phi$
 is a homomorphism, each such translate can be written in the form $\{
 (x,\phi(x)+d): x \in G \}$ for some $d \in G'$. Since
 $$
-|c| |H_1| \le |c|^2 \frac{|H|}{|A|} \le \left(|S|^6 \frac{|A|^{1/2}}{|H|^{1/2}}\right)^2 \frac{|H|}{|A|}
-= |S|^{12},
+|c| |H_1| \le |c|^2 \frac{|H|}{|A|} \le \left(|S|^5 \frac{|A|^{1/2}}{|H|^{1/2}}\right)^2 \frac{|H|}{|A|}
+= |S|^{10},
 $$
 the result follows.
 \end{proof}

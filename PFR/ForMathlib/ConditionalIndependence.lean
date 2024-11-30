@@ -1,7 +1,7 @@
-import PFR.ForMathlib.Pair
+import Mathlib.Tactic.Finiteness
 import PFR.Mathlib.Probability.IdentDistrib
-import PFR.Tactic.Finiteness
-import PFR.Mathlib.Probability.ConditionalProbability
+import PFR.ForMathlib.FiniteRange.ConditionalProbability
+import PFR.ForMathlib.Pair
 
 open MeasureTheory Measure Set
 open scoped ENNReal
@@ -22,7 +22,7 @@ theorem IndepFun.identDistrib_cond [IsProbabilityMeasure μ]
     IdentDistrib A A μ (μ[|B ⁻¹' s]) := by
   refine ⟨hA.aemeasurable, hA.aemeasurable, ?_⟩
   ext t ht
-  rw [Measure.map_apply hA ht, Measure.map_apply hA ht, cond_apply _ (hB hs), Set.inter_comm,
+  rw [Measure.map_apply hA ht, Measure.map_apply hA ht, cond_apply (hB hs), Set.inter_comm,
     hi.measure_inter_preimage_eq_mul _ _ ht hs, mul_comm, mul_assoc,
     ENNReal.mul_inv_cancel h (by finiteness), mul_one]
 
@@ -33,7 +33,7 @@ lemma IndepFun.cond_left (hi : IndepFun A B μ) {s : Set α}
     IndepFun A B (μ[| A⁻¹' s]) := by
   apply indepFun_iff_measure_inter_preimage_eq_mul.2 (fun u v hu hv ↦ ?_)
   have : A ⁻¹' s ∩ (A ⁻¹' u ∩ B ⁻¹' v) = A ⁻¹' (s ∩ u) ∩ B ⁻¹' v := by aesop
-  simp only [cond_apply _ (hA hs), this]
+  simp only [cond_apply (hA hs), this]
   rcases eq_or_ne (μ (A ⁻¹' s)) ∞ with h|h
   · simp [h]
   rcases eq_or_ne (μ (A ⁻¹' s)) 0 with h'|h'
@@ -63,7 +63,7 @@ lemma IndepFun.cond (hi : IndepFun A B μ) {s : Set α} {t : Set β}
   have I1 : A ⁻¹' s ∩ B ⁻¹' t ∩ (A ⁻¹' u ∩ B ⁻¹' v) = A ⁻¹' (s ∩ u) ∩ B ⁻¹' (t ∩ v) := by aesop
   have I2 : A ⁻¹' s ∩ B ⁻¹' t ∩ A ⁻¹' u = A ⁻¹' (s ∩ u) ∩ B ⁻¹' t := by aesop
   have I3 : A ⁻¹' s ∩ B ⁻¹' t ∩ B ⁻¹' v = A ⁻¹' s ∩ B ⁻¹' (t ∩ v) := by aesop
-  simp only [cond_apply _ ((hA hs).inter (hB ht)), I1, I2, I3]
+  simp only [cond_apply ((hA hs).inter (hB ht)), I1, I2, I3]
   rcases eq_or_ne (μ (A ⁻¹' s ∩ B⁻¹' t)) ∞ with h|h
   · simp [h]
   rcases eq_or_ne (μ (A ⁻¹' s ∩ B⁻¹' t)) 0 with h'|h'
@@ -113,7 +113,7 @@ lemma CondIndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi'
   rw [condIndepFun_iff] at hfg ⊢
   rw [← Measure.map_map hh hi.measurable, hi.map_comap, restrict_eq_self_of_ae_mem hi']
   refine hfg.mono $ fun c hc ↦ ?_
-  rw [preimage_comp, ← comap_cond _ hi hi' $ hh $ .singleton _]
+  rw [preimage_comp, ← comap_cond hi hi' $ hh $ .singleton _]
   exact IndepFun.comp_right hi (cond_absolutelyContinuous.ae_le hi') hf hg hc
 
 end defs
@@ -130,7 +130,7 @@ open Function Set Measure
 /-- For `X, Y` random variables, there exist conditionally independent trials `X_1, X_2, Y'`. -/
 lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY : Measurable Y)
     [finY : FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ] :
-    ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
+    ∃ (Ω' : Type u) (_ : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
       IsProbabilityMeasure ν ∧ Measurable X₁ ∧ Measurable X₂ ∧ Measurable Y' ∧
       CondIndepFun X₁ X₂ Y' ν ∧ IdentDistrib (⟨X₁, Y'⟩) (⟨X, Y⟩) ν μ ∧
       IdentDistrib (⟨X₂, Y'⟩) (⟨X, Y⟩) ν μ := by
@@ -155,7 +155,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     rw [this, ← Measure.map_apply measurable_snd (MeasurableSet.singleton y).compl]
     simp [m]
   have h5 {y : β} (hy : μ (Y ⁻¹' {y}) ≠ 0) : IsProbabilityMeasure (m' y) := by
-    have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy
+    have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure hy
     exact isProbabilityMeasure_map hX.aemeasurable
   have h1 : ν.map Prod.snd = μ.map Y := by
     rw [← sum_meas_smul_cond_fiber' hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd,
@@ -165,7 +165,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     rcases eq_or_ne (μ (Y ⁻¹' {y})) 0 with hy | hy
     · simp [hy]
     have h6 : IsProbabilityMeasure (m' y) := h5 hy
-    have h7 : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure μ hy
+    have h7 : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure hy
     congr 3
     rw [Measure.mapₗ_apply_of_measurable measurable_snd, Measure.mapₗ_apply_of_measurable hY]
     simp only [map_snd_prod, measure_univ, one_smul, m]
@@ -202,7 +202,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     have h2 : ν[| Prod.snd⁻¹' {y}] = m y := by
       rw [Measure.ext_iff]
       intro E _
-      rw [cond_apply ν (measurable_snd (by simp)) E, hy']
+      rw [cond_apply (measurable_snd (by simp)), hy']
       have h3 : (m y) ((Prod.snd⁻¹' {y}) ∩ E) = (m y) E := by
         apply measure_congr
         apply inter_ae_eq_right_of_ae_eq_univ
@@ -264,7 +264,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
 lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY : Measurable Y)
     [FiniteRange Y] (μ : Measure Ω) [IsProbabilityMeasure μ] (p : α → β → Prop)
     (hp : Measurable (uncurry p)) (hp' : ∀ᵐ ω ∂μ, p (X ω) (Y ω)) :
-    ∃ (Ω' : Type u) (mΩ' : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
+    ∃ (Ω' : Type u) (_ : MeasurableSpace Ω') (X₁ X₂ : Ω' → α) (Y' : Ω' → β) (ν : Measure Ω'),
       IsProbabilityMeasure ν ∧ Measurable X₁ ∧ Measurable X₂ ∧ Measurable Y' ∧
       CondIndepFun X₁ X₂ Y' ν ∧ IdentDistrib (⟨X₁, Y'⟩) (⟨X, Y⟩) ν μ ∧
        IdentDistrib (⟨X₂, Y'⟩) (⟨X, Y⟩) ν μ ∧ (∀ ω, p (X₁ ω) (Y' ω)) ∧ (∀ ω, p (X₂ ω) (Y' ω)) := by

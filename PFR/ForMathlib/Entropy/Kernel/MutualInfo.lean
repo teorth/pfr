@@ -67,8 +67,8 @@ lemma compProd_assoc (ξ : Kernel T S) [IsSFiniteKernel ξ]
       = ξ ⊗ₖ (κ ⊗ₖ (comap η MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable)) := by
   ext x s hs
   rw [map_apply' _ (by fun_prop) _ hs,
-    compProd_apply _ _ _ (MeasurableEquiv.prodAssoc.measurable hs),
-    compProd_apply _ _ _ hs, lintegral_compProd]
+    compProd_apply (MeasurableEquiv.prodAssoc.measurable hs),
+    compProd_apply hs, lintegral_compProd]
   swap; · exact measurable_kernel_prod_mk_left' (MeasurableEquiv.prodAssoc.measurable hs) _
   congr with a
   rw [compProd_apply]
@@ -86,7 +86,7 @@ lemma Measure.compProd_compProd (μ : Measure T)
     Measure.lintegral_compProd]
   swap; · exact measurable_kernel_prod_mk_left (MeasurableEquiv.prodAssoc.measurable hs)
   congr with a
-  rw [compProd_apply _ _ _ (measurable_prod_mk_left hs)]
+  rw [compProd_apply (measurable_prod_mk_left hs)]
   congr
 
 lemma Measure.compProd_compProd' (μ : Measure T)
@@ -120,7 +120,7 @@ lemma mutualInfo_nonneg' {κ : Kernel T (S × U)} {μ : Measure T} [IsFiniteMeas
     [FiniteSupport μ] (hκ : FiniteKernelSupport κ) :
     0 ≤ Ik[κ, μ] := by
   simp_rw [mutualInfo, entropy, integral_eq_setIntegral (measure_compl_support μ),
-    setIntegral_eq_sum, smul_eq_mul]
+    integral_finset _ _ IntegrableOn.finset, smul_eq_mul]
   rw [← Finset.sum_add_distrib, ← Finset.sum_sub_distrib]
   refine Finset.sum_nonneg (fun x _ ↦ ?_)
   by_cases hx : μ {x} = 0
@@ -287,7 +287,7 @@ lemma entropy_submodular_compProd {ξ : Kernel T S} [IsZeroOrMarkovKernel ξ]
   rcases eq_zero_or_isMarkovKernel ξ with rfl | hξ'
   · simp
   have : Nonempty S := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ ξ
-  have : Nonempty T := nonempty_of_isProbabilityMeasure μ
+  have : Nonempty T := μ.nonempty_of_neZero
   rcases eq_zero_or_isMarkovKernel κ with rfl | hκ'
   · simp
   have : Nonempty U := nonempty_of_isMarkovKernel κ
@@ -325,7 +325,7 @@ lemma entropy_compProd_triple_add_entropy_le {ξ : Kernel T S} [IsZeroOrMarkovKe
   rcases eq_zero_or_isMarkovKernel ξ with rfl | hξ'
   · simp
   have : Nonempty S := nonempty_of_isProbabilityMeasure_of_isMarkovKernel μ ξ
-  have : Nonempty T := nonempty_of_isProbabilityMeasure μ
+  have : Nonempty T := μ.nonempty_of_neZero
   have : Nonempty U := nonempty_of_isMarkovKernel κ
   have : Nonempty V := nonempty_of_isMarkovKernel η
   rw [chain_rule,

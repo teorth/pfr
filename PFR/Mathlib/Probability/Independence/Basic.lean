@@ -1,6 +1,6 @@
 import Mathlib.Probability.Independence.Basic
-import PFR.ForMathlib.MeasureReal
 import PFR.Mathlib.Probability.Independence.Kernel
+import PFR.ForMathlib.MeasureReal.Defs
 
 open Function MeasureTheory MeasurableSpace Measure Set
 open scoped MeasureTheory ENNReal
@@ -42,14 +42,6 @@ lemma iIndepFun.reindex_symm (g : ι' ≃ ι) (h : iIndepFun n f μ) : iIndepFun
 
 lemma iIndepFun_reindex_iff (g : ι' ≃ ι) : iIndepFun (n ∘' g) (f ∘' g) μ ↔ iIndepFun n f μ :=
   ⟨fun h ↦ h.reindex g, fun h ↦ h.reindex_symm g⟩
-
-lemma iIndepFun.comp (h : iIndepFun n f μ) (g : ∀ i, α i → β i) (hg : ∀ i, Measurable (g i)) :
-    iIndepFun m (fun i ↦ g i ∘ f i) μ := by
-  rw [iIndepFun_iff] at h ⊢
-  refine fun t s hs ↦ h t (fun i hi ↦ ?_)
-  simp_rw [measurable_iff_comap_le] at hg
-  simp_rw [← MeasurableSpace.comap_comp] at hs
-  exact MeasurableSpace.comap_mono (hg i) (s i) (hs i hi)
 
 variable (i : ι) [Inv (α i)] [MeasurableInv (α i)] [DecidableEq ι] in
 @[to_additive]
@@ -245,7 +237,7 @@ variable {ι : Type*} {κ : ι → Type*} [∀ i, Fintype (κ i)]
 lemma iIndepFun.pi
     (f_meas : ∀ i j, Measurable (f i j))
     (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) (fun ij : Σ i, κ i ↦ f ij.1 ij.2) μ) :
-    iIndepFun (fun i ↦ MeasurableSpace.pi) (fun i ω ↦ (fun j ↦ f i j ω)) μ := by
+    iIndepFun (fun _ ↦ MeasurableSpace.pi) (fun i ω j ↦ f i j ω) μ := by
   let F i ω j := f i j ω
   let M (i : ι):= MeasurableSpace.pi (m := m i)
   let πβ (i : ι) := Set.pi Set.univ '' Set.pi Set.univ fun j => { s | MeasurableSet[m i j] s }
@@ -315,7 +307,7 @@ variable {ι ι' : Type*} {α : ι → Type*}
 lemma iIndepFun.prod {hf : ∀ (i : ι), Measurable (f i)} {ST : ι' → Finset ι}
     (hS : Pairwise (Disjoint on ST)) (h : iIndepFun n f μ) :
     let β := fun k ↦ Π i : ST k, α i
-    iIndepFun (β := β) (fun k ↦ MeasurableSpace.pi) (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
+    iIndepFun (β := β) (fun _ ↦ MeasurableSpace.pi) (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
   let g : (i : ι') × ST i → ι := Subtype.val ∘' (Sigma.snd (α := ι'))
   have hg : Injective g := by
     intro x y hxy

@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Constructions.Prod.Basic
+import Mathlib.MeasureTheory.Measure.Prod
 
 open Function
 open scoped ENNReal NNReal
@@ -30,3 +30,28 @@ lemma prod_of_full_measure_finset {μ : Measure α} {ν : Measure β} [SigmaFini
     ext ⟨s, t⟩; simp; tauto
   rw [this]
   simp [hA, hB]
+
+end MeasureTheory.Measure
+
+open MeasureTheory
+
+/-- To put next to quasiMeasurePreserving_fst -/
+theorem MeasureTheory.measurePreserving_fst {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    {μ : Measure α} {ν : Measure β} [IsProbabilityMeasure ν] :
+    MeasurePreserving Prod.fst (μ.prod ν) μ :=
+  ⟨measurable_fst, by simp⟩
+
+/-- To put next to quasiMeasurePreserving_fst -/
+theorem MeasureTheory.measurePreserving_snd {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    {μ : Measure α} {ν : Measure β} [IsProbabilityMeasure μ] [SFinite ν] :
+    MeasurePreserving Prod.snd (μ.prod ν) ν :=
+  ⟨measurable_snd, by simp⟩
+
+instance {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] {μ : Measure α}
+    [IsZeroOrProbabilityMeasure μ] {ν : Measure β} [IsZeroOrProbabilityMeasure ν] :
+    IsZeroOrProbabilityMeasure (μ.prod ν) := by
+  rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
+  · simp; infer_instance
+  rcases eq_zero_or_isProbabilityMeasure ν with rfl | hν
+  · simp; infer_instance
+  infer_instance

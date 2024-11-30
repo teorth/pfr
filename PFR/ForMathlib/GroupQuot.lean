@@ -1,7 +1,6 @@
+import Mathlib.Algebra.EuclideanDomain.Int
+import Mathlib.Algebra.Module.ZMod
 import Mathlib.LinearAlgebra.Dimension.Free
-import PFR.ForMathlib.ZModModule
-import PFR.Mathlib.Data.Finsupp.Fintype
-import PFR.Mathlib.RingTheory.Finiteness
 
 /-!
 If `G` is a rank `d` free `ℤ`-module, then `G/nG` is a finite group of cardinality `n ^ d`.
@@ -12,12 +11,15 @@ open Finsupp Function
 variable {G : Type*} [AddCommGroup G] [Module.Free ℤ G] {n : ℕ}
 
 variable (G n) in
+/-- `modN G n` denotes the quotient of `G` by multiples of `n` -/
 abbrev modN : Type _ := G ⧸ LinearMap.range (LinearMap.lsmul ℤ G n)
 
-instance : Module (ZMod n) (modN G n) := .quotient_group (by simp)
+instance : Module (ZMod n) (modN G n) := QuotientAddGroup.zmodModule (by simp)
 
 variable [NeZero n]
 
+/-- Given a free module `G` over `ℤ`, construct the corresponding basis
+of `G / ⟨n⟩` over `ℤ / nℤ`. -/
 noncomputable def modNBasis : Basis (Module.Free.ChooseBasisIndex ℤ G) (ZMod n) (modN G n) := by
   set ψ : G →+ G := zsmulAddGroupHom n
   set nG := LinearMap.range (LinearMap.lsmul ℤ G n)
@@ -60,4 +62,4 @@ instance modN.instFinite : Finite (modN G n) := Module.finite_of_finite (ZMod n)
 variable (G n)
 @[simp] lemma card_modN : Nat.card (modN G n) = n ^ Module.finrank ℤ G := by
   simp [Nat.card_congr modNBasis.repr.toEquiv, Nat.card_eq_fintype_card,
-    ← Module.finrank_eq_card_chooseBasisIndex]
+    Module.finrank_eq_card_chooseBasisIndex]

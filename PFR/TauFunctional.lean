@@ -23,8 +23,8 @@ open MeasureTheory ProbabilityTheory
 universe uG
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
-[IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
+  [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
+  variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
 
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
@@ -33,7 +33,7 @@ variables.
 
 The η parameter has now been incorporated into the package, in preparation for being able to
 manipulate the package. -/
-structure refPackage :=
+structure refPackage where
   /-- The first variable in a package. -/
   X₀₁ : Ω₀₁ → G
   /-- The second variable in a package. -/
@@ -91,9 +91,9 @@ omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ 
 lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂]
     {μ₁ : Measure Ω₁} {μ₂ : Measure Ω₂} {μ'₁ : Measure Ω'₁} {μ'₂ : Measure Ω'₂}
-    {X₁ : Ω₁ → G} {X₂ : Ω₂ → G} {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G}
-    (h₁ : IdentDistrib X₁ X'₁ μ₁ μ'₁) (h₂ : IdentDistrib X₂ X'₂ μ₂ μ'₂) :
-    τ[X₁ ; μ₁ # X₂ ; μ₂ | p] = τ[X'₁ ; μ'₁ # X'₂ ; μ'₂ | p] := by
+    {X₁ : Ω₁ → G} {X₂ : Ω₂ → G} {X₁' : Ω'₁ → G} {X₂' : Ω'₂ → G}
+    (h₁ : IdentDistrib X₁ X₁' μ₁ μ'₁) (h₂ : IdentDistrib X₂ X₂' μ₂ μ'₂) :
+    τ[X₁ ; μ₁ # X₂ ; μ₂ | p] = τ[X₁' ; μ'₁ # X₂' ; μ'₂ | p] := by
   simp only [tau]
   rw [(IdentDistrib.refl p.hmeas1.aemeasurable).rdist_eq h₁,
       (IdentDistrib.refl p.hmeas2.aemeasurable).rdist_eq h₂,
@@ -140,7 +140,7 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
 
 /-- A pair of random variables minimizing $τ$ exists. -/
 lemma tau_minimizer_exists [MeasurableSingletonClass G] :
-    ∃ (Ω : Type uG) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+    ∃ (Ω : Type uG) (_ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
     Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
     tau_minimizes p X₁ X₂ := by
   let μ := (tau_min_exists_measure p).choose
@@ -158,15 +158,15 @@ lemma tau_minimizer_exists [MeasurableSingletonClass G] :
 variable [MeasureSpace Ω] [hΩ₁ : MeasureSpace Ω'₁] [hΩ₂ : MeasureSpace Ω'₂]
   [IsProbabilityMeasure (ℙ : Measure Ω)]
   [IsProbabilityMeasure (ℙ : Measure Ω'₁)] [IsProbabilityMeasure (ℙ : Measure Ω'₂)]
-  {X₁ : Ω → G} {X₂ : Ω → G} {X'₁ : Ω'₁ → G} {X'₂ : Ω'₂ → G}
+  {X₁ : Ω → G} {X₂ : Ω → G} {X₁' : Ω'₁ → G} {X₂' : Ω'₂ → G}
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Fintype G]
 [IsProbabilityMeasure (ℙ : Measure Ω)] in
-lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
-    τ[X₁ # X₂ | p] ≤ τ[X'₁ # X'₂ | p] := by
-  let ν₁ := (ℙ : Measure Ω'₁).map X'₁
-  let ν₂ := (ℙ : Measure Ω'₂).map X'₂
-  have B : τ[X'₁ # X'₂ | p] = τ[id ; ν₁ # id ; ν₂ | p] :=
+lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂') :
+    τ[X₁ # X₂ | p] ≤ τ[X₁' # X₂' | p] := by
+  let ν₁ := (ℙ : Measure Ω'₁).map X₁'
+  let ν₂ := (ℙ : Measure Ω'₂).map X₂'
+  have B : τ[X₁' # X₂' | p] = τ[id ; ν₁ # id ; ν₂ | p] :=
     (identDistrib_id_right h1.aemeasurable).tau_eq p (identDistrib_id_right h2.aemeasurable)
   convert h ν₁ ν₂ (isProbabilityMeasure_map h1.aemeasurable)
     (isProbabilityMeasure_map h2.aemeasurable)
@@ -178,9 +178,9 @@ $$ d[X'_1;X'_2] \geq
     k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] )$$
 for any $G$-valued random variables $X'_1,X'_2$.
 -/
-lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
-    d[X₁ # X₂] - p.η * (d[p.X₀₁ # X'₁] - d[p.X₀₁ # X₁]) - p.η * (d[p.X₀₂ # X'₂] - d[p.X₀₂ # X₂])
-      ≤ d[X'₁ # X'₂] := by
+lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂') :
+    d[X₁ # X₂] - p.η * (d[p.X₀₁ # X₁'] - d[p.X₀₁ # X₁]) - p.η * (d[p.X₀₂ # X₂'] - d[p.X₀₂ # X₂])
+      ≤ d[X₁' # X₂'] := by
   have Z := is_tau_min p h h1 h2
   simp [tau] at Z
   linarith
@@ -190,10 +190,10 @@ omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ 
 /-- Version of `distance_ge_of_min` with the measures made explicit. -/
 lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂)
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X'₁: Ω'₁ → G} {X'₂: Ω'₂ → G}
-    (h1 : Measurable X'₁) (h2 : Measurable X'₂) :
-    d[X₁ # X₂] - p.η * (d[p.X₀₁; ℙ # X'₁; μ] - d[p.X₀₁ # X₁])
-      - p.η * (d[p.X₀₂; ℙ # X'₂; μ'] - d[p.X₀₂ # X₂]) ≤ d[X'₁; μ # X'₂; μ'] := by
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X₁': Ω'₁ → G} {X₂': Ω'₂ → G}
+    (h1 : Measurable X₁') (h2 : Measurable X₂') :
+    d[X₁ # X₂] - p.η * (d[p.X₀₁; ℙ # X₁'; μ] - d[p.X₀₁ # X₁])
+      - p.η * (d[p.X₀₂; ℙ # X₂'; μ'] - d[p.X₀₂ # X₂]) ≤ d[X₁'; μ # X₂'; μ'] := by
   set M1 : MeasureSpace Ω'₁ := { volume := μ }
   set M2 : MeasureSpace Ω'₂ := { volume := μ' }
   exact distance_ge_of_min p h h1 h2
@@ -207,10 +207,10 @@ $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X
 lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
     [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
-    (h : tau_minimizes p X₁ X₂) (h1 : Measurable X'₁) (h2 : Measurable X'₂)
+    (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂')
     (Z : Ω'₁ → S) (W : Ω'₂ → T) (hZ : Measurable Z) (hW : Measurable W) :
-    d[X₁ # X₂] - p.η * (d[p.X₀₁ # X'₁ | Z] - d[p.X₀₁ # X₁])
-      - p.η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂]) ≤ d[X'₁ | Z # X'₂ | W] := by
+    d[X₁ # X₂] - p.η * (d[p.X₀₁ # X₁' | Z] - d[p.X₀₁ # X₁])
+      - p.η * (d[p.X₀₂ # X₂' | W] - d[p.X₀₂ # X₂]) ≤ d[X₁' | Z # X₂' | W] := by
   have hz (a : ℝ) : a = ∑ z in FiniteRange.toFinset Z, (ℙ (Z ⁻¹' {z})).toReal * a := by
     simp_rw [← Finset.sum_mul,← Measure.map_apply hZ (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
     rw [FiniteRange.full hZ]
@@ -220,13 +220,13 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
     rw [FiniteRange.full hW]
     simp
   rw [condRuzsaDist_eq_sum h1 hZ h2 hW, condRuzsaDist'_eq_sum h1 hZ, hz d[X₁ # X₂],
-    hz d[p.X₀₁ # X₁], hz (p.η * (d[p.X₀₂ # X'₂ | W] - d[p.X₀₂ # X₂])),
+    hz d[p.X₀₁ # X₁], hz (p.η * (d[p.X₀₂ # X₂' | W] - d[p.X₀₂ # X₂])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro z _
   rw [condRuzsaDist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂],
     hw ((ℙ (Z ⁻¹' {z})).toReal * d[X₁ # X₂] - p.η * ((ℙ (Z ⁻¹' {z})).toReal *
-      d[p.X₀₁ ; ℙ # X'₁ ; ℙ[|Z ← z]] - (ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ # X₁])),
+      d[p.X₀₁ ; ℙ # X₁' ; ℙ[|Z ← z]] - (ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ # X₁])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro w _
@@ -235,11 +235,11 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
   rcases eq_or_ne (ℙ (W ⁻¹' {w})) 0 with hpw | hpw
   · simp [hpw]
   set μ := (hΩ₁.volume)[|Z ← z]
-  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure ℙ hpz
+  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure hpz
   set μ' := ℙ[|W ← w]
-  have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure ℙ hpw
-  suffices d[X₁ # X₂] - p.η * (d[p.X₀₁; volume # X'₁; μ] - d[p.X₀₁ # X₁]) -
-    p.η * (d[p.X₀₂; volume # X'₂; μ'] - d[p.X₀₂ # X₂]) ≤ d[X'₁ ; μ # X'₂; μ'] by
+  have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure hpw
+  suffices d[X₁ # X₂] - p.η * (d[p.X₀₁; volume # X₁'; μ] - d[p.X₀₁ # X₁]) -
+    p.η * (d[p.X₀₂; volume # X₂'; μ'] - d[p.X₀₂ # X₂]) ≤ d[X₁' ; μ # X₂'; μ'] by
     replace this := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)
     convert this using 1
     ring

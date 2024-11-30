@@ -4,10 +4,6 @@ import PFR.Main
 # Improved PFR
 
 An improvement to PFR that lowers the exponent from 12 to 11.
-
-## Main results
-
-*
 -/
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
@@ -108,7 +104,7 @@ lemma gen_ineq_aux2 :
     rcases eq_or_ne (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) 0 with hw|hw
     · simp [hw]
     gcongr
-    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure ℙ hw
+    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure hw
     have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]) := by
       have E : (⟨Z₁, Z₃⟩)⁻¹' {p | p.1 + p.2 = w.1} ∩ (⟨Z₂, Z₄⟩)⁻¹' {p | p.1 + p.2 = w.2}
         = ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w} := by aesop
@@ -146,7 +142,7 @@ lemma gen_ineq_aux2 :
       have A : IdentDistrib Z₁ Z₁ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := by
         rw [← cond_cond_eq_cond_inter']
-        have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure _ h1
+        have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure h1
         apply (IndepFun.identDistrib_cond _ (.singleton _) hZ₁ (by fun_prop) _).symm
         · have : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
             I.cond_left (measurable_add (.singleton x))
@@ -161,13 +157,13 @@ lemma gen_ineq_aux2 :
       have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := by
         rw [Set.inter_comm, ← cond_cond_eq_cond_inter']
-        have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure _ h2
+        have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure h2
         apply (IndepFun.identDistrib_cond _ (.singleton _) hZ₂ (hZ₁.add hZ₃) _).symm
         · have : IndepFun (⟨Z₂, Z₄⟩) (⟨Z₁, Z₃⟩) (ℙ[|(⟨Z₂, Z₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
             I.symm.cond_left (measurable_add (.singleton y))
               (hZ₂.prod_mk hZ₄)
           exact this.comp measurable_fst measurable_add
-        · rw [Pi.add_def, cond_apply _ (hZ₂.add hZ₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
+        · rw [Pi.add_def, cond_apply (hZ₂.add hZ₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
             J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
           simp [h1, h2]
         · exact hZ₂.add hZ₄ (.singleton _)
@@ -198,6 +194,7 @@ lemma gen_ineq_aux2 :
 include hY hZ₁ hZ₂ hZ₃ hZ₄ h_indep in
 /-- Let `Z₁, Z₂, Z₃, Z₄` be independent `G`-valued random variables, and let `Y` be another
 `G`-valued random variable. Set `S := Z₁ + Z₂ + Z₃ + Z₄`. Then
+`d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] ≤`
 `(d[Z₁ # Z₂] + 2 * d[Z₁ # Z₃] + d[Z₂ # Z₄]) / 4`
 `+ (d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄] - d[Z₁ | Z₁ + Z₂ # Z₃ | Z₃ + Z₄]) / 4`
 `+ (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₃] + H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃]) / 8`.
@@ -246,7 +243,7 @@ lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] �
   congr with w
   rcases eq_or_ne (ℙ ((Z₁ + Z₃) ⁻¹' {w})) 0 with hw|hw
   · simp [hw]
-  have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {w}]) := cond_isProbabilityMeasure ℙ hw
+  have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {w}]) := cond_isProbabilityMeasure hw
   have : Sum = (Z₁ + Z₂) + (Z₃ + Z₄) := by abel
   rw [this, condRuzsaDist'_of_inj_map' hY (by fun_prop) (by fun_prop)]
 
@@ -332,7 +329,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   let sum3 : ℝ := (Measure.map T₃ ℙ)[fun t ↦ d[p.X₀₂; ℙ # T₂; ℙ[|T₃ ⁻¹' {t}]] - d[p.X₀₂ # X₂]]
   let sum4 : ℝ := (Measure.map T₃ ℙ)[fun t ↦ ψ[T₁; ℙ[|T₃ ⁻¹' {t}] # T₂; ℙ[|T₃ ⁻¹' {t}]]]
   have h2T₃ : T₃ = T₁ + T₂ := by
-    calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp
+    calc T₃ = T₁ + T₂ + T₃ - T₃ := by simp [hT, ZModModule.neg_eq_self]
       _ = T₁ + T₂ := by rw [add_sub_cancel_right]
   have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
   -- control sum1 with entropic BSG
@@ -349,14 +346,14 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp only [sum2, integral_sub .of_finite .of_finite, integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
+      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
       Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), setIntegral_eq_sum,
+      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
       Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
@@ -371,7 +368,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     refine integral_mono_ae .of_finite .of_finite $
       ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
-      cond_isProbabilityMeasure ℙ (by simpa [hT₃] using ht)
+      cond_isProbabilityMeasure (by simpa [hT₃] using ht)
     dsimp only
     linarith only [distance_ge_of_min' (μ := ℙ[|T₃ ⁻¹' {t}]) (μ' := ℙ[|T₃ ⁻¹' {t}]) p h_min hT₁ hT₂]
   exact hk.trans h4
@@ -462,7 +459,7 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
   · simp [h'i]
   rw [mul_assoc, ← mul_add]
   gcongr
-  have : IsProbabilityMeasure (ℙ[|S ⁻¹' {i}]) := cond_isProbabilityMeasure ℙ h'i
+  have : IsProbabilityMeasure (ℙ[|S ⁻¹' {i}]) := cond_isProbabilityMeasure h'i
   linarith [construct_good_improved'' h_min (ℙ[|S ⁻¹' {i}]) hUVW hU hV hW]
 
 variable (p)
@@ -555,7 +552,7 @@ lemma dist_diff_bound_1 :
   have C30 : H[X₂ | X₁ + X₂] = H[X₁ | X₁ + X₂] := by
     have := condEntropy_of_injective ℙ hX₁ (hX₁.add hX₂) _ (fun p ↦ add_right_injective p)
     convert this with ω
-    simp [add_comm (X₁ ω), add_assoc (X₂ ω)]
+    simp [add_comm (X₁ ω), add_assoc (X₂ ω), ZModModule.add_self]
   simp only [C1, C2, C3, C4, C5, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19,
     C20, C21, C22, C23, C24, C25, C26, C27, C28, C29, C30] at I1 I2 I3 I4 I5 I6 ⊢
   linarith only [I1, I2, I3, I4, I5, I6]
@@ -646,7 +643,7 @@ lemma dist_diff_bound_2 :
   have C27 : H[X₂ | X₁ + X₂] = H[X₁ | X₁ + X₂] := by
     have := condEntropy_of_injective ℙ hX₁ (hX₁.add hX₂) _ (fun p ↦ add_right_injective p)
     convert this with ω
-    simp only [Pi.add_apply, add_comm (X₁ ω), add_assoc (X₂ ω), Module.add_self, add_zero]
+    simp only [Pi.add_apply, add_comm (X₁ ω), add_assoc (X₂ ω), ZModModule.add_self, add_zero]
   have C28 : H[V] = H[U] := by
     apply ProbabilityTheory.IdentDistrib.entropy_eq
     have I : IdentDistrib (⟨X₁', X₂⟩) (⟨X₁, X₂⟩) :=
@@ -736,7 +733,7 @@ variable (p : refPackage Ω₀₁ Ω₀₂ G)
 all minimizers are fine, by `tau_strictly_decreases'`. For `p.η = 1/8`, we use a limit of
 minimizers for `η < 1/8`, which exists by compactness. -/
 lemma tau_minimizer_exists_rdist_eq_zero :
-    ∃ (Ω : Type uG) (mΩ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
+    ∃ (Ω : Type uG) (_ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
       Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧ tau_minimizes p X₁ X₂
       ∧ d[X₁ # X₂] = 0 := by
   -- let `uₙ` be a sequence converging from below to `η`. In particular, `uₙ < 1/8`.
@@ -882,11 +879,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   rw [hAA'] at UAunif
-  have hadd_sub : A + A = A - A := by
-    rw [← Set.image2_add, ← Set.image2_sub]
-    congr! 1 with a _ b _
-    rw [(show a+b=a-b by simp)]
-    rfl
+  have hadd_sub : A + A = A - A := by ext; simp [mem_add, mem_sub, ZModModule.sub_eq_add]
   rw [hadd_sub] at hA
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
   rw [← hadd_sub] at hA
@@ -907,7 +900,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   rw [← hHH'] at VH'unif
   have H_fin : Finite (H : Set G) := by infer_instance
 
-  have : d[VA # VH] ≤ 10/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
+  have : d[VA # VH] ≤ 5 * log K := by rw [idVA.rdist_eq idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos
     positivity
@@ -930,7 +923,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     · exact (exp_log H_pos).symm
     · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos]
   -- entropic PFR shows that the entropy of `VA - VH` is small
-  have I : log K * (-10/2) + log (Nat.card A) * (-1/2) + log (Nat.card H) * (-1/2)
+  have I : log K * (-5) + log (Nat.card A) * (-1/2) + log (Nat.card H) * (-1/2)
       ≤ - H[VA - VH] := by
     rw [Vindep.rdist_eq VAmeas VHmeas] at this
     linarith
@@ -938,7 +931,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
     prob_ge_exp_neg_entropy' _ ((VAmeas.sub VHmeas).comp measurable_id')
   -- massage the previous inequality to get that `A ∩ (H + {x₀})` is large
-  have J : K ^ (-10/2) * Nat.card A ^ (1/2) * Nat.card H ^ (1/2) ≤
+  have J : K ^ (-5) * Nat.card A ^ (1/2) * Nat.card H ^ (1/2) ≤
       Nat.card (A ∩ (H + {x₀}) : Set G) := by
     rw [VA'unif.measureReal_preimage_sub VAmeas VH'unif VHmeas Vindep] at h₀
     have := (Real.exp_monotone I).trans h₀
@@ -953,7 +946,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     · rw [hAA', hHH']
     positivity
 
-  have Hne : Set.Nonempty (A ∩ (H + {x₀} : Set G)) := by
+  have Hne : (A ∩ (H + {x₀} : Set G)).Nonempty := by
     by_contra h'
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
     simp only [Nat.card_eq_fintype_card, card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
@@ -962,30 +955,27 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
-  rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
-    ⟨u, hu, Au, -⟩
-  have Iu : Nat.card u ≤ K ^ 6 * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := by
-    have : (0 : ℝ) ≤ Nat.card u := by simp
-    have Z1 := mul_le_mul_of_nonneg_left J this
-    have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
-      ≤ Nat.card (A + A ∩ (↑H + {x₀})) := by norm_cast
-    have Z3 : (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ K * Nat.card A := by
-      apply le_trans _ hA
-      simp only [Nat.cast_le]
-      apply Nat.card_mono (toFinite _)
-      apply add_subset_add_left inter_subset_left
-    have : 0 ≤ K ^ (10/2) * Nat.card A ^ (-1/2) * Nat.card H ^ (-1/2) := by positivity
-    have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
-    convert T using 1 <;> rpow_ring <;> norm_num
+  have Z3 :
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ (K ^ 6 * Nat.card A ^ (1/2 : ℝ) *
+        Nat.card H ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
+    calc
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ)
+      _ ≤ Nat.card (A + A) := by
+        gcongr; exact Nat.card_mono (toFinite _) <| add_subset_add_left inter_subset_left
+      _ ≤ K * Nat.card A := hA
+      _ = (K ^ 6 * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+          (K ^ (-5 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ)) := by
+        rpow_ring; norm_num
+      _ ≤ (K ^ 6 * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+        Nat.card ↑(A ∩ (↑H + {x₀})) := by gcongr
+  obtain ⟨u, huA, hucard, hAu, -⟩ :=
+    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
-    apply Au.trans
-    rw [add_sub_assoc]
-    apply add_subset_add_left
-    apply (sub_subset_sub inter_subset_right inter_subset_right).trans
-    rintro - ⟨-, ⟨y, hy, xy, hxy, rfl⟩, -, ⟨z, hz, xz, hxz, rfl⟩, rfl⟩
-    simp only [mem_singleton_iff] at hxy hxz
-    simpa [hxy, hxz, -Module.sub_eq_add] using H.sub_mem hy hz
-  exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
+    refine hAu.trans $ add_subset_add_left $
+      (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
+    rw [add_sub_add_comm, singleton_sub_singleton, sub_self]
+    simp
+  exact ⟨H, u, hucard, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of an elementary abelian
 2-group of doubling constant at most $K$, then $A$ can be covered by at most $2K^{11$} cosets of
@@ -1017,7 +1007,7 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
   · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : Submodule (ZMod 2) G, Nat.card H' ≤ Nat.card A
           ∧ Nat.card A < 2 * Nat.card H' ∧ H' ≤ H := by
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
-      exact Module.exists_submodule_subset_card_le Nat.prime_two H h.le A_pos'.ne'
+      exact ZModModule.exists_submodule_subset_card_le Nat.prime_two H h.le A_pos'.ne'
     have : (Nat.card A / 2 : ℝ) < Nat.card H' := by
       rw [div_lt_iff₀ zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card H' := by
@@ -1028,7 +1018,7 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
-      ≤ Nat.card c * Nat.card u := mod_cast card_add_le
+      ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
     _ ≤ (K ^ 6 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
           * (Nat.card H / Nat.card H') := by
         gcongr
@@ -1039,7 +1029,6 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
     _ = 2 * K ^ 6 * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
-        have : (0 : ℝ) < Nat.card H := H_pos
         field_simp
         rpow_ring
         norm_num
@@ -1057,7 +1046,7 @@ theorem PFR_conjecture_improv' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
     ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   let G' := Submodule.span (ZMod 2) A
-  let G'fin : Fintype G' := Afin.submoduleSpan.fintype
+  let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
   let ι : G'→ₗ[ZMod 2] G := G'.subtype
   have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
   let A' : Set G' := ι ⁻¹' A

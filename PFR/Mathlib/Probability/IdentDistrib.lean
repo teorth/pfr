@@ -2,8 +2,7 @@ import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.Probability.Independence.Basic
-import PFR.ForMathlib.FiniteRange
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses
+import PFR.ForMathlib.FiniteRange.Defs
 
 -- TODO: Change `ae_snd` to assume `Measurable p`
 
@@ -59,7 +58,7 @@ protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (
   map_eq := by
     ext t ht
     rw [map_apply₀ _ ht.nullMeasurableSet, map_apply₀ _ ht.nullMeasurableSet,
-      cond_apply _ (hg' hs), cond_apply _ (hf' hs)]
+      cond_apply (hg' hs), cond_apply (hf' hs)]
     congr
     · simpa only [map_apply₀ (hfg.comp measurable_snd).aemeasurable_fst hs.nullMeasurableSet,
         map_apply₀ (hfg.comp measurable_snd).aemeasurable_snd hs.nullMeasurableSet]
@@ -98,6 +97,16 @@ gives identically distributed functions. -/
 lemma IdentDistrib.comp_right {i : δ → β} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂ν, a ∈ range i)
     (hg : Measurable g) (hfg : IdentDistrib f g μ ν) : IdentDistrib f (g ∘ i) μ (ν.comap i) :=
   hfg.trans $ identDistrib_comp_right hi hi' hg
+
+lemma _root_.MeasureTheory.MeasurePreserving.identDistrib {α β γ : Type*} {X : β → γ} {f : α → β}
+    [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ] {μ : Measure α}
+    {ν : Measure β} (hf : MeasurePreserving f μ ν) (hX : AEMeasurable X ν) :
+    IdentDistrib X (X ∘ f) ν μ := by
+  have A : AEMeasurable X (Measure.map f μ) := by rwa [hf.map_eq]
+  constructor
+  · exact hX
+  · exact AEMeasurable.comp_aemeasurable A hf.aemeasurable
+  · rw [← AEMeasurable.map_map_of_aemeasurable A hf.aemeasurable, hf.map_eq]
 
 end ProbabilityTheory
 
@@ -244,7 +253,7 @@ lemma independent_copies' {I : Type u} [Fintype I] {α : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (α i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → α i) (hX : ∀ i : I, Measurable (X i))
     (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] :
-    ∃ (A : Type (max u v)) (mA : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
+    ∃ (A : Type (max u v)) (_ : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
     IsProbabilityMeasure μA ∧
     iIndepFun mS X' μA ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by
@@ -268,10 +277,9 @@ lemma independent_copies3_nondep {α : Type u}
     (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂] [hμ₃ : IsProbabilityMeasure μ₃] :
-    ∃ (A : Type (max u_1 u_2 u_3)) (mA : MeasurableSpace A) (μA : Measure A)
-      (X₁' X₂' X₃' : A → α),
-    IsProbabilityMeasure μA ∧
-    iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
+    ∃ (A : Type (max u_1 u_2 u_3)) (_ : MeasurableSpace A) (μA : Measure A) (X₁' X₂' X₃' : A → α),
+      IsProbabilityMeasure μA ∧
+      iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
       IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ := by
   let Ω₁' : Type (max u_1 u_2 u_3) := ULift.{max u_2 u_3} Ω₁
@@ -316,7 +324,7 @@ lemma independent_copies4_nondep {α : Type u}
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) (μ₄ : Measure Ω₄)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂]
     [hμ₃ : IsProbabilityMeasure μ₃] [hμ₄ : IsProbabilityMeasure μ₄] :
-    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (mA : MeasurableSpace A) (μA : Measure A)
+    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' X₄' : A → α),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃', X₄'] μA ∧
@@ -395,8 +403,8 @@ lemma independent_copies_finiteRange {X : Ω → α} {Y : Ω' → β}
     Y' : α × β → β, IsProbabilityMeasure ν
       ∧ Measurable X' ∧ Measurable Y' ∧ IndepFun X' Y' ν
       ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' ∧ FiniteRange X' ∧ FiniteRange Y' := by
-  have : Nonempty α := Nonempty.map X (nonempty_of_isProbabilityMeasure μ)
-  have : Nonempty β := Nonempty.map Y (nonempty_of_isProbabilityMeasure μ')
+  have : Nonempty α := μ.nonempty_of_neZero.map X
+  have : Nonempty β := μ'.nonempty_of_neZero.map Y
   obtain ⟨ν, X', Y', hν, hX', hY', hind, hIdX, hIdY⟩ := independent_copies hX hY μ μ'
   rcases identDistrib_of_finiteRange hX' hIdX.symm with ⟨X'', hX'', hX''_finite, hX''_eq⟩
   rcases identDistrib_of_finiteRange hY' hIdY.symm with ⟨Y'', hY'', hY''_finite, hY''_eq⟩
@@ -420,14 +428,14 @@ lemma independent_copies3_nondep_finiteRange {α : Type u}
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂]
     [hμ₃ : IsProbabilityMeasure μ₃] :
-    ∃ (A : Type (max u_1 u_2 u_3)) (mA : MeasurableSpace A) (μA : Measure A)
+    ∃ (A : Type (max u_1 u_2 u_3)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' : A → α),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
       IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ ∧
       FiniteRange X₁' ∧ FiniteRange X₂' ∧ FiniteRange X₃' := by
-    have : Nonempty α := Nonempty.map X₁ (nonempty_of_isProbabilityMeasure μ₁)
+    have : Nonempty α := μ₁.nonempty_of_neZero.map X₁
     obtain ⟨A, mA, μA, X₁', X₂', X₃', hμA, hind, hX₁, hX₂, hX₃, hId₁, hId₂, hId₃⟩ :=
       independent_copies3_nondep hX₁ hX₂ hX₃ μ₁ μ₂ μ₃
     rcases identDistrib_of_finiteRange hX₁ hId₁.symm with ⟨X₁'', hX₁'', hX₁''_finite, hX₁''_eq⟩
@@ -457,7 +465,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) (μ₄ : Measure Ω₄)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂] [hμ₃ : IsProbabilityMeasure μ₃]
     [hμ₄ : IsProbabilityMeasure μ₄]:
-    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (mA : MeasurableSpace A) (μA : Measure A)
+    ∃ (A : Type (max u_1 u_2 u_3 u_4)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' X₄' : A → α),
     IsProbabilityMeasure μA ∧
     iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃', X₄'] μA ∧
@@ -465,7 +473,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
       ∧ IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃
       ∧ IdentDistrib X₄' X₄ μA μ₄ ∧ FiniteRange X₁' ∧ FiniteRange X₂'
       ∧ FiniteRange X₃' ∧ FiniteRange X₄' := by
-    have : Nonempty α := Nonempty.map X₁ (nonempty_of_isProbabilityMeasure μ₁)
+    have : Nonempty α := μ₁.nonempty_of_neZero.map X₁
     obtain ⟨A, mA, μA, X₁', X₂', X₃', X₄', hμA, hind, hX₁, hX₂, hX₃, hX₄, hId₁, hId₂, hId₃, hId₄⟩ :=
       independent_copies4_nondep hX₁ hX₂ hX₃ hX₄ μ₁ μ₂ μ₃ μ₄
     rcases identDistrib_of_finiteRange hX₁ hId₁.symm with ⟨X₁'', hX₁'', hX₁''_finite, hX₁''_eq⟩

@@ -74,13 +74,15 @@ lemma second_estimate_aux :
       (by decide) (by decide) (by decide) (by decide)
   have h : d[X₁ + X₁' # X₂+ X₂'] ≤ (2 + p.η) * k - (d[X₁# X₁] + d[X₂ # X₂]) / 2 - I₁ := by
     have h := hX_indep.rdist_eq (hX₁.add hX₁') (hX₂.add hX₂')
-    rw [sub_eq_add (X₁ + X₁') (X₂ + X₂'), ← sub_eq_add X₁ X₁', ← sub_eq_add X₂ X₂',
+    rw [ZModModule.sub_eq_add (X₁ + X₁') (X₂ + X₂'), ← ZModModule.sub_eq_add X₁ X₁',
+      ← ZModModule.sub_eq_add X₂ X₂',
       sub_eq_iff_eq_add.mp (sub_eq_iff_eq_add.mp (hX₁_indep.rdist_eq hX₁ hX₁').symm),
       sub_eq_iff_eq_add.mp (sub_eq_iff_eq_add.mp (hX₂_indep.rdist_eq hX₂ hX₂').symm),
       ← h₁.entropy_eq, ← h₂.entropy_eq, add_assoc, add_assoc, add_halves, add_halves,
       ← (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁,
       ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂,
-      sub_eq_add X₁ X₁', sub_eq_add X₂ X₂', ← add_assoc, add_right_comm _ X₁'] at h
+      ZModModule.sub_eq_add X₁ X₁', ZModModule.sub_eq_add X₂ X₂', ← add_assoc, add_right_comm _ X₁']
+        at h
     have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] :=
       by exact h_indep.reindex_four_abdc
     have h' := ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min

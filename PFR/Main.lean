@@ -1,7 +1,6 @@
 import Mathlib.Algebra.Group.Pointwise.Set.Card
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
-import PFR.Mathlib.RingTheory.Finiteness
 import PFR.ForMathlib.ZModModule
 import PFR.EntropyPFR
 import PFR.Tactic.RPowSimp
@@ -26,9 +25,9 @@ variable {G Ω : Type*} [AddCommGroup G] [Fintype G]
     [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G}
 
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
-and `B`, then `U = V` with probability `# (A ∩ B) / #A ⬝ #B`. -/
+and `B`, then `U = V` with probability `#(A ∩ B) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : Measurable U)
-    (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) :
+    (Vunif : IsUniform B V) (Vmeas : Measurable V) (h_indep : IndepFun U V) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {0})
       = Nat.card (A ∩ B : Set G) / (Nat.card A * Nat.card B) := by
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
@@ -45,7 +44,7 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
     ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p} ∩ V ⁻¹' {p})
       = ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply sum_congr _ _ (fun g ↦ ?_)
-        rw [hindep.measureReal_inter_preimage_eq_mul .of_discrete .of_discrete]
+        rw [h_indep.measureReal_inter_preimage_eq_mul .of_discrete .of_discrete]
     _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply (Finset.sum_subset W.subset_univ _).symm
         intro i _ hi
@@ -67,7 +66,7 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V + x` with probability `# (A ∩ (B + x)) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measurable U)
-    (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) (x : G) :
+    (Vunif : IsUniform B V) (Vmeas : Measurable V) (h_indep : IndepFun U V) (x : G) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {x})
       = Nat.card (A ∩ (B + {x}) : Set G) / (Nat.card A * Nat.card B) := by
   classical
@@ -78,7 +77,7 @@ lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measur
   have Wmeas : Measurable W := Vmeas.add_const _
   have UWindep : IndepFun U W := by
     have : Measurable (fun g ↦ g + x) := measurable_add_const x
-    exact hindep.comp measurable_id this
+    exact h_indep.comp measurable_id this
   have : (U - V) ⁻¹' {x} = (U - W) ⁻¹' {0} := by
     ext ω
     simp only [W, mem_preimage, Pi.add_apply, mem_singleton_iff, Pi.sub_apply, ← sub_eq_zero (b := x)]
@@ -154,7 +153,7 @@ lemma sumset_eq_sub {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] (A : Set G)
   rw [← Set.image2_add, ← Set.image2_sub]
   congr! 1 with a _ b _
   show a + b = a - b
-  simp
+  simp [ZModModule.sub_eq_add]
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup `H`
@@ -189,7 +188,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   rw [← hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm .of_discrete
   let H' := (H : Set G).toFinite.toFinset
-  have hHH' : H' = (H : Set G) := Finite.coe_toFinset (toFinite (H : Set G))
+  have hHH' : H' = (H : Set G) := (toFinite (H : Set G)).coe_toFinset
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
 
@@ -239,7 +238,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     · rw [hAA', hHH']
     positivity
 
-  have Hne : Set.Nonempty (A ∩ (H + {x₀} : Set G)) := by
+  have Hne : (A ∩ (H + {x₀} : Set G)).Nonempty := by
     by_contra h'
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
     simp only [Nat.card_eq_fintype_card, card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
@@ -248,31 +247,27 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
-  rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
-    ⟨u, hu, Au, -⟩
-  have Iu :
-    Nat.card u ≤ K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ) := by
-    have : (0 : ℝ) ≤ Nat.card u := by simp
-    have Z1 := mul_le_mul_of_nonneg_left J this
-    have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
-      ≤ Nat.card (A + A ∩ (↑H + {x₀})) := by norm_cast
-    have Z3 : (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ K * Nat.card A := by
-      apply le_trans _ hA
-      simp only [Nat.cast_le]
-      apply Nat.card_mono (toFinite _)
-      apply add_subset_add_left inter_subset_left
-    have : 0 ≤ K ^ (11/2 : ℝ) * Nat.card A ^ (-1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ) := by
-      positivity
-    have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
-    convert T using 1 <;> rpow_ring <;> norm_num
+  have Z3 :
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) *
+        Nat.card H ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
+    calc
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ)
+      _ ≤ Nat.card (A + A) := by
+        gcongr; exact Nat.card_mono (toFinite _) <| add_subset_add_left inter_subset_left
+      _ ≤ K * Nat.card A := hA
+      _ = (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+          (K ^ (-11/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ)) := by
+        rpow_ring; norm_num
+      _ ≤ (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+        Nat.card ↑(A ∩ (↑H + {x₀})) := by gcongr
+  obtain ⟨u, huA, hucard, hAu, -⟩ :=
+    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
-    rw [add_sub_assoc] at Au
-    refine Au.trans $ add_subset_add_left $
+    refine hAu.trans $ add_subset_add_left $
       (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
     rw [add_sub_add_comm, singleton_sub_singleton, sub_self]
     simp
-  exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
-
+  exact ⟨H, u, hucard, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of an elementary abelian
 2-group of doubling constant at most `K`, then `A` can be covered by at most `2 * K ^ 12` cosets of
@@ -303,7 +298,7 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
   · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : Submodule (ZMod 2) G, Nat.card H' ≤ Nat.card A
           ∧ Nat.card A < 2 * Nat.card H' ∧ H' ≤ H := by
       have A_pos' : 0 < Nat.card A := mod_cast A_pos
-      exact Module.exists_submodule_subset_card_le Nat.prime_two H h.le A_pos'.ne'
+      exact ZModModule.exists_submodule_subset_card_le Nat.prime_two H h.le A_pos'.ne'
     have : (Nat.card A / 2 : ℝ) < Nat.card H' := by
       rw [div_lt_iff₀ zero_lt_two, mul_comm]; norm_cast
     have H'_pos : (0 : ℝ) < Nat.card H' := by
@@ -314,7 +309,7 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
-      ≤ Nat.card c * Nat.card u := mod_cast card_add_le
+      ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
     _ ≤ (K ^ (13/2 : ℝ) * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
           * (Nat.card H / Nat.card H') := by
         gcongr
@@ -325,7 +320,6 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
     _ = 2 * K ^ (13/2) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
-        have : (0 : ℝ) < Nat.card H := H_pos
         field_simp
         rpow_ring
         norm_num
@@ -343,7 +337,7 @@ theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
     ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
   let G' := Submodule.span (ZMod 2) A
-  let G'fin : Fintype G' := Afin.submoduleSpan.fintype
+  let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
   let ι : G'→ₗ[ZMod 2] G := G'.subtype
   have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
   let A' : Set G' := ι ⁻¹' A

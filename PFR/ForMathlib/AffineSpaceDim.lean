@@ -1,23 +1,36 @@
-import Mathlib.LinearAlgebra.Dimension.Finrank
-import Mathlib.RingTheory.Finiteness
+import Mathlib.LinearAlgebra.Dimension.Constructions
+import Mathlib.LinearAlgebra.Dimension.Finite
+import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
+import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
 
-variable {G : Type*} [AddCommGroup G]
+open scoped Pointwise
 
-/-- If G ≅ ℤᵈ then there is a subgroup H of G such that A lies in a coset of H. This is helpful to
-give the equivalent definition of `dimension`. Here this is stated in greated generality since the
-proof carries over automatically. -/
-lemma exists_coset_cover (A : Set G) :
-    ∃ (d : ℕ), ∃ (S : Submodule ℤ G) (v : G), Module.finrank ℤ S = d ∧ ∀ a ∈ A, a - v ∈ S :=
-  ⟨Module.finrank ℤ (⊤ : Submodule ℤ G), ⊤, by simp⟩
+namespace AffineSpace
+variable {k V P : Type*} [Ring k] [AddCommGroup V] [Module k V] [AddTorsor V P] {s : Set P}
+  {S : Submodule k V}
 
--- TODO: Redefine as `Module.finrank ℤ (vectorSpan ℤ A)`
+variable (k) in
 open scoped Classical in
 /-- The dimension of the affine span over `ℤ` of a subset of an additive group. -/
-noncomputable def dimension (A : Set G) : ℕ := Nat.find (exists_coset_cover A)
+noncomputable def finrank (s : Set P) : ℕ := (vectorSpan k s).finrank
 
-lemma dimension_le_of_coset_cover (A : Set G) (S : Submodule ℤ G) (v : G)
-    (hA : ∀ a ∈ A, a - v ∈ S) : dimension A ≤ Module.finrank ℤ S := by
-  classical exact Nat.find_le ⟨S , v, rfl, hA⟩
+variable (k) in
+@[simp]
+lemma finrank_vadd_set (s : Set P) (v : V) : finrank k (v +ᵥ s) = AffineSpace.finrank k s := by
+  simp [finrank]
 
-lemma dimension_le_rank [Module.Finite ℤ G] (A : Set G) : dimension A ≤ Module.finrank ℤ G := by
-  simpa using dimension_le_of_coset_cover A ⊤ 0 (by simp)
+variable (k) in
+@[simp] lemma finrank_empty [Nontrivial k] : finrank k (∅ : Set P) = 0 := by simp [finrank]
+
+variable [StrongRankCondition k]
+
+lemma finrank_le_submoduleFinrank [Module.Finite k S] (q : P) (hs : ∀ p ∈ s, p -ᵥ q ∈ S) :
+    finrank k s ≤ S.finrank := by
+  refine Submodule.finrank_mono ?_
+  simpa [vectorSpan, Submodule.span_le, Set.vsub_subset_iff]
+    using fun a ha b hb ↦ S.sub_mem (hs _ ha) (hs _ hb)
+
+lemma finrank_le_moduleFinrank [Module.Finite k V] : finrank k s ≤ Module.finrank k V :=
+  (vectorSpan k s).finrank_le
+
+end AffineSpace

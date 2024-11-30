@@ -69,6 +69,9 @@ def ExBase.toProd {a : Q(ℝ)} (va : ExBase a) : ExProd q($a * 1) := .mul va .on
 
 nonrec abbrev Result := Ring.Result (u := .zero) (α := q(ℝ))
 
+instance (e : Q(ℝ)) : Inhabited (Result ExProd e) :=
+  inferInstanceAs (Inhabited (Ring.Result ExProd e))
+
 theorem atom_pf (a : ℝ) : a = a * 1 := by simp
 theorem atom_pf' {a a' : ℝ} (p : a = a') : a = a * 1 := by simp [*]
 theorem atom_pow_pf (a : ℝ) : a = a ^ (1 : ℝ) * 1 := by simp
@@ -82,7 +85,7 @@ Evaluates an atom, an expression where `ring` can find no additional structure.
 def evalAtom (e : Q(ℝ)) : AtomM (Result ExProd e) := do
   let r ← (← read).evalAtom e
   have a : Q(ℝ) := r.expr
-  let i ← AtomM.addAtom a
+  let (i, _) ← AtomM.addAtom a
   match ← Positivity.catchNone <| Positivity.core q(inferInstance) q(inferInstance) a, r.proof? with
   | .positive pa, none =>
     pure ⟨_, (ExBase.pow i a pa q(1)).toProd, (q(atom_pow_pf $e) : Expr)⟩
@@ -298,7 +301,7 @@ macro "rpow_simp" extras:(simpArgs)? loc:(location)? : tactic => `(tactic|
       [abs_one, abs_mul, abs_inv, abs_div, abs_abs, abs_zero, mul_rpow, ← rpow_mul, div_rpow,
        ← rpow_natCast, abs_rpow_of_nonneg, rpow_one, ← rpow_add, ← rpow_sub, zero_rpow, one_rpow,
        rpow_one, inv_rpow', rpow_inv] $(loc)? <;> try push_cast) <;>
-   try rpow_ring) <;> try field_simp only $(extras)? $(loc)?) <;> try ring_nf (config:={}) $(loc)?) <;>
+   try rpow_ring) <;> try field_simp only $(extras)? $(loc)?)) <;>
    try simp (discharger := positivity) only [abs_one, abs_zero, one_rpow, rpow_one, rpow_zero,
      mul_zero, zero_mul, mul_one, one_mul, fix_cast₁, fix_cast₂, fix_cast₃, Nat.cast_one, inv_rpow',
      rpow_inv] $(loc)?)

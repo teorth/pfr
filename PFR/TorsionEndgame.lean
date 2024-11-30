@@ -16,7 +16,7 @@ section AnalyzeMinimizer
 
 universe u
 
-variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X)
+variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (h_min : multiTauMinimizes p Ω hΩ X)
 
 local notation3 "k" => multiTau p Ω hΩ X
 
@@ -43,7 +43,7 @@ lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
   simp
 
 variable [hΩ': MeasureSpace Ω'] [IsFiniteMeasure hΩ'.volume]
-  (hindep : iIndepFun _ Y) (hident : ∀ i j, IdentDistrib (Y (i, j)) (X i)) {m : ℝ}
+  (h_indep : iIndepFun _ Y) (hident : ∀ i j, IdentDistrib (Y (i, j)) (X i)) {m : ℝ}
 
 /-- We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤ 4m^2 η k`.
 -/
@@ -129,7 +129,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
         apply le_trans _ ha'
         rw [← SetLike.coe_sort_coe, ← SetLike.coe_sort_coe, AddSubgroup.normal_add K Z, Nat.mul_comm]
         calc
-          _ ≤ (Nat.card (K:Set G)) * (Nat.card (Z:Set G)) := Set.card_add_le
+          _ ≤ Nat.card (K : Set G) * Nat.card (Z : Set G) := Set.natCard_add_le
           _ ≤ _ := by
             gcongr
             rw [SetLike.coe_sort_coe, Nat.card_zmultiples a]
@@ -203,7 +203,7 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
-      ≤ Nat.card c * Nat.card u := mod_cast Set.card_add_le
+      ≤ Nat.card c * Nat.card u := mod_cast Set.natCard_add_le
     _ ≤ (K ^ ((64*m^3+2)) * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
           * (Nat.card H / Nat.card H') := by
         gcongr
@@ -214,7 +214,6 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
           * (Nat.card H / (Nat.card A / m)) := by
         gcongr
     _ = m * K ^ ((64*m^3+2)) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
-        have : (0 : ℝ) < Nat.card H := H_pos
         field_simp
         rpow_ring
         norm_num

@@ -13,7 +13,7 @@ Currently, the project is obtaining an extension of PFR to other bounded torsion
 * [Blueprint of the proof](https://teorth.github.io/pfr/blueprint)
 * [Documentation of the methods](https://teorth.github.io/pfr/docs)
 * [A quick "tour" of the project](https://terrytao.wordpress.com/2023/11/18/formalizing-the-proof-of-pfr-in-lean4-using-blueprint-a-short-tour)
-* [Some example Lean code to illustrate the results in the project](https://github.com/teorth/pfr/blob/master/examples.lean)
+* [Some example Lean code to illustrate the results in the project](https://github.com/teorth/pfr/blob/master/PFR/Examples.lean)
 
 ## Build the Lean files
 

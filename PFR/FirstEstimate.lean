@@ -173,7 +173,8 @@ lemma ent_ofsum_le
     · refine add_le_add (add_le_add (le_refl _) ?_) ?_
       · apply (mul_le_mul_left p.hη).mpr lem611c
       · apply (mul_le_mul_left p.hη).mpr lem611d
-  have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by simp
+  have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by
+    simp [ZModModule.sub_eq_add]
   have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by abel
   have ind_aux : IndepFun (X₁ + X₂') (X₂ + X₁') := by
     exact iIndepFun.indepFun_add_add h_indep (fun i ↦ by fin_cases i <;> assumption) 0 2 1 3
@@ -190,7 +191,7 @@ lemma ent_ofsum_le
       have k_eq_aux : k = d[X₁ # X₂'] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂
       rw [k_eq_aux]
       exact (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)).rdist_eq hX₁ hX₂'
-    rw [k_eq, ← Module.sub_eq_add, ← HX₂_eq]
+    rw [k_eq, ← ZModModule.sub_eq_add, ← HX₂_eq]
     ring
   have rw₃ : H[X₂ + X₁'] = k + H[X₁]/2 + H[X₂]/2 := by
     have HX₁_eq : H[X₁] = H[X₁'] :=
@@ -200,7 +201,7 @@ lemma ent_ofsum_le
         IdentDistrib.rdist_eq h₁ (IdentDistrib.refl hX₂.aemeasurable)
       rw [k_eq_aux]
       exact IndepFun.rdist_eq (h_indep.indepFun (show (3 : Fin 4) ≠ 1 by decide)) hX₁' hX₂
-    rw [add_comm X₂ X₁', k_eq', ← Module.sub_eq_add, ← HX₁_eq]
+    rw [add_comm X₂ X₁', k_eq', ← ZModModule.sub_eq_add, ← HX₁_eq]
     ring
   calc H[X₁ + X₂ + X₁' + X₂']
       ≤ H[X₁ + X₂'] / 2 + H[X₂ + X₁'] / 2 + (1 + p.η) * k - I₁  := obs

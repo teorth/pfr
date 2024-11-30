@@ -330,6 +330,13 @@ If the $(X_i,Y_i)$ are independent,
   This is routine from \Cref{conditional-entropy-def} and Definitions \ref{multidist-def} and \ref{cond-multidist-def}.
 \end{proof}
 
+\begin{lemma}[Conditional multidistance nonnegative]\label{cond-multidist-nonneg}\uses{cond-multidist-def}\lean{condMultiDist_nonneg}\leanok If $X_{[m]} = (X_i)_{1 \leq i \leq m}$ and $Y_{[m]} = (Y_i)_{1 \leq i \leq m}$ are tuples of random variables, then $D[ X_{[m]} | Y_{[m]} ] \geq 0$.
+\end{lemma}
+
+\begin{proof}\uses{multidist-nonneg}\leanok Clear from \Cref{multidist-nonneg} and \Cref{cond-multidist-def}, except that some care may need to be taken to deal with the $y_i$ where $p_{Y_i}$ vanish.
+\end{proof}
+
+
 \begin{lemma}[Lower bound on conditional multidistance]\label{cond-multidist-lower}\lean{sub_condMultiDistance_le}\leanok  If  $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$
 \end{lemma}

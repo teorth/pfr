@@ -1,10 +1,8 @@
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import Mathlib.MeasureTheory.Integral.Bochner
-import Mathlib.Tactic.Positivity.Finset
-import PFR.ForMathlib.FiniteRange
-import PFR.ForMathlib.MeasureReal
-import PFR.Mathlib.MeasureTheory.Constructions.Prod.Basic
-import PFR.Tactic.Finiteness
+import PFR.Mathlib.MeasureTheory.Measure.Prod
+import PFR.ForMathlib.FiniteRange.Defs
+import PFR.ForMathlib.MeasureReal.Defs
 
 /-!
 # Entropy of a measure
@@ -66,12 +64,35 @@ def _root_.MeasureTheory.Measure.support (μ : Measure S) [hμ : FiniteSupport �
   hμ.finite.choose.filter (μ {·} ≠ 0)
 
 lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] : μ μ.supportᶜ = 0 := by
-  simp [Measure.support, compl_setOf, not_and_or, -not_and, setOf_or]
-  refine ⟨hμ.finite.choose_spec, ?_⟩
-  sorry
+  let A := hμ.finite.choose
+  have : (μ.support : Set S)ᶜ ⊆ (A : Set S)ᶜ ∪ ⋃ x ∈ A.filter (μ {·} = 0), {x} := by
+    intro z hz
+    simp only [Measure.support, ne_eq, Finset.coe_filter, mem_compl_iff, mem_setOf_eq, not_and,
+      Decidable.not_not] at hz
+    by_cases h'z : z ∈ A
+    · simp [hz h'z, h'z]
+    · simp [h'z]
+  apply le_antisymm ?_ bot_le
+  calc μ (μ.support : Set S)ᶜ ≤ μ ((A : Set S)ᶜ ∪ ⋃ x ∈ A.filter (μ {·} = 0), {x}) :=
+    measure_mono this
+  _ ≤ μ (Aᶜ) + ∑ x ∈ A.filter (μ {·} = 0), μ {x} := by
+    apply (measure_union_le _ _).trans
+    gcongr
+    apply measure_biUnion_finset_le
+  _ ≤ 0 + ∑ x ∈ A.filter (μ {·} = 0), 0 := by
+    gcongr with x hx
+    · exact hμ.finite.choose_spec.le
+    · simp only [Finset.mem_filter] at hx
+      exact hx.2.le
+  _ = 0 := by simp
 
 @[simp] lemma mem_support {μ : Measure S} [hμ : FiniteSupport μ] {x : S} :
-    x ∈ μ.support ↔ μ {x} ≠ 0 := sorry
+    x ∈ μ.support ↔ μ {x} ≠ 0 := by
+  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+  · simp only [Measure.support, ne_eq, Finset.mem_filter] at h
+    exact h.2
+  · contrapose! h
+    exact measure_mono_null (by simpa using h) (measure_compl_support μ)
 
 instance finiteSupport_zero : FiniteSupport (0 : Measure S) where
   finite := ⟨(∅ : Finset S), by simp⟩
@@ -157,7 +178,7 @@ lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
   apply Integrable.comp_measurable .of_finite
   fun_prop
 
-lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*} [MeasurableSingletonClass Ω]
+lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*}
     [NormedAddCommGroup G] [NormedSpace ℝ G] {f g : Ω → G} [FiniteSupport μ]
     (hfg : ∀ x, μ {x} ≠ 0 → f x = g x) : ∫ x, f x ∂μ = ∫ x, g x ∂μ := by
   refine integral_congr_ae <| measure_mono_null ?_ <| measure_compl_support μ
@@ -540,7 +561,7 @@ lemma measureMutualInfo_swap (μ : Measure (S × T)) :
   simp_rw [measureEntropy_def, Measure.map_apply measurable_swap MeasurableSet.univ]
   simp only [Set.preimage_univ, Measure.smul_apply, smul_eq_mul, ENNReal.toReal_mul]
   simp_rw [Measure.map_apply measurable_swap (.singleton _)]
-  have : Set.range (Prod.swap : S × T → T × S) = Set.univ := Set.range_iff_surjective.mpr Prod.swap_surjective
+  have : Set.range (Prod.swap : S × T → T × S) = Set.univ := Set.range_eq_univ.mpr Prod.swap_surjective
   rw [← tsum_univ, ← this, tsum_range (fun x ↦ negMulLog (((μ Set.univ)⁻¹).toReal * (μ (Prod.swap⁻¹' {x}) ).toReal))]
   congr! with ⟨s, t⟩
   simp

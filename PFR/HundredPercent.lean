@@ -65,14 +65,14 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
   In particular, `X' - x` and `X' - y` have the same distribution, which is equivalent to the
   claim of the lemma. -/
   rcases ProbabilityTheory.independent_copies_two hX hX with
-    ⟨Ω', mΩ', X', Y', hP, hX', hY', hindep, hidX, hidY⟩
+    ⟨Ω', mΩ', X', Y', hP, hX', hY', h_indep, hidX, hidY⟩
   rw [hidX.symm.symmGroup_eq hX hX']
   have A : H[X' - Y' | Y'] = H[X' - Y'] := calc
     H[X' - Y' | Y'] = H[X' | Y'] := condEntropy_sub_right hX' hY'
-    _ = H[X'] := hindep.condEntropy_eq_entropy hX' hY'
+    _ = H[X'] := h_indep.condEntropy_eq_entropy hX' hY'
     _ = H[X' - Y'] := by
       have : d[X' # Y'] = 0 := by rwa [hidX.rdist_eq hidY]
-      rw [hindep.rdist_eq hX' hY', ← (hidX.trans hidY.symm).entropy_eq] at this
+      rw [h_indep.rdist_eq hX' hY', ← (hidX.trans hidY.symm).entropy_eq] at this
       linarith
   have I : IndepFun (X' - Y') Y' := by
     refine (mutualInfo_eq_zero (by fun_prop) hY').1 ?_
@@ -87,7 +87,7 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
       ℙ (F ⁻¹' s) * ℙ (Y' ⁻¹' {c}) = ℙ (F ⁻¹' s ∩ Y' ⁻¹' {c}) := by
         have hFY' : IndepFun F Y' := by
           have : Measurable (fun z ↦ z - c) := measurable_sub_const' c
-          apply hindep.comp this measurable_id
+          apply h_indep.comp this measurable_id
         rw [indepFun_iff_measure_inter_preimage_eq_mul.1 hFY' _ _ hs .of_discrete]
       _ = ℙ ((X' - Y') ⁻¹' s ∩ Y' ⁻¹' {c}) := by
         congr 1; ext z; simp (config := {contextual := true})
@@ -122,7 +122,7 @@ lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X]
       have Z := (mem_symmGroup hX).1 (AddSubgroup.neg_mem (symmGroup X hX) hz)
       simp [← sub_eq_add_neg] at Z
       exact Z.symm.measure_mem_eq $ .of_discrete
-    intro x y hx hy
+    intro x hx y hy
     rw [A x hx, A y hy]
   measure_preimage_compl := by
     apply (measure_preimage_eq_zero_iff_of_countable (Set.to_countable _)).2

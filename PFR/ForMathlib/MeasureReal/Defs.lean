@@ -1,6 +1,5 @@
-import Mathlib.MeasureTheory.Constructions.Prod.Basic
-import PFR.Mathlib.MeasureTheory.Measure.NullMeasurable
-import PFR.Tactic.Finiteness
+import Mathlib.MeasureTheory.Measure.Prod
+import Mathlib.Tactic.Finiteness
 
 /-!
 # Measures as real valued-functions
@@ -59,6 +58,20 @@ lemma sum_toReal_measure_singleton {S : Type*} [Fintype S] {_ : MeasurableSpace 
     [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
     ∑ x : S, (μ {x}).toReal = (μ Set.univ).toReal := by
   simp
+
+lemma measure_eq_univ_of_forall_singleton {X : Type*} [Countable X] [MeasurableSpace X]
+    {μ : Measure X} {s : Set X} (hμ : ∀ x ∈ sᶜ, μ {x} = 0) : μ s = μ Set.univ := by
+  apply le_antisymm (measure_mono (subset_univ _))
+  rw [← Set.union_compl_self s]
+  apply (measure_union_le _ _).trans
+  have : μ sᶜ = 0 := by
+    apply (measure_null_iff_singleton (Set.to_countable _)).2 (fun i hi ↦ ?_)
+    exact hμ _ hi
+  simp [this]
+
+lemma measure_eq_one_of_forall_singleton {X : Type*} [Countable X] [MeasurableSpace X]
+    {μ : Measure X} [IsProbabilityMeasure μ] {s : Set X} (hμ : ∀ x ∈ sᶜ, μ {x} = 0) : μ s = 1 := by
+  rw [measure_eq_univ_of_forall_singleton hμ, measure_univ]
 
 variable [MeasurableSpace Ω]
 
@@ -466,22 +479,7 @@ theorem measureReal_prod_prod {μ : Measure α} {ν : Measure β} [SigmaFinite �
     (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
--- find this in library? generalize?
-/-- Generalized in Measure.ext_iff_singleton_finiteSupport at Entropy.Measure -/
-theorem Measure.ext_iff_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    {μ1 μ2 : Measure S} :
-    μ1 = μ2 ↔ ∀ x, μ1 {x} = μ2 {x} := by
-  classical
-  constructor
-  · rintro rfl
-    simp
-  · intro h
-    ext s
-    have hs : Set.Finite s := Set.toFinite s
-    rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
-    simp_rw [h]
-
-theorem ext_iff_measureReal_singleton [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+theorem ext_iff_measureReal_singleton [Fintype S] [MeasurableSpace S]
     {μ1 μ2 : Measure S} [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :
     μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
   rw [Measure.ext_iff_singleton]

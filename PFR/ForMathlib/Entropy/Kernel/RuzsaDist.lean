@@ -1,3 +1,4 @@
+import PFR.Mathlib.MeasureTheory.Measure.Comap
 import PFR.ForMathlib.Entropy.Kernel.Group
 
 /-!
@@ -19,8 +20,7 @@ variable {T T' T'' G : Type*} [MeasurableSpace T] [MeasurableSpace T'] [Measurab
 /-- The Rusza distance between two measures, defined as `H[X - Y] - H[X]/2 - H[Y]/2` where `X`
 and `Y` are independent variables distributed according to the two measures. -/
 noncomputable
-def rdistm (μ : Measure G) (ν : Measure G) : ℝ :=
-    Hm[(μ.prod ν).map (fun x ↦ x.1 - x.2)] - Hm[μ]/2 - Hm[ν]/2
+def rdistm (μ ν : Measure G) : ℝ := Hm[(μ.prod ν).map (fun x ↦ x.1 - x.2)] - Hm[μ]/2 - Hm[ν]/2
 
 /-- The Rusza distance between two kernels taking values in the same space, defined as the average
 Rusza distance between the image measures. -/
@@ -295,7 +295,7 @@ lemma rdist_triangle_aux1 (κ : Kernel T G) (η : Kernel T' G)
       (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')) : Set ((T × T'') × T'))ᶜ
       = 0 :=
     Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
-  simp_rw [entropy, integral_eq_setIntegral hAB, integral_eq_setIntegral hACB, setIntegral_eq_sum,
+  simp_rw [entropy, integral_eq_setIntegral hAB, integral_eq_setIntegral hACB, integral_finset _ _ IntegrableOn.finset,
     smul_eq_mul, Measure.prod_apply_singleton, Finset.sum_product, ENNReal.toReal_mul, mul_assoc,
     ← Finset.mul_sum]
   congr with x
@@ -326,7 +326,7 @@ lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
       (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')) : Set ((T × T'') × T'))ᶜ
       = 0 :=
     Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
-  simp_rw [entropy, integral_eq_setIntegral hACB, integral_eq_setIntegral hBC, setIntegral_eq_sum,
+  simp_rw [entropy, integral_eq_setIntegral hACB, integral_eq_setIntegral hBC, integral_finset _ _ IntegrableOn.finset,
     smul_eq_mul, Measure.prod_apply_singleton]
   conv_rhs => rw [Finset.sum_product_right]
   conv_lhs => rw [Finset.sum_product, Finset.sum_product_right]

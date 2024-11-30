@@ -1,6 +1,5 @@
-import Mathlib.MeasureTheory.Constructions.Prod.Integral
+import Mathlib.MeasureTheory.Integral.Prod
 import PFR.ForMathlib.Entropy.Measure
-import PFR.Mathlib.MeasureTheory.Integral.Bochner
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.Probability.Kernel.Disintegration
 
@@ -167,7 +166,8 @@ lemma entropy_comap [MeasurableSingletonClass T]
       exact MeasurableSet.compl (Finset.measurableSet A)
     exact ae_eq_univ.mp hf_range
   simp_rw [entropy]
-  simp_rw [integral_eq_setIntegral hA, integral_eq_setIntegral this, setIntegral_eq_sum,
+  simp_rw [integral_eq_setIntegral hA, integral_eq_setIntegral this,
+    integral_finset _ _ IntegrableOn.finset,
     Measure.comap_apply f hf.injective hf.measurableSet_image' _ (.singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
   simp_rw [comap_apply]
@@ -223,15 +223,15 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   · simp
   let A := μ.support
   have hsum (F : T → ℝ) : ∫ (t : T), F t ∂μ = ∑ t in A, (μ.real {t}) * (F t) := by
-    rw [integral_eq_setIntegral (measure_compl_support μ), setIntegral_eq_sum]
+    rw [integral_eq_setIntegral (measure_compl_support μ), integral_finset _ _ IntegrableOn.finset]
     congr with t ht
   simp_rw [entropy, hsum, ← Finset.sum_add_distrib]
   apply Finset.sum_congr rfl
   intro t ht
   rw [← mul_add]
   congr
-  rcases (local_support_of_finiteKernelSupport hκ A) with ⟨B, hB⟩
-  rcases (local_support_of_finiteKernelSupport hη (A ×ˢ B)) with ⟨C, hC⟩
+  obtain ⟨B, hB⟩ := local_support_of_finiteKernelSupport hκ A
+  obtain ⟨C, hC⟩ := local_support_of_finiteKernelSupport hη (A ×ˢ B)
   rw [integral_eq_setIntegral (hB t ht)]
   have hκη : ((κ ⊗ₖ η) t) (B ×ˢ C : Finset (S × U))ᶜ = 0 := by
     rw [ProbabilityTheory.Kernel.compProd_apply, lintegral_eq_setLIntegral (hB t ht),
@@ -246,22 +246,19 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
       simp at hu ⊢
       exact hu hs
     exact MeasurableSet.compl (Finset.measurableSet _)
-  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht), setIntegral_eq_sum,
+  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht),
+    integral_finset _ _ IntegrableOn.finset,
     ← Finset.sum_add_distrib, Finset.sum_product]
   apply Finset.sum_congr rfl
   intro s hs
   simp
   have hts : (t, s) ∈ A ×ˢ B := by simp [ht, hs]
-  have hη': (comap η (Prod.mk t) measurable_prod_mk_left) s Cᶜ = 0 := by
-    rw [Kernel.comap_apply]
-    exact hC (t, s) hts
-  rw [measureEntropy_def_finite' hη']
+  rw [measureEntropy_def_finite' (hC (t, s) hts)]
   simp
   have : negMulLog ((κ t).real {s}) = ∑ u in C, negMulLog ((κ t).real {s}) *
       ((comap η (Prod.mk t) measurable_prod_mk_left) s).real {u} := by
     rw [← Finset.mul_sum]
     simp
-    rw [Kernel.comap_apply]
     suffices (η (t, s)).real ↑C = (η (t, s)).real Set.univ by simp [this]
     have := hC (t, s) hts
     rw [← measureReal_eq_zero_iff] at this
@@ -270,8 +267,8 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   rw [this, Finset.mul_sum, ← Finset.sum_add_distrib]
   congr with u
   have : ((κ ⊗ₖ η) t).real {(s, u)} = ((κ t).real {s}) * ((η (t, s)).real {u}) := by
-    rw [measureReal_def, compProd_apply κ η _ (.singleton _),
-      lintegral_eq_setLIntegral (hB t ht), setLIntegral_eq_sum, Finset.sum_eq_single_of_mem s hs]
+    rw [measureReal_def, compProd_apply (.singleton _), lintegral_eq_setLIntegral (hB t ht),
+      setLIntegral_eq_sum, Finset.sum_eq_single_of_mem s hs]
     · simp [measureReal_def]
     intro b _ hbs
     simp [hbs]
@@ -325,18 +322,14 @@ lemma entropy_compProd_deterministic [Countable S] [MeasurableSingletonClass S]
     Hk[κ ⊗ₖ (deterministic f .of_discrete), μ] = Hk[κ, μ] := by
   simp [entropy_compProd hκ ((FiniteKernelSupport.deterministic f).aefiniteKernelSupport _)]
 
-lemma nonempty_of_isMarkovKernel
-    {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] (κ : Kernel α β) [IsMarkovKernel κ]
-    [Nonempty α] : Nonempty β := by
-  inhabit α
-  let ν : Measure β := κ default
-  have : IsProbabilityMeasure ν := IsMarkovKernel.isProbabilityMeasure default
-  exact nonempty_of_isProbabilityMeasure ν
+lemma nonempty_of_isMarkovKernel {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    (κ : Kernel α β) [IsMarkovKernel κ] [Nonempty α] : Nonempty β :=
+  (κ <| Classical.arbitrary _).nonempty_of_neZero
 
 lemma nonempty_of_isProbabilityMeasure_of_isMarkovKernel
     {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] (μ : Measure α) [IsProbabilityMeasure μ]
     (κ : Kernel α β) [IsMarkovKernel κ] : Nonempty β := by
-  have : Nonempty α := nonempty_of_isProbabilityMeasure μ
+  have : Nonempty α := μ.nonempty_of_neZero
   exact nonempty_of_isMarkovKernel κ
 
 lemma chain_rule [Countable S] [MeasurableSingletonClass S] [Countable T]
