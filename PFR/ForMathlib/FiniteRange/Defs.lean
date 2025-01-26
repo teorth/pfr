@@ -1,3 +1,4 @@
+import Mathlib.MeasureTheory.Measure.Map
 import Mathlib.MeasureTheory.Measure.MeasureSpace
 
 /-- The property of having a finite range. -/

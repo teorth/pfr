@@ -1,3 +1,4 @@
+import Mathlib.GroupTheory.Torsion
 import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.MeasureTheory.Constructions.SubmoduleQuotient
@@ -91,7 +92,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
   obtain ⟨A, mA, μA, X', Y'₁, Y'₂, hμA, h_indep, hX'_meas, hY'₁_meas, hY'₂_meas, hX'_ident,
     hY'₁_ident, hY'₂_ident, _, _, _⟩ := independent_copies3_nondep_finiteRange hX hY hY μ μ' μ'
   have h_meas (i : Fin 3) : Measurable (![X', Y'₁, Y'₂] i) := by fin_cases i <;> assumption
-  haveI : NoZeroSMulDivisors ℕ G := hG.noZeroSMulDivisors_nat
+  have : NoZeroSMulDivisors ℕ G := hG.noZeroSMulDivisors_nat
   have : H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[X ; μ] + 2 * H[Y ; μ'] := calc
     H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[⟨X', ⟨Y'₁, Y'₂⟩⟩ ; μA] := by
       let f : G × G × G → G × G × G := fun ⟨x, y₁, y₂⟩ ↦ (x, y₁ - y₂, x - 2 • y₁)
@@ -128,8 +129,8 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       entropy_pair_le_add (hY'₁_meas.sub hY'₂_meas) (hX'_meas.sub hY'₁_meas |>.sub hY'₂_meas) μA
   have : H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] + H[X' - 2 • Y'₁ ; μA] ≤
       H[⟨X', X' - 2 • Y'₁⟩ ; μA] + H[⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩ ; μA] := by
-    haveI : FiniteRange (Y'₁ - Y'₂) := FiniteRange.sub Y'₁ Y'₂
-    haveI : FiniteRange (2 • Y'₁) := by show FiniteRange ((fun x ↦ 2 • x) ∘ Y'₁); infer_instance
+    have : FiniteRange (Y'₁ - Y'₂) := FiniteRange.sub Y'₁ Y'₂
+    have : FiniteRange (2 • Y'₁) := by show FiniteRange ((fun x ↦ 2 • x) ∘ Y'₁); infer_instance
     apply entropy_triple_add_entropy_le μA hX'_meas (Measurable.sub hY'₁_meas hY'₂_meas)
     exact Measurable.sub hX'_meas <| Measurable.const_smul hY'₁_meas 2
   have : H[⟨Y'₁, ⟨Y'₂, X' - Y'₁ - Y'₂⟩⟩ ; μA] = H[X ; μ] + 2 * H[Y ; μ'] := calc
@@ -151,7 +152,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
     _ = H[⟨Y'₁, X' - Y'₂⟩ ; μA] := entropy_comp_of_injective μA
       (by exact Measurable.prod hY'₁_meas <| Measurable.sub hX'_meas hY'₂_meas) f hf
     _ = H[Y ; μ'] + H[X' - Y'₂ ; μA] := by
-      haveI : FiniteRange (X' - Y'₂) := FiniteRange.sub X' Y'₂
+      have : FiniteRange (X' - Y'₂) := FiniteRange.sub X' Y'₂
       convert IndepFun.entropy_pair_eq_add hY'₁_meas (hX'_meas.sub hY'₂_meas)
         <| h_indep.indepFun_sub_right h_meas 1 0 2 (by decide) (by decide)
       exact hY'₁_ident.entropy_eq.symm
@@ -160,7 +161,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
     _ = H[⟨Y'₂, X' - Y'₁⟩ ; μA] := entropy_comp_of_injective μA
       (by exact Measurable.prod hY'₂_meas <| Measurable.sub hX'_meas hY'₁_meas) f hf
     _ = H[Y ; μ'] + H[X' - Y'₁ ; μA] := by
-      haveI : FiniteRange (X' - Y'₁) := FiniteRange.sub X' Y'₁
+      have : FiniteRange (X' - Y'₁) := FiniteRange.sub X' Y'₁
       convert IndepFun.entropy_pair_eq_add hY'₂_meas (hX'_meas.sub hY'₁_meas)
         <| h_indep.indepFun_sub_right h_meas 2 0 1 (by decide) (by decide)
       exact hY'₂_ident.entropy_eq.symm
@@ -182,7 +183,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       d[Y'₁ ; μA # Y'₂ ; μA] + (H[Y ; μ'] - H[X ; μ]) / 2 + 2 * d[X ; μ # Y ; μ'] := calc
     d[X ; μ # 2 • Y ; μ'] = H[X' - 2 • Y'₁ ; μA] - H[X ; μ] / 2 - H[2 • Y ; μ'] / 2 := by
       have h2Y_ident : IdentDistrib (2 • Y'₁) (2 • Y) (μ := μA) (ν := μ') := by
-        convert hY'₁_ident.comp <| Measurable.of_discrete (f := fun g ↦ 2 • g)
+        convert hY'₁_ident.comp <| .of_discrete (f := fun g ↦ 2 • g)
       have h2Y_indep : IndepFun X' (2 • Y'₁) (μ := μA) := by
         convert (h_indep.indepFun (show 0 ≠ 1 by decide)).comp measurable_id
           (measurable_const_smul 2)
@@ -315,15 +316,15 @@ lemma PFR_projection'
     set ψ : G →ₗ[ZMod 2] G' := H.mkQ
     have surj : Function.Surjective ψ := Submodule.Quotient.mk_surjective H
 
-    obtain ⟨H', hlog', hup'⟩ := app_ent_PFR _ _ _ _ α hent (Measurable.of_discrete.comp hX)
-      (Measurable.of_discrete.comp hY)
+    obtain ⟨H', hlog', hup'⟩ := app_ent_PFR _ _ _ _ α hent (.comp .of_discrete hX)
+      (.comp .of_discrete hY)
     have H_ne_bot : H' ≠ ⊥ := by
       by_contra!
       rcases this with rfl
       have inj : Function.Injective (Submodule.mkQ (⊥ : Submodule (ZMod 2) G')) :=
         QuotientAddGroup.quotientBot.symm.injective
-      rw [entropy_comp_of_injective _ (Measurable.of_discrete.comp hX) _ inj,
-          entropy_comp_of_injective _ (Measurable.of_discrete.comp hY) _ inj] at hup'
+      rw [entropy_comp_of_injective _ (.comp .of_discrete hX) _ inj,
+          entropy_comp_of_injective _ (.comp .of_discrete hY) _ inj] at hup'
       nlinarith [entropy_nonneg (ψ ∘ X) μ, entropy_nonneg (ψ ∘ Y) μ']
     let H'' := H'.comap ψ
     use H''
@@ -374,8 +375,8 @@ lemma PFR_projection'
     · calc
       H[ ψ'' ∘ X ; μ ] + H[ ψ'' ∘ Y; μ' ]
       _ = H[ φ.symm ∘ ψ'' ∘ X ; μ ] + H[ φ.symm ∘ ψ'' ∘ Y; μ' ] := by
-        simp_rw [← entropy_comp_of_injective _ (Measurable.of_discrete.comp hX) _ φ.symm.injective,
-                 ← entropy_comp_of_injective _ (Measurable.of_discrete.comp hY) _ φ.symm.injective]
+        simp_rw [← entropy_comp_of_injective _ (.comp .of_discrete hX) _ φ.symm.injective,
+                 ← entropy_comp_of_injective _ (.comp .of_discrete hY) _ φ.symm.injective]
       _ ≤ α * (H[ ψ ∘ X ; μ ] + H[ ψ ∘ Y; μ' ]) := hup'.le
       _ ≤ α * (c * (H[X ; μ] + H[Y ; μ'])) := by gcongr
       _ = (α * c) * (H[X ; μ] + H[Y ; μ']) := by ring
@@ -402,7 +403,7 @@ lemma PFR_projection (hX : Measurable X) (hY : Measurable Y) :
   · convert h
     norm_num
   · have : 0 ≤ d[⇑H.mkQ ∘ X ; μ # ⇑H.mkQ ∘ Y ; μ'] :=
-      rdist_nonneg (Measurable.of_discrete.comp hX) (Measurable.of_discrete.comp hY)
+      rdist_nonneg (.comp .of_discrete hX) (.comp .of_discrete hY)
     linarith
 
 end F2_projection
@@ -420,7 +421,7 @@ lemma sum_prob_preimage {G H : Type*} {X : Finset H} {A : Set G} [Finite A] {φ 
   apply (div_eq_one_iff_eq <| Nat.cast_ne_zero.mpr
     <| Nat.pos_iff_ne_zero.mp (@Nat.card_pos _ hA.to_subtype _)).mpr
   classical
-  haveI := Fintype.ofFinite A
+  have := Fintype.ofFinite A
   rewrite [Nat.card_eq_fintype_card, ← Finset.card_univ, Finset.card_eq_sum_card_fiberwise
     <| fun a _ ↦ Finset.mem_univ (φ a), ← Finset.sum_coe_sort]
   norm_cast
@@ -449,8 +450,8 @@ lemma single_fibres {G H Ω Ω': Type*}
     (H[φ.toFun ∘ UA] + H[φ.toFun ∘ UB]) * (d[UA # UB] - dᵤ[Ax # By]) := by
   have : Nonempty A := hA.to_subtype
   have : Nonempty B := hB.to_subtype
-  haveI : FiniteRange UA := finiteRange_of_finset UA A.toFinite.toFinset (by simpa)
-  haveI : FiniteRange UB := finiteRange_of_finset UB B.toFinite.toFinset (by simpa)
+  have : FiniteRange UA := finiteRange_of_finset UA A.toFinite.toFinset (by simpa)
+  have : FiniteRange UB := finiteRange_of_finset UB B.toFinite.toFinset (by simpa)
   have hUA_coe : IsUniform A.toFinite.toFinset.toSet UA := by rwa [Set.Finite.coe_toFinset]
   have hUB_coe : IsUniform B.toFinite.toFinset.toSet UB := by rwa [Set.Finite.coe_toFinset]
 
@@ -459,10 +460,10 @@ lemma single_fibres {G H Ω Ω': Type*}
   let X : Finset H := FiniteRange.toFinset (φ.toFun ∘ UA)
   let Y : Finset H := FiniteRange.toFinset (φ.toFun ∘ UB)
 
-  haveI h_Ax (x : X) : Nonempty (A_ x.val) := by
+  have h_Ax (x : X) : Nonempty (A_ x.val) := by
     obtain ⟨ω, hω⟩ := (FiniteRange.mem_iff _ _).mp x.property
     use UA ω; exact Set.mem_inter (hUA_mem ω) hω
-  haveI h_By (y : Y) : Nonempty (B_ y.val) := by
+  have h_By (y : Y) : Nonempty (B_ y.val) := by
     obtain ⟨ω, hω⟩ := (FiniteRange.mem_iff _ _).mp y.property
     use UB ω; exact Set.mem_inter (hUB_mem ω) hω
   have h_AX (a : A) : φ.toFun a.val ∈ X := by
@@ -483,11 +484,11 @@ lemma single_fibres {G H Ω Ω': Type*}
     ∑ x in X, ∑ y in Y, (p x y) * dᵤ[A_ x # B_ y] ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] :=
   calc
     _ = d[UA | φ.toFun ∘ UA # UB | φ.toFun ∘ UB] := by
-      rewrite [condRuzsaDist_eq_sum hUA' (Measurable.of_discrete.comp hUA')
-        hUB' (Measurable.of_discrete.comp hUB')]
+      rewrite [condRuzsaDist_eq_sum hUA' (.comp .of_discrete hUA')
+        hUB' (.comp .of_discrete hUB')]
       refine Finset.sum_congr rfl <| fun x hx ↦ Finset.sum_congr rfl <| fun y hy ↦ ?_
-      haveI : Nonempty (A_ x) := h_Ax ⟨x, hx⟩
-      haveI : Nonempty (B_ y) := h_By ⟨y, hy⟩
+      have : Nonempty (A_ x) := h_Ax ⟨x, hx⟩
+      have : Nonempty (B_ y) := h_By ⟨y, hy⟩
       let μx := (ℙ : Measure Ω)[|(φ.toFun ∘ UA) ⁻¹' {x}]
       have hμx : IsProbabilityMeasure μx := by
         apply ProbabilityTheory.cond_isProbabilityMeasure
@@ -529,15 +530,15 @@ lemma single_fibres {G H Ω Ω': Type*}
         exact h (h_BY ⟨a, ha⟩)
     unfold M
     unfold entropy
-    haveI := isProbabilityMeasure_map (μ := ℙ)
-      ((Measurable.of_discrete (f := φ)).comp hUA').aemeasurable
-    haveI := isProbabilityMeasure_map (μ := ℙ)
-      ((Measurable.of_discrete (f := φ)).comp hUB').aemeasurable
+    have : IsProbabilityMeasure (.map (φ ∘ UA) ℙ) :=
+      isProbabilityMeasure_map (.comp_measurable .of_discrete hUA')
+    have : IsProbabilityMeasure (.map (φ ∘ UB) ℙ) :=
+      isProbabilityMeasure_map (.comp_measurable .of_discrete hUB')
     rewrite [← Finset.sum_product', ← tsum_eq_sum fun _ ↦ h_compl, ← measureEntropy_prod]
     apply tsum_congr; intro; congr
     rewrite [← Set.singleton_prod_singleton, Measure.smul_apply, Measure.prod_prod,
-      Measure.map_apply (Measurable.of_discrete.comp hUA') (MeasurableSet.singleton _),
-      Measure.map_apply (Measurable.of_discrete.comp hUB') (MeasurableSet.singleton _),
+      Measure.map_apply (.comp .of_discrete hUA') (MeasurableSet.singleton _),
+      Measure.map_apply (.comp .of_discrete hUB') (MeasurableSet.singleton _),
       Set.preimage_comp, hUA_coe.measure_preimage hUA',
       Set.preimage_comp, hUB_coe.measure_preimage hUB']
     simp [p, A_, B_, mul_div_mul_comm, Set.inter_comm, ENNReal.toReal_div]
@@ -569,8 +570,8 @@ lemma single_fibres {G H Ω Ω': Type*}
     replace hc : ∀ xy ∈ X ×ˢ Y, f xy < g xy := by
       refine fun xy h ↦ mul_lt_mul_of_pos_left ?_ ?_
       · exact hc ⟨xy.1, (Finset.mem_product.mp h).1⟩ ⟨xy.2, (Finset.mem_product.mp h).2⟩
-      · haveI : Nonempty _ := h_Ax ⟨xy.1, (Finset.mem_product.mp h).1⟩
-        haveI : Nonempty _ := h_By ⟨xy.2, (Finset.mem_product.mp h).2⟩
+      · have : Nonempty _ := h_Ax ⟨xy.1, (Finset.mem_product.mp h).1⟩
+        have : Nonempty _ := h_By ⟨xy.2, (Finset.mem_product.mp h).2⟩
         simp only [p, div_pos, mul_pos, Nat.cast_pos, Nat.card_pos]
     have h_nonempty : Finset.Nonempty (X ×ˢ Y) := by
       use ⟨φ.toFun <| UA <| Classical.choice <| ProbabilityMeasure.nonempty ⟨ℙ, inferInstance⟩,
@@ -652,10 +653,10 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   have : Nonempty B := hnB.to_subtype
   set ψ : G →+ G := zsmulAddGroupHom 2
   set G₂ := LinearMap.range (LinearMap.lsmul ℤ G 2)
-  set H := modN G 2
+  set H := ModN G 2
   set φ : G →ₗ[ℤ] H := G₂.mkQ
   let _mH : MeasurableSpace H := ⊤
-  have : Finite H := modN.instFinite
+  have : Finite H := ModN.instFinite
   let h_fintype : Fintype H := .ofFinite H
   have h_torsionfree := AddMonoid.IsTorsionFree.of_noZeroSMulDivisors (M := G)
 
@@ -695,8 +696,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
     rw [mul_comm, ← log_rpow (by norm_num)]
     norm_cast
     classical
-    rwa [← card_modN, ← Nat.card_congr e.toEquiv, H'.card_eq_card_quotient_mul_card, Nat.cast_mul,
-      log_mul, add_comm, add_le_add_iff_left]
+    rwa [← ModN.natCard_eq, ← Nat.card_congr e.toEquiv, H'.card_eq_card_quotient_mul_card,
+      Nat.cast_mul, log_mul, add_comm, add_le_add_iff_left]
     all_goals norm_cast; rw [Nat.card_eq_fintype_card]; exact Fintype.card_ne_zero
 
   use N, x, y, Ax, By
@@ -792,8 +793,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
     _ ≤ (H[φ'.toFun ∘ UA] + H[φ'.toFun ∘ UB]) * (d[UA # UB] - dᵤ[Ax # By]) := hcard_ineq
     _ ≤ (34 * d[φ'.toFun ∘ UA # φ'.toFun ∘ UB]) * (d[UA # UB] - dᵤ[Ax # By]) := by
       apply mul_le_mul_of_nonneg_right hH2
-      have := rdist_le_avg_ent (Measurable.comp (Measurable.of_discrete (f := φ'.toFun)) hUA_mes)
-        (Measurable.comp (Measurable.of_discrete (f := φ'.toFun)) hUB_mes)
+      have := rdist_le_avg_ent (Measurable.comp (.of_discrete (f := φ'.toFun)) hUA_mes)
+        (Measurable.comp (.of_discrete (f := φ'.toFun)) hUB_mes)
       replace this : 0 < H[φ'.toFun ∘ UA] + H[φ'.toFun ∘ UB] := by linarith
       rw [← mul_le_mul_left this]
       apply le_trans _ hcard_ineq

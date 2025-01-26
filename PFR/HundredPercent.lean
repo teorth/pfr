@@ -90,15 +90,15 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
           apply h_indep.comp this measurable_id
         rw [indepFun_iff_measure_inter_preimage_eq_mul.1 hFY' _ _ hs .of_discrete]
       _ = ℙ ((X' - Y') ⁻¹' s ∩ Y' ⁻¹' {c}) := by
-        congr 1; ext z; simp (config := {contextual := true})
+        congr 1; ext z; simp (config := {contextual := true}) [F]
       _ = ℙ ((X' - Y') ⁻¹' s) * ℙ (Y' ⁻¹' {c}) := by
-        rw [indepFun_iff_measure_inter_preimage_eq_mul.1 I _ _ hs $ .of_discrete]
-    rwa [ENNReal.mul_eq_mul_right hc (measure_ne_top ℙ _)] at this
+        rw [indepFun_iff_measure_inter_preimage_eq_mul.1 I _ _ hs .of_discrete]
+    rwa [ENNReal.mul_left_inj hc (measure_ne_top ℙ _)] at this
   have J : IdentDistrib (fun ω ↦ X' ω - x) (fun ω ↦ X' ω - y) := by
     have Px : ℙ (Y' ⁻¹' {x}) ≠ 0 := by
-      convert hx; exact hidY.measure_mem_eq $ .of_discrete
+      convert hx; exact hidY.measure_mem_eq .of_discrete
     have Py : ℙ (Y' ⁻¹' {y}) ≠ 0 := by
-      convert hy; exact hidY.measure_mem_eq $ .of_discrete
+      convert hy; exact hidY.measure_mem_eq .of_discrete
     exact (M x Px).trans (M y Py).symm
   have : IdentDistrib X' (fun ω ↦ X' ω + (x - y)) := by
     have : Measurable (fun c ↦ c + x) := measurable_add_const x
@@ -121,7 +121,7 @@ lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X]
       simp_rw [B, add_zero, this]
       have Z := (mem_symmGroup hX).1 (AddSubgroup.neg_mem (symmGroup X hX) hz)
       simp [← sub_eq_add_neg] at Z
-      exact Z.symm.measure_mem_eq $ .of_discrete
+      exact Z.symm.measure_mem_eq .of_discrete
     intro x hx y hy
     rw [A x hx, A y hy]
   measure_preimage_compl := by
@@ -140,7 +140,7 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
   obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X⁻¹' {x₀}) ≠ 0 := by
     by_contra! h
     have A a : (ℙ : Measure Ω).map X {a} = 0 := by
-      rw [Measure.map_apply hX $ .of_discrete]
+      rw [Measure.map_apply hX .of_discrete]
       exact h _
     have B : (ℙ : Measure Ω).map X = 0 := by
       rw [← Measure.sum_smul_dirac (μ := (ℙ : Measure Ω).map X)]

@@ -204,9 +204,7 @@ lemma sub_condMultiDistance_le' {G Ω₀ : Type u} [MeasureableFinGroup G] [Meas
       _ = multiTau p Ω hΩ X := by
         dsimp [multiTau]
         congr 1
-        · rw [multiDist_of_perm hΩ hΩprob X φ]
+        · exact multiDist_of_perm hΩ hΩprob X φ
         congr 1
-        apply Finset.sum_bijective φ (Equiv.bijective φ)
-        · simp only [Finset.mem_univ, implies_true]
-        simp only [Finset.mem_univ, imp_self, implies_true]
+        exact Fintype.sum_equiv φ _ _ fun _ ↦ rfl
       _ ≤ multiTau p Ω'' hΩ'' X'' := h_min Ω'' hΩ'' X''

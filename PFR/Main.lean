@@ -33,7 +33,7 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
     ext ω; simp [sub_eq_zero, eq_comm]
   rw [this, measureReal_iUnion_fintype _
-    (fun i ↦ (Umeas $ .of_discrete).inter $ Vmeas $ .of_discrete)]; swap
+    (fun i ↦ (Umeas .of_discrete).inter $ Vmeas .of_discrete)]; swap
   · intro g g' hgg'
     apply Set.disjoint_iff_inter_eq_empty.2
     ext a
@@ -180,7 +180,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/9, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture p (by norm_num) with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
-  have H_fin : Set.Finite (H : Set G) := toFinite ↑H
+  have H_fin : (H : Set G).Finite := (H : Set G).toFinite
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm .of_discrete
@@ -196,8 +196,8 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos
     positivity
-  have VA_ent : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' A_fin VAunif VAmeas
-  have VH_ent : H[VH] = log (Nat.card H) := IsUniform.entropy_eq' H_fin VHunif VHmeas
+  have VA_ent : H[VA] = log (Nat.card A) := VAunif.entropy_eq' A_fin VAmeas
+  have VH_ent : H[VH] = log (Nat.card H) := VHunif.entropy_eq' H_fin VHmeas
   have Icard : |log (Nat.card A) - log (Nat.card H)| ≤ 11 * log K := by
     rw [← VA_ent, ← VH_ent]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans

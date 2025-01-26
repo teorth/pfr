@@ -139,7 +139,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
       have hsub : (K:Set G) ⊆ (H':Set G) := SetLike.coe_subset_coe.mpr le_sup_left
       have hcard' : Nat.card K ≤ Nat.card H' := by
           rw [← SetLike.coe_sort_coe, ← SetLike.coe_sort_coe, Set.Nat.card_coe_set_eq (K:Set G), Set.Nat.card_coe_set_eq (H':Set G)]
-          exact Set.ncard_le_ncard hsub (Set.toFinite H')
+          exact Set.ncard_le_ncard hsub (H' : Set G).toFinite
       have : (K:Set G) = (H':Set G) := by
           apply (Set.subset_iff_eq_of_ncard_le ?_ ?_).mp hsub
           · apply Eq.le

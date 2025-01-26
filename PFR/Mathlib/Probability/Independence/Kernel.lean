@@ -45,7 +45,7 @@ lemma iIndepFun.finsets {J : Type*} [Fintype J]
     rw [(h_sets j).2.symm]
     simp [E']
     ext ω
-    simp
+    simp [F]
   suffices ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (j:s), ⋂ (i : S j), E' j i) = ∏ (j:s), (κ a) (⋂ (i : S j), E' j i) by
     convert this with x
     · rw [Set.iInter_subtype]

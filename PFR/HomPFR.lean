@@ -1,6 +1,5 @@
 import Mathlib.Data.Set.Card
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
-import PFR.Mathlib.SetTheory.Cardinal.Finite
 import PFR.ImprovedPFR
 import PFR.RhoFunctional
 
@@ -95,7 +94,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
       by_contra! H
       simp only [H, empty_add, subset_empty_iff] at hAcH
       simp [hAcH] at hA_nonempty
-    exact this.card_pos c.toFinite
+    exact this.natCard_pos c.toFinite
   obtain ⟨H₀, H₁, φ, hH₀₁, hH_card⟩ := goursat H
   have hG_card_le : Nat.card G ≤ Nat.card c * Nat.card H₀ := by
     let c' := Prod.fst '' c
@@ -155,9 +154,9 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
         rw [← Real.rpow_two, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]
         have : 0 < Nat.card S := by
           have : S.Nonempty := ⟨f (0 + 0) - f 0 - f 0, hS 0 0⟩
-          exact this.card_pos S.toFinite
-        have : 0 < Nat.card A := hA_nonempty.card_pos A.toFinite
-        have : 0 < Nat.card H := H.nonempty.card_pos $ toFinite _
+          exact this.natCard_pos S.toFinite
+        have : 0 < Nat.card A := hA_nonempty.natCard_pos A.toFinite
+        have : 0 < Nat.card H := H.nonempty.natCard_pos $ toFinite _
         simp_rw [← Real.rpow_natCast]
         rpow_ring
         norm_num

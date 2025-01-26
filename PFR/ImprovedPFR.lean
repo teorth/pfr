@@ -89,7 +89,7 @@ lemma gen_ineq_aux2 :
           right_inv := by intro ⟨a, b⟩; simp [add_assoc] }
       convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
         (⟨Z₁ + Z₃, Sum⟩) e (hZ₁.add hZ₂) ((hZ₁.add hZ₃).prod_mk hS)
-        (Measurable.of_discrete (f := e)) e.injective).symm
+        (.of_discrete (f := e)) e.injective).symm
       simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
       abel
   _ = ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal *
@@ -346,21 +346,20 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp only [sum2, integral_sub .of_finite .of_finite, integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
+      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
       Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const,
       measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
     simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
+      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
       Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
       + (d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂])) := by
     have : sum4 = sum1 + p.η * (sum2 + sum3) := by
-      simp only [sum4, integral_add .of_finite .of_finite,
-        integral_mul_left]
+      simp only [sum1, sum2, sum3, sum4, integral_add .of_finite .of_finite, integral_mul_left]
     rw [this, h2, h3, add_assoc, mul_add]
     linarith
   have hk : k ≤ sum4 := by
@@ -706,7 +705,7 @@ theorem tau_strictly_decreases' (hp : 8 * p.η < 1) : d[X₁ # X₂] = 0 := by
   let ⟨A, mA, μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
   rw [← h_id1.rdist_eq h_id2]
-  letI : MeasureSpace A := ⟨μ⟩
+  let _ : MeasureSpace A := ⟨μ⟩
   have : IsProbabilityMeasure (ℙ : Measure A) := hμ
   rw [← h_id1.tau_minimizes p h_id2] at h_min
   exact tau_strictly_decreases_aux' p hY₁ hY₂ hY₁' hY₂' (h_id1.trans h_id1'.symm)

@@ -1,10 +1,9 @@
+import Mathlib.Probability.IdentDistrib
+import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.ForMathlib.CompactProb
 import PFR.ForMathlib.FiniteRange.Defs
-import Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Basic
 import PFR.ForMathlib.ProbabilityMeasureProdCont
-import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 /-!
 # Kullback-Leibler divergence
@@ -102,7 +101,7 @@ lemma KLDiv_eq_zero_iff_identDistrib [Fintype G] [MeasurableSingletonClass G]
     · rw [KLDiv_eq_sum] at h
       simpa using h
     · simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at hi
-      simp [habs i hi]
+      simp [habs i hi, νX]
   have r_eq : r = 1 := by
     have : r * ∑ x, (νY {x}).toReal = ∑ x, (νX {x}).toReal := by
       simp only [Finset.mul_sum, Finset.mem_univ, hr]
@@ -159,9 +158,8 @@ lemma KLDiv_of_comp_inj {H : Type*} [MeasurableSpace H] [DiscreteMeasurableSpace
     congr with x
     have : (Measure.map X μ) {x} = (Measure.map (f ∘ X) μ) {f x} := by
       rw [Measure.map_apply, Measure.map_apply]
-      · congr
-        exact Set.Subset.antisymm (fun ⦃a⦄ ↦ congrArg f) fun ⦃a⦄ a_1 ↦ hf a_1
-      · exact Measurable.of_discrete.comp hX
+      · rw [Set.preimage_comp, ← Set.image_singleton, Set.preimage_image_eq _ hf]
+      · exact .comp .of_discrete hX
       · exact measurableSet_singleton (f x)
       · exact hX
       · exact measurableSet_singleton x
@@ -169,7 +167,7 @@ lemma KLDiv_of_comp_inj {H : Type*} [MeasurableSpace H] [DiscreteMeasurableSpace
       rw [Measure.map_apply, Measure.map_apply]
       · congr
         exact Set.Subset.antisymm (fun ⦃a⦄ ↦ congrArg f) fun ⦃a⦄ a_1 ↦ hf a_1
-      · exact Measurable.of_discrete.comp hY
+      · exact .comp .of_discrete hY
       · exact measurableSet_singleton (f x)
       · exact hY
       · exact measurableSet_singleton x
@@ -178,7 +176,7 @@ lemma KLDiv_of_comp_inj {H : Type*} [MeasurableSpace H] [DiscreteMeasurableSpace
     have : Measure.map (f ∘ X) μ {y} ≠ 0 := by
       intro h
       simp [h] at hy
-    rw [Measure.map_apply (Measurable.of_discrete.comp hX) (measurableSet_singleton y)] at this
+    rw [Measure.map_apply (.comp .of_discrete hX) (measurableSet_singleton y)] at this
     have : f ∘ X ⁻¹' {y} ≠ ∅ := by
       intro h
       simp [h] at this
@@ -287,25 +285,24 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
     ext y
     simp [sub_eq_add_neg]
   let w : G → ℝ := fun s ↦ (μ.map Z {s}).toReal
-  let S : Finset G := Finset.univ
   have sum_w : ∑ s, w s = 1 := by
     have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
     simp [w]
-  have A x : (μ.map (X + Z) {x}).toReal = ∑ s ∈ S, w s * (μ.map (X' s) {x}).toReal := by
+  have A x : (μ.map (X + Z) {x}).toReal = ∑ s, w s * (μ.map (X' s) {x}).toReal := by
     have : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
     rw [this.map_add_singleton_eq_sum hX hZ, ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top])]
     simp only [ENNReal.toReal_mul]
     congr with i
     congr 1
     rw [AX']
-  have B x : (μ.map (Y + Z) {x}).toReal = ∑ s ∈ S, w s * (μ.map (Y' s) {x}).toReal := by
+  have B x : (μ.map (Y + Z) {x}).toReal = ∑ s, w s * (μ.map (Y' s) {x}).toReal := by
     have : IndepFun Y Z μ := h_indep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
     rw [this.map_add_singleton_eq_sum hY hZ, ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top])]
     simp only [ENNReal.toReal_mul]
     congr with i
     congr 1
     rw [AY']
-  have : KL[X + Z ; μ # Y + Z; μ] ≤ ∑ s ∈ S, w s * KL[X' s ; μ # Y' s ; μ] := by
+  have : KL[X + Z ; μ # Y + Z; μ] ≤ ∑ s, w s * KL[X' s ; μ # Y' s ; μ] := by
     apply KLDiv_of_convex (fun s _ ↦ by simp [w])
     · exact A
     · exact B

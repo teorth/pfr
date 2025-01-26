@@ -120,7 +120,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       Set.fst_injOn_graph.mono fun _ hx ↦ Set.Finite.subset_toFinset.mp hA' hx.1)
 
   let cH₁ := (c ×ˢ H₁).toFinite.toFinset
-  haveI A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
+  have A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
   replace hc : c.Nonempty := by
     obtain ⟨x, hx, _, _, _⟩ := hH_cover (Classical.choice A_nonempty).property
     exact ⟨x, hx⟩

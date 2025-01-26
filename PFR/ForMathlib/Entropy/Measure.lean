@@ -203,11 +203,11 @@ theorem Measure.ext_iff_singleton_finiteSupport
       · simp
       refine measure_mono_null ?_ hA1
       intro x
-      simp (config := { contextual := true })
+      simp (config := { contextual := true }) [A1]
     have h2 : μ2 s = μ2 (s ∩ (A1 ∪ A2)) := by
       apply (measure_eq_measure_of_null_diff _ _).symm
       · simp
-      exact measure_mono_null (fun x ↦ by simp (config := { contextual := true })) hA2
+      exact measure_mono_null (fun x ↦ by simp (config := { contextual := true }) [A2]) hA2
     rw [h1, h2]
     have hs : Set.Finite (s ∩ (A1 ∪ A2)) := Set.toFinite (s ∩ (↑A1 ∪ ↑A2))
     rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
@@ -331,9 +331,10 @@ lemma measureEntropy_le_card_aux {μ : Measure S} [IsProbabilityMeasure μ]
       exact N_pos.ne'
   _ ≤ N * negMulLog (∑ x in A, (N : ℝ)⁻¹ * (μ {x}).toReal) := by
       gcongr
-      exact concaveOn_negMulLog.le_map_sum (by simp) (by simp [mul_inv_cancel₀ N_pos.ne']) (by simp)
+      exact concaveOn_negMulLog.le_map_sum (by simp) (by simp [mul_inv_cancel₀ N_pos.ne', N])
+        (by simp)
   _ = N * negMulLog ((N : ℝ)⁻¹) := by simp [← Finset.mul_sum, μA]
-  _ = log A.card := by simp [negMulLog, ← mul_assoc, mul_inv_cancel₀ N_pos.ne']
+  _ = log A.card := by simp [negMulLog, ← mul_assoc, mul_inv_cancel₀ N_pos.ne', N]
 
 lemma measureEntropy_eq_card_iff_measureReal_eq_aux [Fintype S]
     (μ : Measure S) [IsProbabilityMeasure μ] :
@@ -347,14 +348,14 @@ lemma measureEntropy_eq_card_iff_measureReal_eq_aux [Fintype S]
   -- setup to use equality case of Jensen
   let w (_ : S) := (N:ℝ)⁻¹
   have hw1 : ∀ s ∈ Finset.univ, 0 < w s := by intros; positivity
-  have hw2 : ∑ s : S, w s = 1 := by simp [w, Finset.card_univ]
+  have hw2 : ∑ s : S, w s = 1 := by simp [w, Finset.card_univ, N]
   let p (s : S) := μ.real {s}
   have hp : ∀ s ∈ Finset.univ, 0 ≤ p s := by intros; positivity
   rw [measureEntropy_def', tsum_fintype, eq_comm]
   convert strictConcaveOn_negMulLog.map_sum_eq_iff hw1 hw2 hp using 2
   · simp [w, p, negMulLog, ← Finset.mul_sum]
-  · simp [Finset.mul_sum]
-  · simp [p, ← Finset.mul_sum]
+  · simp [Finset.mul_sum, w, p]
+  · simp [p, ← Finset.mul_sum, w, p]
 
 lemma measureEntropy_eq_card_iff_measure_eq_aux
     (μ : Measure S) [Fintype S] [IsProbabilityMeasure μ] :
@@ -479,21 +480,21 @@ lemma measureEntropy_prod {μ : Measure S} {ν : Measure T} [FiniteSupport μ] [
     have : ((A ×ˢ B : Finset (S × T)) : Set (S × T))ᶜ
       = ((A : Set S)ᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ (B : Set T)ᶜ) := by ext ⟨a, b⟩; simp; tauto
     rw [this]
-    simp [hA, hB]
+    simp [hA, hB, A, B]
   have h1 : Hm[μ] = ∑ p in (A ×ˢ B), (negMulLog (μ.real {p.1})) * (ν.real {p.2}) := by
     rw [measureEntropy_of_isProbabilityMeasure_finite' hA, Finset.sum_product]
     congr with s
     simp; rw [← Finset.mul_sum]; simp
     suffices ν.real B = ν.real Set.univ by simp at this; simp [this]
     apply measureReal_congr
-    simp [hB]
+    simp [hB, B]
   have h2 : Hm[ν] = ∑ p in (A ×ˢ B), (negMulLog (ν.real {p.2})) * (μ.real {p.1}) := by
     rw [measureEntropy_of_isProbabilityMeasure_finite' hB, Finset.sum_product_right]
     congr with t
     simp; rw [← Finset.mul_sum]; simp
     suffices μ.real A = μ.real Set.univ by simp at this; simp [this]
     apply measureReal_congr
-    simp [hA]
+    simp [hA, A]
   rw [measureEntropy_of_isProbabilityMeasure_finite' hC, h1, h2, ← Finset.sum_add_distrib]
   congr with ⟨s, t⟩
   simp_rw [← Set.singleton_prod_singleton, measureReal_prod_prod, negMulLog_mul]

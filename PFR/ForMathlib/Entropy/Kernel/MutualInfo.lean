@@ -1,4 +1,4 @@
-import PFR.Mathlib.Probability.Kernel.Composition
+import PFR.Mathlib.Probability.Kernel.Composition.Basic
 import PFR.ForMathlib.Entropy.Kernel.Basic
 
 /-!

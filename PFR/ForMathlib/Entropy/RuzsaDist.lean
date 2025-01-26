@@ -1,4 +1,4 @@
-import Mathlib.Algebra.BigOperators.Group.Finset
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.MeasureTheory.Integral.Prod
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Group
@@ -196,9 +196,7 @@ lemma rdist_of_inj {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClas
       · exact Measurable.aemeasurable .of_discrete
       set g := fun x : H × H ↦ x.1 - x.2
       set f := fun x : G × G ↦ (φ x.1, φ x.2)
-      have : φ ∘ (fun x ↦ x.1 - x.2) = g ∘ f := by
-        ext x
-        simp
+      have : φ ∘ (fun x ↦ x.1 - x.2) = g ∘ f := by ext; simp [f, g]
       rw [this, ← MeasureTheory.Measure.map_map (g := g) (f := f) .of_discrete
         .of_discrete, ← MeasureTheory.Measure.map_map .of_discrete hX,
         ← MeasureTheory.Measure.map_map .of_discrete hY]
@@ -286,8 +284,8 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
   rewrite [← (h_id_X'.comp (by fun_prop)).entropy_eq, ← h_id_X'.rdist_eq h_id_UH']
   let π := ⇑(QuotientAddGroup.mk' H)
   let νq := Measure.map (π ∘ X') ν
-  haveI : Countable (HasQuotient.Quotient G H) := Quotient.countable
-  haveI : MeasurableSingletonClass (HasQuotient.Quotient G H) :=
+  have : Countable (HasQuotient.Quotient G H) := Quotient.countable
+  have : MeasurableSingletonClass (HasQuotient.Quotient G H) :=
     { measurableSet_singleton := fun _ ↦ measurableSet_quotient.mpr .of_discrete }
   have : Finite H := hH
   have : H[X' - UH' | π ∘ X' ; ν] = H[UH' ; ν] := by
@@ -299,7 +297,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
       let π' := QuotientAddGroup.mk (s := H)
       have h_card : Nat.card (π' ⁻¹' {x}) = Nat.card H := Nat.card_congr <|
         (QuotientAddGroup.preimageMkEquivAddSubgroupProdSet H _).trans <| Equiv.prodUnique H _
-      haveI : Finite (π' ⁻¹' {x}) :=
+      have : Finite (π' ⁻¹' {x}) :=
         Nat.finite_of_card_ne_zero <| h_card.trans_ne <| Nat.pos_iff_ne_zero.mp (Nat.card_pos)
       let H_x := (π' ⁻¹' {x}).toFinite.toFinset
       have h : ∀ᵐ ω ∂ν', (X' - UH') ω ∈ H_x := by
@@ -325,14 +323,13 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
     have h_one : (∑ x in FiniteRange.toFinset (π ∘ X'), (νq {x}).toReal) = 1 := by
       rewrite [Finset.sum_toReal_measure_singleton]
       apply (ENNReal.toReal_eq_one_iff _).mpr
-      haveI := isProbabilityMeasure_map <| (Measurable.of_discrete (f := π ∘ X')).aemeasurable
-        (μ := ν)
+      have := isProbabilityMeasure_map (μ := ν) <| .of_discrete (f := π ∘ X')
       rewrite [← measure_univ (μ := νq), ← FiniteRange.range]
       let rng := Set.range (π ∘ X')
       have h_compl : νq rngᶜ = 0 := ae_map_mem_range (π ∘ X') .of_discrete ν
       rw [← MeasureTheory.measure_add_measure_compl (MeasurableSet.of_discrete (s := rng)),
         h_compl, add_zero]
-    haveI := FiniteRange.sub X' UH'
+    have := FiniteRange.sub X' UH'
     have h_ge : H[X' - UH' | π ∘ X' ; ν] ≥ H[UH' ; ν] := calc
       _ ≥ H[X' - UH' | X' ; ν] := condEntropy_comp_ge ν hX' (hX'.sub hUH') π
       _ = H[UH' | X' ; ν] := condEntropy_sub_left hUH' hX'
@@ -1063,7 +1060,7 @@ lemma condRuzsaDist'_of_inj_map' [Module (ZMod 2) G] [IsProbabilityMeasure μ]
   let C' : Ω' → G := C ∘ Prod.snd
   have hC' : Measurable C' := hC.comp measurable_snd
   let μ' : Measure Ω' := Measure.prod μ'' μ
-  haveI : IsProbabilityMeasure μ' := by infer_instance
+  have : IsProbabilityMeasure μ' := by infer_instance
   -- h1 and h2 should be applications of a new lemma?
   have h1 : d[A ; μ'' # B | B + C ; μ] = d[X₂' ; μ' # B' | B' + C' ; μ'] := by
     refine condRuzsaDist'_of_copy A hB (by fun_prop) X₂' hB' (by fun_prop) ?_ ?_

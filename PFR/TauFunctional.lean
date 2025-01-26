@@ -128,7 +128,7 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
   let T : ProbabilityMeasure G × ProbabilityMeasure G → ℝ := -- restrict τ to the compact subspace
     fun ⟨μ₁, μ₂⟩ ↦ τ[id ; μ₁ # id ; μ₂ | p]
   have T_cont : Continuous T := by apply continuous_tau_restrict_probabilityMeasure
-  haveI : Inhabited G := ⟨0⟩ -- Need to record this for Lean to know that proba measures exist.
+  have : Inhabited G := ⟨0⟩ -- Need to record this for Lean to know that proba measures exist.
   obtain ⟨μ, _, hμ⟩ := @IsCompact.exists_isMinOn ℝ (ProbabilityMeasure G × ProbabilityMeasure G)
                           _ _ _ _ Set.univ isCompact_univ ⟨default, trivial⟩ T T_cont.continuousOn
   use ⟨μ.1.toMeasure, μ.2.toMeasure⟩

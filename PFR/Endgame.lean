@@ -411,7 +411,7 @@ lemma construct_good_prelim :
 
   have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2 := by
     suffices sum4 = sum1 + p.η * (sum2 + sum3) by linarith
-    simp only [sum4, integral_add .of_finite .of_finite, integral_mul_left]
+    simp only [sum1, sum2, sum3, sum4, integral_add .of_finite .of_finite, integral_mul_left]
 
   have hk : k ≤ sum4 := by
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
@@ -449,7 +449,7 @@ include hT₁ hT₂ hT₃ hT h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω')] in
 lemma construct_good' (μ : Measure Ω') [IsProbabilityMeasure μ] :
     k ≤ δ[μ] + (p.η/3) * (δ[μ] + c[T₁ ; μ # T₁ ; μ] + c[T₂ ; μ # T₂ ; μ] + c[T₃ ; μ # T₃ ; μ]) := by
-  letI : MeasureSpace Ω' := ⟨μ⟩
+  let _ : MeasureSpace Ω' := ⟨μ⟩
   apply construct_good p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 
 variable {R : Ω' → G} (hR : Measurable R)

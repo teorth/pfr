@@ -1,5 +1,4 @@
 import Mathlib.Algebra.Module.ZMod
-import Mathlib.GroupTheory.PGroup
 import Mathlib.GroupTheory.Sylow
 
 open Function Set ZMod

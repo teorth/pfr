@@ -11,16 +11,18 @@ open Finsupp Function
 variable {G : Type*} [AddCommGroup G] [Module.Free ℤ G] {n : ℕ}
 
 variable (G n) in
-/-- `modN G n` denotes the quotient of `G` by multiples of `n` -/
-abbrev modN : Type _ := G ⧸ LinearMap.range (LinearMap.lsmul ℤ G n)
+/-- `ModN G n` denotes the quotient of `G` by multiples of `n` -/
+abbrev ModN : Type _ := G ⧸ LinearMap.range (LinearMap.lsmul ℤ G n)
 
-instance : Module (ZMod n) (modN G n) := QuotientAddGroup.zmodModule (by simp)
+namespace ModN
+
+instance : Module (ZMod n) (ModN G n) := QuotientAddGroup.zmodModule (by simp)
 
 variable [NeZero n]
 
 /-- Given a free module `G` over `ℤ`, construct the corresponding basis
 of `G / ⟨n⟩` over `ℤ / nℤ`. -/
-noncomputable def modNBasis : Basis (Module.Free.ChooseBasisIndex ℤ G) (ZMod n) (modN G n) := by
+noncomputable def basis : Basis (Module.Free.ChooseBasisIndex ℤ G) (ZMod n) (ModN G n) := by
   set ψ : G →+ G := zsmulAddGroupHom n
   set nG := LinearMap.range (LinearMap.lsmul ℤ G n)
   set H := G ⧸ nG
@@ -56,10 +58,12 @@ noncomputable def modNBasis : Basis (Module.Free.ChooseBasisIndex ℤ G) (ZMod n
 
 variable [Module.Finite ℤ G]
 
-instance modN.instModuleFinite : Module.Finite (ZMod n) (modN G n) := .of_basis modNBasis
-instance modN.instFinite : Finite (modN G n) := Module.finite_of_finite (ZMod n)
+instance instModuleFinite : Module.Finite (ZMod n) (ModN G n) := .of_basis basis
+instance instFinite : Finite (ModN G n) := Module.finite_of_finite (ZMod n)
 
 variable (G n)
-@[simp] lemma card_modN : Nat.card (modN G n) = n ^ Module.finrank ℤ G := by
-  simp [Nat.card_congr modNBasis.repr.toEquiv, Nat.card_eq_fintype_card,
+@[simp] lemma natCard_eq : Nat.card (ModN G n) = n ^ Module.finrank ℤ G := by
+  simp [Nat.card_congr basis.repr.toEquiv, Nat.card_eq_fintype_card,
     Module.finrank_eq_card_chooseBasisIndex]
+
+end ModN

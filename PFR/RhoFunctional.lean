@@ -1,5 +1,4 @@
-import PFR.Mathlib.Probability.ConditionalProbability
-import PFR.Mathlib.Probability.Independence.ThreeVariables
+import PFR.ForMathlib.ThreeVariables
 import PFR.Kullback
 import PFR.Main
 
@@ -450,7 +449,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   have hT : Measurable T := measurable_fst
   let UA : G × G → G := Prod.snd
   have hUA : Measurable UA := measurable_snd
-  letI : MeasureSpace (G × G) := ⟨μ'.prod (uniformOn (A : Set G))⟩
+  let _ : MeasureSpace (G × G) := ⟨μ'.prod (uniformOn (A : Set G))⟩
   have hprod : (ℙ : Measure (G × G)) = μ'.prod (uniformOn (A : Set G)) := rfl
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
     uniformOn_isProbabilityMeasure A.finite_toSet hA
@@ -537,8 +536,8 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     (h'A : (A ∩ (t +ᵥ (H : Set G)) : Set G).Nonempty) (hU : Measurable U) :
     ρ⁻[U ; μ # A] ≤
       log (Nat.card A) - log (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)) := by
-  have mapU : Measure.map U μ = uniformOn (H : Set G) :=
-    hunif.map_eq_uniformOn hU (toFinite H) H.coe_nonempty
+  have mapU : .map U μ = uniformOn (H : Set G) :=
+    hunif.map_eq_uniformOn hU (H : Set G).toFinite H.coe_nonempty
   obtain ⟨a, ha, h'a⟩ := by exact h'A
   rcases mem_vadd_set.1 h'a with ⟨v, vH, rfl⟩
   simp only [vadd_eq_add, Finset.mem_coe] at ha
@@ -1642,9 +1641,9 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     rw [J.measure_inter_preimage_eq_mul _ _ (.singleton x)
       (.singleton y), ENNReal.toReal_mul]
     rcases eq_or_ne (ℙ ((Y₁ + Y₃) ⁻¹' {x})) 0 with h1|h1
-    · simp [h1]
+    · simp [h1, T₂]
     rcases eq_or_ne (ℙ ((Y₂ + Y₄) ⁻¹' {y})) 0 with h2|h2
-    · simp [h2]
+    · simp [h2, T₂']
     congr 1
     have A : IdentDistrib Y₁ Y₁ (ℙ[|(Y₁ + Y₃) ⁻¹' {x} ∩ (Y₂ + Y₄) ⁻¹' {y}])
         (ℙ[|(Y₁ + Y₃) ⁻¹' {x}]) := by
@@ -1864,7 +1863,7 @@ theorem dist_of_min_eq_zero (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂]
   let ⟨Ω', m', μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
   rw [← h_id1.rdist_eq h_id2]
-  letI : MeasureSpace Ω' := ⟨μ⟩
+  let _ : MeasureSpace Ω' := ⟨μ⟩
   have : IsProbabilityMeasure (ℙ : Measure Ω') := hμ
   have h'_min : phiMinimizes Y₁ Y₂ η A ℙ := phiMinimizes_of_identDistrib h_min h_id1.symm h_id2.symm
   exact dist_of_min_eq_zero' hη h'_min (h_id1.trans h_id1'.symm) (h_id2.trans h_id2'.symm)
@@ -1898,9 +1897,7 @@ lemma phiMinimizer_exists_rdist_eq_zero (hA : A.Nonempty) :
     with ⟨ν, -, φ, φmono, hν⟩
   have φlim : Tendsto φ atTop atTop := φmono.tendsto_atTop
   let M : MeasureSpace (G × G) := ⟨ν⟩
-  have : IsProbabilityMeasure (ℙ : Measure (G × G)) := by
-    change IsProbabilityMeasure ν
-    infer_instance
+  have : IsProbabilityMeasure (ℙ : Measure (G × G)) := ν.instIsProbabilityMeasureToMeasure
   refine ⟨G × G, M, Prod.fst, Prod.snd, measurable_fst, measurable_snd, by infer_instance, ?_, ?_⟩
   -- check that it is indeed a minimizer, as a limit of minimizers.
   · intro Ω' mΩ' X' Y' hP hX' hY'
@@ -1951,7 +1948,7 @@ theorem rho_PFR_conjecture [MeasurableSpace G] [DiscreteMeasurableSpace G]
   obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X₁⁻¹' {x₀}) ≠ 0 := by
     by_contra! h
     have A a : (ℙ : Measure Ω').map X₁ {a} = 0 := by
-      rw [Measure.map_apply hX₁ $ .of_discrete]
+      rw [Measure.map_apply hX₁ .of_discrete]
       exact h _
     have B : (ℙ : Measure Ω').map X₁ = 0 := by
       rw [← Measure.sum_smul_dirac (μ := (ℙ : Measure Ω').map X₁)]

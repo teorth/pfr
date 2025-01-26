@@ -81,7 +81,7 @@ example : ℙᵣ Set.univ = 1 := by simp
 example {A : Type*} [Fintype A] (E : A → Set Ω) : ℙᵣ (⋃ a, E a) ≤ ∑ a, ℙᵣ (E a) :=
   measureReal_iUnion_fintype_le E
 
-example {A : Type*} [Fintype A] (E : A → Set Ω) (hn : Pairwise (Disjoint on E))
+example {A : Type*} [Fintype A] (E : A → Set Ω) (hn : Pairwise fun x y ↦ Disjoint (E x) (E y))
     (h : ∀ i, MeasurableSet (E i)) : ℙᵣ (⋃ a, E a) = ∑ a, ℙᵣ (E a) :=
   measureReal_iUnion_fintype hn h
 

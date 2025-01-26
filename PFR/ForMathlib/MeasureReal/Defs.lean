@@ -195,7 +195,7 @@ theorem measureReal_iUnion_fintype_le {β : Type*} [Fintype β] (f : β → Set 
   simp
 
 theorem measureReal_iUnion_fintype {β : Type*} [Fintype β] {f : β → Set α}
-    (hn : Pairwise (Disjoint on f))
+    (hn : Pairwise fun x y ↦ Disjoint (f x) (f y))
     (h : ∀ i, MeasurableSet (f i)) (h' : ∀ i, μ (f i) ≠ ∞ := by finiteness) :
     μ.real (⋃ b, f b) = ∑ p, μ.real (f p) := by
   rw [measureReal_def, measure_iUnion hn h, tsum_fintype, ENNReal.toReal_sum (fun i _hi ↦ h' i)]
@@ -314,8 +314,8 @@ theorem measureReal_add_measureReal_compl [IsFiniteMeasure μ] (h : MeasurableSe
   measureReal_add_measureReal_compl₀ h.nullMeasurableSet
 
 theorem measureReal_biUnion_finset₀ {s : Finset ι} {f : ι → Set α}
-    (hd : Set.Pairwise (↑s) (AEDisjoint μ on f)) (hm : ∀ b ∈ s, NullMeasurableSet (f b) μ)
-    (h : ∀ b ∈ s, μ (f b) ≠ ∞ := by finiteness) :
+    (hd : Set.Pairwise s fun x y ↦ AEDisjoint μ (f x) (f y))
+    (hm : ∀ b ∈ s, NullMeasurableSet (f b) μ) (h : ∀ b ∈ s, μ (f b) ≠ ∞ := by finiteness) :
     μ.real (⋃ b ∈ s, f b) = ∑ p in s, μ.real (f p) := by
   simp only [measureReal_def, measure_biUnion_finset₀ hd hm, ENNReal.toReal_sum h]
 

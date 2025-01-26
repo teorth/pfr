@@ -34,7 +34,6 @@ import PFR.ImprovedPFR
 import PFR.Kullback
 import PFR.Main
 import PFR.Mathlib.Algebra.AddTorsor
-import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
@@ -44,7 +43,6 @@ import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
-import PFR.Mathlib.MeasureTheory.Measure.Comap
 import PFR.Mathlib.MeasureTheory.Measure.Prod
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
@@ -52,11 +50,9 @@ import PFR.Mathlib.Probability.Independence.Basic
 import PFR.Mathlib.Probability.Independence.FourVariables
 import PFR.Mathlib.Probability.Independence.Kernel
 import PFR.Mathlib.Probability.Independence.ThreeVariables
-import PFR.Mathlib.Probability.Kernel.Composition
+import PFR.Mathlib.Probability.Kernel.Composition.Basic
 import PFR.Mathlib.Probability.Kernel.Disintegration
 import PFR.Mathlib.Probability.UniformOn
-import PFR.Mathlib.SetTheory.Cardinal.Arithmetic
-import PFR.Mathlib.SetTheory.Cardinal.Finite
 import PFR.MoreRuzsaDist
 import PFR.MultiTauFunctional
 import PFR.RhoFunctional
