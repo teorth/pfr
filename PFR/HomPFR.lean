@@ -1,6 +1,5 @@
 import Mathlib.Data.Set.Card
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
-import PFR.ImprovedPFR
 import PFR.RhoFunctional
 
 /-!

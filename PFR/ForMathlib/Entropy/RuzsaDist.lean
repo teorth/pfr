@@ -3,6 +3,7 @@ import Mathlib.MeasureTheory.Integral.Prod
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
+import PFR.ForMathlib.FiniteRange.IdentDistrib
 import PFR.ForMathlib.ProbabilityMeasureProdCont
 
 /-!

@@ -1,6 +1,7 @@
 import Mathlib.Algebra.Group.Pointwise.Set.Card
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
+import PFR.ForMathlib.MeasureReal.Indep
 import PFR.ForMathlib.ZModModule
 import PFR.EntropyPFR
 import PFR.Tactic.RPowSimp

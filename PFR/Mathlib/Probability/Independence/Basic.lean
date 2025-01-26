@@ -1,7 +1,6 @@
 import Mathlib.MeasureTheory.Constructions.Pi
 import Mathlib.Probability.Independence.Basic
 import PFR.Mathlib.Probability.Independence.Kernel
-import PFR.ForMathlib.MeasureReal.Defs
 
 open Function MeasureTheory MeasurableSpace Measure Set
 open scoped MeasureTheory ENNReal
@@ -78,17 +77,6 @@ lemma iIndepFun.finsets_comp {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
   Kernel.iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas γ φ hφ
 
 end iIndepFun
-
-section
-variable {β β' : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → β'}
-
-theorem IndepFun.measureReal_inter_preimage_eq_mul {_mβ : MeasurableSpace β}
-    {_mβ' : MeasurableSpace β'} (h : IndepFun f g μ) {s : Set β} {t : Set β'}
-    (hs : MeasurableSet s) (ht : MeasurableSet t) :
-    μ.real (f ⁻¹' s ∩ g ⁻¹' t) = μ.real (f ⁻¹' s) * μ.real (g ⁻¹' t) := by
-  rw [measureReal_def, h.measure_inter_preimage_eq_mul _ _ hs ht, ENNReal.toReal_mul]; rfl
-
-end
 
 variable {Ω' α : Type*} [MeasurableSpace Ω'] [MeasurableSpace α] [MeasurableSpace β]
 

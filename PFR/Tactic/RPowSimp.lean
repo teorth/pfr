@@ -1,5 +1,4 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Tactic.Rify
 
 namespace Mathlib.Tactic
 open Lean

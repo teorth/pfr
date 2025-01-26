@@ -21,11 +21,14 @@ import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.ForMathlib.FiniteMeasureProd
 import PFR.ForMathlib.FiniteRange.ConditionalProbability
 import PFR.ForMathlib.FiniteRange.Defs
+import PFR.ForMathlib.FiniteRange.IdentDistrib
 import PFR.ForMathlib.GroupQuot
 import PFR.ForMathlib.MeasureReal.Defs
+import PFR.ForMathlib.MeasureReal.Indep
 import PFR.ForMathlib.MeasureReal.UniformOn
 import PFR.ForMathlib.Pair
 import PFR.ForMathlib.ProbabilityMeasureProdCont
+import PFR.ForMathlib.ThreeVariables
 import PFR.ForMathlib.Uniform
 import PFR.ForMathlib.ZModModule
 import PFR.HomPFR
@@ -44,12 +47,10 @@ import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.MeasureTheory.Measure.Prod
-import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Probability.Independence.Basic
 import PFR.Mathlib.Probability.Independence.FourVariables
 import PFR.Mathlib.Probability.Independence.Kernel
-import PFR.Mathlib.Probability.Independence.ThreeVariables
 import PFR.Mathlib.Probability.Kernel.Composition.Basic
 import PFR.Mathlib.Probability.Kernel.Disintegration
 import PFR.Mathlib.Probability.UniformOn
