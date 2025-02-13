@@ -321,7 +321,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
       convert entropy_le_log_card_of_mem (Measurable.sub hX' hUH') h
       simp_rw [hunif.entropy_eq' hH hUH', H_x, Set.Finite.mem_toFinset, h_card,
         SetLike.coe_sort_coe]
-    have h_one : (∑ x in FiniteRange.toFinset (π ∘ X'), (νq {x}).toReal) = 1 := by
+    have h_one : (∑ x ∈ FiniteRange.toFinset (π ∘ X'), (νq {x}).toReal) = 1 := by
       rewrite [Finset.sum_toReal_measure_singleton]
       apply (ENNReal.toReal_eq_one_iff _).mpr
       have := isProbabilityMeasure_map (μ := ν) <| .of_discrete (f := π ∘ X')
@@ -513,7 +513,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
     (μ : Measure Ω) [IsFiniteMeasure μ] (μ' : Measure Ω') [IsFiniteMeasure μ']
     [FiniteRange Z] [FiniteRange W] :
     d[X | Z ; μ # Y | W ; μ']
-      = ∑ z in FiniteRange.toFinset Z, ∑ w in FiniteRange.toFinset W,
+      = ∑ z ∈ FiniteRange.toFinset Z, ∑ w ∈ FiniteRange.toFinset W,
         (μ (Z ⁻¹' {z})).toReal * (μ' (W ⁻¹' {w})).toReal
           * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
   have : Measure.prod (μ.map Z) (μ'.map W) ((((FiniteRange.toFinset Z)
@@ -597,7 +597,7 @@ lemma condRuzsaDist'_def {T : Type*} [MeasurableSpace T]
 lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
     (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] [FiniteRange W] :
     d[X ; μ # Y | W ; μ']
-      = ∑ w in FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
+      = ∑ w ∈ FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
   have : Measure.prod (dirac ()) (μ'.map W) ((Finset.univ (α := Unit) ×ˢ FiniteRange.toFinset W :
     Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
     apply Measure.prod_of_full_measure_finset
@@ -641,8 +641,8 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
     (μ : Measure Ω) (μ' : Measure Ω') (hY : Measurable Y) (hW' : Measurable W') (hW : Measurable W)
     [IsFiniteMeasure μ'] [FiniteRange W] [FiniteRange W']:
     d[X ; μ # Y | ⟨W', W⟩; μ']
-      = ∑ w in FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
-  have : d[X ; μ # Y | ⟨W', W⟩; μ'] = ∑ w in ((FiniteRange.toFinset W') ×ˢ FiniteRange.toFinset W),
+      = ∑ w ∈ FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
+  have : d[X ; μ # Y | ⟨W', W⟩; μ'] = ∑ w ∈ ((FiniteRange.toFinset W') ×ˢ FiniteRange.toFinset W),
     (μ' ((fun a => (W' a, W a)) ⁻¹' {w})).toReal * d[X ; μ # Y ; μ'[|(fun a => (W' a, W a)) ⁻¹' {w}]] := by
     rw [condRuzsaDist'_eq_sum hY (hW'.prod_mk hW)]
     apply Finset.sum_subset

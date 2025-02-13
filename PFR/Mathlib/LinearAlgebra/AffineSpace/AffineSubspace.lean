@@ -1,5 +1,4 @@
 import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
-import PFR.Mathlib.Algebra.AddTorsor
 
 open scoped Pointwise
 

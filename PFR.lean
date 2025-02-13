@@ -30,13 +30,11 @@ import PFR.ForMathlib.Pair
 import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.ForMathlib.ThreeVariables
 import PFR.ForMathlib.Uniform
-import PFR.ForMathlib.ZModModule
 import PFR.HomPFR
 import PFR.HundredPercent
 import PFR.ImprovedPFR
 import PFR.Kullback
 import PFR.Main
-import PFR.Mathlib.Algebra.AddTorsor
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace

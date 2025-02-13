@@ -108,7 +108,7 @@ lemma entropy_eq_sum' (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ] :
 
 lemma entropy_eq_sum_finset {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ]
     {A : Finset S} (hA : (μ.map X) Aᶜ = 0):
-    entropy X μ = ∑ x in A, negMulLog (μ.map X {x}).toReal := by
+    entropy X μ = ∑ x ∈ A, negMulLog (μ.map X {x}).toReal := by
   rw [entropy_eq_sum]
   convert tsum_eq_sum ?_
   intro s hs
@@ -119,17 +119,17 @@ lemma entropy_eq_sum_finset {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ]
 
 lemma entropy_eq_sum_finset' {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ]
     {A : Finset S} (hA : (μ.map X) Aᶜ = 0):
-    entropy X μ = ∑ x in A, negMulLog ((μ.map X).real {x}) :=
+    entropy X μ = ∑ x ∈ A, negMulLog ((μ.map X).real {x}) :=
   entropy_eq_sum_finset hA
 
 lemma entropy_eq_sum_finiteRange [MeasurableSingletonClass S]
     (hX : Measurable X) {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ] [FiniteRange X]:
-    entropy X μ = ∑ x in FiniteRange.toFinset X, negMulLog (μ.map X {x}).toReal :=
+    entropy X μ = ∑ x ∈ FiniteRange.toFinset X, negMulLog (μ.map X {x}).toReal :=
   entropy_eq_sum_finset (A := FiniteRange.toFinset X) (full_measure_of_finiteRange hX)
 
 lemma entropy_eq_sum_finiteRange' [MeasurableSingletonClass S] (hX : Measurable X) {μ : Measure Ω}
     [IsZeroOrProbabilityMeasure μ] [FiniteRange X]:
-    entropy X μ = ∑ x in FiniteRange.toFinset X, negMulLog ((μ.map X).real {x}) :=
+    entropy X μ = ∑ x ∈ FiniteRange.toFinset X, negMulLog ((μ.map X).real {x}) :=
   entropy_eq_sum_finiteRange hX
 
 /-- `H[X | Y=y] = ∑_s P[X=s | Y=y] log 1/(P[X=s | Y=y])`. -/
@@ -142,7 +142,7 @@ lemma entropy_cond_eq_sum (μ : Measure Ω) (y : T) :
 
 lemma entropy_cond_eq_sum_finiteRange [MeasurableSingletonClass S]
     (hX : Measurable X) (μ : Measure Ω) (y : T) [FiniteRange X]:
-    H[X | Y ← y ; μ] = ∑ x in FiniteRange.toFinset X, negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
+    H[X | Y ← y ; μ] = ∑ x ∈ FiniteRange.toFinset X, negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
   by_cases hy : μ (Y ⁻¹' {y}) = 0
   · rw [entropy_def, cond_eq_zero_of_meas_eq_zero hy]
     simp
@@ -270,7 +270,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
 
   have h_norm_cancel : norm * norm⁻¹ = 1 :=
     ENNReal.mul_inv_cancel (ne_zero_of_lt h_norm_pos) (LT.lt.ne_top h_norm_finite)
-  have h_pdf1 : (∑ s in A, pdf s) = 1 := by
+  have h_pdf1 : (∑ s ∈ A, pdf s) = 1 := by
     rw [← ENNReal.toReal_sum (fun s _ ↦ h_pdf_finite s), ← Finset.mul_sum,
       Finset.sum_measure_singleton, mul_comm, h_norm_cancel, ENNReal.one_toReal]
 
@@ -291,7 +291,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
   rw [neg_le, ← one_mul (-log _), ← h_pdf1, Finset.sum_mul]
   let g_lhs s := pdf s * neg_log_pdf s_max
   let g_rhs s := -pdf s * log (pdf s)
-  suffices ∑ s in A, g_lhs s ≤ ∑ s in A, g_rhs s by
+  suffices ∑ s ∈ A, g_lhs s ≤ ∑ s ∈ A, g_rhs s by
     convert this
     rw [entropy_eq_sum_finset hA]
     congr with s
@@ -444,7 +444,7 @@ lemma condEntropy_le_log_card [MeasurableSingletonClass S] [Fintype S]
 /-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`.-/
 lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
     [IsFiniteMeasure μ] (hY : Measurable Y) [FiniteRange Y]:
-    H[X | Y ; μ] = ∑ y in FiniteRange.toFinset Y, (μ.map Y {y}).toReal * H[X | Y ← y ; μ] := by
+    H[X | Y ; μ] = ∑ y ∈ FiniteRange.toFinset Y, (μ.map Y {y}).toReal * H[X | Y ← y ; μ] := by
   rw [condEntropy_def, integral_eq_setIntegral (full_measure_of_finiteRange hY), integral_finset _ _ IntegrableOn.finset]
   simp_rw [smul_eq_mul]
 
@@ -485,7 +485,7 @@ variable [MeasurableSingletonClass S]
 lemma condEntropy_eq_sum_sum (hX : Measurable X) {Y : Ω → T} (hY : Measurable Y)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[X | Y ; μ]
-      = ∑ y in FiniteRange.toFinset Y, ∑ x in FiniteRange.toFinset X,
+      = ∑ y ∈ FiniteRange.toFinset Y, ∑ x ∈ FiniteRange.toFinset X,
         (μ.map Y {y}).toReal * negMulLog ((μ[|Y ← y]).map X {x}).toReal := by
   rw [condEntropy_eq_sum _ _ _ hY]
   congr with y
@@ -506,7 +506,7 @@ lemma condEntropy_eq_sum_sum_fintype {Y : Ω → T} (hY : Measurable Y)
 lemma condEntropy_eq_sum_prod (hX : Measurable X) {Y : Ω → T}
     (hY : Measurable Y)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
-    H[X | Y ; μ] = ∑ p in (FiniteRange.toFinset X) ×ˢ (FiniteRange.toFinset Y),
+    H[X | Y ; μ] = ∑ p ∈ (FiniteRange.toFinset X) ×ˢ (FiniteRange.toFinset Y),
       (μ.map Y {p.2}).toReal * negMulLog ((μ[|Y ⁻¹' {p.2}]).map X {p.1}).toReal := by
   rw [condEntropy_eq_sum_sum hX hY, Finset.sum_product_right]
 
@@ -865,7 +865,7 @@ end
 
 lemma condMutualInfo_eq_sum [MeasurableSingletonClass U] [IsFiniteMeasure μ]
     (hZ : Measurable Z) [FiniteRange Z] :
-    I[X : Y | Z ; μ] = ∑ z in FiniteRange.toFinset Z,
+    I[X : Y | Z ; μ] = ∑ z ∈ FiniteRange.toFinset Z,
       (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
   rw [condMutualInfo_eq_integral_mutualInfo,
     integral_eq_setIntegral (FiniteRange.null_of_compl _ Z), integral_finset _ _ IntegrableOn.finset]

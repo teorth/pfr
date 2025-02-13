@@ -26,7 +26,7 @@ lemma entropy_of_uniformOn [Nonempty H] : measureEntropy (uniformOn H) = log (Na
     _ = ∑' s, if s ∈ H then negMulLog (1 / (Nat.card H)) else 0 := by
       congr with s
       by_cases h : s ∈ H <;> simp [h, Finset.filter_true_of_mem, Finset.filter_false_of_mem]
-    _ = ∑ s in H.toFinite.toFinset, negMulLog (1 / (Nat.card H)) := by
+    _ = ∑ s ∈ H.toFinite.toFinset, negMulLog (1 / (Nat.card H)) := by
       convert tsum_eq_sum (s := H.toFinite.toFinset) ?_ using 2 with s hs
       · simp at hs; simp [hs]
       intro s hs

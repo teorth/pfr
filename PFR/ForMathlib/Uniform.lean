@@ -127,7 +127,7 @@ lemma IsUniform.measure_preimage_of_mem
       rw [← measure_union (disjoint_compl_left.preimage _) (hX .of_discrete)]
       simp
     _ = μ (X ⁻¹' H) := by rw [h.measure_preimage_compl, zero_add]
-    _ = ∑ x in H, μ (X ⁻¹' {x}) := by
+    _ = ∑ x ∈ H, μ (X ⁻¹' {x}) := by
       have : X ⁻¹' H = ⋃ x ∈ H, X ⁻¹' ({x} : Set S) := by simp
       rw [this, measure_biUnion_finset]
       · intro y _hy z _hz hyz
@@ -135,7 +135,7 @@ lemma IsUniform.measure_preimage_of_mem
         simp [hyz]
       · intro y _hy
         exact hX .of_discrete
-    _ = ∑ _x in H, μ (X ⁻¹' {s}) :=
+    _ = ∑ _x ∈ H, μ (X ⁻¹' {s}) :=
       Finset.sum_congr rfl fun x hx ↦ h.eq_of_mem (by simpa using hx) hs
     _ = H.card * μ (X ⁻¹' {s}) := by simp
     _ = (Nat.card H) * μ (X ⁻¹' {s}) := by
@@ -171,7 +171,7 @@ lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Mea
     rewrite [Set.diff_eq_compl_inter, ← le_zero_iff, ← h.measure_preimage_compl]
     exact measure_mono inter_subset_left
   _ = μ (X ⁻¹' (H' ∩ H.toSet).toFinite.toFinset) := by simp
-  _ = (μ univ) * ∑ __ in (H' ∩ H.toSet).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
+  _ = μ univ * ∑ __ ∈ (H' ∩ H.toSet).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
     rewrite [← sum_measure_preimage_singleton _ (by measurability), Finset.mul_sum]
     refine Finset.sum_congr rfl (fun _ hx ↦ ?_)
     rw [mul_one_div, h.measure_preimage_of_mem hX ((Finite.mem_toFinset _).mp hx).2]
