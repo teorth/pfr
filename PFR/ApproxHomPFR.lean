@@ -140,7 +140,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       exact ((Set.Finite.mem_toFinset _).mp hch.2).1
 
   replace : ∑ _ ∈ cH₁, ((2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * #A / cH₁.card : ℝ) ≤
-      ∑ ch in cH₁, ((translate ch.1 ch.2).toFinite.toFinset.card : ℝ) := by
+      ∑ ch ∈ cH₁, ((translate ch.1 ch.2).toFinite.toFinset.card : ℝ) := by
     rewrite [Finset.sum_const, nsmul_eq_mul, ← mul_div_assoc, mul_div_right_comm, div_self, one_mul]
     · apply hA'1.trans
       norm_cast

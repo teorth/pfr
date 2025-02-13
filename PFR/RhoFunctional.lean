@@ -497,7 +497,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
       Measure.map_apply hUA (DiscreteMeasurableSpace.forall_measurableSet _),
       hUA_unif.measure_preimage hUA]
     simp only [measure_univ, singleton_add, image_add_left, neg_neg, one_mul,
-      Nat.card_eq_fintype_card, Fintype.card_coe, ENNReal.toReal_div, ENNReal.toReal_nat]
+      Nat.card_eq_fintype_card, Fintype.card_coe, ENNReal.toReal_div, ENNReal.toReal_natCast]
     apply Finset.sum_le_sum (fun i _ ↦ ?_)
     gcongr
     apply le_csSup bddAbove_card_inter_add
@@ -585,7 +585,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     have : (Measure.map U μ) {x} = 1/Nat.card H := by
       rw [Measure.map_apply hU (measurableSet_singleton _), hunif'.measure_preimage_of_mem hU hx]
       simp [H']
-    simp only [this, one_div, ENNReal.toReal_inv, ENNReal.toReal_nat, Nat.cast_eq_zero]
+    simp only [this, one_div, ENNReal.toReal_inv, ENNReal.toReal_natCast, Nat.cast_eq_zero]
     congr
     rw [h_indep.map_add_singleton_eq_sum measurable_fst measurable_snd, Measure.map_snd_prod,
       Measure.map_fst_prod]
@@ -612,7 +612,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
         abel
       rfl
     simp only [this, Nat.card_eq_fintype_card, Fintype.card_coe, one_div, Finset.sum_const,
-      nsmul_eq_mul, ENNReal.toReal_mul, ENNReal.toReal_nat, ENNReal.toReal_inv, div_eq_mul_inv,
+      nsmul_eq_mul, ENNReal.toReal_mul, ENNReal.toReal_natCast, ENNReal.toReal_inv, div_eq_mul_inv,
       ENNReal.one_toReal, one_mul, mul_inv]
     congr
     rw [Nat.card_eq_card_finite_toFinset]

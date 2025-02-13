@@ -244,7 +244,7 @@ lemma max_entropy_le_entropy_prod {G : Type*} [Countable G] [hG : MeasurableSpac
     [MeasurableSingletonClass G] [CommGroup G] [MeasurableMul₂ G]
     {I : Type*} {s : Finset I} {i₀ : I} (hi₀ : i₀ ∈ s) {X : I → Ω → G} [∀ i, FiniteRange (X i)]
     (hX : (i : I) → Measurable (X i)) (h_indep : iIndepFun (fun (_ : I) => hG) X μ) :
-    H[X i₀ ; μ] ≤ H[∏ i in s, X i ; μ] := by
+    H[X i₀ ; μ] ≤ H[∏ i ∈ s, X i ; μ] := by
   have hs : s.Nonempty := ⟨i₀, hi₀⟩
   induction' hs using Finset.Nonempty.cons_induction with i j s Hnot _ Hind
   · simp_all

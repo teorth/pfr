@@ -568,7 +568,7 @@ lemma _root_.MeasureTheory.Measure.ae_of_ae_compProd {α β : Type*}
   rw [ae_iff]
   convert ha
 
-lemma compProd_congr {μ} [SFinite μ] {κ κ' : Kernel T S} [IsSFiniteKernel κ] [IsSFiniteKernel κ']
+lemma compProd_congr_ae {μ} [SFinite μ] {κ κ' : Kernel T S} [IsSFiniteKernel κ] [IsSFiniteKernel κ']
     {η η' : Kernel (T × S) U} [IsSFiniteKernel η] [IsSFiniteKernel η']
     (hκ : κ =ᵐ[μ] κ') (hη : η =ᵐ[μ ⊗ₘ κ] η') :
     κ ⊗ₖ η =ᵐ[μ] κ' ⊗ₖ η' := by
@@ -904,7 +904,7 @@ lemma AEFiniteKernelSupport.compProd [Countable S] [MeasurableSingletonClass S]
   refine ⟨hκ.mk ⊗ₖ hη.mk, ?_, ?_⟩
   · exact hκ.finiteKernelSupport_mk.compProd hη.finiteKernelSupport_mk
   · have h_meas_eq : μ ⊗ₘ hκ.mk = μ ⊗ₘ κ := Measure.compProd_congr hκ.ae_eq_mk.symm
-    refine compProd_congr hκ.ae_eq_mk.symm ?_
+    refine compProd_congr_ae hκ.ae_eq_mk.symm ?_
     convert hη.ae_eq_mk.symm
 
 /-- prodMkRight preserves finite kernel support. -/

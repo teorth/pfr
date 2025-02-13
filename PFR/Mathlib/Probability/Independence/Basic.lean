@@ -129,7 +129,7 @@ lemma iIndepFun_iff' [MeasurableSpace Ω] {β : ι → Type*}
     (m : ∀ i, MeasurableSpace (β i)) (f : ∀ i, Ω → β i) (μ : Measure Ω) :
     iIndepFun m f μ ↔ ∀ (s : Finset ι) ⦃f' : ι → Set Ω⦄
       (_hf' : ∀ i, MeasurableSet[(m i).comap (f i)] (f' i)),
-      μ (⋂ i ∈ s, f' i) = ∏ i in s, μ (f' i) := by
+      μ (⋂ i ∈ s, f' i) = ∏ i ∈ s, μ (f' i) := by
   classical
   rw [iIndepFun_iff]
   refine forall_congr' fun s ↦ ⟨fun h f hf ↦ h fun i _ ↦ hf _, fun h f hf ↦ ?_⟩
@@ -256,7 +256,7 @@ lemma iIndepFun.pi
   set set_σ := fun (ij : (i : ι) × κ i) ↦ set ij.fst ij.snd with set_σ_def
   let meas i j := μ (set i j)
   let meas_σ ij := μ (set_σ ij)
-  suffices μ (⋂ i ∈ s, ⋂ j, set i j) = ∏ i in s, μ (⋂ j, set i j) by
+  suffices μ (⋂ i ∈ s, ⋂ j, set i j) = ∏ i ∈ s, μ (⋂ j, set i j) by
     convert this with k hk k hk ; all_goals { exact box k hk }
 
   let κ_σ (i : ι) := Finset.sigma {i} fun i ↦ Finset.univ (α := κ i)

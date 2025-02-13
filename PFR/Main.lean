@@ -1,8 +1,8 @@
 import Mathlib.Algebra.Group.Pointwise.Set.Card
+import Mathlib.Algebra.Module.ZMod
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
 import PFR.ForMathlib.MeasureReal.Indep
-import PFR.ForMathlib.ZModModule
 import PFR.EntropyPFR
 import PFR.Tactic.RPowSimp
 
@@ -46,14 +46,14 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
       = ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply sum_congr _ _ (fun g ↦ ?_)
         rw [h_indep.measureReal_inter_preimage_eq_mul .of_discrete .of_discrete]
-    _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
+    _ = ∑ p ∈ W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply (Finset.sum_subset W.subset_univ _).symm
         intro i _ hi
         replace hi : i ∉ A ∨ i ∉ B := by simp [W] at hi; tauto
         rcases hi with h'i|h'i
         · simp [Uunif.measureReal_preimage_of_nmem h'i]
         · simp [Vunif.measureReal_preimage_of_nmem h'i]
-    _ = ∑ p in W, (1 / Nat.card A : ℝ) * (1 / Nat.card B) := by
+    _ = ∑ p ∈ W, (1 / Nat.card A : ℝ) * (1 / Nat.card B) := by
         apply Finset.sum_congr rfl (fun i hi ↦ ?_)
         replace hi : i ∈ A ∧ i ∈ B := by simpa [W] using hi
         rw [Uunif.measureReal_preimage_of_mem (by trivial) hi.1,

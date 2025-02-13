@@ -67,7 +67,7 @@ lemma wlog_notInCoset (hA : A.Nonempty) (hB : B.Nonempty) :
   simp_rw [preimage_union, hA.sub_self_congr, hB.sub_self_congr]
   rw [preimage_sub, preimage_sub]
   · simp only [A', B', Subtype.image_preimage_coe]
-    simp only [SetLike.coe_sort_coe, AddSubgroup.coeSubtype, preimage_inter]
+    simp only [SetLike.coe_sort_coe, AddSubgroup.coe_subtype, preimage_inter]
     rw [Subtype.coe_preimage_self, Subtype.coe_preimage_self, Subtype.coe_preimage_self,
       Subtype.coe_preimage_self]
     simp only [univ_inter]
@@ -416,7 +416,7 @@ lemma four_logs {a b c d : ℝ} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hd : 0 <
 
 lemma sum_prob_preimage {G H : Type*} {X : Finset H} {A : Set G} [Finite A] {φ : A → X}
     {A_ : H → Set G} (hA : A.Nonempty) (hφ : ∀ x : X, A_ x = Subtype.val '' (φ ⁻¹' {x})) :
-    ∑ x in X, (Nat.card (A_ x) : ℝ) / Nat.card A = 1 := by
+    ∑ x ∈ X, (Nat.card (A_ x) : ℝ) / Nat.card A = 1 := by
   rw [← Finset.sum_div]
   apply (div_eq_one_iff_eq <| Nat.cast_ne_zero.mpr
     <| Nat.pos_iff_ne_zero.mp (@Nat.card_pos _ hA.to_subtype _)).mpr
@@ -481,7 +481,7 @@ lemma single_fibres {G H Ω Ω': Type*}
   let p (x : H) (y : H) : ℝ :=
     (Nat.card (A_ x).Elem) * (Nat.card (B_ y).Elem) / ((Nat.card A.Elem) * (Nat.card B.Elem))
   have :
-    ∑ x in X, ∑ y in Y, (p x y) * dᵤ[A_ x # B_ y] ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] :=
+    ∑ x ∈ X, ∑ y ∈ Y, (p x y) * dᵤ[A_ x # B_ y] ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] :=
   calc
     _ = d[UA | φ.toFun ∘ UA # UB | φ.toFun ∘ UB] := by
       rewrite [condRuzsaDist_eq_sum hUA' (.comp .of_discrete hUA')
@@ -516,7 +516,7 @@ lemma single_fibres {G H Ω Ω': Type*}
       rewrite [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe]
       linarith only [rdist_le_sum_fibre φ hUA' hUB' (μ := ℙ) (μ' := ℙ)]
   let M := H[φ.toFun ∘ UA] + H[φ.toFun ∘ UB]
-  have hM : M = ∑ x in X, ∑ y in Y, Real.negMulLog (p x y) := by
+  have hM : M = ∑ x ∈ X, ∑ y ∈ Y, Real.negMulLog (p x y) := by
     have h_compl {x y} (h_notin : (x, y) ∉ X ×ˢ Y) : Real.negMulLog (p x y) = 0 := by
       unfold p
       rewrite [Finset.mem_product, not_and_or] at h_notin
@@ -542,16 +542,16 @@ lemma single_fibres {G H Ω Ω': Type*}
       Set.preimage_comp, hUA_coe.measure_preimage hUA',
       Set.preimage_comp, hUB_coe.measure_preimage hUB']
     simp [p, A_, B_, mul_div_mul_comm, Set.inter_comm, ENNReal.toReal_div]
-  have h_sum : ∑ x in X, ∑ y in Y,
+  have h_sum : ∑ x ∈ X, ∑ y ∈ Y,
       (p x y) * (M * dᵤ[A_ x # B_ y] + d[φ.toFun ∘ UA # φ.toFun ∘ UB] * -Real.log (p x y)) ≤
       M * d[UA # UB] :=
   calc
-    _ = ∑ x in X, ∑ y in Y, (p x y) * M * dᵤ[A_ x # B_ y] + M * d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
+    _ = ∑ x ∈ X, ∑ y ∈ Y, (p x y) * M * dᵤ[A_ x # B_ y] + M * d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
       simp_rw [hM, Finset.sum_mul, ← Finset.sum_add_distrib]
       refine Finset.sum_congr rfl <| fun _ _ ↦ Finset.sum_congr rfl <| fun _ _ ↦ ?_
       simp only [negMulLog, left_distrib, mul_assoc, Finset.sum_mul]
       exact congrArg (HAdd.hAdd _) (by group)
-    _ = M * ∑ x in X, ∑ y in Y, (p x y) * dᵤ[A_ x # B_ y] + M * d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
+    _ = M * ∑ x ∈ X, ∑ y ∈ Y, (p x y) * dᵤ[A_ x # B_ y] + M * d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
       simp_rw [Finset.mul_sum]
       congr; ext; congr; ext; group
     _ ≤ M * d[UA # UB] := by
@@ -578,7 +578,7 @@ lemma single_fibres {G H Ω Ω': Type*}
         φ.toFun <| UB <| Classical.choice <| ProbabilityMeasure.nonempty ⟨ℙ, inferInstance⟩⟩
       exact Finset.mem_product.mpr ⟨FiniteRange.mem _ _, FiniteRange.mem _ _⟩
     replace hc := Finset.sum_lt_sum_of_nonempty h_nonempty hc
-    have h_p_one : ∑ x in X ×ˢ Y, p x.1 x.2 = 1 := by
+    have h_p_one : ∑ x ∈ X ×ˢ Y, p x.1 x.2 = 1 := by
       simp_rw [Finset.sum_product, p, mul_div_mul_comm, ← Finset.mul_sum,
         ← sum_prob_preimage hA h_φ_AX, sum_prob_preimage hB h_φ_BY, mul_one]
     rewrite [← Finset.sum_mul, h_p_one, one_mul, Finset.sum_product] at hc

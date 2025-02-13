@@ -222,7 +222,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   rcases eq_zero_or_isMarkovKernel κ with rfl | hκ'
   · simp
   let A := μ.support
-  have hsum (F : T → ℝ) : ∫ (t : T), F t ∂μ = ∑ t in A, (μ.real {t}) * (F t) := by
+  have hsum (F : T → ℝ) : ∫ (t : T), F t ∂μ = ∑ t ∈ A, (μ.real {t}) * (F t) := by
     rw [integral_eq_setIntegral (measure_compl_support μ), integral_finset _ _ IntegrableOn.finset]
     congr with t ht
   simp_rw [entropy, hsum, ← Finset.sum_add_distrib]
@@ -255,7 +255,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   have hts : (t, s) ∈ A ×ˢ B := by simp [ht, hs]
   rw [measureEntropy_def_finite' (hC (t, s) hts)]
   simp
-  have : negMulLog ((κ t).real {s}) = ∑ u in C, negMulLog ((κ t).real {s}) *
+  have : negMulLog ((κ t).real {s}) = ∑ u ∈ C, negMulLog ((κ t).real {s}) *
       ((comap η (Prod.mk t) measurable_prod_mk_left) s).real {u} := by
     rw [← Finset.mul_sum]
     simp
@@ -297,8 +297,7 @@ lemma entropy_compProd [Countable S] [MeasurableSingletonClass S]
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[η, μ ⊗ₘ κ] := by
   have h_meas_eq : μ ⊗ₘ hκ.mk = μ ⊗ₘ κ := Measure.compProd_congr hκ.ae_eq_mk.symm
   have h_ent1 : Hk[hκ.mk ⊗ₖ hη.mk, μ] = Hk[κ ⊗ₖ η, μ] := by
-    refine entropy_congr ?_
-    refine compProd_congr hκ.ae_eq_mk.symm ?_
+    refine entropy_congr <| compProd_congr_ae hκ.ae_eq_mk.symm ?_
     convert hη.ae_eq_mk.symm
   have h_ent2 : Hk[hκ.mk, μ] = Hk[κ, μ] := entropy_congr hκ.ae_eq_mk.symm
   have h_ent3 : Hk[hη.mk, μ ⊗ₘ hκ.mk] = Hk[η, μ ⊗ₘ κ] := by

@@ -211,11 +211,11 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
     (Z : Ω'₁ → S) (W : Ω'₂ → T) (hZ : Measurable Z) (hW : Measurable W) :
     d[X₁ # X₂] - p.η * (d[p.X₀₁ # X₁' | Z] - d[p.X₀₁ # X₁])
       - p.η * (d[p.X₀₂ # X₂' | W] - d[p.X₀₂ # X₂]) ≤ d[X₁' | Z # X₂' | W] := by
-  have hz (a : ℝ) : a = ∑ z in FiniteRange.toFinset Z, (ℙ (Z ⁻¹' {z})).toReal * a := by
+  have hz (a : ℝ) : a = ∑ z ∈ FiniteRange.toFinset Z, (ℙ (Z ⁻¹' {z})).toReal * a := by
     simp_rw [← Finset.sum_mul,← Measure.map_apply hZ (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
     rw [FiniteRange.full hZ]
     simp
-  have hw (a : ℝ) : a = ∑ w in FiniteRange.toFinset W, (ℙ (W ⁻¹' {w})).toReal * a := by
+  have hw (a : ℝ) : a = ∑ w ∈ FiniteRange.toFinset W, (ℙ (W ⁻¹' {w})).toReal * a := by
     simp_rw [← Finset.sum_mul,← Measure.map_apply hW (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
     rw [FiniteRange.full hW]
     simp

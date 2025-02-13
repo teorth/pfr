@@ -32,8 +32,8 @@ section aux_lemmas
 @[simp]
 lemma Finset.sum_measure_singleton {S : Type*} {s : Finset S} {_ : MeasurableSpace S}
     [MeasurableSingletonClass S] (μ : Measure S) :
-    ∑ x in s, μ {x} = μ s := by
-  change ∑ x in s, μ (id ⁻¹' {x}) = _
+    ∑ x ∈ s, μ {x} = μ s := by
+  change ∑ x ∈ s, μ (id ⁻¹' {x}) = _
   rw [sum_measure_preimage_singleton]
   · simp
   · simp
@@ -41,7 +41,7 @@ lemma Finset.sum_measure_singleton {S : Type*} {s : Finset S} {_ : MeasurableSpa
 @[simp]
 lemma Finset.sum_toReal_measure_singleton {S : Type*} {s : Finset S} {_ : MeasurableSpace S}
     [MeasurableSingletonClass S] (μ : Measure S) [IsFiniteMeasure μ] :
-    ∑ x in s, (μ {x}).toReal = (μ s).toReal := by
+    ∑ x ∈ s, (μ {x}).toReal = (μ s).toReal := by
   rw [← ENNReal.toReal_sum (fun _ _ ↦ measure_ne_top _ _)]
   simp
 
@@ -181,7 +181,7 @@ theorem measureReal_union_le (s₁ s₂ : Set α) : μ.real (s₁ ∪ s₂) ≤ 
     exact ENNReal.toReal_mono (by simp [A, B]) (measure_union_le _ _)
 
 theorem measureReal_biUnion_finset_le {β : Type*} (s : Finset β) (f : β → Set α) :
-    μ.real (⋃ b ∈ s, f b) ≤ ∑ p in s, μ.real (f p) := by
+    μ.real (⋃ b ∈ s, f b) ≤ ∑ p ∈ s, μ.real (f p) := by
   classical
   induction' s using Finset.induction_on with x s hx IH
   · simp
@@ -316,26 +316,26 @@ theorem measureReal_add_measureReal_compl [IsFiniteMeasure μ] (h : MeasurableSe
 theorem measureReal_biUnion_finset₀ {s : Finset ι} {f : ι → Set α}
     (hd : Set.Pairwise s fun x y ↦ AEDisjoint μ (f x) (f y))
     (hm : ∀ b ∈ s, NullMeasurableSet (f b) μ) (h : ∀ b ∈ s, μ (f b) ≠ ∞ := by finiteness) :
-    μ.real (⋃ b ∈ s, f b) = ∑ p in s, μ.real (f p) := by
+    μ.real (⋃ b ∈ s, f b) = ∑ p ∈ s, μ.real (f p) := by
   simp only [measureReal_def, measure_biUnion_finset₀ hd hm, ENNReal.toReal_sum h]
 
 theorem measureReal_biUnion_finset {s : Finset ι} {f : ι → Set α} (hd : PairwiseDisjoint (↑s) f)
     (hm : ∀ b ∈ s, MeasurableSet (f b)) (h : ∀ b ∈ s, μ (f b) ≠ ∞ := by finiteness) :
-    μ.real (⋃ b ∈ s, f b) = ∑ p in s, μ.real (f p) :=
+    μ.real (⋃ b ∈ s, f b) = ∑ p ∈ s, μ.real (f p) :=
   measureReal_biUnion_finset₀ hd.aedisjoint (fun b hb ↦ (hm b hb).nullMeasurableSet) h
 
 /-- If `s` is a `Finset`, then the measure of its preimage can be found as the sum of measures
 of the fibers `f ⁻¹' {y}`. -/
 theorem sum_measureReal_preimage_singleton {β : Type*} (s : Finset β) {f : α → β}
     (hf : ∀ y ∈ s, MeasurableSet (f ⁻¹' {y})) (h : ∀ a ∈ s, μ (f ⁻¹' {a}) ≠ ∞ := by finiteness) :
-    (∑ b in s, μ.real (f ⁻¹' {b})) = μ.real (f ⁻¹' ↑s) := by
+    (∑ b ∈ s, μ.real (f ⁻¹' {b})) = μ.real (f ⁻¹' ↑s) := by
   simp only [measureReal_def, ← sum_measure_preimage_singleton s hf, ENNReal.toReal_sum h]
 
 /-- If `s` is a `Finset`, then the sums of the real measures of the singletons in the set is the
 real measure of the set. -/
 @[simp] theorem Finset.sum_realMeasure_singleton [MeasurableSingletonClass α] [IsFiniteMeasure μ]
     (s : Finset α) :
-    (∑ b in s, μ.real {b}) = μ.real s :=
+    (∑ b ∈ s, μ.real {b}) = μ.real s :=
   Finset.sum_toReal_measure_singleton ..
 
 theorem measureReal_diff_null' (h : μ.real (s₁ ∩ s₂) = 0) (h' : μ s₁ ≠ ∞ := by finiteness) :
@@ -428,19 +428,19 @@ theorem measureReal_union_congr_of_subset {t₁ t₂ : Set α} (hs : s₁ ⊆ s�
 /- TODO: use NullMeasurable sets like in the mathlib file. -/
 theorem sum_measureReal_le_measureReal_univ [IsFiniteMeasure μ] {s : Finset ι} {t : ι → Set α}
     (h : ∀ i ∈ s, MeasurableSet (t i)) (H : Set.PairwiseDisjoint (↑s) t) :
-    (∑ i in s, μ.real (t i)) ≤ μ.real (univ : Set α) := by
+    (∑ i ∈ s, μ.real (t i)) ≤ μ.real (univ : Set α) := by
   simp only [measureReal_def]
   rw [← ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
   apply ENNReal.toReal_mono (measure_ne_top _ _)
   exact sum_measure_le_measure_univ (fun i hi ↦ (h i hi).nullMeasurableSet) H.aedisjoint
 
 /-- Pigeonhole principle for measure spaces: if `s` is a `Finset` and
-`∑ i in s, μ.real (t i) > μ.real univ`, then one of the intersections `t i ∩ t j` is not empty.
+`∑ i ∈ s, μ.real (t i) > μ.real univ`, then one of the intersections `t i ∩ t j` is not empty.
 TODO: use NullMeasurable sets like in the mathlib file. -/
 theorem exists_nonempty_inter_of_measureReal_univ_lt_sum_measureReal
     {m : MeasurableSpace α} (μ : Measure α) [IsFiniteMeasure μ]
     {s : Finset ι} {t : ι → Set α} (h : ∀ i ∈ s, MeasurableSet (t i))
-    (H : μ.real (univ : Set α) < ∑ i in s, μ.real (t i)) :
+    (H : μ.real (univ : Set α) < ∑ i ∈ s, μ.real (t i)) :
     ∃ i ∈ s, ∃ j ∈ s, ∃ _h : i ≠ j, (t i ∩ t j).Nonempty := by
   apply exists_nonempty_inter_of_measure_univ_lt_sum_measure μ
     (fun i hi ↦ (h i hi).nullMeasurableSet)

@@ -351,13 +351,13 @@ lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX :
       ring
 
 /-- If `n ≥ 0` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
-then `H[Y i₀ + ∑ i in s, Y i; μ] - H[Y i₀; μ] ≤ ∑ i in s, (H[Y i₀ + Y i; μ] - H[Y i₀; μ])`.
+then `H[Y i₀ + ∑ i ∈ s, Y i; μ] - H[Y i₀; μ] ≤ ∑ i ∈ s, (H[Y i₀ + Y i; μ] - H[Y i₀; μ])`.
 The spelling here is tentative.
 Feel free to modify it to make the proof easier, or the application easier. -/
 lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     {Y : I → Ω → G} [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i))
     (h_indep : iIndepFun (fun (_ : I) => hG) Y μ) :
-    H[Y i₀ + ∑ i in s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i in s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
+    H[Y i₀ + ∑ i ∈ s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i ∈ s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
   classical
   induction s using Finset.induction_on with
   | empty => simp
@@ -394,11 +394,11 @@ lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     · ring
 
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
-then `d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ]`.-/
+then `d[Y i₀; μ # ∑ i ∈ s, Y i; μ] ≤ 2 * ∑ i ∈ s, d[Y i₀; μ # Y i; μ]`.-/
 lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     (hs' : Finset.Nonempty s) {Y : I → Ω → G} [∀ i, FiniteRange (Y i)]
     (hY : (i : I) → Measurable (Y i)) (h_indep : iIndepFun (fun (_ : I) => hG) Y μ) :
-    d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ 2 * ∑ i in s, d[Y i₀; μ # Y i; μ] := by
+    d[Y i₀; μ # ∑ i ∈ s, Y i; μ] ≤ 2 * ∑ i ∈ s, d[Y i₀; μ # Y i; μ] := by
   classical
   have : IsProbabilityMeasure μ := h_indep.isProbabilityMeasure
   let φ i : G → G := if i = i₀ then id else - id
@@ -407,8 +407,8 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
   have mnY : (i : I) → Measurable (Y' i) := fun i ↦ (hφ i).comp (hY i)
   have h_indep2 : IndepFun (Y i₀) (∑ i ∈ s, Y i) μ :=
     iIndepFun.indepFun_finset_sum_of_not_mem h_indep (fun i ↦ hY i) hs |>.symm
-  have ineq4 : d[Y i₀; μ # ∑ i in s, Y i; μ] + 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ])
-      ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
+  have ineq4 : d[Y i₀; μ # ∑ i ∈ s, Y i; μ] + 1/2 * (H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ])
+      ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
     calc
       _ = H[Y i₀ - ∑ i ∈ s, Y i ; μ] - H[Y i₀ ; μ] := by
         rw [IndepFun.rdist_eq h_indep2 (hY i₀) (by fun_prop)]
@@ -424,8 +424,8 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
         refine Finset.sum_congr rfl fun i hi ↦ ?_
         rw [IndepFun.rdist_eq (h_indep.indepFun (ne_of_mem_of_not_mem hi hs).symm) (hY i₀) (hY i)]
         ring
-  replace ineq4 : d[Y i₀; μ # ∑ i in s, Y i; μ] ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ]
-      + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) - 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ]) :=
+  replace ineq4 : d[Y i₀; μ # ∑ i ∈ s, Y i; μ] ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ]
+      + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) - 1/2 * (H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ]) :=
     le_tsub_of_add_le_right ineq4
   have ineq5 (j : I) (hj : j ∈ s) : H[Y j ; μ] ≤ H[∑ i ∈ s, Y i; μ] :=
     max_entropy_le_entropy_sum hj hY h_indep
@@ -435,17 +435,17 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     refine Finset.sum_le_sum fun i hi ↦ ?_
     gcongr
     exact ineq5 i hi
-  have ineq7 : d[Y i₀; μ # ∑ i in s, Y i; μ]
-    ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / (2 * s.card) * (H[Y i; μ] - H[Y i₀; μ])) := by
+  have ineq7 : d[Y i₀; μ # ∑ i ∈ s, Y i; μ]
+    ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / (2 * s.card) * (H[Y i; μ] - H[Y i₀; μ])) := by
     calc
-      _ ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ]))
-          - 1/2 * (H[∑ i in s, Y i; μ] - H[Y i₀; μ]) := ineq4
-      _ ≤ ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ]))
+      _ ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ]))
+          - 1/2 * (H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ]) := ineq4
+      _ ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ]))
           - 1/2 * ((s.card : ℝ)⁻¹ * ∑ i ∈ s, (H[Y i; μ] - H[Y i₀; μ])) := by gcongr
-      _ = ∑ i in s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])
+      _ = ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])
           - 1/2 * ((s.card : ℝ)⁻¹ * (H[Y i; μ] - H[Y i₀; μ]))) := by
         rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
-      _ = ∑ i in s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / (2 * s.card) * (H[Y i; μ] - H[Y i₀; μ])) := by
+      _ = ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + (s.card - 1) / (2 * s.card) * (H[Y i; μ] - H[Y i₀; μ])) := by
         refine Finset.sum_congr rfl fun i _ ↦ ?_
         rw [add_sub_assoc, ← mul_assoc, ← sub_mul]
         field_simp
@@ -524,7 +524,7 @@ lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Fins
     (hs : Finset.Nonempty s) (ht : Finset.Nonempty t) (X : I → Ω → G) (hX : (i : I) → Measurable (X i))
     (hX' : (i : I) → FiniteRange (X i)) (h_indep : iIndepFun (fun (i : I) ↦ hG) X μ) (f : I → I)
     (hf : Finset.image f t ⊆ s) :
-    H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
+    H[∑ i ∈ t, X i; μ] ≤ H[∑ i ∈ s, X i; μ] + ∑ i ∈ t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
   sorry
 
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
@@ -1247,7 +1247,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
 
       congr 2
       . rw [condMultiDist_eq' hX _ hpi_indep']
-        . rw [← Equiv.sum_comp (Equiv.arrowProdEquivProdArrow H S (Fin m)).symm, Fintype.sum_prod_type, Finset.sum_comm]
+        . rw [← Equiv.sum_comp (Equiv.arrowProdEquivProdArrow _ _ _).symm, Fintype.sum_prod_type, Finset.sum_comm]
           congr with y
           by_cases pey : ℙ (E' y) = 0
           . simp only [pey, ENNReal.zero_toReal, zero_mul, f]
@@ -1412,7 +1412,7 @@ theorem Finset.map_compl {α : Type u_1} {β : Type u_2} [Fintype α] [Decidable
   convert Finset.map_sdiff _ _
 
 theorem sum_of_iio_last (N: ℕ) (f : Fin (N+1) → ℝ) :
-    ∑ d in Finset.Iio (N : Fin (N+1)), f d = ∑ d : Fin N, f d.castSucc := by
+    ∑ d ∈ Finset.Iio (N : Fin (N+1)), f d = ∑ d : Fin N, f d.castSucc := by
   convert Finset.sum_image (s := Finset.univ) (g := Fin.castSucc) (f := f) ?_
   . rw [Fin.image_castSucc, ← Finset.map_inj (f := Fin.valEmbedding), Finset.map_compl]
     simp only [Fin.map_valEmbedding_Iio, Fin.map_valEmbedding_univ, Fin.coe_castSucc,
