@@ -1,12 +1,12 @@
 import Mathlib.GroupTheory.Torsion
 import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
+import Mathlib.LinearAlgebra.FreeModule.ModN
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.MeasureTheory.Constructions.SubmoduleQuotient
 import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import PFR.ForMathlib.AffineSpaceDim
 import PFR.ForMathlib.Entropy.RuzsaSetDist
-import PFR.ForMathlib.GroupQuot
 import PFR.ImprovedPFR
 
 /-!
