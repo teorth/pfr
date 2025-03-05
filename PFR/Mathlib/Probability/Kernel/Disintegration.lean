@@ -949,5 +949,3 @@ protected lemma AEFiniteKernelSupport.prodMkLeft [MeasurableSingletonClass S]
     exact .of_discrete
 
 end ProbabilityTheory.Kernel
-
-#min_imports
