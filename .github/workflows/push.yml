@@ -71,17 +71,22 @@ jobs:
       - name: Build blueprint and copy to `website/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:
-          scheme: full
+          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
             apk update
             apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
-            python3 -m pip install --upgrade pip requests wheel
-            python3 -m pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install -r blueprint/requirements.txt
-            python3 -m pip install invoke
-            inv all
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            mkdir -p docs
+            cp blueprint/print/print.pdf website/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web website/blueprint
 
       - name: Copy documentation to `website/docs`
         run: mv docs/build/* website/docs
@@ -90,7 +95,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           working-directory: website
-          ruby-version: "3.0" # Not needed with a .ruby-version file
+          ruby-version: "3.1" # Not needed with a .ruby-version file
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
       - name: Bundle website
