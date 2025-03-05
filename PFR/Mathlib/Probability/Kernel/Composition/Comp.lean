@@ -1,4 +1,4 @@
-import Mathlib.Probability.Kernel.Composition.Basic
+import Mathlib.Probability.Kernel.Composition.Comp
 import PFR.Mathlib.Probability.Kernel.Disintegration
 
 open Function MeasureTheory Real

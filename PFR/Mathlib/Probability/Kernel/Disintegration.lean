@@ -1,5 +1,5 @@
-import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
+import Mathlib.Probability.Kernel.Composition.Prod
 import Mathlib.Probability.Kernel.CondDistrib
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
 

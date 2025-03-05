@@ -48,7 +48,7 @@ import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Probability.Independence.Basic
 import PFR.Mathlib.Probability.Independence.FourVariables
 import PFR.Mathlib.Probability.Independence.Kernel
-import PFR.Mathlib.Probability.Kernel.Composition.Basic
+import PFR.Mathlib.Probability.Kernel.Composition.Comp
 import PFR.Mathlib.Probability.Kernel.Disintegration
 import PFR.Mathlib.Probability.UniformOn
 import PFR.MoreRuzsaDist
