@@ -1,7 +1,7 @@
-import Mathlib.Probability.ConditionalProbability
 import Mathlib.Probability.Independence.Basic
+import Mathlib.Probability.Kernel.Composition.Prod
 import Mathlib.Probability.Kernel.CondDistrib
-import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
+import PFR.Mathlib.MeasureTheory.Integral.Lebesgue  
 
 /-!
 # Disintegration of kernels in finite spaces
@@ -949,3 +949,5 @@ protected lemma AEFiniteKernelSupport.prodMkLeft [MeasurableSingletonClass S]
     exact .of_discrete
 
 end ProbabilityTheory.Kernel
+
+#min_imports

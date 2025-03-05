@@ -246,16 +246,6 @@ lemma entropy_reverse {κ : Kernel T (S × U × V)} [IsZeroOrMarkovKernel κ]
     convert entropy_map_le (κ := reverse κ) (fun p ↦ (p.2.2, p.2.1, p.1)) hκ.reverse
     · rw [reverse_eq]
 
-instance IsZeroOrMarkovKernel.compProd
-    {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
-    (κ : Kernel α β) [IsZeroOrMarkovKernel κ] (η : Kernel (α × β) γ)
-    [IsZeroOrMarkovKernel η] : IsZeroOrMarkovKernel (κ ⊗ₖ η) := by
-  rcases eq_zero_or_isMarkovKernel κ with rfl | hκ
-  · simp only [compProd_zero_left]; infer_instance
-  rcases eq_zero_or_isMarkovKernel η with rfl | hη
-  · simp only [compProd_zero_right]; infer_instance
-  infer_instance
-
 instance IsZeroOrProbabilityMeasure.compProd
     {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
     (μ : Measure α) [IsZeroOrProbabilityMeasure μ] (κ : Kernel α β)

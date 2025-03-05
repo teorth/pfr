@@ -1,4 +1,4 @@
-import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
+import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
 
 open scoped Pointwise
 
