@@ -43,7 +43,7 @@ lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
   simp
 
 variable [hΩ': MeasureSpace Ω'] [IsFiniteMeasure hΩ'.volume]
-  (h_indep : iIndepFun _ Y) (hident : ∀ i j, IdentDistrib (Y (i, j)) (X i)) {m : ℝ}
+  (h_indep : iIndepFun Y) (hident : ∀ i j, IdentDistrib (Y (i, j)) (X i)) {m : ℝ}
 
 /-- We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤ 4m^2 η k`.
 -/

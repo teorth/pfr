@@ -84,7 +84,7 @@ lemma independent_copies3_nondep_finiteRange {α : Type u}
     ∃ (A : Type (max u_1 u_2 u_3)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' : A → α),
     IsProbabilityMeasure μA ∧
-    iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃'] μA ∧
+    iIndepFun ![X₁', X₂', X₃'] μA ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
       IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃ ∧
       FiniteRange X₁' ∧ FiniteRange X₂' ∧ FiniteRange X₃' := by
@@ -121,7 +121,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
     ∃ (A : Type (max u_1 u_2 u_3 u_4)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' X₄' : A → α),
     IsProbabilityMeasure μA ∧
-    iIndepFun (fun _ ↦ mS) ![X₁', X₂', X₃', X₄'] μA ∧
+    iIndepFun ![X₁', X₂', X₃', X₄'] μA ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧ Measurable X₄'
       ∧ IdentDistrib X₁' X₁ μA μ₁ ∧ IdentDistrib X₂' X₂ μA μ₂ ∧ IdentDistrib X₃' X₃ μA μ₃
       ∧ IdentDistrib X₄' X₄ μA μ₄ ∧ FiniteRange X₁' ∧ FiniteRange X₂'

@@ -356,7 +356,7 @@ The spelling here is tentative.
 Feel free to modify it to make the proof easier, or the application easier. -/
 lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     {Y : I → Ω → G} [∀ i, FiniteRange (Y i)] (hY : (i : I) → Measurable (Y i))
-    (h_indep : iIndepFun (fun (_ : I) => hG) Y μ) :
+    (h_indep : iIndepFun Y μ) :
     H[Y i₀ + ∑ i ∈ s, Y i ; μ] - H[Y i₀ ; μ] ≤ ∑ i ∈ s, (H[Y i₀ + Y i ; μ] - H[Y i₀ ; μ]) := by
   classical
   induction s using Finset.induction_on with
@@ -379,7 +379,7 @@ lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
       | 1 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
       | 2 => fun Ys ↦ Ys ⟨i, by simp [S]⟩
     have hφ : (j : J) → Measurable (φ j) := fun j ↦ .of_discrete
-    have h_ind : iIndepFun (fun _ ↦ hG) ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
+    have h_ind : iIndepFun ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
       convert iIndepFun.finsets_comp S h_dis h_indep hY φ hφ with j x
       fin_cases j <;> simp [φ, (s.sum_attach _).symm]
     have measSum : Measurable (∑ j ∈ s, Y j) := by
@@ -397,7 +397,7 @@ lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
 then `d[Y i₀; μ # ∑ i ∈ s, Y i; μ] ≤ 2 * ∑ i ∈ s, d[Y i₀; μ # Y i; μ]`.-/
 lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     (hs' : Finset.Nonempty s) {Y : I → Ω → G} [∀ i, FiniteRange (Y i)]
-    (hY : (i : I) → Measurable (Y i)) (h_indep : iIndepFun (fun (_ : I) => hG) Y μ) :
+    (hY : (i : I) → Measurable (Y i)) (h_indep : iIndepFun Y μ) :
     d[Y i₀; μ # ∑ i ∈ s, Y i; μ] ≤ 2 * ∑ i ∈ s, d[Y i₀; μ # Y i; μ] := by
   classical
   have : IsProbabilityMeasure μ := h_indep.isProbabilityMeasure
@@ -474,7 +474,7 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
 
 lemma kvm_ineq_III_aux {X Y Z : Ω → G} [FiniteRange X] [FiniteRange Y]
     [FiniteRange Z] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    (h_indep : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ) :
+    (h_indep : iIndepFun ![X, Y, Z] μ) :
     d[X; μ # Y + Z; μ] ≤ d[X; μ # Y; μ] + (2 : ℝ)⁻¹ * (H[Y + Z; μ] - H[Y; μ]) := by
   have : IsProbabilityMeasure μ := h_indep.isProbabilityMeasure
   have h_indep1 : IndepFun X (Y + Z) μ := by
@@ -493,7 +493,7 @@ then `d[Y i₀, ∑ i, Y i] ≤ d[Y i₀, Y i₁] + 2⁻¹ * (H[∑ i, Y i] - H[
 lemma kvm_ineq_III {I : Type*} {i₀ i₁ : I} {s : Finset I}
     (hs₀ : ¬ i₀ ∈ s) (hs₁ : ¬ i₁ ∈ s) (h01 : i₀ ≠ i₁)
     (Y : I → Ω → G) [∀ i, FiniteRange (Y i)]
-    (hY : ∀ i, Measurable (Y i)) (h_indep : iIndepFun (fun _ ↦ hG) Y μ) :
+    (hY : ∀ i, Measurable (Y i)) (h_indep : iIndepFun Y μ) :
     d[Y i₀; μ # Y i₁ + ∑ i ∈ s, Y i; μ]
       ≤ d[Y i₀; μ # Y i₁; μ] + (2 : ℝ)⁻¹ * (H[Y i₁ + ∑ i ∈ s, Y i; μ] - H[Y i₁; μ]) := by
   let J := Fin 3
@@ -510,7 +510,7 @@ lemma kvm_ineq_III {I : Type*} {i₀ i₁ : I} {s : Finset I}
     | 1 => fun Ys ↦ Ys ⟨i₁, by simp [S]⟩
     | 2 => fun Ys ↦ ∑ i : s, Ys ⟨i.1, i.2⟩
   have hφ : (j : J) → Measurable (φ j) := fun j ↦ .of_discrete
-  have h_indep' : iIndepFun (fun _ ↦ hG) ![Y i₀, Y i₁, ∑ i ∈ s, Y i] μ := by
+  have h_indep' : iIndepFun ![Y i₀, Y i₁, ∑ i ∈ s, Y i] μ := by
     convert iIndepFun.finsets_comp S h_dis h_indep hY φ hφ with j x
     fin_cases j <;> simp [φ, (s.sum_attach _).symm]
   exact kvm_ineq_III_aux (hY i₀) (hY i₁) (by fun_prop) h_indep'
@@ -522,7 +522,7 @@ open Classical in
 function, then `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
 lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
     (hs : Finset.Nonempty s) (ht : Finset.Nonempty t) (X : I → Ω → G) (hX : (i : I) → Measurable (X i))
-    (hX' : (i : I) → FiniteRange (X i)) (h_indep : iIndepFun (fun (i : I) ↦ hG) X μ) (f : I → I)
+    (hX' : (i : I) → FiniteRange (X i)) (h_indep : iIndepFun X μ) (f : I → I)
     (hf : Finset.image f t ⊆ s) :
     H[∑ i ∈ t, X i; μ] ≤ H[∑ i ∈ s, X i; μ] + ∑ i ∈ t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
   sorry
@@ -531,7 +531,7 @@ lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Fins
 and let `a` be an integer. Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
 lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange X] [FiniteRange Y] [FiniteRange X']
     [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X')
-    (h_indep : iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident : IdentDistrib X X' μ μ) {a : ℤ} :
+    (h_indep : iIndepFun ![X, Y, X'] μ) (hident : IdentDistrib X X' μ μ) {a : ℤ} :
     H[X - (a+1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
   rw [add_smul, one_smul, add_comm, sub_add_eq_sub_sub]
   have iX'Y : IndepFun X' Y μ := h_indep.indepFun (show 2 ≠ 1 by simp)
@@ -557,7 +557,7 @@ lemma ent_of_sub_smul {Y : Ω → G} {X' : Ω → G} [FiniteRange X] [FiniteRang
 and let `a` be an integer. Then `H[X - (a-1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/
 lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange X] [FiniteRange Y] [FiniteRange X']
     [IsProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y) (hX': Measurable X')
-    (h_indep : iIndepFun (fun _ ↦ hG) ![X, Y, X'] μ) (hident : IdentDistrib X X' μ μ) {a : ℤ} :
+    (h_indep : iIndepFun ![X, Y, X'] μ) (hident : IdentDistrib X X' μ μ) {a : ℤ} :
     H[X - (a-1) • Y; μ] ≤ H[X - a • Y; μ] + H[X - Y - X'; μ] - H[X; μ] := by
   rw [sub_smul, one_smul, sub_eq_add_neg, neg_sub, add_sub]
   have iX'Y : IndepFun X' Y μ := h_indep.indepFun (show 2 ≠ 1 by simp)
@@ -605,7 +605,7 @@ lemma ent_of_sub_smul_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
   have iX₁Y : IndepFun X₁' Y' μ' := h_indep'.indepFun (show 0 ≠ 1 by simp)
   have iYX₂ : IndepFun Y' X₂' μ' := h_indep'.indepFun (show 1 ≠ 2 by simp)
   have iX₂nY : IndepFun X₂' (-Y') μ' := iYX₂.symm.comp measurable_id measurable_neg
-  have inX₁YX₂ : iIndepFun (fun _ ↦ hG) ![-X₁', Y', X₂'] μ' := by
+  have inX₁YX₂ : iIndepFun ![-X₁', Y', X₂'] μ' := by
     convert h_indep'.comp ![-id, id, id] (by fun_prop) with i
     match i with | 0 => rfl | 1 => rfl | 2 => rfl
   have idX₁X₂' : IdentDistrib X₁' X₂' μ' μ' := idX₁.trans idX₂.symm
@@ -732,14 +732,15 @@ variable [MeasurableSingletonClass G] [Countable G]
 
 /-- If `X_i` are independent, then `D[X_{[m]}] = H[∑_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m H[X_i]`. -/
 lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
-    (h_indep : iIndepFun (fun _ ↦ hG) X) :
+    (h_indep : iIndepFun X) :
     D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (∑ i, H[X i]) / m := by sorry
 
 lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
-    (hprob : IsProbabilityMeasure (ℙ : Measure Ω)) (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
-    (h_indep : iIndepFun (fun _ => inferInstance) X ℙ) :
+    (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
+    (h_indep : iIndepFun X ℙ) :
     0 ≤ D[X ; fun _ ↦ hΩ] := by
   rw [multiDist_indep hΩ X h_indep]
+  have : IsProbabilityMeasure (ℙ : Measure Ω) := h_indep.isProbabilityMeasure
   by_cases hm : m = 0
   · subst hm
     simp only [Finset.univ_eq_empty, Finset.sum_empty, CharP.cast_eq_zero, div_zero, sub_zero,
@@ -762,7 +763,7 @@ lemma multiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i
     0 ≤ D[X ; hΩ] := by
   obtain ⟨A, mA, μA, Y, isProb, h_indep, hY⟩ :=
     ProbabilityTheory.independent_copies' X hX (fun i => ℙ)
-  convert multiDist_nonneg_of_indep ⟨μA⟩ isProb Y (fun i => (hY i).1) h_indep using 1
+  convert multiDist_nonneg_of_indep ⟨μA⟩ Y (fun i => (hY i).1) h_indep using 1
   apply multiDist_copy
   exact fun i => (hY i).2.symm
 
@@ -845,7 +846,7 @@ lemma multidist_ruzsa_III {m:ℕ} (hm: m ≥ 2) {Ω: Fin m → Type*} (hΩ : ∀
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
 lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
-    (h_indep : iIndepFun (fun _ ↦ hG) X) : d[∑ i, X i # ∑ i, X i] ≤ 2 * D[X; fun _ ↦ hΩ] := by sorry
+    (h_indep : iIndepFun X) : d[∑ i, X i # ∑ i, X i] ≤ 2 * D[X; fun _ ↦ hΩ] := by sorry
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
 `d[X_i; U_{H_i}] = 0`. -/
@@ -963,7 +964,7 @@ private lemma ident_of_cond_of_indep
     {S : Type*} [Fintype S] [hS : MeasurableSpace S] [MeasurableSingletonClass S]
     {X : Fin m → Ω → G} (hX : (i:Fin m) → Measurable (X i))
     {Y : Fin m → Ω → S} (hY : (i:Fin m) → Measurable (Y i))
-    (h_indep : ProbabilityTheory.iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨X i, Y i⟩))
+    (h_indep : ProbabilityTheory.iIndepFun (fun i ↦ ⟨X i, Y i⟩))
     (y : Fin m → S) (i : Fin m) (hy: ∀ i, ℙ (Y i ⁻¹' {y i}) ≠ 0) :
     IdentDistrib (X i) (X i) (cond ℙ (Y i ⁻¹' {y i})) (cond ℙ (⋂ i, Y i ⁻¹' {y i})) where
   aemeasurable_fst := Measurable.aemeasurable (hX i)
@@ -1000,7 +1001,7 @@ lemma condMultiDist_eq {m : ℕ}
     {S : Type*} [Fintype S] [hS : MeasurableSpace S] [MeasurableSingletonClass S]
     {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i))
     {Y : Fin m → Ω → S} (hY : ∀ i, Measurable (Y i))
-    (h_indep: iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨X i, Y i⟩)) :
+    (h_indep: iIndepFun (fun i ↦ ⟨X i, Y i⟩)) :
     D[X | Y ; fun _ ↦ hΩ] =
       H[fun ω ↦ ∑ i, X i ω | fun ω ↦ (fun i ↦ Y i ω)] - (∑ i, H[X i | Y i])/m := by
   have : IsProbabilityMeasure (ℙ : Measure Ω) := h_indep.isProbabilityMeasure
@@ -1083,7 +1084,7 @@ lemma condMultiDist_eq' {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω]
     {S : Type*} [Fintype S] [hS : MeasurableSpace S] [MeasurableSingletonClass S]
     {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i)) {Y : Fin m → Ω → S}
     (hY : ∀ i, Measurable (Y i))
-    (h_indep : iIndepFun (fun _ ↦ hG.prod hS) (fun i ↦ ⟨X i, Y i⟩)) :
+    (h_indep : iIndepFun (fun i ↦ ⟨X i, Y i⟩)) :
     D[X | Y ; fun _ ↦ hΩ] =
       ∑ y : Fin m → S, (ℙ (⋂ i, (Y i) ⁻¹' {y i})).toReal
         * D[X; fun _ ↦ ⟨cond ℙ (⋂ i, Y i ⁻¹' {y i})⟩] := by
@@ -1112,7 +1113,7 @@ lemma multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSing
     [MeasurableSingletonClass H] [AddCommGroup H]
     [Fintype H] (π : G →+ H) {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
     {X : Fin m → Ω → G} (hmes : ∀ i, Measurable (X i))
-    (h_indep : iIndepFun (fun _ ↦ hG) X) :
+    (h_indep : iIndepFun X) :
     D[X; fun _ ↦ hΩ] = D[X | fun i ↦ π ∘ X i; fun _ ↦ hΩ]
       + D[fun i ↦ π ∘ X i; fun _ ↦ hΩ]
       + I[∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) | π ∘ (∑ i, X i)] := by
@@ -1161,7 +1162,7 @@ lemma multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSing
     . intro i
       exact Measurable.comp .of_discrete (hmes i)
     set g : G → G × H := fun x ↦ ⟨x, π x⟩
-    change iIndepFun _ (fun i ↦ g ∘ X i) ℙ
+    change iIndepFun (fun i ↦ g ∘ X i) ℙ
     exact h_indep.comp _ fun _ ↦ .of_discrete
 
   have eq5: D[fun i ↦ π ∘ X i; fun _ ↦ hΩ] = H[π ∘ S] - avg_HpiX := by
@@ -1194,7 +1195,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
     {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω]
     {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i))
     {Y : Fin m → Ω → S} (hY : ∀ i, Measurable (Y i))
-    (h_indep : iIndepFun (fun _ ↦ (hG.prod hS)) (fun i ↦ ⟨X i, Y i⟩)) :
+    (h_indep : iIndepFun (fun i ↦ ⟨X i, Y i⟩)) :
     D[X | Y; fun _ ↦ hΩ] = D[X | fun i ↦ ⟨π ∘ X i, Y i⟩; fun _ ↦ hΩ]
       + D[fun i ↦ π ∘ X i | Y; fun _ ↦ hΩ]
       + I[∑ i, X i : fun ω ↦ (fun i ↦ π (X i ω)) |
@@ -1228,12 +1229,12 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
         convert Finset.measurable_sum (f := X) Finset.univ _ with ω
         . exact Fintype.sum_apply ω X
         exact (fun i _ ↦ hX i)
-      have hpi_indep : iIndepFun (fun _ ↦ hH.prod hS) (fun i ↦ ⟨π ∘ X i, Y i⟩) ℙ := by
+      have hpi_indep : iIndepFun (fun i ↦ ⟨π ∘ X i, Y i⟩) ℙ := by
         set g : G × S → H × S := fun p ↦ ⟨π p.1, p.2⟩
         convert iIndepFun.comp h_indep (fun _ ↦ g) _
         intro i
         exact .of_discrete
-      have hpi_indep' : iIndepFun (fun x ↦ hG.prod Prod.instMeasurableSpace) (fun i ↦ ⟨X i, ⟨π ∘ X i, Y i⟩⟩) ℙ := by
+      have hpi_indep' : iIndepFun (fun i ↦ ⟨X i, ⟨π ∘ X i, Y i⟩⟩) ℙ := by
         set g : G × S → G × (H × S) := fun p ↦ ⟨p.1, ⟨π p.1, p.2⟩⟩
         convert iIndepFun.comp h_indep (fun _ ↦ g) _
         intro i
@@ -1361,7 +1362,7 @@ lemma iter_multiDist_chainRule {m : ℕ}
     {φ : ∀ i : Fin m, G (i.succ) →+ G i.castSucc} {π : ∀ d, G m →+ G d}
     (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ))
     {Ω : Type*} [hΩ : MeasureSpace Ω] {X : Fin m → Ω → (G m)}
-    (hX: ∀ i, Measurable (X i)) (h_indep : iIndepFun (fun _ ↦ (hG m)) X) (n : Fin (m + 1)) :
+    (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X) (n : Fin (m + 1)) :
     D[X | fun i ↦ (π 0) ∘ X i; fun _ ↦ hΩ] = D[X | fun i ↦ (π n) ∘ X i; fun _ ↦ hΩ]
       + ∑ d ∈ Finset.Iio n, (D[fun i ↦ (π (d+1)) ∘ X i | fun i ↦ (π d) ∘ X i; fun _ ↦ hΩ]
       + I[∑ i, X i : fun ω ↦ (fun i ↦ (π (d+1)) (X i ω)) |
@@ -1429,7 +1430,7 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
     [hGcount : ∀ i, Fintype (G i)] {φ : ∀ i : Fin m, G (i.succ) →+ G i.castSucc}
     {π : ∀ d, G m →+ G d} (hπ0 : π 0 = 0) (hcomp : ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ))
     {Ω : Type*} [hΩ : MeasureSpace Ω] {X : Fin m → Ω → (G m)}
-    (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun (fun _ ↦ (hG m)) X) :
+    (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X) :
     D[X; fun _ ↦ hΩ] ≥
       ∑ d : Fin m, D[fun i ↦ (π (d.succ)) ∘ X i | fun i ↦ (π d.castSucc) ∘ X i; fun _ ↦ hΩ]
       + I[∑ i : Fin m, X i : fun ω i ↦ (π 1) (X i ω)| ⇑(π 1) ∘ ∑ i : Fin m, X i] := by
@@ -1486,7 +1487,7 @@ is less than
 `+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
 lemma cor_multiDist_chainRule [Fintype G] {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω)
-    (X : Fin (m + 1) × Fin (m + 1) → Ω → G) (h_indep : iIndepFun (fun _ ↦ hG) X) :
+    (X : Fin (m + 1) × Fin (m + 1) → Ω → G) (h_indep : iIndepFun X) :
     I[fun ω ↦ (fun j ↦ ∑ i, X (i, j) ω) : fun ω ↦ (fun i ↦ ∑ j, X (i, j) ω) | ∑ p, X p]
       ≤ ∑ j, (D[fun i ↦ X (i, j); fun _ ↦ hΩ] - D[fun i ↦ X (i, j) |
         fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k); fun _ ↦ hΩ]) + D[fun i ↦ X (i, m); fun _ ↦ hΩ]

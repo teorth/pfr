@@ -34,7 +34,7 @@ variable (X₁ X₂ X₁' X₂' : Ω → G)
   (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
-variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
+variable (h_indep : iIndepFun ![X₁, X₂, X₂', X₁'])
 variable (h_min : tau_minimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/

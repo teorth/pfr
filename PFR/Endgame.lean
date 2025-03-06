@@ -45,7 +45,7 @@ variable (X₁ X₂ X₁' X₂' : Ω → G)
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₁', X₂'])
+variable (h_indep : iIndepFun ![X₁, X₂, X₁', X₂'])
 
 variable (h_min : tau_minimizes p X₁ X₂)
 
@@ -81,7 +81,7 @@ private lemma hmeas2 {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSp
 include h_indep hX₁ hX₂ hX₁' hX₂' h₁ in
 /-- The quantity `I_3 = I[V:W|S]` is equal to `I_2`. -/
 lemma I₃_eq [IsProbabilityMeasure (ℙ : Measure Ω)] : I[V : W | S] = I₂ := by
-  have h_indep2 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁, X₂'] := by
+  have h_indep2 : iIndepFun ![X₁', X₂, X₁, X₂'] := by
     exact h_indep.reindex_four_cbad
   have hident : IdentDistrib (fun a (i : Fin 4) => ![X₁, X₂, X₁', X₂'] i a)
     (fun a (j : Fin 4) => ![X₁', X₂, X₁, X₂'] j a) := by
@@ -160,7 +160,7 @@ lemma hU [IsProbabilityMeasure (ℙ : Measure Ω)] : H[U] = H[X₁' + X₂'] :=
 variable {X₁ X₂ X₁' X₂'} in
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 lemma independenceCondition1 :
-    iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] :=
+    iIndepFun ![X₁, X₂, X₁' + X₂'] :=
   h_indep.apply_two_last hX₁ hX₂ hX₁' hX₂' measurable_add
 
 include h₁ h₂ h_indep in
@@ -172,31 +172,31 @@ lemma hV [IsProbabilityMeasure (ℙ : Measure Ω)] : H[V] = H[X₁ + X₂'] :=
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition2 :
-    iIndepFun (fun _ ↦ hG) ![X₂, X₁, X₁' + X₂'] :=
+    iIndepFun ![X₂, X₁, X₁' + X₂'] :=
   independenceCondition1 hX₂ hX₁ hX₁' hX₂' h_indep.reindex_four_bacd
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition3 :
-    iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁ + X₂'] :=
+    iIndepFun ![X₁', X₂, X₁ + X₂'] :=
   independenceCondition1 hX₁' hX₂ hX₁ hX₂' h_indep.reindex_four_cbad
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition4 :
-    iIndepFun (fun _ ↦ hG) ![X₂, X₁', X₁ + X₂'] :=
+    iIndepFun ![X₂, X₁', X₁ + X₂'] :=
   independenceCondition1 hX₂ hX₁' hX₁ hX₂' h_indep.reindex_four_bcad
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition5 :
-    iIndepFun (fun _ ↦ hG) ![X₁, X₁', X₂ + X₂'] :=
+    iIndepFun ![X₁, X₁', X₂ + X₂'] :=
   independenceCondition1 hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_acbd
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition6 :
-    iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X₁] :=
+    iIndepFun ![X₂, X₂', X₁' + X₁] :=
   independenceCondition1 hX₂ hX₂' hX₁' hX₁ h_indep.reindex_four_bdca
 
 set_option maxHeartbeats 400000 in
@@ -303,7 +303,7 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
         add_le_add (add_le_add step₁ step₂) step₃
     _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
 
-  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
+  have h_indep' : iIndepFun ![X₁, X₂, X₂', X₁'] := by
     refine .of_precomp (Equiv.swap (2 : Fin 4) 3).surjective ?_
     convert h_indep using 1
     ext x
@@ -500,7 +500,7 @@ theorem tau_strictly_decreases_aux
     (show Measurable W by fun_prop) (show Measurable S by fun_prop)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
-  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
+  have h_indep' : iIndepFun ![X₁, X₂, X₂', X₁'] := by
     let σ : Fin 4 ≃ Fin 4 :=
     { toFun := ![0, 1, 3, 2]
       invFun := ![0, 1, 3, 2]

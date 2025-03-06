@@ -789,14 +789,14 @@ lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
     apply IdentDistrib.add hXX'.symm hYY'.symm h_indep
     exact h_indep'.indepFun zero_ne_one
   have hX'TUY' : IndepFun (⟨X', T + U⟩) Y' ℙ := by
-    have I : iIndepFun (fun x ↦ hGm) ![X', Y', T + U] m :=
+    have I : iIndepFun ![X', Y', T + U] m :=
       ProbabilityTheory.iIndepFun.apply_two_last h_indep' hX' hY' hT hU
         (phi := fun a b ↦ a + b) (by fun_prop)
     exact (I.reindex_three_bac.pair_last_of_three hY' hX' (by fun_prop)).symm
   have I₁ : ρ⁻[X + Y ; μ # A] ≤ KL[X + Y ; μ # (T + Y') + U ; ℙ] := by
     apply rhoMinus_le (by fun_prop) hA _ (by fun_prop) (by fun_prop)
-    · have : iIndepFun (fun x ↦ hGm) ![U, X', T, Y'] := h_indep'.reindex_four_dacb
-      have : iIndepFun (fun x ↦ hGm) ![U, X', T + Y'] :=
+    · have : iIndepFun ![U, X', T, Y'] := h_indep'.reindex_four_dacb
+      have : iIndepFun ![U, X', T + Y'] :=
         this.apply_two_last (phi := fun a b ↦ a + b) hU hX' hT hY' (by fun_prop)
       apply this.indepFun (i := 2) (j := 0)
       simp
@@ -1193,7 +1193,7 @@ lemma phi_min_exists (hA : A.Nonempty) : ∃ (μ : Measure (G × G)), IsProbabil
 variable {X₁ X₂ X₁' X₂' : Ω → G} (h_min : phiMinimizes X₁ X₂ η A ℙ)
   (h₁ : IdentDistrib X₁ X₁')
   (h₂ : IdentDistrib X₂ X₂')
-  (h_indep : iIndepFun (fun _ ↦ hGm) ![X₁, X₂, X₁', X₂'])
+  (h_indep : iIndepFun ![X₁, X₂, X₁', X₂'])
   (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
 
 local notation3 "I₁" => I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂']
@@ -1561,7 +1561,7 @@ lemma dist_le_of_sum_zero_cond' {Ω' : Type*} [MeasureSpace Ω']
 
 lemma new_gen_ineq_aux1 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₂] + d[Y₃ # Y₄]) / 4 + (d[Y₁ + Y₂ # Y₃ + Y₄]
@@ -1588,7 +1588,7 @@ lemma new_gen_ineq_aux1 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
 
 lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
        (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 4 + d[Y₁ | Y₁ + Y₃ # Y₂ | Y₂ + Y₄] / 2 := by
@@ -1695,7 +1695,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
 
 lemma new_gen_ineq {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 8 + (d[Y₁ + Y₂ # Y₃ + Y₄]
@@ -1711,7 +1711,7 @@ $S:=Y_1+Y_2+Y_3+Y_4$, $T_1:=Y_1+Y_2$, $T_2:=Y_1+Y_3$. Then
 -/
 lemma condRho_sum_le {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] + ρ[Y₁ + Y₃ | ⟨Y₁ + Y₂, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] -
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 2 ≤
         (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 2 := by
@@ -1765,7 +1765,7 @@ $T_1:=Y_1+Y_2, T_2:=Y_1+Y_3, T_3:=Y_2+Y_3$ and $S:=Y_1+Y_2+Y_3+Y_4$. Then
     - \frac{1}{2}\sum_{i} \rho(Y_i))\le \sum_{1\leq i < j \leq 4}d[Y_i;Y_j]$$ -/
 lemma condRho_sum_le' {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-      (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+      (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     let S := Y₁ + Y₂ + Y₃ + Y₄
     let T₁ := Y₁ + Y₂
     let T₂ := Y₁ + Y₃

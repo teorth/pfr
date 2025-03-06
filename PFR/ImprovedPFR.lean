@@ -24,7 +24,7 @@ variable (Y : Ω₀ → G) (hY : Measurable Y)
 variable (Z₁ Z₂ Z₃ Z₄ : Ω → G)
   (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
 
-variable (h_indep : iIndepFun (fun _i => hG) ![Z₁, Z₂, Z₃, Z₄])
+variable (h_indep : iIndepFun ![Z₁, Z₂, Z₃, Z₄])
 
 local notation3 "Sum" => Z₁ + Z₂ + Z₃ + Z₄
 
@@ -268,7 +268,7 @@ variable {X₁ X₂ X₁' X₂' : Ω → G}
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
+variable (h_indep : iIndepFun ![X₁, X₂, X₂', X₁'])
 
 variable (h_min : tau_minimizes p X₁ X₂)
 

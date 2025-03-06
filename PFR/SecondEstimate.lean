@@ -36,7 +36,7 @@ variable (X₁ X₂ X₁' X₂' : Ω → G)
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₁', X₂'])
+variable (h_indep : iIndepFun ![X₁, X₂, X₁', X₂'])
 
 variable (h_min : tau_minimizes p X₁ X₂)
 
@@ -83,7 +83,7 @@ lemma second_estimate_aux :
       ← (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂,
       ZModModule.sub_eq_add X₁ X₁', ZModModule.sub_eq_add X₂ X₂', ← add_assoc, add_right_comm _ X₁']
         at h
-    have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] :=
+    have h_indep' : iIndepFun ![X₁, X₂, X₂', X₁'] :=
       by exact h_indep.reindex_four_abdc
     have h' := ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
     convert (h.symm ▸ (sub_le_sub_right (sub_le_sub_right h' _) _)) using 1; ring
@@ -98,7 +98,7 @@ lemma second_estimate : I₂ ≤ 2 * p.η * k + (2 * p.η * (2 * p.η * k - I₁
   have hX₂_indep : IndepFun X₂ X₂' (μ := ℙ) := h_indep.indepFun (show 1 ≠ 3 by decide)
   let Y : Fin 4 → Ω → G := ![X₂, X₁, X₂', X₁']
   have hY : ∀ i, Measurable (Y i) := fun i => by fin_cases i <;> assumption
-  have hY_indep : iIndepFun (fun _ => hG) Y := by exact h_indep.reindex_four_badc
+  have hY_indep : iIndepFun Y := by exact h_indep.reindex_four_badc
   have h := sum_of_rdist_eq_char_2 Y hY_indep hY
   rw [show Y 0 = X₂ by rfl, show Y 1 = X₁ by rfl, show Y 2 = X₂' by rfl, show Y 3 = X₁' by rfl] at h
   rw [← h₂.rdist_eq h₁, rdist_symm, rdist_symm (X := X₂ + X₂'),
