@@ -269,9 +269,9 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   have : ((κ ⊗ₖ η) t).real {(s, u)} = ((κ t).real {s}) * ((η (t, s)).real {u}) := by
     rw [measureReal_def, compProd_apply (.singleton _), lintegral_eq_setLIntegral (hB t ht),
       setLIntegral_eq_sum, Finset.sum_eq_single_of_mem s hs]
-    · simp [measureReal_def]
+    · simp [measureReal_def, Set.preimage]
     intro b _ hbs
-    simp [hbs]
+    simp [hbs, Set.preimage]
   rw [this, Kernel.comap_apply, negMulLog_mul, negMulLog, negMulLog, ← measureReal_def]
   ring
 

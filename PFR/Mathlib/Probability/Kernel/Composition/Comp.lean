@@ -28,12 +28,6 @@ lemma map_swapRight (κ : Kernel α (β × γ)) {f : (γ × β) → δ} :
       exact hf.comp measurable_swap
     simp [map_of_not_measurable _ hf, map_of_not_measurable _ this]
 
-@[simp] lemma swapLeft_zero : (0 : Kernel (α × β) γ).swapLeft = 0 := by
-  simp [swapLeft]
-
-@[simp] lemma swapRight_zero : (0 : Kernel α (β × γ)).swapRight = 0 := by
-  simp [swapRight]
-
 @[simp] lemma prod_zero_left (η : Kernel α γ) : (0 : Kernel α β) ×ₖ η = 0 := by
   simp [prod]
 
@@ -97,7 +91,6 @@ lemma deleteMiddle_compProd (ξ : Kernel α β) [IsSFiniteKernel ξ]
   rw [deleteMiddle_eq, map_apply' _ (by fun_prop) _ hs, compProd_apply hs, compProd_apply]
   swap; · exact measurable_fst.prod_mk measurable_snd.snd hs
   congr with b
-  simp only [Set.mem_preimage]
   rw [snd_apply']
   swap; · exact measurable_prod_mk_left hs
   congr

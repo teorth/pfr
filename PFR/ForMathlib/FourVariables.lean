@@ -18,11 +18,11 @@ lemma reindex_four_abcd :
 lemma reindex_four_abdc :
     iIndepFun (fun _ => hG) ![Z₁, Z₂, Z₄, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![0, 1, 3, 2],
-    invFun := ![0, 1, 3, 2],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![0, 1, 3, 2]
+    invFun := ![0, 1, 3, 2]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -30,11 +30,11 @@ lemma reindex_four_abdc :
 lemma reindex_four_acbd :
     iIndepFun (fun _ => hG) ![Z₁, Z₃, Z₂, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![0, 2, 1, 3],
-    invFun := ![0, 2, 1, 3],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![0, 2, 1, 3]
+    invFun := ![0, 2, 1, 3]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -42,11 +42,11 @@ lemma reindex_four_acbd :
 lemma reindex_four_acdb :
     iIndepFun (fun _ => hG) ![Z₁, Z₃, Z₄, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![0, 2, 3, 1],
-    invFun := ![0, 3, 1, 2],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![0, 2, 3, 1]
+    invFun := ![0, 3, 1, 2]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -54,11 +54,11 @@ lemma reindex_four_acdb :
 lemma reindex_four_adbc :
     iIndepFun (fun _ => hG) ![Z₁, Z₄, Z₂, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![0, 3, 1, 2],
-    invFun := ![0, 2, 3, 1],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![0, 3, 1, 2]
+    invFun := ![0, 2, 3, 1]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -66,11 +66,11 @@ lemma reindex_four_adbc :
 lemma reindex_four_adcb :
     iIndepFun (fun _ => hG) ![Z₁, Z₄, Z₃, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![0, 3, 2, 1],
-    invFun := ![0, 3, 2, 1],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![0, 3, 2, 1]
+    invFun := ![0, 3, 2, 1]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -78,11 +78,11 @@ lemma reindex_four_adcb :
 lemma reindex_four_bacd :
     iIndepFun (fun _ => hG) ![Z₂, Z₁, Z₃, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![1, 0, 2, 3],
-    invFun := ![1, 0, 2, 3],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![1, 0, 2, 3]
+    invFun := ![1, 0, 2, 3]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -90,11 +90,11 @@ lemma reindex_four_bacd :
 lemma reindex_four_badc :
     iIndepFun (fun _ => hG) ![Z₂, Z₁, Z₄, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![1, 0, 3, 2],
-    invFun := ![1, 0, 3, 2],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![1, 0, 3, 2]
+    invFun := ![1, 0, 3, 2]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -102,11 +102,11 @@ lemma reindex_four_badc :
 lemma reindex_four_bcad :
     iIndepFun (fun _ => hG) ![Z₂, Z₃, Z₁, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![1, 2, 0, 3],
-    invFun := ![2, 0, 1, 3],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![1, 2, 0, 3]
+    invFun := ![2, 0, 1, 3]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -114,11 +114,11 @@ lemma reindex_four_bcad :
 lemma reindex_four_bcda :
     iIndepFun (fun _ => hG) ![Z₂, Z₃, Z₄, Z₁] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![1, 2, 3, 0],
-    invFun := ![3, 0, 1, 2],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![1, 2, 3, 0]
+    invFun := ![3, 0, 1, 2]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -126,11 +126,11 @@ lemma reindex_four_bcda :
 lemma reindex_four_bdac :
     iIndepFun (fun _ => hG) ![Z₂, Z₄, Z₁, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![1, 3, 0, 2],
-    invFun := ![2, 0, 3, 1],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![1, 3, 0, 2]
+    invFun := ![2, 0, 3, 1]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -138,11 +138,11 @@ lemma reindex_four_bdac :
 lemma reindex_four_bdca :
     iIndepFun (fun _ => hG) ![Z₂, Z₄, Z₃, Z₁] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![1, 3, 2, 0],
-    invFun := ![3, 0, 2, 1],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![1, 3, 2, 0]
+    invFun := ![3, 0, 2, 1]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -150,11 +150,11 @@ lemma reindex_four_bdca :
 lemma reindex_four_cadb :
     iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₄, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![2, 0, 3, 1],
-    invFun := ![1, 3, 0, 2],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![2, 0, 3, 1]
+    invFun := ![1, 3, 0, 2]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -162,11 +162,11 @@ lemma reindex_four_cadb :
 lemma reindex_four_cabd :
     iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₂, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![2, 0, 1, 3],
-    invFun := ![1, 2, 0, 3],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![2, 0, 1, 3]
+    invFun := ![1, 2, 0, 3]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -174,11 +174,11 @@ lemma reindex_four_cabd :
 lemma reindex_four_cbad :
     iIndepFun (fun _ => hG) ![Z₃, Z₂, Z₁, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![2, 1, 0, 3],
-    invFun := ![2, 1, 0, 3],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![2, 1, 0, 3]
+    invFun := ![2, 1, 0, 3]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -186,11 +186,11 @@ lemma reindex_four_cbad :
 lemma reindex_four_dabc :
     iIndepFun (fun _ => hG) ![Z₄, Z₁, Z₂, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![3, 0, 1, 2],
-    invFun := ![1, 2, 3, 0],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![3, 0, 1, 2]
+    invFun := ![1, 2, 3, 0]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -198,11 +198,11 @@ lemma reindex_four_dabc :
 lemma reindex_four_dacb :
     iIndepFun (fun _ => hG) ![Z₄, Z₁, Z₃, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![3, 0, 2, 1],
-    invFun := ![1, 3, 2, 0],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![3, 0, 2, 1]
+    invFun := ![1, 3, 2, 0]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -210,11 +210,11 @@ lemma reindex_four_dacb :
 lemma reindex_four_dbac :
     iIndepFun (fun _ => hG) ![Z₄, Z₂, Z₁, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![3, 1, 0, 2],
-    invFun := ![2, 1, 3, 0],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![3, 1, 0, 2]
+    invFun := ![2, 1, 3, 0]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -222,11 +222,11 @@ lemma reindex_four_dbac :
 lemma reindex_four_dbca :
     iIndepFun (fun _ => hG) ![Z₄, Z₂, Z₃, Z₁] := by
   let σ : Fin 4 ≃ Fin 4 :=
-  { toFun := ![3, 1, 2, 0],
-    invFun := ![3, 1, 2, 0],
-    left_inv := by intro i; fin_cases i <;> rfl,
-    right_inv := by intro i; fin_cases i <;> rfl }
-  refine iIndepFun.reindex σ.symm ?_
+  { toFun := ![3, 1, 2, 0]
+    invFun := ![3, 1, 2, 0]
+    left_inv i := by fin_cases i <;> rfl
+    right_inv i := by fin_cases i <;> rfl }
+  refine .of_precomp σ.symm.surjective ?_
   convert h_indep using 1
   ext i
   fin_cases i <;> rfl
@@ -244,7 +244,7 @@ private def κ_equiv : (Σ i, κ i) ≃ Fin 4 where
   invFun := ![Sigma.mk 0 ⟨0, zero_lt_one⟩, Sigma.mk 1 ⟨0, zero_lt_one⟩,
     Sigma.mk 2 ⟨0, zero_lt_two⟩, Sigma.mk 2 ⟨1, one_lt_two⟩]
   left_inv := by rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> rfl
-  right_inv := by intro i; fin_cases i <;> rfl
+  right_inv i := by fin_cases i <;> rfl
 
 private def fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
   | 0 | 1 | 2 => inferInstanceAs (Fintype (Fin _))
@@ -256,7 +256,7 @@ lemma apply_two_last
     {phi : G → G → G} (hphi : Measurable phi.uncurry) :
     iIndepFun (fun _ ↦ hG) ![Z₁, Z₂, (fun ω ↦ phi (Z₃ ω) (Z₄ ω))] := by
   -- deduce from the assumption the independence of `Z₁`, `Z₂` and `(Z₃, Z₄)`.
-  have T := iIndepFun.pi' (m := fun _ _ ↦ hG) ?_ (h_indep.reindex_symm κ_equiv); swap
+  have T := (h_indep.precomp κ_equiv.injective).pi' (m := fun _ _ ↦ hG) ?_; swap
   · rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> assumption
   -- apply to this triplet of independent variables the function `phi` applied to `Z₃` and `Z₄`
   -- which does not change the other variables. It retains independence, proving the conclusion.

@@ -59,14 +59,14 @@ lemma condKernel_compProd_apply' (κ : Kernel T S) [IsFiniteKernel κ]
     rwa [compProd_preimage_fst (.singleton _)]
   rw [condKernel_apply' _ _ hx', compProd_apply ((measurableSet_singleton _).prod hs),
     Kernel.compProd_apply, lintegral_eq_single _ x.2, lintegral_eq_single _ x.2]
-  · simp
-    rw [mul_comm, mul_assoc]
-    set a := (κ x.1) {x.2}
-    suffices a * a⁻¹ = 1 by simp [this]
-    refine ENNReal.mul_inv_cancel hx ?_
-    exact measure_ne_top (κ x.1) {x.2}
-  · intro b hb; simp [hb.symm]
-  · intro b hb; simp [hb]
+  · simp [Set.preimage_preimage, Set.preimage_image_eq _ (Prod.mk.inj_left _), mul_comm]
+    simp [← mul_assoc, measure_ne_top, hx, ENNReal.inv_mul_cancel hx (measure_ne_top (κ x.1) {x.2})]
+  · intro b hb
+    convert measure_empty
+    simp [Set.eq_empty_iff_forall_not_mem, hb.symm]
+    infer_instance
+  · intro b hb
+    simp [hb, Set.preimage_preimage]
   · measurability
 
 lemma condKernel_compProd_apply (κ : Kernel T S) [IsFiniteKernel κ]
