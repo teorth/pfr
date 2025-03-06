@@ -1095,7 +1095,6 @@ theorem weak_PFR_int
   have : Finite (A - A) := Set.Finite.sub A_fin A_fin
   have hK : 0 < K := by
     have : 0 < K * Nat.card A := lt_of_lt_of_le (mod_cast Nat.card_pos) hA
-    have : (0 : ℝ) ≤ Nat.card A := Nat.cast_nonneg' _
     nlinarith
   have : Countable G := countable_of_finiteDimensional ℤ G
   let m : MeasurableSpace G := ⊤
