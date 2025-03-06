@@ -18,31 +18,6 @@ variable {Ω ι ι' : Type*} [MeasurableSpace Ω] {α β : ι → Type*}
   [m : ∀ i, MeasurableSpace (β i)] {f : ∀ i, Ω → α i}
   {μ : Measure Ω}
 
-lemma iIndepFun.reindex_of_injective (h : iIndepFun n f μ) (g : ι' → ι) (hg : Injective g) :
-    iIndepFun (n ∘' g) (f ∘' g) μ := by
-  have : IsProbabilityMeasure μ := h.isProbabilityMeasure
-  nontriviality ι'
-  have A : ∀ x, invFun g (g x) = x := leftInverse_invFun hg
-  rw [iIndepFun_iff] at h ⊢
-  intro t s' hs'
-  specialize h (t.map ⟨g, hg⟩ ) (f' := fun i ↦ s' (invFun g i)) (by simpa [A ] using hs')
-  simpa [A] using h
-
-lemma iIndepFun.reindex (g : ι' ≃ ι) (h : iIndepFun (n ∘' g) (f ∘' g) μ) : iIndepFun n f μ := by
-  rw [iIndepFun_iff] at h ⊢
-  intro t s hs
-  have : ⋂ i, ⋂ (_ : g i ∈ t), s (g i) = ⋂ i ∈ t, s i := by ext x; simp [g.forall_congr_left]
-  specialize h (t.map g.symm.toEmbedding) (f' := s ∘ g)
-  simp [this, g.forall_congr_left] at h
-  apply h
-  convert hs <;> simp
-
-lemma iIndepFun.reindex_symm (g : ι' ≃ ι) (h : iIndepFun n f μ) : iIndepFun (n ∘' g) (f ∘' g) μ := by
-  apply h.reindex_of_injective _ (Equiv.injective g)
-
-lemma iIndepFun_reindex_iff (g : ι' ≃ ι) : iIndepFun (n ∘' g) (f ∘' g) μ ↔ iIndepFun n f μ :=
-  ⟨fun h ↦ h.reindex g, fun h ↦ h.reindex_symm g⟩
-
 variable (i : ι) [Inv (α i)] [MeasurableInv (α i)] [DecidableEq ι] in
 @[to_additive]
 lemma iIndepFun.inv (h : iIndepFun n f μ) : iIndepFun n (update f i (f i)⁻¹) μ := by
@@ -309,8 +284,7 @@ lemma iIndepFun.prod {hf : ∀ (i : ι), Measurable (f i)} {ST : ι' → Finset 
       · rewrite [le_bot_iff] ; exact Finset.singleton_ne_empty (g y)
     exact Sigma.subtype_ext (not_ne_iff.mp ((@hS x.fst y.fst).mt this)) hxy
   let m (i : ι') (j : ST i) : MeasurableSpace (α j) := n j
-  exact iIndepFun.pi' (m := m) (hf ∘' g) (h.reindex_of_injective g hg)
-
+  exact iIndepFun.pi' (m := m) (hf ∘' g) (h.precomp hg)
 
 variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
 

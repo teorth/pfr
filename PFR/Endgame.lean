@@ -304,7 +304,7 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
     _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
 
   have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
-    apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (2 : Fin 4) 3)
+    refine .of_precomp (Equiv.swap (2 : Fin 4) 3).surjective ?_
     convert h_indep using 1
     ext x
     fin_cases x ; all_goals { aesop }
@@ -506,7 +506,7 @@ theorem tau_strictly_decreases_aux
       invFun := ![0, 1, 3, 2]
       left_inv := by intro i; fin_cases i <;> rfl
       right_inv := by intro i; fin_cases i <;> rfl }
-    refine iIndepFun.reindex σ.symm ?_
+    refine .of_precomp σ.symm.surjective ?_
     convert h_indep using 1
     ext i; fin_cases i <;> rfl
   have h3 := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min

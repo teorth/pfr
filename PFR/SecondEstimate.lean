@@ -1,4 +1,4 @@
-import PFR.Mathlib.Probability.Independence.FourVariables
+import PFR.ForMathlib.FourVariables
 import PFR.FirstEstimate
 
 /-!

@@ -22,6 +22,7 @@ import PFR.ForMathlib.FiniteMeasureProd
 import PFR.ForMathlib.FiniteRange.ConditionalProbability
 import PFR.ForMathlib.FiniteRange.Defs
 import PFR.ForMathlib.FiniteRange.IdentDistrib
+import PFR.ForMathlib.FourVariables
 import PFR.ForMathlib.MeasureReal.Defs
 import PFR.ForMathlib.MeasureReal.Indep
 import PFR.ForMathlib.MeasureReal.UniformOn
@@ -34,8 +35,8 @@ import PFR.HundredPercent
 import PFR.ImprovedPFR
 import PFR.Kullback
 import PFR.Main
+import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.Data.Set.Pointwise.SMul
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
 import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
@@ -45,7 +46,6 @@ import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
 import PFR.Mathlib.MeasureTheory.Measure.Prod
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Probability.Independence.Basic
-import PFR.Mathlib.Probability.Independence.FourVariables
 import PFR.Mathlib.Probability.Independence.Kernel
 import PFR.Mathlib.Probability.Kernel.Composition.Comp
 import PFR.Mathlib.Probability.Kernel.Disintegration
