@@ -37,7 +37,6 @@ import PFR.Kullback
 import PFR.Main
 import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
 import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition

@@ -1,6 +1,6 @@
+import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
 import Mathlib.LinearAlgebra.Dimension.Constructions
 import Mathlib.LinearAlgebra.Dimension.Finite
-import PFR.Mathlib.LinearAlgebra.AffineSpace.AffineSubspace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
 
 open scoped Pointwise

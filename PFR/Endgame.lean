@@ -510,16 +510,6 @@ theorem tau_strictly_decreases_aux
     convert h_indep using 1
     ext i; fin_cases i <;> rfl
   have h3 := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
-  have h : k ≤ (8*p.η + p.η^2) * k := calc
-    k ≤ (1+p.η/3) * (6*p.η*k - (1-5*p.η) / (1-p.η) * (2*p.η*k - I₁)) + p.η/3*((6-3*p.η)*k + 3*(2*p.η*k-I₁)) := by
-      rw [hpη] at *
-      linarith
-    _ = (8*p.η+p.η^2)*k - ((1-5*p.η)/(1-p.η)*(1+p.η/3)-p.η)*(2*p.η*k-I₁) := by
-      ring
-    _ ≤ (8*p.η + p.η^2) * k := by
-      rw [hpη] at *
-      norm_num
-      linarith
-  have : 0 ≤ k := rdist_nonneg hX₁ hX₂
+  have hk : 0 ≤ k := rdist_nonneg hX₁ hX₂
   rw [hpη] at *
-  linarith
+  linarith only [hk, h0, h1, h2, h3]
