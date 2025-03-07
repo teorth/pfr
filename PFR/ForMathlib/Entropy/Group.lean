@@ -243,7 +243,7 @@ lemma max_entropy_le_entropy_div (hX : Measurable X) (hY : Measurable Y) (h : In
 lemma max_entropy_le_entropy_prod {G : Type*} [Countable G] [hG : MeasurableSpace G]
     [MeasurableSingletonClass G] [CommGroup G] [MeasurableMul₂ G]
     {I : Type*} {s : Finset I} {i₀ : I} (hi₀ : i₀ ∈ s) {X : I → Ω → G} [∀ i, FiniteRange (X i)]
-    (hX : (i : I) → Measurable (X i)) (h_indep : iIndepFun (fun (_ : I) => hG) X μ) :
+    (hX : (i : I) → Measurable (X i)) (h_indep : iIndepFun X μ) :
     H[X i₀ ; μ] ≤ H[∏ i ∈ s, X i ; μ] := by
   have hs : s.Nonempty := ⟨i₀, hi₀⟩
   induction' hs using Finset.Nonempty.cons_induction with i j s Hnot _ Hind

@@ -87,7 +87,7 @@ variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
 variable {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMeasure μ]
 
 /-- The conditional Ruzsa Distance step of `sum_of_rdist_eq` -/
-lemma sum_of_rdist_eq_step_condRuzsaDist {Y : Fin 4 → Ω → G} (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
+lemma sum_of_rdist_eq_step_condRuzsaDist {Y : Fin 4 → Ω → G} (h_indep : iIndepFun Y μ)
   (h_meas : ∀ i, Measurable (Y i)) :
     d[⟨Y 0, Y 2⟩ | Y 0 - Y 2 ; μ # ⟨Y 1, Y 3⟩ | Y 1 - Y 3 ; μ] = d[Y 0 | Y 0 - Y 2 ; μ # Y 1 | Y 1 - Y 3 ; μ] := by
   let Y' : Fin 4 → Ω → G
@@ -149,7 +149,7 @@ lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
 $$d[Y_1-Y_3; Y_2-Y_4] + d[Y_1|Y_1-Y_3; Y_2|Y_2-Y_4] $$
 $$ + I[Y_1-Y_2 : Y_2 - Y_4 | Y_1-Y_2-Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
 -/
-lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
+lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep : iIndepFun Y μ)
   (h_meas : ∀ i, Measurable (Y i)) :
     d[Y 0; μ # Y 1; μ] + d[Y 2; μ # Y 3; μ]
       = d[(Y 0) - (Y 2); μ # (Y 1) - (Y 3); μ]
@@ -187,7 +187,7 @@ $$d[Y_1+Y_3; Y_2+Y_4] + d[Y_1|Y_1+Y_3; Y_2|Y_2+Y_4] $$
 $$ + I[Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4] = d[Y_1; Y_2] + d[Y_3; Y_4].$$
 -/
 lemma sum_of_rdist_eq_char_2
-  [Module (ZMod 2) G] (Y : Fin 4 → Ω → G) (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) Y μ)
+  [Module (ZMod 2) G] (Y : Fin 4 → Ω → G) (h_indep : iIndepFun Y μ)
   (h_meas : ∀ i, Measurable (Y i)) :
     d[Y 0; μ # Y 1; μ] + d[Y 2; μ # Y 3; μ]
       = d[(Y 0) + (Y 2); μ # (Y 1) + (Y 3); μ]
@@ -196,7 +196,7 @@ lemma sum_of_rdist_eq_char_2
   simpa [ZModModule.sub_eq_add] using sum_of_rdist_eq Y h_indep h_meas
 
 lemma sum_of_rdist_eq_char_2' [Module (ZMod 2) G] (X Y X' Y' : Ω → G)
-  (h_indep : iIndepFun (fun _ : Fin 4 ↦ hG) ![X, Y, X', Y'] μ)
+  (h_indep : iIndepFun ![X, Y, X', Y'] μ)
   (hX : Measurable X) (hY : Measurable Y) (hX' : Measurable X') (hY' : Measurable Y') :
   d[X ; μ # Y ; μ] + d[X' ; μ # Y' ; μ]
     = d[X + X' ; μ # Y + Y' ; μ] + d[X | X + X' ; μ # Y | Y + Y' ; μ]

@@ -20,7 +20,7 @@ variable {Ω ι ι' : Type*} [MeasurableSpace Ω] {α β : ι → Type*}
 
 variable (i : ι) [Inv (α i)] [MeasurableInv (α i)] [DecidableEq ι] in
 @[to_additive]
-lemma iIndepFun.inv (h : iIndepFun n f μ) : iIndepFun n (update f i (f i)⁻¹) μ := by
+lemma iIndepFun.inv (h : iIndepFun f μ) : iIndepFun (update f i (f i)⁻¹) μ := by
   convert h.comp (update (fun _ ↦ id) i (·⁻¹)) _ with j
   · by_cases hj : j = i
     · subst hj; ext x; simp
@@ -35,8 +35,8 @@ finite index sets, then the tuples formed by `f i` for `i ∈ S j` are mutually 
 when seen as a family indexed by `J`. -/
 lemma iIndepFun.finsets {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
-    (hf_Indep : iIndepFun m f μ) (hf_meas : ∀ i, Measurable (f i)) :
-    iIndepFun (fun _ ↦ pi) (fun (j : J) ↦ fun a (i : S j) ↦ f i a) μ :=
+    (hf_Indep : iIndepFun f μ) (hf_meas : ∀ i, Measurable (f i)) :
+    iIndepFun (fun (j : J) ↦ fun a (i : S j) ↦ f i a) μ :=
   Kernel.iIndepFun.finsets S h_disjoint hf_Indep hf_meas
 
 /-- If `f` is a family of mutually independent random variables, `(S j)ⱼ` are pairwise disjoint
@@ -45,10 +45,10 @@ measurable space `γ j`, then the family of random variables formed by `φ j (f 
 indexed by `J` is iIndep. -/
 lemma iIndepFun.finsets_comp {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
-    (hf_Indep : iIndepFun m f μ) (hf_meas : ∀ i, Measurable (f i))
+    (hf_Indep : iIndepFun f μ) (hf_meas : ∀ i, Measurable (f i))
     {γ : J → Type*} {mγ : ∀ j, MeasurableSpace (γ j)}
     (φ : (j : J) → ((i : S j) → β i) → γ j) (hφ : ∀ j, Measurable (φ j)) :
-    iIndepFun mγ (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) μ :=
+    iIndepFun (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) μ :=
   Kernel.iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas γ φ hφ
 
 end iIndepFun
@@ -102,7 +102,7 @@ lemma IndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi' : �
 -- Same as `iIndepFun_iff` except that the function `f'` returns measurable sets even on junk values
 lemma iIndepFun_iff' [MeasurableSpace Ω] {β : ι → Type*}
     (m : ∀ i, MeasurableSpace (β i)) (f : ∀ i, Ω → β i) (μ : Measure Ω) :
-    iIndepFun m f μ ↔ ∀ (s : Finset ι) ⦃f' : ι → Set Ω⦄
+    iIndepFun f μ ↔ ∀ (s : Finset ι) ⦃f' : ι → Set Ω⦄
       (_hf' : ∀ i, MeasurableSet[(m i).comap (f i)] (f' i)),
       μ (⋂ i ∈ s, f' i) = ∏ i ∈ s, μ (f' i) := by
   classical
@@ -137,7 +137,7 @@ theorem indepFun_iff_map_prod_eq_prod_map_map'
 theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι]
     (f : ∀ x : ι, Ω → β x) [m : ∀ x : ι, MeasurableSpace (β x)]
     [IsProbabilityMeasure μ] (hf : ∀ (x : ι), Measurable (f x)) :
-    iIndepFun m f μ ↔ Measure.pi (fun i ↦ μ.map (f i)) = μ.map (fun ω i ↦ f i ω) := by
+    iIndepFun f μ ↔ Measure.pi (fun i ↦ μ.map (f i)) = μ.map (fun ω i ↦ f i ω) := by
   classical
   rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
   have h₀ {h : ∀ i, Set (β i)} (hm : ∀ (i : ι), MeasurableSet (h i)) :
@@ -200,8 +200,8 @@ variable {ι : Type*} {κ : ι → Type*} [∀ i, Fintype (κ i)]
 `i ↦ (f i j)ⱼ` is independent. -/
 lemma iIndepFun.pi
     (f_meas : ∀ i j, Measurable (f i j))
-    (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) (fun ij : Σ i, κ i ↦ f ij.1 ij.2) μ) :
-    iIndepFun (fun _ ↦ MeasurableSpace.pi) (fun i ω j ↦ f i j ω) μ := by
+    (hf : iIndepFun (fun ij : Σ i, κ i ↦ f ij.1 ij.2) μ) :
+    iIndepFun (fun i ω j ↦ f i j ω) μ := by
   let F i ω j := f i j ω
   let M (i : ι):= MeasurableSpace.pi (m := m i)
   let πβ (i : ι) := Set.pi Set.univ '' Set.pi Set.univ fun j => { s | MeasurableSet[m i j] s }
@@ -261,17 +261,17 @@ lemma iIndepFun.pi
 `i ↦ (f i j)ⱼ` is independent. -/
 lemma iIndepFun.pi' {f : ∀ ij : (Σ i, κ i), Ω → α ij.1 ij.2 }
     (f_meas : ∀ i, Measurable (f i))
-    (hf : iIndepFun (fun ij : Σ i, κ i ↦ m ij.1 ij.2) f μ) :
-    iIndepFun (fun _i ↦ MeasurableSpace.pi) (fun i ω ↦ (fun j ↦ f ⟨i, j⟩ ω)) μ :=
+    (hf : iIndepFun f μ) :
+    iIndepFun (fun i ω ↦ (fun j ↦ f ⟨i, j⟩ ω)) μ :=
   iIndepFun.pi (fun _ _ ↦ f_meas _) hf
 
 variable {ι ι' : Type*} {α : ι → Type*}
     {n : (i : ι) → MeasurableSpace (α i)} {f : (i : ι) → Ω → α i}
 
 lemma iIndepFun.prod {hf : ∀ (i : ι), Measurable (f i)} {ST : ι' → Finset ι}
-    (hS : Pairwise (Disjoint on ST)) (h : iIndepFun n f μ) :
+    (hS : Pairwise (Disjoint on ST)) (h : iIndepFun f μ) :
     let β := fun k ↦ Π i : ST k, α i
-    iIndepFun (β := β) (fun _ ↦ MeasurableSpace.pi) (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
+    iIndepFun (β := β) (fun (k : ι') (x : Ω) (i : ST k) ↦ f i x) μ := by
   let g : (i : ι') × ST i → ι := Subtype.val ∘' (Sigma.snd (α := ι'))
   have hg : Injective g := by
     intro x y hxy
@@ -307,7 +307,7 @@ theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} 
 /-- TODO: a kernel version of this theorem-/
 theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}
     {m : ∀ i, MeasurableSpace (β i)} {f g : ∀ i, Ω → β i}
-    (hf_Indep : iIndepFun m f μ) (hfg : ∀ i, f i =ᵐ[μ] g i) : iIndepFun m g μ := by
+    (hf_Indep : iIndepFun f μ) (hfg : ∀ i, f i =ᵐ[μ] g i) : iIndepFun g μ := by
   rw [iIndepFun_iff_iIndep, iIndep_iff] at hf_Indep ⊢
   intro s E H
   have (i : ι) : ∃ E' : Set Ω, i ∈ s → MeasurableSet[MeasurableSpace.comap (f i) (m i)] E' ∧ E' =ᵐ[μ] E i := by

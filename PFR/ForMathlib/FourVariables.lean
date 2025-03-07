@@ -8,15 +8,15 @@ namespace ProbabilityTheory.iIndepFun
 variable {Ω : Type*} [MeasureSpace Ω]
   {G : Type*} [hG : MeasurableSpace G]
 
-variable {Z₁ Z₂ Z₃ Z₄ : Ω → G} (h_indep : iIndepFun (fun _i => hG) ![Z₁, Z₂, Z₃, Z₄])
+variable {Z₁ Z₂ Z₃ Z₄ : Ω → G} (h_indep : iIndepFun ![Z₁, Z₂, Z₃, Z₄])
 
 include h_indep
 
 lemma reindex_four_abcd :
-    iIndepFun (fun _ => hG) ![Z₁, Z₂, Z₃, Z₄] := h_indep
+    iIndepFun ![Z₁, Z₂, Z₃, Z₄] := h_indep
 
 lemma reindex_four_abdc :
-    iIndepFun (fun _ => hG) ![Z₁, Z₂, Z₄, Z₃] := by
+    iIndepFun ![Z₁, Z₂, Z₄, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![0, 1, 3, 2]
     invFun := ![0, 1, 3, 2]
@@ -28,7 +28,7 @@ lemma reindex_four_abdc :
   fin_cases i <;> rfl
 
 lemma reindex_four_acbd :
-    iIndepFun (fun _ => hG) ![Z₁, Z₃, Z₂, Z₄] := by
+    iIndepFun ![Z₁, Z₃, Z₂, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![0, 2, 1, 3]
     invFun := ![0, 2, 1, 3]
@@ -40,7 +40,7 @@ lemma reindex_four_acbd :
   fin_cases i <;> rfl
 
 lemma reindex_four_acdb :
-    iIndepFun (fun _ => hG) ![Z₁, Z₃, Z₄, Z₂] := by
+    iIndepFun ![Z₁, Z₃, Z₄, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![0, 2, 3, 1]
     invFun := ![0, 3, 1, 2]
@@ -52,7 +52,7 @@ lemma reindex_four_acdb :
   fin_cases i <;> rfl
 
 lemma reindex_four_adbc :
-    iIndepFun (fun _ => hG) ![Z₁, Z₄, Z₂, Z₃] := by
+    iIndepFun ![Z₁, Z₄, Z₂, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![0, 3, 1, 2]
     invFun := ![0, 2, 3, 1]
@@ -64,7 +64,7 @@ lemma reindex_four_adbc :
   fin_cases i <;> rfl
 
 lemma reindex_four_adcb :
-    iIndepFun (fun _ => hG) ![Z₁, Z₄, Z₃, Z₂] := by
+    iIndepFun ![Z₁, Z₄, Z₃, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![0, 3, 2, 1]
     invFun := ![0, 3, 2, 1]
@@ -76,7 +76,7 @@ lemma reindex_four_adcb :
   fin_cases i <;> rfl
 
 lemma reindex_four_bacd :
-    iIndepFun (fun _ => hG) ![Z₂, Z₁, Z₃, Z₄] := by
+    iIndepFun ![Z₂, Z₁, Z₃, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![1, 0, 2, 3]
     invFun := ![1, 0, 2, 3]
@@ -88,7 +88,7 @@ lemma reindex_four_bacd :
   fin_cases i <;> rfl
 
 lemma reindex_four_badc :
-    iIndepFun (fun _ => hG) ![Z₂, Z₁, Z₄, Z₃] := by
+    iIndepFun ![Z₂, Z₁, Z₄, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![1, 0, 3, 2]
     invFun := ![1, 0, 3, 2]
@@ -100,7 +100,7 @@ lemma reindex_four_badc :
   fin_cases i <;> rfl
 
 lemma reindex_four_bcad :
-    iIndepFun (fun _ => hG) ![Z₂, Z₃, Z₁, Z₄] := by
+    iIndepFun ![Z₂, Z₃, Z₁, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![1, 2, 0, 3]
     invFun := ![2, 0, 1, 3]
@@ -112,7 +112,7 @@ lemma reindex_four_bcad :
   fin_cases i <;> rfl
 
 lemma reindex_four_bcda :
-    iIndepFun (fun _ => hG) ![Z₂, Z₃, Z₄, Z₁] := by
+    iIndepFun ![Z₂, Z₃, Z₄, Z₁] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![1, 2, 3, 0]
     invFun := ![3, 0, 1, 2]
@@ -124,7 +124,7 @@ lemma reindex_four_bcda :
   fin_cases i <;> rfl
 
 lemma reindex_four_bdac :
-    iIndepFun (fun _ => hG) ![Z₂, Z₄, Z₁, Z₃] := by
+    iIndepFun ![Z₂, Z₄, Z₁, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![1, 3, 0, 2]
     invFun := ![2, 0, 3, 1]
@@ -136,7 +136,7 @@ lemma reindex_four_bdac :
   fin_cases i <;> rfl
 
 lemma reindex_four_bdca :
-    iIndepFun (fun _ => hG) ![Z₂, Z₄, Z₃, Z₁] := by
+    iIndepFun ![Z₂, Z₄, Z₃, Z₁] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![1, 3, 2, 0]
     invFun := ![3, 0, 2, 1]
@@ -148,7 +148,7 @@ lemma reindex_four_bdca :
   fin_cases i <;> rfl
 
 lemma reindex_four_cadb :
-    iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₄, Z₂] := by
+    iIndepFun ![Z₃, Z₁, Z₄, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![2, 0, 3, 1]
     invFun := ![1, 3, 0, 2]
@@ -160,7 +160,7 @@ lemma reindex_four_cadb :
   fin_cases i <;> rfl
 
 lemma reindex_four_cabd :
-    iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₂, Z₄] := by
+    iIndepFun ![Z₃, Z₁, Z₂, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![2, 0, 1, 3]
     invFun := ![1, 2, 0, 3]
@@ -172,7 +172,7 @@ lemma reindex_four_cabd :
   fin_cases i <;> rfl
 
 lemma reindex_four_cbad :
-    iIndepFun (fun _ => hG) ![Z₃, Z₂, Z₁, Z₄] := by
+    iIndepFun ![Z₃, Z₂, Z₁, Z₄] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![2, 1, 0, 3]
     invFun := ![2, 1, 0, 3]
@@ -184,7 +184,7 @@ lemma reindex_four_cbad :
   fin_cases i <;> rfl
 
 lemma reindex_four_dabc :
-    iIndepFun (fun _ => hG) ![Z₄, Z₁, Z₂, Z₃] := by
+    iIndepFun ![Z₄, Z₁, Z₂, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![3, 0, 1, 2]
     invFun := ![1, 2, 3, 0]
@@ -196,7 +196,7 @@ lemma reindex_four_dabc :
   fin_cases i <;> rfl
 
 lemma reindex_four_dacb :
-    iIndepFun (fun _ => hG) ![Z₄, Z₁, Z₃, Z₂] := by
+    iIndepFun ![Z₄, Z₁, Z₃, Z₂] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![3, 0, 2, 1]
     invFun := ![1, 3, 2, 0]
@@ -208,7 +208,7 @@ lemma reindex_four_dacb :
   fin_cases i <;> rfl
 
 lemma reindex_four_dbac :
-    iIndepFun (fun _ => hG) ![Z₄, Z₂, Z₁, Z₃] := by
+    iIndepFun ![Z₄, Z₂, Z₁, Z₃] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![3, 1, 0, 2]
     invFun := ![2, 1, 3, 0]
@@ -220,7 +220,7 @@ lemma reindex_four_dbac :
   fin_cases i <;> rfl
 
 lemma reindex_four_dbca :
-    iIndepFun (fun _ => hG) ![Z₄, Z₂, Z₃, Z₁] := by
+    iIndepFun ![Z₄, Z₂, Z₃, Z₁] := by
   let σ : Fin 4 ≃ Fin 4 :=
   { toFun := ![3, 1, 2, 0]
     invFun := ![3, 1, 2, 0]
@@ -254,7 +254,7 @@ attribute [local instance] fintype_kappa in
 lemma apply_two_last
     (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
     {phi : G → G → G} (hphi : Measurable phi.uncurry) :
-    iIndepFun (fun _ ↦ hG) ![Z₁, Z₂, (fun ω ↦ phi (Z₃ ω) (Z₄ ω))] := by
+    iIndepFun ![Z₁, Z₂, (fun ω ↦ phi (Z₃ ω) (Z₄ ω))] := by
   -- deduce from the assumption the independence of `Z₁`, `Z₂` and `(Z₃, Z₄)`.
   have T := (h_indep.precomp κ_equiv.injective).pi' (m := fun _ _ ↦ hG) ?_; swap
   · rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> assumption

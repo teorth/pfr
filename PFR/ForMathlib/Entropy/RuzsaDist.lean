@@ -172,7 +172,7 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
 /-- `d[X ; Y] ≤ H[X]/2 + H[Y]/2`. -/
 lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
     (hY : Measurable Y) (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
-  [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     d[X ; μ # Y ; μ'] ≤ (H[X ; μ] + H[Y ; μ'])/2 := by
   rcases ProbabilityTheory.independent_copies_finiteRange hX hY μ μ'
     with ⟨ν, X', Y', hprob, hX', hY', h_indep, hidentX, hidentY, hfinX, hfinY⟩
@@ -186,7 +186,7 @@ lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRan
 /-- Applying an injective homomorphism does not affect Ruzsa distance. -/
 lemma rdist_of_inj {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H]
   [AddCommGroup H] [Countable H] (hX : Measurable X) (hY : Measurable Y)
-  (φ : G →+ H) (hφ : Injective φ) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ' ]:
+  (φ : G →+ H) (hφ : Injective φ) [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] :
     d[φ ∘ X ; μ # φ ∘ Y ; μ'] = d[X ; μ # Y ; μ'] := by
     rw [rdist_def, rdist_def]
     congr 2
@@ -1109,7 +1109,7 @@ lemma condRuzsaDist'_of_inj_map' [Module (ZMod 2) G] [IsProbabilityMeasure μ]
   simp [μ']
 
 /-- The **Kaimanovich-Vershik inequality**. `H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y]`. -/
-lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
+lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun ![X, Y, Z] μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     H[X + Y + Z ; μ] - H[X + Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
@@ -1141,7 +1141,7 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, 
     exact h.indepFun_add_right this 2 0 1 (by decide) (by decide)
 
 /-- A version of the **Kaimanovich-Vershik inequality** with some variables negated. -/
-lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z] μ)
+lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun ![X, Y, Z] μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] :
     H[X - (Y + Z) ; μ] - H[X - Y ; μ] ≤ H[Y + Z ; μ] - H[Y ; μ] := by
@@ -1429,7 +1429,7 @@ variable (μ) in
 lemma condRuzsaDist_diff_ofsum_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     {X : Ω → G} {Y Z Z' : Ω' → G}
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (hZ' : Measurable Z')
-    (h : iIndepFun (fun _ ↦ hG) ![Y, Z, Z'] μ')
+    (h : iIndepFun ![Y, Z, Z'] μ')
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange Z'] :
     d[X ; μ # Y + Z | Y + Z + Z'; μ'] - d[X ; μ # Y; μ'] ≤
     (H[Y + Z + Z'; μ'] + H[Y + Z; μ'] - H[Y ; μ'] - H[Z' ; μ'])/2 := by

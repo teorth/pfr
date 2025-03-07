@@ -173,7 +173,7 @@ example (h1 : IdentDistrib X X') (h2 : IdentDistrib Y Y') : d[X # Y] = d[X' # Y'
 example : d[X # Z] ≤ d[X # Y] + d[Y # Z] := rdist_triangle hX hY hZ
 
 /-- The Kaimanovich-Vershik-Madiman inequality -/
-example (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z]) : H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y] :=
+example (h : iIndepFun ![X, Y, Z]) : H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y] :=
   kaimanovich_vershik h hX hY hZ
 
 /-- The entropic Balog--Szemeredi--Gowers inequality -/

@@ -9,15 +9,15 @@ namespace ProbabilityTheory.iIndepFun
 variable {Ω : Type*} [MeasureSpace Ω]
   {G : Type*} [hG : MeasurableSpace G]
 
-variable {Z₁ Z₂ Z₃ : Ω → G} (h_indep : iIndepFun (fun _i => hG) ![Z₁, Z₂, Z₃])
+variable {Z₁ Z₂ Z₃ : Ω → G} (h_indep : iIndepFun ![Z₁, Z₂, Z₃])
 
 include h_indep
 
 lemma reindex_three_abc :
-    iIndepFun (fun _ => hG) ![Z₁, Z₂, Z₃] := h_indep
+    iIndepFun ![Z₁, Z₂, Z₃] := h_indep
 
 lemma reindex_three_acb :
-    iIndepFun (fun _ => hG) ![Z₁, Z₃, Z₂] := by
+    iIndepFun ![Z₁, Z₃, Z₂] := by
   let σ : Fin 3 ≃ Fin 3 :=
   { toFun := ![0, 2, 1]
     invFun := ![0, 2, 1]
@@ -29,7 +29,7 @@ lemma reindex_three_acb :
   fin_cases i <;> rfl
 
 lemma reindex_three_bac :
-    iIndepFun (fun _ => hG) ![Z₂, Z₁, Z₃] := by
+    iIndepFun ![Z₂, Z₁, Z₃] := by
   let σ : Fin 3 ≃ Fin 3 :=
   { toFun := ![1, 0, 2]
     invFun := ![1, 0, 2]
@@ -41,7 +41,7 @@ lemma reindex_three_bac :
   fin_cases i <;> rfl
 
 lemma reindex_three_bca :
-    iIndepFun (fun _ => hG) ![Z₂, Z₃, Z₁] := by
+    iIndepFun ![Z₂, Z₃, Z₁] := by
   let σ : Fin 3 ≃ Fin 3 :=
   { toFun := ![1, 2, 0]
     invFun := ![2, 0, 1]
@@ -53,7 +53,7 @@ lemma reindex_three_bca :
   fin_cases i <;> rfl
 
 lemma reindex_three_cab :
-    iIndepFun (fun _ => hG) ![Z₃, Z₁, Z₂] := by
+    iIndepFun ![Z₃, Z₁, Z₂] := by
   let σ : Fin 3 ≃ Fin 3 :=
   { toFun := ![2, 0, 1]
     invFun := ![1, 2, 0]
@@ -65,7 +65,7 @@ lemma reindex_three_cab :
   fin_cases i <;> rfl
 
 lemma reindex_three_cba :
-    iIndepFun (fun _ => hG) ![Z₃, Z₂, Z₁] := by
+    iIndepFun ![Z₃, Z₂, Z₁] := by
   let σ : Fin 3 ≃ Fin 3 :=
   { toFun := ![2, 1, 0]
     invFun := ![2, 1, 0]
