@@ -33,7 +33,7 @@ noncomputable
 def deleteMiddle (κ : Kernel α (β × γ × δ)) :
     Kernel α (β × δ) :=
   mapOfMeasurable κ (fun p ↦ (p.1, p.2.2))
-    (measurable_fst.prod_mk (measurable_snd.comp measurable_snd))
+    (measurable_fst.prodMk (measurable_snd.comp measurable_snd))
 
 lemma deleteMiddle_eq (κ : Kernel α (β × γ × δ)) :
     deleteMiddle κ = map κ (fun p ↦ (p.1, p.2.2)) := by
@@ -83,17 +83,17 @@ lemma deleteMiddle_compProd (ξ : Kernel α β) [IsSFiniteKernel ξ]
     deleteMiddle (ξ ⊗ₖ κ) = ξ ⊗ₖ snd κ := by
   ext x s hs
   rw [deleteMiddle_eq, map_apply' _ (by fun_prop) _ hs, compProd_apply hs, compProd_apply]
-  swap; · exact measurable_fst.prod_mk measurable_snd.snd hs
+  swap; · exact measurable_fst.prodMk measurable_snd.snd hs
   congr with b
   rw [snd_apply']
-  swap; · exact measurable_prod_mk_left hs
+  swap; · exact measurable_prodMk_left hs
   congr
 
 /-- Given a kernel taking values in a product of three spaces, forget the last variable. -/
 noncomputable
 def deleteRight (κ : Kernel α (β × γ × δ)) : Kernel α (β × γ) :=
   mapOfMeasurable κ (fun p ↦ (p.1, p.2.1))
-    (measurable_fst.prod_mk (measurable_fst.comp measurable_snd))
+    (measurable_fst.prodMk (measurable_fst.comp measurable_snd))
 
 lemma deleteRight_eq (κ : Kernel α (β × γ × δ)) :
     deleteRight κ = map κ (fun p ↦ (p.1, p.2.1)) := by simp [deleteRight]
@@ -140,8 +140,8 @@ lemma deleteRight_map_prod (κ : Kernel α β) {f : β → γ} {g : β → δ} {
 noncomputable
 def reverse (κ : Kernel α (β × γ × δ)) : Kernel α (δ × γ × β) :=
   mapOfMeasurable κ (fun p ↦ (p.2.2, p.2.1, p.1))
-    ((measurable_snd.comp measurable_snd).prod_mk
-      ((measurable_fst.comp measurable_snd).prod_mk measurable_fst))
+    ((measurable_snd.comp measurable_snd).prodMk
+      ((measurable_fst.comp measurable_snd).prodMk measurable_fst))
 
 lemma reverse_eq (κ : Kernel α (β × γ × δ)) : reverse κ = map κ (fun p ↦ (p.2.2, p.2.1, p.1)) := by
   simp [reverse]

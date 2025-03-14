@@ -131,7 +131,7 @@ lemma entropy_snd_compProd_deterministic_of_injective [MeasurableSingletonClass 
     · exact measurable_snd hs
   simp_rw [entropy]
   congr with y
-  convert measureEntropy_map_of_injective (κ y) _ (hmes.comp measurable_prod_mk_left) (hf y)
+  convert measureEntropy_map_of_injective (κ y) _ (hmes.comp measurable_prodMk_left) (hf y)
   rw [this y, map_apply _ (by fun_prop)]
   rfl
 
@@ -218,7 +218,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
     {η : Kernel (T × S) U} [IsMarkovKernel η] [FiniteSupport μ] (hκ : FiniteKernelSupport κ)
     (hη : FiniteKernelSupport η) :
     Hk[κ ⊗ₖ η, μ] = Hk[κ, μ]
-      + μ[fun t ↦ Hk[comap η (Prod.mk t) measurable_prod_mk_left, (κ t)]] := by
+      + μ[fun t ↦ Hk[comap η (Prod.mk t) measurable_prodMk_left, (κ t)]] := by
   rcases eq_zero_or_isMarkovKernel κ with rfl | hκ'
   · simp
   let A := μ.support
@@ -256,7 +256,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   rw [measureEntropy_def_finite' (hC (t, s) hts)]
   simp
   have : negMulLog ((κ t).real {s}) = ∑ u ∈ C, negMulLog ((κ t).real {s}) *
-      ((comap η (Prod.mk t) measurable_prod_mk_left) s).real {u} := by
+      ((comap η (Prod.mk t) measurable_prodMk_left) s).real {u} := by
     rw [← Finset.mul_sum]
     simp
     suffices (η (t, s)).real ↑C = (η (t, s)).real Set.univ by simp [this]

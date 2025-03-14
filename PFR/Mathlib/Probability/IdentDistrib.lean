@@ -117,11 +117,11 @@ variable {Ω Ω' α ι β β' T : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : Meas
   {mβ : MeasurableSpace β} {μ : Measure Ω} {ν : Measure Ω'} {f g : Ω → β} {f' g' : Ω' → β}
 
 variable [IsFiniteMeasure μ] [IsFiniteMeasure ν] in
-theorem IdentDistrib.prod_mk (hff' : IdentDistrib f f' μ ν) (hgg' : IdentDistrib g g' μ ν)
+theorem IdentDistrib.prodMk (hff' : IdentDistrib f f' μ ν) (hgg' : IdentDistrib g g' μ ν)
     (h : IndepFun f g μ) (h' : IndepFun f' g' ν) :
     IdentDistrib (fun x ↦ (f x, g x)) (fun x ↦ (f' x, g' x)) μ ν where
-  aemeasurable_fst := hff'.aemeasurable_fst.prod_mk hgg'.aemeasurable_fst
-  aemeasurable_snd := hff'.aemeasurable_snd.prod_mk hgg'.aemeasurable_snd
+  aemeasurable_fst := hff'.aemeasurable_fst.prodMk hgg'.aemeasurable_fst
+  aemeasurable_snd := hff'.aemeasurable_snd.prodMk hgg'.aemeasurable_snd
   map_eq := by
     rw [indepFun_iff_map_prod_eq_prod_map_map' hff'.aemeasurable_fst hgg'.aemeasurable_fst] at h
     rw [indepFun_iff_map_prod_eq_prod_map_map' hff'.aemeasurable_snd hgg'.aemeasurable_snd] at h'
@@ -133,7 +133,7 @@ theorem IdentDistrib.mul
     (hff' : IdentDistrib f f' μ ν) (hgg' : IdentDistrib g g' μ ν)
     (h : IndepFun f g μ) (h' : IndepFun f' g' ν) :
     IdentDistrib (f * g) (f' * g') μ ν :=
-  hff'.prod_mk hgg' h h' |>.comp_of_aemeasurable measurable_mul.aemeasurable
+  hff'.prodMk hgg' h h' |>.comp_of_aemeasurable measurable_mul.aemeasurable
 
 variable [MeasurableSpace α] [MeasurableSpace β]
 

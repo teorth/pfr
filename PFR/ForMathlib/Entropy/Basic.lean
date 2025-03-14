@@ -347,13 +347,13 @@ variable [Countable T]
 lemma entropy_comm (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y⟩; μ] = H[⟨Y, X⟩ ; μ] := by
   change H[Prod.swap ∘ ⟨Y, X⟩ ; μ] = H[⟨Y, X⟩ ; μ]
-  exact entropy_comp_of_injective μ (hY.prod_mk hX) Prod.swap Prod.swap_injective
+  exact entropy_comp_of_injective μ (hY.prodMk hX) Prod.swap Prod.swap_injective
 
 /-- `H[(X, Y), Z] = H[X, (Y, Z)]`. -/
 lemma entropy_assoc (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
     H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ] := by
   change H[MeasurableEquiv.prodAssoc ∘ ⟨⟨X, Y⟩, Z⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ]
-  exact entropy_comp_of_injective μ ((hX.prod_mk hY).prod_mk hZ) _ $ Equiv.injective _
+  exact entropy_comp_of_injective μ ((hX.prodMk hY).prodMk hZ) _ $ Equiv.injective _
 
 end entropy
 
@@ -417,7 +417,7 @@ lemma condEntropy_two_eq_kernel_entropy (hX : Measurable X) (hY : Measurable Y) 
       ← Kernel.entropy_congr (swap_condDistrib_ae_eq hY hX hZ μ)]
   have : μ.map (fun ω ↦ (Z ω, Y ω)) = (μ.map (fun ω ↦ (Y ω, Z ω))).comap Prod.swap := by
     rw [map_prod_comap_swap hY hZ]
-  rw [this, condEntropy_eq_kernel_entropy hX (hY.prod_mk hZ), Kernel.entropy_comap_swap]
+  rw [this, condEntropy_eq_kernel_entropy hX (hY.prodMk hZ), Kernel.entropy_comap_swap]
 
 end
 
@@ -463,7 +463,7 @@ lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [Mea
     [IsFiniteMeasure μ] [Fintype T] [Fintype T'] :
     H[X | ⟨Y, Z⟩ ; μ]
       = ∑ z, (μ (Z ⁻¹' {z})).toReal * H[X | Y ; μ[|Z ⁻¹' {z}]] := by
-  simp_rw [condEntropy_eq_sum_fintype _ _ _ (hY.prod_mk hZ), condEntropy_eq_sum_fintype _ _ _ hY,
+  simp_rw [condEntropy_eq_sum_fintype _ _ _ (hY.prodMk hZ), condEntropy_eq_sum_fintype _ _ _ hY,
     Fintype.sum_prod_type_right, Finset.mul_sum, ← mul_assoc, ← ENNReal.toReal_mul]
   congr with y
   congr with x
@@ -544,7 +544,7 @@ lemma condEntropy_comm [Countable T] {Z : Ω → U}
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y⟩ | Z ; μ] = H[⟨Y, X⟩ | Z; μ] := by
   change H[⟨X, Y⟩ | Z ; μ] = H[Prod.swap ∘ ⟨X, Y⟩ | Z; μ]
-  exact (condEntropy_comp_of_injective μ (hX.prod_mk hY) Prod.swap Prod.swap_injective).symm
+  exact (condEntropy_comp_of_injective μ (hX.prodMk hY) Prod.swap Prod.swap_injective).symm
 
 end condEntropy
 
@@ -562,20 +562,20 @@ lemma chain_rule' (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
   · simp
   have : Nonempty T := Nonempty.map Y (μ.nonempty_of_neZero)
   rw [entropy_eq_kernel_entropy, Kernel.chain_rule]
-  simp_rw [← Kernel.map_const _ (hX.prod_mk hY), Kernel.fst_map_prod _ hY, Kernel.map_const _ hX,
-    Kernel.map_const _ (hX.prod_mk hY)]
+  simp_rw [← Kernel.map_const _ (hX.prodMk hY), Kernel.fst_map_prod _ hY, Kernel.map_const _ hX,
+    Kernel.map_const _ (hX.prodMk hY)]
   · congr 1
     · rw [Kernel.entropy, integral_dirac]
       rfl
     · simp_rw [condEntropy_eq_kernel_entropy hY hX]
       have : Measure.dirac () ⊗ₘ Kernel.const Unit (μ.map X) = μ.map (fun ω ↦ ((), X ω)) := by
         ext s _
-        rw [Measure.dirac_unit_compProd_const, Measure.map_map measurable_prod_mk_left hX]
+        rw [Measure.dirac_unit_compProd_const, Measure.map_map measurable_prodMk_left hX]
         congr
       rw [this, Kernel.entropy_congr (condDistrib_const_unit hX hY μ)]
       have : μ.map (fun ω ↦ ((), X ω)) = (μ.map X).map (Prod.mk ()) := by
         ext s _
-        rw [Measure.map_map measurable_prod_mk_left hX]
+        rw [Measure.map_map measurable_prodMk_left hX]
         rfl
       rw [this, Kernel.entropy_prodMkLeft_unit]
   · apply Kernel.FiniteKernelSupport.aefiniteKernelSupport
@@ -634,7 +634,7 @@ lemma cond_chain_rule' (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
   · simp
   have : Nonempty S := Nonempty.map X (μ.nonempty_of_neZero)
   have : Nonempty T := Nonempty.map Y (μ.nonempty_of_neZero)
-  rw [condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ, Kernel.chain_rule]
+  rw [condEntropy_eq_kernel_entropy (hX.prodMk hY) hZ, Kernel.chain_rule]
   · congr 1
     · rw [condEntropy_eq_kernel_entropy hX hZ]
       refine Kernel.entropy_congr ?_
@@ -737,10 +737,10 @@ lemma mutualInfo_nonneg (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω
     0 ≤ I[X : Y ; μ] := by
   simp_rw [mutualInfo_def, entropy_def]
   have h_fst : μ.map X = (μ.map (⟨X, Y⟩)).map Prod.fst := by
-    rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
+    rw [Measure.map_map measurable_fst (hX.prodMk hY)]
     congr
   have h_snd : μ.map Y = (μ.map (⟨X, Y⟩)).map Prod.snd := by
-    rw [Measure.map_map measurable_snd (hX.prod_mk hY)]
+    rw [Measure.map_map measurable_snd (hX.prodMk hY)]
     congr
   rw [h_fst, h_snd]
   exact measureMutualInfo_nonneg
@@ -756,10 +756,10 @@ lemma mutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure �
     I[X : Y ; μ] = 0 ↔ IndepFun X Y μ := by
   simp_rw [mutualInfo_def, entropy_def]
   have h_fst : μ.map X = (μ.map (⟨X, Y⟩)).map Prod.fst := by
-    rw [Measure.map_map measurable_fst (hX.prod_mk hY)]
+    rw [Measure.map_map measurable_fst (hX.prodMk hY)]
     congr
   have h_snd : μ.map Y = (μ.map (⟨X, Y⟩)).map Prod.snd := by
-    rw [Measure.map_map measurable_snd (hX.prod_mk hY)]
+    rw [Measure.map_map measurable_snd (hX.prodMk hY)]
     congr
   rw [h_fst, h_snd]
   convert measureMutualInfo_eq_zero_iff (μ := μ.map (⟨X, Y⟩))
@@ -768,8 +768,8 @@ lemma mutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure �
   congr! with p
   convert measureReal_prod_prod (μ := μ.map X) (ν := μ.map Y) {p.1} {p.2}
   · simp
-  · exact Measure.map_map measurable_fst (hX.prod_mk hY)
-  · exact Measure.map_map measurable_snd (hX.prod_mk hY)
+  · exact Measure.map_map measurable_fst (hX.prodMk hY)
+  · exact Measure.map_map measurable_snd (hX.prodMk hY)
 
 protected alias ⟨_, IndepFun.mutualInfo_eq_zero⟩ := mutualInfo_eq_zero
 
@@ -857,7 +857,7 @@ lemma condMutualInfo_eq_kernel_mutualInfo
     rwa [Measure.map_apply hZ (.singleton _)] at hx
   · by_cases hx : (μ.map Z) {x} = 0
     · simp [hx]
-    rw [condDistrib_apply (hX.prod_mk hY) hZ]
+    rw [condDistrib_apply (hX.prodMk hY) hZ]
     rwa [Measure.map_apply hZ (.singleton _)] at hx
 
 end
@@ -920,7 +920,7 @@ lemma condMutualInfo_eq [Countable U]
     Kernel.entropy_congr (condDistrib_fst_ae_eq hX hY hZ _),
     Kernel.entropy_congr (condDistrib_snd_ae_eq hX hY hZ _),
     condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hZ,
-    condEntropy_eq_kernel_entropy (hX.prod_mk hY) hZ]
+    condEntropy_eq_kernel_entropy (hX.prodMk hY) hZ]
 
 /-- `I[X : Y| Z] = H[X| Z] - H[X|Y, Z]`. -/
 lemma condMutualInfo_eq' [Countable U]
@@ -943,7 +943,7 @@ lemma condMutualInfo_of_inj_map [Countable U] [IsZeroOrProbabilityMeasure μ]
   let g : U → (S × T) → (V × T) := fun z (x, y) ↦ (f z x, y)
   have hg : ∀ t, Function.Injective (g t) :=
     fun _ _ _ h ↦ Prod.ext_iff.2 ⟨hf _ (Prod.ext_iff.1 h).1, (Prod.ext_iff.1 h).2⟩
-  rw [← condEntropy_of_injective μ (hX.prod_mk hY) hZ g hg, ← condEntropy_of_injective μ hX hZ _ hf]
+  rw [← condEntropy_of_injective μ (hX.prodMk hY) hZ g hg, ← condEntropy_of_injective μ hX hZ _ hf]
 
 lemma condMutualInfo_of_inj [Countable U]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
@@ -952,7 +952,7 @@ lemma condMutualInfo_of_inj [Countable U]
     {f : U → V} (hf : Function.Injective f) :
     I[X : Y | f ∘ Z; μ] = I[X : Y | Z; μ] := by
   have hfZ : Measurable (f ∘ Z) := by fun_prop
-  rw [condMutualInfo_eq hX hY hZ, condMutualInfo_eq hX hY hfZ, condEntropy_of_injective' _ hX hZ _ hf hfZ, condEntropy_of_injective' _ hY hZ _ hf hfZ, condEntropy_of_injective' _ (hX.prod_mk hY) hZ _ hf hfZ]
+  rw [condMutualInfo_eq hX hY hZ, condMutualInfo_eq hX hY hfZ, condEntropy_of_injective' _ hX hZ _ hf hfZ, condEntropy_of_injective' _ hY hZ _ hf hfZ, condEntropy_of_injective' _ (hX.prodMk hY) hZ _ hf hfZ]
 
 lemma condEntropy_prod_eq_of_indepFun [Fintype T] [Fintype U] [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X]
@@ -970,7 +970,7 @@ lemma condEntropy_prod_eq_of_indepFun [Fintype T] [Fintype U] [IsZeroOrProbabili
   congr 1
   have : IsProbabilityMeasure (μ[|Z ⁻¹' {w}]) := cond_isProbabilityMeasure hw
   apply IdentDistrib.condEntropy_eq hX hY hX hY
-  exact (h.identDistrib_cond (MeasurableSet.singleton w) (hX.prod_mk hY) hZ hw).symm
+  exact (h.identDistrib_cond (MeasurableSet.singleton w) (hX.prodMk hY) hZ hw).symm
 
 end
 
@@ -1013,7 +1013,7 @@ lemma ent_of_cond_indep (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable
      H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨X, Z⟩; μ] + H[⟨Y, Z⟩; μ] - H[Z; μ] := by
   have hI : I[X : Y | Z ; μ] = 0 := (condMutualInfo_eq_zero hX hY).mpr h
   rw [condMutualInfo_eq hX hY hZ] at hI
-  rw [entropy_assoc hX hY hZ, chain_rule _ (hX.prod_mk hY) hZ, chain_rule _ hX hZ, chain_rule _ hY hZ]
+  rw [entropy_assoc hX hY hZ, chain_rule _ (hX.prodMk hY) hZ, chain_rule _ hX hZ, chain_rule _ hY hZ]
   linarith [hI]
 
 variable [IsZeroOrProbabilityMeasure μ]
@@ -1062,7 +1062,7 @@ lemma condEntropy_comp_ge
 lemma entropy_triple_add_entropy_le (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
     H[⟨X, ⟨Y, Z⟩⟩ ; μ] + H[Z ; μ] ≤ H[⟨X, Z⟩ ; μ] + H[⟨Y, Z⟩ ; μ] := by
-  rw [chain_rule _ hX (hY.prod_mk hZ), chain_rule _ hX hZ, chain_rule _ hY hZ]
+  rw [chain_rule _ hX (hY.prodMk hZ), chain_rule _ hX hZ, chain_rule _ hY hZ]
   ring_nf
   exact add_le_add le_rfl (entropy_submodular _ hX hY hZ)
 

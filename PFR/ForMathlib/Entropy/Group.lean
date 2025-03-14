@@ -24,14 +24,14 @@ lemma entropy_mul_const (hX : Measurable X) (c : G) :
 lemma entropy_mul_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, X * Y⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.mulLeft ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
-  exact entropy_comp_of_injective μ (hX.prod_mk hY) _ $ Equiv.injective _
+  exact entropy_comp_of_injective μ (hX.prodMk hY) _ $ Equiv.injective _
 
 /-- `H[X, Y * X] = H[X, Y]` -/
 @[to_additive "`H[X, Y + X] = H[X, Y]`"]
 lemma entropy_mul_right' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y * X⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.mulRight ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
-  exact entropy_comp_of_injective μ (hX.prod_mk hY) _ $ Equiv.injective _
+  exact entropy_comp_of_injective μ (hX.prodMk hY) _ $ Equiv.injective _
 
 /-- `H[Y * X, Y] = H[X, Y]` -/
 @[to_additive "`H[Y + X, Y] = H[X, Y]`"]
@@ -50,28 +50,28 @@ lemma entropy_mul_left' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω
 lemma entropy_inv_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y⁻¹⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodCongr (Equiv.inv _) ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
-  exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
+  exact entropy_comp_of_injective μ (hX.prodMk hY) _ (Equiv.injective _)
 
 /-- `H[X⁻¹, Y] = H[X, Y]` -/
 @[to_additive "`H[-X, Y] = H[X, Y]`"]
 lemma entropy_inv_left (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X⁻¹, Y⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.inv _).prodCongr (Equiv.refl _) ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
-  exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
+  exact entropy_comp_of_injective μ (hX.prodMk hY) _ (Equiv.injective _)
 
 /-- `H[X, X / Y] = H[X, Y]` -/
 @[to_additive "`H[X, X - Y] = H[X, Y]`"]
 lemma entropy_div_right (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, X / Y⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.divLeft ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
-  exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
+  exact entropy_comp_of_injective μ (hX.prodMk hY) _ (Equiv.injective _)
 
 /-- `H[X, Y / X] = H[X, Y]` -/
 @[to_additive "`H[X, Y - X] = H[X, Y]`"]
 lemma entropy_div_right' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
     H[⟨X, Y / X⟩; μ] = H[⟨X, Y⟩ ; μ] := by
   change H[(Equiv.refl _).prodShear Equiv.divRight ∘ ⟨X, Y⟩ ; μ] = H[⟨X, Y⟩ ; μ]
-  exact entropy_comp_of_injective μ (hX.prod_mk hY) _ (Equiv.injective _)
+  exact entropy_comp_of_injective μ (hX.prodMk hY) _ (Equiv.injective _)
 
 /-- `H[Y / X, Y] = H[X, Y]` -/
 @[to_additive "`H[Y - X, Y] = H[X, Y]`"]
@@ -109,9 +109,9 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div [FiniteRange X] [Fin
   rw [Kernel.entropy_congr (condDistrib_snd_ae_eq hY hX hZ μ).symm,
     Kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm, max_comm]
   refine (Kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _ ?_).trans_eq ?_
-  · exact Kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
+  · exact Kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prodMk hX) hZ
   rw [Kernel.entropy_div_comm]
-  have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 / x.1)
+  have h := condDistrib_comp (hY.prodMk hX) hZ μ (fun x ↦ x.2 / x.1)
   rw [Kernel.entropy_congr h.symm]
   rfl
 
@@ -218,8 +218,8 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T} [Fini
     Kernel.entropy_congr (condDistrib_fst_ae_eq hY hX hZ μ).symm,
     max_comm]
   refine (Kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _ ?_).trans_eq ?_
-  · exact Kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prod_mk hX) hZ
-  have h := condDistrib_comp (hY.prod_mk hX) hZ μ (fun x ↦ x.2 * x.1)
+  · exact Kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prodMk hX) hZ
+  have h := condDistrib_comp (hY.prodMk hX) hZ μ (fun x ↦ x.2 * x.1)
   rw [Kernel.entropy_congr h.symm]
   rfl
 

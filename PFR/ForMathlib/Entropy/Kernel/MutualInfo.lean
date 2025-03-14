@@ -69,10 +69,10 @@ lemma compProd_assoc (ξ : Kernel T S) [IsSFiniteKernel ξ]
   rw [map_apply' _ (by fun_prop) _ hs,
     compProd_apply (MeasurableEquiv.prodAssoc.measurable hs),
     compProd_apply hs, lintegral_compProd]
-  swap; · exact measurable_kernel_prod_mk_left' (MeasurableEquiv.prodAssoc.measurable hs) _
+  swap; · exact measurable_kernel_prodMk_left' (MeasurableEquiv.prodAssoc.measurable hs) _
   congr with a
   rw [compProd_apply]
-  swap; · exact measurable_prod_mk_left hs
+  swap; · exact measurable_prodMk_left hs
   congr
 
 lemma Measure.compProd_compProd (μ : Measure T)
@@ -84,9 +84,9 @@ lemma Measure.compProd_compProd (μ : Measure T)
   rw [Measure.compProd_apply hs, Measure.map_apply MeasurableEquiv.prodAssoc.measurable hs,
     Measure.compProd_apply (MeasurableEquiv.prodAssoc.measurable hs),
     Measure.lintegral_compProd]
-  swap; · exact measurable_kernel_prod_mk_left (MeasurableEquiv.prodAssoc.measurable hs)
+  swap; · exact measurable_kernel_prodMk_left (MeasurableEquiv.prodAssoc.measurable hs)
   congr with a
-  rw [compProd_apply (measurable_prod_mk_left hs)]
+  rw [compProd_apply (measurable_prodMk_left hs)]
   congr
 
 lemma Measure.compProd_compProd' (μ : Measure T)
@@ -217,7 +217,7 @@ lemma entropy_snd_sub_mutualInfo_le_entropy_map_of_injective {V : Type*} [Counta
       symm
       apply entropy_snd_compProd_deterministic_of_injective _ _ (fun t ↦ hfi t.2)
     _ = Hk[condKernel (map κ (fun p ↦ (p.1, f p))),
-      μ ⊗ₘ fst κ] := entropy_congr (condKernel_map_prod_mk_left κ μ f).symm
+      μ ⊗ₘ fst κ] := entropy_congr (condKernel_map_prodMk_left κ μ f).symm
     _ = Hk[condKernel (map κ (fun p ↦ (p.1, f p))),
       μ ⊗ₘ fst (map κ (fun p ↦ (p.1, f p)))] := by
         congr 2 with x

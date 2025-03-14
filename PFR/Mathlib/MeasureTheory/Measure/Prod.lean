@@ -11,8 +11,8 @@ variable {Ω α β γ : Type*} [MeasurableSpace Ω]
 lemma map_prod_comap_swap (hX : Measurable X) (hZ : Measurable Z) (μ : Measure Ω) :
     (μ.map (fun ω ↦ (X ω, Z ω))).comap Prod.swap = μ.map (fun ω ↦ (Z ω, X ω)) := by
   ext s hs
-  rw [Measure.map_apply (hZ.prod_mk hX) hs, Measure.comap_apply _ Prod.swap_injective _ _ hs]
-  · rw [Measure.map_apply (hX.prod_mk hZ)]
+  rw [Measure.map_apply (hZ.prodMk hX) hs, Measure.comap_apply _ Prod.swap_injective _ _ hs]
+  · rw [Measure.map_apply (hX.prodMk hZ)]
     · congr with ω
       simp only [Set.image_swap_eq_preimage_swap, Set.mem_preimage, Prod.swap_prod_mk]
     · exact MeasurableEquiv.prodComm.measurableEmbedding.measurableSet_image' hs

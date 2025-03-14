@@ -1351,13 +1351,13 @@ lemma I_two_aux :
       apply condRuzsaDist_of_copy hX₁' (by fun_prop) hX₁ (by fun_prop) hX₁ (by fun_prop) hX₁'
         (by fun_prop)
       · have : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂'⟩) := by
-          apply h₁.symm.prod_mk (IdentDistrib.refl hX₂'.aemeasurable)
+          apply h₁.symm.prodMk (IdentDistrib.refl hX₂'.aemeasurable)
           · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)
           · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
         exact this.comp (u := fun (a : G × G) ↦ (a.1, a.1 + a.2)) (by fun_prop)
       · rw [add_comm]
         have : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂⟩) := by
-          apply h₁.prod_mk (IdentDistrib.refl hX₂.aemeasurable)
+          apply h₁.prodMk (IdentDistrib.refl hX₂.aemeasurable)
           · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 1 by decide)
           · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 1 by decide)
         exact this.comp (u := fun (a : G × G) ↦ (a.1, a.2 + a.1)) (by fun_prop)
@@ -1598,7 +1598,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
   set T₁' := Y₃ + Y₄
   set T₂' := Y₂ + Y₄
   have I : IndepFun (⟨Y₁, Y₃⟩) (⟨Y₂, Y₄⟩) := by
-    refine (h_indep.indepFun_prod_mk_prod_mk ?_ 0 2 1 3
+    refine (h_indep.indepFun_prodMk_prodMk ?_ 0 2 1 3
       (by decide) (by decide) (by decide) (by decide))
     intro i; fin_cases i <;> assumption
   calc
@@ -1623,7 +1623,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       have I : IndepFun (⟨Y₁, Y₃⟩) (⟨Y₂, Y₄⟩) (ℙ[|(⟨Y₁, Y₃⟩)⁻¹' {p | p.1 + p.2 = w.1}
           ∩ (⟨Y₂, Y₄⟩)⁻¹' {p | p.1 + p.2 = w.2}]) :=
         I.cond (measurable_add (.singleton w.1))
-          (measurable_add (.singleton w.2)) (hY₁.prod_mk hY₃) (hY₂.prod_mk hY₄)
+          (measurable_add (.singleton w.2)) (hY₁.prodMk hY₃) (hY₂.prodMk hY₄)
       rw [E] at I
       exact I.comp measurable_fst measurable_fst
     exact rho_of_sum_le hY₁ hY₂ hA this
@@ -1651,8 +1651,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       have : IsProbabilityMeasure (ℙ[|(Y₁ + Y₃) ⁻¹' {x}]) := cond_isProbabilityMeasure h1
       apply (IndepFun.identDistrib_cond _ (.singleton _) hY₁ (by fun_prop) _).symm
       · have : IndepFun (⟨Y₁, Y₃⟩) (⟨Y₂, Y₄⟩) (ℙ[|(⟨Y₁, Y₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
-          I.cond_left (measurable_add (.singleton x))
-            (hY₁.prod_mk hY₃)
+          I.cond_left (measurable_add (.singleton x)) (hY₁.prodMk hY₃)
         exact this.comp measurable_fst measurable_add
       · rw [cond_apply, J.measure_inter_preimage_eq_mul _ _ (.singleton x) (.singleton y)]
         simp [h1, h2]
@@ -1666,8 +1665,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       have : IsProbabilityMeasure (ℙ[|(Y₂ + Y₄) ⁻¹' {y}]) := cond_isProbabilityMeasure h2
       apply (IndepFun.identDistrib_cond _ (.singleton _) hY₂ (hY₁.add hY₃) _).symm
       · have : IndepFun (⟨Y₂, Y₄⟩) (⟨Y₁, Y₃⟩) (ℙ[|(⟨Y₂, Y₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
-          I.symm.cond_left (measurable_add (.singleton y))
-            (hY₂.prod_mk hY₄)
+          I.symm.cond_left (measurable_add (.singleton y)) (hY₂.prodMk hY₄)
         exact this.comp measurable_fst measurable_add
       · rw [Pi.add_def, cond_apply (hY₂.add hY₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
           J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
@@ -1679,12 +1677,12 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
   _ = (ρ[Y₁ | T₂ # A] + ρ[Y₂ | T₂' # A] + d[Y₁ | T₂ # Y₂ | T₂']) / 2 := by
     congr 3
     · apply condRho_prod_eq_of_indepFun hY₁ (by fun_prop) (by fun_prop)
-      exact I.comp (measurable_fst.prod_mk measurable_add) measurable_add
+      exact I.comp (measurable_fst.prodMk measurable_add) measurable_add
     · have : ρ[Y₂ | ⟨T₂, T₂'⟩ # A] = ρ[Y₂ | ⟨T₂', T₂⟩ # A] :=
         condRho_of_injective Y₂ (⟨T₂', T₂⟩) (f := Prod.swap) Prod.swap_injective
       rw [this]
       apply condRho_prod_eq_of_indepFun hY₂ (by fun_prop) (by fun_prop)
-      exact I.symm.comp (measurable_fst.prod_mk measurable_add) measurable_add
+      exact I.symm.comp (measurable_fst.prodMk measurable_add) measurable_add
   _ ≤ ((ρ[Y₁ # A] + ρ[Y₃ # A] + d[Y₁ # Y₃]) / 2 +
        (ρ[Y₂ # A] + ρ[Y₄ # A] + d[Y₂ # Y₄]) / 2 + d[Y₁ | T₂ # Y₂ | T₂']) / 2 := by
     gcongr

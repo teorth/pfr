@@ -102,7 +102,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       · exact fun ⟨_, _, _⟩ _ h ↦ by simp [f] at h; obtain ⟨_, _, _⟩ := h; simp_all [smul_right_inj]
     _ = H[X ; μ] + 2 * H[Y ; μ'] := by
       have : IndepFun X' (prod Y'₁ Y'₂) μA := Indep.symm <|
-        h_indep.indepFun_prod_mk h_meas 1 2 0 (by decide) (by decide)
+        h_indep.indepFun_prodMk h_meas 1 2 0 (by decide) (by decide)
       rw [this.entropy_pair_eq_add hX'_meas (by exact Measurable.prod hY'₁_meas hY'₂_meas),
         IndepFun.entropy_pair_eq_add hY'₁_meas hY'₂_meas (h_indep.indepFun (show 1 ≠ 2 by decide)),
         hX'_ident.entropy_eq, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, two_mul]
@@ -142,7 +142,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       · exact fun ⟨_, _, _⟩ _ h ↦ by simp [f] at h; obtain ⟨_, _, _⟩ := h; simp_all
     _ = H[X ; μ] + 2 * H[Y ; μ'] := by
       have : IndepFun Y'₁ (prod Y'₂ X') μA := Indep.symm <|
-        h_indep.indepFun_prod_mk h_meas 2 0 1 (by decide) (by decide)
+        h_indep.indepFun_prodMk h_meas 2 0 1 (by decide) (by decide)
       rw [this.entropy_pair_eq_add hY'₁_meas (by exact Measurable.prod hY'₂_meas hX'_meas),
         IndepFun.entropy_pair_eq_add hY'₂_meas hX'_meas (h_indep.indepFun (show 2 ≠ 0 by decide)),
         hX'_ident.entropy_eq, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq]

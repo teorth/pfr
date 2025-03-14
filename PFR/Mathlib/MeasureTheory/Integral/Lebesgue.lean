@@ -24,15 +24,6 @@ lemma lintegral_eq_setLIntegral (hs : μ sᶜ = 0) (f : α → ℝ≥0∞) :
     ∫⁻ x, f x ∂μ = ∫⁻ x in s, f x ∂μ := by
   rw [← setLIntegral_univ, ← setLIntegral_congr]; rwa [ae_eq_univ]
 
-lemma lintegral_piecewise (hs : MeasurableSet s) (f g : α → ℝ≥0∞) [∀ j, Decidable (j ∈ s)] :
-    ∫⁻ a, s.piecewise f g a ∂μ = ∫⁻ a in s, f a ∂μ + ∫⁻ a in sᶜ, g a ∂μ := by
-  rw [← lintegral_add_compl _ hs]
-  congr 1
-  · refine setLIntegral_congr_fun hs ?_
-    exact ae_of_all μ (fun a ha ↦ Set.piecewise_eq_of_mem _ _ _ ha)
-  · refine setLIntegral_congr_fun hs.compl ?_
-    exact ae_of_all μ (fun a ha ↦ Set.piecewise_eq_of_not_mem _ _ _ ha)
-
 variable [MeasurableSingletonClass α]
 
 -- TODO: Change RHS of `lintegral_fintype`

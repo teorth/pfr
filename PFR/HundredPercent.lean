@@ -40,7 +40,7 @@ def symmGroup (X : Ω → G) (hX : Measurable X) : AddSubgroup G where
       simp only [f]
       abel
     · ext ω
-      simp only [Function.comp_apply]
+      simp only [Function.comp_apply, f]
       abel_nf
 
 @[simp] lemma mem_symmGroup (hX : Measurable X) {x : G} :

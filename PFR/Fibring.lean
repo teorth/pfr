@@ -46,14 +46,14 @@ lemma rdist_of_indep_eq_sum_fibre {Z_1 Z_2 : Ω → H} (h : IndepFun Z_1 Z_2 μ)
   have m0 : Measurable (fun x ↦ (x, π x)) := .of_discrete
   have h' : IndepFun (⟨Z_1, π ∘ Z_1⟩) (⟨Z_2, π ∘ Z_2⟩) μ := h.comp m0 m0
   have m1 : Measurable (Z_1 - Z_2) := h1.sub h2
-  have m2 : Measurable (⟨↑π ∘ Z_1, ↑π ∘ Z_2⟩) := (hπ.comp h1).prod_mk (hπ.comp h2)
+  have m2 : Measurable (⟨↑π ∘ Z_1, ↑π ∘ Z_2⟩) := (hπ.comp h1).prodMk (hπ.comp h2)
   have m3 : Measurable (↑π ∘ (Z_1 - Z_2)) := hπ.comp m1
   have entroplem : H[Z_1 - Z_2|⟨⟨↑π ∘ Z_1, ↑π ∘ Z_2⟩, ↑π ∘ (Z_1 - Z_2)⟩; μ]
       = H[Z_1 - Z_2|⟨↑π ∘ Z_1, ↑π ∘ Z_2⟩; μ] := by
     rw [map_comp_sub π]
     let f : H' × H' → (H' × H') × H' := fun (x,y) ↦ ((x,y), x - y)
     have hf : Injective f := fun _ _ h ↦ (Prod.ext_iff.1 h).1
-    have mf : Measurable f := measurable_id.prod_mk measurable_sub
+    have mf : Measurable f := measurable_id.prodMk measurable_sub
     refine condEntropy_of_injective' μ m1 m2 f hf (mf.comp m2)
   rw [step1, condMutualInfo_eq' m1 m2 m3, entroplem,
     condRuzsaDist_of_indep h1 (hπ.comp h1) h2 (hπ.comp h2) μ h']
@@ -98,7 +98,7 @@ lemma sum_of_rdist_eq_step_condRuzsaDist {Y : Fin 4 → Ω → G} (h_indep : iIn
   let f : (G × G) → (G × G) := fun (g, h) ↦ (g, g - h)
   have hf : Measurable f := .of_discrete
   have h_indep' : IndepFun (⟨Y' 0, Y' 2⟩) (⟨Y' 1, Y' 3⟩) μ :=
-    (h_indep.indepFun_prod_mk_prod_mk h_meas 0 2 1 3
+    (h_indep.indepFun_prodMk_prodMk h_meas 0 2 1 3
       (by decide) (by decide) (by decide) (by decide)).comp hf hf
   have h_meas' : ∀ i, Measurable (Y' i)
     | 0 => h_meas 0
@@ -160,11 +160,11 @@ lemma sum_of_rdist_eq (Y : Fin 4 → Ω → G) (h_indep : iIndepFun Y μ)
   let Z_1 : Ω → G × G := ⟨Y 0, Y 2⟩
   let Z_2 : Ω → G × G := ⟨Y 1, Y 3⟩
   have hZ : Z_1 - Z_2 = ⟨Y 0 - Y 1, Y 2 - Y 3⟩ := rfl
-  have m1 : Measurable Z_1 := (h_meas 0).prod_mk (h_meas 2)
-  have m2 : Measurable Z_2 := (h_meas 1).prod_mk (h_meas 3)
+  have m1 : Measurable Z_1 := (h_meas 0).prodMk (h_meas 2)
+  have m2 : Measurable Z_2 := (h_meas 1).prodMk (h_meas 3)
   have h_indep_0 : IndepFun (Y 0) (Y 1) μ := h_indep.indepFun (by decide)
   have h_indep_2 : IndepFun (Y 2) (Y 3) μ := h_indep.indepFun (by decide)
-  have h_indep_Z : IndepFun Z_1 Z_2 μ := h_indep.indepFun_prod_mk_prod_mk h_meas
+  have h_indep_Z : IndepFun Z_1 Z_2 μ := h_indep.indepFun_prodMk_prodMk h_meas
     0 2 1 3 (by decide) (by decide) (by decide) (by decide)
   have h_indep_sub : IndepFun (Y 0 - Y 1) (Y 2 - Y 3) μ :=
     h_indep.indepFun_sub_sub h_meas 0 1 2 3 (by decide) (by decide) (by decide) (by decide)

@@ -166,7 +166,7 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
   congr 2
   have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨X, Y⟩) :=
     ((indepFun_iff_map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable).mp h).symm
-  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prod_mk hY)]
+  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prodMk hY)]
   rfl
 
 /-- `d[X ; Y] ≤ H[X]/2 + H[Y]/2`. -/
@@ -404,16 +404,16 @@ lemma ent_of_diff_le (X : Ω → G) (Y : Ω → G) (Z : Ω → G)
   have h3 : H[⟨Y, X - Y⟩ ; μ] ≤ H[⟨X, Y⟩ ; μ] := by
     have : ⟨Y, X - Y⟩ = (fun p ↦ (p.2, p.1 - p.2)) ∘ ⟨X, Y⟩ := by ext1; simp
     rw [this]
-    exact entropy_comp_le μ (hX.prod_mk hY) _
+    exact entropy_comp_le μ (hX.prodMk hY) _
   have h4 : H[⟨X - Z, ⟨Y, X - Y⟩⟩; μ] = H[⟨X, ⟨Y, Z⟩⟩ ; μ] := by
-    refine entropy_of_comp_eq_of_comp μ ((hX.sub hZ).prod_mk (hY.prod_mk (hX.sub hY)))
-      (hX.prod_mk (hY.prod_mk hZ))
+    refine entropy_of_comp_eq_of_comp μ ((hX.sub hZ).prodMk (hY.prodMk (hX.sub hY)))
+      (hX.prodMk (hY.prodMk hZ))
       (fun p : G × (G × G) ↦ (p.2.2 + p.2.1, p.2.1, -p.1 + p.2.2 + p.2.1))
       (fun p : G × G × G ↦ (p.1 - p.2.2, p.2.1, p.1 - p.2.1)) ?_ ?_
     · ext1; simp
     · ext1; simp
   have h5 : H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨X, Y⟩ ; μ] + H[Z ; μ] := by
-    rw [entropy_assoc hX hY hZ, entropy_pair_eq_add (hX.prod_mk hY) hZ]
+    rw [entropy_assoc hX hY hZ, entropy_pair_eq_add (hX.prodMk hY) hZ]
     exact h
   rw [h4, h5] at h1
   calc H[X - Y; μ] ≤ H[X - Z; μ] + H[Y - Z; μ] - H[Z; μ] := by linarith
@@ -432,7 +432,7 @@ lemma rdist_triangle {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
   suffices d[X' ; μA # Z' ; μA] ≤ d[X' ; μA # Y' ; μA] + d[Y' ; μA # Z' ; μA] by
     rwa [HX.rdist_eq HY, HY.rdist_eq HZ, HX.rdist_eq HZ] at this
   have IndepLem : IndepFun (⟨X', Z'⟩) Y' μA :=
-    iIndepFun.indepFun_prod_mk hInd (fun i => by fin_cases i ; all_goals { simpa }) 0 2 1
+    iIndepFun.indepFun_prodMk hInd (fun i => by fin_cases i ; all_goals { simpa }) 0 2 1
       (by norm_cast) (by norm_cast)
   calc d[X' ; μA # Z' ; μA] = H[X' - Z'; μA] - (H[X'; μA] / 2 + H[Z'; μA] / 2) := by
         rw [ProbabilityTheory.IndepFun.rdist_eq
@@ -644,7 +644,7 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
       = ∑ w ∈ FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
   have : d[X ; μ # Y | ⟨W', W⟩; μ'] = ∑ w ∈ ((FiniteRange.toFinset W') ×ˢ FiniteRange.toFinset W),
     (μ' ((fun a => (W' a, W a)) ⁻¹' {w})).toReal * d[X ; μ # Y ; μ'[|(fun a => (W' a, W a)) ⁻¹' {w}]] := by
-    rw [condRuzsaDist'_eq_sum hY (hW'.prod_mk hW)]
+    rw [condRuzsaDist'_eq_sum hY (hW'.prodMk hW)]
     apply Finset.sum_subset
     · intro (t, t')
       simp only [FiniteRange.mem_iff, Prod.mk.injEq, Finset.mem_product, forall_exists_index,
@@ -734,7 +734,7 @@ lemma condRuzsaDist_of_indep
     d[X | Z ; μ # Y | W ; μ] = H[X - Y | ⟨Z, W⟩ ; μ] - H[X | Z ; μ]/2 - H[Y | W ; μ]/2 := by
   have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (μ.map W) := isProbabilityMeasure_map hW.aemeasurable
-  rw [condRuzsaDist_def, Kernel.rdist_eq', condEntropy_eq_kernel_entropy _ (hZ.prod_mk hW),
+  rw [condRuzsaDist_def, Kernel.rdist_eq', condEntropy_eq_kernel_entropy _ (hZ.prodMk hW),
     condEntropy_eq_kernel_entropy hX hZ, condEntropy_eq_kernel_entropy hY hW]
   swap; · exact hX.sub hY
   congr 2
@@ -745,7 +745,7 @@ lemma condRuzsaDist_of_indep
   refine Kernel.entropy_congr ?_
   have : Kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2)
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
-    (condDistrib_comp (hX.prod_mk hY) (hZ.prod_mk hW) _ _).symm
+    (condDistrib_comp (hX.prodMk hY) (hZ.prodMk hW) _ _).symm
   refine (this.symm.trans ?_).symm
   suffices Kernel.prodMkRight T (condDistrib X Z μ)
         ×ₖ Kernel.prodMkLeft S (condDistrib Y W μ)
@@ -774,12 +774,12 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     have : ⟨X, Z⟩ ⁻¹' s = X ⁻¹' ((fun c ↦ (c, ())) ⁻¹' s) := by ext1 y; simp
     rw [this]
     rw [indepFun_iff_measure_inter_preimage_eq_mul] at h
-    exact h _ _ (measurable_prod_mk_right hs) ht
+    exact h _ _ (measurable_prodMk_right hs) ht
   have h_indep := condDistrib_eq_prod_of_indepFun hX measurable_const hY hW _ h'
   have h_meas_eq : μ.map (⟨Z, W⟩) = (Measure.dirac ()).prod (μ.map W) := by
     ext s hs
-    rw [Measure.map_apply (measurable_const.prod_mk hW) hs, Measure.prod_apply hs, lintegral_dirac,
-      Measure.map_apply hW (measurable_prod_mk_left hs)]
+    rw [Measure.map_apply (measurable_const.prodMk hW) hs, Measure.prod_apply hs, lintegral_dirac,
+      Measure.map_apply hW (measurable_prodMk_left hs)]
     congr
   rw [← h_meas_eq]
   have : Kernel.map (Kernel.prodMkRight T (condDistrib X Z μ)
@@ -792,23 +792,23 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
   rw [Kernel.entropy_congr this]
   have : Kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2)
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
-    (condDistrib_comp (hX.prod_mk hY) (measurable_const.prod_mk hW) _ _).symm
+    (condDistrib_comp (hX.prodMk hY) (measurable_const.prodMk hW) _ _).symm
   rw [Kernel.entropy_congr this]
   have h_meas : μ.map (⟨Z, W⟩) = (μ.map W).map (Prod.mk ()) := by
     ext s hs
-    rw [Measure.map_apply measurable_prod_mk_left hs, h_meas_eq, Measure.prod_apply hs,
+    rw [Measure.map_apply measurable_prodMk_left hs, h_meas_eq, Measure.prod_apply hs,
       lintegral_dirac]
   have h_ker : condDistrib (X - Y) (⟨Z, W⟩) μ
       =ᵐ[μ.map (⟨Z, W⟩)] Kernel.prodMkLeft Unit (condDistrib (X - Y) W μ) := by
     rw [Filter.EventuallyEq, ae_iff_of_countable]
     intro x hx
-    rw [Measure.map_apply (measurable_const.prod_mk hW) (.singleton _)] at hx
+    rw [Measure.map_apply (measurable_const.prodMk hW) (.singleton _)] at hx
     ext s hs
     have h_preimage_eq : (fun a ↦ (PUnit.unit, W a)) ⁻¹' {x} = W ⁻¹' {x.2} := by
       conv_lhs => rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod]
       ext1 y
       simp
-    rw [Kernel.prodMkLeft_apply, condDistrib_apply' _ (measurable_const.prod_mk hW) _ _ hx hs,
+    rw [Kernel.prodMkLeft_apply, condDistrib_apply' _ (measurable_const.prodMk hW) _ _ hx hs,
       condDistrib_apply' _ hW _ _ _ hs]
     rotate_left
     · exact hX.sub hY
@@ -880,8 +880,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
     swap; · rwa [hZZ'x] at hz
     congr
     have : μ.map (⟨X, Z⟩) (s ×ˢ {x.1}) = μ''.map (⟨X', Z'⟩) (s ×ˢ {x.1}) := by rw [h1.map_eq]
-    rwa [Measure.map_apply (hX.prod_mk hZ) (hs.prod (.singleton _)),
-      Measure.map_apply (hX'.prod_mk hZ') (hs.prod (.singleton _)),
+    rwa [Measure.map_apply (hX.prodMk hZ) (hs.prod (.singleton _)),
+      Measure.map_apply (hX'.prodMk hZ') (hs.prod (.singleton _)),
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ X' a) ⁻¹' s)] at this
   · have hWW'x : μ' (W ⁻¹' {x.2}) = μ''' (W' ⁻¹' {x.2}) := by
@@ -893,8 +893,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
     swap; · rwa [hWW'x] at hw
     congr
     have : μ'.map (⟨Y, W⟩) (s ×ˢ {x.2}) = μ'''.map (⟨Y', W'⟩) (s ×ˢ {x.2}) := by rw [h2.map_eq]
-    rwa [Measure.map_apply (hY.prod_mk hW) (hs.prod (.singleton _)),
-      Measure.map_apply (hY'.prod_mk hW') (hs.prod (.singleton _)),
+    rwa [Measure.map_apply (hY.prodMk hW) (hs.prod (.singleton _)),
+      Measure.map_apply (hY'.prodMk hW') (hs.prod (.singleton _)),
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
@@ -947,8 +947,8 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     swap; · rwa [hWW'x] at hw
     congr
     have : μ'.map (⟨Y, W⟩) (s ×ˢ {x.2}) = μ'''.map (⟨Y', W'⟩) (s ×ˢ {x.2}) := by rw [h2.map_eq]
-    rwa [Measure.map_apply (hY.prod_mk hW) (hs.prod (.singleton _)),
-      Measure.map_apply (hY'.prod_mk hW') (hs.prod (.singleton _)),
+    rwa [Measure.map_apply (hY.prodMk hW) (hs.prod (.singleton _)),
+      Measure.map_apply (hY'.prodMk hW') (hs.prod (.singleton _)),
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
@@ -966,7 +966,7 @@ lemma condRuszaDist_prod_eq_of_indepFun {μ : Measure Ω} {μ' : Measure Ω'} {X
   · simp [hw]
   congr 1
   exact condRuzsaDist'_of_copy _ hY hW _ hY hW (IdentDistrib.refl hX.aemeasurable)
-    (h.identDistrib_cond (MeasurableSet.singleton w) (hY.prod_mk hW) hW' hw).symm
+    (h.identDistrib_cond (MeasurableSet.singleton w) (hY.prodMk hW) hW' hw).symm
 
 variable (μ μ') in
 lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T] [Fintype T'] [MeasurableSpace T']
@@ -996,7 +996,7 @@ lemma condRuzsaDist_of_inj_map {G' : Type*} [Countable G'] [AddCommGroup G']
   let f'' : G × G → G' × G := fun (g, h) ↦ (π (g, h), h)
   have hf'' : Measurable f'' := .of_discrete
   have hm1 : Measurable (Y 0 - Y 1) := (h_meas 0).sub (h_meas 1)
-  have hm2 : Measurable (⟨Y 2, Y 3⟩) := (h_meas 2).prod_mk (h_meas 3)
+  have hm2 : Measurable (⟨Y 2, Y 3⟩) := (h_meas 2).prodMk (h_meas 3)
   rw [condRuzsaDist_of_indep (h_meas 0) (h_meas 2) (h_meas 1) (h_meas 3) μ h_indep,
     condRuzsaDist_of_indep (by fun_prop) (by fun_prop) (by fun_prop) (by fun_prop) μ
     (by exact h_indep.comp hf'' hf''),
@@ -1042,8 +1042,8 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [Module (ZMod 2) G]
         congr
       rw [h1, h2]
       refine h_indep.comp ?_ ?_
-      · exact measurable_neg.prod_mk measurable_const
-      · exact measurable_snd.prod_mk (measurable_fst.add measurable_snd)
+      · exact measurable_neg.prodMk measurable_const
+      · exact measurable_snd.prodMk (measurable_fst.add measurable_snd)
   _ = d[-X ; μ # C | B + C ; μ] := by rw [condRuzsaDist_of_const]; exact hX.neg
   _ = d[X ; μ # C | B + C ; μ] := by simp_rw [ZModModule.neg_eq_self]
 
@@ -1071,12 +1071,12 @@ lemma condRuzsaDist'_of_inj_map' [Module (ZMod 2) G] [IsProbabilityMeasure μ]
       · rw [← Measure.map_map hA measurable_fst]
         simp [μ']
     · constructor
-      · exact (hB.prod_mk (hB.add hC)).aemeasurable
-      · exact (hB'.prod_mk (hB'.add hC')).aemeasurable
+      · exact (hB.prodMk (hB.add hC)).aemeasurable
+      · exact (hB'.prodMk (hB'.add hC')).aemeasurable
       · have : ⟨B', B' + C'⟩ = (⟨B, B + C⟩) ∘ Prod.snd := by ext1 _; simp [C', B']
         rw [this, ← Measure.map_map _ measurable_snd]
         · simp only [Measure.map_snd_prod, measure_univ, one_smul, μ']
-        · exact hB.prod_mk (hB.add hC)
+        · exact hB.prodMk (hB.add hC)
   have h2 : d[A ; μ'' # C | B + C ; μ] = d[X₂' ; μ' # C' | B' + C' ; μ'] := by
     apply condRuzsaDist'_of_copy _ hC (by fun_prop) X₂' hC' (by fun_prop) ?_ ?_
     · constructor
@@ -1085,14 +1085,14 @@ lemma condRuzsaDist'_of_inj_map' [Module (ZMod 2) G] [IsProbabilityMeasure μ]
       · rw [← Measure.map_map hA measurable_fst]
         simp [μ']
     · constructor
-      · exact (hC.prod_mk (hB.add hC)).aemeasurable
-      · exact (hC'.prod_mk (hB'.add hC')).aemeasurable
+      · exact (hC.prodMk (hB.add hC)).aemeasurable
+      · exact (hC'.prodMk (hB'.add hC')).aemeasurable
       · have : ⟨C', B' + C'⟩ = (⟨C, B + C⟩) ∘ Prod.snd := by ext1 _; simp [B', C']
         rw [this, ← Measure.map_map _ measurable_snd]
         · simp only [Measure.map_snd_prod, measure_univ, one_smul, μ']
-        · exact hC.prod_mk (hB.add hC)
+        · exact hC.prodMk (hB.add hC)
   rw [h1, h2, condRuzsaDist'_of_inj_map hX₂' hB' hC']
-  rw [indepFun_iff_map_prod_eq_prod_map_map hX₂'.aemeasurable (hB'.prod_mk hC').aemeasurable]
+  rw [indepFun_iff_map_prod_eq_prod_map_map hX₂'.aemeasurable (hB'.prodMk hC').aemeasurable]
   have h_prod : (fun ω ↦ (X₂' ω, prod B' C' ω)) = Prod.map A (⟨B, C⟩) := by
     ext1
     simp only [comp_apply, X₂', B', C']
@@ -1103,9 +1103,9 @@ lemma condRuzsaDist'_of_inj_map' [Module (ZMod 2) G] [IsProbabilityMeasure μ]
     ← Measure.map_map _ measurable_fst, Measure.map_prod_map]
   rotate_left
   · exact hA
-  · exact hB.prod_mk hC
+  · exact hB.prodMk hC
   · exact hA
-  · exact hB.prod_mk hC
+  · exact hB.prodMk hC
   simp [μ']
 
 /-- The **Kaimanovich-Vershik inequality**. `H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y]`. -/
@@ -1124,8 +1124,8 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun ![X, Y, Z] μ)
         rw [IndepFun.entropy_pair_eq_add hX hY]
         convert h.indepFun (show 0 ≠ 1 by decide)
       _ = H[⟨⟨X, Y⟩, Z⟩ ; μ] := by
-        rw [IndepFun.entropy_pair_eq_add (hX.prod_mk hY) hZ]
-        exact h.indepFun_prod_mk this 0 1 2 (by decide) (by decide)
+        rw [IndepFun.entropy_pair_eq_add (hX.prodMk hY) hZ]
+        exact h.indepFun_prodMk this 0 1 2 (by decide) (by decide)
       _ = H[⟨X, ⟨Z , X + (Y + Z)⟩⟩ ; μ] := by
         apply entropy_of_comp_eq_of_comp μ (by fun_prop) (by fun_prop)
           (fun ((x, y), z) ↦ (x, z, x + y + z)) (fun (a, b, c) ↦ ((a, c - a - b), b))
@@ -1169,7 +1169,7 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
   let Z := A + B
   have hZ : Measurable Z := hA.add hB
   obtain ⟨Ω', _, AB₁, AB₂, Z', ν, _, hAB₁, hAB₂, hZ', hABZ, hABZ₁, hABZ₂, hZ₁, hZ₂⟩ :=
-    condIndep_copies' (⟨A, B⟩) Z (hA.prod_mk hB) hZ μ (fun (a, b) c ↦ c = a + b)
+    condIndep_copies' (⟨A, B⟩) Z (hA.prodMk hB) hZ μ (fun (a, b) c ↦ c = a + b)
     .of_discrete (Eventually.of_forall fun _ ↦ rfl)
   let A₁ := fun ω ↦ (AB₁ ω).1
   let B₁ := fun ω ↦ (AB₁ ω).2
@@ -1186,7 +1186,7 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
     calc
       H[⟨A₁, ⟨B₁, A₁ - B₂⟩⟩ ; ν]
         = H[⟨⟨A₁, B₁⟩, ⟨⟨A₂, B₂⟩, Z'⟩⟩ ; ν] := entropy_of_comp_eq_of_comp _
-          (hA₁.prod_mk $ hB₁.prod_mk $ hA₁.sub hB₂) (hAB₁.prod_mk $ hAB₂.prod_mk hZ')
+          (hA₁.prodMk $ hB₁.prodMk $ hA₁.sub hB₂) (hAB₁.prodMk $ hAB₂.prodMk hZ')
             (fun (a, b, c) ↦ ((a, b), (b + c, a - c), a + b))
             (fun ((a, b), (_c, d), _e) ↦ (a, b, a - d))
           (by funext; simpa [sub_add_eq_add_sub, Prod.ext_iff, ← hZ₁, hZ₂, two_nsmul, ← add_sub_assoc,
@@ -1200,7 +1200,7 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
         exact hZZ'.entropy_eq
       _ = 2 * H[⟨A, B⟩ ; μ] - H[Z ; μ] := by
         congr 2
-        exact entropy_prod_comp (hA.prod_mk hB) _ fun x ↦ x.1 + x.2
+        exact entropy_prod_comp (hA.prodMk hB) _ fun x ↦ x.1 + x.2
   have :=
     calc
       H[⟨A₁, A₁ - B₂⟩ ; ν]
@@ -1260,10 +1260,10 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
         rw [hZZ'.map_eq]
         refine integral_congr_ae $ Eventually.of_forall fun z ↦ ?_
         have hAA₁ : IdentDistrib A₁ A (ν[|Z' ← z]) (μ[|Z ← z]) :=
-          (hABZ₁.comp $ measurable_fst.fst.prod_mk measurable_snd).cond
+          (hABZ₁.comp $ measurable_fst.fst.prodMk measurable_snd).cond
             (.singleton z) hZ' hZ
         have hBB₂ : IdentDistrib B₂ B (ν[|Z' ← z]) (μ[|Z ← z]) :=
-          (hABZ₂.comp $ measurable_fst.snd.prod_mk measurable_snd).cond
+          (hABZ₂.comp $ measurable_fst.snd.prodMk measurable_snd).cond
             .of_discrete hZ' hZ
         dsimp (config := {zeta := false}) [rdist]
         rw [← hAA₁.entropy_eq, ← hBB₂.entropy_eq, hAA₁.map_eq, hBB₂.map_eq]
@@ -1291,8 +1291,8 @@ lemma condRuzsaDist_le [Countable T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → 
     (hX : Measurable X) (hZ : Measurable Z) (hY : Measurable Y) (hW : Measurable W)
     [FiniteRange X] [FiniteRange Z] [FiniteRange Y] [FiniteRange W] :
       d[X | Z ; μ # Y|W ; μ'] ≤ d[X ; μ # Y ; μ'] + I[X : Z ; μ]/2 + I[Y : W ; μ']/2 := by
-  have hXZ : Measurable (⟨X, Z⟩ : Ω → G × S):= hX.prod_mk hZ
-  have hYW : Measurable (⟨Y, W⟩ : Ω' → G × T):= hY.prod_mk hW
+  have hXZ : Measurable (⟨X, Z⟩ : Ω → G × S):= hX.prodMk hZ
+  have hYW : Measurable (⟨Y, W⟩ : Ω' → G × T):= hY.prodMk hW
   obtain ⟨ν, XZ', YW', _, hXZ', hYW', hind, hIdXZ, hIdYW, _, _⟩ :=
     independent_copies_finiteRange hXZ hYW μ μ'
   let X' := Prod.fst ∘ XZ'
@@ -1317,7 +1317,7 @@ lemma condRuzsaDist_le [Countable T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → 
   rw [hIdX.rdist_eq hIdY, hIdXZ.symm.mutualInfo_eq, hIdYW.symm.mutualInfo_eq,
     hind'.rdist_eq hX' hY', mutualInfo_eq_entropy_sub_condEntropy hX' hZ',
     mutualInfo_eq_entropy_sub_condEntropy hY' hW']
-  have h := condEntropy_le_entropy ν (X := X' - Y') (hX'.sub hY') (hZ'.prod_mk hW')
+  have h := condEntropy_le_entropy ν (X := X' - Y') (hX'.sub hY') (hZ'.prodMk hW')
   linarith [h, entropy_nonneg Z' ν, entropy_nonneg W' ν]
 
 variable (μ μ') in
