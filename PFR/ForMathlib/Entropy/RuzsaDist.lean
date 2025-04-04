@@ -110,7 +110,7 @@ lemma continuous_rdist_restrict_probabilityMeasure₁ [Fintype G]
     refine ⟨by simp [Measure.map_apply X_mble MeasurableSet.univ]⟩
   let ι : ProbabilityMeasure G → ProbabilityMeasure G × ProbabilityMeasure G :=
       fun ν ↦ ⟨⟨P.map X, obs⟩, ν⟩
-  have ι_cont : Continuous ι := Continuous.Prod.mk _
+  have ι_cont : Continuous ι := Continuous.prodMk_right _
   convert continuous_rdist_restrict_probabilityMeasure.comp ι_cont
 
 /-- Ruzsa distance between random variables equals Ruzsa distance between their distributions.-/
@@ -127,10 +127,20 @@ lemma continuous_rdist_restrict_probabilityMeasure₁' [Fintype G]
   exact continuous_rdist_restrict_probabilityMeasure₁ _ _ X_mble
 
 /-- If `X', Y'` are copies of `X, Y` respectively then `d[X' ; Y'] = d[X ; Y]`. -/
-lemma ProbabilityTheory.IdentDistrib.rdist_eq {X' : Ω'' → G} {Y' : Ω''' → G}
+lemma ProbabilityTheory.IdentDistrib.rdist_congr {X' : Ω'' → G} {Y' : Ω''' → G}
     (hX : IdentDistrib X X' μ μ'') (hY : IdentDistrib Y Y' μ' μ''') :
     d[X ; μ # Y ; μ'] = d[X' ; μ'' # Y' ; μ'''] := by
-  simp [rdist, hX.map_eq, hY.map_eq, hX.entropy_eq, hY.entropy_eq]
+  simp [rdist, hX.map_eq, hY.map_eq, hX.entropy_congr, hY.entropy_congr]
+
+/-- If `X', Y'` are copies of `X, Y` respectively then `d[X' ; Y'] = d[X ; Y]`. -/
+lemma ProbabilityTheory.IdentDistrib.rdist_congr_left {X' : Ω'' → G}
+    (hY : AEMeasurable Y μ') (hX : IdentDistrib X X' μ μ'') :
+    d[X ; μ # Y ; μ'] = d[X' ; μ'' # Y ; μ'] := hX.rdist_congr <| .refl hY
+
+/-- If `X', Y'` are copies of `X, Y` respectively then `d[X' ; Y'] = d[X ; Y]`. -/
+lemma ProbabilityTheory.IdentDistrib.rdist_congr_right {Y' : Ω''' → G}
+    (hX : AEMeasurable X μ) (hY : IdentDistrib Y Y' μ' μ''') :
+    d[X ; μ # Y ; μ'] = d[X ; μ # Y' ; μ'''] := (IdentDistrib.refl hX).rdist_congr hY
 
 lemma tendsto_rdist_probabilityMeasure {α : Type*} {l : Filter α}
     [TopologicalSpace Ω] [BorelSpace Ω] [TopologicalSpace G] [BorelSpace G] [Fintype G]
@@ -141,7 +151,7 @@ lemma tendsto_rdist_probabilityMeasure {α : Type*} {l : Filter α}
       (𝓝 (d[X ; ν # Y ; ν])) := by
   have J (η : ProbabilityMeasure Ω) :
       d[X ; η # Y ; η] = d[(id : G → G) ; η.map hX.aemeasurable # id ; η.map hY.aemeasurable] := by
-    apply ProbabilityTheory.IdentDistrib.rdist_eq
+    apply ProbabilityTheory.IdentDistrib.rdist_congr
     · exact ⟨hX.aemeasurable, aemeasurable_id, by simp⟩
     · exact ⟨hY.aemeasurable, aemeasurable_id, by simp⟩
   simp_rw [J]
@@ -149,7 +159,7 @@ lemma tendsto_rdist_probabilityMeasure {α : Type*} {l : Filter α}
     ((ν.map hX.aemeasurable), (ν.map hY.aemeasurable)))
   have T : Tendsto (fun n ↦ (((μ n).map hX.aemeasurable), ((μ n).map hY.aemeasurable)))
       l (𝓝 (((ν.map hX.aemeasurable), (ν.map hY.aemeasurable)))) := by
-    apply Tendsto.prod_mk_nhds
+    apply Tendsto.prodMk_nhds
     · exact ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous μ ν hμ hX
     · exact ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous μ ν hμ hY
   apply Z.comp T
@@ -176,9 +186,9 @@ lemma rdist_le_avg_ent {X : Ω → G} {Y : Ω' → G} [FiniteRange X] [FiniteRan
     d[X ; μ # Y ; μ'] ≤ (H[X ; μ] + H[Y ; μ'])/2 := by
   rcases ProbabilityTheory.independent_copies_finiteRange hX hY μ μ'
     with ⟨ν, X', Y', hprob, hX', hY', h_indep, hidentX, hidentY, hfinX, hfinY⟩
-  rw [← ProbabilityTheory.IdentDistrib.rdist_eq hidentX hidentY,
-    ← IdentDistrib.entropy_eq hidentX, ← IdentDistrib.entropy_eq hidentY,
-    ProbabilityTheory.IndepFun.rdist_eq h_indep hX' hY']
+  rw [← hidentX.rdist_congr hidentY,
+    ← hidentX.entropy_congr, ← IdentDistrib.entropy_congr hidentY,
+    h_indep.rdist_eq hX' hY']
   suffices H[X' - Y'; ν] ≤ H[X'; ν] + H[Y'; ν] by linarith
   change H[(fun x ↦ x.1 - x.2) ∘ ⟨X',Y' ⟩; ν] ≤ H[X'; ν] + H[Y'; ν]
   exact ((entropy_comp_le ν (by fun_prop) _).trans) (entropy_pair_le_add hX' hY' ν)
@@ -191,7 +201,7 @@ lemma rdist_of_inj {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClas
     rw [rdist_def, rdist_def]
     congr 2
     · rw [← entropy_comp_of_injective _ (by fun_prop) _ hφ]
-      apply IdentDistrib.entropy_eq
+      apply IdentDistrib.entropy_congr
       constructor
       · exact Measurable.aemeasurable .of_discrete
       · exact Measurable.aemeasurable .of_discrete
@@ -245,7 +255,8 @@ lemma diff_ent_le_rdist [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y) :
     |H[X ; μ] - H[Y ; μ']| ≤ 2 * d[X ; μ # Y ; μ'] := by
   obtain ⟨ν, X', Y', _, hX', hY', hind, hIdX, hIdY, _, _⟩ := independent_copies_finiteRange hX hY μ μ'
-  rw [← hIdX.rdist_eq hIdY, hind.rdist_eq hX' hY', ← hIdX.entropy_eq, ← hIdY.entropy_eq, abs_le]
+  rw [← hIdX.rdist_congr hIdY, hind.rdist_eq hX' hY', ← hIdX.entropy_congr, ← hIdY.entropy_congr,
+    abs_le]
   have := max_entropy_le_entropy_sub hX' hY' hind
   constructor
   · linarith[le_max_right H[X'; ν] H[Y'; ν]]
@@ -282,7 +293,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
     independent_copies_finiteRange hX hU μ μ'
   replace hunif : IsUniform H UH' ν :=
     IsUniform.of_identDistrib hunif h_id_UH'.symm .of_discrete
-  rewrite [← (h_id_X'.comp (by fun_prop)).entropy_eq, ← h_id_X'.rdist_eq h_id_UH']
+  rewrite [← (h_id_X'.comp (by fun_prop)).entropy_congr, ← h_id_X'.rdist_congr h_id_UH']
   let π := ⇑(QuotientAddGroup.mk' H)
   let νq := Measure.map (π ∘ X') ν
   have : Countable (HasQuotient.Quotient G H) := Quotient.countable
@@ -344,7 +355,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
   have : H[X' - UH' ; ν] = H[π ∘ X' ; ν] + H[UH' ; ν] := by calc
     _ = H[⟨X' - UH', π ∘ (X' - UH')⟩ ; ν] := (entropy_prod_comp (hX'.sub hUH') ν π).symm
     _ = H[⟨X' - UH', π ∘ X'⟩ ; ν] := by
-      apply IdentDistrib.entropy_eq <| IdentDistrib.of_ae_eq (Measurable.aemeasurable
+      apply IdentDistrib.entropy_congr <| IdentDistrib.of_ae_eq (Measurable.aemeasurable
         .of_discrete) <| MeasureTheory.mem_ae_iff.mpr _
       convert hunif.measure_preimage_compl
       ext; simp [π]
@@ -373,7 +384,7 @@ lemma rdist_add_const [IsZeroOrProbabilityMeasure μ] [IsZeroOrProbabilityMeasur
     apply hind.comp measurable_id (measurable_add_const c)
   have C : X' - (Y' + fun _ ↦ c) = (X' - Y') + (fun _ ↦ -c) := by
     ext ω; simp; abel
-  rw [← hIdX.rdist_eq hIdY, ← hIdX.rdist_eq A, hind.rdist_eq hX' hY',
+  rw [← hIdX.rdist_congr hIdY, ← hIdX.rdist_congr A, hind.rdist_eq hX' hY',
     B.rdist_eq hX' (hY'.add_const _), entropy_add_const hY' c, C, entropy_add_const]
   exact hX'.sub hY'
 
@@ -430,7 +441,7 @@ lemma rdist_triangle {X : Ω → G} {Y : Ω' → G} {Z : Ω'' → G}
   obtain ⟨A, mA, μA, X', Y', Z', hμA, hInd, hX', hY', hZ', HX, HY, HZ, _, _, _⟩ :=
     independent_copies3_nondep_finiteRange hX hY hZ μ μ' μ''
   suffices d[X' ; μA # Z' ; μA] ≤ d[X' ; μA # Y' ; μA] + d[Y' ; μA # Z' ; μA] by
-    rwa [HX.rdist_eq HY, HY.rdist_eq HZ, HX.rdist_eq HZ] at this
+    rwa [HX.rdist_congr HY, HY.rdist_congr HZ, HX.rdist_congr HZ] at this
   have IndepLem : IndepFun (⟨X', Z'⟩) Y' μA :=
     iIndepFun.indepFun_prodMk hInd (fun i => by fin_cases i ; all_goals { simpa }) 0 2 1
       (by norm_cast) (by norm_cast)
@@ -669,7 +680,7 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
     · have : μ' (W' ⁻¹' {w'} ∩ W ⁻¹' {w}) = 0 :=
         le_antisymm (le_trans (measure_mono Set.inter_subset_right) hw.le) bot_le
       simp [hw, this]
-    · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.one_toReal, one_mul]
+    · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.toReal_one, one_mul]
       exacts [hw.ne', by finiteness]
   · congr 1
     rw [A, cond_cond_eq_cond_inter' (hW (.singleton _)) (hW' (.singleton _)), Set.inter_comm]
@@ -1196,8 +1207,8 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
       _ = 2 * H[⟨⟨A, B⟩, Z⟩ ; μ] - H[Z ; μ] := by
         rw [two_mul]
         congr 1
-        congr 1 <;> exact IdentDistrib.entropy_eq ‹_›
-        exact hZZ'.entropy_eq
+        congr 1 <;> exact IdentDistrib.entropy_congr ‹_›
+        exact hZZ'.entropy_congr
       _ = 2 * H[⟨A, B⟩ ; μ] - H[Z ; μ] := by
         congr 2
         exact entropy_prod_comp (hA.prodMk hB) _ fun x ↦ x.1 + x.2
@@ -1208,8 +1219,8 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
       _ ≤ H[A₁ ; ν] + H[B₂ ; ν] := entropy_pair_le_add hA₁ hB₂ _
       _ = H[A ; μ] + H[B ; μ] := by
         congr 1
-        exact (hABZ₁.comp measurable_fst.fst).entropy_eq
-        exact (hABZ₂.comp measurable_fst.snd).entropy_eq
+        exact (hABZ₁.comp measurable_fst.fst).entropy_congr
+        exact (hABZ₂.comp measurable_fst.snd).entropy_congr
   have :=
     calc
       H[⟨B₁, A₁ - B₂⟩ ; ν]
@@ -1219,8 +1230,8 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
       _ ≤ H[A₂ ; ν] + H[B₁ ; ν] := entropy_pair_le_add hA₂ hB₁ _
       _ = H[A ; μ] + H[B ; μ] := by
         congr 1
-        exact (hABZ₂.comp measurable_fst.fst).entropy_eq
-        exact (hABZ₁.comp measurable_fst.snd).entropy_eq
+        exact (hABZ₂.comp measurable_fst.fst).entropy_congr
+        exact (hABZ₁.comp measurable_fst.snd).entropy_congr
   have :=
     calc
      _ ≤ _ := entropy_triple_add_entropy_le ν hA₁ hB₁ (show Measurable (A₁ - B₂) from hA₁.sub hB₂)
@@ -1239,8 +1250,8 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
         rw [chain_rule'', hZ₁, entropy_add_right, entropy_comm] <;> assumption
       _ = H[⟨A, B⟩ ; μ] - H[Z ; μ] := by
         congr 1
-        exact (hABZ₁.comp measurable_fst).entropy_eq
-        exact hZZ'.entropy_eq
+        exact (hABZ₁.comp measurable_fst).entropy_congr
+        exact hZZ'.entropy_congr
       _ = H[A ; μ] + H[B ; μ] - I[A : B ; μ] - H[Z ; μ] := by
         rw [← entropy_add_entropy_sub_mutualInfo]
   have hB₂Z :=
@@ -1250,8 +1261,8 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
         rw [chain_rule'', hZ₂, entropy_add_right', entropy_comm] <;> assumption
       _ = H[⟨A, B⟩ ; μ] - H[Z ; μ] := by
         congr 1
-        exact (hABZ₂.comp measurable_fst).entropy_eq
-        exact hZZ'.entropy_eq
+        exact (hABZ₂.comp measurable_fst).entropy_congr
+        exact hZZ'.entropy_congr
       _ = H[A ; μ] + H[B ; μ] - I[A : B ; μ] - H[Z ; μ] := by
         rw [← entropy_add_entropy_sub_mutualInfo]
   calc
@@ -1266,7 +1277,7 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
           (hABZ₂.comp $ measurable_fst.snd.prodMk measurable_snd).cond
             .of_discrete hZ' hZ
         dsimp (config := {zeta := false}) [rdist]
-        rw [← hAA₁.entropy_eq, ← hBB₂.entropy_eq, hAA₁.map_eq, hBB₂.map_eq]
+        rw [← hAA₁.entropy_congr, ← hBB₂.entropy_congr, hAA₁.map_eq, hBB₂.map_eq]
     _ = (ν.map Z')[fun z ↦
           H[A₁ - B₂ ; ν[|Z' ← z]] - H[A₁ ; ν[|Z' ← z]]/2 - H[B₂ ; ν[|Z' ← z]]/2] := by
         apply integral_congr_ae
@@ -1314,7 +1325,7 @@ lemma condRuzsaDist_le [Countable T] {X : Ω → G} {Z : Ω → S} {Y : Ω' → 
     condRuzsaDist_of_indep hX' hZ' hY' hW' _ hind]
   have hIdX : IdentDistrib X X' μ ν := hIdXZ.symm.comp measurable_fst
   have hIdY : IdentDistrib Y Y' μ' ν := hIdYW.symm.comp measurable_fst
-  rw [hIdX.rdist_eq hIdY, hIdXZ.symm.mutualInfo_eq, hIdYW.symm.mutualInfo_eq,
+  rw [hIdX.rdist_congr hIdY, hIdXZ.symm.mutualInfo_eq, hIdYW.symm.mutualInfo_eq,
     hind'.rdist_eq hX' hY', mutualInfo_eq_entropy_sub_condEntropy hX' hZ',
     mutualInfo_eq_entropy_sub_condEntropy hY' hW']
   have h := condEntropy_le_entropy ν (X := X' - Y') (hX'.sub hY') (hZ'.prodMk hW')
@@ -1365,8 +1376,8 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
   have hXYZ' : IndepFun X' (Y' + Z') μ'' := by
     symm
     exact hi.indepFun_add_left hm 1 2 0 (by decide) (by decide)
-  rw [← h2X'.rdist_eq h2Y', ← h2X'.rdist_eq h2, ← h2Y'.rdist_eq h2Z',
-    ← h2.entropy_eq, ← h2Y'.entropy_eq, ← h2Z'.entropy_eq]
+  rw [← h2X'.rdist_congr h2Y', ← h2X'.rdist_congr h2, ← h2Y'.rdist_congr h2Z',
+    ← h2.entropy_congr, ← h2Y'.entropy_congr, ← h2Z'.entropy_congr]
   rw [hXY'.rdist_eq hX' hY', hYZ'.rdist_eq hY' hZ', hXYZ'.rdist_eq hX' (hY'.add hZ')]
   constructor
   · linarith [kaimanovich_vershik' hi hX' hY' hZ']

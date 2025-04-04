@@ -120,7 +120,7 @@ lemma I₃_eq [IsProbabilityMeasure (ℙ : Measure Ω)] : I[V : W | S] = I₂ :=
   have hS : Measurable S := by fun_prop
   rw [condMutualInfo_eq hV hW hS, condMutualInfo_eq hU hW hS, chain_rule'' ℙ hU hS,
     chain_rule'' ℙ hV hS, chain_rule'' ℙ hW hS, chain_rule'' ℙ _ hS, chain_rule'' ℙ _ hS,
-    IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
+    hUVS.entropy_congr, hUVWS.entropy_congr]
   · exact Measurable.prod hU hW
   · exact Measurable.prod hV hW
 
@@ -153,7 +153,7 @@ local notation3:max "c[" A " | " B " # " C " | " D "]" =>
 
 include h_indep h₁ h₂ in
 lemma hU [IsProbabilityMeasure (ℙ : Measure Ω)] : H[U] = H[X₁' + X₂'] :=
-  IdentDistrib.entropy_eq (h₁.add h₂
+  IdentDistrib.entropy_congr (h₁.add h₂
     (h_indep.indepFun (show (0 : Fin 4) ≠ 1 by norm_cast))
      (h_indep.indepFun (show (2 : Fin 4) ≠ 3 by norm_cast)))
 
@@ -165,7 +165,7 @@ lemma independenceCondition1 :
 
 include h₁ h₂ h_indep in
 lemma hV [IsProbabilityMeasure (ℙ : Measure Ω)] : H[V] = H[X₁ + X₂'] :=
-  IdentDistrib.entropy_eq (h₁.symm.add h₂
+  IdentDistrib.entropy_congr (h₁.symm.add h₂
     (h_indep.indepFun (show (2 : Fin 4) ≠ 1 by norm_cast))
     (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by norm_cast)))
 
@@ -240,9 +240,8 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
       (independenceCondition3 hX₁ hX₂ hX₁' hX₂' h_indep)
 
     have aux1 : H[S] + H[V] - H[X₁'] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₁ ; ℙ] := by
-      rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep, h₁.entropy_eq]; ring
-    rw [← ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl p.hmeas1.aemeasurable) h₁,
-      V_add_eq, aux1] at aux2
+      rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep, h₁.entropy_congr]; ring
+    rw [← h₁.rdist_congr_right p.hmeas1.aemeasurable, V_add_eq, aux1] at aux2
     linarith [aux2]
 
   have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by
@@ -341,7 +340,7 @@ lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
   rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
-  simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+  simp only [measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul]
 
 variable {T₁ T₂ T₃ : Ω' → G} (hT : T₁+T₂+T₃ = 0)
 variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
@@ -391,7 +390,7 @@ lemma construct_good_prelim :
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2) := by
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
-        ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum2]
+        ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj, sum2]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
@@ -402,7 +401,7 @@ lemma construct_good_prelim :
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2) := by
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
-        ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum3]
+        ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj, sum3]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]

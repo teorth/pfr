@@ -67,7 +67,7 @@ noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingl
       measure_univ, smul_eq_mul, mul_one]
     rw [← ENNReal.toReal_eq_toReal (by simp [ENNReal.sum_eq_top]) ENNReal.one_ne_top,
         ENNReal.toReal_sum (by simp)]
-    simp_rw [ENNReal.toReal_ofReal (p.2.1 _), p.2.2, ENNReal.one_toReal]
+    simp_rw [ENNReal.toReal_ofReal (p.2.1 _), p.2.2, ENNReal.toReal_one]
   left_inv := by
     intro μ
     ext s _hs

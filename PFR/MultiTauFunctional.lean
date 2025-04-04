@@ -80,7 +80,7 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀
         apply multidist_ruzsa_III p.hm (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀) _ 0
         intro _ _
         simp
-        exact ProbabilityTheory.IdentDistrib.refl ( Measurable.aemeasurable p.hmeas)
+        exact .refl p.hmeas.aemeasurable
       · have : 0 ≤ d[p.X₀ # p.X₀] := rdist_nonneg p.hmeas p.hmeas
         positivity
       exact p.hη'
@@ -117,7 +117,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
     convert Finset.sum_toReal_measure_singleton (s := Finset.univ) (Measure.map (Y i) ℙ) with ω _ i _
     · exact (MeasureTheory.Measure.map_apply (hY i) ( .singleton ω)).symm
     replace hΩ'prob := hΩ'prob i
-    rw [MeasureTheory.Measure.map_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ, measure_univ, ENNReal.one_toReal]
+    rw [MeasureTheory.Measure.map_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ, measure_univ, ENNReal.toReal_one]
 -- μ has total mass one
   have total : ∑ (ω : Fin p.m → S), μ ω = 1 := calc
     _ = ∏ i, ∑ ωi, (ℙ (Y i ⁻¹' {ωi})).toReal := by
@@ -150,7 +150,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
         refine cond_isProbabilityMeasure ?_
         contrapose! hω
         apply Finset.prod_eq_zero (Finset.mem_univ i)
-        simp only [hω, ENNReal.zero_toReal]
+        simp only [hω, ENNReal.toReal_zero]
       exact sub_multiDistance_le p Ω hΩ hΩprob X hmeasX h_min Ω' hΩ'_cond hΩ'prob_cond X' hmeasX'
     _ = p.η * ∑ i, ∑ (ω: Fin p.m → S), μ ω * d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ] := by
       rw [Finset.sum_comm, Finset.mul_sum]

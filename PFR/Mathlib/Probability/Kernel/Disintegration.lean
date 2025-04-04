@@ -63,9 +63,7 @@ lemma condKernel_compProd_apply' (κ : Kernel T S) [IsFiniteKernel κ]
   · simp [Set.preimage_preimage, Set.preimage_image_eq _ (Prod.mk_right_injective _), mul_comm]
     simp [← mul_assoc, measure_ne_top, hx, ENNReal.inv_mul_cancel hx (measure_ne_top (κ x.1) {x.2})]
   · intro b hb
-    convert measure_empty
-    simp [Set.eq_empty_iff_forall_not_mem, hb.symm]
-    infer_instance
+    rw [Set.eq_empty_of_forall_not_mem (s := _ ⁻¹' _) (by simp [hb]), measure_empty]
   · intro b hb
     simp [hb, Set.preimage_preimage]
   · measurability

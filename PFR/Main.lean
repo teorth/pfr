@@ -142,10 +142,9 @@ theorem rdist_le_of_isUniform_of_card_add_le [A_fin : Finite A] [MeasurableSpace
     have J : log (Nat.card (A - A)) ≤ log K + log (Nat.card A) := by
       apply (log_le_log AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
-    rw [UU'_indep.rdist_eq hU hU', IsUniform.entropy_eq' A_fin Uunif hU,
-      IsUniform.entropy_eq' A_fin U'unif hU']
+    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq' A_fin hU, U'unif.entropy_eq' A_fin hU']
     linarith
-  rwa [idU.rdist_eq idU'] at IU
+  rwa [idU.rdist_congr idU'] at IU
 
 variable [Module (ZMod 2) G] [Fintype G]
 
@@ -193,7 +192,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
 
-  have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
+  have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_congr idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos
     positivity

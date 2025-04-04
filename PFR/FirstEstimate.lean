@@ -62,7 +62,7 @@ lemma rdist_add_rdist_add_condMutual_eq [Module (ZMod 2) G] :
   rw [h0, h1, h2, h3] at h
   have heq : d[X₂' # X₁'] = k := by
     rw [rdist_symm]
-    apply h₁.symm.rdist_eq h₂.symm
+    apply h₁.symm.rdist_congr h₂.symm
   rw [heq] at h
   convert h.symm using 1
   · congr 2 <;> abel
@@ -95,8 +95,8 @@ lemma diff_rdist_le_1 [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] :
     d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
   have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)
   convert condRuzsaDist_diff_le' ℙ p.hmeas1 hX₁ hX₂' h using 4
-  · exact (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂
-  · exact h₂.entropy_eq
+  · exact h₂.rdist_congr_right hX₁.aemeasurable
+  · exact h₂.entropy_congr
 
 include hX₁' hX₂ h_indep h₁ in
 /-- $$ d[X^0_2;X_2+\tilde X_1] - d[X^0_2; X_2] \leq \tfrac{1}{2} k + \tfrac{1}{4} \mathbb{H}[X_1] - \tfrac{1}{4} \mathbb{H}[X_2].$$ -/
@@ -105,8 +105,8 @@ lemma diff_rdist_le_2 [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] :
   have h : IndepFun X₂ X₁' := by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide)
   convert condRuzsaDist_diff_le' ℙ p.hmeas2 hX₂ hX₁' h using 4
   · rw [rdist_symm]
-    exact (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁
-  · exact h₁.entropy_eq
+    exact h₁.rdist_congr_right hX₂.aemeasurable
+  · exact h₁.entropy_congr
 
 include h_indep hX₁ hX₂' h₂ in
 /-- $$ d[X_1^0;X_1|X_1+\tilde X_2] - d[X_1^0;X_1] \leq
@@ -115,8 +115,8 @@ lemma diff_rdist_le_3 [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] :
     d[p.X₀₁ # X₁ | X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₁]/4 - H[X₂]/4 := by
   have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)
   convert condRuzsaDist_diff_le''' ℙ p.hmeas1 hX₁ hX₂' h using 3
-  · rw [(IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
-  · apply h₂.entropy_eq
+  · rw [h₂.rdist_congr_right hX₁.aemeasurable]
+  · apply h₂.entropy_congr
 
 include h_indep hX₂ hX₁' h₁
 /-- $$ d[X_2^0; X_2|X_2+\tilde X_1] - d[X_2^0; X_2] \leq
@@ -125,8 +125,8 @@ lemma diff_rdist_le_4 [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] :
     d[p.X₀₂ # X₂ | X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
   have h : IndepFun X₂ X₁' := by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide)
   convert condRuzsaDist_diff_le''' ℙ p.hmeas2 hX₂ hX₁' h using 3
-  · rw [rdist_symm, (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₁]
-  · apply h₁.entropy_eq
+  · rw [rdist_symm, h₁.rdist_congr_right hX₂.aemeasurable]
+  · apply h₁.entropy_congr
 
 include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_min in
 /-- We have $I_1 \leq 2 \eta k$ -/
@@ -188,7 +188,7 @@ lemma ent_ofsum_le
     have HX₂_eq : H[X₂] = H[X₂'] :=
       congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ)) h₂.map_eq
     have k_eq : k = H[X₁ - X₂'] - H[X₁] / 2 - H[X₂'] / 2 := by
-      have k_eq_aux : k = d[X₁ # X₂'] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂
+      have k_eq_aux : k = d[X₁ # X₂'] := h₂.rdist_congr_right hX₁.aemeasurable
       rw [k_eq_aux]
       exact (h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)).rdist_eq hX₁ hX₂'
     rw [k_eq, ← ZModModule.sub_eq_add, ← HX₂_eq]
@@ -197,10 +197,9 @@ lemma ent_ofsum_le
     have HX₁_eq : H[X₁] = H[X₁'] :=
       congr_arg (fun (μ : Measure G) ↦ measureEntropy (μ := μ)) h₁.map_eq
     have k_eq' : k = H[X₁' - X₂] - H[X₁'] / 2 - H[X₂] / 2 := by
-      have k_eq_aux : k = d[X₁' # X₂] :=
-        IdentDistrib.rdist_eq h₁ (IdentDistrib.refl hX₂.aemeasurable)
+      have k_eq_aux : k = d[X₁' # X₂] := h₁.rdist_congr_left hX₂.aemeasurable
       rw [k_eq_aux]
-      exact IndepFun.rdist_eq (h_indep.indepFun (show (3 : Fin 4) ≠ 1 by decide)) hX₁' hX₂
+      exact (h_indep.indepFun (show (3 : Fin 4) ≠ 1 by decide)).rdist_eq hX₁' hX₂
     rw [add_comm X₂ X₁', k_eq', ← ZModModule.sub_eq_add, ← HX₁_eq]
     ring
   calc H[X₁ + X₂ + X₁' + X₂']

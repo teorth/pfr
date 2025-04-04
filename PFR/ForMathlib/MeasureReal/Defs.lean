@@ -173,7 +173,7 @@ theorem measureReal_le_measureReal_union_right (h : μ s ≠ ∞ := by finitenes
 
 theorem measureReal_union_le (s₁ s₂ : Set α) : μ.real (s₁ ∪ s₂) ≤ μ.real s₁ + μ.real s₂ := by
   rcases eq_top_or_lt_top (μ (s₁ ∪ s₂)) with h|h
-  · simp only [Measure.real, h, ENNReal.top_toReal]
+  · simp only [Measure.real, h, ENNReal.toReal_top]
     exact add_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
   · have A : μ s₁ ≠ ∞ := measure_ne_top_of_subset subset_union_left h.ne
     have B : μ s₂ ≠ ∞ := measure_ne_top_of_subset subset_union_right h.ne
@@ -303,7 +303,7 @@ lemma measureReal_symmDiff_le (s t u : Set α)
     μ.real (s ∆ u) ≤ μ.real (s ∆ t) + μ.real (t ∆ u) := by
   rcases eq_top_or_lt_top (μ u) with hu|hu
   · have : μ (s ∆ u) = ∞ := measure_symmDiff_eq_top h₁ hu
-    simp only [measureReal_def, this, ENNReal.top_toReal]
+    simp only [measureReal_def, this, ENNReal.toReal_top]
     exact add_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
   · apply le_trans _ (measureReal_union_le (s ∆ t) (t ∆ u))
     apply measureReal_mono (symmDiff_triangle s t u) ?_

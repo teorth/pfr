@@ -55,7 +55,7 @@ lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X]
 lemma entropy_eq_kernel_entropy (X : Ω → S) (μ : Measure Ω) :
     H[X ; μ] = Hk[Kernel.const Unit (μ.map X), Measure.dirac ()] := by
   simp only [Kernel.entropy, Kernel.const_apply, integral_const, MeasurableSpace.measurableSet_top,
-    Measure.dirac_apply', Set.mem_univ, Set.indicator_of_mem, Pi.one_apply, ENNReal.one_toReal,
+    Measure.dirac_apply', Set.mem_univ, Set.indicator_of_mem, Pi.one_apply, ENNReal.toReal_one,
     smul_eq_mul, one_mul]
   rfl
 
@@ -71,7 +71,7 @@ lemma entropy_congr {X X' : Ω → S} (h : X =ᵐ[μ] X') : H[X ; μ] = H[X' ; �
 lemma entropy_nonneg (X : Ω → S) (μ : Measure Ω) : 0 ≤ entropy X μ := measureEntropy_nonneg _
 
 /-- Two variables that have the same distribution, have the same entropy. -/
-lemma IdentDistrib.entropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'} {X' : Ω' → S}
+lemma IdentDistrib.entropy_congr {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'} {X' : Ω' → S}
     (h : IdentDistrib X X' μ μ') : H[X ; μ] = H[X' ; μ'] := by
   simp [entropy_def, h.map_eq]
 
@@ -113,7 +113,7 @@ lemma entropy_eq_sum_finset {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ]
   convert tsum_eq_sum ?_
   intro s hs
   convert negMulLog_zero
-  convert ENNReal.zero_toReal
+  convert ENNReal.toReal_zero
   convert measure_mono_null ?_ hA
   simp [hs]
 
@@ -190,7 +190,7 @@ lemma IsUniform.entropy_eq [DiscreteMeasurableSpace S] {H : Finset S} {X : Ω �
   rw [Measure.map_apply hX' (by measurability)]
   exact hX.measure_preimage_compl
 
-/-- Variant of `IsUniform.entropy_eq` where `H` is a finite `Set` rather than `Finset`. -/
+/-- Variant of `IsUniform.entropy_congr` where `H` is a finite `Set` rather than `Finset`. -/
 lemma IsUniform.entropy_eq' [DiscreteMeasurableSpace S]
     {H : Set S} (hH : H.Finite) {X : Ω → S} {μ : Measure Ω} [IsProbabilityMeasure μ]
     (hX : IsUniform H X μ) (hX' : Measurable X) : H[X ; μ] = log (Nat.card H) := by
@@ -271,7 +271,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
     ENNReal.mul_inv_cancel (ne_zero_of_lt h_norm_pos) (LT.lt.ne_top h_norm_finite)
   have h_pdf1 : (∑ s ∈ A, pdf s) = 1 := by
     rw [← ENNReal.toReal_sum (fun s _ ↦ h_pdf_finite s), ← Finset.mul_sum,
-      Finset.sum_measure_singleton, mul_comm, h_norm_cancel, ENNReal.one_toReal]
+      Finset.sum_measure_singleton, mul_comm, h_norm_cancel, ENNReal.toReal_one]
 
   let ⟨s_max, hs, h_min⟩ := Finset.exists_min_image S_nonzero neg_log_pdf h_nonempty
   have h_pdf_s_max_pos : 0 < pdf s_max := by
@@ -602,7 +602,7 @@ lemma IdentDistrib.condEntropy_eq {Ω' : Type*} [MeasurableSpace Ω'] {X : Ω �
     [FiniteRange Y'] :
     H[X | Y ; μ] = H[X' | Y' ; μ'] := by
   have : IdentDistrib Y Y' μ μ' := h.comp measurable_snd
-  rw [chain_rule'' _ hX hY, chain_rule'' _ hX' hY', h.entropy_eq, this.entropy_eq]
+  rw [chain_rule'' _ hX hY, chain_rule'' _ hX' hY', h.entropy_congr, this.entropy_congr]
 
 variable [Countable U] [MeasurableSingletonClass U]
 
@@ -704,7 +704,7 @@ lemma IdentDistrib.mutualInfo_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Meas
       I[X : Y ; μ] = I[X' : Y' ; μ'] := by
   have hX : IdentDistrib X X' μ μ' := hXY.comp measurable_fst
   have hY : IdentDistrib Y Y' μ μ' := hXY.comp measurable_snd
-  simp_rw [mutualInfo_def,hX.entropy_eq,hY.entropy_eq,hXY.entropy_eq]
+  simp_rw [mutualInfo_def,hX.entropy_congr,hY.entropy_congr,hXY.entropy_congr]
 
 /-- The conditional mutual information `I[X : Y| Z]` is the mutual information of `X| Z=z` and
 `Y| Z=z`, integrated over `z`. -/

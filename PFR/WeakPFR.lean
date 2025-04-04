@@ -105,7 +105,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
         h_indep.indepFun_prodMk h_meas 1 2 0 (by decide) (by decide)
       rw [this.entropy_pair_eq_add hX'_meas (by exact Measurable.prod hY'₁_meas hY'₂_meas),
         IndepFun.entropy_pair_eq_add hY'₁_meas hY'₂_meas (h_indep.indepFun (show 1 ≠ 2 by decide)),
-        hX'_ident.entropy_eq, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, two_mul]
+        hX'_ident.entropy_congr, hY'₁_ident.entropy_congr, hY'₂_ident.entropy_congr, two_mul]
   have : H[⟨X', X' - 2 • Y'₁⟩ ; μA] = H[X ; μ] + H[Y ; μ'] := calc
     H[⟨X', X' - 2 • Y'₁⟩ ; μA] = H[⟨X', Y'₁⟩ ; μA] := by
       let f : G × G → G × G := fun ⟨x, y₁⟩ ↦ (x, x - 2 • y₁)
@@ -114,7 +114,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       exact fun ⟨_, _⟩ _ h ↦ by simp [f] at h; obtain ⟨_, _⟩ := h; simp_all [smul_right_inj]
     _ = H[X ; μ] + H[Y ; μ'] := by
       rw [IndepFun.entropy_pair_eq_add hX'_meas hY'₁_meas (h_indep.indepFun (show 0 ≠ 1 by decide)),
-        hX'_ident.entropy_eq, hY'₁_ident.entropy_eq]
+        hX'_ident.entropy_congr, hY'₁_ident.entropy_congr]
   let f : G × G → G × G := fun ⟨x, y⟩ ↦ (x, y - x)
   have hf : f.Injective := fun ⟨_, _⟩ _ h ↦ by simp [f] at h; obtain ⟨_, _⟩ := h; simp_all
   have : H[⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩ ; μA] ≤ H[Y'₁ - Y'₂ ; μA] + H[X' - Y'₁ - Y'₂ ; μA] := calc
@@ -145,7 +145,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
         h_indep.indepFun_prodMk h_meas 2 0 1 (by decide) (by decide)
       rw [this.entropy_pair_eq_add hY'₁_meas (by exact Measurable.prod hY'₂_meas hX'_meas),
         IndepFun.entropy_pair_eq_add hY'₂_meas hX'_meas (h_indep.indepFun (show 2 ≠ 0 by decide)),
-        hX'_ident.entropy_eq, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq]
+        hX'_ident.entropy_congr, hY'₁_ident.entropy_congr, hY'₂_ident.entropy_congr]
       group
   have : H[⟨Y'₁, X' - Y'₁ - Y'₂⟩ ; μA] = H[Y ; μ'] + H[X' - Y'₂ ; μA] := calc
     H[⟨Y'₁, X' - Y'₁ - Y'₂⟩ ; μA] = H[f ∘ ⟨Y'₁, X' - Y'₂⟩ ; μA] := by rw [sub_right_comm] ; rfl
@@ -155,7 +155,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       have : FiniteRange (X' - Y'₂) := FiniteRange.sub X' Y'₂
       convert IndepFun.entropy_pair_eq_add hY'₁_meas (hX'_meas.sub hY'₂_meas)
         <| h_indep.indepFun_sub_right h_meas 1 0 2 (by decide) (by decide)
-      exact hY'₁_ident.entropy_eq.symm
+      exact hY'₁_ident.entropy_congr.symm
   have : H[⟨Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] = H[Y ; μ'] + H[X' - Y'₁ ; μA] := calc
     H[⟨Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] = H[f ∘ ⟨Y'₂, X' - Y'₁⟩ ; μA] := rfl
     _ = H[⟨Y'₂, X' - Y'₁⟩ ; μA] := entropy_comp_of_injective μA
@@ -164,7 +164,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       have : FiniteRange (X' - Y'₁) := FiniteRange.sub X' Y'₁
       convert IndepFun.entropy_pair_eq_add hY'₂_meas (hX'_meas.sub hY'₁_meas)
         <| h_indep.indepFun_sub_right h_meas 2 0 1 (by decide) (by decide)
-      exact hY'₂_ident.entropy_eq.symm
+      exact hY'₂_ident.entropy_congr.symm
   have : H[⟨Y'₁, ⟨Y'₂, X' - Y'₁ - Y'₂⟩⟩ ; μA] + H[X' - Y'₁ - Y'₂ ; μA] ≤
       H[⟨Y'₁, X' - Y'₁ - Y'₂⟩ ; μA] + H[⟨Y'₂, X' - Y'₁ - Y'₂⟩ ; μA] := by
     apply entropy_triple_add_entropy_le μA hY'₁_meas hY'₂_meas
@@ -172,12 +172,12 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
   have : H[X' - Y'₁ - Y'₂ ; μA] ≤ 2 * d[X ; μ # Y ; μ'] + H[Y ; μ'] := calc
     H[X' - Y'₁ - Y'₂ ; μA] ≤ H[X' - Y'₁ ; μA] + H[X' - Y'₂ ; μA] - H[X ; μ] := by linarith
     _ = 2 * d[X ; μ # Y ; μ'] + H[Y ; μ'] := by
-      nth_rw 1 [two_mul, ← hX'_ident.rdist_eq hY'₁_ident, ← hX'_ident.rdist_eq hY'₂_ident]
+      nth_rw 1 [two_mul, ← hX'_ident.rdist_congr hY'₁_ident, ← hX'_ident.rdist_congr hY'₂_ident]
       have h1 : d[X' ; μA # Y'₁ ; μA] = H[X' - Y'₁ ; μA] - H[X' ; μA] / 2 - H[Y'₁ ; μA] / 2 :=
         (h_indep.indepFun (show 0 ≠ 1 by decide)).rdist_eq hX'_meas hY'₁_meas
       have h2 : d[X' ; μA # Y'₂ ; μA] = H[X' - Y'₂ ; μA] - H[X' ; μA] / 2 - H[Y'₂ ; μA] / 2 :=
         (h_indep.indepFun (show 0 ≠ 2 by decide)).rdist_eq hX'_meas hY'₂_meas
-      rw [h1, h2, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, hX'_ident.entropy_eq]
+      rw [h1, h2, hY'₁_ident.entropy_congr, hY'₂_ident.entropy_congr, hX'_ident.entropy_congr]
       group
   have : d[X ; μ # 2 • Y ; μ'] ≤
       d[Y'₁ ; μA # Y'₂ ; μA] + (H[Y ; μ'] - H[X ; μ]) / 2 + 2 * d[X ; μ # Y ; μ'] := calc
@@ -187,9 +187,9 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
       have h2Y_indep : IndepFun X' (2 • Y'₁) (μ := μA) := by
         convert (h_indep.indepFun (show 0 ≠ 1 by decide)).comp measurable_id
           (measurable_const_smul 2)
-      rw [← hX'_ident.rdist_eq h2Y_ident,
+      rw [← hX'_ident.rdist_congr h2Y_ident,
         h2Y_indep.rdist_eq hX'_meas <| Measurable.const_smul hY'₁_meas 2,
-        hX'_ident.entropy_eq, h2Y_ident.entropy_eq]
+        hX'_ident.entropy_congr, h2Y_ident.entropy_congr]
     _ ≤ H[Y'₁ - Y'₂ ; μA] + 2 * d[X ; μ # Y ; μ'] - H[X ; μ] / 2 - H[2 • Y ; μ'] / 2 := by linarith
     _ = d[Y'₁ ; μA # Y'₂ ; μA] + (H[Y ; μ'] - H[X ; μ]) / 2 + 2 * d[X ; μ # Y ; μ'] := by
       have H2Y : H[2 • Y ; μ'] = H[Y ; μ'] := by
@@ -197,13 +197,13 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
         exact entropy_comp_of_injective μ' hY f (fun _ _ ↦ by simp [f, smul_right_inj])
       have : d[Y'₁ ; μA # Y'₂ ; μA] = H[Y'₁ - Y'₂ ; μA] - H[Y'₁ ; μA] / 2 - H[Y'₂ ; μA] / 2 :=
         (h_indep.indepFun (show 1 ≠ 2 by decide)).rdist_eq hY'₁_meas hY'₂_meas
-      rw [this, hY'₁_ident.entropy_eq, hY'₂_ident.entropy_eq, H2Y]
+      rw [this, hY'₁_ident.entropy_congr, hY'₂_ident.entropy_congr, H2Y]
       group
   have : d[Y'₁ ; μA # Y'₂ ; μA] ≤ 2 * d[X ; μ # Y ; μ'] := by
     rw [two_mul]
     convert rdist_triangle hY'₁_meas hX'_meas hY'₂_meas (μ := μA) (μ' := μA) (μ'' := μA)
-    · exact rdist_symm.trans (hY'₁_ident.rdist_eq hX'_ident).symm
-    · exact (hX'_ident.rdist_eq hY'₂_ident).symm
+    · exact rdist_symm.trans (hY'₁_ident.rdist_congr hX'_ident).symm
+    · exact (hX'_ident.rdist_congr hY'₂_ident).symm
   rw [← two_nsmul]
   linarith [abs_le.mp <| diff_ent_le_rdist hX hY (μ := μ) (μ' := μ')]
 

@@ -95,9 +95,9 @@ lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableS
     (h₁ : IdentDistrib X₁ X₁' μ₁ μ'₁) (h₂ : IdentDistrib X₂ X₂' μ₂ μ'₂) :
     τ[X₁ ; μ₁ # X₂ ; μ₂ | p] = τ[X₁' ; μ'₁ # X₂' ; μ'₂ | p] := by
   simp only [tau]
-  rw [(IdentDistrib.refl p.hmeas1.aemeasurable).rdist_eq h₁,
-      (IdentDistrib.refl p.hmeas2.aemeasurable).rdist_eq h₂,
-      h₁.rdist_eq h₂]
+  rw [h₁.rdist_congr_right p.hmeas1.aemeasurable,
+      h₂.rdist_congr_right p.hmeas2.aemeasurable,
+      h₁.rdist_congr h₂]
 
 /-- Property recording the fact that two random variables minimize the tau functional. Expressed
 in terms of measures on the group to avoid quantifying over all spaces, but this implies comparison

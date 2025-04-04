@@ -55,7 +55,7 @@ lemma ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto
   simp_rw [aux, prod_prod]
   have obs_μs := ((continuous_pmf_apply ab.1).continuousAt (x := μ)).tendsto.comp μs_lim
   have obs_νs := ((continuous_pmf_apply ab.2).continuousAt (x := ν)).tendsto.comp νs_lim
-  exact tendsto_mul.comp (Tendsto.prod_mk_nhds obs_μs obs_νs)
+  exact tendsto_mul.comp (Tendsto.prodMk_nhds obs_μs obs_νs)
 
 -- TODO: Prove more generally in Mathlib.
 instance t1Space_probabilityMeasure_of_finite {α : Type*}

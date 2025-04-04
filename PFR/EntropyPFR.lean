@@ -34,7 +34,7 @@ theorem tau_strictly_decreases (h_min : tau_minimizes p X₁ X₂) (hpη : p.η 
     d[X₁ # X₂] = 0 := by
   let ⟨A, mA, μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
-  rw [← h_id1.rdist_eq h_id2]
+  rw [← h_id1.rdist_congr h_id2]
   let _ : MeasureSpace A := ⟨μ⟩
   have : IsProbabilityMeasure (ℙ : Measure A) := hμ
   rw [← h_id1.tau_minimizes p h_id2] at h_min

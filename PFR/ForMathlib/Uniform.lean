@@ -113,7 +113,7 @@ lemma IsUniform.measure_preimage_of_nmem (h : IsUniform H X μ) {s : S} (hs : s 
 /-- Another "unit test" for the definition of uniform distribution. -/
 lemma IsUniform.measureReal_preimage_of_nmem (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
     μ.real (X ⁻¹' {s}) = 0 := by
-  rw [measureReal_def, h.measure_preimage_of_nmem hs, ENNReal.zero_toReal]
+  rw [measureReal_def, h.measure_preimage_of_nmem hs, ENNReal.toReal_zero]
 
 variable [MeasurableSpace S] [DiscreteMeasurableSpace S]
 

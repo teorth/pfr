@@ -358,7 +358,7 @@ lemma entropy_prodMkRight [Countable S] [MeasurableSingletonClass S] [Countable 
     Hk[prodMkRight S η, μ ⊗ₘ κ] = Hk[η, μ] := by
   simp_rw [entropy, prodMkRight_apply]
   rw [Measure.integral_compProd]
-  · simp only [MeasureTheory.integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+  · simp only [MeasureTheory.integral_const, measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul]
   · have := finiteSupport_of_compProd hκ (μ := μ)
     exact integrable_of_finiteSupport (μ ⊗ₘ κ)
 

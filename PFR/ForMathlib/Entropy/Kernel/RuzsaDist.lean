@@ -105,7 +105,7 @@ lemma rdist_symm {κ : Kernel T G} {η : Kernel T' G} [IsFiniteKernel κ] [IsFin
     [FiniteSupport μ] [FiniteSupport ν] :
     dk[κ ; μ # const T' (Measure.dirac 0) ; ν] = Hk[κ, μ] / 2 := by
   rw [rdist_eq']
-  simp only [entropy_const, measure_univ, ENNReal.one_toReal, measureEntropy_dirac, mul_zero,
+  simp only [entropy_const, measure_univ, ENNReal.toReal_one, measureEntropy_dirac, mul_zero,
     zero_div, sub_zero]
   rw [sub_eq_iff_eq_add]
   ring_nf
@@ -340,7 +340,7 @@ lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
     simp
   simp_rw [this, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
     measure_of_measure_compl_eq_zero (measure_compl_support μ),
-    measure_univ, ENNReal.one_toReal, one_mul, ← mul_assoc, mul_comm _ (μ'' {z}).toReal, mul_assoc,
+    measure_univ, ENNReal.toReal_one, one_mul, ← mul_assoc, mul_comm _ (μ'' {z}).toReal, mul_assoc,
     ← Finset.mul_sum]
   congr with y
   congr 2 with s _hs

@@ -71,8 +71,8 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
     H[X' - Y' | Y'] = H[X' | Y'] := condEntropy_sub_right hX' hY'
     _ = H[X'] := h_indep.condEntropy_eq_entropy hX' hY'
     _ = H[X' - Y'] := by
-      have : d[X' # Y'] = 0 := by rwa [hidX.rdist_eq hidY]
-      rw [h_indep.rdist_eq hX' hY', ← (hidX.trans hidY.symm).entropy_eq] at this
+      have : d[X' # Y'] = 0 := by rwa [hidX.rdist_congr hidY]
+      rw [h_indep.rdist_eq hX' hY', ← (hidX.trans hidY.symm).entropy_congr] at this
       linarith
   have I : IndepFun (X' - Y') Y' := by
     refine (mutualInfo_eq_zero (by fun_prop) hY').1 ?_

@@ -75,7 +75,7 @@ lemma rhoMinusSet_eq_of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] {μ' : 
   have I (μ'' : Measure G) : KL[X ; μ # Prod.fst + Prod.snd ; μ''.prod (uniformOn (A : Set G))] =
       KL[X' ; μ' # Prod.fst + Prod.snd ; μ''.prod (uniformOn (A : Set G))] := by
     apply ProbabilityTheory.IdentDistrib.KLDiv_eq _ _ h
-    apply IdentDistrib.refl (by fun_prop)
+    exact .refl (by fun_prop)
   simp only [rhoMinusSet, h.map_eq, I]
 
 /-- For any $G$-valued random variable $X$, we define $\rho^-(X)$ to be the infimum of
@@ -402,7 +402,7 @@ lemma rhoPlus_continuous [TopologicalSpace G] [DiscreteTopology G] (hA : A.Nonem
 
 lemma rhoPlus_eq_of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] {X' : Ω' → G} {μ' : Measure Ω'}
     (h : IdentDistrib X X' μ μ') : ρ⁺[X ; μ # A] = ρ⁺[X' ; μ' # A] := by
-  simp [rhoPlus, rhoMinus_eq_of_identDistrib h, h.entropy_eq]
+  simp [rhoPlus, rhoMinus_eq_of_identDistrib h, h.entropy_congr]
 
 omit [MeasurableSpace G] [DiscreteMeasurableSpace G] in
 lemma bddAbove_card_inter_add {A H : Set G} :
@@ -613,7 +613,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
       rfl
     simp only [this, Nat.card_eq_fintype_card, Fintype.card_coe, one_div, Finset.sum_const,
       nsmul_eq_mul, ENNReal.toReal_mul, ENNReal.toReal_natCast, ENNReal.toReal_inv, div_eq_mul_inv,
-      ENNReal.one_toReal, one_mul, mul_inv]
+      ENNReal.toReal_one, one_mul, mul_inv]
     congr
     rw [Nat.card_eq_card_finite_toFinset]
   have C : H'.card = Nat.card H := by rw [← Nat.card_eq_card_finite_toFinset]; rfl
@@ -811,8 +811,7 @@ lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
     apply IdentDistrib.KLDiv_eq _ _ hXY
     have : T + Y' + U = T + U + Y' := by abel
     rw [this]
-    apply IdentDistrib.refl
-    fun_prop
+    exact .refl <| by fun_prop
   have I₃ : KL[X' + Y' # (T + U) + Y'] ≤ KL[X' # T + U] := by
     apply KLDiv_add_le_KLDiv_of_indep _ (by fun_prop) (by fun_prop) (by fun_prop)
     · rw [hTU.map_eq, hP, hXX'.map_eq]
@@ -973,7 +972,7 @@ lemma condRhoPlus_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     Finset.sum_add_distrib, tsub_le_iff_right]
   rw [← Finset.sum_mul, ← tsum_fintype, ← condRhoMinus, ← condEntropy_eq_sum_fintype _ _ _ hZ]
   simp_rw [← Measure.map_apply hZ (measurableSet_singleton _)]
-  simp only [Finset.sum_toReal_measure_singleton, Finset.coe_univ, measure_univ, ENNReal.one_toReal,
+  simp only [Finset.sum_toReal_measure_singleton, Finset.coe_univ, measure_univ, ENNReal.toReal_one,
     one_mul, sub_add_cancel, ge_iff_le]
   linarith
 
@@ -1011,7 +1010,7 @@ lemma condRho_prod_eq_sum [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace
     · have : μ (Z ⁻¹' {w'} ∩ T ⁻¹' {w}) = 0 :=
         le_antisymm (le_trans (measure_mono Set.inter_subset_right) hw.le) bot_le
       simp [hw, this]
-    · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.one_toReal, one_mul]
+    · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.toReal_one, one_mul]
       exacts [hw.ne', by finiteness]
   · congr 1
     rw [A, cond_cond_eq_cond_inter' (hT (.singleton _)) (hZ (.singleton _)), Set.inter_comm]
@@ -1140,7 +1139,7 @@ lemma phiMinimizes_of_identDistrib {Ω' : Type*} [MeasureSpace Ω']
     phiMinimizes X' Y' η A ℙ := by
   have : phi X Y η A ℙ = phi X' Y' η A ℙ := by
     simp only [phi]
-    rw [h₁.rdist_eq h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
+    rw [h₁.rdist_congr h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
   simpa [phiMinimizes, this] using h_min
 
 lemma phiMinimizes_comm [IsProbabilityMeasure (ℙ : Measure Ω)] {X Y : Ω → G} {η : ℝ} {A : Finset G}
@@ -1186,7 +1185,7 @@ lemma phi_min_exists (hA : A.Nonempty) : ∃ (μ : Measure (G × G)), IsProbabil
     simp only [ProbabilityMeasure.coe_mk, ν', ν]
     rw [Measure.map_map measurable_snd (by fun_prop)]
     rfl
-  simp [phi, h₁.rdist_eq h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
+  simp [phi, h₁.rdist_congr h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
 
 -- Let $(X_1, X_2)$ be a $\phi$-minimizer, and $\tilde X_1, \tilde X_2$ be independent copies
 -- of $X_1,X_2$ respectively.
@@ -1222,7 +1221,7 @@ lemma le_rdist_of_phiMinimizes (h_min : phiMinimizes X₁ X₂ η A ℙ)
     ⟨measurable_fst.aemeasurable, hX₁'.aemeasurable, by simp [Y₁, hP, m]⟩
   have Id₂ : IdentDistrib Y₂ X₂' ℙ μ₂ :=
     ⟨measurable_snd.aemeasurable, hX₂'.aemeasurable, by simp [Y₂, hP, m]⟩
-  have I : d[Y₁ # Y₂] = d[X₁' ; μ₁ # X₂' ; μ₂] := Id₁.rdist_eq Id₂
+  have I : d[Y₁ # Y₂] = d[X₁' ; μ₁ # X₂' ; μ₂] := Id₁.rdist_congr Id₂
   have J : ρ[Y₁ # A] = ρ[X₁' ; μ₁ # A] := rho_eq_of_identDistrib Id₁
   have K : ρ[Y₂ # A] = ρ[X₂' ; μ₂ # A] := rho_eq_of_identDistrib Id₂
   simp only [phi, I, J, K] at this
@@ -1302,15 +1301,15 @@ lemma I_one_le (hA : A.Nonempty) : I₁ ≤ 2 * η * d[ X₁ # X₂ ] := by
       - η * (ρ[X₂ + X₁' # A] - ρ[X₂ # A]) ≤ d[X₁ + X₂' # X₂ + X₁'] :=
     le_rdist_of_phiMinimizes h_min (hX₁.add hX₂') (hX₂.add hX₁')
   have : ρ[X₁ + X₂' # A] ≤ (ρ[X₁ # A] + ρ[X₂ # A] + d[ X₁ # X₂ ]) / 2 := by
-    rw [rho_eq_of_identDistrib h₂, (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
+    rw [rho_eq_of_identDistrib h₂, h₂.rdist_congr_right hX₁.aemeasurable]
     apply rho_of_sum_le hX₁ hX₂' hA
     simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
   have : ρ[X₂ + X₁' # A] ≤ (ρ[X₁ # A] + ρ[X₂ # A] + d[ X₁ # X₂ ]) / 2 := by
-    rw [add_comm, rho_eq_of_identDistrib h₁, h₁.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)]
+    rw [add_comm, rho_eq_of_identDistrib h₁, h₁.rdist_congr_left hX₂.aemeasurable]
     apply rho_of_sum_le hX₁' hX₂ hA
     simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 1 by decide)
   have : ρ[X₁ | X₁ + X₂' # A] ≤ (ρ[X₁ # A] + ρ[X₂ # A] + d[ X₁ # X₂ ]) / 2 := by
-    rw [rho_eq_of_identDistrib h₂, (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
+    rw [rho_eq_of_identDistrib h₂, h₂.rdist_congr_right hX₁.aemeasurable]
     apply condRho_of_sum_le hX₁ hX₂' hA
     simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
   have : ρ[X₂ | X₂ + X₁' # A] ≤ (ρ[X₁ # A] + ρ[X₂ # A] + d[ X₁ # X₂ ]) / 2 := by
@@ -1319,7 +1318,7 @@ lemma I_one_le (hA : A.Nonempty) : I₁ ≤ 2 * η * d[ X₁ # X₂ ] := by
       simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 2 by decide)
     have I : ρ[X₁' # A] = ρ[X₁ # A] := rho_eq_of_identDistrib h₁.symm
     have J : d[X₂ # X₁'] = d[X₁ # X₂] := by
-      rw [rdist_symm, h₁.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)]
+      rw [rdist_symm, h₁.rdist_congr_left hX₂.aemeasurable]
     linarith
   nlinarith
 
@@ -1335,15 +1334,15 @@ lemma I_two_aux :
     sum_of_rdist_eq_char_2' X₁' X₁ X₂' X₂ h_indep.reindex_four_cadb hX₁' hX₁ hX₂' hX₂
   have C₁ : X₁' + X₁ + X₂' + X₂ = X₁ + X₂ + X₁' + X₂' := by abel
   have C₂ : X₁' + X₁ = X₁ + X₁' := by abel
-  have C₃ : d[X₁' # X₁] = d[X₁ # X₁] := h₁.symm.rdist_eq (IdentDistrib.refl hX₁.aemeasurable)
-  have C₄ : d[X₂' # X₂] = d[X₂ # X₂] := h₂.symm.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)
+  have C₃ : d[X₁' # X₁] = d[X₁ # X₁] := h₁.symm.rdist_congr_left hX₁.aemeasurable
+  have C₄ : d[X₂' # X₂] = d[X₂ # X₂] := h₂.symm.rdist_congr_left hX₂.aemeasurable
   have C₅ : d[X₁' + X₂' # X₁ + X₂] = d[X₁ + X₂' # X₂ + X₁'] := by
-    apply IdentDistrib.rdist_eq
-    · apply IdentDistrib.add h₁.symm (IdentDistrib.refl hX₂'.aemeasurable)
+    apply IdentDistrib.rdist_congr
+    · apply h₁.symm.add (.refl hX₂'.aemeasurable)
       · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)
       · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
     · rw [add_comm]
-      apply IdentDistrib.add (IdentDistrib.refl hX₂.aemeasurable) h₁
+      refine .add (.refl hX₂.aemeasurable) h₁ ?_ ?_
       · simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 0 by decide)
       · simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 2 by decide)
   have C₆ : d[X₁' | X₁' + X₂' # X₁ | X₁ + X₂] = d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] := by
@@ -1351,13 +1350,13 @@ lemma I_two_aux :
       apply condRuzsaDist_of_copy hX₁' (by fun_prop) hX₁ (by fun_prop) hX₁ (by fun_prop) hX₁'
         (by fun_prop)
       · have : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂'⟩) := by
-          apply h₁.symm.prodMk (IdentDistrib.refl hX₂'.aemeasurable)
+          apply h₁.symm.prodMk (.refl hX₂'.aemeasurable)
           · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)
           · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
         exact this.comp (u := fun (a : G × G) ↦ (a.1, a.1 + a.2)) (by fun_prop)
       · rw [add_comm]
         have : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂⟩) := by
-          apply h₁.prodMk (IdentDistrib.refl hX₂.aemeasurable)
+          apply h₁.prodMk (.refl hX₂.aemeasurable)
           · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 1 by decide)
           · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 1 by decide)
         exact this.comp (u := fun (a : G × G) ↦ (a.1, a.2 + a.1)) (by fun_prop)
@@ -1365,7 +1364,7 @@ lemma I_two_aux :
       have J z w : d[X₁ ; ℙ[|(X₁ + X₂') ⁻¹' {z}] # X₁' ; ℙ[|(X₂ + X₁') ⁻¹' {w}]]
           = d[X₁ ; ℙ[|(X₁ + X₂') ⁻¹' {z}] # X₂ ; ℙ[|(X₂ + X₁') ⁻¹' {w}]] := by
         rw [← rdist_add_const hX₁ hX₂ (c := w)]
-        apply ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable)
+        apply (IdentDistrib.refl hX₁.aemeasurable).rdist_congr
         apply IdentDistrib.of_ae_eq hX₁'.aemeasurable
         filter_upwards [ae_cond_mem (hX₂.add hX₁' (measurableSet_singleton _))] with x hx
         simp only [mem_preimage, Pi.add_apply, mem_singleton_iff] at hx
@@ -1396,7 +1395,7 @@ lemma I_two_aux' :
   have C₁ : X₂ + X₁ = X₁ + X₂ := by abel
   have C₂ : X₁ + X₂ + X₂' + X₁' = X₁ + X₂ + X₁' + X₂' := by abel
   have C₃ : d[X₂ # X₁] = d[X₁ # X₂] := rdist_symm
-  have C₄ : d[X₂' # X₁'] = d[X₁ # X₂] := by rw [rdist_symm]; exact h₁.symm.rdist_eq h₂.symm
+  have C₄ : d[X₂' # X₁'] = d[X₁ # X₂] := by rw [rdist_symm]; exact h₁.symm.rdist_congr h₂.symm
   have C₅ : d[X₂ + X₂' # X₁ + X₁'] = d[X₁ + X₁' # X₂ + X₂'] := rdist_symm
   have C₆ : d[X₂ | X₂ + X₂' # X₁ | X₁ + X₁'] = d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂'] :=
     condRuzsaDist_symm (by fun_prop) (by fun_prop)
@@ -1418,23 +1417,19 @@ lemma I_two_le (hA : A.Nonempty) (h'η : η < 1) :
   have : ρ[X₁ + X₁' # A] ≤ (ρ[X₁ # A] + ρ[X₁ # A] + d[ X₁ # X₁ ]) / 2 := by
     refine (rho_of_sum_le hX₁ hX₁' hA
       (by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide))).trans_eq ?_
-    rw [rho_eq_of_identDistrib h₁.symm,
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁]
+    rw [rho_eq_of_identDistrib h₁.symm, h₁.rdist_congr_right hX₁.aemeasurable]
   have : ρ[X₂ + X₂' # A] ≤ (ρ[X₂ # A] + ρ[X₂ # A] + d[ X₂ # X₂ ]) / 2 := by
     refine (rho_of_sum_le hX₂ hX₂' hA
       (by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide))).trans_eq ?_
-    rw [rho_eq_of_identDistrib h₂.symm,
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂]
+    rw [rho_eq_of_identDistrib h₂.symm, h₂.rdist_congr_right hX₂.aemeasurable]
   have : ρ[X₁ | X₁ + X₁' # A] ≤ (ρ[X₁ # A] + ρ[X₁ # A] + d[ X₁ # X₁ ]) / 2 := by
     refine (condRho_of_sum_le hX₁ hX₁' hA
       (by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide))).trans_eq ?_
-    rw [rho_eq_of_identDistrib h₁.symm,
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁]
+    rw [rho_eq_of_identDistrib h₁.symm, h₁.rdist_congr_right hX₁.aemeasurable]
   have : ρ[X₂ | X₂ + X₂' # A] ≤ (ρ[X₂ # A] + ρ[X₂ # A] + d[ X₂ # X₂ ]) / 2 := by
     refine (condRho_of_sum_le hX₂ hX₂' hA
       (by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide))).trans_eq ?_
-    rw [rho_eq_of_identDistrib h₂.symm,
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂]
+    rw [rho_eq_of_identDistrib h₂.symm, h₂.rdist_congr_right hX₂.aemeasurable]
   have : I₂ ≤ η * (d[X₁ # X₁] + d[X₂ # X₂]) := by nlinarith
   rw [rdist_add_rdist_eq h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂'] at this
   have one_eta : 0 < 1 - η := by linarith
@@ -1673,7 +1668,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       · exact hY₂.add hY₄ (.singleton _)
       · exact hY₁.add hY₃ (.singleton _)
       · finiteness
-    exact IdentDistrib.rdist_eq A B
+    exact A.rdist_congr B
   _ = (ρ[Y₁ | T₂ # A] + ρ[Y₂ | T₂' # A] + d[Y₁ | T₂ # Y₂ | T₂']) / 2 := by
     congr 3
     · apply condRho_prod_eq_of_indepFun hY₁ (by fun_prop) (by fun_prop)
@@ -1819,16 +1814,12 @@ lemma dist_of_min_eq_zero' (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] 
   have J₃ : k ≤ I₁ + 2 * I₂ + η / 3 * (6 * k + I₂ - I₁) := by
     apply J₂.trans_eq
     congr 2
-    have : d[X₁ # X₁'] = d[X₁ # X₁] :=
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁.symm
-    have : d[X₁ # X₂'] = d[X₁ # X₂] :=
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂.symm
+    have : d[X₁ # X₁'] = d[X₁ # X₁] := h₁.symm.rdist_congr_right hX₁.aemeasurable
+    have : d[X₁ # X₂'] = d[X₁ # X₂] := h₂.symm.rdist_congr_right hX₁.aemeasurable
     have : d[X₂ # X₁'] = d[X₁ # X₂] := by
-      rw [rdist_symm]
-      exact IdentDistrib.rdist_eq h₁.symm (IdentDistrib.refl hX₂.aemeasurable)
-    have : d[X₂ # X₂'] = d[X₂ # X₂] :=
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂.symm
-    have : d[X₁' # X₂'] = d[X₁ # X₂] := IdentDistrib.rdist_eq h₁.symm h₂.symm
+      rw [rdist_symm]; exact h₁.symm.rdist_congr_left hX₂.aemeasurable
+    have : d[X₂ # X₂'] = d[X₂ # X₂] := h₂.symm.rdist_congr_right hX₂.aemeasurable
+    have : d[X₁' # X₂'] = d[X₁ # X₂] := h₁.symm.rdist_congr h₂.symm
     have := rdist_add_rdist_eq h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂'
     linarith
   let D := 2 * η * k - I₁
@@ -1860,7 +1851,7 @@ include hX₁ hX₂ h_min hη in
 theorem dist_of_min_eq_zero (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] = 0 := by
   let ⟨Ω', m', μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
-  rw [← h_id1.rdist_eq h_id2]
+  rw [← h_id1.rdist_congr h_id2]
   let _ : MeasureSpace Ω' := ⟨μ⟩
   have : IsProbabilityMeasure (ℙ : Measure Ω') := hμ
   have h'_min : phiMinimizes Y₁ Y₂ η A ℙ := phiMinimizes_of_identDistrib h_min h_id1.symm h_id2.symm

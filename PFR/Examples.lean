@@ -167,7 +167,8 @@ variable (X : Ω → G) (hX : Measurable X) (Y : Ω → G) (hY : Measurable Y) (
 example (h : IndepFun X Y) : d[X # Y] = H[X-Y] - H[X]/2 - H[Y]/2 := h.rdist_eq hX hY
 
 /-- `d[X # Y]` depends only on the distribution of `X` and `Y`.-/
-example (h1 : IdentDistrib X X') (h2 : IdentDistrib Y Y') : d[X # Y] = d[X' # Y'] := h1.rdist_eq h2
+example (h1 : IdentDistrib X X') (h2 : IdentDistrib Y Y') : d[X # Y] = d[X' # Y'] :=
+  h1.rdist_congr h2
 
 /-- The Ruzsa triangle inequality. -/
 example : d[X # Z] ≤ d[X # Y] + d[Y # Z] := rdist_triangle hX hY hZ
