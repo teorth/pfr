@@ -35,8 +35,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Copy README.md to website/index.md
-        run: cp README.md website/index.md
+      # - name: Copy README.md to website/index.md
+      #   run: cp README.md website/index.md
 
       - name: Upstreaming dashboard
         run: |
