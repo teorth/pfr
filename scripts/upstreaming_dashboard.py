@@ -12,7 +12,7 @@ import json
 import pathlib
 
 def main():
-    pr_file = subprocess.run(["curl", "https://raw.githubusercontent.com/jcommelin/queueboard/refs/heads/master/processed_data/open_pr_data.json"],
+    pr_file = subprocess.run(["curl", "https://raw.githubusercontent.com/leanprover-community/queueboard/refs/heads/master/processed_data/open_pr_data.json"],
         capture_output = True,
         text = True)
     pr_json = json.loads(pr_file.stdout)["pr_statusses"]
