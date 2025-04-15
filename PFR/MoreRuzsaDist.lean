@@ -70,15 +70,14 @@ lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : 
   rw [condMutualInfo_eq_sum hZ, condMutualInfo_eq_sum hZ]
   apply Finset.sum_le_sum
   intro i _
-  by_cases h : 0 < (μ (Z ⁻¹' {i})).toReal
+  rcases eq_or_lt_of_le (measureReal_nonneg (μ := μ) (s := (Z ⁻¹' {i}))) with h | h
+  · simp [← h]
   · rw [mul_le_mul_left h]
     have : IsProbabilityMeasure (μ[|Z ← i]) := by
       apply cond_isProbabilityMeasure_of_finite
       · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).left
       · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).right
     apply mutual_comp_comp_le _ hX hY f g hg
-  · suffices (μ (Z ⁻¹' {i})).toReal = 0 by simp only [this, zero_mul, le_refl]
-    apply le_antisymm (le_of_not_lt h) ENNReal.toReal_nonneg
 
 end ProbabilityTheory
 end dataProcessing
@@ -1031,7 +1030,7 @@ lemma condMultiDist_eq {m : ℕ}
   have : IsProbabilityMeasure (ℙ : Measure Ω) := h_indep.isProbabilityMeasure
   let E := fun i (yi:S) ↦ Y i ⁻¹' {yi}
   let E' := fun (y : Fin m → S) ↦ ⋂ i, E i (y i)
-  let f := fun (y : Fin m → S) ↦ ∏ i, (ℙ (E i (y i))).toReal
+  let f := fun (y : Fin m → S) ↦ ∏ i, (Measure.real ℙ) (E i (y i))
 
   calc
     _ = ∑ y, (f y) * D[X; fun i ↦ ⟨cond ℙ (E i (y i))⟩] := by rfl
@@ -1097,10 +1096,14 @@ lemma condMultiDist_eq {m : ℕ}
               congr with i'
               by_cases h : i' = i
               · simp only [h, ↓reduceIte, E]
-                rw [condEntropy_eq_sum_fintype]
-                exact hY i
-              · simp only [h, ↓reduceIte, mul_one, E]
-                exact (sum_measureReal_preimage_singleton _ (hY i')).symm
+                rw [condEntropy_eq_sum_fintype _ _ _ (hY i)]
+                rfl
+              · simp only [h, ↓reduceIte, mul_one, E, ← measureReal_def]
+                rw [sum_measureReal_preimage_singleton]
+                · simp
+                · intro i hi
+                  apply hY
+                  exact measurableSet_singleton i
 
 /-- If `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then `D[X_[m] | Y_[m]] = ∑_{(y_i)_{1 ≤ i ≤ m}} P(Y_i=y_i ∀ i) D[(X_i | Y_i=y_i ∀ i)_{i=1}^m]`
 -/
@@ -1334,7 +1337,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
           apply (Finset.sum_eq_zero _).symm
           intro s _
           convert zero_mul _
-          convert ENNReal.toReal_zero
+          simp [measureReal_eq_zero_iff]
           apply measure_mono_null _ pey
           intro ω hω
           simp [E'] at hω ⊢
@@ -1344,7 +1347,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
         rw [condMutualInfo_eq_sum' hmes, Finset.mul_sum]
         congr with x
         dsimp [f, E']
-        rw [← mul_assoc, ← ENNReal.toReal_mul]
+        rw [← mul_assoc, measureReal_def, ← ENNReal.toReal_mul]
         congr 2
         . rw [mul_comm]
           convert ProbabilityTheory.cond_mul_eq_inter (hey_mes y) ?_ _
