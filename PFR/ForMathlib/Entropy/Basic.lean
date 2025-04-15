@@ -868,7 +868,7 @@ end
 lemma condMutualInfo_eq_sum [MeasurableSingletonClass U] [IsFiniteMeasure μ]
     (hZ : Measurable Z) [FiniteRange Z] :
     I[X : Y | Z ; μ] = ∑ z ∈ FiniteRange.toFinset Z,
-      (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
+      μ.real (Z ⁻¹' {z}) * I[X : Y ; (μ[|Z ← z])] := by
   rw [condMutualInfo_eq_integral_mutualInfo,
     integral_eq_setIntegral (FiniteRange.null_of_compl _ Z), integral_finset _ _ IntegrableOn.finset]
   congr 1 with z
@@ -878,7 +878,7 @@ lemma condMutualInfo_eq_sum [MeasurableSingletonClass U] [IsFiniteMeasure μ]
 /-- A variant of `condMutualInfo_eq_sum` when `Z` has finite codomain. -/
 lemma condMutualInfo_eq_sum' [MeasurableSingletonClass U] [IsFiniteMeasure μ]
     (hZ : Measurable Z) [Fintype U] :
-    I[X : Y | Z ; μ] = ∑ z, (μ (Z ⁻¹' {z})).toReal * I[X : Y ; (μ[|Z ← z])] := by
+    I[X : Y | Z ; μ] = ∑ z, μ.real (Z ⁻¹' {z}) * I[X : Y ; (μ[|Z ← z])] := by
   rw [condMutualInfo_eq_sum hZ]
   apply Finset.sum_subset
   · simp
