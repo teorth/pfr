@@ -1100,7 +1100,7 @@ lemma condMultiDist_eq {m : ℕ}
                 rw [condEntropy_eq_sum_fintype]
                 exact hY i
               · simp only [h, ↓reduceIte, mul_one, E]
-                exact (sum_measure_preimage_singleton' _ (hY i')).symm
+                exact (sum_measureReal_preimage_singleton _ (hY i')).symm
 
 /-- If `(X_i, Y_i)`, `1 ≤ i ≤ m` are independent, then `D[X_[m] | Y_[m]] = ∑_{(y_i)_{1 ≤ i ≤ m}} P(Y_i=y_i ∀ i) D[(X_i | Y_i=y_i ∀ i)_{i=1}^m]`
 -/

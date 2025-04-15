@@ -1,6 +1,5 @@
 import PFR.Mathlib.Probability.UniformOn
 import PFR.ForMathlib.Entropy.Measure
-import PFR.ForMathlib.MeasureReal.Defs
 
 open MeasureTheory Measure Real
 
@@ -19,8 +18,7 @@ variable {S : Type*} [MeasurableSpace S] (H : Set S) [MeasurableSingletonClass S
 
 /-- The entropy of a uniform measure is the log of the cardinality of its support. -/
 lemma entropy_of_uniformOn [Nonempty H] : measureEntropy (uniformOn H) = log (Nat.card H) := by
-  simp only [measureEntropy_def', IsProbabilityMeasure.measureReal_univ, inv_one, Pi.smul_apply,
-    uniformOn_apply', Set.toFinite, smul_eq_mul, one_mul]
+  simp only [measureEntropy, measure_univ, inv_one, one_smul, Set.toFinite, uniformOn_apply']
   classical
   calc ∑' s, negMulLog ((Nat.card (H ∩ {s} : Set S)) / (Nat.card H))
     _ = ∑' s, if s ∈ H then negMulLog (1 / (Nat.card H)) else 0 := by

@@ -486,7 +486,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     · simp [H', ← Nat.card_eq_card_finite_toFinset]
     · simp [ne_of_gt]
   simp only [this, one_mul] at I₂
-  simp only [Finset.sum_toReal_measure_singleton, one_div, log_inv] at I₂
+  simp only [Finset.sum_measureReal_singleton, one_div, log_inv] at I₂
   apply le_trans _ I₂
   have I₃ : ((Measure.map (T + UA) ℙ) ↑H').toReal
       ≤ 1 * ((sSup {Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) | t : G}) / Nat.card A) := by
@@ -972,7 +972,7 @@ lemma condRhoPlus_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     Finset.sum_add_distrib, tsub_le_iff_right]
   rw [← Finset.sum_mul, ← tsum_fintype, ← condRhoMinus, ← condEntropy_eq_sum_fintype _ _ _ hZ]
   simp_rw [← Measure.map_apply hZ (measurableSet_singleton _)]
-  simp only [Finset.sum_toReal_measure_singleton, Finset.coe_univ, measure_univ, ENNReal.toReal_one,
+  simp only [Finset.sum_measureReal_singleton, Finset.coe_univ, measure_univ, ENNReal.toReal_one,
     one_mul, sub_add_cancel, ge_iff_le]
   linarith
 
@@ -1043,7 +1043,7 @@ lemma condRho_prod_eq_of_indepFun [IsProbabilityMeasure μ]
     ρ[X | ⟨W, W'⟩ ; μ # A] = ρ[X | W ; μ # A] := by
   rw [condRho_prod_eq_sum hW hW']
   have : ρ[X | W ; μ # A] = ∑ z, (μ (W' ⁻¹' {z})).toReal * ρ[X | W ; μ # A] := by
-    rw [← Finset.sum_mul, sum_measure_preimage_singleton' μ hW', one_mul]
+    rw [← Finset.sum_mul, sum_measureReal_preimage_singleton μ hW', one_mul]
   rw [this]
   congr with w
   rcases eq_or_ne (μ (W' ⁻¹' {w})) 0 with hw|hw
@@ -1249,11 +1249,11 @@ lemma condRho_le_condRuzsaDist_of_phiMinimizes {S T : Type*}
   have : IsProbabilityMeasure (Measure.map W ℙ) := isProbabilityMeasure_map hW.aemeasurable
   have hz (a : ℝ) : a = ∑ z, (ℙ (Z ⁻¹' {z})).toReal * a := by
     simp_rw [← Finset.sum_mul,← Measure.map_apply hZ (MeasurableSet.singleton _),
-      Finset.sum_toReal_measure_singleton]
+      Finset.sum_measureReal_singleton]
     simp
   have hw (a : ℝ) : a = ∑ w, (ℙ (W ⁻¹' {w})).toReal * a := by
     simp_rw [← Finset.sum_mul,← Measure.map_apply hW (MeasurableSet.singleton _),
-      Finset.sum_toReal_measure_singleton]
+      Finset.sum_measureReal_singleton]
     simp
   rw [condRuzsaDist_eq_sum' h1 hZ h2 hW, hz d[X₁ # X₂],
     hz (ρ[X₁ # A]), hz (η * (ρ[X₂' | W # A] - ρ[X₂ # A])), condRho, tsum_fintype,
@@ -1498,7 +1498,7 @@ lemma dist_le_of_sum_zero_cond {Ω' : Type*} [MeasureSpace Ω']
   have hw (a : ℝ) : a = ∑ w, (ℙ (S ⁻¹' {w})).toReal * a := by
     have : IsProbabilityMeasure (map S ℙ) := isProbabilityMeasure_map hS.aemeasurable
     simp_rw [← Finset.sum_mul,← Measure.map_apply hS (MeasurableSet.singleton _),
-      Finset.sum_toReal_measure_singleton]
+      Finset.sum_measureReal_singleton]
     simp
   rw [condMutualInfo_eq_sum' hS, condEntropy_eq_sum_fintype _ _ _ hS,
     condEntropy_eq_sum_fintype _ _ _ hS, condEntropy_eq_sum_fintype _ _ _ hS,

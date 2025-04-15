@@ -1,4 +1,5 @@
 import PFR.ForMathlib.Entropy.Kernel.Group
+import PFR.Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Ruzsa distance between kernels
@@ -294,9 +295,9 @@ lemma rdist_triangle_aux1 (κ : Kernel T G) (η : Kernel T' G)
       (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')) : Set ((T × T'') × T'))ᶜ
       = 0 :=
     Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
-  simp_rw [entropy, integral_eq_setIntegral hAB, integral_eq_setIntegral hACB, integral_finset _ _ IntegrableOn.finset,
-    smul_eq_mul, Measure.prod_apply_singleton, Finset.sum_product, ENNReal.toReal_mul, mul_assoc,
-    ← Finset.mul_sum]
+  simp_rw [entropy, integral_eq_setIntegral hAB, integral_eq_setIntegral hACB,
+    integral_finset' _ .finset, smul_eq_mul, Measure.prod_real_singleton, Finset.sum_product,
+    mul_assoc, ← Finset.mul_sum]
   congr with x
   have : ∀ z y, map (prodMkRight T' (prodMkRight T'' κ) ×ₖ prodMkLeft (T × T'') η)
         (fun p ↦ p.1 - p.2) ((x, z), y)
@@ -305,7 +306,7 @@ lemma rdist_triangle_aux1 (κ : Kernel T G) (η : Kernel T' G)
     ext s hs
     rw [map_apply' _ (by fun_prop) _ hs, map_apply' _ (by fun_prop) _ hs, prod_apply, prod_apply]
     simp
-  simp_rw [this, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
+  simp_rw [this, ← Finset.sum_mul, sum_measureReal_singleton, Measure.real,
     measure_of_measure_compl_eq_zero (measure_compl_support μ'')]
   simp
 
@@ -325,11 +326,11 @@ lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
       (((μ.support ×ˢ μ''.support) ×ˢ μ'.support : Finset ((T × T'') × T')) : Set ((T × T'') × T'))ᶜ
       = 0 :=
     Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
-  simp_rw [entropy, integral_eq_setIntegral hACB, integral_eq_setIntegral hBC, integral_finset _ _ IntegrableOn.finset,
-    smul_eq_mul, Measure.prod_apply_singleton]
+  simp_rw [entropy, integral_eq_setIntegral hACB, integral_eq_setIntegral hBC,
+    integral_finset' _ .finset, smul_eq_mul, Measure.prod_real_singleton]
   conv_rhs => rw [Finset.sum_product_right]
   conv_lhs => rw [Finset.sum_product, Finset.sum_product_right]
-  simp_rw [ENNReal.toReal_mul, mul_assoc, ← Finset.mul_sum]
+  simp_rw [mul_assoc, ← Finset.mul_sum]
   congr with z
   have : ∀ x y, map (prodMkLeft (T × T'') η ×ₖ prodMkRight T' (prodMkLeft T ξ))
         (fun p ↦ p.1 - p.2) ((x, z), y)
@@ -338,7 +339,7 @@ lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
     ext s hs
     rw [map_apply' _ (by fun_prop) _ hs, map_apply' _ (by fun_prop) _ hs, prod_apply, prod_apply]
     simp
-  simp_rw [this, ← Finset.sum_mul, Finset.sum_toReal_measure_singleton,
+  simp_rw [this, ← Finset.sum_mul, sum_measureReal_singleton, Measure.real,
     measure_of_measure_compl_eq_zero (measure_compl_support μ),
     measure_univ, ENNReal.toReal_one, one_mul, ← mul_assoc, mul_comm _ (μ'' {z}).toReal, mul_assoc,
     ← Finset.mul_sum]

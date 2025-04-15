@@ -447,7 +447,7 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
   have hW : Measurable W := by fun_prop
   have hUVW : U + V + W = 0 := sum_uvw_eq_zero X₁ X₂ X₁'
   have hz (a : ℝ) : a = ∑ z, (ℙ (S ⁻¹' {z})).toReal * a := by
-    rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hS, one_mul]
+    rw [← Finset.sum_mul, sum_measureReal_preimage_singleton ℙ hS, one_mul]
   rw [hz k, hz (d[p.X₀₁ # X₁]), hz (d[p.X₀₂ # X₂])]
   simp only [condMutualInfo_eq_sum' hS, ← Finset.sum_add_distrib, ← mul_add,
     condRuzsaDist'_prod_eq_sum', hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,

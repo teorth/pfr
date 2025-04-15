@@ -1,5 +1,5 @@
 import Mathlib.Probability.Independence.Basic
-import PFR.ForMathlib.MeasureReal.Defs
+import Mathlib.MeasureTheory.Measure.Real
 
 open Function MeasureTheory MeasurableSpace Measure Set
 open scoped MeasureTheory ENNReal

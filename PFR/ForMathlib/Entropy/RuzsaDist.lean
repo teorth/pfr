@@ -223,16 +223,14 @@ lemma rdist_of_inj {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClas
 /-- `d[X ; 0] = H[X] / 2`. -/
 lemma rdist_zero_eq_half_ent [IsFiniteMeasure μ] [IsProbabilityMeasure μ'] :
     d[X ; μ # fun _ ↦ 0 ; μ'] = H[X ; μ]/2 := by
-  have aux : H[fun x => x.1 - x.2 ; Measure.prod (Measure.map X μ) (Measure.map (fun x => 0) μ')]
+  have aux : H[fun x => x.1 - x.2 ; (μ.map X).prod (dirac 0)]
             = H[X ; μ] := by
-    have h: Measure.map (fun x => x.1 - x.2)
-                        (Measure.prod (Measure.map X μ) (Measure.map (fun x => 0) μ'))
-            = Measure.map X μ := by
-              simp [MeasureTheory.Measure.map_const, MeasureTheory.Measure.prod_dirac]
-              rw [Measure.map_map (by fun_prop) (by fun_prop)]
-              have helper : ((fun (x : G × G) => x.1 - x.2) ∘ fun x => (x, (0 : G))) = id := by
-                funext; simp
-              rw [helper, Measure.map_id]
+    have h : ((μ.map X).prod (dirac 0)).map (fun x => x.1 - x.2) = Measure.map X μ := by
+      simp [Measure.prod_dirac]
+      rw [Measure.map_map (by fun_prop) (by fun_prop)]
+      have helper : ((fun (x : G × G) => x.1 - x.2) ∘ fun x => (x, (0 : G))) = id := by
+        funext; simp
+      rw [helper, Measure.map_id]
     simp [entropy_def, h]
   simp [rdist_def, entropy_const (0 : G), aux]
   ring
@@ -302,7 +300,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
   have : Finite H := hH
   have : H[X' - UH' | π ∘ X' ; ν] = H[UH' ; ν] := by
     have h_meas_le : ∀ y ∈ FiniteRange.toFinset (π ∘ X'),
-        (νq {y}).toReal * H[X' - UH' | (π ∘ X') ← y ; ν] ≤ (νq {y}).toReal * H[UH' ; ν] := by
+        νq.real {y} * H[X' - UH' | (π ∘ X') ← y ; ν] ≤ νq.real {y} * H[UH' ; ν] := by
       intro x _
       refine mul_le_mul_of_nonneg_left ?_ ENNReal.toReal_nonneg
       let ν' := ν[|π ∘ X' ← x]
@@ -332,8 +330,8 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
       convert entropy_le_log_card_of_mem (Measurable.sub hX' hUH') h
       simp_rw [hunif.entropy_eq' hH hUH', H_x, Set.Finite.mem_toFinset, h_card,
         SetLike.coe_sort_coe]
-    have h_one : (∑ x ∈ FiniteRange.toFinset (π ∘ X'), (νq {x}).toReal) = 1 := by
-      rewrite [Finset.sum_toReal_measure_singleton]
+    have h_one : ∑ x ∈ FiniteRange.toFinset (π ∘ X'), νq.real {x} = 1 := by
+      rewrite [sum_measureReal_singleton]
       apply (ENNReal.toReal_eq_one_iff _).mpr
       have := isProbabilityMeasure_map (μ := ν) <| .of_discrete (f := π ∘ X')
       rewrite [← measure_univ (μ := νq), ← FiniteRange.range]
@@ -498,23 +496,23 @@ lemma condRuzsaDist_eq_sum' {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : �
     (μ : Measure Ω) [IsFiniteMeasure μ] (μ' : Measure Ω') [IsFiniteMeasure μ']
     [Fintype S] [Fintype T] :
     d[X | Z ; μ # Y | W ; μ']
-      = ∑ z, ∑ w, (μ (Z ⁻¹' {z})).toReal * (μ' (W ⁻¹' {w})).toReal
+      = ∑ z, ∑ w, μ.real (Z ⁻¹' {z}) * μ'.real (W ⁻¹' {w})
           * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
-  rw [condRuzsaDist_def, Kernel.rdist, integral_fintype _ .of_finite]
-  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, smul_eq_mul, Fintype.sum_prod_type,
-    Measure.map_apply hZ (.singleton _),
-    Measure.map_apply hW (.singleton _)]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_fintype' .of_finite]
+  simp_rw [Measure.prod_real_singleton, smul_eq_mul, Fintype.sum_prod_type,
+    map_measureReal_apply hZ (.singleton _), map_measureReal_apply hW (.singleton _)]
   congr with z
   congr with w
-  by_cases hz : μ (Z ⁻¹' {z}) = 0
+  by_cases hz : μ.real (Z ⁻¹' {z}) = 0
   · simp only [mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inl ?_)
     simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ, hz]
-  by_cases hw : μ' (W ⁻¹' {w}) = 0
+  by_cases hw : μ'.real (W ⁻¹' {w}) = 0
   · simp only [mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inr ?_)
     simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
   congr 1
+  simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top μ] at hz hw
   rw [rdist_eq_rdistm]
   rw [condDistrib_apply hX hZ _ _ hz, condDistrib_apply hY hW _ _ hw]
 
@@ -525,7 +523,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
     [FiniteRange Z] [FiniteRange W] :
     d[X | Z ; μ # Y | W ; μ']
       = ∑ z ∈ FiniteRange.toFinset Z, ∑ w ∈ FiniteRange.toFinset W,
-        (μ (Z ⁻¹' {z})).toReal * (μ' (W ⁻¹' {w})).toReal
+        μ.real (Z ⁻¹' {z}) * μ'.real (W ⁻¹' {w})
           * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
   have : Measure.prod (μ.map Z) (μ'.map W) ((((FiniteRange.toFinset Z)
       ×ˢ (FiniteRange.toFinset W)) : Finset (S × T)): Set (S × T))ᶜ = 0 := by
@@ -536,21 +534,21 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
       simp [← FiniteRange.range]
       measurability
     }
-  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ IntegrableOn.finset]
-  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, smul_eq_mul, Finset.sum_product,
-    Measure.map_apply hZ (.singleton _),
-    Measure.map_apply hW (.singleton _)]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset' _ .finset]
+  simp_rw [Measure.prod_real_singleton, smul_eq_mul, Finset.sum_product,
+    map_measureReal_apply hZ (.singleton _), map_measureReal_apply hW (.singleton _)]
   congr with z
   congr with w
-  by_cases hz : μ (Z ⁻¹' {z}) = 0
+  by_cases hz : μ.real (Z ⁻¹' {z}) = 0
   · simp only [mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inl ?_)
     simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ, hz]
-  by_cases hw : μ' (W ⁻¹' {w}) = 0
+  by_cases hw : μ'.real (W ⁻¹' {w}) = 0
   · simp only [mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inr ?_)
     simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
   congr 1
+  simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top μ] at hz hw
   rw [rdist_eq_rdistm]
   rw [condDistrib_apply hX hZ _ _ hz, condDistrib_apply hY hW _ _ hw]
 
@@ -608,7 +606,7 @@ lemma condRuzsaDist'_def {T : Type*} [MeasurableSpace T]
 lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
     (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] [FiniteRange W] :
     d[X ; μ # Y | W ; μ']
-      = ∑ w ∈ FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
+      = ∑ w ∈ FiniteRange.toFinset W, μ'.real (W ⁻¹' {w}) * d[X ; μ # Y ; (μ'[|W ← w])] := by
   have : Measure.prod (dirac ()) (μ'.map W) ((Finset.univ (α := Unit) ×ˢ FiniteRange.toFinset W :
     Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
     apply Measure.prod_of_full_measure_finset
@@ -617,17 +615,15 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
-  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ IntegrableOn.finset]
-  simp_rw [Measure.prod_apply_singleton, smul_eq_mul, Finset.sum_product]
+  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset' _ .finset]
+  simp_rw [Measure.prod_real_singleton, smul_eq_mul, Finset.sum_product]
   simp only [Finset.univ_unique, PUnit.default_eq_unit, MeasurableSpace.measurableSet_top,
     Measure.dirac_apply', Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, one_mul,
     Finset.sum_singleton]
-  simp_rw [Measure.map_apply hW (.singleton _)]
+  simp_rw [map_measureReal_apply hW (.singleton _)]
   congr with w
-  by_cases hw : μ' (W ⁻¹' {w}) = 0
-  · simp only [mul_eq_mul_left_iff]
-    refine Or.inr ?_
-    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
+  by_cases hw : μ'.real (W ⁻¹' {w}) = 0
+  · simp [measure_ne_top μ', hw]
   congr 1
   rw [rdist_eq_rdistm, condDistrib_apply hY hW _ _ hw]
   congr
@@ -636,7 +632,7 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
 lemma condRuzsaDist'_eq_sum' {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
     (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] [Fintype T] :
     d[X ; μ # Y | W ; μ']
-      = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y ; (μ'[|W ← w])] := by
+      = ∑ w, μ'.real (W ⁻¹' {w}) * d[X ; μ # Y ; (μ'[|W ← w])] := by
   rw [condRuzsaDist'_eq_sum hY hW μ μ']
   apply Finset.sum_subset
   · simp
@@ -652,9 +648,9 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
     (μ : Measure Ω) (μ' : Measure Ω') (hY : Measurable Y) (hW' : Measurable W') (hW : Measurable W)
     [IsFiniteMeasure μ'] [FiniteRange W] [FiniteRange W']:
     d[X ; μ # Y | ⟨W', W⟩; μ']
-      = ∑ w ∈ FiniteRange.toFinset W, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
+      = ∑ w ∈ FiniteRange.toFinset W, μ'.real (W ⁻¹' {w}) * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
   have : d[X ; μ # Y | ⟨W', W⟩; μ'] = ∑ w ∈ ((FiniteRange.toFinset W') ×ˢ FiniteRange.toFinset W),
-    (μ' ((fun a => (W' a, W a)) ⁻¹' {w})).toReal * d[X ; μ # Y ; μ'[|(fun a => (W' a, W a)) ⁻¹' {w}]] := by
+    μ'.real ((fun a => (W' a, W a)) ⁻¹' {w}) * d[X ; μ # Y ; μ'[|(fun a => (W' a, W a)) ⁻¹' {w}]] := by
     rw [condRuzsaDist'_eq_sum hY (hW'.prodMk hW)]
     apply Finset.sum_subset
     · intro (t, t')
@@ -674,13 +670,12 @@ lemma condRuzsaDist'_prod_eq_sum {X : Ω → G} {Y : Ω' → G} {W W' : Ω' → 
   rw [← mul_assoc]
   have A : (fun a ↦ (W' a, W a)) ⁻¹' {(w', w)} = W' ⁻¹' {w'} ∩ W⁻¹' {w} := by ext; simp
   congr 1
-  · simp only [A, ProbabilityTheory.cond, smul_apply, restrict_apply (hW' (.singleton w')),
+  · simp only [A, ProbabilityTheory.cond_real_apply (hW' (.singleton w')),
       smul_eq_mul, ENNReal.toReal_mul]
-    rcases eq_bot_or_bot_lt (μ' (W ⁻¹' {w})) with hw|hw
-    · have : μ' (W' ⁻¹' {w'} ∩ W ⁻¹' {w}) = 0 :=
-        le_antisymm (le_trans (measure_mono Set.inter_subset_right) hw.le) bot_le
+    obtain hw | hw := eq_or_ne (μ'.real (W ⁻¹' {w})) 0
+    · have : μ'.real (W' ⁻¹' {w'} ∩ W ⁻¹' {w}) = 0 := measureReal_mono_null Set.inter_subset_right hw
       simp [hw, this]
-    · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.toReal_one, one_mul]
+    · rw [mul_inv_cancel_left₀]
       exacts [hw.ne', by finiteness]
   · congr 1
     rw [A, cond_cond_eq_cond_inter' (hW (.singleton _)) (hW' (.singleton _)), Set.inter_comm]
@@ -691,7 +686,7 @@ lemma condRuzsaDist'_prod_eq_sum' {X : Ω → G} {Y : Ω' → G} {W W' : Ω' →
     (μ : Measure Ω) (μ' : Measure Ω') (hY : Measurable Y) (hW' : Measurable W') (hW : Measurable W)
     [IsFiniteMeasure μ'] [Fintype T]:
     d[X ; μ # Y | ⟨W', W⟩; μ']
-      = ∑ w, (μ' (W ⁻¹' {w})).toReal * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
+      = ∑ w, μ'.real (W ⁻¹' {w}) * d[X ; μ # Y | W' ; (μ'[|W ← w])] := by
   rw [condRuzsaDist'_prod_eq_sum μ μ' hY hW' hW]
   apply Finset.sum_subset
   · simp
@@ -710,12 +705,12 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
   rw [condRuzsaDist'_eq_sum hY hW]
   simp_rw [← smul_eq_mul]
   have : (μ'.map W) (FiniteRange.toFinset W : Set T)ᶜ = 0 := by
-    rw [Measure.map_apply ‹_›]
+    rw [map_measureReal_apply ‹_›]
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
   rw [integral_eq_setIntegral this, integral_finset _ _ IntegrableOn.finset]
-  simp [Measure.map_apply hW (MeasurableSet.singleton _)]
+  simp [map_measureReal_apply hW (MeasurableSet.singleton _)]
 
 section
 
@@ -789,8 +784,8 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
   have h_indep := condDistrib_eq_prod_of_indepFun hX measurable_const hY hW _ h'
   have h_meas_eq : μ.map (⟨Z, W⟩) = (Measure.dirac ()).prod (μ.map W) := by
     ext s hs
-    rw [Measure.map_apply (measurable_const.prodMk hW) hs, Measure.prod_apply hs, lintegral_dirac,
-      Measure.map_apply hW (measurable_prodMk_left hs)]
+    rw [map_measureReal_apply (measurable_const.prodMk hW) hs, Measure.prod_apply hs, lintegral_dirac,
+      map_measureReal_apply hW (measurable_prodMk_left hs)]
     congr
   rw [← h_meas_eq]
   have : Kernel.map (Kernel.prodMkRight T (condDistrib X Z μ)
@@ -807,13 +802,13 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
   rw [Kernel.entropy_congr this]
   have h_meas : μ.map (⟨Z, W⟩) = (μ.map W).map (Prod.mk ()) := by
     ext s hs
-    rw [Measure.map_apply measurable_prodMk_left hs, h_meas_eq, Measure.prod_apply hs,
+    rw [map_measureReal_apply measurable_prodMk_left hs, h_meas_eq, Measure.prod_apply hs,
       lintegral_dirac]
   have h_ker : condDistrib (X - Y) (⟨Z, W⟩) μ
       =ᵐ[μ.map (⟨Z, W⟩)] Kernel.prodMkLeft Unit (condDistrib (X - Y) W μ) := by
     rw [Filter.EventuallyEq, ae_iff_of_countable]
     intro x hx
-    rw [Measure.map_apply (measurable_const.prodMk hW) (.singleton _)] at hx
+    rw [map_measureReal_apply (measurable_const.prodMk hW) (.singleton _)] at hx
     ext s hs
     have h_preimage_eq : (fun a ↦ (PUnit.unit, W a)) ⁻¹' {x} = W ⁻¹' {x.2} := by
       conv_lhs => rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod]
@@ -849,7 +844,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
     simp only [A, B]
     apply Measure.prod_of_full_measure_finset
     all_goals {
-      rw [Measure.map_apply ‹_›]
+      rw [map_measureReal_apply ‹_›]
       convert measure_empty (μ := μ)
       simp [← FiniteRange.range]
       measurability
@@ -859,7 +854,7 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
     simp only [A, B]
     apply Measure.prod_of_full_measure_finset
     all_goals {
-      rw [Measure.map_apply ‹_›]
+      rw [map_measureReal_apply ‹_›]
       convert measure_empty (μ := μ)
       simp [← FiniteRange.range]
       measurability
@@ -870,8 +865,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
   have hZZ' : μ.map Z = μ''.map Z' := (h1.comp measurable_snd).map_eq
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hZZ', ← hWW',
-    Measure.map_apply hZ (.singleton _),
-    Measure.map_apply hW (.singleton _)]
+    map_measureReal_apply hZ (.singleton _),
+    map_measureReal_apply hW (.singleton _)]
   congr with x
   by_cases hz : μ (Z ⁻¹' {x.1}) = 0
   · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
@@ -884,28 +879,28 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
   congr 2
   · have hZZ'x : μ (Z ⁻¹' {x.1}) = μ'' (Z' ⁻¹' {x.1}) := by
       have : μ.map Z {x.1} = μ''.map Z' {x.1} := by rw [hZZ']
-      rwa [Measure.map_apply hZ (.singleton _),
-        Measure.map_apply hZ' (.singleton _)] at this
+      rwa [map_measureReal_apply hZ (.singleton _),
+        map_measureReal_apply hZ' (.singleton _)] at this
     ext s hs
     rw [condDistrib_apply' hX hZ _ _ hz hs, condDistrib_apply' hX' hZ' _ _ _ hs]
     swap; · rwa [hZZ'x] at hz
     congr
     have : μ.map (⟨X, Z⟩) (s ×ˢ {x.1}) = μ''.map (⟨X', Z'⟩) (s ×ˢ {x.1}) := by rw [h1.map_eq]
-    rwa [Measure.map_apply (hX.prodMk hZ) (hs.prod (.singleton _)),
-      Measure.map_apply (hX'.prodMk hZ') (hs.prod (.singleton _)),
+    rwa [map_measureReal_apply (hX.prodMk hZ) (hs.prod (.singleton _)),
+      map_measureReal_apply (hX'.prodMk hZ') (hs.prod (.singleton _)),
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ X' a) ⁻¹' s)] at this
   · have hWW'x : μ' (W ⁻¹' {x.2}) = μ''' (W' ⁻¹' {x.2}) := by
       have : μ'.map W {x.2} = μ'''.map W' {x.2} := by rw [hWW']
-      rwa [Measure.map_apply hW (.singleton _),
-        Measure.map_apply hW' (.singleton _)] at this
+      rwa [map_measureReal_apply hW (.singleton _),
+        map_measureReal_apply hW' (.singleton _)] at this
     ext s hs
     rw [condDistrib_apply' hY hW _ _ hw hs, condDistrib_apply' hY' hW' _ _ _ hs]
     swap; · rwa [hWW'x] at hw
     congr
     have : μ'.map (⟨Y, W⟩) (s ×ˢ {x.2}) = μ'''.map (⟨Y', W'⟩) (s ×ˢ {x.2}) := by rw [h2.map_eq]
-    rwa [Measure.map_apply (hY.prodMk hW) (hs.prod (.singleton _)),
-      Measure.map_apply (hY'.prodMk hW') (hs.prod (.singleton _)),
+    rwa [map_measureReal_apply (hY.prodMk hW) (hs.prod (.singleton _)),
+      map_measureReal_apply (hY'.prodMk hW') (hs.prod (.singleton _)),
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
@@ -923,7 +918,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     apply Measure.prod_of_full_measure_finset
     · simp
     simp only [A]
-    rw [Measure.map_apply ‹_›]
+    rw [map_measureReal_apply ‹_›]
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
@@ -932,7 +927,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     apply Measure.prod_of_full_measure_finset
     · simp
     simp only [A]
-    rw [Measure.map_apply ‹_›]
+    rw [map_measureReal_apply ‹_›]
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
@@ -941,7 +936,7 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     integral_finset _ _ IntegrableOn.finset]
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hWW',
-    Measure.map_apply hW (.singleton _)]
+    map_measureReal_apply hW (.singleton _)]
   congr with x
   by_cases hw : μ' (W ⁻¹' {x.2}) = 0
   · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
@@ -951,15 +946,15 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
   · rw [Kernel.const_apply, Kernel.const_apply, h1.map_eq]
   · have hWW'x : μ' (W ⁻¹' {x.2}) = μ''' (W' ⁻¹' {x.2}) := by
       have : μ'.map W {x.2} = μ'''.map W' {x.2} := by rw [hWW']
-      rwa [Measure.map_apply hW (.singleton _),
-        Measure.map_apply hW' (.singleton _)] at this
+      rwa [map_measureReal_apply hW (.singleton _),
+        map_measureReal_apply hW' (.singleton _)] at this
     ext s hs
     rw [condDistrib_apply' hY hW _ _ hw hs, condDistrib_apply' hY' hW' _ _ _ hs]
     swap; · rwa [hWW'x] at hw
     congr
     have : μ'.map (⟨Y, W⟩) (s ×ˢ {x.2}) = μ'''.map (⟨Y', W'⟩) (s ×ˢ {x.2}) := by rw [h2.map_eq]
-    rwa [Measure.map_apply (hY.prodMk hW) (hs.prod (.singleton _)),
-      Measure.map_apply (hY'.prodMk hW') (hs.prod (.singleton _)),
+    rwa [map_measureReal_apply (hY.prodMk hW) (hs.prod (.singleton _)),
+      map_measureReal_apply (hY'.prodMk hW') (hs.prod (.singleton _)),
       Set.mk_preimage_prod, Set.mk_preimage_prod, Set.inter_comm,
       Set.inter_comm ((fun a ↦ Y' a) ⁻¹' s)] at this
 
@@ -969,11 +964,12 @@ lemma condRuszaDist_prod_eq_of_indepFun {μ : Measure Ω} {μ' : Measure Ω'} {X
     [IsProbabilityMeasure μ'] [Fintype T] :
     d[X ; μ # Y | ⟨W, W'⟩ ; μ'] = d[X ; μ # Y | W ; μ'] := by
   rw [condRuzsaDist'_prod_eq_sum' _ _ hY hW hW']
-  have : d[X ; μ # Y | W ; μ'] = ∑ z, (μ' (W' ⁻¹' {z})).toReal * d[X ; μ # Y | W ; μ'] := by
-    rw [← Finset.sum_mul, sum_measure_preimage_singleton' μ' hW', one_mul]
+  have : d[X ; μ # Y | W ; μ'] = ∑ z, μ'.real (W' ⁻¹' {z}) * d[X ; μ # Y | W ; μ'] := by
+    rw [← Finset.sum_mul, sum_measureReal_preimage_singleton _ fun _ _ ↦ hW' <| .singleton _]
+    simp
   rw [this]
   congr with w
-  rcases eq_or_ne (μ' (W' ⁻¹' {w})) 0 with hw|hw
+  obtain hw | hw := eq_or_ne (μ'.real (W' ⁻¹' {w})) 0
   · simp [hw]
   congr 1
   exact condRuzsaDist'_of_copy _ hY hW _ hY hW (IdentDistrib.refl hX.aemeasurable)
@@ -1046,11 +1042,7 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [Module (ZMod 2) G]
     · congr
     · have h1 : (⟨Y 0, Y 2⟩) = (fun x ↦ (-x, 0)) ∘ X := by ext1 ω; simp [Y]
       have h2 : (⟨Y 1, Y 3⟩) = (fun p ↦ (p.2, p.1 + p.2)) ∘ (⟨B, C⟩) := by
-        ext1 ω;
-        simp only [ZModModule.neg_eq_self, Matrix.cons_val_one, Matrix.head_cons,
-          comp_apply, Prod.mk.injEq, Matrix.cons_val', Pi.add_apply, Matrix.empty_val',
-          Matrix.cons_val_fin_one, true_and, Y]
-        congr
+        ext ω : 1; simp [ZModModule.neg_eq_self, Y]
       rw [h1, h2]
       refine h_indep.comp ?_ ?_
       · exact measurable_neg.prodMk measurable_const

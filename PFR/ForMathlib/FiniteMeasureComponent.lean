@@ -1,5 +1,5 @@
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
-import PFR.ForMathlib.MeasureReal.Defs
+import Mathlib.MeasureTheory.Measure.Real
 
 /-!
 # The measure of a connected component of a space depends continuously on a finite measure

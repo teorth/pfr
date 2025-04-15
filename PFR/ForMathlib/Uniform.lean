@@ -1,7 +1,7 @@
+import Mathlib.MeasureTheory.Measure.Real
 import Mathlib.Probability.IdentDistrib
-import PFR.Mathlib.Probability.UniformOn
 import PFR.ForMathlib.FiniteRange.Defs
-import PFR.ForMathlib.MeasureReal.Defs
+import PFR.Mathlib.Probability.UniformOn
 
 open Function MeasureTheory Measure Set
 open scoped ENNReal
