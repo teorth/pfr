@@ -115,7 +115,7 @@ lemma KLDiv_eq_zero_iff_identDistrib [Fintype G] [MeasurableSingletonClass G]
 and ${\bf P}(X=x) = \sum_{s\in S} w_s {\bf P}(X_s=x)$, ${\bf P}(Y=x) =
   \sum_{s\in S} w_s {\bf P}(Y_s=x)$ for all $x$, then
 $$D_{KL}(X\Vert Y) \le \sum_{s\in S} w_s D_{KL}(X_s\Vert Y_s).$$ -/
-lemma KLDiv_of_convex [Fintype G] [IsFiniteMeasure μ''']
+lemma KLDiv_of_convex [Fintype G]
     {ι : Type*} {S : Finset ι} {w : ι → ℝ} (hw : ∀ s ∈ S, 0 ≤ w s)
     (X' : ι → Ω'' → G) (Y' : ι → Ω''' → G)
     (hconvex : ∀ x, (μ.map X).real {x} = ∑ s ∈ S, w s * (μ''.map (X' s)).real {x})
@@ -243,6 +243,16 @@ lemma ProbabilityTheory.IndepFun.map_add_singleton_eq_sum
   congr
   simp
   abel
+
+lemma ProbabilityTheory.IndepFun.real_map_add_eq_sum [IsFiniteMeasure μ]
+    [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
+    {X Z : Ω → G} (h_indep : IndepFun X Z μ)
+    (hX : Measurable X) (hZ : Measurable Z) (S : Set G) :
+    (μ.map (X + Z)).real S = ∑ s, (μ.map Z).real {s} * (μ.map X).real ({-s} + S) := by
+  rw [measureReal_def, h_indep.map_add_eq_sum hX hZ, ENNReal.toReal_sum (by finiteness)]
+  congr with s
+  simp only [singleton_add, image_add_left, neg_neg, ENNReal.toReal_mul]
+  rfl
 
 lemma ProbabilityTheory.IndepFun.real_map_add_singleton_eq_sum
     [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G] [IsFiniteMeasure μ]
