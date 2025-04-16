@@ -133,23 +133,24 @@ lemma gen_ineq_aux2 :
         ext p; simp
       rw [this]
       have J : IndepFun (Z₁ + Z₃) (Z₂ + Z₄) := by exact I.comp measurable_add measurable_add
-      rw [J.measureReal_inter_preimage_eq_mul (.singleton x) (.singleton y), ENNReal.toReal_mul]
-      rcases eq_or_ne (ℙ ((Z₁ + Z₃) ⁻¹' {x})) 0 with h1|h1
+      rw [J.measureReal_inter_preimage_eq_mul (.singleton x) (.singleton y)]
+      rcases eq_or_ne (Measure.real ℙ ((Z₁ + Z₃) ⁻¹' {x})) 0 with h1|h1
       · simp [h1]
-      rcases eq_or_ne (ℙ ((Z₂ + Z₄) ⁻¹' {y})) 0 with h2|h2
+      rcases eq_or_ne (Measure.real ℙ ((Z₂ + Z₄) ⁻¹' {y})) 0 with h2|h2
       · simp [h2]
       congr 1
       have A : IdentDistrib Z₁ Z₁ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := by
         rw [← cond_cond_eq_cond_inter']
-        have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure h1
+        have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure_of_real h1
         apply (IndepFun.identDistrib_cond _ (.singleton _) hZ₁ (by fun_prop) _).symm
         · have : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
             I.cond_left (measurable_add (.singleton x))
               (hZ₁.prodMk hZ₃)
           exact this.comp measurable_fst measurable_add
         · rw [cond_apply, J.measure_inter_preimage_eq_mul _ _ (.singleton x) (.singleton y)]
-          simp [h1, h2]
+          · simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
+            simp [h1, h2]
           · exact hZ₁.add hZ₃ (.singleton _)
         · exact hZ₁.add hZ₃ (.singleton _)
         · exact hZ₂.add hZ₄ (.singleton _)
@@ -157,7 +158,7 @@ lemma gen_ineq_aux2 :
       have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := by
         rw [Set.inter_comm, ← cond_cond_eq_cond_inter']
-        have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure h2
+        have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure_of_real h2
         apply (IndepFun.identDistrib_cond _ (.singleton _) hZ₂ (hZ₁.add hZ₃) _).symm
         · have : IndepFun (⟨Z₂, Z₄⟩) (⟨Z₁, Z₃⟩) (ℙ[|(⟨Z₂, Z₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
             I.symm.cond_left (measurable_add (.singleton y))
@@ -165,6 +166,7 @@ lemma gen_ineq_aux2 :
           exact this.comp measurable_fst measurable_add
         · rw [Pi.add_def, cond_apply (hZ₂.add hZ₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
             J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
+          simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
           simp [h1, h2]
         · exact hZ₂.add hZ₄ (.singleton _)
         · exact hZ₁.add hZ₃ (.singleton _)

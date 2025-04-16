@@ -1,4 +1,5 @@
 import Mathlib.Probability.UniformOn
+import Mathlib.MeasureTheory.Measure.Real
 
 open Function MeasureTheory Measure
 
@@ -13,8 +14,16 @@ lemma uniformOn_apply_singleton_of_mem (hx : x ∈ s) (hs : s.Finite) :
     this, Measure.count_singleton', smul_eq_mul, mul_one, one_div, inv_inj]
   rw [Measure.count_apply_finite _ hs, Nat.card_eq_card_finite_toFinset hs]
 
+lemma real_uniformOn_apply_singleton_of_mem (hx : x ∈ s) (hs : s.Finite) :
+    (uniformOn s).real {x} = 1 / Nat.card s := by
+  simp [measureReal_def, uniformOn_apply_singleton_of_mem hx hs]
+
 lemma uniformOn_apply_singleton_of_not_mem (hx : x ∉ s) : uniformOn s {x} = 0 := by
   simp [uniformOn, cond, hx]
+
+lemma real_uniformOn_apply_singleton_of_not_mem (hx : x ∉ s) :
+    (uniformOn s).real {x} = 0 := by
+  simp [measureReal_def, uniformOn_apply_singleton_of_not_mem hx]
 
 theorem uniformOn_apply_eq_zero (hst : s ∩ t = ∅) : uniformOn s t = 0 := by
   rcases Set.finite_or_infinite s with hs | hs

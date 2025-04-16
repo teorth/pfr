@@ -119,7 +119,7 @@ variable (X : Ω → S) (hX : Measurable X) (Y : Ω → T) (hY : Measurable Y) (
 
 /-- $H[X]$ is the Shannon entropy of $X$. -/
 example : H[X] =
-    - ∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
+    - ∑ x, ((ℙ : Measure Ω).map X).real {x} * Real.log (((ℙ : Measure Ω).map X).real {x}) := by
   rw [entropy_eq_sum ℙ, ← Finset.sum_neg_distrib, tsum_eq_sum]
   · congr with x
     unfold Real.negMulLog
