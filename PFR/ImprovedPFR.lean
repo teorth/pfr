@@ -1,4 +1,5 @@
 import PFR.Main
+import PFR.ForMathlib.MeasureReal.Indep
 
 /-!
 # Improved PFR
@@ -92,19 +93,19 @@ lemma gen_ineq_aux2 :
         (.of_discrete (f := e)) e.injective).symm
       simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
       abel
-  _ = ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal *
+  _ = ∑ w, (Measure.real ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) *
         d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]] := by
     rw [condRuzsaDist'_eq_sum']
     exact hZ₁.add hZ₂
     exact (hZ₁.add hZ₃).prodMk (hZ₂.add hZ₄)
-  _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]]
+  _ ≤ ∑ w, Measure.real ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}) * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]]
       + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]] / 2
       + H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4) := by
     apply Finset.sum_le_sum (fun w _h'w ↦ ?_)
-    rcases eq_or_ne (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) 0 with hw|hw
+    rcases eq_or_ne (Measure.real ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) 0 with hw|hw
     · simp [hw]
     gcongr
-    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure hw
+    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure_of_real hw
     have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]) := by
       have E : (⟨Z₁, Z₃⟩)⁻¹' {p | p.1 + p.2 = w.1} ∩ (⟨Z₂, Z₄⟩)⁻¹' {p | p.1 + p.2 = w.2}
         = ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w} := by aesop
@@ -132,8 +133,7 @@ lemma gen_ineq_aux2 :
         ext p; simp
       rw [this]
       have J : IndepFun (Z₁ + Z₃) (Z₂ + Z₄) := by exact I.comp measurable_add measurable_add
-      rw [J.measure_inter_preimage_eq_mul _ _ (.singleton x)
-        (.singleton y), ENNReal.toReal_mul]
+      rw [J.measureReal_inter_preimage_eq_mul (.singleton x) (.singleton y), ENNReal.toReal_mul]
       rcases eq_or_ne (ℙ ((Z₁ + Z₃) ⁻¹' {x})) 0 with h1|h1
       · simp [h1]
       rcases eq_or_ne (ℙ ((Z₂ + Z₄) ⁻¹' {y})) 0 with h2|h2
@@ -241,9 +241,9 @@ lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] �
       condRuzsaDist'_prod_eq_sum _ _ (by fun_prop) hS (by fun_prop),
       condRuzsaDist'_prod_eq_sum _ _ (by fun_prop) hS (by fun_prop)]
   congr with w
-  rcases eq_or_ne (ℙ ((Z₁ + Z₃) ⁻¹' {w})) 0 with hw|hw
+  rcases eq_or_ne (Measure.real ℙ ((Z₁ + Z₃) ⁻¹' {w})) 0 with hw|hw
   · simp [hw]
-  have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {w}]) := cond_isProbabilityMeasure hw
+  have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {w}]) := cond_isProbabilityMeasure_of_real hw
   have : Sum = (Z₁ + Z₂) + (Z₃ + Z₄) := by abel
   rw [this, condRuzsaDist'_of_inj_map' hY (by fun_prop) (by fun_prop)]
 
@@ -348,6 +348,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
       integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
       Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
+    rfl
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const,
@@ -355,6 +356,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
       integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
       Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
+    rfl
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
       + (d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂])) := by
@@ -446,19 +448,23 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
   have hV : Measurable V := by fun_prop
   have hW : Measurable W := by fun_prop
   have hUVW : U + V + W = 0 := sum_uvw_eq_zero X₁ X₂ X₁'
-  have hz (a : ℝ) : a = ∑ z, (ℙ (S ⁻¹' {z})).toReal * a := by
-    rw [← Finset.sum_mul, sum_measureReal_preimage_singleton ℙ hS, one_mul]
+  have hz (a : ℝ) : a = ∑ z, (Measure.real ℙ (S ⁻¹' {z})) * a := by
+    rw [← Finset.sum_mul, sum_measureReal_preimage_singleton]
+    · simp only [Finset.coe_univ, Set.preimage_univ, measureReal_univ_eq_one, one_mul]
+    · intro y hy
+      apply hS
+      exact measurableSet_singleton y
   rw [hz k, hz (d[p.X₀₁ # X₁]), hz (d[p.X₀₂ # X₂])]
   simp only [condMutualInfo_eq_sum' hS, ← Finset.sum_add_distrib, ← mul_add,
     condRuzsaDist'_prod_eq_sum', hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
     ← mul_assoc (p.η/6), mul_comm (p.η/6), mul_assoc _ _ (p.η/6)]
   rw [Finset.sum_mul, ← Finset.sum_add_distrib]
   apply Finset.sum_le_sum (fun i _hi ↦ ?_)
-  rcases eq_or_ne (ℙ (S ⁻¹' {i})) 0 with h'i|h'i
+  rcases eq_or_ne (Measure.real ℙ (S ⁻¹' {i})) 0 with h'i|h'i
   · simp [h'i]
   rw [mul_assoc, ← mul_add]
   gcongr
-  have : IsProbabilityMeasure (ℙ[|S ⁻¹' {i}]) := cond_isProbabilityMeasure h'i
+  have : IsProbabilityMeasure (ℙ[|S ⁻¹' {i}]) := cond_isProbabilityMeasure_of_real h'i
   linarith [construct_good_improved'' h_min (ℙ[|S ⁻¹' {i}]) hUVW hU hV hW]
 
 variable (p)
