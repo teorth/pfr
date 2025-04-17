@@ -338,7 +338,7 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
 $$ D_{KL}(X|Z \Vert Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert Y).$$ -/
 noncomputable def condKLDiv {S : Type*} (X : Ω → G) (Y : Ω' → G) (Z : Ω → S)
     (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ :=
-  ∑' z, (μ.real (Z⁻¹' {z})) * KL[X ; (ProbabilityTheory.cond μ (Z⁻¹' {z})) # Y ; μ']
+  ∑' z, μ.real (Z⁻¹' {z}) * KL[X ; cond μ (Z⁻¹' {z}) # Y ; μ']
 
 @[inherit_doc condKLDiv]
 notation3:max "KL[" X " | " Z " ; " μ " # " Y " ; " μ' "]" => condKLDiv X Y Z μ μ'
@@ -364,7 +364,7 @@ lemma condKLDiv_eq {S : Type*} [MeasurableSpace S] [Fintype S] [MeasurableSingle
   simp only [negMulLog, neg_mul, Finset.sum_neg_distrib, mul_neg, sub_neg_eq_add, ← sub_eq_add_neg,
     ← mul_sub]
   simp_rw [← map_measureReal_apply hZ (measurableSet_singleton _)]
-  have A : Measure.map X μ {g} = ∑ x, (Measure.map Z μ {x}) * (Measure.map X μ[|Z ⁻¹' {x}] {g}) := by
+  have A : Measure.map X μ {g} = ∑ x, μ.map Z {x} * (Measure.map X μ[|Z ⁻¹' {x}] {g}) := by
     simp_rw [Measure.map_apply hZ (measurableSet_singleton _)]
     have : Measure.map X μ {g} = Measure.map X (∑ x, μ (Z ⁻¹' {x}) • μ[|Z ⁻¹' {x}]) {g} := by
       rw [sum_meas_smul_cond_fiber hZ μ]

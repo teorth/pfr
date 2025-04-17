@@ -211,12 +211,12 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
     (Z : Ω'₁ → S) (W : Ω'₂ → T) (hZ : Measurable Z) (hW : Measurable W) :
     d[X₁ # X₂] - p.η * (d[p.X₀₁ # X₁' | Z] - d[p.X₀₁ # X₁])
       - p.η * (d[p.X₀₂ # X₂' | W] - d[p.X₀₂ # X₂]) ≤ d[X₁' | Z # X₂' | W] := by
-  have hz (a : ℝ) : a = ∑ z ∈ FiniteRange.toFinset Z, (Measure.real ℙ) (Z ⁻¹' {z}) * a := by
+  have hz (a : ℝ) : a = ∑ z ∈ FiniteRange.toFinset Z, Measure.real ℙ (Z ⁻¹' {z}) * a := by
     simp_rw [← Finset.sum_mul, ← map_measureReal_apply hZ (MeasurableSet.singleton _),
       sum_measureReal_singleton]
     rw [FiniteRange.real_full hZ]
     simp
-  have hw (a : ℝ) : a = ∑ w ∈ FiniteRange.toFinset W, (Measure.real ℙ) (W ⁻¹' {w}) * a := by
+  have hw (a : ℝ) : a = ∑ w ∈ FiniteRange.toFinset W, Measure.real ℙ (W ⁻¹' {w}) * a := by
     simp_rw [← Finset.sum_mul, ← map_measureReal_apply hW (MeasurableSet.singleton _),
       sum_measureReal_singleton]
     rw [FiniteRange.real_full hW]
@@ -227,8 +227,8 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
   apply Finset.sum_le_sum
   intro z _
   rw [condRuzsaDist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂],
-    hw ((Measure.real ℙ) (Z ⁻¹' {z}) * d[X₁ # X₂] - p.η * ((Measure.real ℙ) (Z ⁻¹' {z}) *
-      d[p.X₀₁ ; ℙ # X₁' ; ℙ[|Z ← z]] - (Measure.real ℙ) (Z ⁻¹' {z}) * d[p.X₀₁ # X₁])),
+    hw (Measure.real ℙ (Z ⁻¹' {z}) * d[X₁ # X₂] - p.η * (Measure.real ℙ (Z ⁻¹' {z}) *
+      d[p.X₀₁ ; ℙ # X₁' ; ℙ[|Z ← z]] - Measure.real ℙ (Z ⁻¹' {z}) * d[p.X₀₁ # X₁])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro w _

@@ -714,7 +714,6 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
   simp [Measure.map_apply hW (MeasurableSet.singleton _)]
   rfl
 
-
 section
 
 variable [Countable T]

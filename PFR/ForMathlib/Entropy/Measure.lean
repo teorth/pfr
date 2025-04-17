@@ -1,14 +1,9 @@
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
-import Mathlib.MeasureTheory.Integral.Bochner.L1
 import PFR.ForMathlib.FiniteRange.Defs
-import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
-import PFR.Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 import PFR.Mathlib.MeasureTheory.Measure.Dirac
-import PFR.Mathlib.MeasureTheory.Measure.Prod
 import PFR.Mathlib.MeasureTheory.Measure.Real
-import PFR.Mathlib.MeasureTheory.Measure.Typeclasses.Probability
-import PFR.Mathlib.MeasureTheory.Measure.Prod
+import PFR.Mathlib.Probability.UniformOn
 
 /-!
 # Entropy of a measure
@@ -388,6 +383,28 @@ lemma measureEntropy_eq_card_iff_measureReal_eq [Fintype S] [IsFiniteMeasure μ]
   rw [ENNReal.toReal_inv, inv_mul_eq_iff_eq_mul₀ (by exact measureReal_univ_ne_zero),
     div_eq_mul_inv]
   rfl
+
+/-- The entropy of a uniform measure is the log of the cardinality of its support. -/
+lemma entropy_of_uniformOn (H : Set S) [Nonempty H] [Finite H] :
+    measureEntropy (uniformOn H) = log (Nat.card H) := by
+  simp only [measureEntropy, measure_univ, inv_one, one_smul, Set.toFinite, uniformOn_real]
+  classical
+  calc ∑' s, negMulLog ((Nat.card (H ∩ {s} : Set S)) / (Nat.card H))
+    _ = ∑' s, if s ∈ H then negMulLog (1 / (Nat.card H)) else 0 := by
+      congr with s
+      by_cases h : s ∈ H <;> simp [h, Finset.filter_true_of_mem, Finset.filter_false_of_mem]
+    _ = ∑ s ∈ H.toFinite.toFinset, negMulLog (1 / (Nat.card H)) := by
+      convert tsum_eq_sum (s := H.toFinite.toFinset) ?_ using 2 with s hs
+      · simp at hs; simp [hs]
+      intro s hs
+      simp only [Set.Finite.mem_toFinset] at hs; simp [hs]
+    _ = (Nat.card H) * negMulLog (1 / (Nat.card H)) := by
+      simp [← Set.ncard_coe_Finset, Set.Nat.card_coe_set_eq]
+    _ = log (Nat.card H) := by
+      simp only [negMulLog, one_div, log_inv, mul_neg, neg_mul, neg_neg, ← mul_assoc]
+      rw [mul_inv_cancel₀, one_mul]
+      simp only [ne_eq, Nat.cast_eq_zero, Nat.card_ne_zero]
+      exact ⟨ ‹_›, ‹_› ⟩
 
 lemma measureEntropy_eq_card_iff_measure_eq [Fintype S] [IsFiniteMeasure μ] [NeZero μ] :
     Hm[μ] = log (Fintype.card S) ↔

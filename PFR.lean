@@ -23,8 +23,6 @@ import PFR.ForMathlib.FiniteRange.ConditionalProbability
 import PFR.ForMathlib.FiniteRange.Defs
 import PFR.ForMathlib.FiniteRange.IdentDistrib
 import PFR.ForMathlib.FourVariables
-import PFR.ForMathlib.MeasureReal.Indep
-import PFR.ForMathlib.MeasureReal.UniformOn
 import PFR.ForMathlib.Pair
 import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.ForMathlib.ThreeVariables

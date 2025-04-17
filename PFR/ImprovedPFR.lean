@@ -1,5 +1,4 @@
 import PFR.Main
-import PFR.ForMathlib.MeasureReal.Indep
 
 /-!
 # Improved PFR

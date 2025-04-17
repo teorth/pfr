@@ -38,6 +38,10 @@ lemma uniformOn_apply (hs : s.Finite) (t : Set Ω) :
     count_apply_finite _ (hs.inter_of_left _), ← Nat.card_eq_card_finite_toFinset,
     ← Nat.card_eq_card_finite_toFinset, ENNReal.div_eq_inv_mul]
 
+lemma uniformOn_real (hs : s.Finite) (t : Set Ω) :
+    (uniformOn s).real t = (Nat.card ↑(s ∩ t)) / Nat.card s := by
+  simp [measureReal_def, uniformOn_apply hs]
+
 instance uniformOn.instIsProbabilityMeasure [Nonempty s] [Finite s] :
     IsProbabilityMeasure (uniformOn s) := uniformOn_isProbabilityMeasure ‹_› .of_subtype
 

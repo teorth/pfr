@@ -209,17 +209,17 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     {ε : ℝ} (hε : 0 < ε) [TopologicalSpace G] [DiscreteTopology G] :
     ∀ᶠ (μ' : ProbabilityMeasure G) in 𝓝 μ, ρ⁻[id ; μ # A] < ρ⁻[id ; μ' # A] + ε := by
   obtain ⟨c, c_pos, hc⟩ : ∃ c > 0, ∀ g,
-      (μ : Measure G).real {g} ≠ 0 → c ≤ (μ : Measure G).real {g} := by
-    let B := {g | (μ : Measure G).real {g} ≠ 0}
+      μ.toMeasure.real {g} ≠ 0 → c ≤ μ.toMeasure.real {g} := by
+    let B := {g | μ.toMeasure.real {g} ≠ 0}
     have : B.Finite := toFinite B
     have : B.Nonempty := by
       by_contra! H
       simp [B, eq_empty_iff_forall_not_mem] at H
-      have : ∑ g, (μ : Measure G).real {g} = 1 := by simp
+      have : ∑ g, μ.toMeasure.real {g} = 1 := by simp
       simp [H] at this
-    have Bn : (B.toFinset.image (fun g ↦ (μ : Measure G).real {g})).Nonempty := by
+    have Bn : (B.toFinset.image (fun g ↦ μ.toMeasure.real {g})).Nonempty := by
       simpa using this
-    let c := (B.toFinset.image (fun g ↦ (μ : Measure G).real {g})).min' Bn
+    let c := (B.toFinset.image (fun g ↦ μ.toMeasure.real {g})).min' Bn
     refine ⟨c, ?_, fun g hg ↦ ?_⟩
     · have : c ∈ B.toFinset.image (fun g ↦ ((μ : Measure G) {g}).toReal) := Finset.min'_mem _ _
       simp only [ne_eq, toFinset_setOf, Finset.mem_image, Finset.mem_filter, Finset.mem_univ,
@@ -249,7 +249,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
       continuous_entropy_restrict_probabilityMeasure.continuousAt
     exact (tendsto_order.1 (tendsto_iff_norm_sub_tendsto_zero.1 this)).2 _ δpos
   have E₂ : ∀ᶠ (μ' : ProbabilityMeasure G) in 𝓝 μ, ∀ g,
-      |(μ' : Measure G).real {g} - (μ : Measure G).real {g}| < δ := by
+      |μ'.toMeasure.real {g} - μ.toMeasure.real {g}| < δ := by
     rw [eventually_all]
     intro g
     have : Tendsto (fun (μ' : ProbabilityMeasure G) ↦ ((μ' : Measure G) {g}).toReal)
@@ -259,8 +259,8 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     exact (tendsto_order.1 (tendsto_iff_norm_sub_tendsto_zero.1 this)).2 _ δpos
   have M : ρ⁻[id ; μ # A] < ρ⁻[id ; μ # A] + δ := by linarith
   filter_upwards [rhoMinus_continuous_aux2 hA M, E₁, E₂] with μ' h' h₁ h₂
-  have h₃ g (hg : (μ : Measure G).real {g} ≠ 0) : c/2 ≤ (μ' : Measure G).real {g} := by
-    have : c ≤ (μ : Measure G).real {g} := hc _ hg
+  have h₃ g (hg : μ.toMeasure.real {g} ≠ 0) : c/2 ≤ μ'.toMeasure.real {g} := by
+    have : c ≤ μ.toMeasure.real {g} := hc _ hg
     linarith [neg_le_of_abs_le (h₂ g).le]
   have : ρ⁻[id ; μ' # A] < ρ⁻[id ; μ' # A] + δ := by linarith
   have : ∃ b ∈ rhoMinusSet id A μ', b < ρ⁻[id ; μ' # A] + δ :=
@@ -279,17 +279,17 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     simp only [Measure.map_id] at Z ⊢
     contrapose! Z
     intro hy
-    have : (μ : Measure G).real {y} ≠ 0 := by simpa [measureReal_eq_zero_iff] using Z
+    have : μ.toMeasure.real {y} ≠ 0 := by simpa [measureReal_eq_zero_iff] using Z
     have T := h₃ _ this
     simp [hy, measureReal_def] at T
     linarith
   have I₀ : KL[id ; μ' # Prod.fst + Prod.snd ; ν.prod (uniformOn A)]
-      = - H[id ; (μ' : Measure G)] - ∑ g, (μ' : Measure G).real {g} * log (m.real {g}) := by
+      = - H[id ; (μ' : Measure G)] - ∑ g, μ'.toMeasure.real {g} * log (m.real {g}) := by
     rw [KLDiv_eq_sum, entropy_eq_sum, tsum_fintype, ← Finset.sum_neg_distrib,
       ← Finset.sum_sub_distrib]
     congr with g
     simp only [Measure.map_id, negMulLog, neg_mul]
-    rcases eq_or_ne ((μ' : Measure G).real {g}) 0 with h | h
+    rcases eq_or_ne (μ'.toMeasure.real {g}) 0 with h | h
     · simp [h]
     rw [log_div, hm]
     · ring
@@ -297,11 +297,11 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     · contrapose! h
       simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h ⊢
       apply h'_abs _ (by simpa [ENNReal.toReal_eq_zero_iff] using h)
-  have M g (hg : (μ : Measure G).real {g} ≠ 0) : |log (m.real {g})| ≤ C := by
+  have M g (hg : μ.toMeasure.real {g} ≠ 0) : |log (m.real {g})| ≤ C := by
     rw [le_div_iff₀' (by positivity)]
     calc
     (c / 2) * |log (m.real {g})|
-    _ ≤ (μ' : Measure G).real {g} * |log (m.real {g})| := by
+    _ ≤ μ'.toMeasure.real {g} * |log (m.real {g})| := by
       gcongr
       apply h₃ _ (by simpa [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] using hg)
     _ ≤ ∑ g, ((μ' : Measure G) {g}).toReal * |log ((m {g}).toReal)| := by
@@ -321,12 +321,12 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
   ρ⁻[id ; μ # A]
   _ ≤ KL[id ; μ # Prod.fst + Prod.snd ; ν.prod (uniformOn A)] :=
     rhoMinus_le_def measurable_id (by simpa using h_abs)
-  _ = - H[id ; (μ : Measure G)] - ∑ g, (μ : Measure G).real {g} * log (m.real {g}) := by
+  _ = - H[id ; (μ : Measure G)] - ∑ g, μ.toMeasure.real {g} * log (m.real {g}) := by
     rw [KLDiv_eq_sum, entropy_eq_sum, tsum_fintype, ← Finset.sum_neg_distrib,
       ← Finset.sum_sub_distrib]
     congr with g
     simp only [Measure.map_id, negMulLog, neg_mul]
-    rcases eq_or_ne ((μ : Measure G).real {g}) 0 with h | h
+    rcases eq_or_ne (μ.toMeasure.real {g}) 0 with h | h
     · simp [h]
     rw [log_div, hm]
     · ring
@@ -334,29 +334,29 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     · contrapose! h
       simp only [measureReal_def, ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h ⊢
       exact h_abs _ h
-  _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | (μ : Measure G).real {g} ≠ 0},
-        (μ : Measure G).real {g} * log (m.real {g}) := by
+  _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},
+        μ.toMeasure.real {g} * log (m.real {g}) := by
     gcongr
     · intro g hg h'g
       simp at h'g
       simp [h'g]
     . exact Finset.filter_subset _ _
-   _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | (μ : Measure G).real {g} ≠ 0},
-        ((μ' : Measure G).real {g} + δ) * log (m.real {g}) := by
+   _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},
+        (μ'.toMeasure.real {g} + δ) * log (m.real {g}) := by
     apply sub_le_sub le_rfl
     apply Finset.sum_le_sum (fun g hg ↦ ?_)
     apply mul_le_mul_of_nonpos_right _ (m_nonpos g)
     linarith [neg_le_of_abs_le (h₂ g).le]
-  _  ≤ - H[id ; (μ : Measure G)] - (∑ g ∈ {g | (μ : Measure G).real {g} ≠ 0},
-          (μ' : Measure G).real {g} * log (m.real {g})
-        + ∑ g ∈ {g | (μ : Measure G).real {g} ≠ 0}, δ * (-C)) := by
+  _  ≤ - H[id ; (μ : Measure G)] - (∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},
+          μ'.toMeasure.real {g} * log (m.real {g})
+        + ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0}, δ * (-C)) := by
     rw [← Finset.sum_add_distrib]
     gcongr with g hg
     rw [add_mul]
     gcongr
     rw [neg_le]
     exact (neg_le_abs _).trans (M g (by simpa using hg))
-  _ ≤ (-H[id ; (μ' : Measure G)] + δ) + (- ∑ g, (μ' : Measure G).real {g} * log (m.real {g})
+  _ ≤ (-H[id ; (μ' : Measure G)] + δ) + (- ∑ g, μ'.toMeasure.real {g} * log (m.real {g})
         + Fintype.card G * (δ * C)) := by
     simp only [mul_neg, Finset.sum_const, nsmul_eq_mul, sub_eq_add_neg, neg_add, ←
       Finset.sum_neg_distrib, neg_neg]

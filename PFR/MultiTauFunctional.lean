@@ -130,7 +130,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
       measureReal_univ_eq_one]
 -- μ has total mass one
   have total : ∑ (ω : Fin p.m → S), μ ω = 1 := calc
-    _ = ∏ i, ∑ ωi, (Measure.real ℙ (Y i ⁻¹' {ωi})) := by
+    _ = ∏ i, ∑ ωi, Measure.real ℙ (Y i ⁻¹' {ωi}) := by
       convert Finset.sum_prod_piFinset Finset.univ _ with ω _ i _
       rfl
     _ = ∏ i, 1 := by
@@ -142,7 +142,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
 
   calc
     _ = ∑ (ω : Fin p.m → S), μ ω * D[X; hΩ] -
-        ∑ (ω: Fin p.m → S), μ ω * D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]] := by
+        ∑ (ω : Fin p.m → S), μ ω * D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]] := by
       congr
       rw [← Finset.sum_mul, total, one_mul]
     _ = ∑ (ω : Fin p.m → S), μ ω * (D[X; hΩ] - D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]]) := by
@@ -163,7 +163,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
         apply Finset.prod_eq_zero (Finset.mem_univ i)
         simp only [measureReal_def, hω, ENNReal.toReal_zero]
       exact sub_multiDistance_le p Ω hΩ hΩprob X hmeasX h_min Ω' hΩ'_cond hΩ'prob_cond X' hmeasX'
-    _ = p.η * ∑ i, ∑ (ω: Fin p.m → S), μ ω * d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ] := by
+    _ = p.η * ∑ i, ∑ (ω : Fin p.m → S), μ ω * d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ] := by
       rw [Finset.sum_comm, Finset.mul_sum]
       apply Finset.sum_congr rfl
       intro ω _
