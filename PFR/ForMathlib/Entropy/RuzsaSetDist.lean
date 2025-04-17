@@ -1,5 +1,4 @@
 import PFR.ForMathlib.Entropy.RuzsaDist
-import PFR.ForMathlib.MeasureReal.UniformOn
 
 open MeasureTheory Pointwise Real
 

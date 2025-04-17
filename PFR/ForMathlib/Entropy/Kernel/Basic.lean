@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Integral.Prod
 import PFR.ForMathlib.Entropy.Measure
-import PFR.Mathlib.MeasureTheory.Integral.SetIntegral
+import PFR.Mathlib.MeasureTheory.Integral.Bochner.Set
 import PFR.Mathlib.Probability.Kernel.Disintegration
 
 /-!
@@ -113,7 +113,7 @@ lemma entropy_le_log_card
   · simp
 
 lemma entropy_eq_integral_sum (κ : Kernel T S) [IsZeroOrMarkovKernel κ] (μ : Measure T) :
-    Hk[κ, μ] = μ[fun y ↦ ∑' x, negMulLog (κ y {x}).toReal] := by
+    Hk[κ, μ] = μ[fun y ↦ ∑' x, negMulLog ((κ y).real {x})] := by
   simp_rw [entropy, measureEntropy_of_isProbabilityMeasure]
 
 -- entropy_map_of_injective is a special case of this (see def of map)
@@ -246,14 +246,14 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
       simp at hu ⊢
       exact hu hs
     exact MeasurableSet.compl (Finset.measurableSet _)
-  rw [measureEntropy_def_finite' hκη, measureEntropy_def_finite' (hB t ht),
+  rw [measureEntropy_eq_sum hκη, measureEntropy_eq_sum (hB t ht),
     integral_finset _ _ IntegrableOn.finset,
     ← Finset.sum_add_distrib, Finset.sum_product]
   apply Finset.sum_congr rfl
   intro s hs
   simp
   have hts : (t, s) ∈ A ×ˢ B := by simp [ht, hs]
-  rw [measureEntropy_def_finite' (hC (t, s) hts)]
+  rw [measureEntropy_eq_sum (hC (t, s) hts)]
   simp
   have : negMulLog ((κ t).real {s}) = ∑ u ∈ C, negMulLog ((κ t).real {s}) *
       ((comap η (Prod.mk t) measurable_prodMk_left) s).real {u} := by

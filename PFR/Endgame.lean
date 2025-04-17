@@ -394,6 +394,7 @@ lemma construct_good_prelim :
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
+      rfl
 
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
@@ -405,6 +406,7 @@ lemma construct_good_prelim :
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
+      rfl
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
 

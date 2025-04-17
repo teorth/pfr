@@ -211,13 +211,15 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
     (Z : Ω'₁ → S) (W : Ω'₂ → T) (hZ : Measurable Z) (hW : Measurable W) :
     d[X₁ # X₂] - p.η * (d[p.X₀₁ # X₁' | Z] - d[p.X₀₁ # X₁])
       - p.η * (d[p.X₀₂ # X₂' | W] - d[p.X₀₂ # X₂]) ≤ d[X₁' | Z # X₂' | W] := by
-  have hz (a : ℝ) : a = ∑ z ∈ FiniteRange.toFinset Z, (ℙ (Z ⁻¹' {z})).toReal * a := by
-    simp_rw [← Finset.sum_mul,← Measure.map_apply hZ (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
-    rw [FiniteRange.full hZ]
+  have hz (a : ℝ) : a = ∑ z ∈ FiniteRange.toFinset Z, Measure.real ℙ (Z ⁻¹' {z}) * a := by
+    simp_rw [← Finset.sum_mul, ← map_measureReal_apply hZ (MeasurableSet.singleton _),
+      sum_measureReal_singleton]
+    rw [FiniteRange.real_full hZ]
     simp
-  have hw (a : ℝ) : a = ∑ w ∈ FiniteRange.toFinset W, (ℙ (W ⁻¹' {w})).toReal * a := by
-    simp_rw [← Finset.sum_mul,← Measure.map_apply hW (MeasurableSet.singleton _), Finset.sum_toReal_measure_singleton]
-    rw [FiniteRange.full hW]
+  have hw (a : ℝ) : a = ∑ w ∈ FiniteRange.toFinset W, Measure.real ℙ (W ⁻¹' {w}) * a := by
+    simp_rw [← Finset.sum_mul, ← map_measureReal_apply hW (MeasurableSet.singleton _),
+      sum_measureReal_singleton]
+    rw [FiniteRange.real_full hW]
     simp
   rw [condRuzsaDist_eq_sum h1 hZ h2 hW, condRuzsaDist'_eq_sum h1 hZ, hz d[X₁ # X₂],
     hz d[p.X₀₁ # X₁], hz (p.η * (d[p.X₀₂ # X₂' | W] - d[p.X₀₂ # X₂])),
@@ -225,22 +227,23 @@ lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
   apply Finset.sum_le_sum
   intro z _
   rw [condRuzsaDist'_eq_sum h2 hW, hw d[p.X₀₂ # X₂],
-    hw ((ℙ (Z ⁻¹' {z})).toReal * d[X₁ # X₂] - p.η * ((ℙ (Z ⁻¹' {z})).toReal *
-      d[p.X₀₁ ; ℙ # X₁' ; ℙ[|Z ← z]] - (ℙ (Z ⁻¹' {z})).toReal * d[p.X₀₁ # X₁])),
+    hw (Measure.real ℙ (Z ⁻¹' {z}) * d[X₁ # X₂] - p.η * (Measure.real ℙ (Z ⁻¹' {z}) *
+      d[p.X₀₁ ; ℙ # X₁' ; ℙ[|Z ← z]] - Measure.real ℙ (Z ⁻¹' {z}) * d[p.X₀₁ # X₁])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro w _
-  rcases eq_or_ne (ℙ (Z ⁻¹' {z})) 0 with hpz | hpz
+  rcases eq_or_ne (Measure.real ℙ (Z ⁻¹' {z})) 0 with hpz | hpz
   · simp [hpz]
-  rcases eq_or_ne (ℙ (W ⁻¹' {w})) 0 with hpw | hpw
+  rcases eq_or_ne (Measure.real ℙ (W ⁻¹' {w})) 0 with hpw | hpw
   · simp [hpw]
   set μ := (hΩ₁.volume)[|Z ← z]
-  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure hpz
+  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure_of_real hpz
   set μ' := ℙ[|W ← w]
-  have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure hpw
+  have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure_of_real hpw
   suffices d[X₁ # X₂] - p.η * (d[p.X₀₁; volume # X₁'; μ] - d[p.X₀₁ # X₁]) -
     p.η * (d[p.X₀₂; volume # X₂'; μ'] - d[p.X₀₂ # X₂]) ≤ d[X₁' ; μ # X₂'; μ'] by
-    replace this := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)
+    replace this := mul_le_mul_of_nonneg_left this
+      (show 0 ≤ (Measure.real ℙ (Z ⁻¹' {z})) * (Measure.real ℙ (W ⁻¹' {w})) by positivity)
     convert this using 1
     ring
   exact distance_ge_of_min' p h h1 h2

@@ -26,7 +26,7 @@ $$ {\mathcal I} := \bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m}
  Then ${\mathcal I} \leq 4 m^2 \eta k.$
 -/
 lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ]
-  (p : multiRefPackage G Ωₒ) (Ω : Type u) [hΩ: MeasureSpace Ω] (X : ∀ i, Ω → G)
+  (p : multiRefPackage G Ωₒ) (Ω : Type u) [hΩ : MeasureSpace Ω] (X : ∀ i, Ω → G)
   (h_indep : iIndepFun X)
   (h_min : multiTauMinimizes p (fun _ ↦ Ω) (fun _ ↦ hΩ) X) (Ω' : Type*) [MeasureSpace Ω']
   (X' : Fin p.m × Fin p.m → Ω' → G) (h_indep': iIndepFun X')

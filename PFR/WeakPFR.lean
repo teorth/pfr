@@ -509,7 +509,7 @@ lemma single_fibres {G H Ω Ω': Type*}
       rw [setRuzsaDist_eq_rdist h_μ_unif.1 h_μ_unif.2 hUA' hUB']
       show _ = (Measure.real _ (UA ⁻¹' (_ ⁻¹' _))) * (Measure.real _ (UB ⁻¹' (_ ⁻¹' _))) * _
       rewrite [hUA_coe.measureReal_preimage hUA', hUB_coe.measureReal_preimage hUB']
-      simp_rw [p, A_, B_, IsProbabilityMeasure.measureReal_univ, one_mul]
+      simp_rw [p, A_, B_, measureReal_univ_eq_one, one_mul]
       rewrite [mul_div_mul_comm, Set.inter_comm A, Set.inter_comm B]
       simp only [Set.Finite.coe_toFinset, Set.Finite.mem_toFinset, Finset.mem_val]; rfl
     _ ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
@@ -536,7 +536,8 @@ lemma single_fibres {G H Ω Ω': Type*}
       isProbabilityMeasure_map (.comp_measurable .of_discrete hUB')
     rewrite [← Finset.sum_product', ← tsum_eq_sum fun _ ↦ h_compl, ← measureEntropy_prod]
     apply tsum_congr; intro; congr
-    rewrite [← Set.singleton_prod_singleton, Measure.smul_apply, Measure.prod_prod,
+    rewrite [← Set.singleton_prod_singleton, measureReal_ennreal_smul_apply, measureReal_def,
+      Measure.prod_prod,
       Measure.map_apply (.comp .of_discrete hUA') (MeasurableSet.singleton _),
       Measure.map_apply (.comp .of_discrete hUB') (MeasurableSet.singleton _),
       Set.preimage_comp, hUA_coe.measure_preimage hUA',

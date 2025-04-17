@@ -2,7 +2,8 @@ import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Kernel.Composition.Prod
 import Mathlib.Probability.Kernel.CondDistrib
 import PFR.Mathlib.Data.Prod.Basic
-import PFR.Mathlib.MeasureTheory.Integral.Lebesgue
+import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Basic
+import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Countable
 
 /-!
 # Disintegration of kernels in finite spaces
@@ -116,7 +117,7 @@ lemma condKernel_compProd_ae_eq
   intro x hx
   rw [condKernel_compProd_apply]
   rw [Measure.compProd_apply (.singleton _), lintegral_eq_tsum] at hx
-  simp only [Set.mem_singleton_iff, ne_eq, Finset.sum_eq_zero_iff, tsum_eq_zero_iff ENNReal.summable, mul_eq_zero,
+  simp only [Set.mem_singleton_iff, ne_eq, Finset.sum_eq_zero_iff, ENNReal.summable.tsum_eq_zero_iff, mul_eq_zero,
     forall_true_left, not_forall] at hx
   obtain ⟨y, hy⟩ := hx
   push_neg at hy
@@ -149,7 +150,7 @@ lemma condKernel_map_prodMk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [Measure.compProd_apply (.singleton _), lintegral_eq_tsum] at hx
-  simp only [ne_eq, tsum_eq_zero_iff ENNReal.summable, Finset.mem_univ, mul_eq_zero, forall_true_left,
+  simp only [ne_eq, ENNReal.summable.tsum_eq_zero_iff, Finset.mem_univ, mul_eq_zero, forall_true_left,
     not_forall] at hx
   obtain ⟨y, hy⟩ := hx
   push_neg at hy
