@@ -404,7 +404,7 @@ lemma entropy_of_uniformOn (H : Set S) [Nonempty H] [Finite H] :
       simp only [negMulLog, one_div, log_inv, mul_neg, neg_mul, neg_neg, ← mul_assoc]
       rw [mul_inv_cancel₀, one_mul]
       simp only [ne_eq, Nat.cast_eq_zero, Nat.card_ne_zero]
-      exact ⟨ ‹_›, ‹_› ⟩
+      exact ⟨‹_›, ‹_›⟩
 
 lemma measureEntropy_eq_card_iff_measure_eq [Fintype S] [IsFiniteMeasure μ] [NeZero μ] :
     Hm[μ] = log (Fintype.card S) ↔

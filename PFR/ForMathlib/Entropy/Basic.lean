@@ -1087,4 +1087,3 @@ example (hX : Measurable X) (hY : Measurable Y) :
   H[⟨X, Y⟩] = H[Y] + H[X | Y] := chain_rule _ hX hY
 
 end MeasureSpace_example
-
