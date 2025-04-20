@@ -123,8 +123,8 @@ theorem IdentDistrib.prodMk (hff' : IdentDistrib f f' μ ν) (hgg' : IdentDistri
   aemeasurable_fst := hff'.aemeasurable_fst.prodMk hgg'.aemeasurable_fst
   aemeasurable_snd := hff'.aemeasurable_snd.prodMk hgg'.aemeasurable_snd
   map_eq := by
-    rw [indepFun_iff_map_prod_eq_prod_map_map' hff'.aemeasurable_fst hgg'.aemeasurable_fst] at h
-    rw [indepFun_iff_map_prod_eq_prod_map_map' hff'.aemeasurable_snd hgg'.aemeasurable_snd] at h'
+    rw [indepFun_iff_map_prod_eq_prod_map_map hff'.aemeasurable_fst hgg'.aemeasurable_fst] at h
+    rw [indepFun_iff_map_prod_eq_prod_map_map hff'.aemeasurable_snd hgg'.aemeasurable_snd] at h'
     rw [h, h', hff'.map_eq, hgg'.map_eq]
 
 variable [Mul β] [MeasurableMul₂ β] [IsFiniteMeasure μ] [IsFiniteMeasure ν] in
