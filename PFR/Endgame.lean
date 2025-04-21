@@ -98,12 +98,12 @@ lemma I₃_eq [IsProbabilityMeasure (ℙ : Measure Ω)] : I[V : W | S] = I₂ :=
               fin_cases x;
               all_goals aesop
             map_eq := by
-              rw [← (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁, X₂, X₁', X₂'])
-                (Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <|
-              Fin.cases hX₂' Fin.rec0)).mp h_indep,
-              ← (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁', X₂, X₁, X₂'])
-                (Fin.cases hX₁' <| Fin.cases hX₂ <| Fin.cases hX₁ <|
-              Fin.cases hX₂' Fin.rec0)).mp h_indep2]
+              rw [(ProbabilityTheory.iIndepFun_iff_map_fun_eq_pi_map
+                (Fin.cases hX₁.aemeasurable <| Fin.cases hX₂.aemeasurable <|
+                Fin.cases hX₁'.aemeasurable <| Fin.cases hX₂'.aemeasurable Fin.rec0)).mp h_indep,
+                (ProbabilityTheory.iIndepFun_iff_map_fun_eq_pi_map
+                (Fin.cases hX₁'.aemeasurable <| Fin.cases hX₂.aemeasurable <|
+                Fin.cases hX₁.aemeasurable <| Fin.cases hX₂'.aemeasurable Fin.rec0)).mp h_indep2]
               congr
               ext i
               fin_cases i

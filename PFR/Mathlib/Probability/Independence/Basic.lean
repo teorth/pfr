@@ -129,59 +129,6 @@ lemma iIndepFun_iff' [MeasurableSpace Ω] {β : ι → Type*}
   · rintro i
     by_cases hi : i ∈ s <;> simp [g, hi, hf]
 
--- TODO: Replace mathlib version with this lemma (this lemma uses `AEMeasurable`)
-theorem indepFun_iff_map_prod_eq_prod_map_map'
-    {β : Type*} {mβ : MeasurableSpace β} {mβ' : MeasurableSpace β'}
-    {f : Ω → β} {g : Ω → β'} [IsFiniteMeasure μ] (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
-    IndepFun f g μ ↔ μ.map (fun ω ↦ (f ω, g ω)) = (μ.map f).prod (μ.map g) := by
-  rw [indepFun_iff_measure_inter_preimage_eq_mul]
-  have h₀ {s : Set β} {t : Set β'} (hs : MeasurableSet s) (ht : MeasurableSet t) :
-      μ (f ⁻¹' s) * μ (g ⁻¹' t) = μ.map f s * μ.map g t ∧
-      μ (f ⁻¹' s ∩ g ⁻¹' t) = μ.map (fun ω ↦ (f ω, g ω)) (s ×ˢ t) :=
-    ⟨by rw [Measure.map_apply_of_aemeasurable hf hs, Measure.map_apply_of_aemeasurable hg ht],
-      (Measure.map_apply_of_aemeasurable (hf.prodMk hg) (hs.prod ht)).symm⟩
-  constructor
-  · refine fun h ↦ (Measure.prod_eq fun s t hs ht ↦ ?_).symm
-    rw [← (h₀ hs ht).1, ← (h₀ hs ht).2, h s t hs ht]
-  · intro h s t hs ht
-    rw [(h₀ hs ht).1, (h₀ hs ht).2, h, Measure.prod_prod]
-
--- TODO(Mantas): Add this to mathlib & upgrade to work for `AEMeasurable` (currently lemmas missing)
-theorem iIndepFun_iff_pi_map_eq_map {ι : Type*} {β : ι → Type*} [Fintype ι]
-    (f : ∀ x : ι, Ω → β x) [m : ∀ x : ι, MeasurableSpace (β x)]
-    [IsProbabilityMeasure μ] (hf : ∀ (x : ι), Measurable (f x)) :
-    iIndepFun f μ ↔ Measure.pi (fun i ↦ μ.map (f i)) = μ.map (fun ω i ↦ f i ω) := by
-  classical
-  rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
-  have h₀ {h : ∀ i, Set (β i)} (hm : ∀ (i : ι), MeasurableSet (h i)) :
-      ∏ i : ι, μ (f i ⁻¹' h i) = ∏ i : ι, μ.map (f i) (h i) ∧
-      μ (⋂ i : ι, (f i ⁻¹' h i)) = μ.map (fun ω i ↦ f i ω) (Set.pi univ h) := by
-    constructor
-    · rw [Finset.prod_congr (show Finset.univ = Finset.univ by rfl)
-      (fun x _ => Measure.map_apply_of_aemeasurable (hf x).aemeasurable (hm x))]
-    rw [Measure.map_apply_of_aemeasurable _ (MeasurableSet.univ_pi hm)]
-    · congr
-      aesop
-    measurability
-  refine ⟨fun hS ↦ Measure.pi_eq fun h hm ↦ ?_, fun h S s hs ↦ ?_⟩
-  · rw [← (h₀ hm).1, ← (h₀ hm).2]
-    convert hS Finset.univ (sets := h)
-    simp [hm]
-  set l : ∀ i, Set (β i) := fun i ↦ if i ∈ S then s i else univ with hldef
-  have hl (i : ι) : MeasurableSet (l i) := by by_cases hiS : i ∈ S <;> simp [hldef, hiS, hs]
-  specialize h₀ hl
-  rw [← h] at h₀
-  convert h₀.2 using 1
-  · simp only [l]
-    congr with x
-    simp (config := { contextual := true })
-  convert h₀.1 using 1
-  · rw [hldef, ← Finset.prod_compl_mul_prod S]
-    suffices ∀ i ∈ Sᶜ, μ (f i ⁻¹' (fun i ↦ if i ∈ S then s i else univ) i) = 1 by
-      rw [Finset.prod_congr (show Sᶜ = Sᶜ by rfl) this]; aesop
-    aesop
-  · simp
-
 end IndepFun
 end ProbabilityTheory
 
