@@ -177,3 +177,13 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     _ ≤ ((2 ^ 14 * K ^ 12) ^ 5 * Nat.card A'' ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2 *
           Nat.card H / Nat.card ↑A'' := by gcongr
     _ = 2 ^ 140 * K ^ 120 := by field_simp; rpow_simp; norm_num
+
+theorem card_of_dual : Nat.card (G →+ ZMod 2) = Nat.card G := by sorry
+
+theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : Nat.card { φ: G →+ ZMod 2 | φ x = 1 } = Nat.card G / 2 := by sorry
+
+theorem card_of_slice (A: Set G) : ∃ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) / 2 := by sorry
+
+theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
+    (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
+    ∃ (φ'' : G →+ G'), Nat.card {x | f x = φ'' x} ≥ (Nat.card G / (2 ^ 144 * K ^ 122) - 1)/2 := by sorry

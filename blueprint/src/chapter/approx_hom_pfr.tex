@@ -65,19 +65,19 @@ elements of $A'$ (and hence of $A$), and the claim follows.
 
 With a bit more effort, we can remove the constant term $c$, at the cost of reducing the set of agreement slightly.  We need some preliminary lemmas.
 
-\begin{lemma}[Duality]\label{gdual} Let $G$ be a finite abelian $2$-group.  Then the finite abelian $2$-group $\mathrm{Hom}(G,\Z/2\Z)$ of homomorphisms from $G$ to $\Z/2\Z$ has the same order as $G$.
+\begin{lemma}[Duality]\label{gdual}\lean{card_of_dual}\leanok Let $G$ be a finite abelian $2$-group.  Then the finite abelian $2$-group $\mathrm{Hom}(G,\Z/2\Z)$ of homomorphisms from $G$ to $\Z/2\Z$ has the same order as $G$.
 \end{lemma}
 
 \begin{proof} By the classification of finite abelian groups, $G$ is isomorphic to $(\Z/2\Z)^n$.  Then $\mathrm{Hom}(G,\Z/2\Z)$ is isomorphic to $(\Z/2\Z)^n$ as well, and hence has the same order.
 \end{proof}
 
-\begin{lemma}[Counting]\label{gcount} Let $G$ be a finite abelian $2$-group, and let $x \in G$ be non-zero.  Then there are $|G|/2$ homomorphisms $\phi: G \to \Z/2\Z$ such that $\phi(x) = 1$.
+\begin{lemma}[Counting]\label{gcount}\lean{card_of_dual_constrained}\leanok Let $G$ be a finite abelian $2$-group, and let $x \in G$ be non-zero.  Then there are $|G|/2$ homomorphisms $\phi: G \to \Z/2\Z$ such that $\phi(x) = 1$.
 \end{lemma}
 
 \begin{proof}\uses{gdual}  The map $\phi \mapsto \phi(x)$ is a homomorphism from $\mathrm{Hom}(G,\Z/2\Z)$ to $\Z/2\Z$, and by Lemma \ref{gdual} the kernel has order equal to the order of $G / \{0,x\}$, which is $|G|/2$.  Then the preimage of $1$ must also be of order $|G|/2$.
 \end{proof}
 
-\begin{lemma}[Slicing]\label{gslice}  Let $G$ be a finite abelian $2$-group, and let $A$ be a subset of $G$.  Then there exists a homomorphism $\phi: G \to \Z/2\Z$ such that $|A \cap \phi^{-1}(1)| \geq (|A|-1)/2$.
+\begin{lemma}[Slicing]\label{gslice}\lean{card_of_slice}\leanok  Let $G$ be a finite abelian $2$-group, and let $A$ be a subset of $G$.  Then there exists a homomorphism $\phi: G \to \Z/2\Z$ such that $|A \cap \phi^{-1}(1)| \geq (|A|-1)/2$.
 \end{lemma}
 
 \begin{proof}\uses{gdual, gcount}  We have
@@ -86,7 +86,7 @@ With a bit more effort, we can remove the constant term $c$, at the cost of redu
   thanks to Lemma \ref{gcount}. The claim now follows from Lemma \ref{gdual} and the pigeonhole principle.
 \end{proof}
 
-\begin{corollary}[Approximate homomorphism form of PFR, no constant term]\label{approx-hom-pfr-no-const} Let $G,G'$ be finite abelian $2$-groups.
+\begin{corollary}[Approximate homomorphism form of PFR, no constant term]\label{approx-hom-pfr-no-const}\lean{approx_hom_pfr'}\leanok Let $G,G'$ be finite abelian $2$-groups.
   Let $f: G \to G'$ be a function, and suppose that there are at least $|G|^2 / K$ pairs $(x,y) \in G^2$ such that
 $$ f(x+y) = f(x) + f(y).$$
 Then there exists a homomorphism $\phi'': G \to G'$
