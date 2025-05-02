@@ -122,14 +122,9 @@ lemma mutualInfo_nonneg' {κ : Kernel T (S × U)} {μ : Measure T} [IsFiniteMeas
   simp_rw [mutualInfo, entropy, integral_eq_setIntegral (measure_compl_support μ),
     integral_finset _ _ IntegrableOn.finset, smul_eq_mul]
   rw [← Finset.sum_add_distrib, ← Finset.sum_sub_distrib]
-  refine Finset.sum_nonneg (fun x _ ↦ ?_)
-  by_cases hx : μ {x} = 0
-  · simp [hx]
-  rw [← mul_add, ← mul_sub]
-  refine mul_nonneg ENNReal.toReal_nonneg ?_
-  rw [fst_apply, snd_apply]
-  have : FiniteSupport (κ x) := ⟨hκ x⟩
-  exact measureMutualInfo_nonneg
+  simp_rw [← mul_add, ← mul_sub, fst_apply, snd_apply]
+  have (x) : FiniteSupport (κ x) := ⟨hκ x⟩
+  exact Finset.sum_nonneg fun x _ ↦ mul_nonneg ENNReal.toReal_nonneg measureMutualInfo_nonneg
 
 lemma mutualInfo_nonneg [Countable T] {κ : Kernel T (S × U)} {μ : Measure T} [IsFiniteMeasure μ]
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :

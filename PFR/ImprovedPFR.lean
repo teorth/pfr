@@ -346,23 +346,21 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   have h2 : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
     simp only [sum2, integral_sub .of_finite .of_finite, integral_const,
       measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
+    simp [condRuzsaDist'_eq_sum hT₁ hT₃,
       integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
-      Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
-    rfl
+      map_measureReal_apply hT₃ (.singleton _), smul_eq_mul]
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const,
       measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
+    simp [condRuzsaDist'_eq_sum hT₂ hT₃,
       integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
-      Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
-    rfl
+      map_measureReal_apply hT₃ (.singleton _)]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
       + (d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂])) := by
     have : sum4 = sum1 + p.η * (sum2 + sum3) := by
-      simp only [sum1, sum2, sum3, sum4, integral_add .of_finite .of_finite, integral_mul_left]
+      simp only [sum1, sum2, sum3, sum4, integral_add .of_finite .of_finite, integral_const_mul]
     rw [this, h2, h3, add_assoc, mul_add]
     linarith
   have hk : k ≤ sum4 := by

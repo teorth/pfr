@@ -340,7 +340,7 @@ lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
   rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
-  simp only [measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul]
+  simp
 
 variable {T₁ T₂ T₃ : Ω' → G} (hT : T₁+T₂+T₃ = 0)
 variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
@@ -391,10 +391,9 @@ lemma construct_good_prelim :
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
         ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj, sum2]
-      simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
-        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
-        Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
-      rfl
+      simp [condRuzsaDist'_eq_sum hT₁ hT₃,
+        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃),
+        integral_finset _ _ IntegrableOn.finset, map_measureReal_apply hT₃ (.singleton _)]
 
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
@@ -403,16 +402,16 @@ lemma construct_good_prelim :
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
         ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj, sum3]
-      simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
-        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
-        Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
-      rfl
+      simp [condRuzsaDist'_eq_sum hT₂ hT₃,
+        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃),
+        integral_finset _ _ IntegrableOn.finset,
+        map_measureReal_apply hT₃ (.singleton _)]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
 
   have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2 := by
     suffices sum4 = sum1 + p.η * (sum2 + sum3) by linarith
-    simp only [sum1, sum2, sum3, sum4, integral_add .of_finite .of_finite, integral_mul_left]
+    simp only [sum1, sum2, sum3, sum4, integral_add .of_finite .of_finite, integral_const_mul]
 
   have hk : k ≤ sum4 := by
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
@@ -479,8 +478,7 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
   apply Finset.sum_le_sum
   intro r _
   by_cases hr : ℙ (R⁻¹' {r}) = 0
-  · rw [Measure.map_apply hR (MeasurableSet.singleton r), hr]
-    simp
+  · simp [Measure.real, Measure.map_apply hR (.singleton r), hr]
   simp_rw [smul_eq_mul]
   gcongr (?_ * ?_)
   · apply rdist_nonneg hX₁ hX₂

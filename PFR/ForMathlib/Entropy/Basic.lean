@@ -1,7 +1,6 @@
 import PFR.ForMathlib.ConditionalIndependence
 import PFR.ForMathlib.Entropy.Kernel.MutualInfo
 import PFR.ForMathlib.Uniform
-import PFR.Mathlib.MeasureTheory.Integral.Bochner.Basic
 import PFR.Mathlib.Probability.ConditionalProbability
 
 /-!
@@ -55,11 +54,7 @@ lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X]
 
 /-- Entropy of a random variable is also the kernel entropy of the distribution over a Dirac mass. -/
 lemma entropy_eq_kernel_entropy (X : Ω → S) (μ : Measure Ω) :
-    H[X ; μ] = Hk[Kernel.const Unit (μ.map X), Measure.dirac ()] := by
-  simp only [Kernel.entropy, Kernel.const_apply, integral_const, MeasurableSpace.measurableSet_top,
-    Measure.dirac_apply', Set.mem_univ, Set.indicator_of_mem, Pi.one_apply, ENNReal.toReal_one,
-    smul_eq_mul, one_mul]
-  rfl
+    H[X ; μ] = Hk[Kernel.const Unit (μ.map X), Measure.dirac ()] := by simp [entropy]
 
 /-- Any variable on a zero measure space has zero entropy. -/
 @[simp]
@@ -184,7 +179,7 @@ lemma IsUniform.entropy_eq [DiscreteMeasurableSpace S] {H : Finset S} {X : Ω �
     · simp only [negMulLog, map_measureReal_apply hX' (MeasurableSet.singleton t),
       IsUniform.measureReal_preimage_of_nmem hX ht, neg_zero, log_zero, mul_zero, zero_mul]
   rw [entropy_eq_sum_finset' (A := H), Finset.sum_congr rfl (fun t _ ↦ this t), ← Finset.sum_mul,
-    Finset.sum_realMeasure_singleton]
+    sum_measureReal_singleton]
   · convert one_mul _
     have := IsUniform.full_measure hX hX'
     simp at this
@@ -450,7 +445,7 @@ lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω →
     [IsFiniteMeasure μ] (hY : Measurable Y) [FiniteRange Y]:
     H[X | Y ; μ] = ∑ y ∈ FiniteRange.toFinset Y, ((μ.map Y).real {y}) * H[X | Y ← y ; μ] := by
   rw [condEntropy_def, integral_eq_setIntegral (full_measure_of_finiteRange hY),
-    integral_finset' _ .finset]
+    integral_finset _ _ .finset]
   simp_rw [smul_eq_mul]
 
 /-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`$.-/
@@ -458,7 +453,7 @@ lemma condEntropy_eq_sum_fintype
     [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
     [IsFiniteMeasure μ] (hY : Measurable Y) [Fintype T] :
     H[X | Y ; μ] = ∑ y, μ.real (Y ⁻¹' {y}) * H[X | Y ← y ; μ] := by
-  rw [condEntropy_def, integral_fintype' .of_finite]
+  rw [condEntropy_def, integral_fintype _ .of_finite]
   simp_rw [smul_eq_mul, map_measureReal_apply hY (.singleton _)]
 
 variable [MeasurableSingletonClass T]
@@ -848,18 +843,18 @@ lemma condMutualInfo_eq_kernel_mutualInfo
     rw [Filter.EventuallyEq, ae_iff_of_countable] at h
     specialize h x
     by_cases hx : (μ.map Z) {x} = 0
-    · simp [hx]
+    · simp [hx, Measure.real]
     rw [h hx, condDistrib_apply hX hZ]
     rwa [Measure.map_apply hZ (.singleton _)] at hx
   · have h := condDistrib_snd_ae_eq hX hY hZ μ
     rw [Filter.EventuallyEq, ae_iff_of_countable] at h
     specialize h x
     by_cases hx : (μ.map Z) {x} = 0
-    · simp [hx]
+    · simp [hx, Measure.real]
     rw [h hx, condDistrib_apply hY hZ]
     rwa [Measure.map_apply hZ (.singleton _)] at hx
   · by_cases hx : (μ.map Z) {x} = 0
-    · simp [hx]
+    · simp [hx, Measure.real]
     rw [condDistrib_apply (hX.prodMk hY) hZ]
     rwa [Measure.map_apply hZ (.singleton _)] at hx
 
@@ -868,11 +863,12 @@ end
 lemma condMutualInfo_eq_sum [MeasurableSingletonClass U] [IsFiniteMeasure μ]
     (hZ : Measurable Z) [FiniteRange Z] :
     I[X : Y | Z ; μ] = ∑ z ∈ FiniteRange.toFinset Z,
-      μ.real (Z ⁻¹' {z}) * I[X : Y ; (μ[|Z ← z])] := by
+      μ.real (Z ⁻¹' {z}) * I[X : Y ; μ[|Z ← z]] := by
   rw [condMutualInfo_eq_integral_mutualInfo,
-    integral_eq_setIntegral (FiniteRange.null_of_compl _ Z), integral_finset _ _ IntegrableOn.finset]
+    integral_eq_setIntegral (FiniteRange.null_of_compl _ Z),
+    integral_finset _ _ IntegrableOn.finset]
   congr 1 with z
-  rw [map_apply hZ (MeasurableSet.singleton z)]
+  rw [map_measureReal_apply hZ (MeasurableSet.singleton z)]
   rfl
 
 /-- A variant of `condMutualInfo_eq_sum` when `Z` has finite codomain. -/

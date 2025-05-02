@@ -87,7 +87,7 @@ example {A : Type*} [Fintype A] (E : A → Set Ω) (hn : Pairwise fun x y ↦ Di
 
 /-- A simple example of applying real-valued subtraction. -/
 example (E F : Set Ω) (h : NullMeasurableSet F ℙ) : ℙᵣ (E ∩ F) = ℙᵣ E - ℙᵣ (E \ F) := by
-  rw [← measureReal_inter_add_diff₀ E h]
+  rw [← measureReal_inter_add_diff₀ (s := E) h]
   ring
 
 example (E : Set Ω) : 0 ≤ ℙᵣ E ∧ ℙᵣ E ≤ 1 := by

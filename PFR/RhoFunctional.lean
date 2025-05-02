@@ -980,7 +980,7 @@ lemma condRhoPlus_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     Finset.sum_add_distrib, tsub_le_iff_right]
   rw [← Finset.sum_mul, ← tsum_fintype, ← condRhoMinus, ← condEntropy_eq_sum_fintype _ _ _ hZ]
   simp_rw [← map_measureReal_apply hZ (measurableSet_singleton _)]
-  simp only [Finset.sum_realMeasure_singleton, Finset.coe_univ, measureReal_univ_eq_one, one_mul,
+  simp only [sum_measureReal_singleton, Finset.coe_univ, measureReal_univ_eq_one, one_mul,
     sub_add_cancel, ge_iff_le]
   linarith
 
@@ -1493,10 +1493,8 @@ lemma dist_le_of_sum_zero {Ω' : Type*} [MeasurableSpace Ω'] {μ : Measure Ω'}
       calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hsum, _root_.zero_sub]; simp [ZModModule.neg_eq_self]
         _ = T₁ + T₂ := by rw [add_sub_cancel_right]
     subst h2T₃
-    have := ent_bsg hT₁ hT₂ (μ := ℙ)
-    simp_rw [integral_fintype _ Integrable.of_finite,
-      Measure.map_apply hT₃ (measurableSet_singleton _)] at this
-    exact this
+    simpa [integral_fintype _ Integrable.of_finite, map_measureReal_apply hT₃ (.singleton _)]
+      using ent_bsg hT₁ hT₂ (μ := ℙ)
   linarith
 
 include h_min in

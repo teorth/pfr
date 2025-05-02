@@ -498,7 +498,7 @@ lemma condRuzsaDist_eq_sum' {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : �
     d[X | Z ; μ # Y | W ; μ']
       = ∑ z, ∑ w, μ.real (Z ⁻¹' {z}) * μ'.real (W ⁻¹' {w})
           * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
-  rw [condRuzsaDist_def, Kernel.rdist, integral_fintype' .of_finite]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_fintype _ .of_finite]
   simp_rw [Measure.prod_real_singleton, smul_eq_mul, Fintype.sum_prod_type,
     map_measureReal_apply hZ (.singleton _), map_measureReal_apply hW (.singleton _)]
   congr with z
@@ -534,7 +534,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
       simp [← FiniteRange.range]
       measurability
     }
-  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset' _ .finset]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ .finset]
   simp_rw [Measure.prod_real_singleton, smul_eq_mul, Finset.sum_product,
     map_measureReal_apply hZ (.singleton _), map_measureReal_apply hW (.singleton _)]
   congr with z
@@ -615,7 +615,7 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
     measurability
-  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset' _ .finset]
+  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ .finset]
   simp_rw [Measure.prod_real_singleton, smul_eq_mul, Finset.sum_product]
   simp only [Finset.univ_unique, PUnit.default_eq_unit, MeasurableSpace.measurableSet_top,
     Measure.dirac_apply', Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, one_mul,
@@ -711,8 +711,7 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
     simp [← FiniteRange.range]
     measurability
   rw [integral_eq_setIntegral this, integral_finset _ _ IntegrableOn.finset]
-  simp [Measure.map_apply hW (MeasurableSet.singleton _)]
-  rfl
+  simp [map_measureReal_apply hW (MeasurableSet.singleton _),]
 
 section
 
@@ -866,18 +865,17 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
     integral_finset _ _ IntegrableOn.finset]
   have hZZ' : μ.map Z = μ''.map Z' := (h1.comp measurable_snd).map_eq
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
-  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hZZ', ← hWW',
-    Measure.map_apply hZ (.singleton _),
-    Measure.map_apply hW (.singleton _)]
+  simp_rw [Measure.prod_real_apply_singleton, ← hZZ', ← hWW',
+    map_measureReal_apply hZ (.singleton _), map_measureReal_apply hW (.singleton _)]
   congr with x
   by_cases hz : μ (Z ⁻¹' {x.1}) = 0
   · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inl ?_)
-    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top, hz]
+    simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, hz]
   by_cases hw : μ' (W ⁻¹' {x.2}) = 0
   · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inr ?_)
-    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
+    simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
   congr 2
   · have hZZ'x : μ (Z ⁻¹' {x.1}) = μ'' (Z' ⁻¹' {x.1}) := by
       have : μ.map Z {x.1} = μ''.map Z' {x.1} := by rw [hZZ']
@@ -937,13 +935,12 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', integral_finset _ _ IntegrableOn.finset,
     integral_finset _ _ IntegrableOn.finset]
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
-  simp_rw [Measure.prod_apply_singleton, ENNReal.toReal_mul, ← hWW',
-    Measure.map_apply hW (.singleton _)]
+  simp_rw [Measure.prod_real_apply_singleton, ← hWW', map_measureReal_apply hW (.singleton _)]
   congr with x
   by_cases hw : μ' (W ⁻¹' {x.2}) = 0
   · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inr ?_)
-    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
+    simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
   congr 2
   · rw [Kernel.const_apply, Kernel.const_apply, h1.map_eq]
   · have hWW'x : μ' (W ⁻¹' {x.2}) = μ''' (W' ⁻¹' {x.2}) := by
