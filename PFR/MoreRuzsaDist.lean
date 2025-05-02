@@ -1,4 +1,5 @@
 import PFR.ForMathlib.Entropy.RuzsaDist
+import PFR.HundredPercent
 
 /-!
 # More results about Ruzsa distance
@@ -853,7 +854,7 @@ lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ (1 ≤ j, k ≤ m, j ≠ k), d[X_j; -X_k] ≤ m(m-1) D[X_[m]].` -/
 lemma multidist_ruzsa_I {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
-    (X : ∀ i, (Ω i) → G): ∑ j, ∑ k, (if j = k then (0:ℝ) else d[X j # X k]) ≤ m * (m-1) * D[X; hΩ] := by sorry
+    (X : ∀ i, (Ω i) → G): ∑ j, ∑ k, (if j = k then (0:ℝ) else d[X j # -X k]) ≤ m * (m-1) * D[X; hΩ] := by sorry
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ j, d[X_j;X_j] ≤ 2 m D[X_[m]]`. -/
@@ -873,7 +874,25 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace 
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
 `d[X_i; U_{H_i}] = 0`. -/
-lemma multidist_eq_zero {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, (Ω i) → G) (hvanish : D[X; hΩ] = 0) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0 := by sorry
+lemma multidist_eq_zero [Fintype G] {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) (hprob : ∀ i, IsProbabilityMeasure (hΩ i).volume) (X : ∀ i, (Ω i) → G) (hvanish : D[X; hΩ] = 0) (hmes: ∀ i, Measurable (X i)) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0 := by
+  have vanish : ∑ j, d[X j # X j] = 0 := by
+    apply le_antisymm
+    . have := multidist_ruzsa_II hm hΩ X
+      simp [hvanish] at this
+      exact this
+    apply Finset.sum_nonneg
+    intro j _
+    exact rdist_nonneg (hmes j) (hmes j)
+  rw [Finset.sum_eq_zero_iff_of_nonneg ?_] at vanish
+  swap
+  . intro j _
+    exact rdist_nonneg (hmes j) (hmes j)
+  intro i
+  replace vanish := exists_isUniform_of_rdist_eq_zero (hmes i) (hmes i) $ vanish i $ Finset.mem_univ i
+  obtain ⟨ H, U, U_mes, U_unif, hdist, hdist' ⟩ := vanish
+  exact ⟨ H, U, U_mes, U_unif, hdist ⟩
+
+
 
 -- This is probably not the optimal spelling. For instance one could use the `μ "[|" t "]"` notation from Mathlib.ProbabilityTheory.ConditionalProbability to simplify the invocation of `ProbabilityTheory.cond`
 /-- If `X_[m] = (X_1, ..., X_m)` and `Y_[m] = (Y_1, ..., Y_m)` are tuples of random variables,

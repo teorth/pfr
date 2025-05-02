@@ -183,7 +183,7 @@ where the $\tilde X_i$ are independent copies of the $X_i$.
 \begin{lemma}[Nonnegativity]\label{multidist-nonneg}\lean{multiDist_nonneg}\uses{multidist-def}\leanok  For any such tuple, we have $D[X_{[m]}] \geq 0$.
 \end{lemma}
 
-\begin{proof}\uses{sumset-lower}  From \Cref{sumset-lower} one has
+\begin{proof}\uses{sumset-lower}\leanok  From \Cref{sumset-lower} one has
 $$ \bbH[\sum_{i =1}^m \tilde X_i] \geq \bbH[\tilde X_i]$$
 for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
 \end{proof}
@@ -261,7 +261,7 @@ and the claim follows.
 If $D[X_{[m]}]=0$, then for each $1 \leq i \leq m$ there is a finite subgroup $H_i \leq G$ such that $d[X_i; U_{H_i}] = 0$.
 \end{proposition}
 
-\begin{proof}\uses{multidist-ruzsa-I, ruzsa-nonneg, lem:100pc}  From \Cref{multidist-ruzsa-I} and \Cref{ruzsa-nonneg} we have $d[X_j; X_{-k}]=0$ for all $1 \leq j,k \leq m$.  The claim now follows from \Cref{lem:100pc}.
+\begin{proof}\uses{multidist-ruzsa-I, ruzsa-nonneg, lem:100pc}\leanok  From \Cref{multidist-ruzsa-II} and \Cref{ruzsa-nonneg} we have $d[X_j; X_j]=0$ for all $1 \leq j \leq m$.  The claim now follows from \Cref{lem:100pc}.
 \end{proof}
 
 With more effort one can show that $H_i$ is independent of $i$, but we will not need to do so here.
