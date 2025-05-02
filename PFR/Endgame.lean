@@ -45,7 +45,7 @@ variable (X₁ X₂ X₁' X₂' : Ω → G)
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₁', X₂'])
+variable (h_indep : iIndepFun ![X₁, X₂, X₁', X₂'])
 
 variable (h_min : tau_minimizes p X₁ X₂)
 
@@ -81,7 +81,7 @@ private lemma hmeas2 {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSp
 include h_indep hX₁ hX₂ hX₁' hX₂' h₁ in
 /-- The quantity `I_3 = I[V:W|S]` is equal to `I_2`. -/
 lemma I₃_eq [IsProbabilityMeasure (ℙ : Measure Ω)] : I[V : W | S] = I₂ := by
-  have h_indep2 : iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁, X₂'] := by
+  have h_indep2 : iIndepFun ![X₁', X₂, X₁, X₂'] := by
     exact h_indep.reindex_four_cbad
   have hident : IdentDistrib (fun a (i : Fin 4) => ![X₁, X₂, X₁', X₂'] i a)
     (fun a (j : Fin 4) => ![X₁', X₂, X₁, X₂'] j a) := by
@@ -98,12 +98,12 @@ lemma I₃_eq [IsProbabilityMeasure (ℙ : Measure Ω)] : I[V : W | S] = I₂ :=
               fin_cases x;
               all_goals aesop
             map_eq := by
-              rw [← (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁, X₂, X₁', X₂'])
-                (Fin.cases hX₁ <| Fin.cases hX₂ <| Fin.cases hX₁' <|
-              Fin.cases hX₂' Fin.rec0)).mp h_indep,
-              ← (ProbabilityTheory.iIndepFun_iff_pi_map_eq_map (![X₁', X₂, X₁, X₂'])
-                (Fin.cases hX₁' <| Fin.cases hX₂ <| Fin.cases hX₁ <|
-              Fin.cases hX₂' Fin.rec0)).mp h_indep2]
+              rw [(ProbabilityTheory.iIndepFun_iff_map_fun_eq_pi_map
+                (Fin.cases hX₁.aemeasurable <| Fin.cases hX₂.aemeasurable <|
+                Fin.cases hX₁'.aemeasurable <| Fin.cases hX₂'.aemeasurable Fin.rec0)).mp h_indep,
+                (ProbabilityTheory.iIndepFun_iff_map_fun_eq_pi_map
+                (Fin.cases hX₁'.aemeasurable <| Fin.cases hX₂.aemeasurable <|
+                Fin.cases hX₁.aemeasurable <| Fin.cases hX₂'.aemeasurable Fin.rec0)).mp h_indep2]
               congr
               ext i
               fin_cases i
@@ -120,7 +120,7 @@ lemma I₃_eq [IsProbabilityMeasure (ℙ : Measure Ω)] : I[V : W | S] = I₂ :=
   have hS : Measurable S := by fun_prop
   rw [condMutualInfo_eq hV hW hS, condMutualInfo_eq hU hW hS, chain_rule'' ℙ hU hS,
     chain_rule'' ℙ hV hS, chain_rule'' ℙ hW hS, chain_rule'' ℙ _ hS, chain_rule'' ℙ _ hS,
-    IdentDistrib.entropy_eq hUVS, IdentDistrib.entropy_eq hUVWS]
+    hUVS.entropy_congr, hUVWS.entropy_congr]
   · exact Measurable.prod hU hW
   · exact Measurable.prod hV hW
 
@@ -153,50 +153,50 @@ local notation3:max "c[" A " | " B " # " C " | " D "]" =>
 
 include h_indep h₁ h₂ in
 lemma hU [IsProbabilityMeasure (ℙ : Measure Ω)] : H[U] = H[X₁' + X₂'] :=
-  IdentDistrib.entropy_eq (h₁.add h₂
+  IdentDistrib.entropy_congr (h₁.add h₂
     (h_indep.indepFun (show (0 : Fin 4) ≠ 1 by norm_cast))
      (h_indep.indepFun (show (2 : Fin 4) ≠ 3 by norm_cast)))
 
 variable {X₁ X₂ X₁' X₂'} in
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 lemma independenceCondition1 :
-    iIndepFun (fun _ ↦ hG) ![X₁, X₂, X₁' + X₂'] :=
+    iIndepFun ![X₁, X₂, X₁' + X₂'] :=
   h_indep.apply_two_last hX₁ hX₂ hX₁' hX₂' measurable_add
 
 include h₁ h₂ h_indep in
 lemma hV [IsProbabilityMeasure (ℙ : Measure Ω)] : H[V] = H[X₁ + X₂'] :=
-  IdentDistrib.entropy_eq (h₁.symm.add h₂
+  IdentDistrib.entropy_congr (h₁.symm.add h₂
     (h_indep.indepFun (show (2 : Fin 4) ≠ 1 by norm_cast))
     (h_indep.indepFun (show (0 : Fin 4) ≠ 3 by norm_cast)))
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition2 :
-    iIndepFun (fun _ ↦ hG) ![X₂, X₁, X₁' + X₂'] :=
+    iIndepFun ![X₂, X₁, X₁' + X₂'] :=
   independenceCondition1 hX₂ hX₁ hX₁' hX₂' h_indep.reindex_four_bacd
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition3 :
-    iIndepFun (fun _ ↦ hG) ![X₁', X₂, X₁ + X₂'] :=
+    iIndepFun ![X₁', X₂, X₁ + X₂'] :=
   independenceCondition1 hX₁' hX₂ hX₁ hX₂' h_indep.reindex_four_cbad
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition4 :
-    iIndepFun (fun _ ↦ hG) ![X₂, X₁', X₁ + X₂'] :=
+    iIndepFun ![X₂, X₁', X₁ + X₂'] :=
   independenceCondition1 hX₂ hX₁' hX₁ hX₂' h_indep.reindex_four_bcad
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition5 :
-    iIndepFun (fun _ ↦ hG) ![X₁, X₁', X₂ + X₂'] :=
+    iIndepFun ![X₁, X₁', X₂ + X₂'] :=
   independenceCondition1 hX₁ hX₁' hX₂ hX₂' h_indep.reindex_four_acbd
 
 include h_indep hX₁ hX₂ hX₁' hX₂' in
 variable {X₁ X₂ X₁' X₂'} in
 lemma independenceCondition6 :
-    iIndepFun (fun _ ↦ hG) ![X₂, X₂', X₁' + X₁] :=
+    iIndepFun ![X₂, X₂', X₁' + X₁] :=
   independenceCondition1 hX₂ hX₂' hX₁' hX₁ h_indep.reindex_four_bdca
 
 set_option maxHeartbeats 400000 in
@@ -240,9 +240,8 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
       (independenceCondition3 hX₁ hX₂ hX₁' hX₂' h_indep)
 
     have aux1 : H[S] + H[V] - H[X₁'] - H[X₁ + X₂'] = H[S ; ℙ] - H[X₁ ; ℙ] := by
-      rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep, h₁.entropy_eq]; ring
-    rw [← ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl p.hmeas1.aemeasurable) h₁,
-      V_add_eq, aux1] at aux2
+      rw [hV X₁ X₂ X₁' X₂' h₁ h₂ h_indep, h₁.entropy_congr]; ring
+    rw [← h₁.rdist_congr_right p.hmeas1.aemeasurable, V_add_eq, aux1] at aux2
     linarith [aux2]
 
   have ineq4 : d[X₀₂ # V | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] - H[X₂ ; ℙ])/2 := by
@@ -303,8 +302,8 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
         add_le_add (add_le_add step₁ step₂) step₃
     _ = 3 * H[S ; ℙ] - 3/2 * H[X₁ ; ℙ] -3/2 * H[X₂ ; ℙ] := by ring
 
-  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
-    apply ProbabilityTheory.iIndepFun.reindex (Equiv.swap (2 : Fin 4) 3)
+  have h_indep' : iIndepFun ![X₁, X₂, X₂', X₁'] := by
+    refine .of_precomp (Equiv.swap (2 : Fin 4) 3).surjective ?_
     convert h_indep using 1
     ext x
     fin_cases x ; all_goals { aesop }
@@ -341,7 +340,7 @@ lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
   rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
-  simp only [measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+  simp only [measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul]
 
 variable {T₁ T₂ T₃ : Ω' → G} (hT : T₁+T₂+T₃ = 0)
 variable (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
@@ -391,10 +390,11 @@ lemma construct_good_prelim :
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2) := by
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
-        ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum2]
+        ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj, sum2]
       simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
+      rfl
 
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
@@ -402,16 +402,17 @@ lemma construct_good_prelim :
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2) := by
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
       simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
-        ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj, sum3]
+        ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj, sum3]
       simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
         Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
+      rfl
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
 
   have h4 : sum4 ≤ δ + p.η * c[T₁ # T₂] + p.η * (I[T₁ : T₃] + I[T₂ : T₃]) / 2 := by
     suffices sum4 = sum1 + p.η * (sum2 + sum3) by linarith
-    simp only [sum4, integral_add .of_finite .of_finite, integral_mul_left]
+    simp only [sum1, sum2, sum3, sum4, integral_add .of_finite .of_finite, integral_mul_left]
 
   have hk : k ≤ sum4 := by
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
@@ -449,7 +450,7 @@ include hT₁ hT₂ hT₃ hT h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω')] in
 lemma construct_good' (μ : Measure Ω') [IsProbabilityMeasure μ] :
     k ≤ δ[μ] + (p.η/3) * (δ[μ] + c[T₁ ; μ # T₁ ; μ] + c[T₂ ; μ # T₂ ; μ] + c[T₃ ; μ # T₃ ; μ]) := by
-  letI : MeasureSpace Ω' := ⟨μ⟩
+  let _ : MeasureSpace Ω' := ⟨μ⟩
   apply construct_good p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 
 variable {R : Ω' → G} (hR : Measurable R)
@@ -490,7 +491,7 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
 end construct_good
 
 include hX₁ hX₂ h_min h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂' in
-/-- If `d[X₁ ; X₂] > 0` then there are `G`-valued random variables `X'₁, X'₂` such that
+/-- If `d[X₁ ; X₂] > 0` then there are `G`-valued random variables `X₁', X₂'` such that
 Phrased in the contrapositive form for convenience of proof. -/
 theorem tau_strictly_decreases_aux
     [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2) G]
@@ -500,26 +501,16 @@ theorem tau_strictly_decreases_aux
     (show Measurable W by fun_prop) (show Measurable S by fun_prop)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h2 := sum_dist_diff_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
-  have h_indep' : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'] := by
+  have h_indep' : iIndepFun ![X₁, X₂, X₂', X₁'] := by
     let σ : Fin 4 ≃ Fin 4 :=
     { toFun := ![0, 1, 3, 2]
       invFun := ![0, 1, 3, 2]
       left_inv := by intro i; fin_cases i <;> rfl
       right_inv := by intro i; fin_cases i <;> rfl }
-    refine iIndepFun.reindex σ.symm ?_
+    refine .of_precomp σ.symm.surjective ?_
     convert h_indep using 1
     ext i; fin_cases i <;> rfl
   have h3 := first_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
-  have h : k ≤ (8*p.η + p.η^2) * k := calc
-    k ≤ (1+p.η/3) * (6*p.η*k - (1-5*p.η) / (1-p.η) * (2*p.η*k - I₁)) + p.η/3*((6-3*p.η)*k + 3*(2*p.η*k-I₁)) := by
-      rw [hpη] at *
-      linarith
-    _ = (8*p.η+p.η^2)*k - ((1-5*p.η)/(1-p.η)*(1+p.η/3)-p.η)*(2*p.η*k-I₁) := by
-      ring
-    _ ≤ (8*p.η + p.η^2) * k := by
-      rw [hpη] at *
-      norm_num
-      linarith
-  have : 0 ≤ k := rdist_nonneg hX₁ hX₂
+  have hk : 0 ≤ k := rdist_nonneg hX₁ hX₂
   rw [hpη] at *
-  linarith
+  linarith only [hk, h0, h1, h2, h3]

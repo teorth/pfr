@@ -1,3 +1,5 @@
+name: Build Lean project
+
 on:
   push:
     branches:
@@ -33,82 +35,78 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Print files to upstream
+      # - name: Copy README.md to website/index.md
+      #   run: cp README.md website/index.md
+
+      - name: Upstreaming dashboard
         run: |
-          grep -r --files-without-match 'import PFR' PFR | sort > 1.txt
-          grep -r --files-with-match 'sorry' PFR | sort > 2.txt
-          mkdir -p docs/_includes
-          comm -23 1.txt 2.txt | sed -e 's/^\(.*\)$/- [`\1`](https:\/\/github.com\/teorth\/PFR\/blob\/master\/\1)/' > docs/_includes/files_to_upstream.md
-          rm 1.txt 2.txt
+          mkdir -p website/_includes
+          python3 scripts/upstreaming_dashboard.py
 
       - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0
+        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.15.0
 
       - name: Get cache
-        run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
+        run: ~/.elan/bin/lake exe cache get || true
 
       - name: Build project
-        run: ~/.elan/bin/lake -Kenv=dev build PFR
+        run: ~/.elan/bin/lake build PFR
 
-      - name: Cache mathlib docs
-        uses: actions/cache@v3
+      - name: File dependencies
+        run: |
+          sudo apt-get update
+          sudo apt install graphviz -y
+          ~/.elan/bin/lake exe graph website/file_deps.pdf
+
+      - name: Cache documentation
+        uses: actions/cache@v4
         with:
-          path: |
-            .lake/build/doc/Init
-            .lake/build/doc/Lake
-            .lake/build/doc/Lean
-            .lake/build/doc/Std
-            .lake/build/doc/Mathlib
-            .lake/build/doc/declarations
-            !.lake/build/doc/declarations/declaration-data-PFR*
+          path: website/docs
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: |
-            MathlibDoc-
+          restore-keys: MathlibDoc-
 
       - name: Build documentation
-        run: ~/.elan/bin/lake -Kenv=dev build PFR:docs
+        run: scripts/build_docs.sh
 
-      - name: Build blueprint and copy to `docs/blueprint`
+      - name: Build blueprint and copy to `website/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
-            export PIP_BREAK_SYSTEM_PACKAGES=1
             apk update
-            apk add --update make py3-pip git
             apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
-            python3 -m pip install --upgrade pip requests wheel
-            python3 -m pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install -r blueprint/requirements.txt
-            python3 -m pip install invoke
-            inv all
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            mkdir -p docs
+            cp blueprint/print/print.pdf website/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web website/blueprint
 
-      - name: Copy documentation to `docs/docs`
-        run: |
-          mv .lake/build/doc docs/docs
+      - name: Copy documentation to `website/docs`
+        run: mv docs/build/* website/docs
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
         with:
-          working-directory: docs
-          ruby-version: "3.0" # Not needed with a .ruby-version file
+          working-directory: website
+          ruby-version: "3.1" # Not needed with a .ruby-version file
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
       - name: Bundle website
-        working-directory: docs
+        working-directory: website
         run: JEKYLL_ENV=production bundle exec jekyll build
 
       - name: Upload docs & blueprint artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/_site
+          path: website/_site
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
-
-      - name: Make sure the cache works
-        run: |
-          mv docs/docs .lake/build/doc
+        uses: actions/deploy-pages@v4

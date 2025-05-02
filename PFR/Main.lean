@@ -1,7 +1,7 @@
 import Mathlib.Algebra.Group.Pointwise.Set.Card
+import Mathlib.Algebra.Module.ZMod
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
-import PFR.ForMathlib.ZModModule
 import PFR.EntropyPFR
 import PFR.Tactic.RPowSimp
 
@@ -27,13 +27,13 @@ variable {G Ω : Type*} [AddCommGroup G] [Fintype G]
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V` with probability `#(A ∩ B) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : Measurable U)
-    (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) :
+    (Vunif : IsUniform B V) (Vmeas : Measurable V) (h_indep : IndepFun U V) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {0})
       = Nat.card (A ∩ B : Set G) / (Nat.card A * Nat.card B) := by
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
     ext ω; simp [sub_eq_zero, eq_comm]
   rw [this, measureReal_iUnion_fintype _
-    (fun i ↦ (Umeas $ .of_discrete).inter $ Vmeas $ .of_discrete)]; swap
+    (fun i ↦ (Umeas .of_discrete).inter $ Vmeas .of_discrete)]; swap
   · intro g g' hgg'
     apply Set.disjoint_iff_inter_eq_empty.2
     ext a
@@ -44,15 +44,15 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
     ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p} ∩ V ⁻¹' {p})
       = ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply sum_congr _ _ (fun g ↦ ?_)
-        rw [hindep.measureReal_inter_preimage_eq_mul .of_discrete .of_discrete]
-    _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
+        rw [h_indep.measureReal_inter_preimage_eq_mul .of_discrete .of_discrete]
+    _ = ∑ p ∈ W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply (Finset.sum_subset W.subset_univ _).symm
         intro i _ hi
         replace hi : i ∉ A ∨ i ∉ B := by simp [W] at hi; tauto
         rcases hi with h'i|h'i
         · simp [Uunif.measureReal_preimage_of_nmem h'i]
         · simp [Vunif.measureReal_preimage_of_nmem h'i]
-    _ = ∑ p in W, (1 / Nat.card A : ℝ) * (1 / Nat.card B) := by
+    _ = ∑ p ∈ W, (1 / Nat.card A : ℝ) * (1 / Nat.card B) := by
         apply Finset.sum_congr rfl (fun i hi ↦ ?_)
         replace hi : i ∈ A ∧ i ∈ B := by simpa [W] using hi
         rw [Uunif.measureReal_preimage_of_mem (by trivial) hi.1,
@@ -66,7 +66,7 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
 /-- Given two independent random variables `U` and `V` uniformly distributed respectively on `A`
 and `B`, then `U = V + x` with probability `# (A ∩ (B + x)) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measurable U)
-    (Vunif : IsUniform B V) (Vmeas : Measurable V) (hindep : IndepFun U V) (x : G) :
+    (Vunif : IsUniform B V) (Vmeas : Measurable V) (h_indep : IndepFun U V) (x : G) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {x})
       = Nat.card (A ∩ (B + {x}) : Set G) / (Nat.card A * Nat.card B) := by
   classical
@@ -77,7 +77,7 @@ lemma IsUniform.measureReal_preimage_sub (Uunif : IsUniform A U) (Umeas : Measur
   have Wmeas : Measurable W := Vmeas.add_const _
   have UWindep : IndepFun U W := by
     have : Measurable (fun g ↦ g + x) := measurable_add_const x
-    exact hindep.comp measurable_id this
+    exact h_indep.comp measurable_id this
   have : (U - V) ⁻¹' {x} = (U - W) ⁻¹' {0} := by
     ext ω
     simp only [W, mem_preimage, Pi.add_apply, mem_singleton_iff, Pi.sub_apply, ← sub_eq_zero (b := x)]
@@ -141,10 +141,9 @@ theorem rdist_le_of_isUniform_of_card_add_le [A_fin : Finite A] [MeasurableSpace
     have J : log (Nat.card (A - A)) ≤ log K + log (Nat.card A) := by
       apply (log_le_log AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
-    rw [UU'_indep.rdist_eq hU hU', IsUniform.entropy_eq' A_fin Uunif hU,
-      IsUniform.entropy_eq' A_fin U'unif hU']
+    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq' A_fin hU, U'unif.entropy_eq' A_fin hU']
     linarith
-  rwa [idU.rdist_eq idU'] at IU
+  rwa [idU.rdist_congr idU'] at IU
 
 variable [Module (ZMod 2) G] [Fintype G]
 
@@ -180,7 +179,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/9, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture p (by norm_num) with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
-  have H_fin : Set.Finite (H : Set G) := toFinite ↑H
+  have H_fin : (H : Set G).Finite := (H : Set G).toFinite
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm .of_discrete
@@ -188,16 +187,16 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   rw [← hAA'] at VA'unif
   have VHunif : IsUniform H VH := UHunif.of_identDistrib idVH.symm .of_discrete
   let H' := (H : Set G).toFinite.toFinset
-  have hHH' : H' = (H : Set G) := Finite.coe_toFinset (toFinite (H : Set G))
+  have hHH' : H' = (H : Set G) := (toFinite (H : Set G)).coe_toFinset
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
 
-  have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
+  have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_congr idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos
     positivity
-  have VA_ent : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' A_fin VAunif VAmeas
-  have VH_ent : H[VH] = log (Nat.card H) := IsUniform.entropy_eq' H_fin VHunif VHmeas
+  have VA_ent : H[VA] = log (Nat.card A) := VAunif.entropy_eq' A_fin VAmeas
+  have VH_ent : H[VH] = log (Nat.card H) := VHunif.entropy_eq' H_fin VHmeas
   have Icard : |log (Nat.card A) - log (Nat.card H)| ≤ 11 * log K := by
     rw [← VA_ent, ← VH_ent]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
@@ -238,7 +237,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
     · rw [hAA', hHH']
     positivity
 
-  have Hne : Set.Nonempty (A ∩ (H + {x₀} : Set G)) := by
+  have Hne : (A ∩ (H + {x₀} : Set G)).Nonempty := by
     by_contra h'
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
     simp only [Nat.card_eq_fintype_card, card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
@@ -247,31 +246,27 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
-  rcases Set.exists_subset_add_sub (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne with
-    ⟨u, hu, Au, -⟩
-  have Iu :
-    Nat.card u ≤ K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ) := by
-    have : (0 : ℝ) ≤ Nat.card u := by simp
-    have Z1 := mul_le_mul_of_nonneg_left J this
-    have Z2 : (Nat.card u * Nat.card (A ∩ (H + {x₀}) : Set G) : ℝ)
-      ≤ Nat.card (A + A ∩ (↑H + {x₀})) := by norm_cast
-    have Z3 : (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ K * Nat.card A := by
-      apply le_trans _ hA
-      simp only [Nat.cast_le]
-      apply Nat.card_mono (toFinite _)
-      apply add_subset_add_left inter_subset_left
-    have : 0 ≤ K ^ (11/2 : ℝ) * Nat.card A ^ (-1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ) := by
-      positivity
-    have T := mul_le_mul_of_nonneg_left ((Z1.trans Z2).trans Z3) this
-    convert T using 1 <;> rpow_ring <;> norm_num
+  have Z3 :
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) *
+        Nat.card H ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
+    calc
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ)
+      _ ≤ Nat.card (A + A) := by
+        gcongr; exact Nat.card_mono (toFinite _) <| add_subset_add_left inter_subset_left
+      _ ≤ K * Nat.card A := hA
+      _ = (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+          (K ^ (-11/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ)) := by
+        rpow_ring; norm_num
+      _ ≤ (K ^ (13/2 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+        Nat.card ↑(A ∩ (↑H + {x₀})) := by gcongr
+  obtain ⟨u, huA, hucard, hAu, -⟩ :=
+    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
-    rw [add_sub_assoc] at Au
-    refine Au.trans $ add_subset_add_left $
+    refine hAu.trans $ add_subset_add_left $
       (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
     rw [add_sub_add_comm, singleton_sub_singleton, sub_self]
     simp
-  exact ⟨H, u, Iu, IHA, IAH, A_subset_uH⟩
-
+  exact ⟨H, u, hucard, IHA, IAH, A_subset_uH⟩
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of an elementary abelian
 2-group of doubling constant at most `K`, then `A` can be covered by at most `2 * K ^ 12` cosets of
@@ -324,7 +319,6 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
     _ = 2 * K ^ (13/2) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
-        have : (0 : ℝ) < Nat.card H := H_pos
         field_simp
         rpow_ring
         norm_num

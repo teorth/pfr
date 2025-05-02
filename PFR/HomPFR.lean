@@ -1,7 +1,7 @@
+import Mathlib.Algebra.Field.ZMod
 import Mathlib.Data.Set.Card
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
-import PFR.Mathlib.SetTheory.Cardinal.Finite
-import PFR.ImprovedPFR
+import PFR.RhoFunctional
 
 /-!
 # The homomorphism form of PFR
@@ -16,7 +16,7 @@ few values.
   abelian 2-groups.
 * `homomorphism_pfr` : If $f : G → G'$ is a map between finite abelian elementary 2-groups such
   that $f(x+y)-f(x)-f(y)$ takes at most $K$ values, then there is a homomorphism $\phi: G \to G'$
-  such that $f(x)-\phi(x)$ takes at most $K^{12}$ values.
+  such that $f(x)-\phi(x)$ takes at most $K^{10}$ values.
 -/
 
 open Set
@@ -64,9 +64,9 @@ open Set Fintype
 /-- Let $f: G \to G'$ be a function, and let $S$ denote the set
 $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
-$$ |\{f(x) - \phi(x)\}| \leq |S|^{12}. $$ -/
+$$ |\{f(x) - \phi(x)\}| \leq |S|^{10}. $$ -/
 theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) - (f x) - (f y) ∈ S) :
-  ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ Nat.card S ^ 12 ∧ ∀ x : G, (f x) - (φ x) ∈ T := by
+  ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ Nat.card S ^ 10 ∧ ∀ x : G, (f x) - (φ x) ∈ T := by
   classical
   have : 0 < Nat.card G := Nat.card_pos
   let A := univ.graphOn f
@@ -88,13 +88,13 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
     norm_cast
     exact (Nat.card_mono (toFinite B) hAB).trans hB_card
   have hA_nonempty : A.Nonempty := by simp [A]
-  obtain ⟨H, c, hcS, -, -, hAcH⟩ := PFR_conjecture_improv_aux hA_nonempty hA_le
+  obtain ⟨H, c, hcS, -, -, hAcH⟩ := better_PFR_conjecture_aux hA_nonempty hA_le
   have : 0 < Nat.card c := by
     have : c.Nonempty := by
       by_contra! H
       simp only [H, empty_add, subset_empty_iff] at hAcH
       simp [hAcH] at hA_nonempty
-    exact this.card_pos c.toFinite
+    exact this.natCard_pos c.toFinite
   obtain ⟨H₀, H₁, φ, hH₀₁, hH_card⟩ := goursat H
   have hG_card_le : Nat.card G ≤ Nat.card c * Nat.card H₀ := by
     let c' := Prod.fst '' c
@@ -139,7 +139,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
         congr! 3 with a
         rw [← range, ← range, ← graphOn_univ_eq_range, ← graphOn_univ_eq_range, vadd_graphOn_univ]
   refine ⟨φ, T, ?_, ?_⟩
-  · have : (Nat.card T : ℝ) ≤ (Nat.card S : ℝ) ^ (12 : ℝ) := by calc
+  · have : (Nat.card T : ℝ) ≤ (Nat.card S : ℝ) ^ (10 : ℝ) := by calc
       (Nat.card T : ℝ) ≤ Nat.card (c + {(0 : G)} ×ˢ (H₁ : Set G')) := by
         norm_cast; apply Nat.card_image_le (toFinite _)
       _ ≤ Nat.card c * Nat.card H₁ := by
@@ -148,15 +148,16 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
         rw [Set.card_singleton_prod] ; rfl
       _ ≤ Nat.card c * ((Nat.card H / Nat.card A) * Nat.card c) := by gcongr
       _ = Nat.card c ^ 2 * (Nat.card H / Nat.card A) := by ring
-      _ ≤ (Nat.card S ^ (6 : ℝ) * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2
+      _ ≤ (Nat.card S ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2
           * (Nat.card H / Nat.card A) := by gcongr
-      _ = (Nat.card S : ℝ) ^ (12 : ℝ) := by
+      _ = (Nat.card S : ℝ) ^ (10 : ℝ) := by
         rw [← Real.rpow_two, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]
         have : 0 < Nat.card S := by
           have : S.Nonempty := ⟨f (0 + 0) - f 0 - f 0, hS 0 0⟩
-          exact this.card_pos S.toFinite
-        have : 0 < Nat.card A := hA_nonempty.card_pos A.toFinite
-        have : 0 < Nat.card H := H.nonempty.card_pos $ toFinite _
+          exact this.natCard_pos S.toFinite
+        have : 0 < Nat.card A := hA_nonempty.natCard_pos A.toFinite
+        have : 0 < Nat.card H := H.nonempty.natCard_pos $ toFinite _
+        simp_rw [← Real.rpow_natCast]
         rpow_ring
         norm_num
     exact_mod_cast this

@@ -1,8 +1,7 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Tactic.Rify
 
 namespace Mathlib.Tactic
-open Lean hiding Rat
+open Lean
 open Qq Meta Real
 
 namespace RPowRing
@@ -85,7 +84,7 @@ Evaluates an atom, an expression where `ring` can find no additional structure.
 def evalAtom (e : Q(ℝ)) : AtomM (Result ExProd e) := do
   let r ← (← read).evalAtom e
   have a : Q(ℝ) := r.expr
-  let i ← AtomM.addAtom a
+  let (i, _) ← AtomM.addAtom a
   match ← Positivity.catchNone <| Positivity.core q(inferInstance) q(inferInstance) a, r.proof? with
   | .positive pa, none =>
     pure ⟨_, (ExBase.pow i a pa q(1)).toProd, (q(atom_pow_pf $e) : Expr)⟩
@@ -211,16 +210,19 @@ Runs a tactic in the `RingNF.M` monad, given initial data:
 * `x`: the tactic to run
 -/
 def M.run {α : Type} (s : IO.Ref AtomM.State) (cfg : RPowRing.Config) (x : M α) : MetaM α := do
-  let ctx : Simp.Context := {
-    simpTheorems := #[← Elab.Tactic.simpOnlyBuiltins.foldlM (·.addConst ·) {}]
-    congrTheorems := ← getSimpCongrTheorems }
+  let ctx ← Simp.mkContext
+    Simp.neutralConfig
+    (simpTheorems := #[← Elab.Tactic.simpOnlyBuiltins.foldlM (·.addConst ·) {}])
+    (congrTheorems := ← getSimpCongrTheorems)
   let thms : SimpTheorems := {}
   let thms ← [``mul_one, ``one_mul, ``pow_one, ``RingNF.mul_neg, ``RingNF.add_neg
     ].foldlM (·.addConst ·) thms
-  let ctx' := { ctx with simpTheorems := #[thms] }
+  let ctx' := ctx.setSimpTheorems #[thms]
   let simp (r' : Simp.Result) := do
     r'.mkEqTrans (← Simp.main r'.expr ctx' (methods := ← Lean.Meta.Simp.mkDefaultMethods)).1
-  x { ctx := { ctx with config.singlePass := true }, simp } { red := cfg.red } s
+  x { ctx := ← Simp.mkContext
+        { Simp.neutralConfig with singlePass := true } ctx.simpTheorems ctx.congrTheorems, simp }
+    { red := cfg.red } s
 
 open Elab.Tactic Parser.Tactic
 /-- Use `rpow_ring` to rewrite the main goal. -/
@@ -301,7 +303,7 @@ macro "rpow_simp" extras:(simpArgs)? loc:(location)? : tactic => `(tactic|
       [abs_one, abs_mul, abs_inv, abs_div, abs_abs, abs_zero, mul_rpow, ← rpow_mul, div_rpow,
        ← rpow_natCast, abs_rpow_of_nonneg, rpow_one, ← rpow_add, ← rpow_sub, zero_rpow, one_rpow,
        rpow_one, inv_rpow', rpow_inv] $(loc)? <;> try push_cast) <;>
-   try rpow_ring) <;> try field_simp only $(extras)? $(loc)?) <;> try ring_nf (config:={}) $(loc)?) <;>
+   try rpow_ring) <;> try field_simp only $(extras)? $(loc)?)) <;>
    try simp (discharger := positivity) only [abs_one, abs_zero, one_rpow, rpow_one, rpow_zero,
      mul_zero, zero_mul, mul_one, one_mul, fix_cast₁, fix_cast₂, fix_cast₃, Nat.cast_one, inv_rpow',
      rpow_inv] $(loc)?)

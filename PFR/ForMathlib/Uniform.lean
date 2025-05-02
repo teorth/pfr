@@ -1,10 +1,9 @@
+import Mathlib.MeasureTheory.Measure.Real
 import Mathlib.Probability.IdentDistrib
-import Mathlib.Probability.ConditionalProbability
-import PFR.ForMathlib.MeasureReal
 import PFR.ForMathlib.FiniteRange.Defs
 import PFR.Mathlib.Probability.UniformOn
 
-open Function MeasureTheory Set
+open Function MeasureTheory Measure Set
 open scoped ENNReal
 
 namespace ProbabilityTheory
@@ -114,7 +113,7 @@ lemma IsUniform.measure_preimage_of_nmem (h : IsUniform H X μ) {s : S} (hs : s 
 /-- Another "unit test" for the definition of uniform distribution. -/
 lemma IsUniform.measureReal_preimage_of_nmem (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
     μ.real (X ⁻¹' {s}) = 0 := by
-  rw [measureReal_def, h.measure_preimage_of_nmem hs, ENNReal.zero_toReal]
+  rw [measureReal_def, h.measure_preimage_of_nmem hs, ENNReal.toReal_zero]
 
 variable [MeasurableSpace S] [DiscreteMeasurableSpace S]
 
@@ -128,7 +127,7 @@ lemma IsUniform.measure_preimage_of_mem
       rw [← measure_union (disjoint_compl_left.preimage _) (hX .of_discrete)]
       simp
     _ = μ (X ⁻¹' H) := by rw [h.measure_preimage_compl, zero_add]
-    _ = ∑ x in H, μ (X ⁻¹' {x}) := by
+    _ = ∑ x ∈ H, μ (X ⁻¹' {x}) := by
       have : X ⁻¹' H = ⋃ x ∈ H, X ⁻¹' ({x} : Set S) := by simp
       rw [this, measure_biUnion_finset]
       · intro y _hy z _hz hyz
@@ -136,7 +135,7 @@ lemma IsUniform.measure_preimage_of_mem
         simp [hyz]
       · intro y _hy
         exact hX .of_discrete
-    _ = ∑ _x in H, μ (X ⁻¹' {s}) :=
+    _ = ∑ _x ∈ H, μ (X ⁻¹' {s}) :=
       Finset.sum_congr rfl fun x hx ↦ h.eq_of_mem (by simpa using hx) hs
     _ = H.card * μ (X ⁻¹' {s}) := by simp
     _ = (Nat.card H) * μ (X ⁻¹' {s}) := by
@@ -172,7 +171,7 @@ lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Mea
     rewrite [Set.diff_eq_compl_inter, ← le_zero_iff, ← h.measure_preimage_compl]
     exact measure_mono inter_subset_left
   _ = μ (X ⁻¹' (H' ∩ H.toSet).toFinite.toFinset) := by simp
-  _ = (μ univ) * ∑ __ in (H' ∩ H.toSet).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
+  _ = μ univ * ∑ __ ∈ (H' ∩ H.toSet).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
     rewrite [← sum_measure_preimage_singleton _ (by measurability), Finset.mul_sum]
     refine Finset.sum_congr rfl (fun _ hx ↦ ?_)
     rw [mul_one_div, h.measure_preimage_of_mem hX ((Finite.mem_toFinset _).mp hx).2]
@@ -267,5 +266,48 @@ lemma IsUniform.map_eq_uniformOn [Countable S] [IsProbabilityMeasure μ]
   have : Finite H := hH
   have : IsProbabilityMeasure (uniformOn H) := uniformOn_isProbabilityMeasure hH h'H
   have : IdentDistrib X id μ (uniformOn (H : Set S)) :=
-    IdentDistrib.of_isUniform (H := H) hX measurable_id h isUniform_uniformOn
+    .of_isUniform (H := H) hX measurable_id h isUniform_uniformOn
   simpa using this.map_eq
+
+/-- A random variable is uniform iff its distribution is. -/
+lemma isUniform_iff_map_eq_uniformOn [Finite H] {Ω : Type*} [mΩ : MeasurableSpace Ω] (μ : Measure Ω)
+    [Countable S] [IsProbabilityMeasure μ] {U : Ω → S} (hU : Measurable U) :
+    IsUniform H U μ ↔ μ.map U = uniformOn H := by
+  constructor
+  · intro h_unif
+    ext A hA
+    let Hf := H.toFinite.toFinset
+    have h_unif': IsUniform Hf U μ := (Set.Finite.coe_toFinset H.toFinite).symm ▸ h_unif
+    let AHf := (A ∩ H).toFinite.toFinset
+    rw [uniformOn_apply ‹_›, ← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hA]
+    classical
+    calc ∑' x, Set.indicator A (fun x => (μ.map U) {x}) x
+      _ = ∑' x, (if x ∈ (A ∩ H) then (1:ENNReal) / (Nat.card H) else 0) := by
+        congr with x
+        by_cases h : x ∈ A
+        · by_cases h' : x ∈ H <;>
+            simp [h, h', Hf, h_unif'.measure_preimage_of_mem hU, h_unif'.measure_preimage_of_nmem,
+              map_apply hU (MeasurableSet.singleton x), (H.toFinite.coe_toFinset.symm ▸ h')]
+        · simp [h]
+      _ = Finset.sum AHf (fun _ ↦ (1:ENNReal) / (Nat.card H)) := by
+        rw [tsum_eq_sum (s := (A ∩ H).toFinite.toFinset)]
+        · apply Finset.sum_congr (by rfl)
+          intro x hx
+          simp only [Set.Finite.mem_toFinset, Set.mem_inter_iff, AHf] at hx
+          simp [hx]
+        intro x hx
+        simp at hx
+        simpa
+      _ = Nat.card ↑(H ∩ A) / Nat.card H := by
+        simp [Finset.sum_const, ← Set.ncard_eq_toFinset_card (A ∩ H), Set.Nat.card_coe_set_eq,
+          Set.inter_comm, AHf, Hf, ← Nat.card_eq_card_finite_toFinset]
+        rfl
+  intro this
+  constructor
+  · intro x hx y hy
+    replace hx : {x} ∩ H = {x} := by simp [hx]
+    replace hy : {y} ∩ H = {y} := by simp [hy]
+    simp [← map_apply hU (MeasurableSet.singleton _), this, uniformOn_apply, hx, hy, Set.toFinite,
+      Set.inter_comm H]
+  · rw [← map_apply hU (by measurability), this, uniformOn_apply ‹_›]
+    simp

@@ -25,8 +25,12 @@ $$ {\mathcal I} := \bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m}
  $$
  Then ${\mathcal I} \leq 4 m^2 \eta k.$
 -/
-lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Type u) [hΩ: MeasureSpace Ω] (X : ∀ i, Ω → G) (hindep:
-  iIndepFun (fun _ ↦ by infer_instance) X)
-  (hmin : multiTauMinimizes p (fun _ ↦ Ω) (fun _ ↦ hΩ) X) (Ω' : Type*) [MeasureSpace Ω'] (X': Fin p.m × Fin p.m → Ω' → G) (hindep': iIndepFun (fun _ ↦ by infer_instance) X') (hperm:
-  ∀ j, ∃ e : Fin p.m ≃ Fin p.m, IdentDistrib (fun ω ↦ (fun i ↦ X' (i, j) ω) ) (fun ω ↦ (fun i ↦ X (e i) ω))) :
-  I[ fun ω ↦ ( fun j ↦ ∑ i, X' (i, j) ω) : fun ω ↦ ( fun i ↦ ∑ j, X' (i, j) ω) | fun ω ↦ ∑ i, ∑ j, X' (i, j) ω ] ≤ 4 * p.m^2 * p.η * D[ X; (fun _ ↦ hΩ)] := sorry
+lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ]
+  (p : multiRefPackage G Ωₒ) (Ω : Type u) [hΩ : MeasureSpace Ω] (X : ∀ i, Ω → G)
+  (h_indep : iIndepFun X)
+  (h_min : multiTauMinimizes p (fun _ ↦ Ω) (fun _ ↦ hΩ) X) (Ω' : Type*) [MeasureSpace Ω']
+  (X' : Fin p.m × Fin p.m → Ω' → G) (h_indep': iIndepFun X')
+  (hperm : ∀ j, ∃ e : Fin p.m ≃ Fin p.m, IdentDistrib (fun ω ↦ (fun i ↦ X' (i, j) ω))
+    (fun ω ↦ (fun i ↦ X (e i) ω))) :
+  I[ fun ω ↦ ( fun j ↦ ∑ i, X' (i, j) ω) : fun ω ↦ ( fun i ↦ ∑ j, X' (i, j) ω) |
+    fun ω ↦ ∑ i, ∑ j, X' (i, j) ω ] ≤ 4 * p.m^2 * p.η * D[ X; (fun _ ↦ hΩ)] := sorry

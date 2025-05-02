@@ -3,6 +3,7 @@ import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import LeanAPAP.Extras.BSG
 import PFR.HomPFR
+import PFR.RhoFunctional
 
 /-!
 # The approximate homomorphism form of PFR
@@ -28,14 +29,13 @@ variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype 
 Let $f : G \to G'$ be a function, and suppose that there are at least
 $|G|^2 / K$ pairs $(x,y) \in G^2$ such that $$ f(x+y) = f(x) + f(y).$$
 Then there exists a homomorphism $\phi : G \to G'$ and a constant $c \in G'$ such that
-$f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {172} * K ^ {146})$ values of $x \in G$. -/
+$f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {144} * K ^ {122})$ values of $x \in G$. -/
 theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
-    ∃ (φ : G →+ G') (c : G'), Nat.card {x | f x = φ x + c} ≥ Nat.card G / (2 ^ 172 * K ^ 146) := by
+    ∃ (φ : G →+ G') (c : G'), Nat.card {x | f x = φ x + c} ≥ Nat.card G / (2 ^ 144 * K ^ 122) := by
   let A := (Set.univ.graphOn f).toFinite.toFinset
   have hA : #A = Nat.card G := by rw [Set.Finite.card_toFinset]; simp [← Nat.card_eq_fintype_card]
   have hA_nonempty : A.Nonempty := by simp [-Set.Finite.toFinset_setOf, A]
-  have hA_pos : 0 < #A := by positivity
   have := calc
     (#A ^ 3 / K ^ 2 : ℝ)
       = (Nat.card G ^ 2 / K) ^ 2 / #A := by field_simp [hA]; ring
@@ -45,7 +45,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       rw [← Nat.card_eq_finsetCard, ← Finset.coe_sort_coe, Finset.coe_filter,
         Set.Finite.toFinset_prod]
       simp only [Set.Finite.mem_toFinset, A, Set.graphOn_prod_graphOn]
-      rw [← Set.card_graphOn _ (Prod.map f f),
+      rw [← Set.natCard_graphOn _ (Prod.map f f),
         ← Nat.card_image_equiv (Equiv.prodProdProdComm G G' G G'), Set.image_equiv_eq_preimage_symm]
       congr
       aesop
@@ -65,8 +65,8 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   replace : Nat.card (A'' + A'') ≤ 2 ^ 14 * K ^ 12 * Nat.card A'' := by
     rewrite [← this, hA''_coe]
     simpa [← pow_mul] using hA'2
-  obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := PFR_conjecture_improv_aux hA''_nonempty this
-  clear hA'2 hA''_coe hH_le hH_ge hA_pos
+  obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := better_PFR_conjecture_aux hA''_nonempty this
+  clear hA'2 hA''_coe hH_le hH_ge
   obtain ⟨H₀, H₁, φ, hH₀H₁, hH₀H₁_card⟩ := goursat H
 
   have h_le_H₀ : Nat.card A'' ≤ Nat.card c * Nat.card H₀ := by
@@ -120,12 +120,10 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       Set.fst_injOn_graph.mono fun _ hx ↦ Set.Finite.subset_toFinset.mp hA' hx.1)
 
   let cH₁ := (c ×ˢ H₁).toFinite.toFinset
-  haveI A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
-  replace : Nonempty c := by
-    obtain ⟨c, hc, _, _, _⟩ := hH_cover (Classical.choice A_nonempty).property
-    exact ⟨c, hc⟩
-  replace h_nonempty : Set.Nonempty (c ×ˢ H₁) :=
-    Set.Nonempty.prod (Set.nonempty_coe_sort.mp this) (Set.nonempty_coe_sort.mp inferInstance)
+  have A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
+  replace hc : c.Nonempty := by
+    obtain ⟨x, hx, _, _, _⟩ := hH_cover (Classical.choice A_nonempty).property
+    exact ⟨x, hx⟩
   replace : A' = Finset.biUnion cH₁ fun ch ↦ (translate ch.1 ch.2).toFinite.toFinset := by
     ext x ; constructor <;> intro hx
     · obtain ⟨c', hc, h, hh, hch⟩ := hH_cover hx
@@ -141,55 +139,41 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     · obtain ⟨ch, hch⟩ := Finset.mem_biUnion.mp hx
       exact ((Set.Finite.mem_toFinset _).mp hch.2).1
 
-  replace : ∑ __ in cH₁, ((2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * #A / cH₁.card : ℝ) ≤
-      ∑ ch in cH₁, ((translate ch.1 ch.2).toFinite.toFinset.card : ℝ) := by
+  replace : ∑ _ ∈ cH₁, ((2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * #A / cH₁.card : ℝ) ≤
+      ∑ ch ∈ cH₁, ((translate ch.1 ch.2).toFinite.toFinset.card : ℝ) := by
     rewrite [Finset.sum_const, nsmul_eq_mul, ← mul_div_assoc, mul_div_right_comm, div_self, one_mul]
     · apply hA'1.trans
       norm_cast
       exact (congrArg Finset.card this).trans_le Finset.card_biUnion_le
     · symm
       refine ne_of_lt <| Nat.cast_zero.symm.trans_lt <| Nat.cast_lt.mpr <| Finset.card_pos.mpr ?_
-      exact (Set.Finite.toFinset_nonempty _).mpr h_nonempty
-  replace : ∃ c' : G × G', ∃ h : G', (2 ^ 4 : ℝ)⁻¹ * (K ^ 2)⁻¹ * #A / cH₁.card ≤
+      exact (Set.Finite.toFinset_nonempty _).mpr <| hc.prod H₁.nonempty
+  obtain ⟨c', h, hch⟩ : ∃ c' : G × G', ∃ h : G', (2 ^ 4 : ℝ)⁻¹ * (K ^ 2)⁻¹ * #A / cH₁.card ≤
       Nat.card { x : G | f x = φ x + (-φ c'.1 + c'.2 + h) } := by
     obtain ⟨ch, hch⟩ :=
-      Finset.exists_le_of_sum_le ((Set.Finite.toFinset_nonempty _).mpr h_nonempty) this
+      Finset.exists_le_of_sum_le ((Set.Finite.toFinset_nonempty _).mpr (hc.prod H₁.nonempty)) this
     refine ⟨ch.1, ch.2, hch.2.trans ?_⟩
     rewrite [Set.Finite.card_toFinset, ← Nat.card_eq_fintype_card, h_translate_card]
     exact Nat.cast_le.mpr <| Nat.card_mono (Set.toFinite _) (h_translate ch.1 ch.2)
-  clear hA' hA'1 hH_cover hH₀H₁ translate h_translate h_translate_card
+  clear! hA' hA'1 hH_cover hH₀H₁ translate h_translate h_translate_card
 
-  obtain ⟨c', h, hch⟩ := this
   use φ, -φ c'.1 + c'.2 + h
-  refine le_trans ?_ hch
-  unfold_let cH₁
-  rewrite [hA, ← mul_inv, inv_mul_eq_div, div_div]
-  apply div_le_div (Nat.cast_nonneg _) le_rfl
-  · apply mul_pos
-    · positivity
-    · rewrite [Nat.cast_pos, Finset.card_pos, Set.Finite.toFinset_nonempty _]
-      exact h_nonempty
-  rw [show 146 = 2 + 144 by norm_num, show 172 = 4 + 168 by norm_num, pow_add, pow_add,
-    mul_mul_mul_comm]
+  calc
+    Nat.card G / (2 ^ 144 * K ^ 122)
+    _ = Nat.card G / (2 ^ 4 * K ^ 2 * (2 ^ 140 * K ^ 120)) := by ring
+    _ ≤ Nat.card G / (2 ^ 4 * K ^ 2 * #(c ×ˢ H₁).toFinite.toFinset) := ?_
+    _ = (2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * ↑(#A) / ↑(#cH₁) := by rw [hA, ← mul_inv, inv_mul_eq_div, div_div]
+    _ ≤ _ := hch
+  have := (c ×ˢ H₁).toFinite.toFinset_nonempty.2 (hc.prod H₁.nonempty)
   gcongr
-  rewrite [← c.toFinite.toFinset_prod (H₁ : Set G').toFinite, Finset.card_product]
-  repeat rewrite [Set.Finite.card_toFinset, ← Nat.card_eq_fintype_card]
-  push_cast
-  refine (mul_le_mul_of_nonneg_left h_le_H₁ (Nat.cast_nonneg _)).trans ?_
-  refine (mul_le_mul_of_nonneg_right hc_card (by positivity)).trans ?_
-  rewrite [mul_div_left_comm, mul_assoc]
-  refine (mul_le_mul_of_nonneg_right hc_card (by positivity)).trans_eq ?_
-  rw [mul_assoc ((_ * _)^6), mul_mul_mul_comm, mul_comm (_ ^ (1/2) * _), mul_comm_div,
-    ← mul_assoc _ (_^_) (_^_), mul_div_assoc, mul_mul_mul_comm _ (_^_) (_^_),
-    ← mul_div_assoc, mul_assoc _ (_^(1/2)) (_^(1/2)),
-    ← Real.rpow_add (Nat.cast_pos.mpr Nat.card_pos), add_halves, Real.rpow_one,
-    ← Real.rpow_add (Nat.cast_pos.mpr Nat.card_pos), add_halves, Real.rpow_neg_one,
-    mul_comm _ (_ / _), mul_assoc (_^6)]
-  conv => { lhs; rhs; rw [← mul_assoc, ← mul_div_assoc, mul_comm_div, mul_div_assoc] }
-  rw [div_self <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, mul_one]
-  rw [mul_inv_cancel₀ <| Nat.cast_ne_zero.mpr (Nat.ne_of_lt Nat.card_pos).symm, one_mul, ← sq,
-    ← Real.rpow_two, ← Real.rpow_mul (by positivity), Real.mul_rpow (by positivity) (by positivity)]
-  have : K ^ (12 : ℕ) = K ^ (12 : ℝ) := (Real.rpow_natCast K 12).symm
-  rw [this, ← Real.rpow_mul (by positivity)]
-  norm_num
-  exact Real.rpow_natCast K 144
+  calc
+    (#(c ×ˢ H₁).toFinite.toFinset : ℝ)
+    _ = #c.toFinite.toFinset * #(H₁ : Set G').toFinite.toFinset := by
+      rw [← Nat.cast_mul, ← Finset.card_product, Set.Finite.toFinset_prod]
+    _ = Nat.card c * Nat.card H₁ := by
+      simp_rw [Set.Finite.card_toFinset, ← Nat.card_eq_fintype_card]; norm_cast
+    _ ≤ Nat.card c * (Nat.card c * Nat.card H / Nat.card ↑A'') := by gcongr
+    _ = Nat.card c ^ 2 * Nat.card H / Nat.card ↑A'' := by ring
+    _ ≤ ((2 ^ 14 * K ^ 12) ^ 5 * Nat.card A'' ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2 *
+          Nat.card H / Nat.card ↑A'' := by gcongr
+    _ = 2 ^ 140 * K ^ 120 := by field_simp; rpow_simp; norm_num

@@ -13,7 +13,7 @@ Currently, the project is obtaining an extension of PFR to other bounded torsion
 * [Blueprint of the proof](https://teorth.github.io/pfr/blueprint)
 * [Documentation of the methods](https://teorth.github.io/pfr/docs)
 * [A quick "tour" of the project](https://terrytao.wordpress.com/2023/11/18/formalizing-the-proof-of-pfr-in-lean4-using-blueprint-a-short-tour)
-* [Some example Lean code to illustrate the results in the project](https://github.com/teorth/pfr/blob/master/examples.lean)
+* [Some example Lean code to illustrate the results in the project](https://github.com/teorth/pfr/blob/master/PFR/Examples.lean)
 
 ## Build the Lean files
 
@@ -24,31 +24,7 @@ To build the project, run `lake exe cache get` and then `lake build`.
 
 ## Build the blueprint
 
-To build the web version of the blueprint, you need a working LaTeX installation.
-Furthermore, you need some packages:
-
-```
-sudo apt install graphviz libgraphviz-dev
-pip uninstall -y leanblueprint
-pip install -r blueprint/requirements.txt
-```
-
-To actually build the blueprint, run
-```
-lake exe cache get
-lake build
-inv all
-```
-
-To view the web-version of the blueprint locally, run `inv serve` and navigate to
-`http://localhost:8000/` in your favorite browser.
-
-Or you can just run `inv dev` instead of `inv all` and `inv serve`, after each edit to the LaTeX,
-it will automatically rebuild the blueprint, you just need to refresh the web page to see the rendered result.
-
-Note: If you have something wrong in your LaTeX file, and the LaTeX compilation fails,
-LaTeX will stuck and ask for commands, you'll need to type `X` then return to exit LaTeX,
-then fix the LaTeX error, and run `inv dev` again.
+See instructions at https://github.com/PatrickMassot/leanblueprint/.
 
 ## Moving material to mathlib
 

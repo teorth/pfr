@@ -16,7 +16,7 @@ section AnalyzeMinimizer
 
 universe u
 
-variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (hmin : multiTauMinimizes p Ω hΩ X)
+variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (h_min : multiTauMinimizes p Ω hΩ X)
 
 local notation3 "k" => multiTau p Ω hΩ X
 
@@ -43,7 +43,7 @@ lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
   simp
 
 variable [hΩ': MeasureSpace Ω'] [IsFiniteMeasure hΩ'.volume]
-  (hindep : iIndepFun _ Y) (hident : ∀ i j, IdentDistrib (Y (i, j)) (X i)) {m : ℝ}
+  (h_indep : iIndepFun Y) (hident : ∀ i j, IdentDistrib (Y (i, j)) (X i)) {m : ℝ}
 
 /-- We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤ 4m^2 η k`.
 -/
@@ -76,7 +76,7 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 8 * (p.m^3 - 
 $$  d[U;U] + \alpha \sum_{i=1}^n d[Y_i;U] \leq \Bigl(2 + \frac{\alpha n}{2} \Bigr) \delta + \alpha \sum_{i=1}^n d[Y_i;T_2].
 $$
 -/
-lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω: Type*} [MeasureSpace Ω] (T₁ T₂ T₃ : Ω → G) (hsum: T₁ + T₂ + T₃ = 0) (n:ℕ) {Ω': Fin n → Type*} (hΩ': ∀ i, MeasureSpace (Ω' i)) (Y: ∀ i, (Ω' i) → G) {α:ℝ} (hα: α > 0): ∃ (Ω'':Type*) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := sorry
+lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω : Type*} [MeasureSpace Ω] (T₁ T₂ T₃ : Ω → G) (hsum: T₁ + T₂ + T₃ = 0) (n:ℕ) {Ω': Fin n → Type*} (hΩ': ∀ i, MeasureSpace (Ω' i)) (Y: ∀ i, (Ω' i) → G) {α:ℝ} (hα: α > 0): ∃ (Ω'':Type*) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := sorry
 
 /-- We have $k = 0$. -/
 lemma k_eq_zero : k = 0 := sorry
@@ -85,7 +85,7 @@ end AnalyzeMinimizer
 
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\] -/
 lemma dist_of_X_U_H_le {G : Type*} [AddCommGroup G] [Fintype G] [MeasurableSpace G]
-  [MeasurableSingletonClass G] (m:ℕ) (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) (Ω: Type*) [MeasureSpace Ω] (X: Ω → G): ∃ H : AddSubgroup G, ∃ Ω' : Type*, ∃ mΩ : MeasureSpace Ω', ∃ U : Ω' → G,
+  [MeasurableSingletonClass G] (m:ℕ) (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) (Ω : Type*) [MeasureSpace Ω] (X: Ω → G): ∃ H : AddSubgroup G, ∃ Ω' : Type*, ∃ mΩ : MeasureSpace Ω', ∃ U : Ω' → G,
     IsUniform H U ∧ d[X # U] ≤ 64 * m^3 * d[X # X] := sorry
 
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. If $A \subset G$ is non-empty and
@@ -139,7 +139,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
       have hsub : (K:Set G) ⊆ (H':Set G) := SetLike.coe_subset_coe.mpr le_sup_left
       have hcard' : Nat.card K ≤ Nat.card H' := by
           rw [← SetLike.coe_sort_coe, ← SetLike.coe_sort_coe, Set.Nat.card_coe_set_eq (K:Set G), Set.Nat.card_coe_set_eq (H':Set G)]
-          exact Set.ncard_le_ncard hsub (Set.toFinite H')
+          exact Set.ncard_le_ncard hsub (H' : Set G).toFinite
       have : (K:Set G) = (H':Set G) := by
           apply (Set.subset_iff_eq_of_ncard_le ?_ ?_).mp hsub
           · apply Eq.le
@@ -214,7 +214,6 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
           * (Nat.card H / (Nat.card A / m)) := by
         gcongr
     _ = m * K ^ ((64*m^3+2)) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
-        have : (0 : ℝ) < Nat.card H := H_pos
         field_simp
         rpow_ring
         norm_num
