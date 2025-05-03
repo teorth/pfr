@@ -57,8 +57,7 @@ lemma entropy_nonneg (κ : Kernel T S) (μ : Measure T) :
 @[simp]
 lemma entropy_const (ν : Measure S) (μ : Measure T) :
     Hk[Kernel.const T ν, μ] = (μ Set.univ).toReal * Hm[ν] := by
-  rw [entropy]
-  simp only [const_apply, MeasureTheory.integral_const, smul_eq_mul, ne_eq]
+  simp [entropy, Measure.real]
 
 /-- Constant kernels with finite support, have finite kernel support. -/
 lemma finiteKernelSupport_of_const (ν : Measure S) [FiniteSupport ν] :
@@ -168,10 +167,10 @@ lemma entropy_comap [MeasurableSingletonClass T]
   simp_rw [entropy]
   simp_rw [integral_eq_setIntegral hA, integral_eq_setIntegral this,
     integral_finset _ _ IntegrableOn.finset,
-    Measure.comap_apply f hf.injective hf.measurableSet_image' _ (.singleton _)]
+    Measure.comap_real_apply hf.injective hf.measurableSet_image' _ (.singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
   simp_rw [comap_apply]
-  rw [← Finset.sum_image (f := fun x ↦ (μ {x}).toReal * measureEntropy (κ x)) (g := f)]
+  rw [← Finset.sum_image (f := fun x ↦ μ.real {x} * measureEntropy (κ x)) (g := f)]
   intro x _ y _ hxy
   exact hf.injective hxy
 
@@ -272,7 +271,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
     · simp [measureReal_def, Set.preimage]
     intro b _ hbs
     simp [hbs, Set.preimage]
-  rw [this, Kernel.comap_apply, negMulLog_mul, negMulLog, negMulLog, ← measureReal_def]
+  rw [this, Kernel.comap_apply, negMulLog_mul, negMulLog, negMulLog]
   ring
 
 lemma entropy_compProd' [MeasurableSingletonClass S] [Countable S] [MeasurableSingletonClass T]
@@ -356,11 +355,8 @@ lemma entropy_prodMkRight [Countable S] [MeasurableSingletonClass S] [Countable 
     [IsMarkovKernel κ] {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ]
     (hκ : AEFiniteKernelSupport κ μ) :
     Hk[prodMkRight S η, μ ⊗ₘ κ] = Hk[η, μ] := by
-  simp_rw [entropy, prodMkRight_apply]
-  rw [Measure.integral_compProd]
-  · simp only [MeasureTheory.integral_const, measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul]
-  · have := finiteSupport_of_compProd hκ (μ := μ)
-    exact integrable_of_finiteSupport (μ ⊗ₘ κ)
+  have := finiteSupport_of_compProd hκ (μ := μ)
+  simp [entropy, Measure.integral_compProd, integrable_of_finiteSupport]
 
 lemma entropy_prodMkRight' [Countable S] [MeasurableSingletonClass S] [Countable T]
     [MeasurableSingletonClass T]

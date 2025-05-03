@@ -1,4 +1,5 @@
 name = "PFR"
+keywords = ["math", "additive-combinatorics", "information-theory"]
 defaultTargets = ["PFR"]
 
 [leanOptions]

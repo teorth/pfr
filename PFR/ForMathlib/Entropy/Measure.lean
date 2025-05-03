@@ -807,3 +807,24 @@ lemma measureMutualInfo_eq_zero_iff {μ : Measure (S × U)} [FiniteSupport μ]
 end measureMutualInfo
 
 end ProbabilityTheory
+
+namespace Mathlib.Meta.Positivity
+open Lean Meta Qq Function ProbabilityTheory
+
+/-- Extension for `measureMutualInfo`. -/
+@[positivity measureMutualInfo _]
+def evalMeasureMutualInfo : PositivityExt where eval {u α} _ _ e := do
+  match u, α, e with
+  | 0, ~q(ℝ), ~q(@measureMutualInfo $S $T $measS $measT $μ) =>
+    assertInstancesCommute
+    let _ ← synthInstanceQ q(MeasurableSingletonClass $S)
+    let _ ← synthInstanceQ q(MeasurableSingletonClass $T)
+    let _ ← synthInstanceQ q(FiniteSupport $μ)
+    pure <| .nonnegative q(measureMutualInfo_nonneg)
+  | _, _, _ => throwError "failed to match ProbabilityTheory.measureMutualInfo"
+
+example {S T : Type*} [MeasurableSpace S] [MeasurableSpace T] [MeasurableSingletonClass S]
+    [MeasurableSingletonClass T] {μ : Measure (S × T)} [FiniteSupport μ] : 0 ≤ Im[μ] := by
+  positivity
+
+end Mathlib.Meta.Positivity

@@ -23,6 +23,11 @@ lemma prod_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : Measura
     (μ.prod ν) {x} = μ {x.1} * ν {x.2} := by
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Measure.prod_prod]
 
+lemma prod_real_apply_singleton {α β : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}
+    (μ : Measure α) (ν : Measure β) [SigmaFinite ν] (x : α × β) :
+    (μ.prod ν).real {x} = μ.real {x.1} * ν.real {x.2} := by
+  simp [Measure.real, prod_apply_singleton]
+
 lemma prod_of_full_measure_finset {μ : Measure α} {ν : Measure β} [SigmaFinite ν]
     {A : Finset α} {B : Finset β} (hA : μ Aᶜ = 0) (hB : ν Bᶜ = 0) :
     (μ.prod ν) (A ×ˢ B : Finset (α × β))ᶜ = 0 := by

@@ -123,7 +123,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasureableFinGroup G] [Measu
   set μ := fun ω : Fin p.m → S ↦ ∏ i : Fin p.m, Measure.real ℙ (Y i ⁻¹' {ω i})
 
   have probmes (i : Fin p.m) : ∑ ωi : S, (Measure.real ℙ (Y i ⁻¹' {ωi})) = 1 := by
-    convert sum_measureReal_singleton (s := Finset.univ) (Measure.map (Y i) ℙ) with ω _ i _
+    convert sum_measureReal_singleton (s := Finset.univ) (μ := .map (Y i) ℙ) with ω _ i _
     · exact (map_measureReal_apply (hY i) ( .singleton ω)).symm
     replace hΩ'prob := hΩ'prob i
     rw [map_measureReal_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ,

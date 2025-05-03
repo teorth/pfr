@@ -1,5 +1,4 @@
 import PFR.ForMathlib.Entropy.Kernel.Group
-import PFR.Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Ruzsa distance between kernels
@@ -52,7 +51,7 @@ lemma rdist_eq {κ : Kernel T G} {η : Kernel T' G} {μ : Measure T} {ν : Measu
   rw [rdist]
   simp_rw [rdistm]
   rw [integral_sub, integral_sub]
-  · simp_rw [div_eq_mul_inv, integral_mul_right, integral_prod _ (integrable_of_finiteSupport _)]
+  · simp_rw [div_eq_mul_inv, integral_mul_const, integral_prod _ (integrable_of_finiteSupport _)]
     simp [entropy]
   all_goals { exact integrable_of_finiteSupport _ }
 
@@ -296,7 +295,7 @@ lemma rdist_triangle_aux1 (κ : Kernel T G) (η : Kernel T' G)
       = 0 :=
     Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
   simp_rw [entropy, integral_eq_setIntegral hAB, integral_eq_setIntegral hACB,
-    integral_finset' _ .finset, smul_eq_mul, Measure.prod_real_singleton, Finset.sum_product,
+    integral_finset _ _ .finset, smul_eq_mul, Measure.prod_real_singleton, Finset.sum_product,
     mul_assoc, ← Finset.mul_sum]
   congr with x
   have : ∀ z y, map (prodMkRight T' (prodMkRight T'' κ) ×ₖ prodMkLeft (T × T'') η)
@@ -327,7 +326,7 @@ lemma rdist_triangle_aux2 (η : Kernel T' G) (ξ : Kernel T'' G)
       = 0 :=
     Measure.prod_of_full_measure_finset hAC (measure_compl_support μ')
   simp_rw [entropy, integral_eq_setIntegral hACB, integral_eq_setIntegral hBC,
-    integral_finset' _ .finset, smul_eq_mul, Measure.prod_real_singleton]
+    integral_finset _ _ .finset, smul_eq_mul, Measure.prod_real_singleton]
   conv_rhs => rw [Finset.sum_product_right]
   conv_lhs => rw [Finset.sum_product, Finset.sum_product_right]
   simp_rw [mul_assoc, ← Finset.mul_sum]

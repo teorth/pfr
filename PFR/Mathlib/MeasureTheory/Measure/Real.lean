@@ -26,13 +26,6 @@ lemma Measure.prod_real_singleton (μ : Measure α) (ν : Measure β) [SigmaFini
 
 variable [MeasurableSingletonClass Ω] [MeasurableSingletonClass Ω']
 
-@[simp]
-lemma sum_measureReal_singleton (μ : Measure Ω) [IsFiniteMeasure μ] (s : Finset Ω) :
-    ∑ x ∈ s, μ.real {x} = μ.real s := by
-  unfold Measure.real
-  rw [← ENNReal.toReal_sum (fun _ _ ↦ measure_ne_top _ _)]
-  simp
-
 lemma measureReal_preimage_fst_singleton_eq_sum [Fintype Ω'] (μ : Measure (Ω × Ω'))
     [IsFiniteMeasure μ] (x : Ω) :
     μ.real (Prod.fst ⁻¹' {x}) = ∑ y : Ω', μ.real {(x, y)} := by
