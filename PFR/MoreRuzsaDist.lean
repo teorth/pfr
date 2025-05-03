@@ -1517,13 +1517,13 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
         _ = f 0 := ?_
         _ ≤ ∑ j, f j := Finset.single_le_sum (f := f) (fun _ _ ↦ hf _) (Finset.mem_univ _)
       . simp [f]
-        simp [hπ0, AddMonoidHom.zero_apply, comp_apply, Finset.sum_apply, _root_.map_sum, F,
-          Fin.succ_zero_eq_one']
-        congr
-        any_goals congr!
-        any_goals simp [Fin.succ_zero_eq_one']
-        simp [Function.comp_def]
-        sorry
+        simp [hπ0, AddMonoidHom.zero_apply, comp_apply, Finset.sum_apply, _root_.map_sum, F]
+        rw [← Fin.succ_zero_eq_one']
+        have : π (0:ℕ) = 0 := by convert hπ0
+        congr 1
+        ext _ _
+        any_goals simp [this]
+
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
