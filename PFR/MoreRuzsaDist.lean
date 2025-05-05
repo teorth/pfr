@@ -523,12 +523,6 @@ lemma kvm_ineq_III {I : Type*} {i₀ i₁ : I} {s : Finset I}
     fin_cases j <;> simp [φ, (s.sum_attach _).symm]
   exact kvm_ineq_III_aux (hY i₀) (hY i₁) (by fun_prop) h_indep'
 
-
-#check kvm_ineq_I
-#check Finset.univ_eq_attach
-#check kaimanovich_vershik
-#check iIndepFun.finsets
-
 section
 
 variable {Ω ι γ β : Type*} {κ : ι → Type*}
@@ -542,8 +536,18 @@ variable {Ω ι ι' : Type*} [MeasurableSpace Ω]{α : ι → Type*}
 lemma iIndepFun.finsets_sum [AddCommMonoid β] {f : ι → Ω → β} {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
     (hf_Indep : iIndepFun (fun _ ↦ m) f μ) (hf_meas : ∀ i, Measurable (f i)) :
-    iIndepFun (fun _ ↦ m) (fun (j : J) ↦ fun a ↦ ∑ i ∈ S j, f i a) μ :=
-  by sorry
+    iIndepFun (fun _ ↦ m) (fun (j : J) ↦ fun a ↦ ∑ i ∈ S j, f i a) μ := by
+  set φ : (j : J) → ((i : S j) → β) → β := fun j f_j => ∑ i : { i : ι // i ∈ S j}, f_j i with φ_def
+  have hφ (j : J) : Measurable (φ j) := by
+    rw [φ_def]
+    simp only [Finset.univ_eq_attach]
+    sorry
+  have := iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas φ hφ
+  have φ_simple (j : J) (a : Ω) : (φ j (fun i => f ↑i a)) =
+      ∑ i in S j, f i a := by
+    simp only [φ_def, Finset.univ_eq_attach, ←Finset.sum_attach (S j)]
+  simp [φ_simple] at this
+  exact this
 
 end
 
@@ -557,23 +561,25 @@ lemma ent_of_sum_le_ent_of_sum' {I:Type*} {s t : Finset I} (hdisj : Disjoint s t
   [∀ (i : I), FiniteRange (X i)]
   (hindep: iIndepFun (fun (i : I) => hG) X μ ) (f : I → I) (hf: Finset.image f t ⊆ s) :
     H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by
+  --Write `W := $W := ∑_{i=1}^m X_i$`
   set W := ∑ i in s, X i with hW
+  --Write `U := ∑_{j=1}^l Y_j` (in the notation of the informal proof)
   set U := ∑ i in t, X i with hU
   haveI : FiniteRange U := FiniteRange.finsum X
   haveI : FiniteRange W := FiniteRange.finsum X
   have U_meas : Measurable U := by
-    rw [hU]
     convert Finset.measurable_sum t (fun i _ => hX i)
-    simp only [Finset.sum_apply]
+    simp only [hU, Finset.sum_apply]
   have W_meas : Measurable W := by
-    rw [hW]
     convert Finset.measurable_sum s (fun i _ => hX i)
-    simp only [Finset.sum_apply]
+    simp only [hW, Finset.sum_apply]
   calc
-    _ ≤ H[-W + U ; μ ] := by sorry
-      /-rw [neg_add_eq_sub]
-      apply le_trans (le_max_left H[U ; μ] H[W ; μ]) (ProbabilityTheory.max_entropy_le_entropy_sub U_meas W_meas _)
-      sorry-/
+    --We have `H[U] ≤ H[-W + U]`
+    _ ≤ H[-W + U ; μ ] := by
+      -- rw [neg_add_eq_sub]
+      -- apply le_trans (le_max_left H[U ; μ] H[W ; μ]) (ProbabilityTheory.max_entropy_le_entropy_sub U_meas W_meas _)
+      sorry
+      -- `≤ H[-W] + ∑_{j=1}^l (H[-W + Y_j] - H[-W])`
     _ ≤ H[- W ; μ] + ∑ i in t, (H[-W + X i ; μ] - H[- W ; μ]) := by
       set Y : Option {x // x ∈ t} → Ω → G := fun i => match i with| some i => X i | none => - W with hY
       have Y_meas : ∀ i, Measurable (Y i) := by
@@ -587,13 +593,30 @@ lemma ent_of_sum_le_ent_of_sum' {I:Type*} {s t : Finset I} (hdisj : Disjoint s t
         have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
           intro i _ j _ hij
           match i, j with
-          | some i, some j => simp only [hS]; sorry
-          | some i, none => sorry --simp only [hS] at hij ; exact (hij rfl).elim
-          | none, some j => sorry --simp only [hS] at hij ; exact (hij rfl).elim
-          | none, none => sorry --simp only [hS] at hij ; exact (hdisj hij)
-        have h_sum : Y = (fun (j : Option {x // x ∈ t}) ↦ fun a ↦ ∑ i ∈ S j, X i a) := by sorry
+          | some i, some j =>
+            simp only [hS]
+            intro a b ; simp_all ; aesop
+          | some i, none =>
+            simp only [hS]
+            intro a b
+            simp_all
+            sorry -- simp only [hS] at hij ; exact (hij rfl).elim
+          | none, some j => sorry -- simp only [hS] at hij ; exact (hij rfl).elim
+          | none, none => sorry -- simp only [hS] at hij ; exact (hdisj hij)
+        have h_sum : Y = (fun (j : Option {x // x ∈ t}) ↦ fun a ↦ ∑ i ∈ S j, X i a) := by
+          rw [hY, hS]
+          ext j a
+          match j with
+          | some i =>
+              simp only [Finset.sum_singleton]
+          | none => sorry
+              --simp only [Pi.neg_apply]
         apply h_sum ▸ iIndepFun.finsets_sum S h_disjoint hindep hX
-      have temp := kvm_ineq_I (show none ∉ t.attach.image some by sorry) Y_meas Y_indep
+      have temp := kvm_ineq_I (show none ∉ t.attach.image some by
+        intro h
+        obtain ⟨i, hi⟩ := Finset.mem_image.mp h
+        apply Option.some_ne_none i hi.right
+        ) Y_meas Y_indep
       have lem₁ : ∑ i ∈ t.attach.image some, Y i = ∑ i in t, X i := by
         rw [Finset.sum_image, Finset.sum_attach]
         intro x hx y hy hxy
@@ -616,7 +639,52 @@ lemma ent_of_sum_le_ent_of_sum' {I:Type*} {s t : Finset I} (hdisj : Disjoint s t
       rw [add_le_add_iff_left]
       apply Finset.sum_le_sum
       intro i hi
-      sorry
+      calc
+        _ = H[(- ∑ i in s \ {f i}, X i) + (- (X (f i))) + X i; μ] - H[(- ∑ i in s \ {f i}, X i) + (- (X (f i))) ; μ]:= by
+          congr 3
+          all_goals
+            rw [hW, Finset.sum_sdiff_eq_sub, Finset.sum_singleton, neg_sub]
+            · abel
+            · rw [Finset.singleton_subset_iff]
+              apply hf (Finset.mem_image_of_mem _ hi)
+        _ ≤ H[(- (X <| f i)) + X i ; μ] - H[- (X (f i)) ; μ] := by
+          apply kaimanovich_vershik --(X := (- ∑ i in s \ {f i}, X i))
+            --(Y :=  (- (X (f i)))) (Z := X i) (μ := μ)
+          · set S : Fin 3 → Finset I := ![s \ {f i}, {f i}, {i}] with hS
+            set φ : (j : Fin 3) → (i : {k : I // k ∈ S j} → G) → G := fun j => match j with
+            | 0 => fun Y => - ∑ l : (S 0).attach, Y l
+            | 1 => fun Y => - Y ⟨f i, Finset.mem_singleton.mpr rfl⟩
+            | 2 => fun Y => Y ⟨i, Finset.mem_singleton.mpr rfl⟩
+            with hφ
+            have s_disj : Set.univ.PairwiseDisjoint S := by
+              rw [hS, show (Set.univ : Set <| Fin 3) = insert 0 (insert 1 {2}) by sorry]
+              apply Set.PairwiseDisjoint.insert (Set.PairwiseDisjoint.insert _ _)
+              · sorry --aesop?
+              sorry
+              sorry
+            have := iIndepFun.finsets_comp S sorry hindep hX φ sorry
+            suffices (fun j a ↦ φ j fun i ↦ X (↑i) a) = ![-∑ i ∈ s \ {f i}, X i, -X (f i), X i] by
+              rwa [←this]
+            rw [hφ]
+            ext x a : 2
+            fin_cases x <;> simp only [Fin.isValue, Finset.univ_eq_attach, Fin.zero_eta,
+              Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.cons_val', Pi.neg_apply, Finset.sum_apply,
+              Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.cons_val_zero, neg_inj] ; rw [hS]
+            · simp only [Fin.isValue, Matrix.cons_val_zero]
+              rw [Finset.sum_attach (s \ {f i}).attach  (X · a), Finset.sum_attach (s \ {f i}) (X · a)]
+            · simp only [Fin.mk_one, Fin.isValue, Matrix.cons_val_one, Matrix.head_cons]
+            · simp only [Fin.reduceFinMk, Matrix.cons_val_two, Nat.succ_eq_add_one, Nat.reduceAdd,
+              Matrix.tail_cons, Matrix.head_fin_const]
+          · convert Finset.measurable_sum (s \ {f i}) (fun i _ => (hX i).neg)
+            simp only [Pi.neg_apply, Finset.sum_apply]
+            simp only [Finset.sum_neg_distrib, neg_inj]
+          · apply (hX <| f i).neg
+          · apply hX
+        _ = H[(- (X <| f i)) + X i ; μ] - H[(X (f i)) ; μ] := by
+          rw [ProbabilityTheory.entropy_neg (hX <| f i)]
+      apply le_of_eq
+      congr
+      abel
     _ = H[W ; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
       rw [ProbabilityTheory.entropy_neg]
       measurability
