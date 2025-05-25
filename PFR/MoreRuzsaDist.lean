@@ -850,6 +850,62 @@ lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
       simp only [Finset.mem_univ, imp_self, implies_true]
 
 
+abbrev offdiag_sum {m:ℕ} (f : Fin m → Fin m → ℝ) := ∑ j, ∑ k, (if j = k then (0:ℝ) else f j k)
+
+lemma offdiag_sum_left {m:ℕ} (hm: m ≥ 1) (f:Fin m → ℝ) : offdiag_sum (fun j _ ↦ f j) = (m-1) * ∑ j, f j := by
+    rw [Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro j hj
+    simp [Finset.sum_ite]; left
+    have : Finset.filter (fun x ↦ ¬j = x)  Finset.univ = Finset.univ.erase j := by aesop
+    rw [this, Finset.card_erase_of_mem hj, Finset.card_univ, Fintype.card_fin]
+    convert Nat.cast_sub hm
+    simp only [Nat.cast_one]
+
+lemma offdiag_sum_right {m:ℕ} (hm: m ≥ 1) (f:Fin m → ℝ) : offdiag_sum (fun _ k ↦ f k) = (m-1) * ∑ j, f j := by
+    rw [← offdiag_sum_left hm f]
+    convert Finset.sum_comm using 3 with j hj k hk
+    aesop
+
+lemma offdiag_sum_const {m : ℕ} (hm: m ≥ 1) (c : ℝ) : offdiag_sum (m:=m) (fun _ _ ↦ c) = m * (m-1) * c := by
+    rw [offdiag_sum_left hm (fun j => c)]
+    simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+    ring
+
+lemma offdiag_sum_add {m : ℕ} (f g : Fin m → Fin m → ℝ) :
+      offdiag_sum (fun j k ↦ f j k + g j k) = offdiag_sum f + offdiag_sum g := by
+    convert Finset.sum_add_distrib with j _
+    convert Finset.sum_add_distrib using 2 with k _
+    by_cases h: j = k
+    all_goals simp [h]
+
+lemma offdiag_sum_sub {m : ℕ} (f g : Fin m → Fin m → ℝ) :
+      offdiag_sum (fun j k ↦ f j k - g j k) = offdiag_sum f - offdiag_sum g := by
+    convert Finset.sum_sub_distrib with j _
+    convert Finset.sum_sub_distrib using 2 with k _
+    by_cases h: j = k
+    all_goals simp [h]
+
+lemma offdiag_sum_div {m : ℕ} (f : Fin m → Fin m → ℝ) (c : ℝ) :
+      offdiag_sum (fun j k ↦ f j k / c) = offdiag_sum f / c := by
+    convert (Finset.sum_div _ _ _).symm with j _
+    convert (Finset.sum_div _ _ _).symm using 2 with k _
+    by_cases h: j = k
+    all_goals simp [h]
+
+lemma offdiag_mul_sum {m :ℕ} (f : Fin m → Fin m → ℝ) (c:ℝ) :
+      offdiag_sum (fun j k ↦ c * f j k ) = c * offdiag_sum f := by
+    convert (Finset.mul_sum _ _ _).symm with j _
+    convert (Finset.mul_sum _ _ _).symm using 2 with k _
+    by_cases h: j = k
+    all_goals simp [h]
+
+lemma offdiag_sum_le {m : ℕ} (f g : Fin m → Fin m → ℝ) (h : ∀ j k, j ≠ k → f j k ≤ g j k) : offdiag_sum f ≤ offdiag_sum g := by
+    apply Finset.sum_le_sum; intro j _
+    apply Finset.sum_le_sum; intro k _
+    by_cases hjk : j = k
+    . simp [hjk]
+    simp [hjk, h j k hjk]
 
 
 
@@ -915,65 +971,16 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
     . exact hmes j
     exact Measurable.neg (hmes k)
 
-  set sum := fun (f : Fin m → Fin m → ℝ) ↦ ∑ j, ∑ k, (if j = k then (0:ℝ) else f j k)
-
-  have sum_left (f:Fin m → ℝ) : sum (fun j k ↦ f j) = (m-1) * ∑ j, f j := by
-    rw [Finset.mul_sum]
-    apply Finset.sum_congr rfl
-    intro j hj
-    simp [Finset.sum_ite]; left
-    have : Finset.filter (fun x ↦ ¬j = x)  Finset.univ = Finset.univ.erase j := by aesop
-    rw [this, Finset.card_erase_of_mem hj, Finset.card_univ, Fintype.card_fin]
-    convert Nat.cast_sub hm
-    simp only [Nat.cast_one]
-
-  have sum_right (f:Fin m → ℝ) : sum (fun j k ↦ f k) = (m-1) * ∑ j, f j := by
-    rw [← sum_left f]
-    convert Finset.sum_comm using 3 with j hj k hk
-    aesop
-
-  have sum_const (c:ℝ) : sum (fun j k ↦ c) = m * (m-1) * c := by
-    rw [sum_left]
-    simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
-    ring
-
-  have sum_add (f g:Fin m → Fin m → ℝ) :
-    sum (fun j k ↦ f j k + g j k) = sum f + sum g := by
-    convert Finset.sum_add_distrib with j _
-    convert Finset.sum_add_distrib using 2 with k _
-    by_cases h: j = k
-    all_goals simp [h]
-
-  have sum_sub (f g:Fin m → Fin m → ℝ) :
-    sum (fun j k ↦ f j k - g j k) = sum f - sum g := by
-    convert Finset.sum_sub_distrib with j _
-    convert Finset.sum_sub_distrib using 2 with k _
-    by_cases h: j = k
-    all_goals simp [h]
-
-  have sum_div (f: Fin m → Fin m → ℝ) (c:ℝ)  : sum (fun j k ↦ f j k / c) = sum f / c := by
-    convert (Finset.sum_div _ _ _).symm with j _
-    convert (Finset.sum_div _ _ _).symm using 2 with k _
-    by_cases h: j = k
-    all_goals simp [h]
-
-  have sum_le (f g : Fin m → Fin m → ℝ) (h : ∀ j k, j ≠ k → f j k ≤ g j k) : sum f ≤ sum g := by
-    apply Finset.sum_le_sum; intro j _
-    apply Finset.sum_le_sum; intro k _
-    by_cases hjk : j = k
-    . simp [hjk]
-    simp [hjk, h j k hjk]
-
   calc
-    _ =  sum (fun j k ↦ d[X j # - X k])  := rfl
-    _ ≤ sum (fun j k ↦ (H[∑ i, X i] - (H[X j] + H[X k]) / 2)) := sum_le _ _ claim2
-    _ = sum (fun j k ↦ (H[∑ i, X i])) - (sum (fun j k ↦ H[X j]) + sum (fun j k ↦ H[X k])) / 2 := by
-      rw [sum_sub, sum_div, sum_add]
+    _ = offdiag_sum (fun j k ↦ d[X j # - X k])  := rfl
+    _ ≤ offdiag_sum (fun j k ↦ (H[∑ i, X i] - (H[X j] + H[X k]) / 2)) := offdiag_sum_le _ _ claim2
+    _ = offdiag_sum (fun j k ↦ (H[∑ i, X i])) - (offdiag_sum (fun j k ↦ H[X j]) + offdiag_sum (fun j k ↦ H[X k])) / 2 := by
+      rw [offdiag_sum_sub, offdiag_sum_div, offdiag_sum_add]
     _ = m * (m-1) * H[∑ i, X i] - ((m-1) * ∑ j, H[X j] + (m-1) * ∑ j, H[X j]) / 2 := by
       congr
-      . rw [sum_const]
-      . rw [sum_left]
-      rw [sum_right]
+      . rw [offdiag_sum_const hm]
+      . rw [offdiag_sum_left hm]
+      rw [offdiag_sum_right hm]
     _ = m * (m-1) * (H[∑ i, X i] - (∑ j, H[X j]) / m) := by
       rw [mul_sub ((m:ℝ) * ((m:ℝ)-1)) _ _]
       congr
@@ -1008,8 +1015,33 @@ lemma multidist_ruzsa_I {m:ℕ} (hm: m ≥ 1) {Ω : Fin m → Type*} (hΩ : ∀ 
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ j, d[X_j;X_j] ≤ 2 m D[X_[m]]`. -/
-lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
-    (X : ∀ i, (Ω i) → G): ∑ j, d[X j # X j] ≤ 2 * m * D[X; hΩ] := by sorry
+lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) (hprob: ∀ i, IsProbabilityMeasure (hΩ i).volume)
+    (X : ∀ i, (Ω i) → G) (hmes : ∀ i, Measurable (X i)) (hfin: ∀ i, FiniteRange (X i)): ∑ j, d[X j # X j] ≤ 2 * m * D[X; hΩ] := by
+      have claim (j k: Fin m) (hjk: j ≠ k) : d[X j # X j] ≤ 2 * d[X j # - X k] := calc
+        _ ≤ d[X j # - X k] + d[ -X k # X j] := rdist_triangle (hmes j) (Measurable.neg (hmes k)) (hmes j)
+        _ = d[X j # - X k] + d[ X j # -X k] := by
+          congr 1
+          apply rdist_symm
+        _ = 2 * d[X j # - X k] := by
+          ring
+      replace claim := offdiag_sum_le _ _ claim
+      have hm' : m ≥ 1 := by linarith
+      have claim2 : offdiag_sum (fun j k ↦ d[X j # - X k]) ≤ m * (m-1) * D[X; hΩ] := multidist_ruzsa_I hm' _ hmes hprob hfin
+      rw [offdiag_sum_left hm', offdiag_mul_sum] at claim
+      have : (m:ℝ) - 1 > 0 := by
+        have : (m:ℝ) ≥ 2 := by simp [hm]
+        linarith
+      calc
+        _ = ((m:ℝ)-1)⁻¹ * (m-1) * ∑ j, d[X j # X j] := by
+          field_simp [this]
+        _ ≤ ((m:ℝ)-1)⁻¹ * 2 * offdiag_sum fun j k ↦ d[X j # -X k] := by
+          rw [mul_assoc, mul_assoc]
+          gcongr
+        _ ≤ ((m:ℝ)-1)⁻¹ * 2 * (m * (m - 1) * D[X ; hΩ]) := by
+          gcongr
+        _ = 2 * m * D[X; hΩ] := by
+          field_simp [this]
+          ring
 
 /-- Let `I` be an indexing set of size `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. If the `X_i` all have the same distribution, then `D[X_[m]] ≤ m d[X_i;X_i]` for any
@@ -1024,10 +1056,10 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace 
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
 `d[X_i; U_{H_i}] = 0`. -/
-lemma multidist_eq_zero [Fintype G] {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) (hprob : ∀ i, IsProbabilityMeasure (hΩ i).volume) (X : ∀ i, (Ω i) → G) (hvanish : D[X; hΩ] = 0) (hmes: ∀ i, Measurable (X i)) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0 := by
+lemma multidist_eq_zero [Fintype G] {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) (hprob : ∀ i, IsProbabilityMeasure (hΩ i).volume) (X : ∀ i, (Ω i) → G) (hvanish : D[X; hΩ] = 0) (hmes: ∀ i, Measurable (X i)) (hfin: ∀ i, FiniteRange (X i)) : ∀ i, ∃ H : AddSubgroup G, ∃ U : (Ω i) → G, Measurable U ∧ IsUniform H U ∧ d[X i # U] = 0 := by
   have vanish : ∑ j, d[X j # X j] = 0 := by
     apply le_antisymm
-    . have := multidist_ruzsa_II hm hΩ X
+    . have := multidist_ruzsa_II hm hΩ hprob X hmes hfin
       simp [hvanish] at this
       exact this
     apply Finset.sum_nonneg

@@ -199,7 +199,7 @@ for each $1 \leq i \leq m$.  Averaging over $i$, we obtain the claim.
   $$\sum_{1 \leq j,k \leq m: j \neq k} d[X_j; -X_k] \leq m(m-1) D[X_{[m]}].$$
 \end{lemma}
 
-\begin{proof}\uses{ruz-copy, sumset-lower, ruz-indep, multidist-indep, multidist-copy}
+\begin{proof}\uses{ruz-copy, sumset-lower, ruz-indep, multidist-indep, multidist-copy}\leanok
 By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly independent.  From \Cref{sumset-lower}, we see that for any distinct $1 \leq j,k \leq m$, we have
   \[
     \bbH[X_j+X_k] \leq \bbH[\sum_{i=1}^m X_i],
@@ -216,8 +216,8 @@ By \Cref{ruz-copy}, \Cref{multidist-copy} we may take the $X_i$ to be jointly in
   $$\sum_{j=1}^m d[X_j;X_j] \leq 2 m D[X_{[m]}].$$
 \end{lemma}
 
-\begin{proof}\uses{ruzsa-triangle,multidist-ruzsa-I}
-From \Cref{ruzsa-triangle} we have $\dist{X_j}{X_j} \leq 2 \dist{X_j}{-X_k}$, and applying this to every summand in \Cref{multidist-ruzsa-I}, we obtain the claim.
+\begin{proof}\uses{ruzsa-triangle,multidist-ruzsa-I}\leanok
+From \Cref{ruzsa-triangle} we have $d[X_j;X_j] \leq 2 d[X_j;-X_k]$, and applying this to every summand in \Cref{multidist-ruzsa-I}, we obtain the claim.
 \end{proof}
 
 \begin{lemma}[Multidistance and Ruzsa distance, III]\label{multidist-ruzsa-III}\lean{multidist_ruzsa_III}\uses{multidist-def}\leanok
