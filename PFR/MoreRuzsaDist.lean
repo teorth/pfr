@@ -987,9 +987,26 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
 /-- Let `m ≥ 1`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ (1 ≤ j, k ≤ m, j ≠ k), d[X_j; -X_k] ≤ m(m-1) D[X_[m]].` -/
 lemma multidist_ruzsa_I {m:ℕ} (hm: m ≥ 1) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
-    (X : ∀ i, (Ω i) → G): ∑ j, ∑ k, (if j = k then (0:ℝ) else d[X j # -X k]) ≤ m * (m-1) * D[X; hΩ] := by sorry
+    {X : ∀ i, (Ω i) → G} (hmes: ∀ j, Measurable (X j))
+    (hprob: ∀ j, IsProbabilityMeasure (hΩ j).volume)
+    (hfin: ∀ j, FiniteRange (X j)) : ∑ j, ∑ k, (if j = k then (0:ℝ) else d[X j # -X k]) ≤ m * (m-1) * D[X; hΩ] := by
+    obtain ⟨ Ω', mΩ', μ', X', hμ', h_indep, hX' ⟩
+      := independent_copies'_finiteRange X hmes (fun i => ℙ)
+    convert multidist_ruzsa_I_indep hm ⟨ μ' ⟩ X' h_indep (fun i ↦ (hX' i).1) (fun i ↦ (hX' i).2.2) using 1
+    . apply Finset.sum_congr rfl; intro j hj
+      apply Finset.sum_congr rfl; intro k hk
+      by_cases hjk : j = k
+      all_goals simp [hjk]
+      apply ProbabilityTheory.IdentDistrib.rdist_congr
+      . exact (hX' j).2.1.symm
+      convert ProbabilityTheory.IdentDistrib.comp (hX' k).2.1.symm _
+      measurability
+    congr 1
+    apply multiDist_copy
+    intro i
+    exact (hX' i).2.1.symm
 
-/-- Let `m ≥ 1`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
+/-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ j, d[X_j;X_j] ≤ 2 m D[X_[m]]`. -/
 lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     (X : ∀ i, (Ω i) → G): ∑ j, d[X j # X j] ≤ 2 * m * D[X; hΩ] := by sorry

@@ -148,5 +148,47 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
     · convert IdentDistrib.trans _ hId₄
       exact IdentDistrib.of_ae_eq (Measurable.aemeasurable hX₄'') hX₄''_eq
 
+
+/-- A version of `independent_copies'` that guarantees that the copies have `FiniteRange`
+if the original variables do. -/
+lemma independent_copies'_finiteRange {I : Type u} [Fintype I] {α : I → Type u'}
+    [mS : ∀ i : I, MeasurableSpace (α i)] [mS' : ∀ i, MeasurableSingletonClass (α i)] [mnon: ∀ i, Nonempty (α i)] {Ω : I → Type v}
+    [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → α i) (hX : ∀ i : I, Measurable (X i))
+    (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] [∀ i, FiniteRange (X i)] :
+    ∃ (A : Type (max u v)) (_ : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
+    IsProbabilityMeasure μA ∧ iIndepFun X' μA ∧
+    ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) ∧ FiniteRange (X' i) := by
+  obtain ⟨ A, mA, μA, X', ⟨ hμA, hindep, hident ⟩ ⟩ :=
+    independent_copies' X hX μ
+  set h := fun i ↦ (identDistrib_of_finiteRange ((hident i).1) (hident i).2.symm)
+  set X'' := fun i ↦ (h i).choose
+  have hX'' (i : I) : Measurable (X'' i) ∧ FiniteRange (X'' i) ∧ X'' i =ᵐ[μA] X' i := by
+    simp only [X'', h]
+    exact (h i).choose_spec
+  use A, mA, μA, X''
+  refine ⟨ hμA, ?_, ?_ ⟩
+  . apply hindep.ae_eq
+    intro i
+    exact (hX'' i).2.2.symm
+  intro i
+  refine ⟨ (hX'' i).1, ?_, (hX'' i).2.1 ⟩
+  exact (ProbabilityTheory.IdentDistrib.of_ae_eq (Measurable.aemeasurable (hX'' i).1) (hX'' i).2.2).trans (hident i).2
+
+
+/-
+  have : Nonempty α := μ.nonempty_of_neZero.map X
+  have : Nonempty β := μ'.nonempty_of_neZero.map Y
+  obtain ⟨ν, X', Y', hν, hX', hY', hind, hIdX, hIdY⟩ := independent_copies hX hY μ μ'
+  rcases identDistrib_of_finiteRange hX' hIdX.symm with ⟨X'', hX'', hX''_finite, hX''_eq⟩
+  rcases identDistrib_of_finiteRange hY' hIdY.symm with ⟨Y'', hY'', hY''_finite, hY''_eq⟩
+  use ν, X'', Y''
+  refine ⟨hν, hX'', hY'', ?_, ?_, ?_, hX''_finite, hY''_finite⟩
+  · exact hind.congr hX''_eq.symm hY''_eq.symm
+  · convert IdentDistrib.trans _ hIdX
+    exact IdentDistrib.of_ae_eq (Measurable.aemeasurable hX'') hX''_eq
+  · convert IdentDistrib.trans _ hIdY
+    exact IdentDistrib.of_ae_eq (Measurable.aemeasurable hY'') hY''_eq
+-/
+
 end IdentDistrib
 end ProbabilityTheory
