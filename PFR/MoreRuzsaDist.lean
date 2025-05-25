@@ -852,6 +852,7 @@ lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
 
 
 
+
 /-- To prove multidist_ruzsa_I, we first establish a special case when the random variables are defined on the same space and are jointly independent. -/
 lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure (hΩ.volume)]
     (X : Fin m → Ω → G) (h_indep : iIndepFun X) (hmes: ∀ j, Measurable (X j)) (hfin: ∀ j, FiniteRange (X j)):
@@ -869,22 +870,54 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
         intro i _; exact hmes i
       convert Finset.measurable_sum _ this with ω
       simp only [Finset.sum_apply,S]
-    sorry
+    set s : Fin 2 → Finset (Fin m) := fun
+      | 0 => {j, k}
+      | 1 => {j, k}ᶜ
+    set γ : Fin 2 → Type u_8 := fun a ↦ G
+    set ϕ : (j:Fin 2) → (({ x // x ∈ s j } → G) → γ j) := fun a x ↦ ∑ i, x i
+    have hϕ: ∀ a : Fin 2, Measurable (ϕ a) := by
+      intro _
+      convert Finset.measurable_sum _ _ with ω
+      . simp [γ]
+        infer_instance
+      intro _ _
+      measurability
+
+    have h_disjoint: Set.univ.PairwiseDisjoint s := by
+      intro a _ b _ hab
+      match a, b with
+      | 0, 0 => simp at hab
+      | 0, 1 => simp [onFun, s]
+      | 1, 0 => simp [onFun, s]
+      | 1, 1 => simp at hab
+
+    have hneq : (0:Fin 2) ≠ (1:Fin 2) := by norm_num
+    replace h_indep :=  ProbabilityTheory.iIndepFun.indepFun (ProbabilityTheory.iIndepFun.finsets_comp s h_disjoint h_indep hmes ϕ hϕ) hneq
+    simp [s,ϕ] at h_indep
+    convert h_indep with ω ω
+    . calc
+        _ = ∑ i ∈ {j,k}, X i ω := by
+          rw [Finset.sum_pair h]
+          simp only [Pi.add_apply, ϕ, s, γ]
+        _ = _ := by
+          convert (Finset.sum_attach _ _).symm
+          simp
+    simp only [Finset.sum_apply,S]
+    exact (Finset.sum_attach _ _).symm
+
 
   have claim2 (j k : Fin m) (h: j ≠ k) : d[X j # -X k] ≤ H[∑ i, X i] - (H[X j] + H[X k]) / 2 := by
     rw [ProbabilityTheory.IndepFun.rdist_eq]
     . simp only [sub_neg_eq_add, tsub_le_iff_right, ProbabilityTheory.entropy_neg (hmes k)]
       convert claim1 h using 1
       ring
-    . have : IndepFun (X j) (X k) ℙ := by
-        exact ProbabilityTheory.Kernel.iIndepFun.indepFun h_indep h
-      apply ProbabilityTheory.IndepFun.neg_right this
+    . exact ProbabilityTheory.IndepFun.neg_right (ProbabilityTheory.iIndepFun.indepFun h_indep h)
     . exact hmes j
     exact Measurable.neg (hmes k)
 
   set sum := fun (f : Fin m → Fin m → ℝ) ↦ ∑ j, ∑ k, (if j = k then (0:ℝ) else f j k)
 
-  have sum_left (f:Fin m → ℝ) : sum (fun j ↦ fun k ↦ f j) = (m-1) * ∑ j, f j := by
+  have sum_left (f:Fin m → ℝ) : sum (fun j k ↦ f j) = (m-1) * ∑ j, f j := by
     rw [Finset.mul_sum]
     apply Finset.sum_congr rfl
     intro j hj
@@ -894,31 +927,31 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
     convert Nat.cast_sub hm
     simp only [Nat.cast_one]
 
-  have sum_right (f:Fin m → ℝ) : sum (fun j ↦ fun k ↦ f k) = (m-1) * ∑ j, f j := by
+  have sum_right (f:Fin m → ℝ) : sum (fun j k ↦ f k) = (m-1) * ∑ j, f j := by
     rw [← sum_left f]
     convert Finset.sum_comm using 3 with j hj k hk
     aesop
 
-  have sum_const (c:ℝ) : sum (fun j ↦ fun k ↦ c) = m * (m-1) * c := by
+  have sum_const (c:ℝ) : sum (fun j k ↦ c) = m * (m-1) * c := by
     rw [sum_left]
     simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
     ring
 
   have sum_add (f g:Fin m → Fin m → ℝ) :
-    sum (fun j ↦ fun k ↦ f j k + g j k) = sum f + sum g := by
+    sum (fun j k ↦ f j k + g j k) = sum f + sum g := by
     convert Finset.sum_add_distrib with j _
     convert Finset.sum_add_distrib using 2 with k _
     by_cases h: j = k
     all_goals simp [h]
 
   have sum_sub (f g:Fin m → Fin m → ℝ) :
-    sum (fun j ↦ fun k ↦ f j k - g j k) = sum f - sum g := by
+    sum (fun j k ↦ f j k - g j k) = sum f - sum g := by
     convert Finset.sum_sub_distrib with j _
     convert Finset.sum_sub_distrib using 2 with k _
     by_cases h: j = k
     all_goals simp [h]
 
-  have sum_div (f: Fin m → Fin m → ℝ) (c:ℝ)  : sum (fun j ↦ fun k ↦ f j k / c) = sum f / c := by
+  have sum_div (f: Fin m → Fin m → ℝ) (c:ℝ)  : sum (fun j k ↦ f j k / c) = sum f / c := by
     convert (Finset.sum_div _ _ _).symm with j _
     convert (Finset.sum_div _ _ _).symm using 2 with k _
     by_cases h: j = k
@@ -932,9 +965,9 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
     simp [hjk, h j k hjk]
 
   calc
-    _ =  sum (fun j ↦ fun k ↦ d[X j # - X k])  := rfl
-    _ ≤ sum (fun j ↦ fun k ↦ (H[∑ i, X i] - (H[X j] + H[X k]) / 2)) := sum_le _ _ claim2
-    _ = sum (fun j ↦ fun k ↦ (H[∑ i, X i])) - (sum (fun j ↦ fun k ↦ H[X j]) + sum (fun j ↦ fun k ↦ H[X k])) / 2 := by
+    _ =  sum (fun j k ↦ d[X j # - X k])  := rfl
+    _ ≤ sum (fun j k ↦ (H[∑ i, X i] - (H[X j] + H[X k]) / 2)) := sum_le _ _ claim2
+    _ = sum (fun j k ↦ (H[∑ i, X i])) - (sum (fun j k ↦ H[X j]) + sum (fun j k ↦ H[X k])) / 2 := by
       rw [sum_sub, sum_div, sum_add]
     _ = m * (m-1) * H[∑ i, X i] - ((m-1) * ∑ j, H[X j] + (m-1) * ∑ j, H[X j]) / 2 := by
       congr
