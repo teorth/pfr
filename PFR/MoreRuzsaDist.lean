@@ -853,21 +853,30 @@ lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
 
 
 /-- To prove multidist_ruzsa_I, we first establish a special case when the random variables are defined on the same space and are jointly independent. -/
-lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω)
+lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω)
     (X : Fin m → Ω → G) (h_indep : iIndepFun X) :
     ∑ j, ∑ k, (if j = k then (0:ℝ) else d[X j # -X k]) ≤ m * (m-1) * D[X; fun _ ↦ hΩ] := by
   have claim1 (j k : Fin m) (h: j ≠ k): H[X j + X k] ≤ H[∑ i, X i] := by
     sorry
-  have claim2 (j k : Fin m) : d[X j # -X k] ≤ H[∑ i, X i] - (H[X j] + H[X k]) / 2 := by
+  have claim2 (j k : Fin m) (h: j ≠ k) : d[X j # -X k] ≤ H[∑ i, X i] - (H[X j] + H[X k]) / 2 := by
     sorry
 
   set sum := fun (f : Fin m → Fin m → ℝ) ↦ ∑ j, ∑ k, (if j = k then (0:ℝ) else f j k)
 
   have sum_left (f:Fin m → ℝ) : sum (fun j ↦ fun k ↦ f j) = (m-1) * ∑ j, f j := by
-    sorry
+    rw [Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro j hj
+    simp [Finset.sum_ite]; left
+    have : Finset.filter (fun x ↦ ¬j = x)  Finset.univ = Finset.univ.erase j := by aesop
+    rw [this, Finset.card_erase_of_mem hj, Finset.card_univ, Fintype.card_fin]
+    convert Nat.cast_sub hm
+    simp only [Nat.cast_one]
 
   have sum_right (f:Fin m → ℝ) : sum (fun j ↦ fun k ↦ f k) = (m-1) * ∑ j, f j := by
-    sorry
+    rw [← sum_left f]
+    convert Finset.sum_comm using 3 with j hj k hk
+    aesop
 
   have sum_const (c:ℝ) : sum (fun j ↦ fun k ↦ c) = m * (m-1) * c := by
     rw [sum_left]
@@ -876,23 +885,36 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureS
 
   have sum_add (f g:Fin m → Fin m → ℝ) :
     sum (fun j ↦ fun k ↦ f j k + g j k) = sum f + sum g := by
-    sorry
+    convert Finset.sum_add_distrib with j _
+    convert Finset.sum_add_distrib using 2 with k _
+    by_cases h: j = k
+    all_goals simp [h]
 
   have sum_sub (f g:Fin m → Fin m → ℝ) :
     sum (fun j ↦ fun k ↦ f j k - g j k) = sum f - sum g := by
-    sorry
+    convert Finset.sum_sub_distrib with j _
+    convert Finset.sum_sub_distrib using 2 with k _
+    by_cases h: j = k
+    all_goals simp [h]
 
-  have sum_div (f: Fin m → Fin m → ℝ) (c:ℝ) (hc: c ≠ 0) : sum (fun j ↦ fun k ↦ f j k / c) = sum f / c := by
-    sorry
+  have sum_div (f: Fin m → Fin m → ℝ) (c:ℝ)  : sum (fun j ↦ fun k ↦ f j k / c) = sum f / c := by
+    convert (Finset.sum_div _ _ _).symm with j _
+    convert (Finset.sum_div _ _ _).symm using 2 with k _
+    by_cases h: j = k
+    all_goals simp [h]
 
-  have sum_le (f g : Fin m → Fin m → ℝ) (h : ∀ j k, f j k ≤ g j k) : sum f ≤ sum g := by
-    sorry
+  have sum_le (f g : Fin m → Fin m → ℝ) (h : ∀ j k, j ≠ k → f j k ≤ g j k) : sum f ≤ sum g := by
+    apply Finset.sum_le_sum; intro j _
+    apply Finset.sum_le_sum; intro k _
+    by_cases hjk : j = k
+    . simp [hjk]
+    simp [hjk, h j k hjk]
 
   calc
     _ =  sum (fun j ↦ fun k ↦ d[X j # - X k])  := rfl
     _ ≤ sum (fun j ↦ fun k ↦ (H[∑ i, X i] - (H[X j] + H[X k]) / 2)) := sum_le _ _ claim2
     _ = sum (fun j ↦ fun k ↦ (H[∑ i, X i])) - (sum (fun j ↦ fun k ↦ H[X j]) + sum (fun j ↦ fun k ↦ H[X k])) / 2 := by
-      rw [sum_sub, sum_div _ 2 (by norm_num), sum_add]
+      rw [sum_sub, sum_div, sum_add]
     _ = m * (m-1) * H[∑ i, X i] - ((m-1) * ∑ j, H[X j] + (m-1) * ∑ j, H[X j]) / 2 := by
       congr
       . rw [sum_const]
