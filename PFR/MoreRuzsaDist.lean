@@ -853,13 +853,34 @@ lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
 
 
 /-- To prove multidist_ruzsa_I, we first establish a special case when the random variables are defined on the same space and are jointly independent. -/
-lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω)
-    (X : Fin m → Ω → G) (h_indep : iIndepFun X) :
+lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure (hΩ.volume)]
+    (X : Fin m → Ω → G) (h_indep : iIndepFun X) (hmes: ∀ j, Measurable (X j)) (hfin: ∀ j, FiniteRange (X j)):
     ∑ j, ∑ k, (if j = k then (0:ℝ) else d[X j # -X k]) ≤ m * (m-1) * D[X; fun _ ↦ hΩ] := by
-  have claim1 (j k : Fin m) (h: j ≠ k): H[X j + X k] ≤ H[∑ i, X i] := by
+  have claim1 {j k : Fin m} (h: j ≠ k): H[X j + X k] ≤ H[∑ i, X i] := by
+    set S := ∑ i ∈ {j,k}ᶜ, X i
+    have : ∑ i, X i = X j + X k + S := by
+      rw [←Finset.sum_compl_add_sum {j,k} _, add_comm]
+      congr
+      simp [h]
+    rw [this]
+    apply (le_max_left _ _).trans (max_entropy_le_entropy_add _ _ _)
+    . exact Measurable.add (hmes j) (hmes k)
+    . have : ∀ i ∈ ({j,k}: Finset (Fin m))ᶜ, Measurable (X i) := by
+        intro i _; exact hmes i
+      convert Finset.measurable_sum _ this with ω
+      simp only [Finset.sum_apply,S]
     sorry
+
   have claim2 (j k : Fin m) (h: j ≠ k) : d[X j # -X k] ≤ H[∑ i, X i] - (H[X j] + H[X k]) / 2 := by
-    sorry
+    rw [ProbabilityTheory.IndepFun.rdist_eq]
+    . simp only [sub_neg_eq_add, tsub_le_iff_right, ProbabilityTheory.entropy_neg (hmes k)]
+      convert claim1 h using 1
+      ring
+    . have : IndepFun (X j) (X k) ℙ := by
+        exact ProbabilityTheory.Kernel.iIndepFun.indepFun h_indep h
+      apply ProbabilityTheory.IndepFun.neg_right this
+    . exact hmes j
+    exact Measurable.neg (hmes k)
 
   set sum := fun (f : Fin m → Fin m → ℝ) ↦ ∑ j, ∑ k, (if j = k then (0:ℝ) else f j k)
 
@@ -930,13 +951,12 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
 
 
 
--- The condition m ≥ 2 is likely not needed here.
-/-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
+/-- Let `m ≥ 1`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ (1 ≤ j, k ≤ m, j ≠ k), d[X_j; -X_k] ≤ m(m-1) D[X_[m]].` -/
-lemma multidist_ruzsa_I {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+lemma multidist_ruzsa_I {m:ℕ} (hm: m ≥ 1) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     (X : ∀ i, (Ω i) → G): ∑ j, ∑ k, (if j = k then (0:ℝ) else d[X j # -X k]) ≤ m * (m-1) * D[X; hΩ] := by sorry
 
-/-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
+/-- Let `m ≥ 1`, and let `X_[m]` be a tuple of `G`-valued random variables. Then
   `∑ j, d[X_j;X_j] ≤ 2 m D[X_[m]]`. -/
 lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     (X : ∀ i, (Ω i) → G): ∑ j, d[X j # X j] ≤ 2 * m * D[X; hΩ] := by sorry
