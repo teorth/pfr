@@ -940,12 +940,9 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
       measurability
 
     have h_disjoint: Set.univ.PairwiseDisjoint s := by
-      intro a _ b _ hab
-      match a, b with
-      | 0, 0 => simp at hab
-      | 0, 1 => simp [onFun, s]
-      | 1, 0 => simp [onFun, s]
-      | 1, 1 => simp at hab
+      rw [Set.PairwiseDisjoint, Set.Pairwise]
+      simp_rw [Fin.forall_fin_two]
+      simp [Function.onFun, disjoint_compl_left, disjoint_compl_right, s]
 
     have hneq : (0:Fin 2) ≠ (1:Fin 2) := by norm_num
     replace h_indep :=  ProbabilityTheory.iIndepFun.indepFun (ProbabilityTheory.iIndepFun.finsets_comp s h_disjoint h_indep hmes ϕ hϕ) hneq
