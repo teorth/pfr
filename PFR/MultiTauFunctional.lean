@@ -77,10 +77,11 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀
     _ ≤ p.η⁻¹ * (p.m * d[p.X₀ # p.X₀] + 1 * (p.m * d[p.X₀ # p.X₀])) := by
       gcongr
       · have : NeZero p.m := ⟨hm.ne'⟩
-        apply multidist_ruzsa_III p.hm (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀) _ 0
-        intro _ _
-        simp
-        exact .refl p.hmeas.aemeasurable
+        apply multidist_ruzsa_III p.hm (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀) _ (fun _ ↦ p.hmeas) (fun _ ↦ p.hprob) _ 0
+        . intro _ _
+          simp
+          exact .refl p.hmeas.aemeasurable
+        intro _; infer_instance
       · have : 0 ≤ d[p.X₀ # p.X₀] := rdist_nonneg p.hmeas p.hmeas
         positivity
       exact p.hη'
