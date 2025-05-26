@@ -1039,7 +1039,7 @@ lemma Finset.sum_extend {H:Type*} [AddCommGroup H] {m:ℕ} (f: Fin (m+1) → H) 
 
 /-- A version of multidist_ruzsa_III assuming independence. -/
 lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω)
-    {X : ∀ i:Fin (m+1), Ω → G} (hmes: ∀ i, Measurable (X i)) (hident : ∀ j k, IdentDistrib (X j) (X k)) (hindep: iIndepFun X) (hfin : ∀ i, FiniteRange (X i)) (hprob: IsProbabilityMeasure hΩ.volume) (i₀: Fin m): D[fun (i:Fin m) ↦ X i; fun _ ↦ hΩ] ≤ m * d[X i₀ # X i₀] := by
+    {X : Fin (m+1) → Ω → G} (hmes: ∀ i, Measurable (X i)) (hident : ∀ j k, IdentDistrib (X j) (X k)) (hindep: iIndepFun X) (hfin : ∀ i, FiniteRange (X i)) (hprob: IsProbabilityMeasure hΩ.volume) (i₀: Fin m): D[fun (i:Fin m) ↦ X i; fun _ ↦ hΩ] ≤ m * d[X i₀ # X i₀] := by
       set m' : Fin (m+1) := (m : Fin (m+1))
       set X₀ := X m'
       set S := ∑ i:Fin m, X i
@@ -1143,7 +1143,21 @@ lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpac
 variables. If the `X_i` all have the same distribution, then `D[X_[m]] ≤ m d[X_i;X_i]` for any
 `1 ≤ i ≤ m`. -/
 lemma multidist_ruzsa_III {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
-    (X : ∀ i, (Ω i) → G) (hident : ∀ j k, IdentDistrib (X j) (X k)): ∀ i, D[X; hΩ] ≤ m * d[X i # X i] := by sorry
+    (X : ∀ i, (Ω i) → G) (hident : ∀ j k, IdentDistrib (X j) (X k)) (hmes: ∀ i, Measurable (X i)) (hprob: ∀ i, IsProbabilityMeasure (hΩ i).volume) (hfin: ∀ i, FiniteRange (X i)) (i₀:Fin m) : D[X; hΩ] ≤ m * d[X i₀ # X i₀] := by
+    have hmnon: NeZero m := by rw [neZero_iff]; linarith
+    obtain ⟨ Ω', mΩ', μ', X', hμ', h_indep, hX' ⟩
+      := independent_copies'_finiteRange (fun (i:Fin (m+1)) ↦ X 0) (fun _ ↦ hmes 0) (fun i => ℙ)
+    letI hΩ' : MeasureSpace Ω' := ⟨ μ' ⟩
+    have hident' (j k: Fin (m+1)) : IdentDistrib (X' j) (X' k) := (hX' j).2.1.trans (hX' k).2.1.symm
+    have hfin' (j : Fin (m+1)) : FiniteRange (X' j) := (hX' j).2.2
+    have hmes' (j : Fin (m+1)) : Measurable (X' j) := (hX' j).1
+    convert multidist_ruzsa_III' hm hΩ' hmes' hident' h_indep hfin' hμ' i₀ using 1
+    . apply multiDist_copy
+      intro i
+      exact (hident i 0).trans (hX' i).2.1.symm
+    congr 1
+    apply ProbabilityTheory.IdentDistrib.rdist_congr
+    all_goals exact (hident i₀ 0).trans (hX' i₀).2.1.symm
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
