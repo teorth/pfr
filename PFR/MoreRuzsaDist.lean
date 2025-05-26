@@ -392,7 +392,7 @@ lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
       rw [add_comm _ (Y i₀), add_comm (Y i), add_assoc]
     · ring
 
-/-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
+/-- If `n ≥ 1` and `X, Y₁, ..., Yₙ` are jointly independent `G`-valued random variables,
 then `d[Y i₀; μ # ∑ i ∈ s, Y i; μ] ≤ 2 * ∑ i ∈ s, d[Y i₀; μ # Y i; μ]`.-/
 lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
     (hs' : Finset.Nonempty s) {Y : I → Ω → G} [∀ i, FiniteRange (Y i)]
@@ -926,11 +926,9 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
         intro i _; exact hmes i
       convert Finset.measurable_sum _ this with ω
       simp only [Finset.sum_apply,S]
-    set s : Fin 2 → Finset (Fin m) := fun
-      | 0 => {j, k}
-      | 1 => {j, k}ᶜ
-    set γ : Fin 2 → Type u_8 := fun a ↦ G
-    set ϕ : (j:Fin 2) → (({ x // x ∈ s j } → G) → γ j) := fun a x ↦ ∑ i, x i
+    set s : Fin 2 → Finset (Fin m) := ![{j,k}, {j,k}ᶜ]
+    set γ : Fin 2 → Type u_8 := fun _ ↦ G
+    set ϕ : (j:Fin 2) → (({ x // x ∈ s j } → G) → γ j) := fun _ x ↦ ∑ i, x i
     have hϕ: ∀ a : Fin 2, Measurable (ϕ a) := by
       intro _
       convert Finset.measurable_sum _ _ with ω
@@ -940,9 +938,8 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
       measurability
 
     have h_disjoint: Set.univ.PairwiseDisjoint s := by
-      rw [Set.PairwiseDisjoint, Set.Pairwise]
-      simp_rw [Fin.forall_fin_two]
-      simp [Function.onFun, disjoint_compl_left, disjoint_compl_right, s]
+      simp_rw [Set.PairwiseDisjoint, Set.Pairwise, Fin.forall_fin_two, Function.onFun]
+      simp [disjoint_compl_left, disjoint_compl_right, s]
 
     have hneq : (0:Fin 2) ≠ (1:Fin 2) := by norm_num
     replace h_indep :=  ProbabilityTheory.iIndepFun.indepFun (ProbabilityTheory.iIndepFun.finsets_comp s h_disjoint h_indep hmes ϕ hϕ) hneq
@@ -950,8 +947,7 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
     convert h_indep with ω ω
     . calc
         _ = ∑ i ∈ {j,k}, X i ω := by
-          rw [Finset.sum_pair h]
-          simp only [Pi.add_apply, ϕ, s, γ]
+          simp only [Finset.sum_pair h, Pi.add_apply, ϕ, s, γ]
         _ = _ := by
           convert (Finset.sum_attach _ _).symm
           simp
@@ -960,31 +956,22 @@ lemma multidist_ruzsa_I_indep {m:ℕ} (hm: m ≥ 1) {Ω : Type*} (hΩ : MeasureS
 
 
   have claim2 (j k : Fin m) (h: j ≠ k) : d[X j # -X k] ≤ H[∑ i, X i] - (H[X j] + H[X k]) / 2 := by
-    rw [ProbabilityTheory.IndepFun.rdist_eq]
+    rw [ProbabilityTheory.IndepFun.rdist_eq _ (hmes j) _]
     . simp only [sub_neg_eq_add, tsub_le_iff_right, ProbabilityTheory.entropy_neg (hmes k)]
       convert claim1 h using 1
       ring
     . exact ProbabilityTheory.IndepFun.neg_right (ProbabilityTheory.iIndepFun.indepFun h_indep h)
-    . exact hmes j
     exact Measurable.neg (hmes k)
 
   calc
-    _ = offdiag_sum (fun j k ↦ d[X j # - X k])  := rfl
     _ ≤ offdiag_sum (fun j k ↦ (H[∑ i, X i] - (H[X j] + H[X k]) / 2)) := offdiag_sum_le _ _ claim2
-    _ = offdiag_sum (fun j k ↦ (H[∑ i, X i])) - (offdiag_sum (fun j k ↦ H[X j]) + offdiag_sum (fun j k ↦ H[X k])) / 2 := by
-      rw [offdiag_sum_sub, offdiag_sum_div, offdiag_sum_add]
     _ = m * (m-1) * H[∑ i, X i] - ((m-1) * ∑ j, H[X j] + (m-1) * ∑ j, H[X j]) / 2 := by
-      congr
-      . rw [offdiag_sum_const hm]
-      . rw [offdiag_sum_left hm]
-      rw [offdiag_sum_right hm]
-    _ = m * (m-1) * (H[∑ i, X i] - (∑ j, H[X j]) / m) := by
-      rw [mul_sub ((m:ℝ) * ((m:ℝ)-1)) _ _]
+      rw [offdiag_sum_sub, offdiag_sum_div, offdiag_sum_add, offdiag_sum_const hm, offdiag_sum_left hm, offdiag_sum_right hm]
+    _ = m * (m-1) * D[X; fun _ ↦ hΩ] := by
+      rw [multiDist_indep hΩ X h_indep, mul_sub ((m:ℝ) * ((m:ℝ)-1)) _ _]
       congr
       field_simp
       ring
-    _ = m * (m-1) * D[X; fun _ ↦ hΩ] := by
-      rw [multiDist_indep hΩ X h_indep]
 
 
 
@@ -1040,11 +1027,90 @@ lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀
           field_simp [this]
           ring
 
+lemma Finset.sum_extend {H:Type*} [AddCommGroup H] {m:ℕ} (f: Fin (m+1) → H) : ∑ i : Fin m, f i = ∑ i < (m: Fin (m+1)), f i := calc
+        _ = ∑ i : Fin m, f (Fin.castSuccEmb i) := by
+          congr; ext i; congr
+          simp only [Fin.coe_eq_castSucc, Fin.coe_castSuccEmb]
+        _ = ∑ i ∈ Finset.map Fin.castSuccEmb Finset.univ, f i := by
+          exact (Finset.sum_map  _ _ _).symm
+        _ = _ := by
+          congr
+          simp only [Fin.natCast_eq_last, Fin.Iio_last_eq_map]
+
+/-- A version of multidist_ruzsa_III assuming independence. -/
+lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω)
+    {X : ∀ i:Fin (m+1), Ω → G} (hmes: ∀ i, Measurable (X i)) (hident : ∀ j k, IdentDistrib (X j) (X k)) (hindep: iIndepFun X) (hfin : ∀ i, FiniteRange (X i)) (hprob: IsProbabilityMeasure hΩ.volume) (i₀: Fin m): D[fun (i:Fin m) ↦ X i; fun _ ↦ hΩ] ≤ m * d[X i₀ # X i₀] := by
+      set m' : Fin (m+1) := (m : Fin (m+1))
+      set X₀ := X m'
+      set S := ∑ i:Fin m, X i
+      have hent (i:Fin (m+1)): H[X i] = H[X₀] := by sorry
+      have hind' (i:Fin m) : IndepFun (X i) X₀ ℙ := by sorry
+      have hind_S : IndepFun S X₀ ℙ := by sorry
+      have hmes_S : Measurable S := by sorry
+
+      calc
+        _ = H[S] - (∑ i:Fin m, H[X i])/m := by
+          apply multiDist_indep
+          sorry
+        _ ≤ H[-X₀ + S] - (∑ i:Fin m, H[X i])/m := by
+          gcongr
+          rw [neg_add_eq_sub]
+          exact (le_max_left _ _).trans (ProbabilityTheory.max_entropy_le_entropy_sub hmes_S (hmes m) hind_S)
+        _ = (H[-X₀ + S] - H[-X₀]) - (∑ i:Fin m, H[X i])/m + H[-X₀] := by abel
+        _ ≤ ∑ i:Fin m, (H[-X₀ + X i] - H[-X₀]) - (∑ i:Fin m, H[X i])/m + H[-X₀] := by
+          gcongr
+          set Y : Fin (m+1) → Ω → G := fun i ↦ if (i = m') then - X₀ else X i
+          have hYfin (i:Fin (m+1)): FiniteRange (Y i) := by
+            by_cases h : i = m' <;> simp [Y, h]
+            all_goals infer_instance
+          have hYfin (i:Fin (m+1)): Measurable (Y i) := by
+            by_cases h : i = m' <;> simp [Y, h]
+            . exact Measurable.neg (hmes m)
+            exact hmes i
+          have : H[Y m' + ∑ i < m', Y i] - H[Y m'] ≤ ∑ i < m', (H[Y m' + Y i] - H[Y m']) := by
+            apply kvm_ineq_I (Finset.not_mem_Iio_self) hYfin _
+            sorry
+          convert this using 1
+          . congr
+            . simp [Y,X₀]
+            . convert Finset.sum_extend Y using 2 with i _
+              have : i.castSucc ≠ m' := by simp [m']
+              simp [Y, this]
+            simp [Y,X₀]
+          rw [← Finset.sum_extend _]
+          congr; ext i
+          have : i.castSucc ≠ m' := by simp [m']
+          congr
+          all_goals simp [Y,this,X₀]
+        _ = ∑ i:Fin m, d[X i # X₀] - (∑ i:Fin m, H[X₀])/m + H[-X₀] := by
+          congr 2
+          . apply Finset.sum_congr rfl
+            intro i _
+            rw [ProbabilityTheory.IndepFun.rdist_eq (hind' i) (hmes i) (hmes m), hent i, ProbabilityTheory.entropy_neg (hmes m), neg_add_eq_sub]
+            linarith
+          congr 1; apply Finset.sum_congr rfl
+          intro i _; exact hent _
+        _ = ∑ i:Fin m, d[X i # X₀] - (m * H[X₀])/m + H[X₀] := by
+          congr 1
+          . congr 2; simp
+          exact ProbabilityTheory.entropy_neg (hmes m)
+        _ = ∑ i : Fin m, d[X i # X m'] := by
+          field_simp
+        _ = ∑ i : Fin m, d[X i₀ # X i₀] := by
+          congr; ext i
+          exact ProbabilityTheory.IdentDistrib.rdist_congr (hident _ _) (hident _ _)
+        _ = _ := by simp
+
+
+
+
+
+
 /-- Let `I` be an indexing set of size `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. If the `X_i` all have the same distribution, then `D[X_[m]] ≤ m d[X_i;X_i]` for any
 `1 ≤ i ≤ m`. -/
 lemma multidist_ruzsa_III {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
-    (X : ∀ i, (Ω i) → G) (hidenT : ∀ j k, IdentDistrib (X j) (X k)): ∀ i, D[X; hΩ] ≤ m * d[X i # X i] := by sorry
+    (X : ∀ i, (Ω i) → G) (hident : ∀ j k, IdentDistrib (X j) (X k)): ∀ i, D[X; hΩ] ≤ m * d[X i # X i] := by sorry
 
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
