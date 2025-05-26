@@ -1027,15 +1027,8 @@ lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀
           field_simp [this]
           ring
 
-lemma Finset.sum_extend {H:Type*} [AddCommGroup H] {m:ℕ} (f: Fin (m+1) → H) : ∑ i : Fin m, f i = ∑ i < (m: Fin (m+1)), f i := calc
-        _ = ∑ i : Fin m, f (Fin.castSuccEmb i) := by
-          congr; ext i; congr
-          simp only [Fin.coe_eq_castSucc, Fin.coe_castSuccEmb]
-        _ = ∑ i ∈ Finset.map Fin.castSuccEmb Finset.univ, f i := by
-          exact (Finset.sum_map  _ _ _).symm
-        _ = _ := by
-          congr
-          simp only [Fin.natCast_eq_last, Fin.Iio_last_eq_map]
+lemma Finset.sum_extend {H:Type*} [AddCommMonoid H] {m:ℕ} (f: Fin (m+1) → H) : ∑ i : Fin m, f i = ∑ i < (m: Fin (m+1)), f i := by
+  simp
 
 /-- A version of multidist_ruzsa_III assuming independence. -/
 lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω)
@@ -1159,10 +1152,18 @@ lemma multidist_ruzsa_III {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : �
     apply ProbabilityTheory.IdentDistrib.rdist_congr
     all_goals exact (hident i₀ 0).trans (hX' i₀).2.1.symm
 
+universe u in
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
-lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
-    (h_indep : iIndepFun X) : d[∑ i, X i # ∑ i, X i] ≤ 2 * D[X; fun _ ↦ hΩ] := by sorry
+lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
+    (h_indep : iIndepFun X) (hmes: ∀ i, Measurable (X i)) (hprob: IsProbabilityMeasure hΩ.volume): d[∑ i, X i # ∑ i, X i] ≤ 2 * D[X; fun _ ↦ hΩ] := by
+    set mS₂ : Fin 2 × Fin m → MeasurableSpace G := fun _ ↦ by infer_instance
+    set mΩ₂ : (i : Fin 2 × Fin m) → MeasurableSpace Ω := fun _ ↦ hΩ.toMeasurableSpace
+    obtain ⟨ Ω', hΩ', μ', X', hprob', h_indep', hX' ⟩ := independent_copies' (mS := mS₂) (mΩ := mΩ₂) (fun i ↦ (X i.2)) (fun i ↦ hmes i.2) (fun _ ↦ hΩ.volume)
+    set W₀ := ∑ i, X' (0 i)
+    set W₁ := ∑ i, X' (1 i)
+    sorry
+
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
 `d[X_i; U_{H_i}] = 0`. -/
