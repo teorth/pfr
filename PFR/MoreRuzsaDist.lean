@@ -1047,7 +1047,25 @@ lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpac
       have hind' (i:Fin m) : IndepFun (X i) X₀ ℙ := by
         apply ProbabilityTheory.iIndepFun.indepFun hindep
         simp [m']
-      have hind_S : IndepFun S X₀ ℙ := by sorry
+      have hind_S : IndepFun S X₀ ℙ := by
+        set s : Finset (Fin (m+1)) := Finset.Iio m'
+        set s' : Finset (Fin (m+1)) := {m'}
+        have h_disjoint : Disjoint s s' := by
+          aesop
+        have hm': m' ∈ s' := by exact Finset.mem_singleton.mpr rfl
+        set φ : ((i:s) → G) → G := fun x ↦ ∑ i, x i
+        set φ' : ((i:s') → G) → G := fun x ↦ x ⟨ m', hm'⟩
+        have hφ : Measurable φ := by
+          apply Finset.measurable_sum
+          intro i _
+          measurability
+        have hφ' : Measurable φ' := by
+          measurability
+        convert iIndepFun.finsets_comp' h_disjoint hindep hmes hφ hφ' with ω
+        simp [S, φ]
+        rw [Finset.sum_attach s (fun i ↦ X i ω)]
+        convert Finset.sum_extend _ with i _
+        simp
       have hmes_S : Measurable S := by
         have hS : S = fun ω ↦ ∑ i:Fin m, X i ω := by ext ω; simp [S]
         rw [hS]
