@@ -1043,15 +1043,24 @@ lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpac
       set m' : Fin (m+1) := (m : Fin (m+1))
       set X₀ := X m'
       set S := ∑ i:Fin m, X i
-      have hent (i:Fin (m+1)): H[X i] = H[X₀] := by sorry
-      have hind' (i:Fin m) : IndepFun (X i) X₀ ℙ := by sorry
+      have hent (i:Fin (m+1)): H[X i] = H[X₀] := ProbabilityTheory.IdentDistrib.entropy_congr (hident _ _)
+      have hind' (i:Fin m) : IndepFun (X i) X₀ ℙ := by
+        apply ProbabilityTheory.iIndepFun.indepFun hindep
+        simp [m']
       have hind_S : IndepFun S X₀ ℙ := by sorry
-      have hmes_S : Measurable S := by sorry
+      have hmes_S : Measurable S := by
+        have hS : S = fun ω ↦ ∑ i:Fin m, X i ω := by ext ω; simp [S]
+        rw [hS]
+        convert Finset.measurable_sum _ _
+        . infer_instance
+        intro i _; exact hmes i
 
       calc
         _ = H[S] - (∑ i:Fin m, H[X i])/m := by
           apply multiDist_indep
-          sorry
+          apply ProbabilityTheory.iIndepFun.precomp _ hindep
+          intro i j hij
+          simp at hij; exact hij
         _ ≤ H[-X₀ + S] - (∑ i:Fin m, H[X i])/m := by
           gcongr
           rw [neg_add_eq_sub]
@@ -1069,7 +1078,13 @@ lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpac
             exact hmes i
           have : H[Y m' + ∑ i < m', Y i] - H[Y m'] ≤ ∑ i < m', (H[Y m' + Y i] - H[Y m']) := by
             apply kvm_ineq_I (Finset.not_mem_Iio_self) hYfin _
-            sorry
+            set f : Fin (m+1) → G → G := fun i g ↦ if (i = m') then -g else g
+            convert ProbabilityTheory.iIndepFun.comp hindep f _ with i
+            . ext ω
+              by_cases h : i = m' <;> simp [f, h, Y, X₀]
+            intro i
+            by_cases h : i = m' <;> simp [f, h]
+            all_goals measurability
           convert this using 1
           . congr
             . simp [Y,X₀]
@@ -1094,7 +1109,7 @@ lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpac
           congr 1
           . congr 2; simp
           exact ProbabilityTheory.entropy_neg (hmes m)
-        _ = ∑ i : Fin m, d[X i # X m'] := by
+        _ = ∑ i : Fin m, d[X i # X₀] := by
           field_simp
         _ = ∑ i : Fin m, d[X i₀ # X i₀] := by
           congr; ext i
