@@ -1168,8 +1168,13 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
     letI hΩ' : MeasureSpace Ω' := ⟨ μ' ⟩
     set W₀ := ∑ i, X' (0, i)
     set W₁ := ∑ i, X' (1, i)
-    have hW₀_ident : IdentDistrib W₀ (∑ i, X i) := by sorry
-    have hW₁_ident : IdentDistrib W₁ (∑ i, X i) := by sorry
+    have hW_ident (a: Fin 2) : IdentDistrib (∑ i, X' (a, i)) (∑ i, X i) := by
+      have : IdentDistrib (fun ω i ↦ X' (a, i) ω) (fun ω i ↦ X i ω) := by
+        sorry
+      convert ProbabilityTheory.IdentDistrib.comp this (u := fun x ↦ ∑ i, x i) (by measurability)
+      all_goals ext ω; simp
+    have hW₀_ident : IdentDistrib W₀ (∑ i, X i) := hW_ident 0
+    have hW₁_ident : IdentDistrib W₁ (∑ i, X i) := hW_ident 1
     have hW₀_mes : Measurable W₀ := by measurability
     have hW₁_mes : Measurable W₁ := by measurability
     have hW₀W₁: H[W₁] = H[W₀] := by
@@ -1206,10 +1211,22 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
         exact (hX' (1,b)).2.1
       have h2c: H[ X' (0, a) + X' (1, b)] = H[X a + X b] := by
         apply ProbabilityTheory.IdentDistrib.entropy_congr
-        sorry
+        apply ProbabilityTheory.IdentDistrib.add
+        . exact (hX' (0,a)).2.1
+        . exact (hX' (1,b)).2.1
+        . apply ProbabilityTheory.iIndepFun.indepFun h_indep'
+          simp
+        apply ProbabilityTheory.iIndepFun.indepFun h_indep
+        simp [hab]
       have h2d: H[ X' (0, a) + X' (0, b)] = H[X a + X b] := by
         apply ProbabilityTheory.IdentDistrib.entropy_congr
-        sorry
+        apply ProbabilityTheory.IdentDistrib.add
+        . exact (hX' (0,a)).2.1
+        . exact (hX' (0,b)).2.1
+        . apply ProbabilityTheory.iIndepFun.indepFun h_indep'
+          simp [hab]
+        apply ProbabilityTheory.iIndepFun.indepFun h_indep
+        simp [hab]
 
       have h3: H[ X a + X b ] ≤ H[W₀] := by
         set W := ∑ i ∈ {a,b}ᶜ, X' (0, i)
