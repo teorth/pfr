@@ -1192,12 +1192,10 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
         exact (Finset.sum_erase_add _ _ (Finset.mem_univ b)).symm
       have hW₀'_mes : Measurable W₀' := by
         apply Finset.measurable_sum_func
-        intro i hi
-        exact hmes' (0, i)
+        intro i _; exact hmes' _
       have hW₁'_mes : Measurable W₁' := by
         apply Finset.measurable_sum_func
-        intro i hi
-        exact hmes' (1, i)
+        intro i _; exact hmes' _
       have h1a: H[W₀' + X' (0,a)] = H[W₀] := by rw [hW₀']
       have h1b: H[ W₀ + W₁ ] = H[ W₀' + X' (0, a) + W₁ ] := by rw [hW₀']
       have h1c: H[X' (1, b) + W₁'] = H[W₁] := by rw [hW₁']
@@ -1240,7 +1238,30 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
         . apply Finset.measurable_sum_func
           intro i _
           exact hmes' _
-        sorry
+        set S : Finset (Fin 2 × Fin m) := {(0,a), (0,b)}
+        set ι : Fin m ↪ Fin 2 × Fin m := Function.Embedding.sectR (0:Fin 2) (Fin m)
+        set S' : Finset (Fin 2 × Fin m) := Finset.map ι {a,b}ᶜ
+        have hab' : ((0:Fin 2),a) ≠ (0,b) := by simp [hab]
+        have h_disjoint : Disjoint S S' := by aesop
+        set φ : (S → G) → G := fun x ↦ ∑ i, x i
+        set φ' : (S' → G) → G := fun x ↦ ∑ i, x i
+        have hφ : Measurable φ := by
+          apply Finset.measurable_sum
+          intro i _; exact measurable_pi_apply i
+        have hφ' : Measurable φ' := by
+          apply Finset.measurable_sum
+          intro i _; exact measurable_pi_apply i
+        convert iIndepFun.finsets_comp' h_disjoint h_indep' hmes' hφ hφ' using 1
+        . ext ω
+          simp [φ]
+          rw [Finset.sum_attach S (fun i ↦ X' i ω)]
+          simp [S]
+          rw [Finset.sum_pair hab' (f := fun x ↦ X' x ω)]
+        ext ω
+        simp only [Finset.sum_apply, Finset.univ_eq_attach, W, φ']
+        rw [Finset.sum_attach S' (fun i ↦ X' i ω)]
+        simp only [S', Finset.sum_map]
+        congr
       have h4a: H[ W₀' + X' (0, a) + W₁ ] - H[ W₀' + X' (0, a) ] ≤ H[ X' (0, a) + W₁ ] - H[ X' (0,a) ] := by
         apply kaimanovich_vershik _ hW₀'_mes (hmes' (0,a)) hW₁_mes
         sorry
@@ -1265,7 +1286,31 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
       . simp only [sub_neg_eq_add]
         rw [ProbabilityTheory.entropy_neg hW₁_mes]
         linarith
-      . sorry
+      . set S : Finset (Fin 2 × Fin m) := Finset.map (Function.Embedding.sectR (0:Fin 2) (Fin m)) Finset.univ
+        set S' : Finset (Fin 2 × Fin m) := Finset.map (Function.Embedding.sectR (1:Fin 2) (Fin m)) Finset.univ
+        have h_disjoint : Disjoint S S' := by
+          rw [Finset.disjoint_iff_ne]
+          intro (i,a) ha (j,b) hb
+          simp [S,S'] at ha hb ⊢
+          simp [← ha, ←hb]
+        set φ : (S → G) → G := fun x ↦ ∑ i, x i
+        set φ' : (S' → G) → G := fun x ↦ - ∑ i, x i
+        have hφ : Measurable φ := by
+          apply Finset.measurable_sum
+          intro i _; exact measurable_pi_apply i
+        have hφ' : Measurable φ' := by
+          apply Measurable.neg
+          apply Finset.measurable_sum
+          intro i _; exact measurable_pi_apply i
+        convert iIndepFun.finsets_comp' h_disjoint h_indep' hmes' hφ hφ' using 1
+        . ext ω
+          simp only [Finset.sum_apply, Finset.univ_eq_attach, W₀, φ]
+          rw [Finset.sum_attach S (fun i ↦ X' i ω)]
+          simp [S]
+        ext ω
+        simp only [Finset.sum_apply, Finset.univ_eq_attach, W₁, φ']
+        rw [Finset.sum_attach S' (fun i ↦ X' i ω)]
+        simp [S']
       exact Measurable.neg hW₁_mes
     rw [multiDist_indep _ _ h_indep]
     have : H[∑ i, X i] = H[W₀] := by
