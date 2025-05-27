@@ -1160,9 +1160,57 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
     set mS₂ : Fin 2 × Fin m → MeasurableSpace G := fun _ ↦ by infer_instance
     set mΩ₂ : (i : Fin 2 × Fin m) → MeasurableSpace Ω := fun _ ↦ hΩ.toMeasurableSpace
     obtain ⟨ Ω', hΩ', μ', X', hprob', h_indep', hX' ⟩ := independent_copies'_finiteRange (mS := mS₂) (mΩ := mΩ₂) (fun i ↦ (X i.2)) (fun i ↦ hmes i.2) (fun _ ↦ hΩ.volume)
+    letI hΩ' : MeasureSpace Ω' := ⟨ μ' ⟩
     set W₀ := ∑ i, X' (0, i)
     set W₁ := ∑ i, X' (1, i)
-    sorry
+    have claim (a b: Fin m) (hab: a ≠ b) : H[ W₀ + W₁ ] ≤ 3 * H[ W₀ ] - H[ X a ] - H[ X b ] := by
+      set W₀' := ∑ i ∈ Finset.univ.erase a, X' (0, i)
+      set W₁' := ∑ i ∈ Finset.univ.erase b, X' (1, i)
+      have hW₀' : W₀ = W₀' + X' (0,a) := (Finset.sum_erase_add _ _ (Finset.mem_univ a)).symm
+      have hW₁' : W₁ = X' (1,b) + W₁' := by
+        rw [add_comm]
+        exact (Finset.sum_erase_add _ _ (Finset.mem_univ b)).symm
+      have h1a: H[W₀' + X' (0,a)] = H[W₀] := by rw [hW₀']
+      have h1b: H[ W₀ + W₁ ] = H[ W₀' + X' (0, a) + W₁ ] := by rw [hW₀']
+      have h1c: H[X' (1, b) + W₁'] = H[W₁] := by rw [hW₁']
+      have h1d: H[ X' (0, a) + W₁ ] = H[ X' (0, a) + X' (1, b) + W₁' ] := by rw [hW₁', add_assoc]
+
+      have h2a: H[X' (0,a)] = H[X a] := by
+        apply ProbabilityTheory.IdentDistrib.entropy_congr
+        sorry
+      have h2b: H[X' (1,b)] = H[X b] := by
+        apply ProbabilityTheory.IdentDistrib.entropy_congr
+        sorry
+      have h2c: H[ X' (0, a) + X' (1, b)] = H[X a + X b] := by
+        apply ProbabilityTheory.IdentDistrib.entropy_congr
+        sorry
+      have h2d: H[W₁] = H[W₀] := by
+        apply ProbabilityTheory.IdentDistrib.entropy_congr
+        sorry
+
+      have h3: H[ X a + X b ] ≤ H[W₀] := by sorry
+
+      have h4a: H[ W₀' + X' (0, a) + W₁ ] - H[ W₀' + X' (0, a) ] ≤ H[ X' (0, a) + W₁ ] - H[ X' (0,a) ] := by sorry
+      have h4b: H[ X' (0, a) + X' (1, b) + W₁' ] - H[ X' (0, a) + X' (1, b)] ≤ H[ X' (1, b) + W₁' ] - H[ X' (1, b)] := by sorry
+      linarith
+    replace claim := offdiag_sum_le _ _ claim
+    have hm' : m ≥ 1 := by linarith
+    rw [offdiag_sum_sub, offdiag_sum_sub, offdiag_mul_sum, offdiag_sum_const hm', offdiag_sum_const hm', offdiag_sum_left hm', offdiag_sum_right hm'] at claim
+    have claim2 : m * (m-1) * H[W₀+W₁] - m*(m-1)*H[W₀] ≤ 2 * m*(m-1)*H[W₀] - 2 * (m-1) * ∑ j, H[X j] := by linarith
+    have hpos : (m:ℝ) * (m-1) > 0 := by
+      have : (m:ℝ)-1 > 0 := by simp; linarith
+      positivity
+    apply le_of_mul_le_mul_left _ hpos
+    convert claim2 using 1
+    . rw [←mul_sub_left_distrib]; congr
+      sorry
+    rw [multiDist_indep _ _ h_indep]
+    have : H[∑ i, X i] = H[W₀] := by
+      apply ProbabilityTheory.IdentDistrib.entropy_congr
+      sorry
+    rw [this]
+    field_simp
+    ring
 
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
