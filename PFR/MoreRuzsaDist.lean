@@ -1157,6 +1157,9 @@ lemma multidist_ruzsa_III {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : �
     apply ProbabilityTheory.IdentDistrib.rdist_congr
     all_goals exact (hident i₀ 0).trans (hX' i₀).2.1.symm
 
+theorem Fin.forall_fin_three {p : Fin 3 → Prop} : (∀ i, p i) ↔ p 0 ∧ p 1 ∧ p 2 :=
+  Fin.forall_fin_succ.trans <| and_congr_right fun _ => Fin.forall_fin_two
+
 universe u in
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
@@ -1264,7 +1267,42 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
         congr
       have h4a: H[ W₀' + X' (0, a) + W₁ ] - H[ W₀' + X' (0, a) ] ≤ H[ X' (0, a) + W₁ ] - H[ X' (0,a) ] := by
         apply kaimanovich_vershik _ hW₀'_mes (hmes' (0,a)) hW₁_mes
-        sorry
+        set S : Fin 3 → Finset (Fin 2 × Fin m) :=
+          fun i ↦ match i with
+          | 0 => Finset.map (Function.Embedding.sectR (0:Fin 2) (Fin m)) (Finset.univ.erase a)
+          | 1 => {(0,a)}
+          | 2 => Finset.map (Function.Embedding.sectR (1:Fin 2) (Fin m)) Finset.univ
+        have h_disjoint01 : Disjoint (S 0) (S 1) := by
+          rw [Finset.disjoint_iff_ne]
+          intro (i,b) hb (j,c) hc
+          simp [S] at hb hc ⊢
+          intro _
+          have := hb.1 (hb.2.symm)
+          rwa [hc.2]
+        have h_disjoint02 : Disjoint (S 0) (S 2) := by
+          rw [Finset.disjoint_iff_ne]
+          intro (i,b) hb (j,c) hc
+          simp [S] at hb hc ⊢
+          simp [←hb.2, ←hc]
+        have h_disjoint12 : Disjoint (S 1) (S 2) := by
+          rw [Finset.disjoint_iff_ne]
+          intro (i,b) hb (j,c) hc
+          simp [S] at hb hc ⊢
+          simp [hb.1, ←hc]
+        have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
+          rw [Set.PairwiseDisjoint, Set.Pairwise]
+          simp_rw [Fin.forall_fin_three]
+          simp [h_disjoint01, h_disjoint01.symm, h_disjoint02, h_disjoint02.symm, h_disjoint12, h_disjoint12.symm]
+        set φ : (j:Fin 3) → ((i:S j) → G) → G := fun j x ↦ ∑ i, x i
+        have hφ (j:Fin 3) : Measurable (φ j) := by
+          simp only [Finset.univ_eq_attach, φ]
+          apply Finset.measurable_sum
+          intro i _; exact measurable_pi_apply i
+        convert iIndepFun.finsets_comp S h_disjoint h_indep' hmes' φ hφ using 1
+        ext j ω
+        fin_cases j
+        all_goals simp [φ]; rw [Finset.sum_attach _ (fun i ↦ X' i ω)]; simp [S, W₁, W₀']
+
       have h4b: H[ X' (0, a) + X' (1, b) + W₁' ] - H[ X' (0, a) + X' (1, b)] ≤ H[ X' (1, b) + W₁' ] - H[ X' (1, b)] := by
         apply kaimanovich_vershik _ (hmes' (0,a)) (hmes' (1, b)) hW₁'_mes
         sorry
