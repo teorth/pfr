@@ -1156,12 +1156,12 @@ universe u in
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
 lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
-    (h_indep : iIndepFun X) (hmes: ∀ i, Measurable (X i)) (hprob: IsProbabilityMeasure hΩ.volume): d[∑ i, X i # ∑ i, X i] ≤ 2 * D[X; fun _ ↦ hΩ] := by
+    (h_indep : iIndepFun X) (hmes: ∀ i, Measurable (X i)) (hprob: IsProbabilityMeasure hΩ.volume) (hfin: ∀i, FiniteRange (X i)): d[∑ i, X i # ∑ i, X i] ≤ 2 * D[X; fun _ ↦ hΩ] := by
     set mS₂ : Fin 2 × Fin m → MeasurableSpace G := fun _ ↦ by infer_instance
     set mΩ₂ : (i : Fin 2 × Fin m) → MeasurableSpace Ω := fun _ ↦ hΩ.toMeasurableSpace
-    obtain ⟨ Ω', hΩ', μ', X', hprob', h_indep', hX' ⟩ := independent_copies' (mS := mS₂) (mΩ := mΩ₂) (fun i ↦ (X i.2)) (fun i ↦ hmes i.2) (fun _ ↦ hΩ.volume)
-    set W₀ := ∑ i, X' (0 i)
-    set W₁ := ∑ i, X' (1 i)
+    obtain ⟨ Ω', hΩ', μ', X', hprob', h_indep', hX' ⟩ := independent_copies'_finiteRange (mS := mS₂) (mΩ := mΩ₂) (fun i ↦ (X i.2)) (fun i ↦ hmes i.2) (fun _ ↦ hΩ.volume)
+    set W₀ := ∑ i, X' (0, i)
+    set W₁ := ∑ i, X' (1, i)
     sorry
 
 
