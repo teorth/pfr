@@ -1156,13 +1156,21 @@ universe u in
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
 lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
-    (h_indep : iIndepFun X) (hmes: ∀ i, Measurable (X i)) (hprob: IsProbabilityMeasure hΩ.volume) (hfin: ∀i, FiniteRange (X i)): d[∑ i, X i # ∑ i, X i] ≤ 2 * D[X; fun _ ↦ hΩ] := by
+    (h_indep : iIndepFun X) (hmes: ∀ i, Measurable (X i)) (hprob: IsProbabilityMeasure hΩ.volume) (hfin: ∀i, FiniteRange (X i)): d[∑ i, X i # - ∑ i, X i] ≤ 2 * D[X; fun _ ↦ hΩ] := by
     set mS₂ : Fin 2 × Fin m → MeasurableSpace G := fun _ ↦ by infer_instance
     set mΩ₂ : (i : Fin 2 × Fin m) → MeasurableSpace Ω := fun _ ↦ hΩ.toMeasurableSpace
     obtain ⟨ Ω', hΩ', μ', X', hprob', h_indep', hX' ⟩ := independent_copies'_finiteRange (mS := mS₂) (mΩ := mΩ₂) (fun i ↦ (X i.2)) (fun i ↦ hmes i.2) (fun _ ↦ hΩ.volume)
     letI hΩ' : MeasureSpace Ω' := ⟨ μ' ⟩
     set W₀ := ∑ i, X' (0, i)
     set W₁ := ∑ i, X' (1, i)
+    have hW₀_ident : IdentDistrib W₀ (∑ i, X i) := by sorry
+    have hW₁_ident : IdentDistrib W₁ (∑ i, X i) := by sorry
+    have hW₀_mes : Measurable W₀ := by sorry
+    have hW₁_mes : Measurable W₁ := by sorry
+    have hW₀W₁: H[W₁] = H[W₀] := by
+      apply ProbabilityTheory.IdentDistrib.entropy_congr
+      exact hW₁_ident.trans hW₀_ident.symm
+
     have claim (a b: Fin m) (hab: a ≠ b) : H[ W₀ + W₁ ] ≤ 3 * H[ W₀ ] - H[ X a ] - H[ X b ] := by
       set W₀' := ∑ i ∈ Finset.univ.erase a, X' (0, i)
       set W₁' := ∑ i ∈ Finset.univ.erase b, X' (1, i)
@@ -1184,9 +1192,6 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
       have h2c: H[ X' (0, a) + X' (1, b)] = H[X a + X b] := by
         apply ProbabilityTheory.IdentDistrib.entropy_congr
         sorry
-      have h2d: H[W₁] = H[W₀] := by
-        apply ProbabilityTheory.IdentDistrib.entropy_congr
-        sorry
 
       have h3: H[ X a + X b ] ≤ H[W₀] := by sorry
 
@@ -1203,11 +1208,19 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
     apply le_of_mul_le_mul_left _ hpos
     convert claim2 using 1
     . rw [←mul_sub_left_distrib]; congr
-      sorry
+      have hW₁_ident' : IdentDistrib (-W₁) (-∑ i, X i)  := by
+        convert ProbabilityTheory.IdentDistrib.comp hW₁_ident (u := fun x ↦ -x) _
+        exact Measurable.neg fun ⦃t⦄ a ↦ a
+      rw [ProbabilityTheory.IdentDistrib.rdist_congr hW₀_ident.symm hW₁_ident'.symm, ProbabilityTheory.IndepFun.rdist_eq _ hW₀_mes _]
+      . simp only [sub_neg_eq_add]
+        rw [ProbabilityTheory.entropy_neg hW₁_mes]
+        linarith
+      . sorry
+      exact Measurable.neg hW₁_mes
     rw [multiDist_indep _ _ h_indep]
     have : H[∑ i, X i] = H[W₀] := by
       apply ProbabilityTheory.IdentDistrib.entropy_congr
-      sorry
+      exact hW₀_ident.symm
     rw [this]
     field_simp
     ring
