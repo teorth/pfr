@@ -1030,6 +1030,17 @@ lemma multidist_ruzsa_II {m:ℕ} (hm: m ≥ 2) {Ω : Fin m → Type*} (hΩ : ∀
 lemma Finset.sum_extend {H:Type*} [AddCommMonoid H] {m:ℕ} (f: Fin (m+1) → H) : ∑ i : Fin m, f i = ∑ i < (m: Fin (m+1)), f i := by
   simp
 
+/-- A variant of Finset.measurable_prod using multiplication of functions rather than pointwise multiplication. -/
+@[to_additive (attr := fun_prop, measurability)]
+theorem Finset.measurable_prod_func {M : Type u_2} {ι : Type u_3} {α : Type u_4} [CommMonoid M] [MeasurableSpace M] [MeasurableMul₂ M] {m : MeasurableSpace α} {f : ι → α → M} (s : Finset ι) (hf : ∀ i ∈ s, Measurable (f i)) :
+Measurable (∏ i ∈ s, f i) := by
+  convert Finset.measurable_prod s hf
+  simp only [prod_apply]
+
+@[to_additive (attr := fun_prop, aesop safe 20 apply (rule_sets := [Measurable]))]
+theorem Measurable.mul_func {M : Type u_2} {α : Type u_3} [MeasurableSpace M] [Mul M] {m : MeasurableSpace α} {f g : α → M} [MeasurableMul₂ M] (hf : Measurable f) (hg : Measurable g) : Measurable (f * g) := Measurable.mul hf hg
+
+
 /-- A version of multidist_ruzsa_III assuming independence. -/
 lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpace Ω)
     {X : Fin (m+1) → Ω → G} (hmes: ∀ i, Measurable (X i)) (hident : ∀ j k, IdentDistrib (X j) (X k)) (hindep: iIndepFun X) (hfin : ∀ i, FiniteRange (X i)) (hprob: IsProbabilityMeasure hΩ.volume) (i₀: Fin m): D[fun (i:Fin m) ↦ X i; fun _ ↦ hΩ] ≤ m * d[X i₀ # X i₀] := by
@@ -1059,13 +1070,7 @@ lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpac
         rw [Finset.sum_attach s (fun i ↦ X i ω)]
         convert Finset.sum_extend _ with i _
         simp
-      have hmes_S : Measurable S := by
-        have hS : S = fun ω ↦ ∑ i:Fin m, X i ω := by ext ω; simp [S]
-        rw [hS]
-        convert Finset.measurable_sum _ _
-        . infer_instance
-        intro i _; exact hmes i
-
+      have hmes_S : Measurable S := by measurability
       calc
         _ = H[S] - (∑ i:Fin m, H[X i])/m := by
           apply multiDist_indep
@@ -1165,21 +1170,13 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
     set W₁ := ∑ i, X' (1, i)
     have hW₀_ident : IdentDistrib W₀ (∑ i, X i) := by sorry
     have hW₁_ident : IdentDistrib W₁ (∑ i, X i) := by sorry
-    have hW₀_mes : Measurable W₀ := by
-      have : W₀ = fun ω ↦ ∑ i, X' (0, i) ω := by ext ω; simp [W₀]
-      simp [this]
-      apply Finset.measurable_sum _ _
-      intro i _
-      exact (hX' (0,i)).1
-    have hW₁_mes : Measurable W₁ := by
-      have : W₁ = fun ω ↦ ∑ i, X' (1, i) ω := by ext ω; simp [W₁]
-      simp [this]
-      apply Finset.measurable_sum _ _
-      intro i _
-      exact (hX' (1,i)).1
+    have hW₀_mes : Measurable W₀ := by measurability
+    have hW₁_mes : Measurable W₁ := by measurability
     have hW₀W₁: H[W₁] = H[W₀] := by
       apply ProbabilityTheory.IdentDistrib.entropy_congr
       exact hW₁_ident.trans hW₀_ident.symm
+    have hfin' (i:Fin 2 × Fin m) : FiniteRange (X' i) := (hX' i).2.2
+    have hmes' (i:Fin 2 × Fin m) : Measurable (X' i) := (hX' i).1
 
     have claim (a b: Fin m) (hab: a ≠ b) : H[ W₀ + W₁ ] ≤ 3 * H[ W₀ ] - H[ X a ] - H[ X b ] := by
       set W₀' := ∑ i ∈ Finset.univ.erase a, X' (0, i)
@@ -1188,6 +1185,14 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
       have hW₁' : W₁ = X' (1,b) + W₁' := by
         rw [add_comm]
         exact (Finset.sum_erase_add _ _ (Finset.mem_univ b)).symm
+      have hW₀'_mes : Measurable W₀' := by
+        apply Finset.measurable_sum_func
+        intro i hi
+        exact hmes' (0, i)
+      have hW₁'_mes : Measurable W₁' := by
+        apply Finset.measurable_sum_func
+        intro i hi
+        exact hmes' (1, i)
       have h1a: H[W₀' + X' (0,a)] = H[W₀] := by rw [hW₀']
       have h1b: H[ W₀ + W₁ ] = H[ W₀' + X' (0, a) + W₁ ] := by rw [hW₀']
       have h1c: H[X' (1, b) + W₁'] = H[W₁] := by rw [hW₁']
@@ -1202,11 +1207,29 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
       have h2c: H[ X' (0, a) + X' (1, b)] = H[X a + X b] := by
         apply ProbabilityTheory.IdentDistrib.entropy_congr
         sorry
+      have h2d: H[ X' (0, a) + X' (0, b)] = H[X a + X b] := by
+        apply ProbabilityTheory.IdentDistrib.entropy_congr
+        sorry
 
-      have h3: H[ X a + X b ] ≤ H[W₀] := by sorry
-
-      have h4a: H[ W₀' + X' (0, a) + W₁ ] - H[ W₀' + X' (0, a) ] ≤ H[ X' (0, a) + W₁ ] - H[ X' (0,a) ] := by sorry
-      have h4b: H[ X' (0, a) + X' (1, b) + W₁' ] - H[ X' (0, a) + X' (1, b)] ≤ H[ X' (1, b) + W₁' ] - H[ X' (1, b)] := by sorry
+      have h3: H[ X a + X b ] ≤ H[W₀] := by
+        set W := ∑ i ∈ {a,b}ᶜ, X' (0, i)
+        have : W₀ = X' (0, a) + X' (0, b) + W := by
+          rw [add_comm]
+          convert (Finset.sum_compl_add_sum {a,b} (fun a ↦ X' (0,a))).symm using 2
+          simp [hab]
+        rw [this, ←h2d]
+        apply (le_max_left _ _).trans (max_entropy_le_entropy_add _ _ _)
+        . measurability
+        . apply Finset.measurable_sum_func
+          intro i _
+          exact hmes' _
+        sorry
+      have h4a: H[ W₀' + X' (0, a) + W₁ ] - H[ W₀' + X' (0, a) ] ≤ H[ X' (0, a) + W₁ ] - H[ X' (0,a) ] := by
+        apply kaimanovich_vershik _ hW₀'_mes (hmes' (0,a)) hW₁_mes
+        sorry
+      have h4b: H[ X' (0, a) + X' (1, b) + W₁' ] - H[ X' (0, a) + X' (1, b)] ≤ H[ X' (1, b) + W₁' ] - H[ X' (1, b)] := by
+        apply kaimanovich_vershik _ (hmes' (0,a)) (hmes' (1, b)) hW₁'_mes
+        sorry
       linarith
     replace claim := offdiag_sum_le _ _ claim
     have hm' : m ≥ 1 := by linarith
