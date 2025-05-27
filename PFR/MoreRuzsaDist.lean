@@ -1178,8 +1178,12 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
       all_goals ext ω; simp
     have hW₀_ident : IdentDistrib W₀ (∑ i, X i) := hW_ident 0
     have hW₁_ident : IdentDistrib W₁ (∑ i, X i) := hW_ident 1
-    have hW₀_mes : Measurable W₀ := by measurability
-    have hW₁_mes : Measurable W₁ := by measurability
+    have hW₀_mes : Measurable W₀ := by
+      apply Finset.measurable_sum_func
+      intro i _; exact (hX' _).1
+    have hW₁_mes : Measurable W₁ := by
+      apply Finset.measurable_sum_func
+      intro i _; exact (hX' _).1
     have hW₀W₁: H[W₁] = H[W₀] := by
       apply ProbabilityTheory.IdentDistrib.entropy_congr
       exact hW₁_ident.trans hW₀_ident.symm
@@ -1305,7 +1309,42 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
 
       have h4b: H[ X' (0, a) + X' (1, b) + W₁' ] - H[ X' (0, a) + X' (1, b)] ≤ H[ X' (1, b) + W₁' ] - H[ X' (1, b)] := by
         apply kaimanovich_vershik _ (hmes' (0,a)) (hmes' (1, b)) hW₁'_mes
-        sorry
+        set S : Fin 3 → Finset (Fin 2 × Fin m) :=
+          fun i ↦ match i with
+          | 0 => {(0,a)}
+          | 1 => {(1,b)}
+          | 2 => Finset.map (Function.Embedding.sectR (1:Fin 2) (Fin m)) (Finset.univ.erase b)
+        have h_disjoint01 : Disjoint (S 0) (S 1) := by
+          rw [Finset.disjoint_iff_ne]
+          intro (i,b) hb (j,c) hc
+          simp [S] at hb hc ⊢
+          simp [hb.1, hc.1]
+        have h_disjoint02 : Disjoint (S 0) (S 2) := by
+          rw [Finset.disjoint_iff_ne]
+          intro (i,b) hb (j,c) hc
+          simp [S] at hb hc ⊢
+          simp [hb.1, ←hc.2]
+        have h_disjoint12 : Disjoint (S 1) (S 2) := by
+          rw [Finset.disjoint_iff_ne]
+          intro (i,d) hd (j,c) hc
+          simp [S] at hd hc ⊢
+          intro _
+          replace hc := hc.1 hc.2.symm
+          contrapose! hc
+          rw [←hc, hd.2]
+        have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
+          rw [Set.PairwiseDisjoint, Set.Pairwise]
+          simp_rw [Fin.forall_fin_three]
+          simp [h_disjoint01, h_disjoint01.symm, h_disjoint02, h_disjoint02.symm, h_disjoint12, h_disjoint12.symm]
+        set φ : (j:Fin 3) → ((i:S j) → G) → G := fun j x ↦ ∑ i, x i
+        have hφ (j:Fin 3) : Measurable (φ j) := by
+          simp only [Finset.univ_eq_attach, φ]
+          apply Finset.measurable_sum
+          intro i _; exact measurable_pi_apply i
+        convert iIndepFun.finsets_comp S h_disjoint h_indep' hmes' φ hφ using 1
+        ext j ω
+        fin_cases j
+        all_goals simp [φ]; rw [Finset.sum_attach _ (fun i ↦ X' i ω)]; simp [S, W₁']
       linarith
     replace claim := offdiag_sum_le _ _ claim
     have hm' : m ≥ 1 := by linarith
