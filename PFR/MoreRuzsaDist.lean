@@ -1173,7 +1173,7 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
     set W₁ := ∑ i, X' (1, i)
     have hW_ident (a: Fin 2) : IdentDistrib (∑ i, X' (a, i)) (∑ i, X i) := by
       have : IdentDistrib (fun ω i ↦ X' (a, i) ω) (fun ω i ↦ X i ω) := by
-        apply IdentDistrib.iprodMk _ _ h_indep
+        apply IdentDistrib.iprodMk _ hprob' hprob _ h_indep
         . intro i; exact (hX' (a,i)).2.1
         apply ProbabilityTheory.iIndepFun.precomp _ h_indep'
         exact Prod.mk_right_injective a
