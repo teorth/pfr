@@ -127,13 +127,29 @@ theorem IdentDistrib.prodMk (hff' : IdentDistrib f f' μ ν) (hgg' : IdentDistri
     rw [indepFun_iff_map_prod_eq_prod_map_map hff'.aemeasurable_snd hgg'.aemeasurable_snd] at h'
     rw [h, h', hff'.map_eq, hgg'.map_eq]
 
-variable [IsFiniteMeasure μ] [IsFiniteMeasure ν] in
-theorem IdentDistrib.iprodMk {I: Type*} [Fintype I] {F : I → Ω → β} {F' : I → Ω' → β} (hFF': ∀ i, IdentDistrib (F i) (F' i) μ ν) (h : iIndepFun F μ) (h' : iIndepFun F' ν) :
+/-- Move to a different section? -/
+theorem AEMeasurable.piMk {I: Type*} [Countable I] {F : I → Ω → β} (hF : ∀ i, AEMeasurable (F i) μ) :
+    AEMeasurable (fun x i => F i x) μ := by
+  refine ⟨ fun x i => (hF i).mk (F i) x, measurable_pi_lambda _ (fun i => (hF i).measurable_mk), ?_ ⟩
+  filter_upwards [eventually_countable_forall.mpr (fun i ↦ (hF i).ae_eq_mk)] with ω hω
+  ext i; exact hω i
+
+theorem IdentDistrib.iprodMk {I: Type*} [Fintype I] {F : I → Ω → β} {F' : I → Ω' → β} (hFF': ∀ i, IdentDistrib (F i) (F' i) μ ν) (hμ: IsProbabilityMeasure μ) (hν: IsProbabilityMeasure ν) (h : iIndepFun F μ) (h' : iIndepFun F' ν) :
     IdentDistrib (fun x i ↦ F i x) (fun x i ↦ F' i x) μ ν where
-  aemeasurable_fst := sorry
-  aemeasurable_snd := sorry
+  aemeasurable_fst := by
+    apply AEMeasurable.piMk
+    intro i; exact (hFF' i).aemeasurable_fst
+  aemeasurable_snd := by
+    apply AEMeasurable.piMk
+    intro i; exact (hFF' i).aemeasurable_snd
   map_eq := by
-    sorry
+    rw [iIndepFun_iff_map_fun_eq_pi_map] at h h'
+    . rw [h,h']
+      congr
+      ext i : 1
+      exact (hFF' i).map_eq
+    . intro i; exact (hFF' i).aemeasurable_snd
+    intro i; exact (hFF' i).aemeasurable_fst
 
 variable [Mul β] [MeasurableMul₂ β] [IsFiniteMeasure μ] [IsFiniteMeasure ν] in
 @[to_additive]
