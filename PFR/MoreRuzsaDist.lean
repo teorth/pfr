@@ -1037,8 +1037,9 @@ Measurable (∏ i ∈ s, f i) := by
   convert Finset.measurable_prod s hf
   simp only [prod_apply]
 
-@[to_additive (attr := fun_prop, aesop safe 20 apply (rule_sets := [Measurable]))]
-theorem Measurable.mul_func {M : Type u_2} {α : Type u_3} [MeasurableSpace M] [Mul M] {m : MeasurableSpace α} {f g : α → M} [MeasurableMul₂ M] (hf : Measurable f) (hg : Measurable g) : Measurable (f * g) := Measurable.mul hf hg
+-- No longer needed, and in any case `fun_prop` can already handle this
+-- @[to_additive (attr := fun_prop, aesop safe 20 apply #(rule_sets := [Measurable]))]
+-- theorem Measurable.mul_func {M : Type u_2} {α : Type u_3} [MeasurableSpace M] [Mul M] {m : MeasurableSpace α} {f g : α → M} [MeasurableMul₂ M] (hf : Measurable f) (hg : Measurable g) : Measurable (f * g) := Measurable.mul hf hg
 
 
 /-- A version of multidist_ruzsa_III assuming independence. -/
@@ -1244,7 +1245,7 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
           simp [hab]
         rw [this, ←h2d]
         apply (le_max_left _ _).trans (max_entropy_le_entropy_add _ _ _)
-        . measurability
+        . fun_prop
         . apply Finset.measurable_sum_func
           intro i _
           exact hmes' _
