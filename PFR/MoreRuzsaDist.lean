@@ -1165,8 +1165,18 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
     set W₁ := ∑ i, X' (1, i)
     have hW₀_ident : IdentDistrib W₀ (∑ i, X i) := by sorry
     have hW₁_ident : IdentDistrib W₁ (∑ i, X i) := by sorry
-    have hW₀_mes : Measurable W₀ := by sorry
-    have hW₁_mes : Measurable W₁ := by sorry
+    have hW₀_mes : Measurable W₀ := by
+      have : W₀ = fun ω ↦ ∑ i, X' (0, i) ω := by ext ω; simp [W₀]
+      simp [this]
+      apply Finset.measurable_sum _ _
+      intro i _
+      exact (hX' (0,i)).1
+    have hW₁_mes : Measurable W₁ := by
+      have : W₁ = fun ω ↦ ∑ i, X' (1, i) ω := by ext ω; simp [W₁]
+      simp [this]
+      apply Finset.measurable_sum _ _
+      intro i _
+      exact (hX' (1,i)).1
     have hW₀W₁: H[W₁] = H[W₀] := by
       apply ProbabilityTheory.IdentDistrib.entropy_congr
       exact hW₁_ident.trans hW₀_ident.symm
@@ -1185,10 +1195,10 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
 
       have h2a: H[X' (0,a)] = H[X a] := by
         apply ProbabilityTheory.IdentDistrib.entropy_congr
-        sorry
+        exact (hX' (0,a)).2.1
       have h2b: H[X' (1,b)] = H[X b] := by
         apply ProbabilityTheory.IdentDistrib.entropy_congr
-        sorry
+        exact (hX' (1,b)).2.1
       have h2c: H[ X' (0, a) + X' (1, b)] = H[X a + X b] := by
         apply ProbabilityTheory.IdentDistrib.entropy_congr
         sorry
