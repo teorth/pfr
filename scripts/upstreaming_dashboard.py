@@ -31,7 +31,7 @@ def main():
             else: file_touched_pr[file].append(pr_data)
 
     project_files = {}
-    for entry in pathlib.Path("LeanCamCombi").rglob("*.lean"):
+    for entry in pathlib.Path("PFR").rglob("*.lean"):
         code = None
         with open(entry, 'r') as reader:
             code = reader.read()
@@ -40,17 +40,17 @@ def main():
         project_files[entry] = {
             "prs" : [] if file not in file_touched_pr else file_touched_pr[file],
             "num_sorries" : code.count("sorry"),
-            "depends" : "import LeanCamCombi" in code
+            "depends" : "import PFR" in code
         }
     print(project_files)
 
-    with open("./website/_includes/ready_to_upstream.md", 'w+') as writer:
+    with open(f"{folder_path}/ready_to_upstream.md", 'w+') as writer:
         text = ""
         for file_path in project_files:
             if project_files[file_path]["num_sorries"] > 0: continue
             if project_files[file_path]["depends"]: continue
             module_name = file_path.replace('/','.')[:-5]
-            text += f"* [`{module_name}`](https://github.com/YaelDillies/LeanCamCombi/blob/master/{file_path}) \n"
+            text += f"* [`{module_name}`](https://github.com/teorth/pfr/blob/master/{file_path}) \n"
             for pr in project_files[file_path]["prs"]:
                 if pr["title"][:4] == "perf": continue
                 if pr["is_draft"]: continue
@@ -64,7 +64,7 @@ def main():
                 text +="\n"
         writer.write(text)
 
-    with open("./website/_includes/easy_to_unlock.md", 'w+') as writer:
+    with open(f"{folder_path}/easy_to_unlock.md", 'w+') as writer:
         text = ""
         for file_path in project_files:
             if project_files[file_path]["num_sorries"] == 0: continue
@@ -72,9 +72,9 @@ def main():
             num_sorries = project_files[file_path]["num_sorries"]
             module_name = file_path.replace('/','.')[:-5]
             if num_sorries == 1:
-                text += f"* [`{module_name}`](https://github.com/YaelDillies/LeanCamCombi/blob/master/{file_path}) {num_sorries} sorry\n"
+                text += f"* [`{module_name}`](https://github.com/teorth/pfr/blob/master/{file_path}) {num_sorries} sorry\n"
             else:
-                text += f"* [`{module_name}`](https://github.com/YaelDillies/LeanCamCombi/blob/master/{file_path}) {num_sorries} sorries\n"
+                text += f"* [`{module_name}`](https://github.com/teorth/pfr/blob/master/{file_path}) {num_sorries} sorries\n"
 
         writer.write(text)
 
