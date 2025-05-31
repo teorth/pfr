@@ -89,8 +89,8 @@ jobs:
           cp blueprint/print/print.pdf website/blueprint.pdf
           cp -r blueprint/web website/blueprint
 
-      # - name: Copy README.md to website/index.md
-      #   run: cp README.md website/index.md
+      - name: Append README.md to website/index.md
+        run: cat README.md >> website/index.md
 
       - name: Upstreaming dashboard
         run: |
