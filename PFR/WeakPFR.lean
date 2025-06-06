@@ -311,7 +311,7 @@ lemma PFR_projection'
   by_cases hE : ⊥ ∈ S
   · classical
     obtain ⟨H, ⟨⟨c, hc, hlog, hup⟩, hent⟩, hMaxl⟩ :=
-      S.toFinite.exists_maximal_wrt id S (Set.nonempty_of_mem hE)
+      S.toFinite.exists_maximal (Set.nonempty_of_mem hE)
     set G' := G ⧸ H
     set ψ : G →ₗ[ZMod 2] G' := H.mkQ
     have surj : Function.Surjective ψ := Submodule.Quotient.mk_surjective H
@@ -364,7 +364,7 @@ lemma PFR_projection'
       _ = (1 + α) / (2 * (1 - α)) * (1 - α * c) * (H[X ; μ] + H[Y ; μ']) := by
         field_simp; ring
 
-    have HS : H'' ∉ S := λ Hs => Hlt.ne (hMaxl H'' Hs Hlt.le)
+    have HS : H'' ∉ S := λ Hs => Hlt.not_le (hMaxl Hs Hlt.le)
     simp only [S, Set.mem_setOf_eq, not_and, not_lt] at HS
     refine ⟨?_, HS ⟨α * c, by positivity, cond, ?_⟩⟩
     · calc

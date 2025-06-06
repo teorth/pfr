@@ -405,7 +405,7 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
   let Y' i : Ω → G := φ i ∘ Y i
   have mnY : (i : I) → Measurable (Y' i) := fun i ↦ (hφ i).comp (hY i)
   have h_indep2 : IndepFun (Y i₀) (∑ i ∈ s, Y i) μ :=
-    iIndepFun.indepFun_finset_sum_of_not_mem h_indep (fun i ↦ hY i) hs |>.symm
+    iIndepFun.indepFun_finset_sum_of_notMem h_indep (fun i ↦ hY i) hs |>.symm
   have ineq4 : d[Y i₀; μ # ∑ i ∈ s, Y i; μ] + 1/2 * (H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ])
       ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
     calc
@@ -1094,7 +1094,7 @@ lemma multidist_ruzsa_III' {m:ℕ} (hm: m ≥ 2) {Ω : Type*} (hΩ : MeasureSpac
             . exact Measurable.neg (hmes m)
             exact hmes i
           have : H[Y m' + ∑ i < m', Y i] - H[Y m'] ≤ ∑ i < m', (H[Y m' + Y i] - H[Y m']) := by
-            apply kvm_ineq_I (Finset.not_mem_Iio_self) hYfin _
+            apply kvm_ineq_I Finset.notMem_Iio_self hYfin _
             set f : Fin (m+1) → G → G := fun i g ↦ if (i = m') then -g else g
             convert ProbabilityTheory.iIndepFun.comp hindep f _ with i
             . ext ω
@@ -1162,6 +1162,7 @@ theorem Fin.forall_fin_three {p : Fin 3 → Prop} : (∀ i, p i) ↔ p 0 ∧ p 1
   Fin.forall_fin_succ.trans <| and_congr_right fun _ => Fin.forall_fin_two
 
 universe u in
+set_option maxHeartbeats 300000 in
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
 variables. Let `W := ∑ X_i`. Then `d[W;-W] ≤ 2 D[X_i]`. -/
 lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
@@ -1194,7 +1195,7 @@ lemma multidist_ruzsa_IV {m:ℕ} (hm: m ≥ 2) {Ω : Type u} (hΩ : MeasureSpace
     have hfin' (i:Fin 2 × Fin m) : FiniteRange (X' i) := (hX' i).2.2
     have hmes' (i:Fin 2 × Fin m) : Measurable (X' i) := (hX' i).1
 
-    have claim (a b: Fin m) (hab: a ≠ b) : H[ W₀ + W₁ ] ≤ 3 * H[ W₀ ] - H[ X a ] - H[ X b ] := by
+    have claim (a b: Fin m) (hab: a ≠ b) : H[W₀ + W₁] ≤ 3 * H[W₀] - H[X a] - H[X b] := by
       set W₀' := ∑ i ∈ Finset.univ.erase a, X' (0, i)
       set W₁' := ∑ i ∈ Finset.univ.erase b, X' (1, i)
       have hW₀' : W₀ = W₀' + X' (0,a) := (Finset.sum_erase_add _ _ (Finset.mem_univ a)).symm

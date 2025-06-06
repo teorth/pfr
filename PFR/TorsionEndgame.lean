@@ -112,10 +112,10 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
       simp only [Set.mem_setOf_eq, bot_le, AddSubgroup.mem_bot, Nat.card_eq_fintype_card,
         Fintype.card_ofSubsingleton, true_and, S]
       exact Nat.one_le_iff_ne_zero.mpr h'k
-    obtain ⟨ K, ⟨ hK, hK' ⟩ ⟩ := Set.Finite.exists_maximal_wrt (fun K:AddSubgroup G ↦ Nat.card K) S (Set.toFinite S) hnon
+    obtain ⟨K, hK, hK'⟩ := S.toFinite.exists_maximalFor (fun K : AddSubgroup G ↦ Nat.card K) S hnon
     simp only [ge_iff_le, Set.mem_setOf_eq, S] at hK
     use K
-    refine ⟨ hK.2, ?_, hK.1 ⟩
+    refine ⟨hK.2, ?_, hK.1⟩
     rcases LE.le.lt_or_eq hK.1 with heq | heq
     · have hneq : (K:Set G) ≠ (H:Set G) := by
         contrapose! heq
@@ -142,9 +142,8 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
           exact Set.ncard_le_ncard hsub (H' : Set G).toFinite
       have : (K:Set G) = (H':Set G) := by
           apply (Set.subset_iff_eq_of_ncard_le ?_ ?_).mp hsub
-          · apply Eq.le
-            rw [← Set.Nat.card_coe_set_eq (H':Set G), ← Set.Nat.card_coe_set_eq (K:Set G)]
-            exact ((hK' H' ⟨ hH', hcard ⟩) hcard').symm
+          · rw [← Set.Nat.card_coe_set_eq (H':Set G), ← Set.Nat.card_coe_set_eq (K:Set G)]
+            exact hK' ⟨hH', hcard⟩ hcard'
           exact Set.toFinite (H':Set G)
       rw [this]
       exact (le_sup_right : AddSubgroup.zmultiples a ≤ H') (AddSubgroup.mem_zmultiples a)
