@@ -54,9 +54,11 @@ jobs:
       - name: Cache documentation
         uses: actions/cache@v4
         with:
-          path: website/docs
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: MathlibDoc-
+          path: |
+            website/docs
+            !.website/docs/PFR
+          key: Doc-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: Doc-
 
       - name: Build documentation
         run: scripts/build_docs.sh
