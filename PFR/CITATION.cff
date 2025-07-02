@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: >
+  If you use this project in your work, please cite it using the metadata below.
+title: "Formalization of the Polynomial Freiman-Ruzsa Conjecture of Marton"
+version: 0.1.0
+date-released: Nov 12, 2023
+authors:
+  - family-names: Dillies
+    given-names: Yael
+  - family-names: Tao
+    given-names: Terence
+    orcid: https://orcid.org/0000-0002-0140-7641
+repository-code: https://github.com/teorth/pfr
+url: https://github.com/teorth/pfr
+abstract: >
+  A collaborative project to formalize the Polynomial Freiman-Ruzsa Conjecture of
+  Katalin Marton, as well as related results, in the Lean4 proof assistant language.
+
+  Organized by Yael Dillies and Terence Tao. Launched Nov 12, 2023.  A full list of
+  contributors can be extracted from the automatically generated contributors page at
+  https://github.com/teorth/pfr/graphs/contributors
+keywords:
+  - additive combinatorics
+  - polynomial Freiman-Ruzsa conjecture
+  - formalization project
