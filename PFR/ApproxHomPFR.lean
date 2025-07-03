@@ -182,85 +182,54 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     _ = 2 ^ 140 * K ^ 120 := by field_simp; rpow_simp; norm_num
 
 theorem card_of_dual : Nat.card (G →+ ZMod 2) = Nat.card G := by
-  by_contra h;
   -- Since these two groups are isomorphic, they have the same cardinality.
-  have h_iso : Nonempty (G ≃+ (G →+ ZMod 2)) := by
+  have h_iso : G ≃+ (G →+ ZMod 2) := by
     -- By definition of dual space, we know that $G^*$ is isomorphic to $\text{Hom}(G, \mathbb{Z}/2\mathbb{Z})$.
-    have hdual_iso_hom : (G →+ ZMod 2) ≃+ (Module.Dual (ZMod 2) G) := by
-      exact AddMonoidHom.toZModLinearMapEquiv 2;
+    have hdual_iso_hom : (G →+ ZMod 2) ≃+ Module.Dual (ZMod 2) G :=
+      AddMonoidHom.toZModLinearMapEquiv 2;
     -- Since $G$ is a finite-dimensional vector space over $\mathbb{Z}/2\mathbb{Z}$, it is isomorphic to its dual space.
-    have h_dual_iso_self : Nonempty (G ≃+ Module.Dual (ZMod 2) G) := by
-      refine' ⟨ _ ⟩;
-      have h_iso_dual : Nonempty (G ≃ₗ[ZMod 2] Module.Dual (ZMod 2) G) := by
-        have h_finite_dimensional : FiniteDimensional (ZMod 2) G := by
-          infer_instance;
-        exact Basis.linearEquiv_dual_iff_finiteDimensional.mpr h_finite_dimensional;
-      exact h_iso_dual.some.toAddEquiv;
-    exact ⟨ h_dual_iso_self.some.trans hdual_iso_hom.symm ⟩;
-  exact h ( Nat.card_congr h_iso.some.toEquiv.symm )
+    have h_dual_iso_self : G ≃ₗ[ZMod 2] Module.Dual (ZMod 2) G :=
+      (Basis.linearEquiv_dual_iff_finiteDimensional.mpr inferInstance).some
+    exact h_dual_iso_self.toAddEquiv.trans hdual_iso_hom.symm;
+  exact Nat.card_congr h_iso.toEquiv.symm
 
 theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : Nat.card { φ: G →+ ZMod 2 | φ x = 1 } = Nat.card G / 2 := by
-  -- By definition of $S$, we can rewrite the goal in terms of $H$.
   suffices h_eq_card : Nat.card {φ : G →+ ZMod 2 | (φ x) = 1} = Nat.card {φ : G →+ ZMod 2 | (φ x) = 0} by
     have h_eq_card : Nat.card {φ : G →+ ZMod 2 | (φ x) = 1} + Nat.card {φ : G →+ ZMod 2 | (φ x) = 0} = Nat.card (G →+ ZMod 2) := by
       -- These two sets partition the set of all homomorphisms from $G$ to $\mathbb{Z}/2\mathbb{Z}$.
-      have h_partition : {φ : G →+ ZMod 2 | (φ x) = 1} ∪ {φ : G →+ ZMod 2 | (φ x) = 0} = Set.univ := by
-        ext f;
-        cases Fin.exists_fin_two.mp ⟨ f x, rfl ⟩ <;> simp ( config := { decide := true } ) [ * ];
-      -- Since these two sets partition the set of all homomorphisms from $G$ to $\mathbb{Z}/2\mathbb{Z}$, their cardinalities add up to the cardinality of the whole set.
-      have h_partition_card : Nat.card {φ : G →+ ZMod 2 | (φ x) = 1} + Nat.card {φ : G →+ ZMod 2 | (φ x) = 0} = Nat.card (Set.univ : Set (G →+ ZMod 2)) := by
-        rw [ ← h_partition, Nat.card_congr ( Equiv.Set.union ( Set.disjoint_left.mpr ( by simp ( config := { contextual := Bool.true } ) [ hx ] ) ) ) ];
-        simp [Nat.card];
-        rw [ Cardinal.toNat_add ];
-        -- Case 1
-        · refine' Cardinal.lt_aleph0_iff_set_finite.2 _;
-          -- Since these two sets are disjoint and their union is the entire set of homomorphisms, both sets are finite because the cardinality of the set of all homomorphisms is finite.
-          have h_finite : Finite (G →+ ZMod 2) := by
-            exact DFunLike.finite (G →+ ZMod 2);
-          exact Set.toFinite _;
-        -- Case 2
-        · simp;
-          -- Since these two sets are disjoint and their union is the entire set of homomorphisms, both sets are finite because the cardinality of the set of all homomorphisms is finite.
-          have h_finite : Finite (G →+ ZMod 2) := by
-            exact DFunLike.finite (G →+ ZMod 2);
-          exact Set.toFinite _;
-      exact h_partition_card.trans ( by simp ( config := { decide := Bool.true } ) [ Fintype.card_congr ( Equiv.Set.univ _ ) ] );
+      trans Nat.card (Set.univ : Set (G →+ ZMod 2))
+      · -- Since these two sets partition the set of all homomorphisms from $G$ to $\mathbb{Z}/2\mathbb{Z}$, their cardinalities add up to the cardinality of the whole set.
+        have h_partition : {φ : G →+ ZMod 2 | (φ x) = 1} ∪ {φ : G →+ ZMod 2 | (φ x) = 0} = Set.univ := by
+          ext f
+          cases Fin.exists_fin_two.mp ⟨f x, rfl⟩ <;> simp [*]
+        have _ := DFunLike.finite (G →+ ZMod 2)
+        rw [← h_partition, Nat.card_congr <| Equiv.Set.union <| Set.disjoint_left.mpr <| by simp +contextual]
+        simp [Nat.card, Cardinal.toNat_add]
+      · simp [Fintype.card_congr (Equiv.Set.univ _)]
     -- Since there are $|G|$ homomorphisms in total, we have $|G| = |H_1| + |H_0|$.
-    have h_total : Nat.card (G →+ ZMod 2) = Nat.card G := by
-      exact card_of_dual;
-    simp_all ( config := { decide := Bool.true } ) only;
-    rw [ ← h_eq_card, Nat.div_eq_of_eq_mul_left zero_lt_two ( by ring ) ];
+    simp_all [card_of_dual]
+    rw [← h_eq_card, Nat.div_eq_of_eq_mul_left zero_lt_two (by ring)];
   -- Let $y$ be an additive character of $G$ such that $y(x) = 1$.
-  obtain ⟨ y, hy ⟩ : ∃ (y : G →+ ZMod 2), y x = 1 := by
+  obtain ⟨y, hy⟩ : ∃ (y : G →+ ZMod 2), y x = 1 := by
     -- Since $G$ is finite, there exists $y : G →+ ZMod 2$ such that $\forall z, y z = \sum_{z \in \{x\}} z$. Let's choose any such $y$.
-    set y := (LinearMap.toAddMonoidHom (LinearEquiv.toLinearMap (Basis.equivFun (Basis.ofVectorSpace (ZMod 2) G))));
+    set y := (Basis.ofVectorSpace (ZMod 2) G).equivFun.toLinearMap.toAddMonoidHom;
     -- Since $x \neq 0$, there exists an index $i$ such that $y(x)(i) = 1$ by definition of $y$.
-    have h_exists_i : ∃ i : Basis.ofVectorSpaceIndex (ZMod 2) G, (y x : (Basis.ofVectorSpaceIndex (ZMod 2) G) → ZMod 2) i = 1 := by
-      -- Since $x \neq 0$, there exists an index $i$ such that $repr x i = 1$.
+    -- In particular, there exists an index $i$ such that $repr x i = 1$.
+    obtain ⟨i, hi⟩ : ∃ i : Basis.ofVectorSpaceIndex (ZMod 2) G, (y x : _) i = 1 := by
       have h_exists_i : ∃ i : Basis.ofVectorSpaceIndex (ZMod 2) G, (Basis.ofVectorSpace (ZMod 2) G).repr x i ≠ 0 := by
-        contrapose! hx;
-        exact ( Basis.ofVectorSpace ( ZMod 2 ) G |> Basis.ext_elem ) ( by simp ( config := { decide := Bool.true } ) [ hx ] );
-      exact h_exists_i.imp fun i hi => Or.resolve_left ( Fin.exists_fin_two.mp ( by simp ( config := { decide := true } ) ) ) hi;
-    cases' h_exists_i with i hi;
-    refine' ⟨ _, _ ⟩;
+        contrapose! hx
+        apply Basis.ofVectorSpace (ZMod 2) G |> Basis.ext_elem
+        simp [hx]
+      exact h_exists_i.imp fun _ hi ↦ (Fin.exists_fin_two.mp <| by simp).resolve_left hi
     -- Define $f : G →+ ZMod 2$ by $f(z) = y(z)(i)$ for all $z \in G$.
-    set f : G →+ ZMod 2 := AddMonoidHom.comp (Pi.evalAddMonoidHom (fun _ => ZMod 2) i) y;
-    exact f;
-    exact hi
+    set f : G →+ ZMod 2 := (Pi.evalAddMonoidHom (fun _ => ZMod 2) i).comp y
+    exact ⟨f, hi⟩
   -- By definition of $y$, we know that $y$ is a bijection between the set of additive characters that map $x$ to 1 and the set of additive characters that map $x$ to 0.
-  have h_bij : {φ : G →+ ZMod 2 | (φ : G → ZMod 2) x = 1} ≃ {φ : G →+ ZMod 2 | (φ : G → ZMod 2) x = 0} := by
-    refine' Equiv.ofBijective _ ⟨ fun a b => _, fun b => _ ⟩;
-    refine' fun a => ⟨ a - y, _ ⟩;
-    -- Case 1
-    · aesop
-    -- Case 2
-    · aesop
-    -- Case 3
-    · simp_all only [ne_eq, Set.coe_setOf, Set.mem_setOf_eq, Subtype.exists]
-      obtain ⟨val, property⟩ := b
-      refine' ⟨ val + y, _ ⟩
-      aesop
-  exact Nat.card_congr h_bij
+  apply Nat.card_congr
+  refine Equiv.ofBijective (⟨· - y, by aesop⟩) ⟨fun _ ↦ by aesop, fun ⟨b, hb⟩ ↦ ?_⟩;
+  rw [Subtype.exists]
+  use b + y
+  aesop
 
 theorem card_of_slice (A: Set G) : ∃ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) / 2 := by sorry
 
