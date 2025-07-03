@@ -364,7 +364,7 @@ lemma PFR_projection'
       _ = (1 + α) / (2 * (1 - α)) * (1 - α * c) * (H[X ; μ] + H[Y ; μ']) := by
         field_simp; ring
 
-    have HS : H'' ∉ S := λ Hs => Hlt.not_le (hMaxl Hs Hlt.le)
+    have HS : H'' ∉ S := λ Hs => Hlt.not_ge (hMaxl Hs Hlt.le)
     simp only [S, Set.mem_setOf_eq, not_and, not_lt] at HS
     refine ⟨?_, HS ⟨α * c, by positivity, cond, ?_⟩⟩
     · calc

@@ -1014,7 +1014,7 @@ lemma condRho_prod_eq_sum [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace
   · simp only [A, ProbabilityTheory.cond, Measure.smul_apply,
       Measure.restrict_apply (hZ (.singleton w')),
       smul_eq_mul, ENNReal.toReal_mul]
-    rcases le_or_lt (μ.real (T ⁻¹' {w})) 0 with hw|hw
+    rcases le_or_gt (μ.real (T ⁻¹' {w})) 0 with hw|hw
     · have : μ.real (Z ⁻¹' {w'} ∩ T ⁻¹' {w}) = 0 :=
         le_antisymm (le_trans (measureReal_mono Set.inter_subset_right) hw) measureReal_nonneg
       have hw' : μ.real (T ⁻¹' {w}) = 0 := le_antisymm hw measureReal_nonneg
@@ -2091,7 +2091,7 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     better_PFR_conjecture_aux h₀A hA
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos; positivity
-  rcases le_or_lt (Nat.card H) (Nat.card A) with h|h
+  rcases le_or_gt (Nat.card H) (Nat.card A) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc

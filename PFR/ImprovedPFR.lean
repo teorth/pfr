@@ -993,7 +993,7 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
     PFR_conjecture_improv_aux h₀A hA
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos; positivity
-  rcases le_or_lt (Nat.card H) (Nat.card A) with h|h
+  rcases le_or_gt (Nat.card H) (Nat.card A) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
