@@ -989,7 +989,7 @@ lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T] [Fintype T'] [Measurable
   symm
   refine Fintype.sum_of_injective e h'e _ _ (fun i hi ↦ ?_) (by simp [A])
   suffices e ⁻¹' {i} = ∅ by simp [this]
-  simpa [Set.eq_empty_iff_forall_not_mem] using hi
+  simpa [Set.eq_empty_iff_forall_notMem] using hi
 
 lemma condRuzsaDist_of_inj_map {G' : Type*} [Countable G'] [AddCommGroup G']
   [MeasurableSpace G'] [MeasurableSingletonClass G'] [IsProbabilityMeasure μ]

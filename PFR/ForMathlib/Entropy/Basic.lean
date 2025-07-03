@@ -240,9 +240,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
       rw [← h_norm, rw_norm, ← sum_measure_singleton, ← Finset.sum_filter_of_ne h,
         show Finset.filter _ _ = S_nonzero from rfl, h_empty, show Finset.sum ∅ μs = 0 from rfl]
     use Classical.arbitrary (α := S)
-    rw [h_norm_zero, zero_mul]
-    exact le_of_not_gt ENNReal.not_lt_zero
-
+    simp [h_norm_zero]
   rcases exists_or_forall_not (fun s ↦ μ.map X {s} = ∞) with h_infty | h_finite
   · obtain ⟨s, h_s⟩ := h_infty
     use s; rw [h_s] ; exact le_top

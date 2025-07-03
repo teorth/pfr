@@ -214,7 +214,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     have : B.Finite := toFinite B
     have : B.Nonempty := by
       by_contra! H
-      simp [B, eq_empty_iff_forall_not_mem] at H
+      simp [B, eq_empty_iff_forall_notMem] at H
       have : ∑ g, μ.toMeasure.real {g} = 1 := by simp
       simp [H] at this
     have Bn : (B.toFinset.image (fun g ↦ μ.toMeasure.real {g})).Nonempty := by

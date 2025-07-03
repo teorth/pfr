@@ -25,6 +25,6 @@ lemma lintegral_eq_single (μ : Measure α) (a : α) (f : α → ℝ≥0∞) (ha
   rw [← lintegral_add_compl f (A := {a}) (MeasurableSet.singleton a), lintegral_singleton,
     setLIntegral_congr_fun (g := fun _ ↦ 0) (MeasurableSet.compl (MeasurableSet.singleton a)),
     lintegral_zero, add_zero]
-  simp (config := { contextual := true}) [ha]
+  simp +contextual [Set.EqOn, ha]
 
 end MeasureTheory

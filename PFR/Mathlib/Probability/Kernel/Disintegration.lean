@@ -64,7 +64,7 @@ lemma condKernel_compProd_apply' (κ : Kernel T S) [IsFiniteKernel κ]
   · simp [Set.preimage_preimage, Set.preimage_image_eq _ (Prod.mk_right_injective _), mul_comm]
     simp [← mul_assoc, measure_ne_top, hx, ENNReal.inv_mul_cancel hx (measure_ne_top (κ x.1) {x.2})]
   · intro b hb
-    rw [Set.eq_empty_of_forall_not_mem (s := _ ⁻¹' _) (by simp [hb]), measure_empty]
+    rw [Set.eq_empty_of_forall_notMem (s := _ ⁻¹' _) (by simp [hb]), measure_empty]
   · intro b hb
     simp [hb, Set.preimage_preimage]
   · measurability
@@ -531,7 +531,7 @@ lemma _root_.MeasureTheory.Measure.compProd_apply_singleton
       congr
       ext y
       simp
-    · simp only [Set.mem_singleton_iff, ha, not_false_eq_true, Set.indicator_of_not_mem]
+    · simp only [Set.mem_singleton_iff, ha, not_false_eq_true, Set.indicator_of_notMem]
       suffices Prod.mk a ⁻¹' {(t, s)} = ∅ by simp [this]
       ext y
       simp [ha]
