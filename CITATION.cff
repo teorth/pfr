@@ -17,11 +17,12 @@ authors:
     given-names: Rémy
   - family-names: Dillies
     given-names: Yaël
+  - family-names: Eltschig
+    given-names: Ben
   - family-names: Gouëzel
     given-names: Sébastien
-  - family-names: kkytola
-  - family-names: Wu
-    given-names: Lawrence
+  - family-names: Kytölä
+    given-names: Kalle
   - family-names: Lewis
     given-names: Rob
   - family-names: Lez
@@ -42,7 +43,6 @@ authors:
     given-names: Kim
   - family-names: Nash
     given-names: Oliver
-  - family-names: peabrainiac
   - family-names: Song
     given-names: Utensil
   - family-names: Tao
@@ -52,6 +52,8 @@ authors:
     given-names: Floris
   - family-names: Wilshaw
     given-names: Sky
+  - family-names: Wu
+    given-names: Lawrence
 repository-code: https://github.com/teorth/pfr
 url: https://github.com/teorth/pfr
 abstract: >
