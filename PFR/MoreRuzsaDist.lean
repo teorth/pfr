@@ -88,7 +88,9 @@ end dataProcessing
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 
-variable {Ω Ω' Ω'' Ω''' G S T : Type*}
+universe uG
+
+variable {Ω Ω' Ω'' Ω''' S T : Type*} {G: Type uG}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
@@ -735,7 +737,7 @@ section multiDistance
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 
-variable {G : Type*} [hG : MeasurableSpace G] [AddCommGroup G]
+variable {G : Type uG} [hG : MeasurableSpace G] [AddCommGroup G]
 
 /-- Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `X_i`.
 Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'` are independent copies
@@ -930,7 +932,7 @@ lemma multidist_ruzsa_I_indep {m : ℕ} (hm : m ≥ 1) {Ω : Type*} (hΩ : Measu
       convert Finset.measurable_sum _ this with ω
       simp only [Finset.sum_apply,S]
     set s : Fin 2 → Finset (Fin m) := ![{j,k}, {j,k}ᶜ]
-    set γ : Fin 2 → Type u_8 := fun _ ↦ G
+    set γ : Fin 2 → Type uG := fun _ ↦ G
     set ϕ : (j:Fin 2) → (({ x // x ∈ s j } → G) → γ j) := fun _ x ↦ ∑ i, x i
     have hϕ: ∀ a : Fin 2, Measurable (ϕ a) := by
       intro _
@@ -1901,7 +1903,7 @@ Then `D[X_[m]] = ∑ d, D[π_d(X_[m]) ,| , π_(d-1)(X_[m])]`
 lemma iter_multiDist_chainRule {m : ℕ}
     {G : Fin (m + 1) → Type*}
     [hG : ∀ i, MeasurableSpace (G i)] [hGs : ∀ i, MeasurableSingletonClass (G i)]
-    [∀ i, AddCommGroup (G i)] [hGcounT : ∀ i, Fintype (G i)]
+    [∀ i, AddCommGroup (G i)] [hGcount : ∀ i, Fintype (G i)]
     {φ : ∀ i : Fin m, G (i.succ) →+ G i.castSucc} {π : ∀ d, G ⊤ →+ G d}
     (hcomp: ∀ i : Fin m, π i.castSucc = (φ i) ∘ (π i.succ))
     {Ω : Type*} [hΩ : MeasureSpace Ω] {X : Fin m → Ω → G ⊤}
@@ -1997,6 +1999,9 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
       rw [← Fin.succ_zero_eq_one']
       congr 1
 
+@[simp]
+lemma fun_add {X:Type*} {G:Type*} [Add G] (f g: X → G) (x:X) : (f + g) x = f x + g x := rfl
+
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
 `I[(∑ i, X_{i,j})_{j=1}^m : (∑ j, X_{i,j})_{i=1}^m | ∑ i j, X_{i,j}]`
@@ -2004,11 +2009,59 @@ is less than
 `∑_{j=1}^{m - 1} (D[(X_{i, j})_{i=1}^m] - D[(X_{i, j})_{i = 1}^m | (X_{i,j} + ... + X_{i,m})_{i=1}^m])`
 `+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
-lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} (hm : m ≥ 1) {Ω : Type*} (hΩ : MeasureSpace Ω)
-    (X : Fin (m + 1) × Fin (m + 1) → Ω → G) (h_indep : iIndepFun X) :
+lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
+    (X : Fin (m+1) × Fin (m+1) → Ω → G) (hmes: ∀ i, Measurable (X i)) (h_indep : iIndepFun X) :
     I[fun ω ↦ (fun j ↦ ∑ i, X (i, j) ω) : fun ω ↦ (fun i ↦ ∑ j, X (i, j) ω) | ∑ p, X p]
       ≤ ∑ j, (D[fun i ↦ X (i, j); fun _ ↦ hΩ] - D[fun i ↦ X (i, j) |
         fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k); fun _ ↦ hΩ]) + D[fun i ↦ X (i, ⊤); fun _ ↦ hΩ]
-         - D[fun i ↦ ∑ j, X (i, j); fun _ ↦ hΩ] := by sorry
+         - D[fun i ↦ ∑ j, X (i, j); fun _ ↦ hΩ] := by
+  let G' : Fin (m+2) → Type uG := fun i ↦ (Fin i.val → G)
+  let φ₀ (i : Fin (m+1)) (x : G' (i.succ)) (j: Fin i.castSucc) : G := if j.val+1 = i.val then
+          x ⟨ i.val-1, by simp; omega ⟩ + x ⟨ i.val, by simp ⟩
+        else
+          x ⟨ j.val, by have := j.isLt; simp only [Fin.coe_castSucc, Fin.val_succ] at this ⊢; omega ⟩
+  let φ (i : Fin (m+1)) : G' (i.succ) →+ G' i.castSucc := {
+      toFun x j := φ₀ i x j
+      map_add' x y :=  by
+        ext ⟨ j, hj ⟩
+        by_cases hj' : j + 1 = i.val <;> simp [hj', φ₀]
+        . rw [fun_add, fun_add, fun_add]; simp [hj']; abel -- why can't `simp` use `fun_add`?
+        rw [fun_add, fun_add]; simp [hj']
+      map_zero' := by ext; simp [G', φ₀]
+    }
+  let π₀ (d:Fin (m+2)) (x: G' ⊤) (i: Fin d.val) : G := if i.val+1 = d.val then
+          (∑ j ∈ Finset.Ici ⟨ d.val-1, by have := d.isLt; simp; omega⟩, x j)
+        else
+          x ⟨ i.val, by have := i.isLt; have h := d.isLt; simp; omega ⟩
+  let π (d:Fin (m+2)) : G' ⊤ →+ G' d := {
+      toFun x i := π₀ d x i
+      map_add' x y := by
+        ext i
+        by_cases hi : i.val + 1 = d.val <;> simp [hi, π₀]
+        . rw [fun_add]; simp [hi, ←Finset.sum_add_distrib]
+          apply Finset.sum_congr rfl; intro j _; rfl
+        rw [fun_add, fun_add]; simp [hi]
+      map_zero' := by ext; simp [G', π₀]
+    }
+  have hπ0: π 0 = 0 := by ext _ _ z; have := z.isLt; simp at this
+  have hcomp (i:Fin (m+1)) : π i.castSucc = φ i ∘ π i.succ := by
+    obtain ⟨ i, hi ⟩ := i
+    ext x ⟨ j, hj ⟩
+    by_cases h: j + 1 = i <;> simp [h, φ₀, π₀,π, φ]
+    . have : ¬ i - 1 = i := by omega
+      simp [this]
+      convert (Finset.add_sum_erase _ x _).symm using 3
+      . ext ⟨ k, hk ⟩; simp at h ⊢; constructor <;> omega
+      simp
+    intro h'
+    convert (Finset.sum_singleton x ⟨ i,hi ⟩).symm using 2
+    . simp [h']
+    ext ⟨ k, hk ⟩; simp at hj ⊢; constructor <;> omega
+  let X' : Fin (m+1) → Ω → G' ⊤ := fun i ω j ↦ X ⟨ i, ⟨ j, by convert j.isLt ⟩ ⟩ ω
+  have hX' (i:Fin (m+1)): Measurable (X' i) := by simp [X']; fun_prop
+  have h_indep: iIndepFun X' := by
+    sorry
+  have := iter_multiDist_chainRule' (by linarith) hπ0 hcomp hX' h_indep
+  sorry
 
 end multiDistance_chainRule
