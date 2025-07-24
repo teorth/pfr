@@ -2002,6 +2002,47 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
 @[simp]
 lemma fun_add {X:Type*} {G:Type*} [Add G] (f g: X → G) (x:X) : (f + g) x = f x + g x := rfl
 
+theorem MeasureTheory.Measure.map_of_pi {ι:Type*} [Fintype ι]
+  {α: ι → Type*} [∀ i, MeasurableSpace (α i)]
+  {β: ι → Type*} [∀ i, MeasurableSpace (β i)]
+  (μ: ∀ i, Measure (α i)) [∀ i, IsProbabilityMeasure (μ i)]
+  {f: ∀ i, α i → β i} (hf: ∀ i, Measurable (f i)) :
+  map (fun x i => f i (x i)) (Measure.pi μ) =
+    Measure.pi (fun i => map (f i) (μ i)) := by
+    symm
+    apply pi_eq; intro E hE
+    rw [map_apply (by fun_prop) (MeasurableSet.univ_pi hE)]
+    . have : (fun x i ↦ f i (x i)) ⁻¹' Set.univ.pi E = Set.univ.pi (fun i ↦ (f i)⁻¹' (E i)) := by
+        aesop
+      simp [this]; apply Finset.prod_congr rfl; intro i _
+      rw [map_apply (by fun_prop) (hE i)]
+
+theorem multiDist_of_hom {G G': Type*}
+  [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Fintype G]
+  [MeasurableSpace G'] [MeasurableSingletonClass G'] [AddCommGroup G'] [Fintype G']
+  {ι : G →+ G'} (hι: Function.Injective ⇑ι)
+  {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure (ℙ:Measure Ω)]
+  {m:ℕ} {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i))
+  : D[fun i ω ↦ ι (X i ω); fun _ ↦ hΩ] = D[X; fun _ ↦ hΩ] := by
+  unfold multiDist
+  congr 1
+  . unfold entropy
+    set sum_G : (Fin m → G) → G := fun x ↦ ∑ i, x i
+    set sum_G' : (Fin m → G') → G' := fun x ↦ ∑ i, x i
+    convert measureEntropy_map_of_injective _ ι _ hι <;> try fun_prop
+    rw [MeasureTheory.Measure.map_map] <;> try fun_prop
+    have : ⇑ι ∘ sum_G = sum_G' ∘ (fun x i ↦ ι (x i)) := by aesop
+    rw [this, ←MeasureTheory.Measure.map_map] <;> try fun_prop
+    congr
+    convert (MeasureTheory.Measure.map_of_pi (f := fun i x ↦ ι x) _ _).symm with i
+    . rw [MeasureTheory.Measure.map_map] <;> try fun_prop
+      congr
+    . intro i; exact MeasureTheory.isProbabilityMeasure_map (by fun_prop)
+    intro i; fun_prop
+  congr 2; ext i
+  exact entropy_comp_of_injective _ (hX i) ι hι
+
+
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
 `I[(∑ i, X_{i,j})_{j=1}^m : (∑ j, X_{i,j})_{i=1}^m | ∑ i j, X_{i,j}]`
@@ -2089,7 +2130,21 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
     _ = D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] + ∑ j ∈ (Finset.univ.erase 0 : Finset (Fin (m+1))), D[fun i ↦ ⇑(π j.succ) ∘ X' i | fun i ↦ ⇑(π j.castSucc) ∘ X' i ; fun x ↦ hΩ] := by
       convert (Finset.add_sum_erase _ _ _).symm using 2
       . trans D[fun i ↦ ⇑(π (0:Fin (m+1)).succ) ∘ X' i; fun x ↦ hΩ]
-        . sorry
+        . let ι' : G →+ G' (Fin.succ 0) := {
+             toFun x _ := x
+             map_zero' := by rfl
+             map_add' x y := by rfl
+            }
+          have : Function.Injective ⇑ι' := by
+            intro x y hxy
+            simp [ι'] at hxy
+            exact congr($hxy ⟨ 0, by simp ⟩)
+          convert (multiDist_of_hom this hΩ _).symm with i ω
+          . ext j; simp [π, π₀, X']; rw [Finset.sum_apply]
+            apply Finset.sum_congr
+            . ext i; simp
+            intros; rfl
+          fun_prop
         convert (condMultiDist_of_const (fun _ ↦ Fin.elim0) _).symm with i ω <;> try infer_instance
         ext ⟨ j, hj ⟩; simp at hj
       simp
