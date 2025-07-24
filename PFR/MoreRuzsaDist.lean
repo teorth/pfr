@@ -2042,6 +2042,29 @@ theorem multiDist_of_hom {G G': Type*}
   congr 2; ext i
   exact entropy_comp_of_injective _ (hX i) ι hι
 
+lemma condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace Ω]
+    [MeasurableSpace S] [MeasurableSingletonClass S] [Countable S]
+    [MeasurableSpace T] [MeasurableSingletonClass T] [Countable T]
+    [MeasurableSpace U] [MeasurableSingletonClass U] [Countable U]
+    [MeasurableSpace S'] [MeasurableSingletonClass S'] [Countable S']
+    [MeasurableSpace T'] [MeasurableSingletonClass T'] [Countable T']
+    [MeasurableSpace U'] [MeasurableSingletonClass U'] [Countable U']
+    {X : Ω → S} {Y : Ω → T} {Z : Ω → U} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
+    {f : S → S'} (hf : Function.Injective f)
+    {g : T → T'} (hg : Function.Injective g)
+    {h : U → U'} (hh : Function.Injective h)
+    : I[f ∘ X : g ∘ Y | h ∘ Z; μ] = I[X : Y | Z; μ] := calc
+    _ = I[f ∘ X : g ∘ Y | Z; μ] := by rw [condMutualInfo_of_inj _ _ _ _ hh] <;> try fun_prop
+    _ = I[X : g ∘ Y | Z; μ] := by
+      convert condMutualInfo_of_inj_map hX _ hZ (fun _ ↦ f) (fun _ ↦ hf) <;> try infer_instance
+      fun_prop
+    _ = I[g ∘ Y : X | Z; μ] := by apply condMutualInfo_comm <;> fun_prop
+    _ = I[Y : X | Z; μ] := by
+      convert condMutualInfo_of_inj_map hY _ hZ (fun _ ↦ g) (fun _ ↦ hg) <;> try infer_instance
+      fun_prop
+    _ = _ := by apply condMutualInfo_comm <;> fun_prop
+
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
@@ -2156,7 +2179,26 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       congr; ext j
       sorry
   have h4 : I[∑ i, X' i : fun ω i ↦ (π 1) (X' i ω)|⇑(π 1) ∘ ∑ i, X' i] = I[fun ω j ↦ ∑ i, X ⟨ i, j ⟩ ω : fun ω i ↦ ∑ j, X ⟨ i, j ⟩ ω|∑ p, X p] := by
-    sorry
+    let f : (Fin (m+1) → G) → (G' ⊤) := fun x ⟨ i, hi⟩ ↦ x ⟨ i, by simpa using hi ⟩
+    have hf : Function.Injective f := by intro x y hxy; simpa [f] using hxy
+    let g : (Fin (m+1) → G) → (Fin (m+1) → G' 1) := fun x i j ↦ x i
+    have hg : Function.Injective g := by intro x y hxy; ext i; simp [g] at hxy; exact congr($hxy i ⟨ 0, by simp ⟩)
+    let h : G → G' 1 := fun x j ↦ x
+    have hh : Function.Injective h := by intro x y hxy; simp [h] at hxy; exact congr($hxy ⟨ 0, by simp ⟩)
+    convert condMutualInfo_of_inj' _ _ _ _ hf hg hh with ω i ω i <;> try infer_instance
+    . ext _
+      simp [π, π₀, X', g]; apply Finset.sum_congr
+      . ext j; simp
+      intros; rfl
+    . ext ω _
+      simp [π, π₀, X', h, ι]
+      convert (Finset.sum_product_right _ _ _).symm with i _ j _
+      . rfl
+      ext ⟨ i, j ⟩; simp
+    . rw [←Finset.sum.eq_1, Finset.sum_apply, Finset.sum_apply]
+    . rw [←Finset.sum.eq_1]; fun_prop
+    . fun_prop
+    fun_prop
   rw [Finset.sum_sub_distrib]
   linarith
 
