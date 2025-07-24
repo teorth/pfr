@@ -2057,10 +2057,19 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
     convert (Finset.sum_singleton x ⟨ i,hi ⟩).symm using 2
     . simp [h']
     ext ⟨ k, hk ⟩; simp at hj ⊢; constructor <;> omega
-  let X' : Fin (m+1) → Ω → G' ⊤ := fun i ω j ↦ X ⟨ i, ⟨ j, by convert j.isLt ⟩ ⟩ ω
+  let ι : Fin (m+1) → Fin (⊤:Fin (m+2)).val → Fin (m+1) × Fin (m+1) := fun i j ↦ ⟨ i, j ⟩
+  let X' : Fin (m+1) → Ω → G' ⊤ := fun i ω j ↦ X (ι i j) ω
   have hX' (i:Fin (m+1)): Measurable (X' i) := by simp [X']; fun_prop
   have h_indep: iIndepFun X' := by
-    sorry
+    let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ Finset.image (ι i) Finset.univ
+    have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
+      rw [Finset.pairwiseDisjoint_iff]
+      intro _ _ _ _ h
+      obtain ⟨ ⟨ _, _ ⟩, hij ⟩ := Finset.Nonempty.exists_mem h
+      simp [S, ι] at hij; cc
+    let φ : (j:Fin (m+1)) → ((i: S j) → G) → G' ⊤ := fun j x k ↦ x ⟨ ι j k, by aesop ⟩
+    have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
+    exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
   have := iter_multiDist_chainRule' (by linarith) hπ0 hcomp hX' h_indep
   sorry
 
