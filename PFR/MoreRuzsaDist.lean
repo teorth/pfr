@@ -2011,10 +2011,10 @@ is less than
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
 lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
     (X : Fin (m+1) × Fin (m+1) → Ω → G) (hmes: ∀ i, Measurable (X i)) (h_indep : iIndepFun X) :
-    I[fun ω ↦ (fun j ↦ ∑ i, X (i, j) ω) : fun ω ↦ (fun i ↦ ∑ j, X (i, j) ω) | ∑ p, X p]
-      ≤ ∑ j, (D[fun i ↦ X (i, j); fun _ ↦ hΩ] - D[fun i ↦ X (i, j) |
-        fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k); fun _ ↦ hΩ]) + D[fun i ↦ X (i, ⊤); fun _ ↦ hΩ]
-         - D[fun i ↦ ∑ j, X (i, j); fun _ ↦ hΩ] := by
+    I[fun ω ↦ (fun j ↦ ∑ i, X ⟨ i, j ⟩ ω) : fun ω ↦ (fun i ↦ ∑ j, X ⟨ i, j ⟩ ω) | ∑ p, X p]
+      ≤ ∑ j ∈ Finset.Iio (Fin.last _), (D[fun i ↦ X ⟨ i, j ⟩; fun _ ↦ hΩ] - D[fun i ↦ X ⟨ i, j ⟩ |
+        fun i ↦ ∑ k ∈ Finset.Ici j, X ⟨ i, k ⟩; fun _ ↦ hΩ]) + D[fun i ↦ X ⟨ i, ⊤ ⟩; fun _ ↦ hΩ]
+         - D[fun i ↦ ∑ j, X ⟨ i, j ⟩; fun _ ↦ hΩ] := by
   let G' : Fin (m+2) → Type uG := fun i ↦ (Fin i.val → G)
   let φ₀ (i : Fin (m+1)) (x : G' (i.succ)) (j: Fin i.castSucc) : G := if j.val+1 = i.val then
           x ⟨ i.val-1, by simp; omega ⟩ + x ⟨ i.val, by simp ⟩
@@ -2070,7 +2070,21 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
     let φ : (j:Fin (m+1)) → ((i: S j) → G) → G' ⊤ := fun j x k ↦ x ⟨ ι j k, by aesop ⟩
     have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
     exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
-  have := iter_multiDist_chainRule' (by linarith) hπ0 hcomp hX' h_indep
-  sorry
+  have h1 := iter_multiDist_chainRule' (by linarith) hπ0 hcomp hX' h_indep
+  have h2 :  D[X' ; fun _ ↦ hΩ] = ∑ j ∈ Finset.Iio (Fin.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] + D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] := calc
+    _ = ∑ j, D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
+      sorry
+    _ = _ := by
+      sorry
+  have h3 : ∑ j : Fin (m+1), D[fun i ↦ ⇑(π j.succ) ∘ X' i | fun i ↦ ⇑(π j.castSucc) ∘ X' i ; fun x ↦ hΩ]
+    = ∑ j ∈ Finset.Iio (Fin.last m), D[fun i ↦ X ⟨ i, j ⟩ | fun i ↦ ∑ k ∈ Finset.Ici j, X ⟨ i, k ⟩ ; fun x ↦ hΩ] + D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] := calc
+    _ = ∑ j, D[fun i ↦ X ⟨ i, j ⟩ | fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k) ; fun x ↦ hΩ] := by
+      sorry
+    _ = _ := by
+      sorry
+  have h4 : I[∑ i, X' i : fun ω i ↦ (π 1) (X' i ω)|⇑(π 1) ∘ ∑ i, X' i] = I[fun ω j ↦ ∑ i, X ⟨ i, j ⟩ ω : fun ω i ↦ ∑ j, X ⟨ i, j ⟩ ω|∑ p, X p] := by
+    sorry
+  rw [Finset.sum_sub_distrib]
+  linarith
 
 end multiDistance_chainRule
