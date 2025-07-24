@@ -2042,7 +2042,7 @@ theorem multiDist_of_hom {G G': Type*}
   congr 2; ext i
   exact entropy_comp_of_injective _ (hX i) ι hι
 
-lemma condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace Ω]
+lemma ProbabilityTheory.condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace Ω]
     [MeasurableSpace S] [MeasurableSingletonClass S] [Countable S]
     [MeasurableSpace T] [MeasurableSingletonClass T] [Countable T]
     [MeasurableSpace U] [MeasurableSingletonClass U] [Countable U]
@@ -2065,6 +2065,15 @@ lemma condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace 
       fun_prop
     _ = _ := by apply condMutualInfo_comm <;> fun_prop
 
+lemma ProbabilityTheory.iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω]
+  [IsProbabilityMeasure hΩ.volume] {m:ℕ}
+  [MeasurableSpace S] [MeasurableSingletonClass S] [Countable S]
+  {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
+  H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
+    induction' m with m hm
+    . simp
+      sorry
+    sorry
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
@@ -2125,7 +2134,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
   let ι : Fin (m+1) → Fin (⊤:Fin (m+2)).val → Fin (m+1) × Fin (m+1) := fun i j ↦ ⟨ i, j ⟩
   let X' : Fin (m+1) → Ω → G' ⊤ := fun i ω j ↦ X (ι i j) ω
   have hX' (i:Fin (m+1)): Measurable (X' i) := by simp [X']; fun_prop
-  have h_indep: iIndepFun X' := by
+  have h_indep': iIndepFun X' := by
     let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ Finset.image (ι i) Finset.univ
     have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
       rw [Finset.pairwiseDisjoint_iff]
@@ -2135,9 +2144,24 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
     let φ : (j:Fin (m+1)) → ((i: S j) → G) → G' ⊤ := fun j x k ↦ x ⟨ ι j k, by aesop ⟩
     have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
     exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
-  have h1 := iter_multiDist_chainRule' (by linarith) hπ0 hcomp hX' h_indep
+  have h1 := iter_multiDist_chainRule' (by linarith) hπ0 hcomp hX' h_indep'
   have h2 :  D[X' ; fun _ ↦ hΩ] = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j : Fin m, D[fun i ↦ X ⟨i, j.castSucc⟩; fun _ ↦ hΩ] := calc
+    _ = ∑ j, H[∑ i, X ⟨ i, j ⟩ ] - (∑ i, ∑ j, H[X ⟨ i, j ⟩]) / ↑(m + 1) := by
+      rw [multiDist_indep _ _ h_indep']
+      congr
+      . convert iIndepFun.entropy_eq_add _ _ with i _ ω <;> try infer_instance
+        . simp [X', ι]
+        . intro j; fun_prop
+        sorry
+      ext i
+      convert iIndepFun.entropy_eq_add _ _ <;> try infer_instance
+      . intro j; fun_prop
+      sorry
+    _ = ∑ j, (H[∑ i, X ⟨ i, j ⟩ ] - (∑ i, H[X ⟨ i, j ⟩]) / ↑(m + 1)) := by
+      rw [Finset.sum_sub_distrib, ←Finset.sum_div, Finset.sum_comm]
     _ = ∑ j, D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
+      apply Finset.sum_congr rfl; intro j _
+      symm; apply multiDist_indep
       sorry
     _ = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
       convert (Finset.add_sum_erase _ _ _).symm using 3
@@ -2197,8 +2221,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       ext ⟨ i, j ⟩; simp
     . rw [←Finset.sum.eq_1, Finset.sum_apply, Finset.sum_apply]
     . rw [←Finset.sum.eq_1]; fun_prop
-    . fun_prop
-    fun_prop
+    all_goals fun_prop
   rw [Finset.sum_sub_distrib]
   linarith
 
