@@ -2010,10 +2010,11 @@ is less than
 `+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
 lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
-    (X : Fin (m+1) × Fin (m+1) → Ω → G) (hmes: ∀ i, Measurable (X i)) (h_indep : iIndepFun X) :
+    (X : Fin (m+1) × Fin (m+1) → Ω → G) (hmes: ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
+    [IsProbabilityMeasure (ℙ:Measure Ω)]:
     I[fun ω ↦ (fun j ↦ ∑ i, X ⟨ i, j ⟩ ω) : fun ω ↦ (fun i ↦ ∑ j, X ⟨ i, j ⟩ ω) | ∑ p, X p]
-      ≤ ∑ j ∈ Finset.Iio (Fin.last _), (D[fun i ↦ X ⟨ i, j ⟩; fun _ ↦ hΩ] - D[fun i ↦ X ⟨ i, j ⟩ |
-        fun i ↦ ∑ k ∈ Finset.Ici j, X ⟨ i, k ⟩; fun _ ↦ hΩ]) + D[fun i ↦ X ⟨ i, ⊤ ⟩; fun _ ↦ hΩ]
+      ≤ ∑ j : Fin m, (D[fun i ↦ X ⟨ i, j.castSucc ⟩; fun _ ↦ hΩ] - D[fun i ↦ X ⟨ i, j.castSucc ⟩ |
+        fun i ↦ ∑ k ∈ Finset.Ici j.castSucc, X ⟨ i, k ⟩; fun _ ↦ hΩ]) + D[fun i ↦ X ⟨ i, ⊤ ⟩; fun _ ↦ hΩ]
          - D[fun i ↦ ∑ j, X ⟨ i, j ⟩; fun _ ↦ hΩ] := by
   let G' : Fin (m+2) → Type uG := fun i ↦ (Fin i.val → G)
   let φ₀ (i : Fin (m+1)) (x : G' (i.succ)) (j: Fin i.castSucc) : G := if j.val+1 = i.val then
@@ -2071,21 +2072,31 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
     have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
     exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
   have h1 := iter_multiDist_chainRule' (by linarith) hπ0 hcomp hX' h_indep
-  have h2 :  D[X' ; fun _ ↦ hΩ] = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := calc
+  have h2 :  D[X' ; fun _ ↦ hΩ] = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j : Fin m, D[fun i ↦ X ⟨i, j.castSucc⟩; fun _ ↦ hΩ] := calc
     _ = ∑ j, D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
       sorry
-    _ = _ := by
+    _ = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
       convert (Finset.add_sum_erase _ _ _).symm using 3
       . ext ⟨ j, hj ⟩; simp [Fin.last, Top.top]; omega
       . infer_instance
       simp
+    _ = _ := by
+      congr 1
+      convert Finset.sum_map _ Fin.castSuccOrderEmb.toEmbedding _
+      ext ⟨ j, hj ⟩; simp
   have h3 : ∑ j : Fin (m+1), D[fun i ↦ ⇑(π j.succ) ∘ X' i | fun i ↦ ⇑(π j.castSucc) ∘ X' i ; fun x ↦ hΩ]
-    = D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last m), D[fun i ↦ X ⟨ i, j ⟩ | fun i ↦ ∑ k ∈ Finset.Ici j, X ⟨ i, k ⟩ ; fun x ↦ hΩ] := calc
-    _ = D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last m), D[fun i ↦ ⇑(π j.succ) ∘ X' i | fun i ↦ ⇑(π j.castSucc) ∘ X' i ; fun x ↦ hΩ] := by
-      convert (Finset.add_sum_erase (a := Fin.last m) _ _ _).symm using 3
-      . sorry
-      . ext ⟨ j, hj ⟩; simp [Fin.last]; omega
+    = D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] + ∑ j : Fin m, D[fun i ↦ X ⟨ i, j.castSucc ⟩ | fun i ↦ ∑ k ∈ Finset.Ici j.castSucc, X ⟨ i, k ⟩ ; fun x ↦ hΩ] := calc
+    _ = D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] + ∑ j ∈ (Finset.univ.erase 0 : Finset (Fin (m+1))), D[fun i ↦ ⇑(π j.succ) ∘ X' i | fun i ↦ ⇑(π j.castSucc) ∘ X' i ; fun x ↦ hΩ] := by
+      convert (Finset.add_sum_erase _ _ _).symm using 2
+      . trans D[fun i ↦ ⇑(π (0:Fin (m+1)).succ) ∘ X' i; fun x ↦ hΩ]
+        . sorry
+        convert (condMultiDist_of_const (fun _ ↦ Fin.elim0) _).symm with i ω <;> try infer_instance
+        ext ⟨ j, hj ⟩; simp at hj
       simp
+    _ = D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] + ∑ j : Fin m, D[fun i ↦ ⇑(π j.succ.succ) ∘ X' i | fun i ↦ ⇑(π j.succ.castSucc) ∘ X' i ; fun x ↦ hΩ] := by
+      congr 1
+      convert Finset.sum_map _ (Fin.succEmb _) _
+      ext ⟨ j, hj⟩; simp
     _ = _ := by
       congr; ext j
       sorry
