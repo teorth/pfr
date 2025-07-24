@@ -2071,16 +2071,23 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
     have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
     exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
   have h1 := iter_multiDist_chainRule' (by linarith) hπ0 hcomp hX' h_indep
-  have h2 :  D[X' ; fun _ ↦ hΩ] = ∑ j ∈ Finset.Iio (Fin.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] + D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] := calc
+  have h2 :  D[X' ; fun _ ↦ hΩ] = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := calc
     _ = ∑ j, D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
       sorry
     _ = _ := by
-      sorry
+      convert (Finset.add_sum_erase _ _ _).symm using 3
+      . ext ⟨ j, hj ⟩; simp [Fin.last, Top.top]; omega
+      . infer_instance
+      simp
   have h3 : ∑ j : Fin (m+1), D[fun i ↦ ⇑(π j.succ) ∘ X' i | fun i ↦ ⇑(π j.castSucc) ∘ X' i ; fun x ↦ hΩ]
-    = ∑ j ∈ Finset.Iio (Fin.last m), D[fun i ↦ X ⟨ i, j ⟩ | fun i ↦ ∑ k ∈ Finset.Ici j, X ⟨ i, k ⟩ ; fun x ↦ hΩ] + D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] := calc
-    _ = ∑ j, D[fun i ↦ X ⟨ i, j ⟩ | fun i ↦ ∑ k ∈ Finset.Ici j, X (i, k) ; fun x ↦ hΩ] := by
-      sorry
+    = D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last m), D[fun i ↦ X ⟨ i, j ⟩ | fun i ↦ ∑ k ∈ Finset.Ici j, X ⟨ i, k ⟩ ; fun x ↦ hΩ] := calc
+    _ = D[fun i ↦ ∑ j, X ⟨ i, j ⟩ ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last m), D[fun i ↦ ⇑(π j.succ) ∘ X' i | fun i ↦ ⇑(π j.castSucc) ∘ X' i ; fun x ↦ hΩ] := by
+      convert (Finset.add_sum_erase (a := Fin.last m) _ _ _).symm using 3
+      . sorry
+      . ext ⟨ j, hj ⟩; simp [Fin.last]; omega
+      simp
     _ = _ := by
+      congr; ext j
       sorry
   have h4 : I[∑ i, X' i : fun ω i ↦ (π 1) (X' i ω)|⇑(π 1) ∘ ∑ i, X' i] = I[fun ω j ↦ ∑ i, X ⟨ i, j ⟩ ω : fun ω i ↦ ∑ j, X ⟨ i, j ⟩ ω|∑ p, X p] := by
     sorry
