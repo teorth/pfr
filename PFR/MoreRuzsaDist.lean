@@ -2017,6 +2017,38 @@ theorem MeasureTheory.Measure.map_of_pi {ι:Type*} [Fintype ι]
       simp [this]; apply Finset.prod_congr rfl; intro i _
       rw [map_apply (by fun_prop) (hE i)]
 
+theorem multiDist_of_hom' {G G': Type*}
+  [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Fintype G]
+  [MeasurableSpace G'] [MeasurableSingletonClass G'] [AddCommGroup G'] [Fintype G']
+  {ι : G →+ G'} (hι: Function.Injective ⇑ι) {m:ℕ}
+  {Ω : Fin m → Type*} (hΩ : (i:Fin m) → MeasureSpace (Ω i)) [∀ i, IsProbabilityMeasure (ℙ:Measure (Ω i))]
+  {X : (i:Fin m) → (Ω i) → G} (hX : ∀ i, Measurable (X i)) (a: Fin m → G')
+  : D[fun i ω ↦ ι (X i ω) + a i; hΩ] = D[X; hΩ] := by
+  unfold multiDist
+  congr 1
+  . unfold entropy
+    set sum_G : (Fin m → G) → G := fun x ↦ ∑ i, x i
+    set sum_G' : (Fin m → G') → G' := fun x ↦ ∑ i, x i
+    let ι' : G → G' := fun x ↦ ι x + ∑ i, a i
+    have hι' : Function.Injective ι' := by
+      intro x y hxy
+      simp [ι'] at hxy
+      exact hι hxy
+    convert measureEntropy_map_of_injective _ ι' _ hι' <;> try fun_prop
+    rw [MeasureTheory.Measure.map_map] <;> try fun_prop
+    have : ι' ∘ sum_G = sum_G' ∘ (fun x i ↦ ι (x i) + a i) := by
+      ext x; simp [ι', sum_G, sum_G', Finset.sum_add_distrib]
+    rw [this, ←MeasureTheory.Measure.map_map] <;> try fun_prop
+    congr
+    convert (MeasureTheory.Measure.map_of_pi (f := fun i x ↦ ι x + a i) _ _).symm with i
+    . rw [MeasureTheory.Measure.map_map] <;> try fun_prop
+      congr
+    . intro i; exact MeasureTheory.isProbabilityMeasure_map (by fun_prop)
+    intro i; fun_prop
+  congr 2; ext i
+  apply entropy_comp_of_injective _ (hX i) (fun x ↦ ι x + a i) _
+  intro x y hxy; simp at hxy; exact hι hxy
+
 theorem multiDist_of_hom {G G': Type*}
   [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Fintype G]
   [MeasurableSpace G'] [MeasurableSingletonClass G'] [AddCommGroup G'] [Fintype G']
@@ -2024,23 +2056,53 @@ theorem multiDist_of_hom {G G': Type*}
   {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure (ℙ:Measure Ω)]
   {m:ℕ} {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i))
   : D[fun i ω ↦ ι (X i ω); fun _ ↦ hΩ] = D[X; fun _ ↦ hΩ] := by
-  unfold multiDist
-  congr 1
-  . unfold entropy
-    set sum_G : (Fin m → G) → G := fun x ↦ ∑ i, x i
-    set sum_G' : (Fin m → G') → G' := fun x ↦ ∑ i, x i
-    convert measureEntropy_map_of_injective _ ι _ hι <;> try fun_prop
-    rw [MeasureTheory.Measure.map_map] <;> try fun_prop
-    have : ⇑ι ∘ sum_G = sum_G' ∘ (fun x i ↦ ι (x i)) := by aesop
-    rw [this, ←MeasureTheory.Measure.map_map] <;> try fun_prop
-    congr
-    convert (MeasureTheory.Measure.map_of_pi (f := fun i x ↦ ι x) _ _).symm with i
-    . rw [MeasureTheory.Measure.map_map] <;> try fun_prop
-      congr
-    . intro i; exact MeasureTheory.isProbabilityMeasure_map (by fun_prop)
-    intro i; fun_prop
-  congr 2; ext i
-  exact entropy_comp_of_injective _ (hX i) ι hι
+  convert multiDist_of_hom' hι (fun _ ↦ hΩ) hX (fun _ ↦ 0)
+  simp
+
+theorem multiDist_of_zero {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+    (X : ∀ i, (Ω i) → G) (hnull : ∃ i, (hΩ i).volume = 0) : D[X; hΩ] = 0 := by
+  obtain ⟨ i, hi ⟩ := hnull
+  sorry
+
+theorem multiDist_congr {G:Type*} [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
+    {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+    {X X' : ∀ i, (Ω i) → G} (hae : ∀ i, X i =ᵐ[ℙ] X' i) : D[X; hΩ] = D[X'; hΩ] := by
+    unfold multiDist
+    congr 3 <;> ext1 i
+    . apply MeasureTheory.Measure.map_congr (hae i)
+    apply entropy_congr (hae i)
+
+theorem condMultiDist_of_hom {G G' S: Type*} [Fintype S]
+  [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Fintype G]
+  [MeasurableSpace G'] [MeasurableSingletonClass G'] [AddCommGroup G'] [Fintype G']
+  [MeasurableSpace S] [MeasurableSingletonClass S]
+  {ι : G →+ G'} (hι: Function.Injective ⇑ι)
+  {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure (ℙ:Measure Ω)]
+  {m:ℕ} {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i))
+  {Y: Fin m → Ω → S} (hY : ∀ i, Measurable (Y i)) (a: Fin m → S → G')
+  : D[fun i ω ↦ ι (X i ω) + a i (Y i ω) | Y; fun _ ↦ hΩ] = D[X | Y; fun _ ↦ hΩ] := by
+  unfold condMultiDist
+  rcongr y
+  by_cases h: ∀ i, ℙ ( Y i ⁻¹' {y i} ) ≠ 0
+  . calc
+      _ =  D[fun i ω ↦ ι (X i ω) + a i (y i) ; fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩]  := by
+        convert multiDist_congr (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) _ <;> try infer_instance
+        intro i
+        convert Filter.EventuallyEq.comp₂ (f := fun ω ↦ Y i ω) (f' := fun ω ↦ y i) (g := id) (g' := id) _ (fun y' ω ↦ ι (X i ω) + a i y') ae_eq_rfl
+        rw [Filter.EventuallyEq.eq_1]
+        apply Filter.Eventually.mono (p := fun ω ↦ ω ∈ Y i ⁻¹' {y i})
+        . apply ae_cond_mem; measurability
+        intro ω; simp
+      _ = _ := by
+        convert multiDist_of_hom' hι (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) hX _
+        intro i; exact cond_isProbabilityMeasure (h i)
+  simp at h
+  convert_to (0:ℝ) = 0; on_goal 3 => rfl
+  all_goals {
+    convert multiDist_of_zero (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) _ _ <;> try infer_instance
+    obtain ⟨ i, hi ⟩ := h
+    exact ⟨ i, cond_eq_zero_of_meas_eq_zero hi ⟩
+  }
 
 lemma ProbabilityTheory.condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace Ω]
     [MeasurableSpace S] [MeasurableSingletonClass S] [Countable S]
@@ -2259,7 +2321,34 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       ext ⟨ j, hj⟩; simp
     _ = _ := by
       congr; ext j
-      sorry
+      calc
+        _ = D[fun i ↦ X (i, j.castSucc) | fun i ↦ ⇑(π j.succ.castSucc) ∘ X' i ; fun x ↦ hΩ] := by
+          let ι' : G →+ G' (j.succ.succ) := {
+            toFun x k := if k.val = j.val+1 then (-x) else if k.val = j.val then x else 0
+            map_zero' := by
+              ext k
+              by_cases h:k.val = j.val+1 <;> by_cases h':k.val = j.val <;> simp [h,h',G']
+            map_add' x y := by
+              ext k
+              by_cases h:k.val = j.val+1 <;> by_cases h':k.val = j.val <;> simp [h,h',G'] <;> abel
+          }
+          have : Function.Injective ⇑ι' := by
+            intro x y hxy
+            replace hxy := congrFun hxy ⟨ j.val, by simp; omega ⟩
+            simpa [ι'] using hxy
+          let a : Fin (m+1) → G' j.succ.castSucc → G' (j.succ.succ) := fun i x k ↦ if h:k.val = j.val+1 then x (Fin.last _) else if h':k.val = j.val then 0 else x ⟨ k, by obtain ⟨ k, hk ⟩ := k; simp at hk h h' ⊢; omega ⟩
+          convert condMultiDist_of_hom this hΩ _ _ a with i ω
+          . ext k
+            by_cases h:k.val = j.val+1 <;> by_cases h':k.val = j.val <;> rw [fun_add] <;> simp [π, π₀, X', ι', a, h, h', ι]
+            . omega
+            . rw [eq_neg_add_iff_add_eq, add_comm]
+              convert Finset.sum_erase_add (a := j.castSucc) _ _ _ using 3
+              . ext ⟨ l, hl ⟩; obtain ⟨ j, hj ⟩ := j; simp; omega
+              obtain ⟨ j, hj ⟩ := j; simp
+            congr
+          all_goals intro i; fun_prop
+        _ = _ := by
+          sorry
   have h4 : I[∑ i, X' i : fun ω i ↦ (π 1) (X' i ω)|⇑(π 1) ∘ ∑ i, X' i] = I[fun ω j ↦ ∑ i, X ⟨ i, j ⟩ ω : fun ω i ↦ ∑ j, X ⟨ i, j ⟩ ω|∑ p, X p] := by
     let f : (Fin (m+1) → G) → (G' ⊤) := fun x ⟨ i, hi⟩ ↦ x ⟨ i, by simpa using hi ⟩
     have hf : Function.Injective f := by intro x y hxy; simpa [f] using hxy
