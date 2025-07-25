@@ -951,6 +951,31 @@ lemma condMutualInfo_of_inj [Countable U]
   have hfZ : Measurable (f ∘ Z) := by fun_prop
   rw [condMutualInfo_eq hX hY hZ, condMutualInfo_eq hX hY hfZ, condEntropy_of_injective' _ hX hZ _ hf hfZ, condEntropy_of_injective' _ hY hZ _ hf hfZ, condEntropy_of_injective' _ (hX.prodMk hY) hZ _ hf hfZ]
 
+
+lemma condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace Ω]
+    [MeasurableSpace S] [MeasurableSingletonClass S] [Countable S]
+    [MeasurableSpace T] [MeasurableSingletonClass T] [Countable T]
+    [MeasurableSpace U] [MeasurableSingletonClass U] [Countable U]
+    [MeasurableSpace S'] [MeasurableSingletonClass S'] [Countable S']
+    [MeasurableSpace T'] [MeasurableSingletonClass T'] [Countable T']
+    [MeasurableSpace U'] [MeasurableSingletonClass U'] [Countable U']
+    {X : Ω → S} {Y : Ω → T} {Z : Ω → U} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
+    {f : S → S'} (hf : Function.Injective f)
+    {g : T → T'} (hg : Function.Injective g)
+    {h : U → U'} (hh : Function.Injective h)
+    : I[f ∘ X : g ∘ Y | h ∘ Z; μ] = I[X : Y | Z; μ] := calc
+    _ = I[f ∘ X : g ∘ Y | Z; μ] := by rw [condMutualInfo_of_inj _ _ _ _ hh] <;> try fun_prop
+    _ = I[X : g ∘ Y | Z; μ] := by
+      convert condMutualInfo_of_inj_map hX _ hZ (fun _ ↦ f) (fun _ ↦ hf) <;> try infer_instance
+      fun_prop
+    _ = I[g ∘ Y : X | Z; μ] := by apply condMutualInfo_comm <;> fun_prop
+    _ = I[Y : X | Z; μ] := by
+      convert condMutualInfo_of_inj_map hY _ hZ (fun _ ↦ g) (fun _ ↦ hg) <;> try infer_instance
+      fun_prop
+    _ = _ := by apply condMutualInfo_comm <;> fun_prop
+
+
 lemma condEntropy_prod_eq_of_indepFun [Fintype T] [Fintype U] [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X]
     (h : IndepFun (⟨X, Y⟩) Z μ) :

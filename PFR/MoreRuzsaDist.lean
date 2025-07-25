@@ -1998,6 +1998,8 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
       rw [← Fin.succ_zero_eq_one']
       congr 1
 
+/-- Move to Mathlib? -/
+@[simp]
 theorem MeasureTheory.Measure.map_of_pi {ι:Type*} [Fintype ι]
   {α: ι → Type*} [∀ i, MeasurableSpace (α i)]
   {β: ι → Type*} [∀ i, MeasurableSpace (β i)]
@@ -2070,8 +2072,7 @@ theorem condMultiDist_of_hom {G G' S: Type*} [Fintype S]
   unfold condMultiDist
   apply Finset.sum_congr rfl; intro y _
   by_cases h: ∀ i, ℙ ( Y i ⁻¹' {y i} ) ≠ 0
-  . congr
-    calc
+  . congr; calc
       _ =  D[fun i ω ↦ ι (X i ω) + a i (y i) ; fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩]  := by
         convert multiDist_congr (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) _ <;> try infer_instance
         intro i
@@ -2086,29 +2087,9 @@ theorem condMultiDist_of_hom {G G' S: Type*} [Fintype S]
   simp at h ⊢; right
   obtain ⟨ i, hi ⟩ := h; apply Finset.prod_eq_zero (i:= i) <;> simp [hi]
 
-lemma ProbabilityTheory.condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace Ω]
-    [MeasurableSpace S] [MeasurableSingletonClass S] [Countable S]
-    [MeasurableSpace T] [MeasurableSingletonClass T] [Countable T]
-    [MeasurableSpace U] [MeasurableSingletonClass U] [Countable U]
-    [MeasurableSpace S'] [MeasurableSingletonClass S'] [Countable S']
-    [MeasurableSpace T'] [MeasurableSingletonClass T'] [Countable T']
-    [MeasurableSpace U'] [MeasurableSingletonClass U'] [Countable U']
-    {X : Ω → S} {Y : Ω → T} {Z : Ω → U} (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
-    (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] [FiniteRange Z]
-    {f : S → S'} (hf : Function.Injective f)
-    {g : T → T'} (hg : Function.Injective g)
-    {h : U → U'} (hh : Function.Injective h)
-    : I[f ∘ X : g ∘ Y | h ∘ Z; μ] = I[X : Y | Z; μ] := calc
-    _ = I[f ∘ X : g ∘ Y | Z; μ] := by rw [condMutualInfo_of_inj _ _ _ _ hh] <;> try fun_prop
-    _ = I[X : g ∘ Y | Z; μ] := by
-      convert condMutualInfo_of_inj_map hX _ hZ (fun _ ↦ f) (fun _ ↦ hf) <;> try infer_instance
-      fun_prop
-    _ = I[g ∘ Y : X | Z; μ] := by apply condMutualInfo_comm <;> fun_prop
-    _ = I[Y : X | Z; μ] := by
-      convert condMutualInfo_of_inj_map hY _ hZ (fun _ ↦ g) (fun _ ↦ hg) <;> try infer_instance
-      fun_prop
-    _ = _ := by apply condMutualInfo_comm <;> fun_prop
 
+/-- Need a location for this lemma that imports both ForMathlib.Entropy.Basic and
+    Mathlib.Probability.Independence.Basic -/
 lemma ProbabilityTheory.iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω]
   [IsProbabilityMeasure hΩ.volume] {m:ℕ}
   [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
@@ -2162,7 +2143,7 @@ lemma cond_entropy_indep {Ω:Type*} [hΩ:MeasureSpace Ω] {S T U: Type*}
         convert IndepFun.comp (φ := fun x ↦ x.2) (ψ := id) hindep _ _ <;> try fun_prop
       linarith
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 300000 in
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
 `I[(∑ i, X_{i,j})_{j=1}^m : (∑ j, X_{i,j})_{i=1}^m | ∑ i j, X_{i,j}]`
@@ -2193,7 +2174,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
           x ⟨ i, by have := i.isLt; have h := d.isLt; simp; omega ⟩
   let π (d:Fin (m+2)) : G' ⊤ →+ G' d := {
       toFun x i := π₀ d x i
-      map_add' x y := by ext i; by_cases hi : i.val + 1 = d <;> simp [hi, π₀, G'] <;> simp [←Finset.sum_add_distrib]
+      map_add' x y := by ext i; by_cases hi : i.val + 1 = d <;> simp [hi, π₀, G']; simp [←Finset.sum_add_distrib]
       map_zero' := by ext; simp [G', π₀]
     }
   have hπ0: π 0 = 0 := by ext _ _ z; exact Fin.elim0 z
