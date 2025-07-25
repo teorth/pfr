@@ -2180,7 +2180,7 @@ lemma cond_entropy_indep {Ω:Type*} [hΩ:MeasureSpace Ω] {S T U: Type*}
         convert IndepFun.comp (φ := fun x ↦ x.2) (ψ := id) hindep _ _ <;> try fun_prop
       linarith
 
-set_option maxHeartbeats 300000 in
+set_option maxHeartbeats 400000 in
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
 `I[(∑ i, X_{i,j})_{j=1}^m : (∑ j, X_{i,j})_{i=1}^m | ∑ i j, X_{i,j}]`
@@ -2360,6 +2360,12 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
             congr
           all_goals intro i; fun_prop
         _ = _ := by
+          let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ Finset.image (fun j ↦ (i,j)) Finset.univ
+          have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
+            rw [Finset.pairwiseDisjoint_iff]
+            intro _ _ _ _ h
+            obtain ⟨ ⟨ _, _ ⟩, hij ⟩ := Finset.Nonempty.exists_mem h
+            simp [S, ι] at hij; cc
           rw [condMultiDist_eq, condMultiDist_eq] <;> try intros; fun_prop
           . congr 1
             . let f : (Fin (m+1) → G' j.succ.castSucc) → ((Fin (m+1) → G) × (Fin (m+1) → Fin j.val → G)) := fun x ↦ ⟨ fun i ↦ x i ⟨ j.val, by simp ⟩, fun i ⟨ k, hk ⟩ ↦ x i ⟨ k, by simp; omega ⟩ ⟩
@@ -2396,9 +2402,31 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
               have : ¬ k = j.val := by omega
               simp [f, π, X', π₀, this,ι]
             . simp [f, π, X', π₀, ι]; congr
-            sorry
-          . sorry
-          . sorry
+            let T : Finset (Fin (m+1) × Fin (m+1)) := Finset.image (fun j ↦ (i,j)) (Finset.Ici j.castSucc)
+            let T' : Finset (Fin (m+1) × Fin (m+1)) := Finset.image (fun j ↦ (i,j)) (Finset.Iio j.castSucc)
+            have h_disjoint' : Disjoint T T' := by
+              rw [Finset.disjoint_iff_ne]
+              intro ⟨ i₁, j₁ ⟩ h₁ ⟨ i₂, j₂ ⟩ h₂
+              by_contra! h
+              simp [T, T'] at h₁ h₂ h
+              rw [h.2] at h₁
+              replace h₁ := h₁.1; replace h₂ := h₂.1; order
+            let φ : (T → G) → G × G := fun x ↦ ⟨x ⟨ (i, j.castSucc), by simp [T]⟩, ∑ k : Finset.Ici j.castSucc, x ⟨⟨ i, k ⟩, by obtain ⟨ k,hk ⟩ := k; simpa [T] using hk⟩ ⟩
+            have hφ : Measurable φ := by fun_prop
+            let φ' : (T' → G) → (Fin j.val → G) := fun x k ↦ x ⟨ ⟨ i,k.castLE (by obtain ⟨ j,hj⟩ := j; simp; omega) ⟩, by obtain ⟨ k, hk ⟩ := k; simpa [T'] using hk ⟩
+            have hφ' : Measurable φ' := by fun_prop
+            convert iIndepFun.finsets_comp' h_disjoint' h_indep hmes hφ hφ' using 1
+            ext ω
+            . dsimp [π, φ, f]
+            simp [π, φ, f, π₀, X', ι]
+            convert (Finset.sum_attach _ _).symm using 1
+          . let φ : (i:Fin (m+1)) → ((_: S i) → G) → G × G := fun i x ↦ ⟨ x ⟨ (i,j.castSucc), by aesop ⟩, ∑ k ∈ Finset.Ici j.castSucc, x ⟨ (i, k), by simp [S] ⟩ ⟩
+            have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
+            convert iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ with i ω
+            simp
+          . let φ : (i:Fin (m+1)) → ((_: S i) → G) → G × (G' j.succ.castSucc) := fun i x ↦ ⟨ x ⟨ (i,j.castSucc), by simp [S] ⟩, π j.succ.castSucc (fun k ↦ x ⟨ (i, k), by simp [S] ⟩) ⟩
+            have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
+            exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
   have h4 : I[∑ i, X' i : fun ω i ↦ (π 1) (X' i ω)|⇑(π 1) ∘ ∑ i, X' i] = I[fun ω j ↦ ∑ i, X ⟨ i, j ⟩ ω : fun ω i ↦ ∑ j, X ⟨ i, j ⟩ ω|∑ p, X p] := by
     let f : (Fin (m+1) → G) → (G' ⊤) := fun x ⟨ i, hi⟩ ↦ x ⟨ i, by simpa using hi ⟩
     have hf : Function.Injective f := by intro x y hxy; simpa [f] using hxy
