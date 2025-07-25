@@ -759,16 +759,40 @@ lemma multiDist_copy {m : ℕ} {Ω : Fin m → Type*} {Ω' : Fin m → Type*}
 
 variable [MeasurableSingletonClass G] [Countable G]
 
+/-- Move to Mathlib? -/
+@[simp]
+theorem MeasureTheory.Measure.map_of_pi {ι:Type*} [Fintype ι]
+  {α: ι → Type*} [∀ i, MeasurableSpace (α i)]
+  {β: ι → Type*} [∀ i, MeasurableSpace (β i)]
+  (μ: ∀ i, Measure (α i)) [∀ i, IsProbabilityMeasure (μ i)]
+  {f: ∀ i, α i → β i} (hf: ∀ i, Measurable (f i)) :
+  map (fun x i => f i (x i)) (Measure.pi μ) =
+    Measure.pi (fun i => map (f i) (μ i)) := by
+    symm; apply pi_eq; intro E hE
+    rw [map_apply (by fun_prop) (MeasurableSet.univ_pi hE)]
+    have : (fun x i ↦ f i (x i)) ⁻¹' Set.univ.pi E = Set.univ.pi (fun i ↦ (f i)⁻¹' (E i)) := by
+      aesop
+    simp [this]; apply Finset.prod_congr rfl; intro i _
+    rw [map_apply (by fun_prop) (hE i)]
+
 /-- If `X_i` are independent, then `D[X_{[m]}] = H[∑_{i=1}^m X_i] - \frac{1}{m} \sum_{i=1}^m H[X_i]`. -/
-lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) (X : Fin m → Ω → G)
-    (h_indep : iIndepFun X) :
-    D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (∑ i, H[X i]) / m := by sorry
+lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure hΩ.volume]
+    {X : Fin m → Ω → G} (hX: ∀ i, Measurable (X i)) (h_indep : iIndepFun X) :
+    D[X ; fun _ ↦ hΩ] = H[∑ i, X i] - (∑ i, H[X i]) / m := by
+    simp [multiDist, inv_mul_eq_div, entropy]
+    congr
+    rw [iIndepFun_iff_map_fun_eq_pi_map] at h_indep
+    rw [←h_indep, Measure.map_map] <;> try fun_prop
+    congr
+    . ext ω; simp
+    fun_prop
+
 
 lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
-    (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
+    [IsProbabilityMeasure hΩ.volume] (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
     (h_indep : iIndepFun X ℙ) :
     0 ≤ D[X ; fun _ ↦ hΩ] := by
-  rw [multiDist_indep hΩ X h_indep]
+  rw [multiDist_indep hΩ hX h_indep]
   have : IsProbabilityMeasure (ℙ : Measure Ω) := h_indep.isProbabilityMeasure
   by_cases hm : m = 0
   · subst hm
@@ -1998,21 +2022,7 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
       rw [← Fin.succ_zero_eq_one']
       congr 1
 
-/-- Move to Mathlib? -/
-@[simp]
-theorem MeasureTheory.Measure.map_of_pi {ι:Type*} [Fintype ι]
-  {α: ι → Type*} [∀ i, MeasurableSpace (α i)]
-  {β: ι → Type*} [∀ i, MeasurableSpace (β i)]
-  (μ: ∀ i, Measure (α i)) [∀ i, IsProbabilityMeasure (μ i)]
-  {f: ∀ i, α i → β i} (hf: ∀ i, Measurable (f i)) :
-  map (fun x i => f i (x i)) (Measure.pi μ) =
-    Measure.pi (fun i => map (f i) (μ i)) := by
-    symm; apply pi_eq; intro E hE
-    rw [map_apply (by fun_prop) (MeasurableSet.univ_pi hE)]
-    have : (fun x i ↦ f i (x i)) ⁻¹' Set.univ.pi E = Set.univ.pi (fun i ↦ (f i)⁻¹' (E i)) := by
-      aesop
-    simp [this]; apply Finset.prod_congr rfl; intro i _
-    rw [map_apply (by fun_prop) (hE i)]
+
 
 theorem multiDist_of_hom' {G G': Type*}
   [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Fintype G]
