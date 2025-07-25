@@ -2384,7 +2384,24 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
                 have : ¬ k = j.val := by omega
                 simp [f, π, X', π₀, this,ι]
               . simp [f, π, X', π₀, ι]; congr
-              sorry
+              set T : Finset (Fin (m+1) × Fin (m+1)) := { p | p.2.val ≥ j.val }
+              set T' : Finset (Fin (m+1) × Fin (m+1)) := { p | p.2.val < j.val }
+              have h_disjoint : Disjoint T T' := by
+                rw [Finset.disjoint_iff_ne]
+                intro ⟨ i₁, j₁ ⟩ h₁ ⟨ i₂, j₂ ⟩ h₂
+                by_contra! h
+                simp [T, T'] at h₁ h₂ h
+                rw [h.2] at h₁
+                order
+              let φ : (T → G) → G × (Fin (m+1) → G) := fun x ↦ ⟨ ∑ i, x ⟨ (i, j.castSucc), by simp [T] ⟩, fun i ↦ ∑ k : Finset.Ici j.castSucc, x ⟨⟨ i, k ⟩, by obtain ⟨ k,hk ⟩ := k; simpa [T] using hk⟩ ⟩
+              have hφ : Measurable φ := by fun_prop
+              let φ' : (T' → G) → (Fin (m+1) → Fin j.val → G) := fun x i k ↦ x ⟨ (i, k.castLE (by obtain ⟨ j, hj ⟩ := j; simp; omega)), by obtain ⟨ k, hk ⟩ := k; simpa [T'] using hk ⟩
+              have hφ' : Measurable φ' := by fun_prop
+              convert iIndepFun.finsets_comp' h_disjoint h_indep hmes hφ hφ' using 1
+              ext ω i
+              . dsimp [π, φ, f]
+              simp [π, φ, f, π₀, X', ι]
+              convert (Finset.sum_attach _ _).symm using 1
             congr 2; ext i
             let f : (G' j.succ.castSucc) → (G × (Fin j.val → G)) := fun x ↦ ⟨ x ⟨ j.val, by simp ⟩, fun ⟨ k, hk ⟩ ↦ x ⟨ k, by simp; omega ⟩ ⟩
             have hf : Function.Injective f := by
