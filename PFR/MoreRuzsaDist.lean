@@ -2067,13 +2067,45 @@ lemma ProbabilityTheory.condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ 
 
 lemma ProbabilityTheory.iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω]
   [IsProbabilityMeasure hΩ.volume] {m:ℕ}
-  [MeasurableSpace S] [MeasurableSingletonClass S] [Countable S]
+  [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
   {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
   H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
     induction' m with m hm
-    . simp
-      sorry
-    sorry
+    . simp; convert entropy_const Fin.elim0 <;> infer_instance
+    calc
+      _ = H[ ⟨(fun ω (i:Fin m) ↦ X i.castSucc ω), X (Fin.last _)⟩ ] := by
+        let f : (Fin (m+1) → S) → (Fin m → S) × S := fun x ↦ (fun i ↦ x i.castSucc, x (Fin.last m))
+        convert (entropy_comp_of_injective _ _ f _).symm
+        . fun_prop
+        intro x y hxy
+        simp [f] at hxy
+        ext i
+        rcases Fin.eq_castSucc_or_eq_last i with h | rfl
+        . obtain ⟨ j, rfl ⟩ := h; replace hxy := hxy.1; exact congr($hxy j)
+        tauto
+      _ = H[fun ω (i:Fin m) ↦ X i.castSucc ω] + H[X (Fin.last m)] := by
+        apply (entropy_pair_eq_add _ _).mpr _ <;> try fun_prop
+        let T : Finset (Fin (m+1)) := Finset.image Fin.castSucc Finset.univ
+        let T' : Finset (Fin (m+1)) := {Fin.last m}
+        have h_disjoint : Disjoint T T' := by simp [Finset.disjoint_singleton_right, T', T]
+        let φ : (T → S) → (Fin m → S) := fun f j ↦ f ⟨ j.castSucc, by aesop ⟩
+        have hφ : Measurable φ := by fun_prop
+        let φ' : (T' → S) → S := fun f ↦ f ⟨ Fin.last m, by aesop ⟩
+        have hφ' : Measurable φ' := by fun_prop
+        exact finsets_comp' h_disjoint h_indep hX hφ hφ'
+      _ = ∑ i:Fin m, H[X i.castSucc] + H[X (Fin.last m)] := by
+        congr; apply hm _ _
+        . intro i; fun_prop
+        let T : Fin m → Finset (Fin (m+1)) := fun i ↦ {i.castSucc}
+        have h_disjoint : Set.PairwiseDisjoint Set.univ T := by
+          rw [Finset.pairwiseDisjoint_iff]
+          intro ⟨ i, hi ⟩ _ ⟨ j, hj ⟩ _ h
+          obtain ⟨ ⟨ _, _ ⟩, hij ⟩ := Finset.Nonempty.exists_mem h
+          simp [T] at hij ⊢; cc
+        let φ : (i:Fin m) → ((_: T i) → S) → S := fun i x ↦ x ⟨ i.castSucc, by aesop ⟩
+        have hφ (i:Fin m) : Measurable (φ i) := by fun_prop
+        convert iIndepFun.finsets_comp T h_disjoint h_indep hX φ hφ
+      _ = _ := by rw [Fin.sum_univ_castSucc]
 
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
@@ -2152,17 +2184,43 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       . convert iIndepFun.entropy_eq_add _ _ with i _ ω <;> try infer_instance
         . simp [X', ι]
         . intro j; fun_prop
-        sorry
+        simp [X', ι]
+        let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ Finset.image (fun j ↦ (j,i)) Finset.univ
+        have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
+          rw [Finset.pairwiseDisjoint_iff]
+          intro _ _ _ _ h
+          obtain ⟨ ⟨ _, _ ⟩, hij ⟩ := Finset.Nonempty.exists_mem h
+          simp [S, ι] at hij; cc
+        let φ : (i:Fin (m+1)) → ((_: S i) → G) → G := fun i x ↦ ∑ j, x ⟨ (j,i), by simp [S] ⟩
+        have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
+        exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
       ext i
       convert iIndepFun.entropy_eq_add _ _ <;> try infer_instance
       . intro j; fun_prop
-      sorry
+      simp [X', ι]
+      let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun j ↦ {(i,j)}
+      have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
+        rw [Finset.pairwiseDisjoint_iff]
+        intro _ _ _ _ h
+        obtain ⟨ ⟨ _, _ ⟩, hij ⟩ := Finset.Nonempty.exists_mem h
+        simp [S, ι] at hij; cc
+      let φ : (j:Fin (m+1)) → ((_: S j) → G) → G := fun j x ↦ x ⟨ (i,j), by simp [S] ⟩
+      have hφ (j:Fin (m+1)) : Measurable (φ j) := by fun_prop
+      exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
     _ = ∑ j, (H[∑ i, X ⟨ i, j ⟩ ] - (∑ i, H[X ⟨ i, j ⟩]) / ↑(m + 1)) := by
       rw [Finset.sum_sub_distrib, ←Finset.sum_div, Finset.sum_comm]
     _ = ∑ j, D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
       apply Finset.sum_congr rfl; intro j _
       symm; apply multiDist_indep
-      sorry
+      let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ {(i,j)}
+      have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
+        rw [Finset.pairwiseDisjoint_iff]
+        intro _ _ _ _ h
+        obtain ⟨ ⟨ _, _ ⟩, hij ⟩ := Finset.Nonempty.exists_mem h
+        simp [S, ι] at hij; cc
+      let φ : (i:Fin (m+1)) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
+      have hφ (i:Fin (m+1)) : Measurable (φ i) := by fun_prop
+      exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ hφ
     _ = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (Fin.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
       convert (Finset.add_sum_erase _ _ _).symm using 3
       . ext ⟨ j, hj ⟩; simp [Fin.last, Top.top]; omega
