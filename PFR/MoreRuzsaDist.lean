@@ -2169,6 +2169,26 @@ lemma ProbabilityTheory.iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpa
         convert iIndepFun.finsets_comp T h_disjoint h_indep hX φ hφ
       _ = _ := by rw [Fin.sum_univ_castSucc]
 
+lemma cond_entropy_indep {Ω:Type*} [hΩ:MeasureSpace Ω] {S T U: Type*}
+    {X: Ω → S} {Y: Ω → T} {Z: Ω → U}
+    [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
+    [MeasurableSpace T] [MeasurableSingletonClass T] [Fintype T]
+    [MeasurableSpace U] [MeasurableSingletonClass U] [Fintype U]
+    (hX: Measurable X) (hY: Measurable Y) (hZ: Measurable Z)
+    [IsZeroOrProbabilityMeasure hΩ.volume] (hindep: IndepFun (⟨X,Y⟩) Z):
+    H[X | ⟨Y,Z⟩] = H[X | Y] := by
+      have h1 : H[X | ⟨Y,Z⟩] = H[⟨X, ⟨Y,Z⟩⟩] - H[⟨Y,Z⟩] := chain_rule'' _ (by fun_prop) (by fun_prop)
+      have h2 : H[X | Y] = H[⟨X,Y⟩] - H[Y] := chain_rule'' _ (by fun_prop) (by fun_prop)
+      have h3 : H[⟨X, ⟨Y,Z⟩⟩] = H[⟨⟨X,Y⟩,Z⟩] :=
+        entropy_of_comp_eq_of_comp _ (by fun_prop) (by fun_prop)
+        (fun x ↦ ⟨ ⟨ x.1, x.2.1 ⟩, x.2.2 ⟩) (fun x ↦ ⟨ x.1.1, ⟨ x.1.2, x.2 ⟩ ⟩) (by rfl) (by rfl)
+      have h4 : H[⟨⟨X,Y⟩,Z⟩] = H[⟨X,Y⟩] + H[Z] := IndepFun.entropy_pair_eq_add (by fun_prop) (by fun_prop) hindep
+      have h5 : H[⟨Y,Z⟩] = H[Y] + H[Z] := by
+        apply IndepFun.entropy_pair_eq_add <;> try fun_prop
+        convert IndepFun.comp (φ := fun x ↦ x.2) (ψ := id) hindep _ _ <;> try fun_prop
+      linarith
+
+set_option maxHeartbeats 300000 in
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
 `I[(∑ i, X_{i,j})_{j=1}^m : (∑ j, X_{i,j})_{i=1}^m | ∑ i j, X_{i,j}]`
@@ -2348,7 +2368,45 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
             congr
           all_goals intro i; fun_prop
         _ = _ := by
-          sorry
+          rw [condMultiDist_eq, condMultiDist_eq] <;> try intros; fun_prop
+          . congr 1
+            . let f : (Fin (m+1) → G' j.succ.castSucc) → ((Fin (m+1) → G) × (Fin (m+1) → Fin j.val → G)) := fun x ↦ ⟨ fun i ↦ x i ⟨ j.val, by simp ⟩, fun i ⟨ k, hk ⟩ ↦ x i ⟨ k, by simp; omega ⟩ ⟩
+              have hf : Function.Injective f := by
+                intro x y hxy
+                simp [f] at hxy
+                ext i ⟨ k, hk ⟩
+                simp at hk
+                by_cases hk' : k = j.val
+                . convert congrFun hxy.1 i
+                convert congrFun (congrFun hxy.2 i) ⟨ k, by omega ⟩
+              rw [←condEntropy_of_injective' _ _ _ _ hf _] <;> try fun_prop
+              convert cond_entropy_indep (Z := fun ω i (k:Fin j.val) ↦ X (i, ⟨ k.val, by obtain ⟨ j,hj ⟩ := j; obtain ⟨ k, hk ⟩ := k; simp at hk ⊢; omega ⟩) ω) _ _ _ _ with ω i k ω i <;> try infer_instance
+              all_goals try fun_prop
+              . obtain ⟨ k, hk ⟩ := k
+                have : ¬ k = j.val := by omega
+                simp [f, π, X', π₀, this,ι]
+              . simp [f, π, X', π₀, ι]; congr
+              sorry
+            congr 2; ext i
+            let f : (G' j.succ.castSucc) → (G × (Fin j.val → G)) := fun x ↦ ⟨ x ⟨ j.val, by simp ⟩, fun ⟨ k, hk ⟩ ↦ x ⟨ k, by simp; omega ⟩ ⟩
+            have hf : Function.Injective f := by
+              intro x y hxy
+              simp [f] at hxy
+              ext ⟨ k, hk ⟩
+              simp at hk
+              by_cases hk' : k = j.val
+              . convert hxy.1
+              convert congrFun hxy.2 ⟨ k, by omega ⟩
+            rw [←condEntropy_of_injective' _ _ _ _ hf _] <;> try fun_prop
+            convert cond_entropy_indep (Z := fun ω (k:Fin j.val) ↦ X (i, ⟨ k.val, by obtain ⟨ j,hj ⟩ := j; obtain ⟨ k, hk ⟩ := k; simp at hk ⊢; omega ⟩) ω) _ _ _ _ with ω k ω <;> try infer_instance
+            all_goals try fun_prop
+            . obtain ⟨ k, hk ⟩ := k
+              have : ¬ k = j.val := by omega
+              simp [f, π, X', π₀, this,ι]
+            . simp [f, π, X', π₀, ι]; congr
+            sorry
+          . sorry
+          . sorry
   have h4 : I[∑ i, X' i : fun ω i ↦ (π 1) (X' i ω)|⇑(π 1) ∘ ∑ i, X' i] = I[fun ω j ↦ ∑ i, X ⟨ i, j ⟩ ω : fun ω i ↦ ∑ j, X ⟨ i, j ⟩ ω|∑ p, X p] := by
     let f : (Fin (m+1) → G) → (G' ⊤) := fun x ⟨ i, hi⟩ ↦ x ⟨ i, by simpa using hi ⟩
     have hf : Function.Injective f := by intro x y hxy; simpa [f] using hxy
