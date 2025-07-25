@@ -2059,11 +2059,6 @@ theorem multiDist_of_hom {G G': Type*}
   convert multiDist_of_hom' hι (fun _ ↦ hΩ) hX (fun _ ↦ 0)
   simp
 
-theorem multiDist_of_zero {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
-    (X : ∀ i, (Ω i) → G) (hnull : ∃ i, (hΩ i).volume = 0) : D[X; hΩ] = 0 := by
-  obtain ⟨ i, hi ⟩ := hnull
-  sorry
-
 theorem multiDist_congr {G:Type*} [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
     {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     {X X' : ∀ i, (Ω i) → G} (hae : ∀ i, X i =ᵐ[ℙ] X' i) : D[X; hΩ] = D[X'; hΩ] := by
@@ -2082,9 +2077,10 @@ theorem condMultiDist_of_hom {G G' S: Type*} [Fintype S]
   {Y: Fin m → Ω → S} (hY : ∀ i, Measurable (Y i)) (a: Fin m → S → G')
   : D[fun i ω ↦ ι (X i ω) + a i (Y i ω) | Y; fun _ ↦ hΩ] = D[X | Y; fun _ ↦ hΩ] := by
   unfold condMultiDist
-  rcongr y
+  apply Finset.sum_congr rfl; intro y _
   by_cases h: ∀ i, ℙ ( Y i ⁻¹' {y i} ) ≠ 0
-  . calc
+  . congr
+    calc
       _ =  D[fun i ω ↦ ι (X i ω) + a i (y i) ; fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩]  := by
         convert multiDist_congr (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) _ <;> try infer_instance
         intro i
@@ -2096,13 +2092,9 @@ theorem condMultiDist_of_hom {G G' S: Type*} [Fintype S]
       _ = _ := by
         convert multiDist_of_hom' hι (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) hX _
         intro i; exact cond_isProbabilityMeasure (h i)
-  simp at h
-  convert_to (0:ℝ) = 0; on_goal 3 => rfl
-  all_goals {
-    convert multiDist_of_zero (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) _ _ <;> try infer_instance
-    obtain ⟨ i, hi ⟩ := h
-    exact ⟨ i, cond_eq_zero_of_meas_eq_zero hi ⟩
-  }
+  simp at h ⊢; right
+  obtain ⟨ i, hi ⟩ := h
+  apply Finset.prod_eq_zero (i:= i) <;> simp [hi]
 
 lemma ProbabilityTheory.condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace Ω]
     [MeasurableSpace S] [MeasurableSingletonClass S] [Countable S]
