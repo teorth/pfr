@@ -720,7 +720,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
 \begin{lemma}[Mutual information bound]\label{mutual-w-z2}\lean{mutual_of_W_Z_two_le}\leanok  We have  $\bbI[W : Z_2] \leq 2 (m-1) k$.
 \end{lemma}
 
-\begin{proof}\uses{alternative-mutual, ent-w}
+\begin{proof}\uses{alternative-mutual, ent-w}\leanok
   From \Cref{alternative-mutual} we have $\bbI[W : Z_2] = \bbH[W] - \bbH[W | Z_2]$, and since $Z_2 = \sum_{j=1}^{m-1} j Q_j$ and $W = \sum_{j=1}^m Q_j$,
   \[
     \bbH[W | Z_2] \geq \bbH[W \,|\, Q_1,\dots,Q_{m-1}] = \bbH[Q_m] = \bbH[S].
@@ -800,7 +800,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
   and the result follows by setting $U=(T_2 \,|\, T_3 \mathop{=} z)$ for some $z$ such that the quantity in parentheses on the left-hand side is at most the weighted average value.
 \end{proof}
 
-\begin{proposition}[Vanishing entropy]\label{k-vanish}\leanok  We have $k = 0$.
+\begin{proposition}[Vanishing entropy]\label{k-vanish}\lean{k_eq_zero}\leanok  We have $k = 0$.
 \end{proposition}
 
 \begin{proof}\uses{lem:get-better, multidist-ruzsa-III, multidist-lower, xi-z2-w-dist, eta-def-multi, multidist-nonneg, Zero-sum, prop:52} For each value $W=w$, apply \Cref{lem:get-better} (and \Cref{Zero-sum}) to

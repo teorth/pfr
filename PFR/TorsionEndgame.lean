@@ -16,7 +16,9 @@ section AnalyzeMinimizer
 
 universe u
 
-variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] {p : multiRefPackage G Ωₒ} {Ω : Fin p.m → Type u} (hΩ : ∀ i, MeasureSpace (Ω i)) {X : ∀ i, Ω i → G} (h_min : multiTauMinimizes p Ω hΩ X)
+variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] {p : multiRefPackage G Ωₒ} {Ω : Fin p.m → Type u}
+  (hΩ : ∀ i, MeasureSpace (Ω i)) {X : ∀ i, Ω i → G} (h_min : multiTauMinimizes p Ω hΩ X)
+  (hΩ_prob : ∀ i, IsProbabilityMeasure (hΩ i).volume)
 
 local notation3 "k" => D[X; hΩ]
 
@@ -44,7 +46,7 @@ lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
   convert zero_zsmul ?_
   simp
 
-variable [hΩ': MeasureSpace Ω'] [IsProbabilityMeasure hΩ'.volume] (h_mes : ∀ i j, Measurable (Y (i, j)))
+variable [hΩ': MeasureSpace Ω'] [hΩ'_prob: IsProbabilityMeasure hΩ'.volume] (h_mes : ∀ i j, Measurable (Y (i, j)))
   (h_indep : iIndepFun Y) (hident : ∀ i j, IdentDistrib (Y (i, j)) (X i))
 
 /-- We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤ 4m^2 η k`.
@@ -82,7 +84,7 @@ lemma Q_ident (j j': Fin p.m) : IdentDistrib (Q j) (Q j') ℙ ℙ := by
       }
 
 include h_mes in
-set_option linter.unusedSectionVars false in
+omit hΩ'_prob in
 lemma Q_mes (j: Fin p.m) : Measurable (-(Q j)) := by
   apply Measurable.neg; fun_prop
 
@@ -102,7 +104,7 @@ lemma Q_dist (j j': Fin p.m) : d[Q j # -(Q j')] ≤ 2 * k := by
       simp [S] at hij; cc
 
 include h_mes h_indep hident in
-lemma Q_ent (j: Fin p.m) : H[Q j] ≤ k + (↑p.m)⁻¹ * ∑ i, H[X i] := by
+lemma Q_ent (j: Fin p.m) : H[Q j] = k + (↑p.m)⁻¹ * ∑ i, H[X i] := by
   rw [Q_eq, inv_mul_eq_div]
   have h1 := multiDist_indep hΩ' (fun i:Fin p.m ↦ h_mes i j) ?_
   . have h2 : D[fun i ↦ Y (i, j) ; fun x ↦ hΩ'] = k := by
@@ -117,7 +119,8 @@ lemma Q_ent (j: Fin p.m) : H[Q j] ≤ k + (↑p.m)⁻¹ * ∑ i, H[X i] := by
   rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
   simp [S] at hij; cc
 
-include h_mes h_indep hident in
+include h_mes h_indep in
+omit hΩ'_prob in
 lemma Q_indep {j j': Fin p.m} (h:j ≠ j') : IndepFun (Q j) (-Q j') ℙ := by
   let T : Finset (Fin p.m × Fin p.m) := {q|q.2=j}
   let T' : Finset (Fin p.m × Fin p.m) := {q|q.2=j'}
@@ -151,7 +154,7 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
       simp [S] at hij; cc
     _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi zero, 2 * k := by
       gcongr with j hj
-      . exact Q_ent _ h_mes h_indep hident _
+      . exact le_of_eq (Q_ent _ h_mes h_indep hident _)
       simp at hj
       have : IdentDistrib (Q zero) (Q j) ℙ ℙ := Q_ident _ h_mes h_indep hident _ _
       have hQj_mes : Measurable (-(Q j)) := Q_mes h_mes _
@@ -159,11 +162,17 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
         _ = d[Q zero # -(Q j)] := by
           rw [ProbabilityTheory.IndepFun.rdist_eq _ (by fun_prop) hQj_mes, entropy_neg (by fun_prop), ←IdentDistrib.entropy_congr this, sub_neg_eq_add]
           . linarith
-          exact Q_indep _ h_mes h_indep hident (by order)
+          exact Q_indep h_mes h_indep (by order)
         _ ≤ _ := Q_dist _ h_mes h_indep hident _ _
     _ = _ := by
       have : (p.m-1:ℕ) = (p.m:ℝ)-(1:ℝ) := by norm_cast; apply (Int.subNatNat_of_le _).symm; omega
       simp [zero, this]; ring
+
+set_option linter.unusedSectionVars false in
+lemma Z2_eq : Z2 = ∑ j ∈ Finset.univ.erase ⟨ 0, by linarith [p.hm]⟩, j.val • Q j := calc
+  _ = ∑ j, j.val • Q j := by
+    rw [Finset.sum_comm]; apply Finset.sum_congr rfl; intro i _; simp [←Finset.smul_sum]
+  _ = ∑ j ∈ Finset.univ.erase ⟨ 0, by linarith [p.hm]⟩, j.val • Q j  := by symm; apply Finset.sum_erase; simp
 
 include h_mes h_indep hident in
 /-- We have $\bbH[Z_2] \leq (8m^2-16m+1) k + \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$. -/
@@ -177,9 +186,7 @@ lemma entropy_of_Z_two_le : H[Z2] ≤ (8 * p.m^2 - 16 * p.m + 1) * k + (p.m:ℝ)
     _ = H[ Q one + ∑ i ∈ .Ioi one, i.val • (Q i)] := by
       congr
       calc
-        _ = ∑ j, j.val • Q j := by
-          rw [Finset.sum_comm]; apply Finset.sum_congr rfl; intro i _; simp [←Finset.smul_sum]
-        _ = ∑ j ∈ Finset.univ.erase zero, j.val • Q j  := by symm; apply Finset.sum_erase; simp [zero]
+        _ = ∑ j ∈ Finset.univ.erase zero, j.val • Q j  := Z2_eq
         _ = _ := by
           symm; rw [add_comm, ←this]
           convert Finset.sum_erase_add _ _ _ using 3 <;> try infer_instance
@@ -205,20 +212,55 @@ lemma entropy_of_Z_two_le : H[Z2] ≤ (8 * p.m^2 - 16 * p.m + 1) * k + (p.m:ℝ)
         _ ≤ 4 * |(i.val:ℤ)| * d[Q one # -(Q i)] := by
           convert ent_sub_zsmul_sub_ent_le _ _ _ <;> try infer_instance
           all_goals try fun_prop
-          simp at hi; exact Q_indep _ h_mes h_indep hident (by order)
+          simp at hi; exact Q_indep h_mes h_indep (by order)
         _ ≤ _ := by
           gcongr
           . exact rdist_nonneg (by fun_prop) (by fun_prop)
           . simp
           exact Q_dist _ h_mes h_indep hident _ _
     _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi one, 4 * p.m * (2 * k) := by
-      gcongr; exact Q_ent _ h_mes h_indep hident _
+      gcongr; exact le_of_eq (Q_ent _ h_mes h_indep hident _)
     _ = _ := by
       have : (p.m-1-1:ℕ) = (p.m:ℝ)-(1:ℝ)-(1:ℝ) := by norm_cast; rw [Int.subNatNat_of_le (by omega)]; omega
       simp [one, this]; ring
 
-/-- We have $\bbI[W : Z_2] \leq 2 (m-1) k$. -/
-lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := sorry
+include h_mes h_indep hident in
+/-- We have $\bbI[W : Z_2] \leq 2(m-1) k$. -/
+lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := by
+  rw [mutualInfo_eq_entropy_sub_condEntropy (by fun_prop) (by fun_prop)]
+  have hm := p.hm
+  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
+  have h1 := entropy_of_W_le _ h_mes h_indep hident
+  have h2 : H[W | Z2] ≥ H[Q zero] := calc
+    _ ≥ H[W | fun ω (i : Finset.univ.erase zero) ↦ Q (i.val) ω] := by
+      let f : (Finset.univ.erase zero → G) → G := fun x ↦ ∑ j, j.val.val • (x j)
+      convert condEntropy_comp_ge _ _ _ f <;> try infer_instance
+      . ext ω; simp only [Z2_eq, f]
+        simp only [Finset.sum_apply, Pi.smul_apply, Finset.mem_univ, Function.comp_apply]
+        convert Finset.sum_subtype _ _ _
+        simp [zero]
+      all_goals fun_prop
+    _ = H[Q zero | fun ω (i : Finset.univ.erase zero) ↦ Q (i.val) ω] := by
+      let f : (Finset.univ.erase zero → G) → G → G := fun x y ↦ y + ∑ j, x j
+      convert condEntropy_of_injective _ _ _ f _ with ω <;> try infer_instance
+      all_goals try fun_prop
+      . simp [f]; rw [Finset.sum_comm]
+        symm; convert Finset.add_sum_erase (a := zero) _ _ _
+        . rfl
+        . convert Finset.sum_attach _ _; rfl
+        simp
+      intro _ _ _ h; simpa [f] using h
+    _ = _ := by
+      apply IndepFun.condEntropy_eq_entropy _ (by fun_prop) (by fun_prop)
+      let T : Finset (Fin p.m × Fin p.m) := {q|q.2=zero}
+      let T' : Finset (Fin p.m × Fin p.m) := Tᶜ
+      let φ : (T → G) → G := fun f ↦ ∑ i, f ⟨ (i,zero), by simp [T] ⟩
+      let φ' : (T' → G) → (Finset.univ.erase zero → G) := fun f j ↦ ∑ i, f ⟨ (i,j), by obtain ⟨ j, hj ⟩ := j;  simpa [T,T'] using hj⟩
+      convert iIndepFun.finsets_comp' _ h_indep (by fun_prop) (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) with ω ω <;> try simp [φ,φ']
+      simp [T', disjoint_compl_right]
+  have h3 := Q_ent _ h_mes h_indep hident zero
+  have h4 : (2 * ↑p.m - 1) * k - k = 2 * (↑p.m - 1) * k := by ring
+  linarith
 
 /-- We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$. -/
 lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 8 * (p.m^3 - p.m^2)*k := sorry
