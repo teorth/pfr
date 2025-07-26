@@ -6,9 +6,6 @@ import PFR.MultiTauFunctional
 # Endgame for the Torsion PFR theorem
 -/
 
-/- In this file the power notation will always mean the base and exponent are real numbers. -/
-local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
-
 open MeasureTheory ProbabilityTheory Set
 open scoped Pointwise
 
@@ -18,7 +15,7 @@ universe u
 
 variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] {p : multiRefPackage G Ωₒ} {Ω : Fin p.m → Type u}
   (hΩ : ∀ i, MeasureSpace (Ω i)) {X : ∀ i, Ω i → G} (h_min : multiTauMinimizes p Ω hΩ X)
-  (hΩ_prob : ∀ i, IsProbabilityMeasure (hΩ i).volume)
+  (hΩ_prob : ∀ i, IsProbabilityMeasure (hΩ i).volume) (hX_mes: ∀ i, Measurable (X i))
 
 local notation3 "k" => D[X; hΩ]
 
@@ -262,8 +259,38 @@ lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := by
   have h4 : (2 * ↑p.m - 1) * k - k = 2 * (↑p.m - 1) * k := by ring
   linarith
 
+include h_mes h_indep hident hΩ_prob hX_mes in
 /-- We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$. -/
-lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 8 * (p.m^3 - p.m^2)*k := sorry
+lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - p.m^2)*k := by
+  have hm_2 : (p.m:ℝ) ≥ 2 := by norm_cast; exact p.hm
+  have hm_pos : (p.m:ℝ) > 0 := by linarith
+  have hm_pos' : 2*(p.m:ℝ)-1 > 0 := by linarith
+  have hk : k ≥ 0 := multiDist_nonneg _ hΩ_prob _ hX_mes
+  calc
+    _ ≤ ∑ i, (d[ X i # X i] + (H[Z2] - H[X i])/ 2 + (p.m-1) * k) := by
+      apply Finset.sum_le_sum; intro i _; calc
+        _ ≤ d[X i # Z2] + I[W:Z2] / 2 := by
+          rw [mutualInfo_comm]
+          convert condRuzsaDist_le' _ _ _ _ _ <;> try infer_instance
+          all_goals fun_prop
+        _ ≤ (d[X i # X i] + (H[Z2] - H[X i]) / 2) + (2*(p.m-1) * k)/2 := by
+          gcongr
+          . rw [div_eq_inv_mul]
+            sorry
+          exact mutual_of_W_Z_two_le _ h_mes h_indep hident
+        _ = _ := by ring
+    _ = ∑ i, d[ X i # X i] + p.m * H[Z2] / 2 - (∑ i, H[X i]) / 2 + p.m * (p.m -1) * k := by
+      simp [Finset.sum_add_distrib, ←Finset.sum_div, Finset.sum_sub_distrib, sub_div]; ring
+    _ ≤ ∑ i, d[ X i # X i] + p.m * ((8 * p.m^2 - 16 * p.m + 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i])/2 - (∑ i, H[X i]) / 2  + p.m * (p.m -1) * k := by
+      gcongr; exact entropy_of_Z_two_le _ h_mes h_indep hident
+    _ = ∑ i, d[ X i # X i] + p.m * (8 * p.m^2 - 16 * p.m + 1) * k / 2 + p.m * (p.m -1) * k:= by
+      field_simp; ring
+    _ ≤ 2*p.m*k + p.m * (8 * p.m^2 - 16 * p.m + 1) * k / 2 + p.m * (p.m -1) * k := by
+      gcongr
+      exact multidist_ruzsa_II p.hm _ hΩ_prob _ hX_mes (by infer_instance)
+    _ = 4 * (p.m^3 - p.m^2) * k - 3 * p.m * (2*p.m - 1) * k /2 := by ring
+    _ ≤ _ := by
+      simp; positivity
 
 
 /-- Let $G$ be an abelian group, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically, and write
@@ -296,7 +323,7 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ
     (htorsion: ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ K ^ (64 * m^3 + 2) * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2 : ℝ )
+    Nat.card c ≤ K ^ (64 * m^3 + 2) * Nat.card A ^ (1/2:ℝ) * Nat.card H ^ (-1/2 : ℝ )
       ∧ Nat.card H ≤ K ^ (64 * m^3) * Nat.card A
       ∧ Nat.card A ≤ K ^ (64 * m^3) * Nat.card H ∧ A ⊆ c + H := sorry
 
@@ -366,7 +393,7 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := PFR_conjecture_pos_aux' h₀A hA
    -- consider the subgroup `H` given by Lemma `torsion_PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ K ^ (64 * m^3+2) * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2)
+    Nat.card c ≤ K ^ (64 * m^3+2) * Nat.card A ^ (1/2:ℝ) * Nat.card H ^ (-1/2:ℝ)
       ∧ Nat.card H ≤ K ^ (64*m^3) * Nat.card A ∧ Nat.card A ≤ K ^ (64*m^3) * Nat.card H
       ∧ A ⊆ c + H :=
     torsion_PFR_conjecture_aux hm htorsion h₀A hA
@@ -377,10 +404,14 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
-    Nat.card c ≤ K ^ ((64*m^3+2)) * Nat.card A ^ (1/2) * Nat.card H ^ (-1/2) := hc
-    _ ≤ K ^ ((64*m^3+2)) * (K ^ (64*m^3) * Nat.card H) ^ (1/2) * Nat.card H ^ (-1/2) := by
+    Nat.card c ≤ K ^ ((64*m^3+2)) * Nat.card A ^ (1/2:ℝ) * Nat.card H ^ (-1/2:ℝ) := hc
+    _ ≤ K ^ ((64*m^3+2)) * (K ^ (64*m^3) * Nat.card H) ^ (1/2:ℝ) * Nat.card H ^ (-1/2:ℝ) := by
       gcongr
-    _ = K ^ (96*m^3+2) := by rpow_ring; norm_num; congr 1; ring
+    _ = K ^ (96*m^3+2) := by
+      rpow_ring; norm_num
+      simp_rw [←Real.rpow_natCast]
+      rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
+      congr; push_cast; ring
     _ < m * K ^ (96*m^3+2) := by
       apply (lt_mul_iff_one_lt_left _).mpr
       · norm_num; linarith [hm]
@@ -402,23 +433,25 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := mod_cast Set.natCard_add_le
-    _ ≤ (K ^ ((64*m^3+2)) * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+    _ ≤ (K ^ ((64*m^3+2)) * Nat.card A ^ (1 / 2:ℝ) * (Nat.card H ^ (-1 / 2:ℝ)))
           * (Nat.card H / Nat.card H') := by
         gcongr
         apply le_of_eq
         rw [eq_div_iff H'_pos.ne']
         norm_cast
-    _ < (K ^ ((64*m^3+2)) * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+    _ < (K ^ ((64*m^3+2)) * Nat.card A ^ (1 / 2:ℝ) * (Nat.card H ^ (-1 / 2:ℝ)))
           * (Nat.card H / (Nat.card A / m)) := by
         gcongr
-    _ = m * K ^ ((64*m^3+2)) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
+    _ = m * K ^ ((64*m^3+2)) * Nat.card A ^ (-1/2:ℝ) * Nat.card H ^ (1/2:ℝ) := by
         field_simp
         rpow_ring
         norm_num
-    _ ≤ m * K ^ ((64*m^3+2)) * Nat.card A ^ (-1/2) * (K ^ (64*m^3) * Nat.card A) ^ (1/2) := by
+    _ ≤ m * K ^ ((64*m^3+2)) * Nat.card A ^ (-1/2:ℝ) * (K ^ (64*m^3) * Nat.card A) ^ (1/2:ℝ) := by
         gcongr
     _ = m * K ^ (96*m^3+2) := by
         rpow_ring
         norm_num
-        left; congr 1
-        ring
+        left
+        simp_rw [←Real.rpow_natCast]
+        rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
+        congr; push_cast; ring

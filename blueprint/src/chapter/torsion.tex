@@ -732,7 +732,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   as claimed.
 \end{proof}
 
-\begin{lemma}[Distance bound]\label{xi-z2-w-dist}\lean{sum_of_conditional_distance_le}\leanok We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$.
+\begin{lemma}[Distance bound]\label{xi-z2-w-dist}\lean{sum_of_conditional_distance_le}\leanok We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 4(m^3-m^2) k$.
 \end{lemma}
 
 \begin{proof}\uses{klm-3, cond-dist-fact, mutual-w-z2, ent-z2, multidist-ruzsa-II}
@@ -747,7 +747,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
  Combining with~\eqref{in-a-bit-6} and \Cref{mutual-w-z2} gives
  \[ d[X_i;Z_2 | W] \leq d[X_i;X_i] + \tfrac12 (\bbH[Z_2] - \bbH[X_i]) + (m-1)k.\]
  Summing over $i$ and applying \Cref{ent-z2} gives
- \[ \sum_{i = 1}^m d[X_i;Z_2 | W] \leq \sum_{i = 1}^m d[X_i;X_i] + m(8m^2-16m+1) k + m(m-1) k.\]
+ \[ \sum_{i = 1}^m d[X_i;Z_2 | W] \leq \sum_{i = 1}^m d[X_i;X_i] + m(8m^2-16m+1) k/2 + m(m-1) k.\]
 Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms) gives the claim.
 \end{proof}
 
