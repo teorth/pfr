@@ -523,55 +523,6 @@ lemma kvm_ineq_III {I : Type*} {i₀ i₁ : I} {s : Finset I}
     fin_cases j <;> simp [φ, (s.sum_attach _).symm]
   exact kvm_ineq_III_aux (hY i₀) (hY i₁) (by fun_prop) h_indep'
 
-section
-
-variable {Ω ι γ β : Type*} {κ : ι → Type*}
-variable {β' γ γ' : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → β} {g : Ω → β'}
-variable {Ω ι ι' : Type*} [MeasurableSpace Ω]{α : ι → Type*}
-  [n : ∀ i, MeasurableSpace (α i)]
-  [m : MeasurableSpace (β)]
- {f : ∀ i, Ω → α i}
-  {μ : Measure Ω}
-
-lemma iIndepFun.finsets_sum [AddCommMonoid β] {f : ι → Ω → β} {J : Type*} [Fintype J]
-    (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
-    (hf_Indep : iIndepFun (fun _ ↦ m) f μ) (hf_meas : ∀ i, Measurable (f i)) :
-    iIndepFun (fun _ ↦ m) (fun (j : J) ↦ fun a ↦ ∑ i ∈ S j, f i a) μ := by
-  set φ : (j : J) → ((i : S j) → β) → β := fun j f_j => ∑ i : { i : ι // i ∈ S j}, f_j i with φ_def
-  have hφ (j : J) : Measurable (φ j) := by
-    rw [φ_def]
-    simp only [Finset.univ_eq_attach]
-    sorry
-  have := iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas φ hφ
-  have φ_simple (j : J) (a : Ω) : (φ j (fun i => f ↑i a)) =
-      ∑ i in S j, f i a := by
-    simp only [φ_def, Finset.univ_eq_attach, ←Finset.sum_attach (S j)]
-  simp [φ_simple] at this
-  exact this
-
-lemma IndepFun.finset_sum [AddCommMonoid β] {f : ι → Ω → β}
-    {s t : Finset ι} (hf_Indep : iIndepFun (fun _ ↦ m) f μ) (hf_meas : ∀ i, Measurable (f i))
-    (h_disj : Disjoint s t) : IndepFun (∑ i ∈ s, f i) (∑ i ∈ t, f i) μ := by
-  let S : Bool → Finset ι := fun b => if b then s else t
-  have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
-    intro b _ c _ hbc
-    simp only [S, Set.mem_univ, true_implies]
-    by_cases hb : b
-    · by_cases hc : c
-      · exfalso; exact hbc (hb ▸ hc.symm)
-      · simp [hb, hc]; exact h_disj
-    · by_cases hc : c
-      · simp [hb, hc]; exact h_disj.symm
-      · exfalso; exact hbc (eq_false_of_ne_true hb ▸ (eq_false_of_ne_true hc).symm)
-  have hindep := iIndepFun.finsets_sum S h_disjoint hf_Indep hf_meas
-  have h_true : S true = s := by simp [S]
-  have h_false : S false = t := by simp [S]
-  rw [← h_true, ← h_false]
-  convert hindep.indepFun Bool.true_eq_false_eq_False
-  all_goals simp
-
-end
-
 open Classical
 
 private theorem entropy_kvm_step {Ω : Type u_1} {G : Type u_5} [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
@@ -609,12 +560,7 @@ private theorem entropy_kvm_step {Ω : Type u_1} {G : Type u_5} [mΩ : Measurabl
       rwa [←this]
     rw [hφ]
     ext x a : 2
-    fin_cases x <;> simp only [Fin.isValue, Finset.univ_eq_attach, Fin.zero_eta,
-      Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.cons_val', Pi.neg_apply, Finset.sum_apply,
-      Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.cons_val_zero, neg_inj] ; rw [hS]
-    · simp [Finset.sum_attach (s \ {f i}).attach  (X · a), Finset.sum_attach (s \ {f i}) (X · a)]
-    · simp
-    · simp
+    fin_cases x <;> simp ; rw [hS] ; simp [Finset.sum_attach (s \ {f i}).attach  (X · a), Finset.sum_attach (s \ {f i}) (X · a)]
   · convert Finset.measurable_sum (s \ {f i}) (fun i _ => (hX i).neg)
     simp [Pi.neg_apply, Finset.sum_apply, Finset.sum_neg_distrib, neg_inj]
   · apply (hX <| f i).neg
