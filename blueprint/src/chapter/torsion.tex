@@ -862,18 +862,18 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
 
 \begin{lemma}\label{pfr_aux_torsion}\lean{torsion_PFR_conjecture_aux}\leanok  Suppose that $G$ is a finite abelian group of torsion $m$.  If $A \subset G$ is non-empty and
   $|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^
-  {(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
+  {128m^3+1}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
   \begin{equation}
     \label{ah2}
-    |H|/|A| \in [K^{-64m^3}, K^{64m^3}].
+    |H|/|A| \in [K^{-256m^3}, K^{256m^3}].
   \end{equation}
   \end{lemma}
 
-\begin{proof}\uses{main-entropy, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}  Repeat the proof of \Cref{pfr_aux}, but with \Cref{main-entropy} in place of \Cref{entropy-pfr}.
+\begin{proof}\uses{main-entropy, unif-exist, uniform-entropy-II, jensen-bound,ruz-dist-def,ruzsa-diff,bound-conc,ruz-cov}\leanok  Repeat the proof of \Cref{pfr_aux}, but with \Cref{main-entropy} in place of \Cref{entropy-pfr}.  Because of the lack of $2$-torsion, one has to use the Ruzsa triangle inequality to bound $d[U,U]$ by $2d[U,-U]$, costing an additional factor of $2$ in the estimates.
 \end{proof}
 
 \begin{theorem}[PFR]\label{pfr-torsion}\lean{torsion_PFR}\leanok  Suppose that $G$ is a finite abelian group of torsion $m$.
-  If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{96m^3+2}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
+  If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{256m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
   \end{theorem}
 
   \begin{proof}\uses{pfr_aux_torsion}\leanok Repeat the proof of \Cref{pfr}, but with \Cref{pfr_aux_torsion} in place of \Cref{pfr_aux}.
