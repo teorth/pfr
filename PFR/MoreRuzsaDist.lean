@@ -2108,10 +2108,9 @@ lemma ProbabilityTheory.iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpa
         apply (entropy_pair_eq_add _ _).mpr _ <;> try fun_prop
         let T : Finset (Fin (m+1)) := {.last m}ᶜ
         let T' : Finset (Fin (m+1)) := {.last m}
-        have h_disjoint : Disjoint T T' := by simp [T', T]
         let φ : (T → S) → (Fin m → S) := fun f j ↦ f ⟨ j.castSucc, by simp [T] ⟩
         let φ' : (T' → S) → S := fun f ↦ f ⟨ .last m, by simp [T'] ⟩
-        exact finsets_comp' h_disjoint h_indep hX (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop)
+        exact finsets_comp' (by simp [T', T]) h_indep hX (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop)
       _ = ∑ i:Fin m, H[X i.castSucc] + H[X (.last m)] := by
         congr; apply hm _ _
         . intro i; fun_prop

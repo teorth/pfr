@@ -78,15 +78,13 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
       simp [S] at hij; cc
     _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi zero, 2 * k := by
-      gcongr with i
+      gcongr with j hj
       . rw [Q_eq, inv_mul_eq_div]
         have h1 := multiDist_indep hΩ' (fun i:Fin p.m ↦ h_mes i zero) ?_
         . have h2 : D[fun i ↦ Y (i, zero) ; fun x ↦ hΩ'] = k := by
-            apply multiDist_copy _ _ _ _ _
-            intros; solve_by_elim
+            apply multiDist_copy; intros; solve_by_elim
           have h3 (i:Fin p.m) : H[Y (i, zero)] = H[X i] := by
-            apply IdentDistrib.entropy_congr
-            solve_by_elim
+            apply IdentDistrib.entropy_congr; solve_by_elim
           simp [h2, h3] at h1
           linarith
         let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,zero)}
@@ -94,7 +92,52 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
         convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop)
         rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
         simp [S] at hij; cc
-      sorry
+      simp at hj
+      have : IdentDistrib (Q zero) (Q j) ℙ ℙ := by
+        let f : (Fin p.m → G) → G := fun x ↦ ∑ i, x i
+        convert_to IdentDistrib (f ∘ (fun ω i ↦ Y (i,zero) ω)) (f ∘ (fun ω i ↦ Y (i,j) ω)) ℙ ℙ
+        . ext ω; simp [f]
+        . ext ω; simp [f]
+        apply IdentDistrib.comp _ (by fun_prop)
+        exact {
+          aemeasurable_fst := by fun_prop
+          aemeasurable_snd := by fun_prop
+          map_eq := by
+            rw [(iIndepFun_iff_map_fun_eq_pi_map (by fun_prop)).mp _, (iIndepFun_iff_map_fun_eq_pi_map (by fun_prop)).mp _]
+            . congr 1; ext1 i
+              exact ((hident i zero).trans (hident i j).symm).map_eq
+            . let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
+              let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
+              convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+              rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+              simp [S] at hij; cc
+            let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,zero)}
+            let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,zero), by simp [S] ⟩
+            convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+            rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+            simp [S] at hij; cc
+        }
+      have hQj_mes : Measurable (-(Q j)) := by apply Measurable.neg; fun_prop
+      calc
+        _ = d[Q zero # -(Q j)] := by
+          rw [ProbabilityTheory.IndepFun.rdist_eq _ (by fun_prop) hQj_mes, entropy_neg (by fun_prop), ←IdentDistrib.entropy_congr this, sub_neg_eq_add]
+          . linarith
+          let T : Finset (Fin p.m × Fin p.m) := {q|q.2=zero}
+          let T' : Finset (Fin p.m × Fin p.m) := {q|q.2=j}
+          let φ : (T → G) → G := fun f ↦ ∑ i, f ⟨ (i,zero), by simp [T] ⟩
+          let φ' : (T' → G) → G := fun f ↦ -∑ i, f ⟨ (i,j), by simp [T'] ⟩
+          convert iIndepFun.finsets_comp' _ h_indep (by fun_prop) (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) with ω ω <;> try simp [φ,φ']
+          rw [Finset.disjoint_left]; rintro ⟨ _, _ ⟩ h h'
+          simp [T,T'] at h h'; order
+        _ = d[Q j # -(Q j)] := IdentDistrib.rdist_congr_left (by fun_prop) this
+        _ ≤ _ := by
+          convert multidist_ruzsa_IV hm (fun i ω ↦ Y (i, j) ω) _ (by simp; fun_prop) (by infer_instance) using 2
+          . apply multiDist_copy; intro i; convert (hident i j).symm
+          let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
+          let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
+          convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+          rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+          simp [S] at hij; cc
     _ = _ := by
       have : (p.m-1:ℕ) = (p.m:ℝ)-(1:ℝ) := by norm_cast; apply (Int.subNatNat_of_le _).symm; omega
       simp [zero, this]; ring
