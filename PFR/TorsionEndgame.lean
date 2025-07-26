@@ -16,11 +16,11 @@ section AnalyzeMinimizer
 
 universe u
 
-variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] (p : multiRefPackage G Ωₒ) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) (h_min : multiTauMinimizes p Ω hΩ X)
+variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] {p : multiRefPackage G Ωₒ} {Ω : Fin p.m → Type u} (hΩ : ∀ i, MeasureSpace (Ω i)) {X : ∀ i, Ω i → G} (h_min : multiTauMinimizes p Ω hΩ X)
 
 local notation3 "k" => D[X; hΩ]
 
-variable (Ω' : Type u) (Y : Fin p.m × Fin p.m → Ω' → G)
+variable {Ω' : Type u} {Y : Fin p.m × Fin p.m → Ω' → G}
 
 local notation3 "W" => ∑ i, ∑ j, Y (i, j)
 local notation3 "Z1" => ∑ i: Fin p.m, ∑ j, (i:ℤ) • Y (i, j)
@@ -55,7 +55,79 @@ lemma mutual_information_le_t_13 : I[Z1 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := 
 
 lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := sorry
 
-include h_mes h_indep hident
+include h_mes h_indep hident in
+lemma Q_ident (j j': Fin p.m) : IdentDistrib (Q j) (Q j') ℙ ℙ := by
+  let f : (Fin p.m → G) → G := fun x ↦ ∑ i, x i
+  convert_to IdentDistrib (f ∘ (fun ω i ↦ Y (i,j) ω)) (f ∘ (fun ω i ↦ Y (i,j') ω)) ℙ ℙ
+  . ext ω; simp [f]
+  . ext ω; simp [f]
+  apply IdentDistrib.comp _ (by fun_prop)
+  exact {
+    aemeasurable_fst := by fun_prop
+    aemeasurable_snd := by fun_prop
+    map_eq := by
+      rw [(iIndepFun_iff_map_fun_eq_pi_map (by fun_prop)).mp _, (iIndepFun_iff_map_fun_eq_pi_map (by fun_prop)).mp _]
+      . congr 1; ext1 i
+        exact ((hident i j).trans (hident i j').symm).map_eq
+      . let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j')}
+        let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j'), by simp [S] ⟩
+        convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+        rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+        simp [S] at hij; cc
+      let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
+      let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
+      convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+      rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+      simp [S] at hij; cc
+      }
+
+include h_mes in
+set_option linter.unusedSectionVars false in
+lemma Q_mes (j: Fin p.m) : Measurable (-(Q j)) := by
+  apply Measurable.neg; fun_prop
+
+include h_mes h_indep hident in
+lemma Q_dist (j j': Fin p.m) : d[Q j # -(Q j')] ≤ 2 * k := by
+  have : IdentDistrib (Q j) (Q j') ℙ ℙ := Q_ident _ h_mes h_indep hident _ _
+  have hQj_mes : Measurable (-(Q j')) := Q_mes h_mes _
+  calc
+    _ = d[Q j' # -(Q j')] := IdentDistrib.rdist_congr_left (by fun_prop) this
+    _ ≤ _ := by
+      convert multidist_ruzsa_IV p.hm (fun i ω ↦ Y (i, j') ω) _ (by simp; fun_prop) (by infer_instance) using 2
+      . apply multiDist_copy; intro i; convert (hident i j').symm
+      let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j')}
+      let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j'), by simp [S] ⟩
+      convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+      rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+      simp [S] at hij; cc
+
+include h_mes h_indep hident in
+lemma Q_ent (j: Fin p.m) : H[Q j] ≤ k + (↑p.m)⁻¹ * ∑ i, H[X i] := by
+  rw [Q_eq, inv_mul_eq_div]
+  have h1 := multiDist_indep hΩ' (fun i:Fin p.m ↦ h_mes i j) ?_
+  . have h2 : D[fun i ↦ Y (i, j) ; fun x ↦ hΩ'] = k := by
+      apply multiDist_copy; intros; solve_by_elim
+    have h3 (i:Fin p.m) : H[Y (i, j)] = H[X i] := by
+      apply IdentDistrib.entropy_congr; solve_by_elim
+    simp [h2, h3] at h1
+    linarith
+  let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
+  let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
+  convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop)
+  rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+  simp [S] at hij; cc
+
+include h_mes h_indep hident in
+lemma Q_indep {j j': Fin p.m} (h:j ≠ j') : IndepFun (Q j) (-Q j') ℙ := by
+  let T : Finset (Fin p.m × Fin p.m) := {q|q.2=j}
+  let T' : Finset (Fin p.m × Fin p.m) := {q|q.2=j'}
+  let φ : (T → G) → G := fun f ↦ ∑ i, f ⟨ (i,j), by simp [T] ⟩
+  let φ' : (T' → G) → G := fun f ↦ -∑ i, f ⟨ (i,j'), by simp [T'] ⟩
+  convert iIndepFun.finsets_comp' _ h_indep (by fun_prop) (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) with ω ω <;> try simp [φ,φ']
+  rw [Finset.disjoint_left]; rintro ⟨ _, _ ⟩ h h'
+  simp [T,T'] at h h'; order
+
+include h_mes h_indep hident in
 /-- We have $\bbH[W] \leq (2m-1)k + \frac1m \sum_{i=1}^m \bbH[X_i]$. -/
 lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] := by
   have hm := p.hm
@@ -79,71 +151,71 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
       simp [S] at hij; cc
     _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi zero, 2 * k := by
       gcongr with j hj
-      . rw [Q_eq, inv_mul_eq_div]
-        have h1 := multiDist_indep hΩ' (fun i:Fin p.m ↦ h_mes i zero) ?_
-        . have h2 : D[fun i ↦ Y (i, zero) ; fun x ↦ hΩ'] = k := by
-            apply multiDist_copy; intros; solve_by_elim
-          have h3 (i:Fin p.m) : H[Y (i, zero)] = H[X i] := by
-            apply IdentDistrib.entropy_congr; solve_by_elim
-          simp [h2, h3] at h1
-          linarith
-        let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,zero)}
-        let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,zero), by simp [S] ⟩
-        convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop)
-        rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-        simp [S] at hij; cc
+      . exact Q_ent _ h_mes h_indep hident _
       simp at hj
-      have : IdentDistrib (Q zero) (Q j) ℙ ℙ := by
-        let f : (Fin p.m → G) → G := fun x ↦ ∑ i, x i
-        convert_to IdentDistrib (f ∘ (fun ω i ↦ Y (i,zero) ω)) (f ∘ (fun ω i ↦ Y (i,j) ω)) ℙ ℙ
-        . ext ω; simp [f]
-        . ext ω; simp [f]
-        apply IdentDistrib.comp _ (by fun_prop)
-        exact {
-          aemeasurable_fst := by fun_prop
-          aemeasurable_snd := by fun_prop
-          map_eq := by
-            rw [(iIndepFun_iff_map_fun_eq_pi_map (by fun_prop)).mp _, (iIndepFun_iff_map_fun_eq_pi_map (by fun_prop)).mp _]
-            . congr 1; ext1 i
-              exact ((hident i zero).trans (hident i j).symm).map_eq
-            . let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
-              let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
-              convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
-              rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-              simp [S] at hij; cc
-            let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,zero)}
-            let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,zero), by simp [S] ⟩
-            convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
-            rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-            simp [S] at hij; cc
-        }
-      have hQj_mes : Measurable (-(Q j)) := by apply Measurable.neg; fun_prop
+      have : IdentDistrib (Q zero) (Q j) ℙ ℙ := Q_ident _ h_mes h_indep hident _ _
+      have hQj_mes : Measurable (-(Q j)) := Q_mes h_mes _
       calc
         _ = d[Q zero # -(Q j)] := by
           rw [ProbabilityTheory.IndepFun.rdist_eq _ (by fun_prop) hQj_mes, entropy_neg (by fun_prop), ←IdentDistrib.entropy_congr this, sub_neg_eq_add]
           . linarith
-          let T : Finset (Fin p.m × Fin p.m) := {q|q.2=zero}
-          let T' : Finset (Fin p.m × Fin p.m) := {q|q.2=j}
-          let φ : (T → G) → G := fun f ↦ ∑ i, f ⟨ (i,zero), by simp [T] ⟩
-          let φ' : (T' → G) → G := fun f ↦ -∑ i, f ⟨ (i,j), by simp [T'] ⟩
-          convert iIndepFun.finsets_comp' _ h_indep (by fun_prop) (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) with ω ω <;> try simp [φ,φ']
-          rw [Finset.disjoint_left]; rintro ⟨ _, _ ⟩ h h'
-          simp [T,T'] at h h'; order
-        _ = d[Q j # -(Q j)] := IdentDistrib.rdist_congr_left (by fun_prop) this
-        _ ≤ _ := by
-          convert multidist_ruzsa_IV hm (fun i ω ↦ Y (i, j) ω) _ (by simp; fun_prop) (by infer_instance) using 2
-          . apply multiDist_copy; intro i; convert (hident i j).symm
-          let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
-          let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
-          convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
-          rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-          simp [S] at hij; cc
+          exact Q_indep _ h_mes h_indep hident (by order)
+        _ ≤ _ := Q_dist _ h_mes h_indep hident _ _
     _ = _ := by
       have : (p.m-1:ℕ) = (p.m:ℝ)-(1:ℝ) := by norm_cast; apply (Int.subNatNat_of_le _).symm; omega
       simp [zero, this]; ring
 
+include h_mes h_indep hident in
 /-- We have $\bbH[Z_2] \leq (8m^2-16m+1) k + \frac{1}{m} \sum_{i=1}^m \bbH[X_i]$. -/
-lemma entropy_of_Z_two_le : H[Z2] ≤ (8 * p.m^2 - 16 * p.m + 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] := sorry
+lemma entropy_of_Z_two_le : H[Z2] ≤ (8 * p.m^2 - 16 * p.m + 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] := by
+  have hm := p.hm
+  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
+  let one : Fin p.m := ⟨ 1, by linarith [hm]⟩
+  let Y' : Fin p.m → Ω' → G := fun i ω ↦ i.val • Q i ω
+  have : Y' one = Q one := by ext; simp [one, Y']
+  calc
+    _ = H[ Q one + ∑ i ∈ .Ioi one, i.val • (Q i)] := by
+      congr
+      calc
+        _ = ∑ j, j.val • Q j := by
+          rw [Finset.sum_comm]; apply Finset.sum_congr rfl; intro i _; simp [←Finset.smul_sum]
+        _ = ∑ j ∈ Finset.univ.erase zero, j.val • Q j  := by symm; apply Finset.sum_erase; simp [zero]
+        _ = _ := by
+          symm; rw [add_comm, ←this]
+          convert Finset.sum_erase_add _ _ _ using 3 <;> try infer_instance
+          . ext ⟨ _, _ ⟩; simp [zero, one]; omega
+          simp [one, zero]
+    _ ≤ H[Q one] + ∑ i ∈ .Ioi one, (H[Q one + i.val • (Q i)] - H[Q one]) := by
+      rw [←sub_le_iff_le_add']
+      simp_rw [←this]
+      convert kvm_ineq_I (s := .Ioi one) _ _ _ using 1 <;> try infer_instance
+      . simp
+      . fun_prop
+      let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun j ↦ {p|p.2=j}
+      let φ : (j:Fin p.m) → ((_: S j) → G) → G := fun j x ↦ j.val • ∑ i, x ⟨ (i,j), by simp [S] ⟩
+      convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+      . simp [φ, Y']
+      rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+      simp [S] at hij; cc
+    _ ≤ H[Q one] + ∑ i ∈ .Ioi one, 4 * p.m * (2 * k) := by
+      gcongr with i hi
+      have hQi_mes : Measurable (-(Q i)) := Q_mes h_mes _
+      calc
+        _ = H[Q one - (i.val:ℤ) • -(Q i)] - H[Q one]:= by simp
+        _ ≤ 4 * |(i.val:ℤ)| * d[Q one # -(Q i)] := by
+          convert ent_sub_zsmul_sub_ent_le _ _ _ <;> try infer_instance
+          all_goals try fun_prop
+          simp at hi; exact Q_indep _ h_mes h_indep hident (by order)
+        _ ≤ _ := by
+          gcongr
+          . exact rdist_nonneg (by fun_prop) (by fun_prop)
+          . simp
+          exact Q_dist _ h_mes h_indep hident _ _
+    _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi one, 4 * p.m * (2 * k) := by
+      gcongr; exact Q_ent _ h_mes h_indep hident _
+    _ = _ := by
+      have : (p.m-1-1:ℕ) = (p.m:ℝ)-(1:ℝ)-(1:ℝ) := by norm_cast; rw [Int.subNatNat_of_le (by omega)]; omega
+      simp [one, this]; ring
 
 /-- We have $\bbI[W : Z_2] \leq 2 (m-1) k$. -/
 lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := sorry
