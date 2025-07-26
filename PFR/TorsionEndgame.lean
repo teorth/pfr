@@ -348,10 +348,49 @@ lemma k_eq_zero : k = 0 := sorry
 
 end AnalyzeMinimizer
 
+universe u
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. Suppose that $X$ is a $G$-valued random variable. Then there exists a subgroup $H \leq G$ such that \[ d[X;U_H] \leq 64 m^3 d[X;X].\] -/
-lemma dist_of_X_U_H_le {G : Type*} [AddCommGroup G] [Fintype G] [MeasurableSpace G]
-  [MeasurableSingletonClass G] (m:ℕ) (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) (Ω : Type*) [MeasureSpace Ω] (X: Ω → G): ∃ H : AddSubgroup G, ∃ Ω' : Type*, ∃ mΩ : MeasureSpace Ω', ∃ U : Ω' → G,
-    IsUniform H U ∧ d[X # U] ≤ 64 * m^3 * d[X # X] := sorry
+lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpace G]
+  [MeasurableSingletonClass G] (m:ℕ) (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) (Ω : Type u) [MeasureSpace Ω]
+  [IsProbabilityMeasure (ℙ:Measure Ω)] {X: Ω → G} (hX: Measurable X) : ∃ H : AddSubgroup G, ∃ Ω' : Type u, ∃ mΩ : MeasureSpace Ω', ∃ U : Ω' → G,
+    IsUniform H U ∧ d[X # U] ≤ 64 * m^3 * d[X # X] := by
+    let _ : MeasureableFinGroup G := {
+    }
+    let p : multiRefPackage G Ω := {
+      m := m
+      hm := hm
+      htorsion := htorsion
+      hprob := by infer_instance
+      X₀ := X
+      hmeas := hX
+      η := 1 / (32 * m^3)
+      hη := by positivity
+      hη' := by rw [one_div, inv_le_one₀ (by positivity)]; norm_cast; linarith [Nat.pow_le_pow_left hm 3]
+    }
+    obtain ⟨ Ω', mΩ', X', hX'_mes, hΩ'_prob, htau_min ⟩ := multiTau_min_exists p
+    have hdist : D[X'; mΩ'] = 0 := by
+      apply k_eq_zero
+    have hclose : ∃ i, d[X' i # p.X₀] ≤ (2/p.η) * d[p.X₀ # p.X₀] := by
+      by_contra!
+      replace : ∑ i:Fin p.m, 2 / p.η * d[p.X₀ # p.X₀] < ∑ i, d[X' i # p.X₀] := by
+        apply Finset.sum_lt_sum_of_nonempty
+        . use ⟨ 0, by linarith ⟩; simp
+        simp [this]
+      simp at this
+      have h' := multiTau_min_sum_le p _ mΩ' hΩ'_prob _ hX'_mes htau_min
+      have h'' : ↑p.m * (2 / p.η * d[p.X₀ # p.X₀]) =  2 * ↑p.m * p.η⁻¹ * d[p.X₀ # p.X₀] := by
+        field_simp; ring
+      order
+    obtain ⟨ i, hclose ⟩ := hclose
+    obtain ⟨ H, U, hU_mes, hU_unif, hdist ⟩ := multidist_eq_zero hm mΩ' hΩ'_prob _ hdist hX'_mes (by infer_instance) i
+    replace hclose : d[p.X₀ # U] ≤ (2/p.η) * d[p.X₀ # p.X₀] := calc
+      _ ≤ d[p.X₀ # X' i] + d[X' i # U] := rdist_triangle hX (by fun_prop) (by fun_prop)
+      _ = d[X' i # p.X₀] := by simp [hdist]; exact rdist_symm
+      _ ≤ _ := hclose
+    refine ⟨ H, Ω' i, mΩ' i, U, hU_unif, ?_ ⟩
+    convert hclose using 2
+    have : m > (0:ℝ) := by norm_cast; linarith
+    simp [p]; field_simp; ring
 
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. If $A \subset G$ is non-empty and
   $|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^

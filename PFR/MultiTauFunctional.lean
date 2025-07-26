@@ -23,7 +23,7 @@ extends AddCommGroup G, Fintype G,
 -- May need an instance lemma here that [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] follows automatically from [MeasurableFinGroup G]
 
 /-- A structure that packages all the fixed information in the main argument. See https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Problem.20when.20instances.20are.20inside.20a.20structure for more discussion of the design choices here. -/
-structure multiRefPackage (G Ω₀ : Type*) [MeasureableFinGroup G] [MeasureSpace Ω₀] where
+structure multiRefPackage (G Ω₀ : Type u) [MeasureableFinGroup G] [MeasureSpace Ω₀] where
   /-- The torsion index of the group we are considering. -/
   m : ℕ
   hm : m ≥ 2
@@ -40,7 +40,7 @@ structure multiRefPackage (G Ω₀ : Type*) [MeasureableFinGroup G] [MeasureSpac
 /-- If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 -/
-noncomputable def multiTau {G Ω₀ : Type*} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) : ℝ :=
+noncomputable def multiTau {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) : ℝ :=
   D[X; hΩ] + p.η * ∑ i, d[ X i # p.X₀ ]
 
 -- I can't figure out how to make a τ notation due to the dependent types in the arguments. But perhaps we don't need one. Also it may be better to define multiTau in terms of probability measures on G, rather than G-valued random variables, again to avoid dependent type issues.
@@ -54,7 +54,7 @@ lemma multiTau_continuous {G Ω₀ : Type u} [MeasureableFinGroup G] [Topologica
       (fun (μ : Fin p.m → ProbabilityMeasure G) ↦ multiTau p (fun _ ↦ G) (fun i ↦ ⟨ μ i ⟩) (fun _ ↦ id)) := by sorry
 
 /-- If $G$ is finite, then a $\tau$-minimizer exists. -/
-lemma multiTau_min_exists {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) : ∃ (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G), multiTauMinimizes p Ω hΩ X := by sorry
+lemma multiTau_min_exists {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) : ∃ (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G), (∀ i, Measurable (X i)) ∧ (∀ i, IsProbabilityMeasure (hΩ i).volume) ∧ multiTauMinimizes p Ω hΩ X := by sorry
 
 /-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/
 lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG: MeasureableFinGroup G] [hΩ₀: MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (hprobΩ : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) (X : ∀ i, Ω i → G) (hX : ∀ i, Measurable (X i)) (h_min : multiTauMinimizes p Ω hΩ X):
