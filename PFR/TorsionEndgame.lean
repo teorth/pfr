@@ -262,7 +262,10 @@ lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := by
 include h_mes h_indep hident hΩ_prob hX_mes in
 /-- We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$. -/
 lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - p.m^2)*k := by
-  have hm_2 : (p.m:ℝ) ≥ 2 := by norm_cast; exact p.hm
+  have hm := p.hm
+  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
+  let one : Fin p.m := ⟨ 1, by linarith [hm]⟩
+  have hm_2 : (p.m:ℝ) ≥ 2 := by norm_cast
   have hm_pos : (p.m:ℝ) > 0 := by linarith
   have hm_pos' : 2*(p.m:ℝ)-1 > 0 := by linarith
   have hk : k ≥ 0 := multiDist_nonneg _ hΩ_prob _ hX_mes
@@ -276,7 +279,43 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
         _ ≤ (d[X i # X i] + (H[Z2] - H[X i]) / 2) + (2*(p.m-1) * k)/2 := by
           gcongr
           . rw [div_eq_inv_mul]
-            sorry
+            let i₀ : Fin p.m × Fin p.m := (i, zero)
+            let i₁ : Fin p.m × Fin p.m := (i, one)
+            let Y' : Fin p.m × Fin p.m → Ω' → G := fun q ↦ if q = i₀ then Y q else q.2.val • Y q
+            have h_mes_Y' (q: Fin p.m × Fin p.m) : Measurable (Y' q) := by
+              by_cases h : q = i₀ <;> simp [Y', h] <;> fun_prop
+            let s : Finset (Fin p.m × Fin p.m) := Finset.erase {q | q.2 ≠ zero} i₁
+            have hs₀: i₀ ∉ s := by simp [s, i₀]
+            have hs₁: i₁ ∉ s := by simp [s, i₁]
+            have h01: i₀ ≠ i₁ := by simp [i₀, i₁,zero,one]
+            have : Z2 = Y' i₁ + ∑ p ∈ s, Y' p := by
+              simp_rw [Z2_eq, Finset.smul_sum]; rw [Finset.sum_comm]
+              calc
+                _ = ∑ q ∈ Finset.univ ×ˢ (Finset.univ.erase zero), q.2.val • Y q := by
+                  symm; convert Finset.sum_product _ _ _
+                _ = ∑ q ∈ Finset.univ ×ˢ (Finset.univ.erase zero), Y' q := by
+                  apply Finset.sum_congr rfl; intro ⟨ i, j ⟩ hq
+                  simp [Y',i₀] at hq ⊢; tauto
+                _ = _ := by
+                  symm; convert Finset.add_sum_erase _ _ _
+                  . ext ⟨ i,j ⟩; simp
+                  simp [i₁, zero, one]
+            rw [this]
+            have hident₀ : IdentDistrib (Y' i₀) (X i) ℙ ℙ := by
+              convert hident i zero using 1
+              simp [Y', i₀]
+            have hident₁ : IdentDistrib (Y' i₁) (X i) ℙ ℙ := by
+              convert hident i one using 1
+              simp [Y', i₁,i₀,one,zero]
+            rw [←IdentDistrib.entropy_congr hident₁, ←IdentDistrib.rdist_congr hident₀ hident₁, ←IdentDistrib.rdist_congr hident₀ (IdentDistrib.refl (by fun_prop))]
+            convert kvm_ineq_III hs₀ hs₁ h01 Y' h_mes_Y' _
+            let S : Fin p.m × Fin p.m → Finset (Fin p.m × Fin p.m) := fun q ↦ {q}
+            let φ : (q:Fin p.m × Fin p.m) → ((_: S q) → G) → G :=
+              fun q x ↦ if q = i₀ then x ⟨ q, by simp [S] ⟩ else q.2.val • x ⟨ q, by simp [S] ⟩
+            convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with q ω
+            . by_cases h : q = i₀ <;> simp [φ,Y',h]
+            rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+            simp [S] at hij; cc
           exact mutual_of_W_Z_two_le _ h_mes h_indep hident
         _ = _ := by ring
     _ = ∑ i, d[ X i # X i] + p.m * H[Z2] / 2 - (∑ i, H[X i]) / 2 + p.m * (p.m -1) * k := by

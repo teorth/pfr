@@ -735,7 +735,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
 \begin{lemma}[Distance bound]\label{xi-z2-w-dist}\lean{sum_of_conditional_distance_le}\leanok We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 4(m^3-m^2) k$.
 \end{lemma}
 
-\begin{proof}\uses{klm-3, cond-dist-fact, mutual-w-z2, ent-z2, multidist-ruzsa-II}
+\begin{proof}\uses{klm-3, cond-dist-fact, mutual-w-z2, ent-z2, multidist-ruzsa-II}\leanok
   For each $i \in \{1,\dots, m\}$, using \Cref{klm-3} (noting the sum $Z_2$ contains $X_i$ as a summand) we have
   \begin{equation}\label{in-a-bit-6}
     d[X_i;Z_2] \leq d[X_i;X_i] + \tfrac12 (\bbH[Z_2] - \bbH[X_i])
