@@ -517,7 +517,7 @@ By \Cref{multidist-perm} and and our hypothesis on columns, we have
 Let $\sigma = \sigma_j \colon I \to I$ be a permutation such that $X_{i,j} = X_{\sigma(i)}$, and write $X'_i := X_{i,j}$ and $Y_i := X_{i,j} + \cdots + X_{i,m}$.
 \Cref{cond-multidist-lower-II}, we have
 \begin{align}
-  A_j & \leq \eta \sum_{i = 1}^m d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}].\label{54a}
+  A_j & \leq \eta \sum_{i = 1}^{m-1} d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}].\label{54a}
 \end{align}
 We similarly consider $B$.  By \Cref{multidist-perm} applied to the $m$-th column,
 \[
