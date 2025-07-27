@@ -1,4 +1,5 @@
 import Mathlib.Algebra.BigOperators.Group.Multiset.Defs
+import PFR.Mathlib.Data.Fin.Basic
 import PFR.MultiTauFunctional
 
 
@@ -17,13 +18,6 @@ universe u
 open MeasureTheory ProbabilityTheory
 
 
-/-- For Mathlib -/
-theorem Fin.cast_surjective {k l:ℕ} (h: k = l) : Function.Surjective (Fin.cast h) :=
-  (rightInverse_cast h).surjective -- or `(finCongr h).surjective`
-
-/-- For Mathlib -/
-theorem Fin.cast_bijective {k l:ℕ} (h: k = l) : Function.Bijective (Fin.cast h) :=
-  ⟨ cast_injective h, cast_surjective h ⟩ -- or `(finCongr h).bijective`
 
 lemma multiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
     (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩfin : ∀ i, IsFiniteMeasure (hΩ i).volume)
@@ -161,6 +155,25 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
         + (H[S i j] - H[S i (j+one)]) / 2 := by
         sorry
 
+    have h4a (i: Fin p.m) : ∑ j ∈ Finset.Iio last, (H[S i j] - H[S i (j + one)]) = H[V i] - H[X' (i, last)] := by
+      convert Finset.sum_range_sub' (fun k ↦ H[∑ j ∈ {j|j.val ≥ k}, X' (i,j)]) (p.m-1)
+      . have (k:Fin p.m): S i k = ∑ j ∈ {j|j.val ≥ k.val}, X' (i,j) := by
+          unfold S; congr
+          ext ⟨ j, hj ⟩; obtain ⟨ k, hk ⟩ := k; simp
+        simp_rw [this]
+        convert Finset.sum_nbij (fun i ↦ i.val) (s := Finset.Iio last)  _ _ _ _
+        . intro ⟨ _, _ ⟩; simp [last]
+        . intro ⟨ _, _⟩ _ ⟨ _, _ ⟩ _; simp
+        . intro _ hi; simpa [last] using hi
+        intro ⟨ j, hj ⟩ hj'
+        simp [last, one] at hj' ⊢
+        rcongr ⟨ k, hk ⟩
+        have : (j+1) % p.m = j+1 := Nat.mod_eq_of_lt (by omega)
+        simp [←Fin.val_fin_le, Fin.val_add, this]
+      . ext ω; simp [V]
+      ext ω; simp; symm; convert Finset.sum_singleton _ last
+      ext ⟨ j, hk ⟩; simp [last]; omega
+
     have h5 (i: Fin p.m) :
       ∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) | S i j ]
         ≤ ∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) ] + (H[V i] - H[X' (i, last)]) / 2 := calc
@@ -168,23 +181,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
           apply Finset.sum_le_sum; intro j hj; exact h4 i hj
         _ = _ := by
           rw [Finset.sum_add_distrib, ←Finset.sum_div]; congr
-          convert Finset.sum_range_sub' (fun k ↦ H[∑ j ∈ {j|j.val ≥ k}, X' (i,j)]) (p.m-1)
-          . have (k:Fin p.m): S i k = ∑ j ∈ {j|j.val ≥ k.val}, X' (i,j) := by
-              unfold S; congr
-              ext ⟨ j, hj ⟩; obtain ⟨ k, hk ⟩ := k; simp
-            simp_rw [this]
-            convert Finset.sum_nbij (fun i ↦ i.val) (s := Finset.Iio last)  _ _ _ _
-            . intro ⟨ _, _ ⟩; simp [last]
-            . intro ⟨ _, _⟩ _ ⟨ _, _ ⟩ _; simp
-            . intro _ hi; simpa [last] using hi
-            intro ⟨ j, hj ⟩ hj'
-            simp [last, one] at hj' ⊢
-            rcongr ⟨ k, hk ⟩
-            have : (j+1) % p.m = j+1 := Nat.mod_eq_of_lt (by omega)
-            simp [←Fin.val_fin_le, Fin.val_add, this]
-          . ext ω; simp [V]
-          ext ω; simp; symm; convert Finset.sum_singleton _ last
-          ext ⟨ j, hk ⟩; simp [last]; omega
+          exact h4a i
 
     have h6 (i: Fin p.m) :
       d[ X' (i, last) # V i ] ≤ d[ X' (i, last) # X' (i, last) ]
@@ -192,7 +189,36 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
         sorry
 
     have h7 : I₀/p.η ≤ p.m * k + p.m * ∑ i, d[X i # X i] + ∑ i, H[V i] - ∑ i, H[X i] := by
-      sorry
+      rw [div_le_iff₀' hη]
+      apply h1.trans
+      calc
+        _ ≤ ∑ j ∈ .Iio last, (p.η * (k + ∑ i, d[ X' (i,j) # X' (i,j) | S i j ])) + p.η * ∑ i, d[ X' (i, last) # V i ] := by gcongr with j hj; exact h2 hj
+        _ ≤ p.η * (↑↑last * k + ∑ i, (∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) ] + (H[V i] - H[X' (i, last)]) / 2)) +
+        p.η * ∑ i, (d[ X' (i, last) # X' (i, last) ] + (H[V i] - H[X' (i, last)]) / 2) := by
+          simp [←Finset.mul_sum, Finset.sum_add_distrib]; rw [Finset.sum_comm]; gcongr
+          . rw [←Finset.sum_add_distrib]; apply Finset.sum_le_sum; intro i _; exact h5 i
+          rw [←Finset.sum_add_distrib]; apply Finset.sum_le_sum; intro i _; exact h6 i
+        _ = p.η * (↑↑last * k + ∑ i, (∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) ] + d[ X' (i, last) # X' (i, last) ]) + ∑ i, H[V i] - ∑ i, H[X' (i, last)]) := by
+          simp_rw [Finset.sum_add_distrib, ←Finset.sum_div, Finset.sum_sub_distrib]; ring
+        _ = p.η * (↑↑last * k + ∑ j, (∑ i, d[ X' (i,j) # X' (i,j) ]) + ∑ i, H[V i] - ∑ i, H[X' (i, last)]) := by
+          rw [Finset.sum_comm]
+          rcongr i
+          convert Finset.sum_erase_add _ _ _ using 3
+          . ext ⟨ j, hj ⟩; simp [last]; omega
+          . infer_instance
+          simp
+        _ = p.η * (↑↑last * k + (∑ j:Fin p.m, (∑ i, d[ X i # X i ])) + ∑ i, H[V i] - ∑ i, H[X i]) := by
+          congr 2
+          . congr; ext j; obtain ⟨ e, he ⟩ := hperm j
+            convert Equiv.sum_comp e _ with i _
+            apply IdentDistrib.rdist_congr <;> exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+          obtain ⟨ e, he ⟩ := hperm last
+          convert Equiv.sum_comp e _ with i _
+          apply IdentDistrib.entropy_congr <;> exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+        _ ≤ _ := by
+          simp [last]; gcongr
+          . apply multiDist_nonneg _ inferInstance _ (by fun_prop)
+          omega
 
     have h8 (i: Fin p.m) : H[V i] ≤ H[ ∑ j, X j] + ∑ j, d[X' (i,j) # X' (i,j)] := by
       sorry
