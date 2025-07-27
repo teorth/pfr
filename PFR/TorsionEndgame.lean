@@ -15,7 +15,7 @@ section AnalyzeMinimizer
 
 universe u
 
-variable {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ] {p : multiRefPackage G Ωₒ} {Ω : Fin p.m → Type u}
+variable {G Ωₒ : Type u} [MeasureableFinGroup G] [hΩ₀: MeasureSpace Ωₒ] {p : multiRefPackage G Ωₒ} {Ω : Fin p.m → Type u}
   (hΩ : ∀ i, MeasureSpace (Ω i)) {X : ∀ i, Ω i → G} (h_min : multiTauMinimizes p Ω hΩ X)
   (hΩ_prob : ∀ i, IsProbabilityMeasure (hΩ i).volume) (hX_mes: ∀ i, Measurable (X i))
 
@@ -66,8 +66,7 @@ lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ 4 * p.m ^ 2 * p.η * k := 
   have hindep_j (j: Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := indep_yj h_mes h_indep j
   have := mutual_information_le p Ω' (fun i ω ↦ Y (i,zero) ω) (hindep_j zero) ?_ Ω' Y h_indep ?_
   . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
-      apply multiDist_copy
-      intro i; exact (hident i zero).symm
+      apply multiDist_copy; intro i; exact (hident i zero).symm
     rw [←k_eq, condMutualInfo_comm] at this
     apply LE.le.trans _ this
     convert condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i) (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i) _
@@ -84,9 +83,112 @@ lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ 4 * p.m ^ 2 * p.η * k := 
   intro i
   exact (hident i j).trans (hident i zero).symm
 
-lemma mutual_information_le_t_13 : I[Z1 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := sorry
+lemma torsion_mul_eq {i j:ℤ} (x:G) (h: i ≡ j [ZMOD p.m]) : i • x = j • x := by
+  rw [Int.modEq_iff_add_fac] at h
+  obtain ⟨ t, rfl ⟩ := h
+  simp [add_smul, mul_comm, mul_zsmul, p.htorsion]
 
-lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := sorry
+include h_mes h_indep hident h_min in
+lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := by
+  have hm := p.hm
+  have _ : NeZero p.m := by rw [neZero_iff]; linarith
+  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
+  let X' : Fin p.m × Fin p.m → Ω' → G := fun (i, j) ω ↦ Y (i-j, j) ω
+  have hX'_indep : iIndepFun X' := by
+    let S : Fin p.m × Fin p.m → Finset (Fin p.m × Fin p.m) := fun (i,j) ↦ {(i-j,j)}
+    let φ : (q:Fin p.m × Fin p.m) → ((_: S q) → G) → G := fun q x ↦ x ⟨ (q.1-q.2,q.2), by simp [S] ⟩
+    convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+    rw [Finset.pairwiseDisjoint_iff]; rintro ⟨ i,j ⟩ _ ⟨ i',j' ⟩ _ ⟨ ⟨ i₀, j₀ ⟩, hij ⟩
+    simp [S] at hij; obtain ⟨ ⟨ rfl, rfl ⟩, h1, rfl ⟩ := hij; simpa using h1
+  have hindep_j (j: Fin p.m) : iIndepFun (fun i ↦ X' (i, j)) := by
+    let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
+    let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
+    convert iIndepFun.finsets_comp S _ hX'_indep (by fun_prop) φ (by fun_prop) with i ω
+    rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+    simp [S] at hij; cc
+  have := mutual_information_le p Ω' (fun i ω ↦ Y (i,zero) ω) (indep_yj h_mes h_indep zero) ?_ Ω' X' hX'_indep ?_
+  . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
+      apply multiDist_copy; intro i; exact (hident i zero).symm
+    rw [←k_eq] at this
+    apply LE.le.trans _ this
+    convert condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i) (fun (x: Fin p.m → G) ↦ -∑ i, i.val • x i) _
+      with ω <;> try infer_instance
+    all_goals try fun_prop
+    . ext ω; simp [Finset.smul_sum, X']; nth_rewrite 1 [Finset.sum_comm]
+      apply Finset.sum_congr rfl; intro j _
+      symm; convert Equiv.sum_comp (Equiv.subRight j) _ with i _
+      simp
+    . ext ω; simp [Finset.smul_sum, X',←Finset.sum_neg_distrib]; nth_rewrite 1 [Finset.sum_comm]; nth_rewrite 2 [Finset.sum_comm]
+      apply Finset.sum_congr rfl; intro j _
+      symm; convert Equiv.sum_comp (Equiv.subRight j) _ with i _
+      simp [←natCast_zsmul]; rw [←neg_zsmul]
+      apply torsion_mul_eq (p := p)
+      simp [Lean.Omega.Fin.ofNat_val_sub, Int.modEq_iff_add_fac, Int.emod_def]
+      use ((↑p.m - ↑↑j + ↑↑i) / ↑p.m) - 1
+      ring
+    simp [X']; nth_rewrite 1 [Finset.sum_comm]; nth_rewrite 2 [Finset.sum_comm]
+    apply Finset.sum_congr rfl; intro i _
+    convert Equiv.sum_comp (Equiv.subRight i) _ with j _
+    simp
+  . apply multiTauMinimizes_of_ident p _ _ _ h_min
+    intro i; exact (hident i zero).symm
+  intro j; use Equiv.subRight j
+  apply IdentDistrib.iprodMk _ hΩ'_prob hΩ'_prob (hindep_j j)
+  . exact iIndepFun.precomp (Equiv.injective (Equiv.subRight j)) (indep_yj h_mes h_indep zero)
+  intro i
+  simp [X']
+  exact (hident (i-j) j).trans (hident (i-j) zero).symm
+
+include h_mes h_indep hident h_min in
+lemma mutual_information_le_t_21 : I[Z1 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := by
+  have hm := p.hm
+  have _ : NeZero p.m := by rw [neZero_iff]; linarith
+  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
+  let X' : Fin p.m × Fin p.m → Ω' → G := fun (i, j) ω ↦ Y (i, j-i) ω
+  have hX'_indep : iIndepFun X' := by
+    let S : Fin p.m × Fin p.m → Finset (Fin p.m × Fin p.m) := fun (i,j) ↦ {(i,j-i)}
+    let φ : (q:Fin p.m × Fin p.m) → ((_: S q) → G) → G := fun q x ↦ x ⟨ (q.1,q.2-q.1), by simp [S] ⟩
+    convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+    rw [Finset.pairwiseDisjoint_iff]; rintro ⟨ i,j ⟩ _ ⟨ i',j' ⟩ _ ⟨ ⟨ i₀, j₀ ⟩, hij ⟩
+    simp [S] at hij; obtain ⟨ ⟨ rfl, rfl ⟩, rfl, h2 ⟩ := hij; simpa using h2
+  have hindep_j (j: Fin p.m) : iIndepFun (fun i ↦ X' (i, j)) := by
+    let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
+    let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
+    convert iIndepFun.finsets_comp S _ hX'_indep (by fun_prop) φ (by fun_prop) with i ω
+    rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+    simp [S] at hij; cc
+  have hindep_yj (j: Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := indep_yj h_mes h_indep j
+  have := mutual_information_le p Ω' (fun i ω ↦ Y (i,zero) ω) (hindep_yj zero) ?_ Ω' X' hX'_indep ?_
+  . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
+      apply multiDist_copy; intro i; exact (hident i zero).symm
+    rw [←k_eq,condMutualInfo_comm] at this
+    apply LE.le.trans _ this
+    convert condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i) (fun (x: Fin p.m → G) ↦ -∑ i, i.val • x i) _
+      with ω <;> try infer_instance
+    all_goals try fun_prop
+    . ext ω; simp [Finset.smul_sum, X']
+      apply Finset.sum_congr rfl; intro j _
+      symm; convert Equiv.sum_comp (Equiv.subRight j) _ with i _
+      simp
+    . ext ω; simp [Finset.smul_sum, X',←Finset.sum_neg_distrib]; nth_rewrite 2 [Finset.sum_comm]
+      apply Finset.sum_congr rfl; intro j _
+      symm; convert Equiv.sum_comp (Equiv.subRight j) _ with i _
+      simp [←natCast_zsmul]; rw [←neg_zsmul]
+      apply torsion_mul_eq (p := p)
+      simp [Lean.Omega.Fin.ofNat_val_sub, Int.modEq_iff_add_fac, Int.emod_def]
+      use ((↑p.m - ↑↑j + ↑↑i) / ↑p.m) - 1
+      ring
+    simp [X']
+    apply Finset.sum_congr rfl; intro i _
+    convert Equiv.sum_comp (Equiv.subRight i) _ with j _
+    simp
+  . apply multiTauMinimizes_of_ident p _ _ _ h_min
+    intro i; exact (hident i zero).symm
+  intro j; use Equiv.refl _
+  simp [X']
+  apply IdentDistrib.iprodMk _ hΩ'_prob hΩ'_prob (hindep_j j) (hindep_yj zero)
+  intro i
+  exact (hident i (j-i)).trans (hident i zero).symm
 
 include h_mes h_indep hident in
 lemma Q_ident (j j': Fin p.m) : IdentDistrib (Q j) (Q j') ℙ ℙ := by
