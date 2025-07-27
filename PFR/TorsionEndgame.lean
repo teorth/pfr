@@ -60,7 +60,7 @@ lemma indep_yj (j : Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := by
 include h_mes h_indep hident h_min in
 /-- We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤ 4m^2 η k`.
 -/
-lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ 4 * p.m ^ 2 * p.η * k := by
+lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ 2 * p.m * (2 * p.m + 1) * p.η * k := by
   have hm := p.hm
   let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
   have hindep_j (j: Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := indep_yj h_mes h_indep j
@@ -89,7 +89,7 @@ lemma torsion_mul_eq {i j:ℤ} (x:G) (h: i ≡ j [ZMOD p.m]) : i • x = j • x
   simp [add_smul, mul_comm, mul_zsmul, p.htorsion]
 
 include h_mes h_indep hident h_min in
-lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := by
+lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ 2 * p.m * (2 * p.m + 1) * p.η * k := by
   have hm := p.hm
   have _ : NeZero p.m := by rw [neZero_iff]; linarith
   let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
@@ -140,7 +140,7 @@ lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := 
   exact (hident (i-j) j).trans (hident (i-j) zero).symm
 
 include h_mes h_indep hident h_min in
-lemma mutual_information_le_t_21 : I[Z1 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := by
+lemma mutual_information_le_t_21 : I[Z1 : Z3 | W] ≤ 2 * p.m * (2 * p.m + 1) * p.η * k := by
   have hm := p.hm
   have _ : NeZero p.m := by rw [neZero_iff]; linarith
   let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩

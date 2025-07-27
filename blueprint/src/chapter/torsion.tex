@@ -491,7 +491,7 @@ Suppose that $X_{i,j}$, $1 \leq i,j \leq m$, are jointly independent $G$-valued 
   \]
 Then
   \begin{equation}\label{I-ineq}
-    {\mathcal I} \leq 4 m^2 \eta k.
+    {\mathcal I} \leq 2 m(2m+1) \eta k.
   \end{equation}
 \end{proposition}
 
@@ -515,9 +515,9 @@ By \Cref{multidist-perm} and and our hypothesis on columns, we have
   D[ (X_{i, j})_{i = 1}^m ]= D[ (X_i)_{i=1}^m ] = k.
 \]
 Let $\sigma = \sigma_j \colon I \to I$ be a permutation such that $X_{i,j} = X_{\sigma(i)}$, and write $X'_i := X_{i,j}$ and $Y_i := X_{i,j} + \cdots + X_{i,m}$.
-\Cref{cond-multidist-lower-II}, we have
+By \Cref{cond-multidist-lower-II}, we have
 \begin{align}
-  A_j & \leq \eta \sum_{i = 1}^{m-1} d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}].\label{54a}
+  A_j & \leq \eta \sum_{i = 1}^{m} d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}].\label{54a}
 \end{align}
 We similarly consider $B$.  By \Cref{multidist-perm} applied to the $m$-th column,
 \[
@@ -614,7 +614,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   \]
   where
   \begin{equation}\label{t-def}
-    t :=  4m^2 \eta k.
+    t :=  2m(2m+1) \eta k.
   \end{equation}
 \end{proposition}
 
@@ -820,7 +820,7 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
     \label{eq:delta-w}
     \nonumber
     \delta_\ast := \sum_w p_W(w) \delta_w &= \bbI[Z_1 : Z_2 \,|\, W] + \bbI[Z_1 : Z_3 \,|\, W] + \bbI[Z_2 : Z_3 \,|\, W] \\
-                           & \leq 12 m^2 \eta k
+                           & \leq 6 m (2m+1) \eta k
   \end{align}
   by \Cref{prop:52}.
   Write $U_w$ for the random variable guaranteed to exist by \Cref{lem:get-better},
@@ -847,10 +847,10 @@ Finally, applying \Cref{multidist-ruzsa-II} (and dropping some lower order terms
   since the terms $d[X_i; U_w]$ cancel by our choice of $\alpha$.
   Substituting in \Cref{xi-z2-w-dist} and~\eqref{eq:delta-w}, and using the fact that $2 + \frac{\eta}{2} < 3$, we have
   \[
-    12 m^3 (2+\frac{\eta}{2}) \eta k + \eta 8(m^3-m^2) k \geq k.
+    6 m^2 (2m+1) (2+\frac{\eta}{2}) \eta k + \eta 8(m^3-m^2) k \geq k.
   \]
   From \Cref{eta-def-multi} we have we have
-  $$ 12 m^3 (2+\frac{\eta}{2}) \eta + \eta 8(m^3-m^2) < 1$$
+  $$ 6 m^2 (2m+1) (2+\frac{\eta}{2}) \eta + \eta 8(m^3-m^2) < 1$$
   and hence $k \leq 0$.  The claim now follows from \Cref{multidist-nonneg}.
 \end{proof}
 
