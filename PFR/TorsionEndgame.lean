@@ -64,7 +64,7 @@ lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ 2 * p.m * (2 * p.m + 1) * 
   have hm := p.hm
   let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
   have hindep_j (j: Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := indep_yj h_mes h_indep j
-  have := mutual_information_le p Ω' (fun i ω ↦ Y (i,zero) ω) (hindep_j zero) ?_ Ω' Y h_indep ?_
+  have := mutual_information_le (by fun_prop) (hindep_j zero) ?_ h_mes h_indep ?_
   . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
       apply multiDist_copy; intro i; exact (hident i zero).symm
     rw [←k_eq, condMutualInfo_comm] at this
@@ -106,7 +106,7 @@ lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ 2 * p.m * (2 * p.m + 1) * 
     convert iIndepFun.finsets_comp S _ hX'_indep (by fun_prop) φ (by fun_prop) with i ω
     rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
     simp [S] at hij; cc
-  have := mutual_information_le p Ω' (fun i ω ↦ Y (i,zero) ω) (indep_yj h_mes h_indep zero) ?_ Ω' X' hX'_indep ?_
+  have := mutual_information_le (by fun_prop) (indep_yj h_mes h_indep zero) ?_ (by fun_prop) hX'_indep ?_
   . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
       apply multiDist_copy; intro i; exact (hident i zero).symm
     rw [←k_eq] at this
@@ -158,7 +158,7 @@ lemma mutual_information_le_t_21 : I[Z1 : Z3 | W] ≤ 2 * p.m * (2 * p.m + 1) * 
     rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
     simp [S] at hij; cc
   have hindep_yj (j: Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := indep_yj h_mes h_indep j
-  have := mutual_information_le p Ω' (fun i ω ↦ Y (i,zero) ω) (hindep_yj zero) ?_ Ω' X' hX'_indep ?_
+  have := mutual_information_le (by fun_prop) (hindep_yj zero) ?_ (by fun_prop) hX'_indep ?_
   . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
       apply multiDist_copy; intro i; exact (hident i zero).symm
     rw [←k_eq,condMutualInfo_comm] at this

@@ -517,7 +517,7 @@ By \Cref{multidist-perm} and and our hypothesis on columns, we have
 Let $\sigma = \sigma_j \colon I \to I$ be a permutation such that $X_{i,j} = X_{\sigma(i)}$, and write $X'_i := X_{i,j}$ and $Y_i := X_{i,j} + \cdots + X_{i,m}$.
 By \Cref{cond-multidist-lower-II}, we have
 \begin{align}
-  A_j & \leq \eta \sum_{i = 1}^{m} d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}].\label{54a}
+  A_j & \leq \eta (k+\sum_{i = 1}^{m} d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}]).\label{54a}
 \end{align}
 We similarly consider $B$.  By \Cref{multidist-perm} applied to the $m$-th column,
 \[
@@ -554,7 +554,7 @@ On the other hand, by \Cref{klm-3} (since $X_{i,m}$ appears in the sum $V_i$) we
 Combining~\eqref{441},~\eqref{54a} and~\eqref{55a} with~\eqref{eq:distbnd1} and~\eqref{eq:distbnd2} (the latter two summed over $i$), we get
 \begin{align}
   \nonumber
-  \frac1{\eta} {\mathcal I} &\leq \sum_{i,j=1}^m d[X_{i,j};X_{i,j}] + \sum_{i=1}^m (\bbH[V_i] - \bbH[X_{i,m}]) \\
+  \frac1{\eta} {\mathcal I} &\leq mk + \sum_{i,j=1}^m d[X_{i,j};X_{i,j}] + \sum_{i=1}^m (\bbH[V_i] - \bbH[X_{i,m}]) \\
       &= m \sum_{i=1}^m d[X_i; X_i] + \sum_{i=1}^m \bbH[V_i] - \sum_{i=1}^m \bbH[X_i].
       \label{eq:distbnd3}
 \end{align}
