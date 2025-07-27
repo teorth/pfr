@@ -80,7 +80,7 @@ With a bit more effort, we can remove the constant term $c$, at the cost of redu
 \begin{lemma}[Slicing]\label{gslice}\lean{card_of_slice}\leanok  Let $G$ be a finite abelian $2$-group, and let $A$ be a subset of $G$.  Then there exists a homomorphism $\phi: G \to \Z/2\Z$ such that $|A \cap \phi^{-1}(1)| \geq (|A|-1)/2$.
 \end{lemma}
 
-\begin{proof}\uses{gdual, gcount}  We have
+\begin{proof}\uses{gdual, gcount}\leanok  We have
   $$ \sum_{\phi \in \mathrm{Hom}(G,\Z/2\Z)} |A \cap \phi^{-1}(1)| = \sum_{x \in A} |\{ \phi \in \mathrm{Hom}(G,\Z/2\Z): \phi(x) = 1 \}|$$
   $$ \geq (|A|-1) |G|/2$$
   thanks to Lemma \ref{gcount}. The claim now follows from Lemma \ref{gdual} and the pigeonhole principle.

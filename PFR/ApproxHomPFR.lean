@@ -181,19 +181,18 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
           Nat.card H / Nat.card ↑A'' := by gcongr
     _ = 2 ^ 140 * K ^ 120 := by field_simp; rpow_simp; norm_num
 
-theorem card_of_dual : Nat.card (G →+ ZMod 2) = Nat.card G := by
-  -- Since these two groups are isomorphic, they have the same cardinality.
-  have h_iso : G ≃+ (G →+ ZMod 2) := by
-    -- By definition of dual space, we know that $G^*$ is isomorphic to $\text{Hom}(G, \mathbb{Z}/2\mathbb{Z})$.
-    have hdual_iso_hom : (G →+ ZMod 2) ≃+ Module.Dual (ZMod 2) G :=
-      AddMonoidHom.toZModLinearMapEquiv 2;
-    -- Since $G$ is a finite-dimensional vector space over $\mathbb{Z}/2\mathbb{Z}$, it is isomorphic to its dual space.
-    have h_dual_iso_self : G ≃ₗ[ZMod 2] Module.Dual (ZMod 2) G :=
-      (Basis.linearEquiv_dual_iff_finiteDimensional.mpr inferInstance).some
-    exact h_dual_iso_self.toAddEquiv.trans hdual_iso_hom.symm;
-  exact Nat.card_congr h_iso.toEquiv.symm
+noncomputable def dual_iso : G ≃+ (G →+ ZMod 2) := by
+  -- By definition of dual space, we know that $G^*$ is isomorphic to $\text{Hom}(G, \mathbb{Z}/2\mathbb{Z})$.
+  have hdual_iso_hom : (G →+ ZMod 2) ≃+ Module.Dual (ZMod 2) G :=
+    AddMonoidHom.toZModLinearMapEquiv 2;
+  -- Since $G$ is a finite-dimensional vector space over $\mathbb{Z}/2\mathbb{Z}$, it is isomorphic to its dual space.
+  have h_dual_iso_self : G ≃ₗ[ZMod 2] Module.Dual (ZMod 2) G :=
+    (Basis.linearEquiv_dual_iff_finiteDimensional.mpr inferInstance).some
+  exact h_dual_iso_self.toAddEquiv.trans hdual_iso_hom.symm
 
-theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : Nat.card { φ: G →+ ZMod 2 | φ x = 1 } = Nat.card G / 2 := by
+theorem card_of_dual : Nat.card (G →+ ZMod 2) = Nat.card G := Nat.card_congr dual_iso.toEquiv.symm
+
+theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : 2 * Nat.card { φ: G →+ ZMod 2 | φ x = 1 } = Nat.card G := by
   suffices h_eq_card : Nat.card {φ : G →+ ZMod 2 | (φ x) = 1} = Nat.card {φ : G →+ ZMod 2 | (φ x) = 0} by
     have h_eq_card : Nat.card {φ : G →+ ZMod 2 | (φ x) = 1} + Nat.card {φ : G →+ ZMod 2 | (φ x) = 0} = Nat.card (G →+ ZMod 2) := by
       -- These two sets partition the set of all homomorphisms from $G$ to $\mathbb{Z}/2\mathbb{Z}$.
@@ -208,7 +207,7 @@ theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : Nat.card { φ: G →+ ZMo
       · simp [Fintype.card_congr (Equiv.Set.univ _)]
     -- Since there are $|G|$ homomorphisms in total, we have $|G| = |H_1| + |H_0|$.
     simp_all [card_of_dual]
-    rw [← h_eq_card, Nat.div_eq_of_eq_mul_left zero_lt_two (by ring)];
+    rw [← h_eq_card]; ring
   -- Let $y$ be an additive character of $G$ such that $y(x) = 1$.
   obtain ⟨y, hy⟩ : ∃ (y : G →+ ZMod 2), y x = 1 := by
     -- Since $G$ is finite, there exists $y : G →+ ZMod 2$ such that $\forall z, y z = \sum_{z \in \{x\}} z$. Let's choose any such $y$.
@@ -231,7 +230,47 @@ theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : Nat.card { φ: G →+ ZMo
   use b + y
   aesop
 
-theorem card_of_slice (A: Set G) : ∃ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) / 2 := by sorry
+theorem card_of_slice (A: Set G) : ∃ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) / 2 := by
+  have _ : Fintype (G →+ ZMod 2) := Fintype.ofEquiv G dual_iso.toEquiv
+  have h1 : 2*∑ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card G) * (Nat.card A-1) := calc
+    _ = 2*∑ φ : G →+ ZMod 2, ∑ x ∈ A, if φ x = 1 then 1 else 0 := by
+      congr 1; apply Finset.sum_congr rfl; intro φ _
+      simp; rw [Fintype.subtype_card]; congr 1
+      aesop
+    _ = 2*∑ x ∈ A, Nat.card { φ : G →+ ZMod 2 | φ x = 1 } := by
+      congr 1; rw [Finset.sum_comm]
+      apply Finset.sum_congr rfl; intro x _
+      simp; rw [Fintype.subtype_card]
+    _ ≥ 2*∑ x ∈ (A.toFinset.erase 0), Nat.card { φ : G →+ ZMod 2 | φ x = 1 } := by
+      by_cases h : 0 ∈ A
+      . rw [←Finset.sum_erase_add (s := A.toFinset) (a := 0)]
+        . simp
+        simp [h]
+      apply le_of_eq
+      congr
+      apply Finset.erase_eq_of_notMem
+      simp [h]
+    _ = ∑ x ∈ (A.toFinset.erase 0), Nat.card G := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl; intro x hx
+      simp at hx
+      exact card_of_dual_constrained x hx.1
+    _ ≥ (Nat.card A-1) * (Nat.card G) := by
+      simp only [sum_const, smul_eq_mul, ge_iff_le, Nat.card_eq_card_toFinset]
+      gcongr
+      exact Finset.pred_card_le_card_erase
+    _ = _ := by ring
+  by_contra! h2
+  replace h2 : 2*∑ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } < ∑ φ : G →+ ZMod 2, (Nat.card A-1) := by
+    rw [Finset.mul_sum]
+    apply Finset.sum_lt_sum_of_nonempty
+    . simp
+    intro φ _; calc
+      _ < 2 * ((Nat.card A - 1)/2) := by
+        gcongr; exact h2 φ
+      _ ≤ _ := Nat.mul_div_le (Nat.card ↑A - 1) 2
+  simp only [sum_const, card_univ, smul_eq_mul,←Nat.card_eq_fintype_card,card_of_dual] at h2
+  order
 
 theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
     (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
