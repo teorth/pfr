@@ -1,4 +1,5 @@
 import Mathlib.Data.Set.Card
+import Mathlib.Algebra.Group.Pointwise.Finset.BigOperators
 import PFR.Main
 import PFR.MultiTauFunctional
 
@@ -331,6 +332,27 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
     _ ≤ _ := by
       simp; positivity
 
+lemma pigeonhole {G:Type*} [MeasureSpace G] [IsProbabilityMeasure (ℙ:Measure G)] [Fintype G]
+  [MeasurableSingletonClass G] (f: G → ℝ) : ∃ x, f x ≤ ∫ (z : G), f z ∧ ℙ {x} ≠ 0 := by
+  set I := ∫ (z : G), f z with hI
+  simp [integral_fintype] at hI
+  by_contra!
+  have hI': ∑ x, (ℙ:Measure G).real {x} * f x > ∑ x, (ℙ:Measure G).real {x} * I := by
+    apply Finset.sum_lt_sum
+    . intro i _
+      by_cases h : I ≤ f i
+      . gcongr
+      specialize this i (by order)
+      rw [←measureReal_eq_zero_iff] at this
+      simp [this]
+    have : ∑ x, (ℙ:Measure G).real {x} = 1 := by simp
+    replace : ∃ x, (ℙ:Measure G).real {x} ≠ 0 := by contrapose! this; simp [this]
+    obtain ⟨ x, hx ⟩ := this
+    use x, by simp
+    gcongr; contrapose! hx
+    specialize this x hx; simpa [measureReal_eq_zero_iff] using this
+  simp [←Finset.sum_mul, sum_measureReal_singleton] at hI'
+  order
 
 /-- Let $G$ be an abelian group, let $(T_1,T_2,T_3)$ be a $G^3$-valued random variable such that $T_1+T_2+T_3=0$ holds identically, and write
   \[
@@ -341,7 +363,83 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
 $$  d[U;U] + \alpha \sum_{i=1}^n d[Y_i;U] \leq \Bigl(2 + \frac{\alpha n}{2} \Bigr) \delta + \alpha \sum_{i=1}^n d[Y_i;T_2].
 $$
 -/
-lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω : Type*} [MeasureSpace Ω] (T₁ T₂ T₃ : Ω → G) (hsum: T₁ + T₂ + T₃ = 0) (n:ℕ) {Ω': Fin n → Type*} (hΩ': ∀ i, MeasureSpace (Ω' i)) (Y: ∀ i, (Ω' i) → G) {α:ℝ} (hα: α > 0): ∃ (Ω'':Type*) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := sorry
+lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω : Type u} [MeasureSpace Ω]
+  [IsProbabilityMeasure (ℙ:Measure Ω)] {T₁ T₂ T₃ : Ω → G}
+  (hsum: T₁ + T₂ + T₃ = 0) (hmes₁: Measurable T₁) (hmes₂: Measurable T₂) (hmes₃: Measurable T₃)
+  {n:ℕ} {Ω': Fin n → Type*} (hΩ': ∀ i, MeasureSpace (Ω' i)) [∀ i, IsProbabilityMeasure (hΩ' i).volume]
+  {Y: ∀ i, (Ω' i) → G} (hY: ∀ i, Measurable (Y i)) {α:ℝ} (hα: α > 0) :
+  ∃ (Ω'':Type u) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), IsProbabilityMeasure hΩ''.volume ∧ d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := by
+  let δ := I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]
+  have h1 := ent_bsg (μ := ℙ) hmes₁ hmes₂
+  have h₁₂ : I[T₁ : T₂] = H[T₁] + H[T₂] - H[ ⟨ T₁, T₂ ⟩ ] := mutualInfo_def _ _ _
+  have h₁₃ : I[T₁ : T₃] = H[T₁] + H[T₃] - H[ ⟨ T₁, T₃ ⟩ ] := mutualInfo_def _ _ _
+  have h₂₃ : I[T₂ : T₃] = H[T₂] + H[T₃] - H[ ⟨ T₂, T₃ ⟩ ] := mutualInfo_def _ _ _
+  have h₃_neg : H[T₁+T₂] = H[T₃] := by rw [←entropy_neg]; congr; rwa [←add_eq_zero_iff_neg_eq]; fun_prop
+  have h₁₃_eq : H[ ⟨ T₁, T₃ ⟩ ] = H[ ⟨ T₁, T₂ ⟩ ] := by
+    rw [←entropy_add_right', ←entropy_neg_right] <;> try fun_prop
+    congr!; rw [←add_eq_zero_iff_neg_eq, ←hsum]; abel
+  have h₂₃_eq : H[ ⟨ T₁, T₃ ⟩ ] = H[ ⟨ T₂, T₃ ⟩ ] := by
+    rw [←entropy_add_left', ←entropy_neg_left] <;> try fun_prop
+    congr!; rw [←add_eq_zero_iff_neg_eq, ←hsum]; abel
+  let _hG : MeasureSpace G := ⟨Measure.map (T₁ + T₂) ℙ⟩
+  let _ : IsProbabilityMeasure (ℙ: Measure G) := isProbabilityMeasure_map (by fun_prop)
+  change ∫ (x : G), (fun z ↦ d[T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]]) x ≤ 3 * I[T₁ : T₂] + 2 * H[T₁ + T₂] - H[T₁] - H[T₂] at h1
+  replace h1 : ∫ (z : G), 2 * d[T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] ≤ 2 * δ := by rw [integral_const_mul_of_integrable]; linarith; apply MeasureTheory.Integrable.of_finite
+  replace h1 : ∫ (z : G), d[T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] ≤ 2 * δ := by
+    apply LE.le.trans _ h1
+    apply MeasureTheory.integral_mono <;> try apply MeasureTheory.Integrable.of_finite
+    intro z; simp
+    by_cases h : ℙ ( (T₁+T₂) ⁻¹' {z} ) = 0
+    . simp [cond_eq_zero_of_meas_eq_zero h, rdist_def]
+    have : IsProbabilityMeasure ℙ[|(T₁ + T₂) ⁻¹' {z}] := cond_isProbabilityMeasure h
+    calc
+      _ ≤ d[T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] + d[T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] := rdist_triangle (by fun_prop) (by fun_prop) (by fun_prop)
+      _ ≤ d[T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] + d[T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁+ T₂) ⁻¹' {z}]] := by rw [rdist_symm]
+      _ = _ := by ring
+  have h2 (i:Fin n): ∫ (z : G), d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] ≤ d[Y i # T₂] + δ/2 := calc
+    _ = d[Y i # T₂ | T₃] := by
+      rw [condRuzsaDist'_eq_sum', integral_fintype] <;> try fun_prop
+      . classical
+        trans ∑ x ∈ -Finset.univ, (ℙ:Measure G).real {x} • d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {x}]]
+        . simp
+        rw [Finset.sum_neg_index]
+        apply Finset.sum_congr rfl; intro x
+        have : (T₁ + T₂) ⁻¹' {-x} = T₃ ⁻¹' {x} := by
+          rw [add_eq_zero_iff_eq_neg] at hsum; rw [hsum]
+          ext ω; simp
+        simp [_hG]; rw [map_measureReal_apply, this]
+        . fun_prop
+        measurability
+      apply MeasureTheory.Integrable.of_finite
+    _ ≤ d[Y i # T₂] + I[T₂ : T₃]/2 := by
+      convert condRuzsaDist_le' _ _ _ _ _ <;> try infer_instance
+      all_goals fun_prop
+    _ ≤ d[Y i # T₂] + δ / 2 := by
+      gcongr
+      have : I[T₁ : T₂] ≥ 0 := by apply mutualInfo_nonneg <;> try fun_prop
+      have : I[T₁ : T₃] ≥ 0 := by apply mutualInfo_nonneg <;> try fun_prop
+      linarith
+  set F: G → ℝ := fun z ↦ d[T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] + α * ∑ i, d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]]
+  have h3 : ∫ (z : G), F z ≤ 2 * δ + α * ∑ i, d[Y i # T₂] + α * n * δ / 2:= calc
+    _ = ∫ (z : G), d[T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] ∂ℙ + α * ∑ i, ∫ (z : G), d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] := by
+      rw [integral_add, integral_const_mul,integral_finset_sum] <;> try intros
+      all_goals apply MeasureTheory.Integrable.of_finite
+    _ ≤ _ := by
+      rw [add_assoc]; gcongr; calc
+        _ ≤ α * ∑ i, (d[Y i # T₂] + δ/2) := by
+          gcongr with i; exact h2 i
+        _ = _ := by
+          simp [Finset.sum_add_distrib]; ring
+  obtain ⟨ z, hz, hpos ⟩ := pigeonhole F
+  replace h3 := hz.trans h3
+  use Ω, ⟨ ℙ[|(T₁ + T₂) ⁻¹' {z}] ⟩, T₂
+  constructor
+  . apply cond_isProbabilityMeasure
+    convert hpos
+    simp [_hG]; rw [MeasureTheory.Measure.map_apply (by fun_prop) (by measurability)]
+  convert h3 using 1
+  ring
+
 
 /-- We have $k = 0$. -/
 lemma k_eq_zero : k = 0 := sorry
