@@ -2,6 +2,7 @@ import Mathlib.Data.Set.Card
 import Mathlib.Algebra.Group.Pointwise.Finset.BigOperators
 import PFR.Main
 import PFR.MultiTauFunctional
+import PFR.BoundingMutual
 
 /-!
 # Endgame for the Torsion PFR theorem
@@ -47,9 +48,41 @@ lemma sum_of_z_eq_zero :Z1 + Z2 + Z3 = 0 := by
 variable [hΩ': MeasureSpace Ω'] [hΩ'_prob: IsProbabilityMeasure hΩ'.volume] (h_mes : ∀ i j, Measurable (Y (i, j)))
   (h_indep : iIndepFun Y) (hident : ∀ i j, IdentDistrib (Y (i, j)) (X i))
 
+include h_mes h_indep in
+omit hΩ'_prob in
+lemma indep_yj (j : Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := by
+  let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
+  let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
+  convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
+  rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+  simp [S] at hij; cc
+
+include h_mes h_indep hident h_min in
 /-- We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤ 4m^2 η k`.
 -/
-lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ 4 * p.m ^ 2 * p.η * k := sorry
+lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ 4 * p.m ^ 2 * p.η * k := by
+  have hm := p.hm
+  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
+  have hindep_j (j: Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := indep_yj h_mes h_indep j
+  have := mutual_information_le p Ω' (fun i ω ↦ Y (i,zero) ω) (hindep_j zero) ?_ Ω' Y h_indep ?_
+  . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
+      apply multiDist_copy
+      intro i; exact (hident i zero).symm
+    rw [←k_eq, condMutualInfo_comm] at this
+    apply LE.le.trans _ this
+    convert condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i) (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i) _
+      with ω <;> try infer_instance
+    all_goals try fun_prop
+    . ext ω; simp [Finset.smul_sum]
+    . ext ω; simp [Finset.smul_sum]; rw [Finset.sum_comm]
+    simp
+  . apply multiTauMinimizes_of_ident p _ _ _ h_min
+    intro i; exact (hident i zero).symm
+  intro j; use Equiv.refl _
+  simp
+  apply IdentDistrib.iprodMk _ hΩ'_prob hΩ'_prob (hindep_j j) (hindep_j zero)
+  intro i
+  exact (hident i j).trans (hident i zero).symm
 
 lemma mutual_information_le_t_13 : I[Z1 : Z3 | W] ≤ 4 * p.m ^ 2 * p.η * k := sorry
 
@@ -69,16 +102,8 @@ lemma Q_ident (j j': Fin p.m) : IdentDistrib (Q j) (Q j') ℙ ℙ := by
       rw [(iIndepFun_iff_map_fun_eq_pi_map (by fun_prop)).mp _, (iIndepFun_iff_map_fun_eq_pi_map (by fun_prop)).mp _]
       . congr 1; ext1 i
         exact ((hident i j).trans (hident i j').symm).map_eq
-      . let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j')}
-        let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j'), by simp [S] ⟩
-        convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
-        rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-        simp [S] at hij; cc
-      let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
-      let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
-      convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
-      rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-      simp [S] at hij; cc
+      . exact indep_yj h_mes h_indep j'
+      exact indep_yj h_mes h_indep j
       }
 
 include h_mes in
@@ -93,13 +118,9 @@ lemma Q_dist (j j': Fin p.m) : d[Q j # -(Q j')] ≤ 2 * k := by
   calc
     _ = d[Q j' # -(Q j')] := IdentDistrib.rdist_congr_left (by fun_prop) this
     _ ≤ _ := by
-      convert multidist_ruzsa_IV p.hm (fun i ω ↦ Y (i, j') ω) _ (by simp; fun_prop) (by infer_instance) using 2
+      convert multidist_ruzsa_IV p.hm (fun i ω ↦ Y (i, j') ω) _ (by simp; fun_prop) (inferInstance) using 2
       . apply multiDist_copy; intro i; convert (hident i j').symm
-      let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j')}
-      let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j'), by simp [S] ⟩
-      convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
-      rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-      simp [S] at hij; cc
+      exact indep_yj h_mes h_indep j'
 
 include h_mes h_indep hident in
 lemma Q_ent (j: Fin p.m) : H[Q j] = k + (↑p.m)⁻¹ * ∑ i, H[X i] := by
@@ -111,11 +132,7 @@ lemma Q_ent (j: Fin p.m) : H[Q j] = k + (↑p.m)⁻¹ * ∑ i, H[X i] := by
       apply IdentDistrib.entropy_congr; solve_by_elim
     simp [h2, h3] at h1
     linarith
-  let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun i ↦ {(i,j)}
-  let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
-  convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop)
-  rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-  simp [S] at hij; cc
+  exact indep_yj h_mes h_indep j
 
 include h_mes h_indep in
 omit hΩ'_prob in
@@ -327,7 +344,7 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
       field_simp; ring
     _ ≤ 2*p.m*k + p.m * (8 * p.m^2 - 16 * p.m + 1) * k / 2 + p.m * (p.m -1) * k := by
       gcongr
-      exact multidist_ruzsa_II p.hm _ hΩ_prob _ hX_mes (by infer_instance)
+      exact multidist_ruzsa_II p.hm _ hΩ_prob _ hX_mes (inferInstance)
     _ = 4 * (p.m^3 - p.m^2) * k - 3 * p.m * (2*p.m - 1) * k /2 := by ring
     _ ≤ _ := by
       simp; positivity
@@ -458,7 +475,7 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpac
       m := m
       hm := hm
       htorsion := htorsion
-      hprob := by infer_instance
+      hprob := inferInstance
       X₀ := X
       hmeas := hX
       η := 1 / (32 * m^3)
@@ -480,7 +497,7 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpac
         field_simp; ring
       order
     obtain ⟨ i, hclose ⟩ := hclose
-    obtain ⟨ H, U, hU_mes, hU_unif, hdist ⟩ := multidist_eq_zero hm mΩ' hΩ'_prob _ hdist hX'_mes (by infer_instance) i
+    obtain ⟨ H, U, hU_mes, hU_unif, hdist ⟩ := multidist_eq_zero hm mΩ' hΩ'_prob _ hdist hX'_mes (inferInstance) i
     replace hclose : d[p.X₀ # U] ≤ (2/p.η) * d[p.X₀ # p.X₀] := calc
       _ ≤ d[p.X₀ # X' i] + d[X' i # U] := rdist_triangle hX (by fun_prop) (by fun_prop)
       _ = d[X' i # p.X₀] := by simp [hdist]; exact rdist_symm

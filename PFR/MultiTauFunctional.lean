@@ -45,11 +45,28 @@ noncomputable def multiTau {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSp
 
 -- I can't figure out how to make a τ notation due to the dependent types in the arguments. But perhaps we don't need one. Also it may be better to define multiTau in terms of probability measures on G, rather than G-valued random variables, again to avoid dependent type issues.
 
+lemma multiTau_of_ident {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀)
+  {Ω₁ Ω₂ : Fin p.m → Type*} (hΩ₁ : ∀ i, MeasureSpace (Ω₁ i)) (hΩ₂ : ∀ i, MeasureSpace (Ω₂ i))
+  {X₁ : ∀ i, Ω₁ i → G} {X₂ : ∀ i, Ω₂ i → G} (h_ident : ∀ i, IdentDistrib (X₁ i) (X₂ i)) :
+  multiTau p Ω₁ hΩ₁ X₁ = multiTau p Ω₂ hΩ₂ X₂ := by
+    unfold multiTau; congr 1
+    . exact multiDist_copy _ _ _ _ h_ident
+    congr 2 with i
+    have := p.hmeas
+    exact IdentDistrib.rdist_congr_left (by fun_prop) (h_ident i)
+
 -- had to force objects to lie in a fixed universe `u` here to avoid a compilation error
 /-- A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables. -/
 def multiTauMinimizes {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) : Prop := ∀ (Ω' : Fin p.m → Type u) (hΩ' : ∀ i, MeasureSpace (Ω' i)) (X': ∀ i, Ω' i → G), multiTau p Ω hΩ X ≤ multiTau p Ω' hΩ' X'
 
-/-- If $G$ is finite, then a $\tau$ is continuous. -/
+lemma multiTauMinimizes_of_ident {G Ω₀ : Type u} [MeasureableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) {Ω₁ Ω₂ : Fin p.m → Type u}
+  (hΩ₁ : ∀ i, MeasureSpace (Ω₁ i)) (hΩ₂ : ∀ i, MeasureSpace (Ω₂ i)) {X₁ : ∀ i, Ω₁ i → G} {X₂ : ∀ i, Ω₂ i → G}
+  (h_ident : ∀ i, IdentDistrib (X₁ i) (X₂ i)) (hmin: multiTauMinimizes p Ω₁ hΩ₁ X₁) : multiTauMinimizes p Ω₂ hΩ₂ X₂ := by
+  intro Ω' hΩ' X'
+  convert hmin Ω' hΩ' X' using 1
+  sorry
+
+/-- If $G$ is finite, then $\tau$ is continuous. -/
 lemma multiTau_continuous {G Ω₀ : Type u} [MeasureableFinGroup G] [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) : Continuous
       (fun (μ : Fin p.m → ProbabilityMeasure G) ↦ multiTau p (fun _ ↦ G) (fun i ↦ ⟨ μ i ⟩) (fun _ ↦ id)) := by sorry
 

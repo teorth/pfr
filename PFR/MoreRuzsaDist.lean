@@ -1155,7 +1155,7 @@ lemma multidist_ruzsa_IV {m : ℕ} (hm : m ≥ 2) {Ω : Type u} [MeasureSpace Ω
     (h_indep : iIndepFun X) (hmes : ∀ i, Measurable (X i)) [IsProbabilityMeasure (ℙ : Measure Ω)]
     (hfin : ∀ i, FiniteRange (X i)) :
     d[∑ i, X i # - ∑ i, X i] ≤ 2 * D[X; fun _ ↦ inferInstance] := by
-    set mS₂ : Fin 2 × Fin m → MeasurableSpace G := fun _ ↦ by infer_instance
+    set mS₂ : Fin 2 × Fin m → MeasurableSpace G := fun _ ↦ inferInstance
     set mΩ₂ : (i : Fin 2 × Fin m) → MeasurableSpace Ω := fun _ ↦ inferInstance
     obtain ⟨Ω', hΩ', μ', X', hprob', h_indep', hX'⟩ :=
       independent_copies'_finiteRange (mS := mS₂) (mΩ := mΩ₂) (fun i ↦ (X i.2)) (fun i ↦ hmes i.2)
