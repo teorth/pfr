@@ -17,14 +17,16 @@ universe u
 open MeasureTheory ProbabilityTheory
 
 
+/-- For Mathlib -/
 theorem Fin.cast_surjective {k l:ℕ} (h: k = l) : Function.Surjective (Fin.cast h) :=
   (rightInverse_cast h).surjective -- or `(finCongr h).surjective`
 
+/-- For Mathlib -/
 theorem Fin.cast_bijective {k l:ℕ} (h: k = l) : Function.Bijective (Fin.cast h) :=
   ⟨ cast_injective h, cast_surjective h ⟩ -- or `(finCongr h).bijective`
 
 lemma multiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
-    (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩprob : ∀ i, IsProbabilityMeasure (hΩ i).volume)
+    (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩfin : ∀ i, IsFiniteMeasure (hΩ i).volume)
     {G: Type*} [MeasureableFinGroup G] (X : ∀ i, (Ω i) → G)  :
     D[fun i ↦ X (i.cast h); fun i ↦ hΩ (i.cast h)] = D[X ; hΩ] := by
     unfold multiDist
@@ -43,6 +45,25 @@ lemma multiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
     congr 1
     . rw [h]
     convert Finset.sum_bijective _ (Fin.cast_bijective h) ?_ ?_ using 1 <;> simp
+
+lemma condMultiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
+    (hΩ : ∀ i, MeasureSpace (Ω i))
+    {G S: Type*} [MeasureableFinGroup G] [Fintype S] (X : ∀ i, (Ω i) → G) (Y : ∀ i, (Ω i) → S) :
+    D[fun i ↦ X (i.cast h) | fun i ↦ Y (i.cast h); fun i ↦ hΩ (i.cast h)] =
+    D[X | Y ; hΩ] := by
+      unfold condMultiDist
+      let ι : (Fin m' → S) → (Fin m → S) := fun x i ↦ x (i.cast h.symm)
+      have hι : Function.Bijective ι := by
+        constructor
+        . intro f g h'; ext i; replace h' := congrFun h' (i.cast h); simpa [ι] using h'
+        intro f; use f ∘ (Fin.cast h); ext i; simp [ι]
+      convert Function.Bijective.sum_comp hι _ with y _
+      congr 1
+      . convert Function.Bijective.prod_comp (Fin.cast_bijective h) _ with i _
+        rfl
+      convert multiDist_of_cast h _ _ X with i hmes i
+      . simp; congr
+      intros; simp; infer_instance
 
 -- Spelling here is *very* janky. Feel free to respell
 /-- Suppose that $X_{i,j}$, $1 \leq i,j \leq m$, are jointly independent $G$-valued random variables, such that for each $j = 1,\dots,m$, the random variables $(X_{i,j})_{i = 1}^m$
@@ -80,6 +101,9 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
     set B : ℝ := D[ column last; fun _ ↦ hΩ'] - D[ fun i ω ↦ ∑ j, X' (i, j) ω; fun _ ↦ hΩ']
 
     have h1 : I₀ ≤ ∑ j ∈ .Iio last, A j + B := by
+      -- significant dependent type hell here because `p.m` is not defeq of the form `m+1`.
+      -- One might refactor the rest of the argument to do this, but I think this claim is
+      -- the only place where it is a serious issue.
       set m := p.m - 1
       have hm' : m+1 = p.m := by omega
       let X'' : Fin (m+1) × Fin (m+1) → Ω' → G := fun (i,j) ↦ X' (i.cast hm', j.cast hm')
@@ -111,7 +135,10 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
           . simp [A, X'', column, S]; congr 1
             . convert multiDist_of_cast hm' (fun _ ↦ hΩ') inferInstance _ with i
               rfl
-            sorry
+            convert condMultiDist_of_cast hm' (fun _ ↦ hΩ') (fun i ↦ X' (i, Fin.cast hm' n.castSucc)) (fun i ↦ ∑ k ∈ Finset.Ici (Fin.cast hm' n.castSucc), X' (i, k)) using 2
+            ext i ω; simp
+            convert Finset.sum_map _ (finCongr hm'.symm).toEmbedding _
+            ext i; simp
           simp
         simp [B, column, X'']; congr 1
         . symm; convert multiDist_of_cast hm' (fun _ ↦ hΩ') inferInstance _ with i
