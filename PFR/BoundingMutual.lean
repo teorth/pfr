@@ -162,9 +162,29 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
         sorry
 
     have h5 (i: Fin p.m) :
-      ∑ j ∈ Finset.Iio last, d[ X' (i,j) # X' (i,j) | S i j ]
-        ≤ ∑ j ∈ Finset.Iio last, d[ X' (i,j) # X' (i,j) ] + (H[V i] - H[X' (i, last)]) / 2 := by
-        sorry
+      ∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) | S i j ]
+        ≤ ∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) ] + (H[V i] - H[X' (i, last)]) / 2 := calc
+        _ ≤ ∑ j ∈ .Iio last, (d[ X' (i,j) # X' (i,j) ] + (H[S i j] - H[S i (j+one)]) / 2) := by
+          apply Finset.sum_le_sum; intro j hj; exact h4 i hj
+        _ = _ := by
+          rw [Finset.sum_add_distrib, ←Finset.sum_div]; congr
+          convert Finset.sum_range_sub' (fun k ↦ H[∑ j ∈ {j|j.val ≥ k}, X' (i,j)]) (p.m-1)
+          . have (k:Fin p.m): S i k = ∑ j ∈ {j|j.val ≥ k.val}, X' (i,j) := by
+              unfold S; congr
+              ext ⟨ j, hj ⟩; obtain ⟨ k, hk ⟩ := k; simp
+            simp_rw [this]
+            convert Finset.sum_nbij (fun i ↦ i.val) (s := Finset.Iio last)  _ _ _ _
+            . intro ⟨ _, _ ⟩; simp [last]
+            . intro ⟨ _, _⟩ _ ⟨ _, _ ⟩ _; simp
+            . intro _ hi; simpa [last] using hi
+            intro ⟨ j, hj ⟩ hj'
+            simp [last, one] at hj' ⊢
+            rcongr ⟨ k, hk ⟩
+            have : (j+1) % p.m = j+1 := Nat.mod_eq_of_lt (by omega)
+            simp [←Fin.val_fin_le, Fin.val_add, this]
+          . ext ω; simp [V]
+          ext ω; simp; symm; convert Finset.sum_singleton _ last
+          ext ⟨ j, hk ⟩; simp [last]; omega
 
     have h6 (i: Fin p.m) :
       d[ X' (i, last) # V i ] ≤ d[ X' (i, last) # X' (i, last) ]
