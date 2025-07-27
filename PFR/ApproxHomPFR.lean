@@ -2,6 +2,7 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Combinatorics.Additive.Energy
 import Mathlib.Data.FunLike.Fintype
+import Mathlib.Data.Int.Lemmas
 
 import LeanAPAP.Extras.BSG
 
@@ -230,7 +231,7 @@ theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : 2 * Nat.card { φ: G →+
   use b + y
   aesop
 
-theorem card_of_slice (A: Set G) : ∃ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) / 2 := by
+theorem card_of_slice (A: Set G) : ∃ φ : G →+ ZMod 2, 2*Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) := by
   have _ : Fintype (G →+ ZMod 2) := Fintype.ofEquiv G dual_iso.toEquiv
   have h1 : 2*∑ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card G) * (Nat.card A-1) := calc
     _ = 2*∑ φ : G →+ ZMod 2, ∑ x ∈ A, if φ x = 1 then 1 else 0 := by
@@ -265,13 +266,30 @@ theorem card_of_slice (A: Set G) : ∃ φ : G →+ ZMod 2, Nat.card { x | x ∈ 
     rw [Finset.mul_sum]
     apply Finset.sum_lt_sum_of_nonempty
     . simp
-    intro φ _; calc
-      _ < 2 * ((Nat.card A - 1)/2) := by
-        gcongr; exact h2 φ
-      _ ≤ _ := Nat.mul_div_le (Nat.card ↑A - 1) 2
+    intro φ _; exact h2 φ
   simp only [sum_const, card_univ, smul_eq_mul,←Nat.card_eq_fintype_card,card_of_dual] at h2
   order
 
 theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
     (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
-    ∃ (φ'' : G →+ G'), Nat.card {x | f x = φ'' x} ≥ (Nat.card G / (2 ^ 144 * K ^ 122) - 1)/2 := by sorry
+    ∃ (φ'' : G →+ G'), Nat.card {x | f x = φ'' x} ≥ (Nat.card G / (2 ^ 144 * K ^ 122) - 1)/2 := by
+    obtain ⟨ φ, c, h ⟩ := approx_hom_pfr f K hK hf
+    set A := { x | f x = φ x + c }
+    obtain ⟨ φ', h' ⟩ := card_of_slice A
+    let φ'c : G →+ G' := {
+      toFun x := (φ' x) • c
+      map_add' := by intros; simp [add_smul]
+      map_zero' := by simp [smul_zero]
+    }
+    use φ + φ'c
+    rw [ge_iff_le, div_le_iff₀ (by norm_num)]
+    calc
+      _ ≤ Nat.card A - (1:ℝ) := by gcongr
+      _ ≤ (Nat.card ↑A - 1:ℕ) := by norm_cast; convert Int.le_natCast_sub _ _; norm_cast
+      _ ≤ 2 * Nat.card ↑{x | x ∈ A ∧ φ' x = 1} := by norm_cast
+      _ ≤ _ := by
+        rw [mul_comm]; gcongr
+        apply Nat.card_mono
+        . apply Set.toFinite
+        intro x; simp [A, φ'c]; intro h1 h2
+        simp [h1, h2]

@@ -93,7 +93,7 @@ Then there exists a homomorphism $\phi'': G \to G'$
 such that $f(x) = \phi''(x)$ for at least $(|G| / (2 ^ {172} * K ^ {146}) - 1)/2$ values of $x \in G$.
 \end{corollary}
 
-\begin{proof}\uses{approx-hom-pfr, gslice} By Theorem \ref{approx-hom-pfr}, there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that the set $A := \{ x \in G: f(x) = \phi(x) \}$ has cardinality at least $|G| / (2 ^ {172} * K ^ {146})$.  By Lemma \ref{gslice}, there exists a homomorphism $\phi': G \to \Z/2\Z$ such that
+\begin{proof}\uses{approx-hom-pfr, gslice}\leanok By Theorem \ref{approx-hom-pfr}, there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that the set $A := \{ x \in G: f(x) = \phi(x) + c\}$ has cardinality at least $|G| / (2 ^ {172} * K ^ {146})$.  By Lemma \ref{gslice}, there exists a homomorphism $\phi': G \to \Z/2\Z$ such that
 $$ |A \cap \phi'^{-1}(1)| \geq (|A|-1)/2 \geq |G| / (2 ^ {173} * K ^ {146}).$$
 Then the claim follows by taking $\phi'' = \phi + \phi' \bullet c$ (where we view $G'$ as a $\Z/2\Z$-module).
 \end{proof}
