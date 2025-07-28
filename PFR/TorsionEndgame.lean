@@ -564,6 +564,8 @@ lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω : Type u} [hΩ:Mea
 include h_mes h_indep hident h_min hΩ hΩ_prob hX_mes in
 /-- We have $k = 0$. -/
 lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
+-- For some reason I am getting a "Error in Linarith.normalizeDenominatorsLHS: tactic 'rewrite' failed" but
+-- it is still elaborating correctly.
   let hm := p.hm
   let hη := p.hη
   have hm' : p.m > 0 := by linarith
@@ -596,8 +598,9 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
     . intros; apply IdentDistrib.refl; fun_prop
     fun_prop
 
-  have h2 : D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≥ k - p.η * ∑ i, d[X i # U] := by
-    sorry
+  have h2 : k - D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≤ p.η * ∑ i, d[X i # U] := by
+    convert sub_multiDistance_le _ _ h_min _ _ <;> try infer_instance
+    all_goals fun_prop
 
   have h3 : p.m * d[U # U] + p.η * ∑ i, d[X i # U] ≤
     p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η * k) + p.η * (4 * (p.m^3 - p.m^2)*k) := by
