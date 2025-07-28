@@ -487,7 +487,7 @@ lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω : Type u} [hΩ:Mea
   (hsum: T₁ + T₂ + T₃ = 0) (hmes₁: Measurable T₁) (hmes₂: Measurable T₂) (hmes₃: Measurable T₃)
   {n:ℕ} {Ω': Fin n → Type*} (hΩ': ∀ i, MeasureSpace (Ω' i)) [∀ i, IsProbabilityMeasure (hΩ' i).volume]
   {Y: ∀ i, (Ω' i) → G} (hY: ∀ i, Measurable (Y i)) {α:ℝ} (hα: α > 0) :
-  ∃ (Ω'':Type u) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), IsProbabilityMeasure hΩ''.volume ∧ d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := by
+  ∃ (Ω'':Type u) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), IsProbabilityMeasure hΩ''.volume ∧ Measurable U ∧ d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := by
   let δ := I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]
   have h1 := ent_bsg (μ := ℙ) hmes₁ hmes₂
   have h₁₂ : I[T₁ : T₂] = H[T₁] + H[T₂] - H[ ⟨ T₁, T₂ ⟩ ] := mutualInfo_def _ _ _
@@ -552,10 +552,11 @@ lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω : Type u} [hΩ:Mea
   obtain ⟨ z, hz, hpos ⟩ := pigeonhole F
   replace h3 := hz.trans h3
   use Ω, ⟨ ℙ[|(T₁ + T₂) ⁻¹' {z}] ⟩, T₂
-  constructor
+  refine ⟨ ?_, ?_, ?_ ⟩
   . apply cond_isProbabilityMeasure
     convert hpos
     simp [_hG]; rw [MeasureTheory.Measure.map_apply (by fun_prop) (by measurability)]
+  . fun_prop
   convert h3 using 1
   ring
 
@@ -566,6 +567,7 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
   let hm := p.hm
   let hη := p.hη
   have hm' : p.m > 0 := by linarith
+  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
   let δ : G → ℝ := fun w ↦ I[Z1 : Z2 ; ℙ[|W ⁻¹' {w}]] + I[Z1 : Z3 ; ℙ[|W ⁻¹' {w}]] + I[Z2 : Z3 ; ℙ[|W ⁻¹' {w}]]
   have hδ_int : ∫ w, δ w ∂(Measure.map W ℙ) ≤ 3*p.m*(4*p.m+1)*p.η*k := by
     unfold δ
@@ -586,11 +588,13 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
   have hμ_prob : IsProbabilityMeasure μ := by
     apply cond_isProbabilityMeasure; convert hw
     symm; apply MeasureTheory.Measure.map_apply (by fun_prop) (MeasurableSet.singleton _)
-  obtain ⟨ Ω'', hΩ'', U, hΩ''_prob, h_ineq ⟩ := @dist_of_U_add_le G inferInstance Ω' ⟨ μ ⟩ hμ_prob Z1 Z2 Z3 sum_of_z_eq_zero
+  obtain ⟨ Ω'', hΩ'', U, hΩ''_prob, hU_mes, h_ineq ⟩ := @dist_of_U_add_le G inferInstance Ω' ⟨ μ ⟩ hμ_prob Z1 Z2 Z3 sum_of_z_eq_zero
     (by fun_prop) (by fun_prop) (by fun_prop) p.m Ω hΩ hΩ_prob X hX_mes (p.η/p.m) (by positivity)
 
   have h1 : D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≤ p.m * d[U # U] := by
-    sorry
+    apply multidist_ruzsa_III hm (i₀ := zero) <;> try infer_instance
+    . intros; apply IdentDistrib.refl; fun_prop
+    fun_prop
 
   have h2 : D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≥ k - p.η * ∑ i, d[X i # U] := by
     sorry
