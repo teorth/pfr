@@ -383,7 +383,7 @@ lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
       | 2 => fun Ys ↦ Ys ⟨i, by simp [S]⟩
     have hφ : (j : J) → Measurable (φ j) := fun j ↦ .of_discrete
     have h_ind : iIndepFun ![∑ j ∈ s, Y j, Y i₀, Y i] μ := by
-      convert iIndepFun.finsets_comp S h_dis h_indep hY φ hφ with j x
+      convert h_indep.finsets_comp S h_dis hY φ hφ with j x
       fin_cases j <;> simp [φ, (s.sum_attach _).symm]
     have measSum : Measurable (∑ j ∈ s, Y j) := by
       convert Finset.measurable_sum s (fun j _ ↦ hY j)
@@ -409,7 +409,7 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
   let Y' i : Ω → G := φ i ∘ Y i
   have mnY : ∀ i, Measurable (Y' i) := fun i ↦ (hφ i).comp (hY i)
   have h_indep2 : IndepFun (Y i₀) (∑ i ∈ s, Y i) μ :=
-    iIndepFun.indepFun_finset_sum_of_notMem h_indep (fun i ↦ hY i) hs |>.symm
+    h_indep.indepFun_finset_sum_of_notMem (fun i ↦ hY i) hs |>.symm
   have ineq4 : d[Y i₀; μ # ∑ i ∈ s, Y i; μ] + 1/2 * (H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ])
       ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
     calc
@@ -473,7 +473,7 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
       exact (div_le_one (Nat.cast_pos.mpr <| Finset.card_pos.mpr hs')).mpr (by simp)
     _ = 2 * ∑ i ∈ s, d[Y i₀ ; μ # Y i ; μ] := by
       ring_nf
-      exact (Finset.sum_mul _ _ _).symm
+      exact (Finset.sum_mul ..).symm
 
 lemma kvm_ineq_III_aux {X Y Z : Ω → G} [FiniteRange X] [FiniteRange Y]
     [FiniteRange Z] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
@@ -489,6 +489,30 @@ lemma kvm_ineq_III_aux {X Y Z : Ω → G} [FiniteRange X] [FiniteRange Y]
   ring_nf
   rw [sub_add_eq_add_sub, add_sub_assoc, ← tsub_le_iff_left]
   refine kaimanovich_vershik' h_indep hX hY hZ
+
+/-- strengthen the above lemma by not requiring `X` to be independent of `Y`, `Z`. -/
+lemma kvm_ineq_III_aux' {X Y Z : Ω → G} [FiniteRange X] [FiniteRange Y]
+    [FiniteRange Z] (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
+    (h_indep : IndepFun Y Z μ) [IsProbabilityMeasure μ] :
+  d[X; μ # Y + Z; μ] ≤ d[X; μ # Y; μ] + (2 : ℝ)⁻¹ * (H[Y + Z; μ] - H[Y; μ]) := by
+    obtain ⟨ Ω', hΩ', μ', X', Y', Z', hprob, h_indep', hX', hY', hZ', hident_X, hident_Y, hident_Z, hfin_X, hfin_Y, hfin_Z ⟩ := independent_copies3_nondep_finiteRange hX hY hZ μ μ μ
+    -- the argument below could be extracted into a Mathlib lemma
+    have hident_YZ : IdentDistrib (⟨Y',Z'⟩) (⟨Y,Z⟩) μ' μ := {
+      aemeasurable_fst := by fun_prop
+      aemeasurable_snd := by fun_prop
+      map_eq := by
+        replace h_indep' : IndepFun Y' Z' μ' := h_indep'.indepFun (show 1 ≠ 2 by simp)
+        rw [indepFun_iff_map_prod_eq_prod_map_map] at h_indep h_indep' <;> try fun_prop
+        rw [h_indep, h_indep']; congr 1
+        . exact hident_Y.map_eq
+        exact hident_Z.map_eq
+    }
+    replace hident_YZ : IdentDistrib (Y' + Z') (Y + Z) μ' μ := by convert hident_YZ.comp measurable_add
+    rw [←IdentDistrib.rdist_congr hident_X hident_Y, ←IdentDistrib.rdist_congr hident_X hident_YZ,
+        ←IdentDistrib.entropy_congr hident_Y, ←IdentDistrib.entropy_congr hident_YZ]
+    apply kvm_ineq_III_aux _ _ _ h_indep' <;> fun_prop
+
+
 
 /-- If `n ≥ 1` and `X, Y₁, ..., Yₙ`$ are jointly independent `G`-valued random variables,
 then `d[Y i₀, ∑ i, Y i] ≤ d[Y i₀, Y i₁] + 2⁻¹ * (H[∑ i, Y i] - H[Y i₁])`.
@@ -2190,7 +2214,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
   have h_indep': iIndepFun X' := by
     let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ {p | p.1 = i}
     let φ : (j:Fin (m+1)) → ((i: S j) → G) → G' ⊤ := fun j x k ↦ x ⟨ (j, k), by simp [S] ⟩
-    apply iIndepFun.finsets_comp S _ h_indep hmes φ (by fun_prop)
+    apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
     rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
     simp [S] at hij; cc
   have h1 := iter_multiDist_chainRule' (by linarith) hπ0 hcomp (by fun_prop) h_indep'
@@ -2204,7 +2228,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
         simp [X']
         let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ {p | p.2 = i}
         let φ : (i:Fin (m+1)) → ((_: S i) → G) → G := fun i x ↦ ∑ j, x ⟨ (j,i), by simp [S] ⟩
-        apply iIndepFun.finsets_comp S _ h_indep hmes φ (by fun_prop)
+        apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
         rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
         simp [S] at hij; cc
       ext i
@@ -2213,7 +2237,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       simp [X']
       let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun j ↦ {(i,j)}
       let φ : (j:Fin (m+1)) → ((_: S j) → G) → G := fun j x ↦ x ⟨ (i,j), by simp [S] ⟩
-      apply iIndepFun.finsets_comp S _ h_indep hmes φ (by fun_prop)
+      apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
       simp [S] at hij; cc
     _ = ∑ j, (H[∑ i, X ⟨ i, j ⟩ ] - (∑ i, H[X ⟨ i, j ⟩]) / ↑(m + 1)) := by
@@ -2223,7 +2247,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       symm; apply multiDist_indep <;> try fun_prop
       let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ {(i,j)}
       let φ : (i:Fin (m+1)) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
-      apply iIndepFun.finsets_comp S _ h_indep hmes φ (by fun_prop)
+      apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
       simp [S] at hij; cc
     _ = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
@@ -2318,7 +2342,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
                 order
               let φ : (T → G) → G × (Fin (m+1) → G) := fun x ↦ ⟨ ∑ i, x ⟨ (i, j.castSucc), by simp [T] ⟩, fun i ↦ ∑ k : Finset.Ici j.castSucc, x ⟨⟨ i, k ⟩, by obtain ⟨ k,hk ⟩ := k; simpa [T] using hk⟩ ⟩
               let φ' : (T' → G) → (Fin (m+1) → Fin j → G) := fun x i k ↦ x ⟨ (i, k.castLE (by obtain ⟨ j, hj ⟩ := j; simp; omega)), by obtain ⟨ k, hk ⟩ := k; simpa [T'] using hk ⟩
-              convert iIndepFun.finsets_comp' h_disjoint h_indep hmes (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) using 1
+              convert h_indep.finsets_comp' h_disjoint hmes (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) using 1
               ext ω i <;> simp [π, φ, f, π₀, X']
               convert (Finset.sum_attach _ _).symm using 1
             congr 2; ext i
@@ -2347,13 +2371,13 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
               replace h₁ := h₁.2; replace h₂ := h₂.2; order
             let φ : (T → G) → G × G := fun x ↦ ⟨x ⟨ (i, j.castSucc), by simp [T]⟩, ∑ k : Finset.Ici j.castSucc, x ⟨⟨ i, k ⟩, by obtain ⟨ k,hk ⟩ := k; simpa [T] using hk⟩ ⟩
             let φ' : (T' → G) → (Fin j.val → G) := fun x k ↦ x ⟨ ⟨ i,k.castLE (by obtain ⟨ j,hj⟩ := j; simp; omega) ⟩, by obtain ⟨ k, hk ⟩ := k; simpa [T'] using hk ⟩
-            convert iIndepFun.finsets_comp' h_disjoint' h_indep hmes (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) using 1
+            convert h_indep.finsets_comp' h_disjoint' hmes (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) using 1
             ext ω <;> simp [π, φ, f, π₀, X']
             convert (Finset.sum_attach _ _).symm using 1
           . let φ : (i:Fin (m+1)) → ((_: S i) → G) → G × G := fun i x ↦ ⟨ x ⟨ (i,j.castSucc), by simp [S] ⟩, ∑ k ∈ Finset.Ici j.castSucc, x ⟨ (i, k), by simp [S] ⟩ ⟩
-            convert iIndepFun.finsets_comp S h_disjoint h_indep hmes φ (by fun_prop) with i ω; simp
+            convert h_indep.finsets_comp S h_disjoint hmes φ (by fun_prop) with i ω; simp
           . let φ : (i:Fin (m+1)) → ((_: S i) → G) → G × (G' j.succ.castSucc) := fun i x ↦ ⟨ x ⟨ (i,j.castSucc), by simp [S] ⟩, π j.succ.castSucc (fun k ↦ x ⟨ (i, k), by simp [S] ⟩) ⟩
-            exact iIndepFun.finsets_comp S h_disjoint h_indep hmes φ (by fun_prop)
+            exact h_indep.finsets_comp S h_disjoint hmes φ (by fun_prop)
   have h4 : I[∑ i, X' i : fun ω i ↦ (π 1) (X' i ω)|⇑(π 1) ∘ ∑ i, X' i] = I[fun ω j ↦ ∑ i, X ⟨ i, j ⟩ ω : fun ω i ↦ ∑ j, X ⟨ i, j ⟩ ω|∑ p, X p] := by
     let f : (Fin (m+1) → G) → (G' ⊤) := fun x ⟨i, hi⟩ ↦ x ⟨ i, by simpa using hi ⟩
     have hf : Function.Injective f := by intro x y hxy; simpa [f] using hxy

@@ -234,7 +234,23 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
     have h6 (i: Fin p.m) :
       d[ X' (i, last) # V i ] ≤ d[ X' (i, last) # X' (i, last) ]
         + (H[V i] - H[X' (i, last)]) / 2 := by
-        sorry
+        have : V i = X' (i, last) + ∑ j ∈ .Iio last, X' (i,j) := by
+          symm; ext ω; simp [V]; convert Finset.add_sum_erase (a := last) _ _ _ using 3
+          . rfl
+          . ext ⟨ j, hj ⟩; simp [last]; omega
+          simp
+        simp [this, ←inv_mul_eq_div]
+        apply kvm_ineq_III_aux' <;> try fun_prop
+        let T : Finset (Fin p.m × Fin p.m) := {q|q.2=last}
+        let T' : Finset (Fin p.m × Fin p.m) := {q|q.2<last}
+        let φ : (T → G) → G := fun f ↦ f ⟨(i, last), by simp [T]⟩
+        let φ' : (T' → G) → G := fun f ↦ ∑ j : Finset.Iio last, f ⟨ (i,j), by obtain ⟨ j, hj ⟩ := j; simpa [T'] using hj ⟩
+        convert iIndepFun.finsets_comp' _ h_indep' (by fun_prop) (φ := φ) (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) with ω ω <;> try simp [φ,φ']
+        . symm; convert Finset.sum_attach _ _; rfl
+        rw [Finset.disjoint_left]; rintro ⟨ _, _ ⟩ h h'
+        simp [T,T'] at h h'; order
+
+
 
     have h7 : I₀/p.η ≤ p.m * ∑ i, d[X i # X i] + ∑ i, H[V i] - ∑ i, H[X i] := by
       rw [div_le_iff₀' hη]
