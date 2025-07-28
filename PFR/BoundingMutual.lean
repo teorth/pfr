@@ -108,7 +108,7 @@ $$ {\mathcal I} := \bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m}
 -/
 lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ]
   {p : multiRefPackage G Ωₒ} {Ω : Type u} [hΩ : MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
-  {X : ∀ i, Ω → G} (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
+  {X : Fin p.m → Ω → G} (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
   (h_min : multiTauMinimizes p (fun _ ↦ Ω) (fun _ ↦ hΩ) X) {Ω' : Type u} [hΩ': MeasureSpace Ω']
   [IsProbabilityMeasure hΩ'.volume]
   {X' : Fin p.m × Fin p.m → Ω' → G} (hX' : ∀ i j, Measurable (X' (i, j)))
@@ -338,7 +338,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
         apply IdentDistrib.map_eq
         exact hident_X'.comp (u := fun x ↦ x i) (by fun_prop)
       have hindep_all : iIndepFun (Sum.elim Z Z') ℙ := iIndepFun.sum_elim ℙ hindep_Z hindep_Z' h_indep_XX_XX'
-      
+
       let s : Finset (Fin p.m ⊕ (Fin p.m × Fin p.m)) := Finset.image Sum.inl Finset.univ
       let t : Finset (Fin p.m ⊕ (Fin p.m × Fin p.m)) := Finset.image Sum.inr {q|q.1=i}
       have hdisj : Disjoint s t := by rw [Finset.disjoint_left]; simp [s,t]
