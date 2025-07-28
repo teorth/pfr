@@ -40,6 +40,42 @@ lemma multiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
     . rw [h]
     convert Finset.sum_bijective _ (Fin.cast_bijective h) ?_ ?_ using 1 <;> simp
 
+/-- For Mathlib? -/
+lemma ProbabilityTheory.iIndepFun.sum_elim {Ω I J G:Type*} [MeasurableSpace Ω]  [hG: MeasurableSpace G] (μ: Measure Ω) {f: (x:I) → Ω → G} {g: (y:J) → Ω → G} (hf_indep: iIndepFun f μ) (hg_indep: iIndepFun g μ)
+(hindep: IndepFun (fun ω x ↦ f x ω) (fun ω y ↦ g y ω) μ) : iIndepFun (Sum.elim f g) μ := by
+  rw [iIndepFun_iff] at hf_indep hg_indep ⊢
+  intro s E hE
+  have : s.toLeft.disjSum s.toRight = s := Finset.toLeft_disjSum_toRight
+  rw [←this, Finset.prod_disjSum,←hf_indep,←hg_indep]
+  . simp_rw [MeasurableSpace.measurableSet_comap] at hE
+    choose F hF using hE
+    let S := ⋂ (i:s.toLeft), {x: I → G | x i ∈ F (Sum.inl i) (Finset.mem_toLeft.mp i.property)}
+    let T := ⋂ (j:s.toRight), {y: J → G | y j ∈ F (Sum.inr j) (Finset.mem_toRight.mp j.property)}
+    convert hindep.measure_inter_preimage_eq_mul S T _ _
+    . ext ω; simp [S,T]; apply and_congr <;> {
+        apply forall_congr'; intro i
+        constructor
+        . intro h hi; simp [←(hF _ hi).2, hi] at h; convert h
+        intro h hi; specialize h hi; simp [←(hF _ hi).2]; convert h
+      }
+    . ext ω; simp [S]; apply forall_congr'; intro i
+      constructor
+      . intro h hi; simp [←(hF _ hi).2, hi] at h; convert h
+      intro h hi; specialize h hi; simp [←(hF _ hi).2]; convert h
+    . ext ω; simp [T]; apply forall_congr'; intro i
+      constructor
+      . intro h hi; simp [←(hF _ hi).2, hi] at h; convert h
+      intro h hi; specialize h hi; simp [←(hF _ hi).2]; convert h
+    all_goals {
+      apply MeasurableSet.iInter; intro ⟨ i, hi ⟩
+      simp only
+      convert measurableSet_preimage (measurable_pi_apply i) _
+      apply (hF _ _).1
+    }
+  . intro i hi; apply hE; exact Finset.mem_toRight.mp hi
+  intro j hj; apply hE; exact Finset.mem_toLeft.mp hj
+
+
 lemma condMultiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
     (hΩ : ∀ i, MeasureSpace (Ω i))
     {G S: Type*} [MeasureableFinGroup G] [Fintype S] (X : ∀ i, (Ω i) → G) (Y : ∀ i, (Ω i) → S) :
@@ -59,6 +95,7 @@ lemma condMultiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
       . simp; congr
       intros; simp; infer_instance
 
+set_option maxHeartbeats 300000 in
 -- Spelling here is *very* janky. Feel free to respell
 /-- Suppose that $X_{i,j}$, $1 \leq i,j \leq m$, are jointly independent $G$-valued random variables, such that for each $j = 1,\dots,m$, the random variables $(X_{i,j})_{i = 1}^m$
 coincide in distribution with some permutation of $X_{[m]}$.
@@ -274,14 +311,82 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
           congr 2
           . congr; ext j; obtain ⟨ e, he ⟩ := hperm j
             convert Equiv.sum_comp e _ with i _
-            apply IdentDistrib.rdist_congr <;> exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+            apply IdentDistrib.rdist_congr <;> exact he.comp (u := fun x ↦ x i) (by fun_prop)
           obtain ⟨ e, he ⟩ := hperm last
           convert Equiv.sum_comp e _ with i _
-          apply IdentDistrib.entropy_congr; exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+          apply IdentDistrib.entropy_congr; exact he.comp (u := fun x ↦ x i) (by fun_prop)
         _ ≤ _ := by simp
 
     have h8 (i: Fin p.m) : H[V i] ≤ H[ ∑ j, X j] + ∑ j, d[X' (i,j) # X' (i,j)] := by
-      sorry
+      obtain ⟨ ν, XX, XX', hν, hXX, hXX', h_indep_XX_XX', hident_X, hident_X', hfin_XX, hfin_XX'⟩ := independent_copies_finiteRange (X := fun ω i ↦ X i ω) (Y := fun ω q ↦ X' q ω)
+        (by fun_prop) (by fun_prop) ℙ ℙ
+      let Ω'' := (Fin p.m → G) × (Fin p.m × Fin p.m → G)
+      let _ : MeasureSpace (Ω'') := ⟨ ν ⟩
+      let Z : Fin p.m → Ω'' → G := fun i ω ↦ XX ω i
+      let Z' : Fin p.m × Fin p.m → Ω'' → G := fun i ω ↦ XX' ω i
+      -- the claim below could be abstracted into a Mathlib lemma.
+      have hindep_Z : iIndepFun Z ℙ := by
+        rw [iIndepFun_iff_map_fun_eq_pi_map] at h_indep ⊢ <;> try fun_prop
+        convert h_indep with i
+        . exact IdentDistrib.map_eq hident_X
+        apply IdentDistrib.map_eq
+        exact hident_X.comp (u := fun x ↦ x i) (by fun_prop)
+      have hindep_Z' : iIndepFun Z' ℙ := by
+        rw [iIndepFun_iff_map_fun_eq_pi_map] at h_indep' ⊢ <;> try fun_prop
+        convert h_indep' with i
+        . exact IdentDistrib.map_eq hident_X'
+        apply IdentDistrib.map_eq
+        exact hident_X'.comp (u := fun x ↦ x i) (by fun_prop)
+      have hindep_all : iIndepFun (Sum.elim Z Z') ℙ := iIndepFun.sum_elim ℙ hindep_Z hindep_Z' h_indep_XX_XX'
+      
+      let s : Finset (Fin p.m ⊕ (Fin p.m × Fin p.m)) := Finset.image Sum.inl Finset.univ
+      let t : Finset (Fin p.m ⊕ (Fin p.m × Fin p.m)) := Finset.image Sum.inr {q|q.1=i}
+      have hdisj : Disjoint s t := by rw [Finset.disjoint_left]; simp [s,t]
+      have hs: s.Nonempty := by use Sum.inl one; simp [s]
+      have ht: t.Nonempty := by use Sum.inr (i,one); simp [t]
+      choose e he using hperm
+      let f : Fin p.m ⊕ (Fin p.m × Fin p.m) → Fin p.m ⊕ (Fin p.m × Fin p.m) := fun x ↦ match x with
+      | Sum.inl i => Sum.inl i
+      | Sum.inr (i,j) => Sum.inl ((e j) i)
+      convert ent_of_sum_le_ent_of_sum hdisj hs ht _ _ _ hindep_all f _
+      . apply IdentDistrib.entropy_congr
+        convert hident_X'.symm.comp (u := fun x ↦ ∑ j:Fin p.m, x (i, j)) _ <;> try fun_prop
+        ext ω; simp [Z, Z', t]
+        apply Finset.sum_nbij' (Prod.snd) (fun j ↦ (i,j))
+        on_goal 5 => simp; rintro a b rfl; rfl
+        all_goals simp
+      . apply IdentDistrib.entropy_congr
+        convert hident_X.symm.comp (u := fun x ↦ ∑ j, x j) _ <;> try fun_prop
+        all_goals ext ω; simp [Z, Z', s]
+      . let g : Fin p.m ⊕ (Fin p.m × Fin p.m) → Fin p.m := fun x ↦ match x with
+        | Sum.inl i => i
+        | Sum.inr (i,j) => j
+        apply Finset.sum_nbij' (fun j ↦ Sum.inr (i,j)) g <;> try simp [t,g,f]
+        intro j
+        have hident_1 : IdentDistrib (X' (i, j)) (Z' (i, j)) ℙ ℙ := by
+          convert hident_X'.symm.comp (u := fun x ↦ x (i, j)) _; fun_prop
+        have hident_2 : IdentDistrib (Z' (i, j)) (Z ((e j) i)) ℙ ℙ := by
+          apply hident_1.symm.trans
+          have h1 : IdentDistrib (X ((e j) i)) (Z ((e j) i)) ℙ ℙ := by
+            convert hident_X.symm.comp (u := fun x ↦ x ((e j) i)) _; fun_prop
+          have h2 : IdentDistrib (X' (i, j)) (X ((e j) i)) ℙ ℙ := by
+            convert (he j).comp (u := fun x ↦ x i) _; fun_prop
+          exact h2.trans h1
+        calc
+          _ = d[Z' (i, j) # Z ((e j) i)] :=
+            IdentDistrib.rdist_congr hident_1 (hident_1.trans hident_2)
+          _ = H[Z' (i, j) - Z ((e j) i)] - H[Z' (i,j)]/2 - H[Z ((e j) i)]/2 := by
+            apply IndepFun.rdist_eq <;> try fun_prop
+            symm
+            apply h_indep_XX_XX'.comp (φ := fun x ↦ x ((e j) i)) (ψ := fun x ↦ x (i, j)) <;> fun_prop
+          _ = H[Z' (i, j) - Z ((e j) i)] - H[Z ((e j) i)]/2 - H[Z ((e j) i)]/2 := by
+            rw [IdentDistrib.entropy_congr hident_2]
+          _ = _ := by ring
+      . fun_prop
+      . simp [Z,Z']; constructor
+        . intros; infer_instance
+        intro a b; infer_instance
+      intro x; simp [f,t,s]; aesop
 
     have h9 : ∑ i, H[V i] ≤ p.m * ∑ i, d[X i # X i] + ∑ i, H[X i] + p.m * k := calc
       _ ≤ ∑ i, (H[ ∑ j, X j] + ∑ j, d[X' (i,j) # X' (i,j)]) := by
