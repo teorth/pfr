@@ -564,8 +564,6 @@ lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω : Type u} [hΩ:Mea
 include h_mes h_indep hident h_min hΩ hΩ_prob hX_mes in
 /-- We have $k = 0$. -/
 lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
--- For some reason I am getting a "Error in Linarith.normalizeDenominatorsLHS: tactic 'rewrite' failed" but
--- it is still elaborating correctly.
   let hm := p.hm
   let hη := p.hη
   have hm' : p.m > 0 := by linarith
@@ -582,29 +580,51 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
         . exact mutual_information_le_t_13 hΩ h_min h_mes h_indep hident
         exact mutual_information_le_t_23 hΩ h_min h_mes h_indep hident
       _ = _ := by ring
+
   let _ : MeasureSpace G := ⟨ Measure.map W ℙ ⟩
   have _ : IsProbabilityMeasure (ℙ: Measure G) := isProbabilityMeasure_map (by fun_prop)
-  obtain ⟨ w, hwδ, hw ⟩ := pigeonhole δ
-  replace hwδ := hwδ.trans hδ_int
-  let μ : Measure Ω' := ℙ[|W ⁻¹' {w}]
-  have hμ_prob : IsProbabilityMeasure μ := by
-    apply cond_isProbabilityMeasure; convert hw
-    symm; apply MeasureTheory.Measure.map_apply (by fun_prop) (MeasurableSet.singleton _)
-  obtain ⟨ Ω'', hΩ'', U, hΩ''_prob, hU_mes, h_ineq ⟩ := @dist_of_U_add_le G inferInstance Ω' ⟨ μ ⟩ hμ_prob Z1 Z2 Z3 sum_of_z_eq_zero
-    (by fun_prop) (by fun_prop) (by fun_prop) p.m Ω hΩ hΩ_prob X hX_mes (p.η/p.m) (by positivity)
 
-  have h1 : D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≤ p.m * d[U # U] := by
-    apply multidist_ruzsa_III hm (i₀ := zero) <;> try infer_instance
-    . intros; apply IdentDistrib.refl; fun_prop
-    fun_prop
+  let δ' : G → ℝ := fun w ↦ p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]]
 
-  have h2 : k - D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≤ p.η * ∑ i, d[X i # U] := by
-    convert sub_multiDistance_le _ _ h_min _ _ <;> try infer_instance
+  have main_est {w:G} (hw: ℙ {w} ≠ 0) : k ≤ δ' w := by
+    let μ : Measure Ω' := ℙ[|W ⁻¹' {w}]
+    have hμ_prob : IsProbabilityMeasure μ := by
+      apply cond_isProbabilityMeasure; convert hw
+      symm; apply MeasureTheory.Measure.map_apply (by fun_prop) (MeasurableSet.singleton _)
+    obtain ⟨ Ω'', hΩ'', U, hΩ''_prob, hU_mes, h_ineq ⟩ := @dist_of_U_add_le G inferInstance Ω' ⟨ μ ⟩ hμ_prob Z1 Z2 Z3 sum_of_z_eq_zero
+      (by fun_prop) (by fun_prop) (by fun_prop) p.m Ω hΩ hΩ_prob X hX_mes (p.η/p.m) (by positivity)
+
+    have h1 : D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≤ p.m * d[U # U] := by
+      apply multidist_ruzsa_III hm (i₀ := zero) <;> try infer_instance
+      . intros; apply IdentDistrib.refl; fun_prop
+      fun_prop
+
+    have h2 : k - D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≤ p.η * ∑ i, d[X i # U] := by
+      convert sub_multiDistance_le _ _ h_min _ _ <;> try infer_instance
+      all_goals fun_prop
+
+    have h3 : p.m * d[U # U] + p.η * ∑ i, d[X i # U] ≤
+      p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]] := calc
+        _ = p.m * (d[U # U] + p.η / p.m * ∑ i, d[X i # U]) := by
+          field_simp; ring
+        _ ≤ p.m * ((2 + p.η / ↑p.m * ↑p.m / 2) * (I[Z1 : Z2; μ] + I[Z1 : Z3; μ] + I[Z2 : Z3; μ]) + p.η / ↑p.m * ∑ i, d[X i; ℙ # Z2; μ]) := by
+          apply mul_le_mul_of_nonneg_left _ (by positivity); convert h_ineq using 1
+        _ = p.m * ((2 + p.η / p.m * p.m / 2) * (δ w) + p.η / p.m * (∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]])) := by rfl
+        _ = _ := by field_simp; ring
+    unfold δ'; linarith
+
+  replace main_est : k ≤ ∫ w, δ' w := by
+    obtain ⟨ w, hwδ, hw ⟩ := pigeonhole δ'
+    specialize main_est hw; order
+
+  have integ_eq : ∫ w, δ' w ≤ p.m * (2 + p.η / 2) * (3*p.m*(4*p.m+1)*p.η*k) + p.η * (4 * (p.m^3 - p.m^2)*k) := by
+    unfold δ'
+    rw [integral_add, integral_const_mul, integral_const_mul, MeasureTheory.integral_finset_sum] <;> try intros; apply Integrable.of_finite
+    gcongr
+    . convert hδ_int
+    convert sum_of_conditional_distance_le hΩ hΩ_prob hX_mes h_mes h_indep hident with i _
+    symm; convert condRuzsaDist'_eq_integral _ _ _ _ _ <;> try infer_instance
     all_goals fun_prop
-
-  have h3 : p.m * d[U # U] + p.η * ∑ i, d[X i # U] ≤
-    p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η * k) + p.η * (4 * (p.m^3 - p.m^2)*k) := by
-    sorry
 
   by_contra!
   replace this : k > 0 := by have : k ≥ 0 := multiDist_nonneg _ hΩ_prob _ hX_mes; order
