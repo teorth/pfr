@@ -155,25 +155,53 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
 
     have h2 {j : Fin p.m} (hj: j ∈ Finset.Iio last)
       : A j ≤ p.η * ∑ i, d[ X' (i,j) # X' (i,j) | S i j ] := by
-        obtain ⟨ e, he ⟩ := hperm j
-        simp only [A, hD]
-        convert sub_condMultiDistance_le' inferInstance hX h_min inferInstance (X' := fun i ↦ X' (i, j)) _ _ e using 3 with i _ <;> try infer_instance
-        all_goals try fun_prop
-        apply condRuzsaDist'_of_copy <;> try fun_prop
-        . exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
-        apply IdentDistrib.refl; fun_prop
+      obtain ⟨ e, he ⟩ := hperm j
+      simp only [A, hD]
+      convert sub_condMultiDistance_le' inferInstance hX h_min inferInstance (X' := fun i ↦ X' (i, j)) _ _ e using 3 with i _ <;> try infer_instance
+      all_goals try fun_prop
+      apply condRuzsaDist'_of_copy <;> try fun_prop
+      . exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+      apply IdentDistrib.refl; fun_prop
 
     have h3 : B ≤ p.η * ∑ i, d[ X' (i, last) # V i ] := by
       obtain ⟨ e, he ⟩ := hperm last
-      simp only [B, hD]
-      convert sub_multiDistance_le' inferInstance hX h_min inferInstance (X' := fun i ↦ V i) _ e using 3 with i _
-      . apply IdentDistrib.rdist_congr_left (by fun_prop); exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
-      simp; fun_prop
+      simp only [B, hD, V]
+      convert sub_multiDistance_le' inferInstance hX h_min inferInstance (X' := fun i ↦ V i) (by fun_prop) e using 3 with i _
+      apply IdentDistrib.rdist_congr_left (by fun_prop); exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
 
     have h4 (i: Fin p.m) {j : Fin p.m} (hj: j ∈ Finset.Iio last) :
       d[ X' (i,j) # X' (i,j) | S i j ] ≤ d[ X' (i,j) # X' (i,j) ]
-        + (H[S i j] - H[S i (j+one)]) / 2 := by
-        sorry
+        + (H[S i j] - H[S i (j+one)]) / 2 := calc
+      _ ≤ d[ X' (i,j) # X' (i,j) ] + I[ X' (i,j) : S i j ] / 2 := by
+        apply condRuzsaDist_le' <;> fun_prop
+      _ = d[ X' (i,j) # X' (i,j) ] + (H[S i j] - H[S i (j+one) |  X' (i,j) ]) / 2 := by
+        congr
+        rw [mutualInfo_comm]
+        convert mutualInfo_eq_entropy_sub_condEntropy _ _ _ using 2 <;> try infer_instance
+        all_goals try fun_prop
+        rw [←condEntropy_add_left] <;> try fun_prop
+        congr
+        convert Finset.add_sum_erase (a := j) _ _ _ using 3
+        . rfl
+        . obtain ⟨ j, hj' ⟩ := j; ext ⟨ k, hk ⟩
+          simp [last, one] at hj ⊢
+          have : (j+1) % p.m = j+1 := Nat.mod_eq_of_lt (by omega)
+          simp [←Fin.val_fin_le, Fin.val_add, this] at hj ⊢; omega
+        simp
+      _ = _ := by
+        congr; apply ProbabilityTheory.IndepFun.condEntropy_eq_entropy <;> try fun_prop
+        let T : Finset (Fin p.m × Fin p.m) := {q|q.2>j}
+        let T' : Finset (Fin p.m × Fin p.m) := {q|q.2=j}
+        let φ : (T → G) → G := fun f ↦ ∑ k : Finset.Ici (j + one), f ⟨(i, k), by
+          obtain ⟨ ⟨ k, hk⟩, hk' ⟩ := k; obtain ⟨ j, hj' ⟩ := j; simp [last, one] at hj ⊢
+          have : (j+1) % p.m = j+1 := Nat.mod_eq_of_lt (by omega)
+          simp [T,←Fin.val_fin_le, Fin.val_add, this, one] at hj ⊢ hk'; omega⟩
+        let φ' : (T' → G) → G := fun f ↦ f ⟨ (i,j), by simp [T'] ⟩
+        convert iIndepFun.finsets_comp' _ h_indep' (by fun_prop) (φ := φ) (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) with ω ω <;> try simp [φ,φ']
+        . unfold S
+          simp; symm; convert Finset.sum_attach _ _; rfl
+        rw [Finset.disjoint_left]; rintro ⟨ _, _ ⟩ h h'
+        simp [T,T'] at h h'; order
 
     have h4a (i: Fin p.m) : ∑ j ∈ Finset.Iio last, (H[S i j] - H[S i (j + one)]) = H[V i] - H[X' (i, last)] := by
       convert Finset.sum_range_sub' (fun k ↦ H[∑ j ∈ {j|j.val ≥ k}, X' (i,j)]) (p.m-1)
