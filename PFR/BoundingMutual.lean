@@ -72,19 +72,20 @@ $$ {\mathcal I} := \bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m}
 lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ]
   {p : multiRefPackage G Ωₒ} {Ω : Type u} [hΩ : MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
   {X : ∀ i, Ω → G} (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
-  (h_min : multiTauMinimizes p (fun _ ↦ Ω) (fun _ ↦ hΩ) X) {Ω' : Type*} [hΩ': MeasureSpace Ω']
+  (h_min : multiTauMinimizes p (fun _ ↦ Ω) (fun _ ↦ hΩ) X) {Ω' : Type u} [hΩ': MeasureSpace Ω']
   [IsProbabilityMeasure hΩ'.volume]
   {X' : Fin p.m × Fin p.m → Ω' → G} (hX' : ∀ i j, Measurable (X' (i, j)))
   (h_indep': iIndepFun X')
   (hperm : ∀ j, ∃ e : Fin p.m ≃ Fin p.m, IdentDistrib (fun ω ↦ (fun i ↦ X' (i, j) ω))
     (fun ω ↦ (fun i ↦ X (e i) ω))) :
   I[ fun ω ↦ ( fun j ↦ ∑ i, X' (i, j) ω) : fun ω ↦ ( fun i ↦ ∑ j, X' (i, j) ω) |
-    fun ω ↦ ∑ i, ∑ j, X' (i, j) ω ] ≤ 2 * p.m * (2*p.m + 1) * p.η * D[ X; (fun _ ↦ hΩ)] := by
+    fun ω ↦ ∑ i, ∑ j, X' (i, j) ω ] ≤ p.m * (4*p.m+1) * p.η * D[ X; (fun _ ↦ hΩ)] := by
     have hm := p.hm
     have hη := p.hη
     set I₀ := I[ fun ω ↦ ( fun j ↦ ∑ i, X' (i, j) ω) : fun ω ↦ ( fun i ↦ ∑ j, X' (i, j) ω) |
     fun ω ↦ ∑ i, ∑ j, X' (i, j) ω ]
     set k := D[X ; fun x ↦ hΩ]
+    have hk: 0 ≤ k := multiDist_nonneg _ inferInstance _ (by fun_prop)
     set one : Fin p.m := ⟨ 1, by omega ⟩
     set last : Fin p.m := ⟨ p.m-1, by omega ⟩
     set column : Fin p.m → Fin p.m → Ω' → G := fun j i ω ↦ X' (i, j) ω
@@ -143,9 +144,24 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
       apply ProbabilityTheory.iIndepFun.precomp _ h_indep'
       intro ⟨ i, j ⟩ ⟨ i', j' ⟩ h; simpa using h
 
+    have hD (j: Fin p.m) : D[column j ; fun x ↦ hΩ'] = k := by
+      obtain ⟨ e, he ⟩ := hperm j
+      calc
+        _ = D[fun i ω ↦ X (e i) ω; fun x ↦ hΩ] := by
+          apply multiDist_copy _ _ _ _ _
+          intro i; exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+        _ = _ := by
+          convert multiDist_of_perm (fun _ ↦ hΩ) _ _ e <;> try infer_instance
+
     have h2 {j : Fin p.m} (hj: j ∈ Finset.Iio last)
-      : A j ≤ p.η * (k + ∑ i, d[ X' (i,j) # X' (i,j) | S i j ]) := by
-        sorry
+      : A j ≤ p.η * ∑ i, d[ X' (i,j) # X' (i,j) | S i j ] := by
+        obtain ⟨ e, he ⟩ := hperm j
+        simp only [A, hD]
+        convert sub_condMultiDistance_le' p (fun _ ↦ Ω) (fun _ ↦ hΩ) inferInstance X hX h_min (fun _ ↦ Ω') (fun _ ↦ hΩ') inferInstance (fun i ↦ X' (i, j)) _ _ _ e using 3 with i _ <;> try infer_instance
+        all_goals try fun_prop
+        apply condRuzsaDist'_of_copy <;> try fun_prop
+        . exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+        apply IdentDistrib.refl; fun_prop
 
     have h3 : B ≤ p.η * ∑ i, d[ X' (i, last) # V i ] := by
       sorry
@@ -188,37 +204,34 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
         + (H[V i] - H[X' (i, last)]) / 2 := by
         sorry
 
-    have h7 : I₀/p.η ≤ p.m * k + p.m * ∑ i, d[X i # X i] + ∑ i, H[V i] - ∑ i, H[X i] := by
+    have h7 : I₀/p.η ≤ p.m * ∑ i, d[X i # X i] + ∑ i, H[V i] - ∑ i, H[X i] := by
       rw [div_le_iff₀' hη]
       apply h1.trans
       calc
-        _ ≤ ∑ j ∈ .Iio last, (p.η * (k + ∑ i, d[ X' (i,j) # X' (i,j) | S i j ])) + p.η * ∑ i, d[ X' (i, last) # V i ] := by gcongr with j hj; exact h2 hj
-        _ ≤ p.η * (↑↑last * k + ∑ i, (∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) ] + (H[V i] - H[X' (i, last)]) / 2)) +
+        _ ≤ ∑ j ∈ .Iio last, (p.η * (∑ i, d[ X' (i,j) # X' (i,j) | S i j ])) + p.η * ∑ i, d[ X' (i, last) # V i ] := by gcongr with j hj; exact h2 hj
+        _ ≤ p.η * (∑ i, (∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) ] + (H[V i] - H[X' (i, last)]) / 2)) +
         p.η * ∑ i, (d[ X' (i, last) # X' (i, last) ] + (H[V i] - H[X' (i, last)]) / 2) := by
           simp [←Finset.mul_sum, Finset.sum_add_distrib]; rw [Finset.sum_comm]; gcongr
           . rw [←Finset.sum_add_distrib]; apply Finset.sum_le_sum; intro i _; exact h5 i
           rw [←Finset.sum_add_distrib]; apply Finset.sum_le_sum; intro i _; exact h6 i
-        _ = p.η * (↑↑last * k + ∑ i, (∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) ] + d[ X' (i, last) # X' (i, last) ]) + ∑ i, H[V i] - ∑ i, H[X' (i, last)]) := by
+        _ = p.η * (∑ i, (∑ j ∈ .Iio last, d[ X' (i,j) # X' (i,j) ] + d[ X' (i, last) # X' (i, last) ]) + ∑ i, H[V i] - ∑ i, H[X' (i, last)]) := by
           simp_rw [Finset.sum_add_distrib, ←Finset.sum_div, Finset.sum_sub_distrib]; ring
-        _ = p.η * (↑↑last * k + ∑ j, (∑ i, d[ X' (i,j) # X' (i,j) ]) + ∑ i, H[V i] - ∑ i, H[X' (i, last)]) := by
+        _ = p.η * (∑ j, (∑ i, d[ X' (i,j) # X' (i,j) ]) + ∑ i, H[V i] - ∑ i, H[X' (i, last)]) := by
           rw [Finset.sum_comm]
           rcongr i
           convert Finset.sum_erase_add _ _ _ using 3
           . ext ⟨ j, hj ⟩; simp [last]; omega
           . infer_instance
           simp
-        _ = p.η * (↑↑last * k + (∑ j:Fin p.m, (∑ i, d[ X i # X i ])) + ∑ i, H[V i] - ∑ i, H[X i]) := by
+        _ = p.η * ((∑ j:Fin p.m, (∑ i, d[ X i # X i ])) + ∑ i, H[V i] - ∑ i, H[X i]) := by
           congr 2
           . congr; ext j; obtain ⟨ e, he ⟩ := hperm j
             convert Equiv.sum_comp e _ with i _
             apply IdentDistrib.rdist_congr <;> exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
           obtain ⟨ e, he ⟩ := hperm last
           convert Equiv.sum_comp e _ with i _
-          apply IdentDistrib.entropy_congr <;> exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
-        _ ≤ _ := by
-          simp [last]; gcongr
-          . apply multiDist_nonneg _ inferInstance _ (by fun_prop)
-          omega
+          apply IdentDistrib.entropy_congr; exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+        _ ≤ _ := by simp
 
     have h8 (i: Fin p.m) : H[V i] ≤ H[ ∑ j, X j] + ∑ j, d[X' (i,j) # X' (i,j)] := by
       sorry
@@ -226,12 +239,12 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
     have h9 : ∑ i, H[V i] - ∑ i, H[X i] ≤ p.m * ∑ i, d[X i # X i] + p.m * k := by
       sorry
 
-    have h10 : I₀/p.η ≤ 2 * p.m * ∑ i, d[X i # X i] + 2 * p.m * k := by linarith
+    have h10 : I₀/p.η ≤ 2 * p.m * ∑ i, d[X i # X i] + p.m * k := by linarith
 
     have h11 : ∑ i, d[X i # X i] ≤ 2 * p.m * k := by
       convert multidist_ruzsa_II hm _ _ _ hX _ <;> try infer_instance
 
     calc
-       _ ≤ p.η * (2 * p.m * ∑ i, d[X i # X i] + 2 * p.m * k) := by rwa [←div_le_iff₀' (by positivity)]
-      _ ≤ p.η * (2 * p.m * (2 * p.m * k) + 2 * p.m * k) := by gcongr
+       _ ≤ p.η * (2 * p.m * ∑ i, d[X i # X i] + p.m * k) := by rwa [←div_le_iff₀' (by positivity)]
+      _ ≤ p.η * (2 * p.m * (2 * p.m * k) + p.m * k) := by gcongr
       _ = _ := by ring

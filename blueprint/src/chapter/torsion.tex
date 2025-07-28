@@ -491,7 +491,7 @@ Suppose that $X_{i,j}$, $1 \leq i,j \leq m$, are jointly independent $G$-valued 
   \]
 Then
   \begin{equation}\label{I-ineq}
-    {\mathcal I} \leq 2 m(2m+1) \eta k.
+    {\mathcal I} \leq m(4m+1) \eta k.
   \end{equation}
 \end{proposition}
 
@@ -510,14 +510,14 @@ and
   B := D[ (X_{i,m})_{i=1}^m ] - D[ \bigl(\sum_{j=1}^m X_{i,j}\bigr)_{i=1}^m ].
 \]
 We first consider the $A_j$, for fixed $j \in \{1,\dots, m-1\}$.
-By \Cref{multidist-perm} and and our hypothesis on columns, we have
+By \Cref{multidist-perm} and our hypothesis on columns, we have
 \[
   D[ (X_{i, j})_{i = 1}^m ]= D[ (X_i)_{i=1}^m ] = k.
 \]
-Let $\sigma = \sigma_j \colon I \to I$ be a permutation such that $X_{i,j} = X_{\sigma(i)}$, and write $X'_i := X_{i,j}$ and $Y_i := X_{i,j} + \cdots + X_{i,m}$.
+Let $\sigma = \sigma_j \colon I \to I$ be a permutation such that $X_{i,j} \equiv X_{\sigma(i)}$, and write $X'_i := X_{i,j}$ and $Y_i := X_{i,j} + \cdots + X_{i,m}$.
 By \Cref{cond-multidist-lower-II}, we have
 \begin{align}
-  A_j & \leq \eta (k+\sum_{i = 1}^{m} d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}]).\label{54a}
+  A_j & \leq \eta (\sum_{i = 1}^{m} d[X_{i,j}; X_{i, j}|X_{i, j} + \cdots + X_{i,m}]).\label{54a}
 \end{align}
 We similarly consider $B$.  By \Cref{multidist-perm} applied to the $m$-th column,
 \[
@@ -554,7 +554,7 @@ On the other hand, by \Cref{klm-3} (since $X_{i,m}$ appears in the sum $V_i$) we
 Combining~\eqref{441},~\eqref{54a} and~\eqref{55a} with~\eqref{eq:distbnd1} and~\eqref{eq:distbnd2} (the latter two summed over $i$), we get
 \begin{align}
   \nonumber
-  \frac1{\eta} {\mathcal I} &\leq mk + \sum_{i,j=1}^m d[X_{i,j};X_{i,j}] + \sum_{i=1}^m (\bbH[V_i] - \bbH[X_{i,m}]) \\
+  \frac1{\eta} {\mathcal I} &\leq \sum_{i,j=1}^m d[X_{i,j};X_{i,j}] + \sum_{i=1}^m (\bbH[V_i] - \bbH[X_{i,m}]) \\
       &= m \sum_{i=1}^m d[X_i; X_i] + \sum_{i=1}^m \bbH[V_i] - \sum_{i=1}^m \bbH[X_i].
       \label{eq:distbnd3}
 \end{align}
@@ -568,7 +568,7 @@ Finally, summing over $i$ and using $D[X_{[m]}] = k$ gives
 \end{align*}
 where in the second step we used the permutation hypothesis. Combining this with~\eqref{eq:distbnd3} gives the
 $$
-{\mathcal I} \leq 2\eta m \biggl( \sum_{i=1}^m d[X_i;X_i] \biggr).$$
+{\mathcal I} \leq 2\eta m \biggl( \sum_{i=1}^m d[X_i;X_i] \biggr) + mk.$$
 The claim \eqref{I-ineq} is now immediate from \Cref{multidist-ruzsa-II}.
 \end{proof}
 
@@ -614,7 +614,7 @@ Now let $m \geq 2$, let $G$ be an $m$-torsion abelian group, and let $(X_i)_{1 \
   \]
   where
   \begin{equation}\label{t-def}
-    t :=  2m(2m+1) \eta k.
+    t :=  m(4m+1) \eta k.
   \end{equation}
 \end{proposition}
 
