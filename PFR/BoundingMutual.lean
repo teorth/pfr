@@ -157,14 +157,18 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureS
       : A j ≤ p.η * ∑ i, d[ X' (i,j) # X' (i,j) | S i j ] := by
         obtain ⟨ e, he ⟩ := hperm j
         simp only [A, hD]
-        convert sub_condMultiDistance_le' p (fun _ ↦ Ω) (fun _ ↦ hΩ) inferInstance X hX h_min (fun _ ↦ Ω') (fun _ ↦ hΩ') inferInstance (fun i ↦ X' (i, j)) _ _ _ e using 3 with i _ <;> try infer_instance
+        convert sub_condMultiDistance_le' inferInstance hX h_min inferInstance (X' := fun i ↦ X' (i, j)) _ _ e using 3 with i _ <;> try infer_instance
         all_goals try fun_prop
         apply condRuzsaDist'_of_copy <;> try fun_prop
         . exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
         apply IdentDistrib.refl; fun_prop
 
     have h3 : B ≤ p.η * ∑ i, d[ X' (i, last) # V i ] := by
-      sorry
+      obtain ⟨ e, he ⟩ := hperm last
+      simp only [B, hD]
+      convert sub_multiDistance_le' inferInstance hX h_min inferInstance (X' := fun i ↦ V i) _ e using 3 with i _
+      . apply IdentDistrib.rdist_congr_left (by fun_prop); exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
+      simp; fun_prop
 
     have h4 (i: Fin p.m) {j : Fin p.m} (hj: j ∈ Finset.Iio last) :
       d[ X' (i,j) # X' (i,j) | S i j ] ≤ d[ X' (i,j) # X' (i,j) ]
