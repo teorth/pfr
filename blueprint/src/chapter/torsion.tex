@@ -113,7 +113,7 @@ Since $0 \leq \frac{n-1}{2n} \leq \frac{1}{2}$, the claim follows.
   $$ \bbH[\sum_{j=1}^l Y_j] \leq \bbH[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\bbH[ Y_j - X_{f(j)}] - \bbH[X_{f(j)}]).$$
 \end{lemma}
 
-\begin{proof}\uses{klm-1, kv, neg-ent, sumset-lower}  Write $W := \sum_{i=1}^m X_i$.  From \Cref{sumset-lower} we have
+\begin{proof}\uses{klm-1, kv, neg-ent, sumset-lower}\leanok  Write $W := \sum_{i=1}^m X_i$.  From \Cref{sumset-lower} we have
 $$ \bbH[\sum_{j=1}^l Y_j]  \leq \bbH[-W + \sum_{j=1}^l Y_j]$$
 while from \Cref{klm-1} one has
 $$ \bbH[-W + \sum_{j=1}^l Y_j] \leq \bbH[-W] + \sum_{j=1}^l \bbH[-W + Y_j] - \bbH[-W].$$

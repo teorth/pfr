@@ -996,3 +996,5 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
         simp_rw [←Real.rpow_natCast]
         rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
         congr; push_cast; ring
+
+#print axioms torsion_PFR
