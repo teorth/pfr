@@ -293,3 +293,5 @@ theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
         . apply Set.toFinite
         intro x; simp [A, φ'c]; intro h1 h2
         simp [h1, h2]
+
+#print axioms approx_hom_pfr'
