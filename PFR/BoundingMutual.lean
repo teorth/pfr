@@ -21,7 +21,7 @@ open MeasureTheory ProbabilityTheory
 
 lemma multiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
     (hΩ : ∀ i, MeasureSpace (Ω i)) (hΩfin : ∀ i, IsFiniteMeasure (hΩ i).volume)
-    {G: Type*} [MeasureableFinGroup G] (X : ∀ i, (Ω i) → G)  :
+    {G: Type*} [MeasurableFinGroup G] (X : ∀ i, (Ω i) → G)  :
     D[fun i ↦ X (i.cast h); fun i ↦ hΩ (i.cast h)] = D[X ; hΩ] := by
     unfold multiDist
     congr 1
@@ -78,7 +78,7 @@ lemma ProbabilityTheory.iIndepFun.sum_elim {Ω I J G:Type*} [MeasurableSpace Ω]
 
 lemma condMultiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
     (hΩ : ∀ i, MeasureSpace (Ω i))
-    {G S: Type*} [MeasureableFinGroup G] [Fintype S] (X : ∀ i, (Ω i) → G) (Y : ∀ i, (Ω i) → S) :
+    {G S: Type*} [MeasurableFinGroup G] [Fintype S] (X : ∀ i, (Ω i) → G) (Y : ∀ i, (Ω i) → S) :
     D[fun i ↦ X (i.cast h) | fun i ↦ Y (i.cast h); fun i ↦ hΩ (i.cast h)] =
     D[X | Y ; hΩ] := by
       unfold condMultiDist
@@ -106,7 +106,7 @@ $$ {\mathcal I} := \bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m}
  $$
  Then ${\mathcal I} \leq 4 m^2 \eta k.$
 -/
-lemma mutual_information_le {G Ωₒ : Type u} [MeasureableFinGroup G] [MeasureSpace Ωₒ]
+lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSpace Ωₒ]
   {p : multiRefPackage G Ωₒ} {Ω : Type u} [hΩ : MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
   {X : Fin p.m → Ω → G} (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
   (h_min : multiTauMinimizes p (fun _ ↦ Ω) (fun _ ↦ hΩ) X) {Ω' : Type u} [hΩ': MeasureSpace Ω']

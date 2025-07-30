@@ -15,7 +15,7 @@ section AnalyzeMinimizer
 
 universe u
 
-variable {G Ωₒ : Type u} [MeasureableFinGroup G] [hΩ₀: MeasureSpace Ωₒ] {p : multiRefPackage G Ωₒ} {Ω : Fin p.m → Type u}
+variable {G Ωₒ : Type u} [MeasurableFinGroup G] [hΩ₀: MeasureSpace Ωₒ] {p : multiRefPackage G Ωₒ} {Ω : Fin p.m → Type u}
   (hΩ : ∀ i, MeasureSpace (Ω i)) {X : ∀ i, Ω i → G} (h_min : multiTauMinimizes p Ω hΩ X)
   (hΩ_prob : ∀ i, IsProbabilityMeasure (hΩ i).volume) (hX_mes: ∀ i, Measurable (X i))
 
@@ -482,8 +482,8 @@ lemma pigeonhole {G:Type*} [MeasureSpace G] [IsProbabilityMeasure (ℙ:Measure G
 $$  d[U;U] + \alpha \sum_{i=1}^n d[Y_i;U] \leq \Bigl(2 + \frac{\alpha n}{2} \Bigr) \delta + \alpha \sum_{i=1}^n d[Y_i;T_2].
 $$
 -/
-lemma dist_of_U_add_le {G: Type*} [MeasureableFinGroup G] {Ω : Type u} [hΩ:MeasureSpace Ω]
-  [IsProbabilityMeasure (ℙ:Measure Ω)] {T₁ T₂ T₃ : Ω → G}
+lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : MeasureSpace Ω]
+  [IsProbabilityMeasure (ℙ : Measure Ω)] {T₁ T₂ T₃ : Ω → G}
   (hsum: T₁ + T₂ + T₃ = 0) (hmes₁: Measurable T₁) (hmes₂: Measurable T₂) (hmes₃: Measurable T₃)
   {n:ℕ} {Ω': Fin n → Type*} (hΩ': ∀ i, MeasureSpace (Ω' i)) [∀ i, IsProbabilityMeasure (hΩ' i).volume]
   {Y: ∀ i, (Ω' i) → G} (hY: ∀ i, Measurable (Y i)) {α:ℝ} (hα: α > 0) :
@@ -662,7 +662,7 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpac
   [MeasurableSingletonClass G] {m:ℕ} (hm: m ≥ 2) (htorsion: ∀ x:G, m • x = 0) {Ω : Type u} [MeasureSpace Ω]
   [IsProbabilityMeasure (ℙ:Measure Ω)] {X: Ω → G} (hX: Measurable X) : ∃ H : AddSubgroup G, ∃ Ω' : Type u, ∃ mΩ : MeasureSpace Ω', IsProbabilityMeasure mΩ.volume ∧ ∃ U : Ω' → G,
     IsUniform H U ∧ Measurable U ∧ d[X # U] ≤ 64 * m^3 * d[X # X] := by
-    let _ : MeasureableFinGroup G := {
+    let _ : MeasurableFinGroup G := {
     }
     let p : multiRefPackage G Ω := {
       m := m
