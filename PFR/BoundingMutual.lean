@@ -348,7 +348,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       let f : Fin p.m ⊕ (Fin p.m × Fin p.m) → Fin p.m ⊕ (Fin p.m × Fin p.m) := fun x ↦ match x with
       | Sum.inl i => Sum.inl i
       | Sum.inr (i,j) => Sum.inl ((e j) i)
-      convert ent_of_sum_le_ent_of_sum hdisj hs ht _ _ _ hindep_all f _
+      convert ent_of_sum_le_ent_of_sum hdisj _ _ hindep_all f _
       . apply IdentDistrib.entropy_congr
         convert hident_X'.symm.comp (u := fun x ↦ ∑ j:Fin p.m, x (i, j)) _ <;> try fun_prop
         ext ω; simp [Z, Z', t]
@@ -383,9 +383,6 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
             rw [IdentDistrib.entropy_congr hident_2]
           _ = _ := by ring
       . fun_prop
-      . simp [Z,Z']; constructor
-        . intros; infer_instance
-        intro a b; infer_instance
       intro x; simp [f,t,s]; aesop
 
     have h9 : ∑ i, H[V i] ≤ p.m * ∑ i, d[X i # X i] + ∑ i, H[X i] + p.m * k := calc
