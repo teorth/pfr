@@ -246,6 +246,16 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
     Measure.prod_swap]
   rfl
 
+omit [Countable G] in
+/-- Ruzsa distance depends continuously on the first measure. -/
+lemma continuous_rdist_restrict_probabilityMeasure₁_left [Fintype G]
+    [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
+    (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
+    Continuous
+      (fun (μ : ProbabilityMeasure G) ↦ d[id ; μ.toMeasure # X ; P]) := by
+  convert continuous_rdist_restrict_probabilityMeasure₁' X P X_mble using 2
+  rw [rdist_symm]
+
 variable [FiniteRange X] [FiniteRange Y]
 
 /-- `|H[X] - H[Y]| ≤ 2 d[X ; Y]`. -/
