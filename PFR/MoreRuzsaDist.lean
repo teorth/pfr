@@ -579,7 +579,7 @@ private theorem entropy_kvm_step {Ω : Type u_1} {G : Type u_5} [mΩ : Measurabl
       rwa [←this]
     rw [hφ]
     ext x a : 2
-    fin_cases x <;> simp ; rw [hS] ; simp [Finset.sum_attach (s \ {f i}).attach  (X · a), Finset.sum_attach (s \ {f i}) (X · a)]
+    fin_cases x <;> simp; rw [hS]; simp [Finset.sum_attach (s \ {f i}).attach  (X · a), Finset.sum_attach (s \ {f i}) (X · a)]
   · convert Finset.measurable_sum (s \ {f i}) (fun i _ => (hX i).neg)
     simp [Pi.neg_apply, Finset.sum_apply, Finset.sum_neg_distrib, neg_inj]
   · apply (hX <| f i).neg
@@ -606,8 +606,8 @@ private theorem kvm_decomposition_indep_helper {Ω : Type u_1} {G : Type u_5} [m
   (Y_finite : ∀ i, FiniteRange (Y i)) :
   iIndepFun (fun _ ↦ hG) Y μ := by
   set S : Option {x // x ∈ t} → Finset I := fun i => match i with | some i => {i.val} | none => s with hS
-  set φ : I → G → G := fun i ↦ if i ∈ t then id else - id with hφ
-  set X' : I → Ω → G := fun i ↦ φ i ∘ (X i) with hX'
+  set φ i : G → G := if i ∈ t then id else - id with hφ
+  set X' i : Ω → G := φ i ∘ X i with hX'
   have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
     intro i _ j _ hij
     match i, j with

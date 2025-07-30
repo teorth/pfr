@@ -64,7 +64,8 @@ lemma iIndepFun.finsets_comp {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
     iIndepFun (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) μ :=
   Kernel.iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas γ φ hφ
 
-lemma iIndepFun.finsets_sum  [m : MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β'] {f : ι → Ω → β'} {J : Type*} [Fintype J]
+lemma iIndepFun.finsetSum  [m : MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β']
+    {f : ι → Ω → β'} {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
     (hf_Indep : iIndepFun (fun _ ↦ m) f μ) (hf_meas : ∀ i, Measurable (f i)) :
     iIndepFun (fun _ ↦ m) (fun (j : J) ↦ fun a ↦ ∑ i ∈ S j, f i a) μ := by
