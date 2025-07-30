@@ -108,7 +108,7 @@ $$ {\mathcal I} := \bbI[ \bigl(\sum_{i=1}^m X_{i,j}\bigr)_{j =1}^{m}
 -/
 lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSpace Ωₒ]
   {p : multiRefPackage G Ωₒ} {Ω : Type u} [hΩ : MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
-  {X : ∀ i, Ω → G} (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
+  {X : Fin p.m → Ω → G} (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
   (h_min : multiTauMinimizes p (fun _ ↦ Ω) (fun _ ↦ hΩ) X) {Ω' : Type u} [hΩ': MeasureSpace Ω']
   [IsProbabilityMeasure hΩ'.volume]
   {X' : Fin p.m × Fin p.m → Ω' → G} (hX' : ∀ i j, Measurable (X' (i, j)))

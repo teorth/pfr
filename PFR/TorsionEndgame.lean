@@ -140,7 +140,7 @@ lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k
   exact (hident (i-j) j).trans (hident (i-j) zero).symm
 
 include h_mes h_indep hident h_min in
-lemma mutual_information_le_t_21 : I[Z1 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k := by
+lemma mutual_information_le_t_13 : I[Z1 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k := by
   have hm := p.hm
   have _ : NeZero p.m := by rw [neZero_iff]; linarith
   let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
@@ -380,7 +380,7 @@ lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := by
   linarith
 
 include h_mes h_indep hident hΩ_prob hX_mes in
-/-- We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 8(m^3-m^2) k$. -/
+/-- We have $\sum_{i=1}^m d[X_i;Z_2|W] \leq 4(m^3-m^2) k$. -/
 lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - p.m^2)*k := by
   have hm := p.hm
   let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
@@ -482,12 +482,12 @@ lemma pigeonhole {G:Type*} [MeasureSpace G] [IsProbabilityMeasure (ℙ:Measure G
 $$  d[U;U] + \alpha \sum_{i=1}^n d[Y_i;U] \leq \Bigl(2 + \frac{\alpha n}{2} \Bigr) \delta + \alpha \sum_{i=1}^n d[Y_i;T_2].
 $$
 -/
-lemma dist_of_U_add_le {G: Type*} [MeasurableFinGroup G] {Ω : Type u} [MeasureSpace Ω]
-  [IsProbabilityMeasure (ℙ:Measure Ω)] {T₁ T₂ T₃ : Ω → G}
+lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : MeasureSpace Ω]
+  [IsProbabilityMeasure (ℙ : Measure Ω)] {T₁ T₂ T₃ : Ω → G}
   (hsum: T₁ + T₂ + T₃ = 0) (hmes₁: Measurable T₁) (hmes₂: Measurable T₂) (hmes₃: Measurable T₃)
   {n:ℕ} {Ω': Fin n → Type*} (hΩ': ∀ i, MeasureSpace (Ω' i)) [∀ i, IsProbabilityMeasure (hΩ' i).volume]
   {Y: ∀ i, (Ω' i) → G} (hY: ∀ i, Measurable (Y i)) {α:ℝ} (hα: α > 0) :
-  ∃ (Ω'':Type u) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), IsProbabilityMeasure hΩ''.volume ∧ d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := by
+  ∃ (Ω'':Type u) (hΩ'': MeasureSpace Ω'') (U: Ω'' → G), IsProbabilityMeasure hΩ''.volume ∧ Measurable U ∧ d[U # U] + α * ∑ i, d[Y i # U] ≤ (2 + α * n / 2) * (I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]) + α * ∑ i, d[Y i # T₂] := by
   let δ := I[T₁ : T₂] + I[T₁ : T₃] + I[T₂ : T₃]
   have h1 := ent_bsg (μ := ℙ) hmes₁ hmes₂
   have h₁₂ : I[T₁ : T₂] = H[T₁] + H[T₂] - H[ ⟨ T₁, T₂ ⟩ ] := mutualInfo_def _ _ _
@@ -552,16 +552,107 @@ lemma dist_of_U_add_le {G: Type*} [MeasurableFinGroup G] {Ω : Type u} [MeasureS
   obtain ⟨ z, hz, hpos ⟩ := pigeonhole F
   replace h3 := hz.trans h3
   use Ω, ⟨ ℙ[|(T₁ + T₂) ⁻¹' {z}] ⟩, T₂
-  constructor
+  refine ⟨ ?_, ?_, ?_ ⟩
   . apply cond_isProbabilityMeasure
     convert hpos
     simp [_hG]; rw [MeasureTheory.Measure.map_apply (by fun_prop) (by measurability)]
+  . fun_prop
   convert h3 using 1
   ring
 
 
+include h_mes h_indep hident h_min hΩ hΩ_prob hX_mes in
 /-- We have $k = 0$. -/
-lemma k_eq_zero : k = 0 := sorry
+lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
+  let hm := p.hm
+  let hη := p.hη
+  have hm' : p.m > 0 := by linarith
+  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
+  let δ : G → ℝ := fun w ↦ I[Z1 : Z2 ; ℙ[|W ⁻¹' {w}]] + I[Z1 : Z3 ; ℙ[|W ⁻¹' {w}]] + I[Z2 : Z3 ; ℙ[|W ⁻¹' {w}]]
+  have hδ_int : ∫ w, δ w ∂(Measure.map W ℙ) ≤ 3*p.m*(4*p.m+1)*p.η*k := by
+    unfold δ
+    rw [integral_add, integral_add] <;> try apply Integrable.of_finite
+    simp_rw [←condMutualInfo_eq_integral_mutualInfo]
+    calc
+      _ ≤ p.m * (4*p.m+1) * p.η * k + p.m * (4*p.m+1) * p.η * k + p.m * (4*p.m+1) * p.η * k := by
+        gcongr
+        . exact mutual_information_le_t_12 hΩ h_min h_mes h_indep hident
+        . exact mutual_information_le_t_13 hΩ h_min h_mes h_indep hident
+        exact mutual_information_le_t_23 hΩ h_min h_mes h_indep hident
+      _ = _ := by ring
+
+  let _ : MeasureSpace G := ⟨ Measure.map W ℙ ⟩
+  have _ : IsProbabilityMeasure (ℙ: Measure G) := isProbabilityMeasure_map (by fun_prop)
+
+  let δ' : G → ℝ := fun w ↦ p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]]
+
+  have main_est {w:G} (hw: ℙ {w} ≠ 0) : k ≤ δ' w := by
+    let μ : Measure Ω' := ℙ[|W ⁻¹' {w}]
+    have hμ_prob : IsProbabilityMeasure μ := by
+      apply cond_isProbabilityMeasure; convert hw
+      symm; apply MeasureTheory.Measure.map_apply (by fun_prop) (MeasurableSet.singleton _)
+    obtain ⟨ Ω'', hΩ'', U, hΩ''_prob, hU_mes, h_ineq ⟩ := @dist_of_U_add_le G inferInstance Ω' ⟨ μ ⟩ hμ_prob Z1 Z2 Z3 sum_of_z_eq_zero
+      (by fun_prop) (by fun_prop) (by fun_prop) p.m Ω hΩ hΩ_prob X hX_mes (p.η/p.m) (by positivity)
+
+    have h1 : D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≤ p.m * d[U # U] := by
+      apply multidist_ruzsa_III hm (i₀ := zero) <;> try infer_instance
+      . intros; apply IdentDistrib.refl; fun_prop
+      fun_prop
+
+    have h2 : k - D[fun i:Fin p.m ↦ U; fun _ ↦ hΩ''] ≤ p.η * ∑ i, d[X i # U] := by
+      convert sub_multiDistance_le _ _ h_min _ _ <;> try infer_instance
+      all_goals fun_prop
+
+    have h3 : p.m * d[U # U] + p.η * ∑ i, d[X i # U] ≤
+      p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]] := calc
+        _ = p.m * (d[U # U] + p.η / p.m * ∑ i, d[X i # U]) := by
+          field_simp; ring
+        _ ≤ p.m * ((2 + p.η / ↑p.m * ↑p.m / 2) * (I[Z1 : Z2; μ] + I[Z1 : Z3; μ] + I[Z2 : Z3; μ]) + p.η / ↑p.m * ∑ i, d[X i; ℙ # Z2; μ]) := by
+          apply mul_le_mul_of_nonneg_left _ (by positivity); convert h_ineq using 1
+        _ = p.m * ((2 + p.η / p.m * p.m / 2) * (δ w) + p.η / p.m * (∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]])) := by rfl
+        _ = _ := by field_simp; ring
+    unfold δ'; linarith
+
+  replace main_est : k ≤ ∫ w, δ' w := by
+    obtain ⟨ w, hwδ, hw ⟩ := pigeonhole δ'
+    specialize main_est hw; order
+
+  have integ_eq : ∫ w, δ' w ≤ p.m * (2 + p.η / 2) * (3*p.m*(4*p.m+1)*p.η*k) + p.η * (4 * (p.m^3 - p.m^2)*k) := by
+    unfold δ'
+    rw [integral_add, integral_const_mul, integral_const_mul, MeasureTheory.integral_finset_sum] <;> try intros; apply Integrable.of_finite
+    gcongr
+    . convert hδ_int
+    convert sum_of_conditional_distance_le hΩ hΩ_prob hX_mes h_mes h_indep hident with i _
+    symm; convert condRuzsaDist'_eq_integral _ _ _ _ _ <;> try infer_instance
+    all_goals fun_prop
+
+  by_contra!
+  replace this : k > 0 := by have : k ≥ 0 := multiDist_nonneg _ hΩ_prob _ hX_mes; order
+
+  have h4 : 1 ≤ p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η) + p.η * (4 * (p.m^3 - p.m^2)) := by
+    rw [←mul_le_mul_iff_of_pos_right  this]
+    simp; calc
+      _ ≤ p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η * k) + p.η * (4 * (p.m^3 - p.m^2)*k) := by linarith
+      _ = _ := by ring
+
+  have h5 : p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η) + p.η * (4 * (p.m^3 - p.m^2)) < (1:ℝ) := by
+    calc
+      _ ≤ p.m * (2 + (1/32) / 2) * (3 * p.m * (4 * p.m + p.m/2) * p.η) + p.η * (4 * p.m^3) := by
+        rw [hη_eq]; gcongr
+        . norm_cast; simp; linarith [Nat.pow_le_pow_left hm 3]
+        . norm_cast; linarith [show p.m ≥ (2:ℝ) by simpa]
+        simp
+      _ < _ := by
+        rw [hη_eq]
+        field_simp; rw [div_lt_one (by positivity)]
+        ring_nf; linarith [show (p.m:ℝ)^6 > 0 by positivity]
+
+  order
+
+
+
+
+
 
 end AnalyzeMinimizer
 
@@ -586,7 +677,15 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpac
     }
     obtain ⟨ Ω', mΩ', X', hX'_mes, hΩ'_prob, htau_min ⟩ := multiTau_min_exists p
     have hdist : D[X'; mΩ'] = 0 := by
-      apply k_eq_zero
+      let X'' : (q: Fin p.m × Fin p.m) → Ω' q.1 → G := fun q ω ↦ X' q.1 ω
+      have := independent_copies'_finiteRange X'' (by fun_prop) (fun q ↦ (mΩ' q.1).volume)
+      obtain ⟨ Ω'', hΩ'', μ'', Y, hY_prob, hY_indep, hYi⟩ := this
+      let _ : MeasureSpace Ω'' := ⟨ μ'' ⟩
+      have hY_mes : ∀ i, Measurable (Y i) := by intro i; specialize hYi i; tauto
+      have hY_ident : ∀ i, IdentDistrib (Y i) (X'' i) μ'' ℙ := by intro i; specialize hYi i; tauto
+      have hY_fin : ∀ i, FiniteRange (Y i) := by intro i; specialize hYi i; tauto
+      convert k_eq_zero mΩ' htau_min hΩ'_prob hX'_mes (by fun_prop) hY_indep _ (by rfl)
+      intro i j; specialize hY_ident (i,j); simpa
     have hclose : ∃ i, d[X' i # p.X₀] ≤ (2/p.η) * d[p.X₀ # p.X₀] := by
       by_contra!
       replace : ∑ i:Fin p.m, 2 / p.η * d[p.X₀ # p.X₀] < ∑ i, d[X' i # p.X₀] := by
