@@ -1,3 +1,5 @@
+name: Build Lean project
+
 on:
   push:
     branches:
@@ -14,101 +16,111 @@ jobs:
     name: Lint style
     runs-on: ubuntu-latest
     steps:
-      - name: Check for long lines
-        if: always()
-        run: |
-          ! (find PFR -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Don't 'import Mathlib', use precise imports
         if: always()
         run: |
           ! (find PFR -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
 
+      - name: Files in PFR.Mathlib can't import PFR files outside PFR.Mathlib
+        run: |
+          ! (find PFR/Mathlib -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import PFR.(?!Mathlib)')
+
   build_project:
     runs-on: ubuntu-latest
     name: Build project
     steps:
+
+      # The following actions make sure the project builds properly.
+
       - name: Checkout project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Print files to upstream
-        run: |
-          grep -r --files-without-match 'import PFR' PFR | sort > 1.txt
-          grep -r --files-with-match 'sorry' PFR | sort > 2.txt
-          mkdir -p docs/_includes
-          comm -23 1.txt 2.txt | sed -e 's/^\(.*\)$/- [`\1`](https:\/\/github.com\/teorth\/PFR\/blob\/master\/\1)/' > docs/_includes/files_to_upstream.md
-          rm 1.txt 2.txt
-
       - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0
+        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.18.0
 
       - name: Get cache
-        run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
+        run: ~/.elan/bin/lake exe cache get || true
 
       - name: Build project
-        run: ~/.elan/bin/lake -Kenv=dev build PFR
+        run: ~/.elan/bin/lake build PFR
 
-      - name: Cache mathlib docs
-        uses: actions/cache@v3
+      - name: Cache documentation
+        uses: actions/cache@v4
         with:
           path: |
-            .lake/build/doc/Init
-            .lake/build/doc/Lake
-            .lake/build/doc/Lean
-            .lake/build/doc/Std
-            .lake/build/doc/Mathlib
-            .lake/build/doc/declarations
-            !.lake/build/doc/declarations/declaration-data-PFR*
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: |
-            MathlibDoc-
+            website/docs
+            !.website/docs/PFR
+          key: Doc-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: Doc-
 
       - name: Build documentation
-        run: ~/.elan/bin/lake -Kenv=dev build PFR:docs
+        run: scripts/build_docs.sh
 
-      - name: Build blueprint and copy to `docs/blueprint`
+      - name: Build blueprint
         uses: xu-cheng/texlive-action@v2
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
-            export PIP_BREAK_SYSTEM_PACKAGES=1
+            # Install necessary dependencies and build the blueprint
             apk update
-            apk add --update make py3-pip git
             apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
-            python3 -m pip install --upgrade pip requests wheel
-            python3 -m pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install -r blueprint/requirements.txt
-            python3 -m pip install invoke
-            inv all
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            leanblueprint web
 
-      - name: Copy documentation to `docs/docs`
+      # The following actions create and deploy the website.
+
+      - name: Copy documentation to website/docs
+        run: mv docs/build/* website/docs
+
+      - name: Copy blueprint to website/blueprint
         run: |
-          mv .lake/build/doc docs/docs
+          cp blueprint/print/print.pdf website/blueprint.pdf
+          cp -r blueprint/web website/blueprint
+
+      - name: Append README.md to website/index.md
+        run: cat README.md >> website/index.md
+
+      - name: Upstreaming dashboard
+        run: |
+          mkdir -p website/_includes
+          python3 scripts/upstreaming_dashboard.py
+
+      - name: File dependencies
+        run: |
+          sudo apt-get update
+          sudo apt install graphviz -y
+          ~/.elan/bin/lake exe graph website/file_deps.pdf
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
         with:
-          working-directory: docs
-          ruby-version: "3.0" # Not needed with a .ruby-version file
+          working-directory: website
+          ruby-version: "3.1" # Not needed with a .ruby-version file
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
       - name: Bundle website
-        working-directory: docs
+        working-directory: website
         run: JEKYLL_ENV=production bundle exec jekyll build
 
       - name: Upload docs & blueprint artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/_site
+          path: website/_site
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
-
-      - name: Make sure the cache works
-        run: |
-          mv docs/docs .lake/build/doc
+        uses: actions/deploy-pages@v4

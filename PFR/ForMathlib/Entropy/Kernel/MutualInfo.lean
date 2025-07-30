@@ -1,4 +1,4 @@
-import PFR.Mathlib.Probability.Kernel.Composition
+import PFR.Mathlib.Probability.Kernel.Composition.Comp
 import PFR.ForMathlib.Entropy.Kernel.Basic
 
 /-!
@@ -69,10 +69,10 @@ lemma compProd_assoc (ξ : Kernel T S) [IsSFiniteKernel ξ]
   rw [map_apply' _ (by fun_prop) _ hs,
     compProd_apply (MeasurableEquiv.prodAssoc.measurable hs),
     compProd_apply hs, lintegral_compProd]
-  swap; · exact measurable_kernel_prod_mk_left' (MeasurableEquiv.prodAssoc.measurable hs) _
+  swap; · exact measurable_kernel_prodMk_left' (MeasurableEquiv.prodAssoc.measurable hs) _
   congr with a
   rw [compProd_apply]
-  swap; · exact measurable_prod_mk_left hs
+  swap; · exact measurable_prodMk_left hs
   congr
 
 lemma Measure.compProd_compProd (μ : Measure T)
@@ -84,9 +84,9 @@ lemma Measure.compProd_compProd (μ : Measure T)
   rw [Measure.compProd_apply hs, Measure.map_apply MeasurableEquiv.prodAssoc.measurable hs,
     Measure.compProd_apply (MeasurableEquiv.prodAssoc.measurable hs),
     Measure.lintegral_compProd]
-  swap; · exact measurable_kernel_prod_mk_left (MeasurableEquiv.prodAssoc.measurable hs)
+  swap; · exact measurable_kernel_prodMk_left (MeasurableEquiv.prodAssoc.measurable hs)
   congr with a
-  rw [compProd_apply (measurable_prod_mk_left hs)]
+  rw [compProd_apply (measurable_prodMk_left hs)]
   congr
 
 lemma Measure.compProd_compProd' (μ : Measure T)
@@ -122,14 +122,9 @@ lemma mutualInfo_nonneg' {κ : Kernel T (S × U)} {μ : Measure T} [IsFiniteMeas
   simp_rw [mutualInfo, entropy, integral_eq_setIntegral (measure_compl_support μ),
     integral_finset _ _ IntegrableOn.finset, smul_eq_mul]
   rw [← Finset.sum_add_distrib, ← Finset.sum_sub_distrib]
-  refine Finset.sum_nonneg (fun x _ ↦ ?_)
-  by_cases hx : μ {x} = 0
-  · simp [hx]
-  rw [← mul_add, ← mul_sub]
-  refine mul_nonneg ENNReal.toReal_nonneg ?_
-  rw [fst_apply, snd_apply]
-  have : FiniteSupport (κ x) := ⟨hκ x⟩
-  exact measureMutualInfo_nonneg
+  simp_rw [← mul_add, ← mul_sub, fst_apply, snd_apply]
+  have (x) : FiniteSupport (κ x) := ⟨hκ x⟩
+  exact Finset.sum_nonneg fun x _ ↦ mul_nonneg ENNReal.toReal_nonneg measureMutualInfo_nonneg
 
 lemma mutualInfo_nonneg [Countable T] {κ : Kernel T (S × U)} {μ : Measure T} [IsFiniteMeasure μ]
     [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) :
@@ -217,7 +212,7 @@ lemma entropy_snd_sub_mutualInfo_le_entropy_map_of_injective {V : Type*} [Counta
       symm
       apply entropy_snd_compProd_deterministic_of_injective _ _ (fun t ↦ hfi t.2)
     _ = Hk[condKernel (map κ (fun p ↦ (p.1, f p))),
-      μ ⊗ₘ fst κ] := entropy_congr (condKernel_map_prod_mk_left κ μ f).symm
+      μ ⊗ₘ fst κ] := entropy_congr (condKernel_map_prodMk_left κ μ f).symm
     _ = Hk[condKernel (map κ (fun p ↦ (p.1, f p))),
       μ ⊗ₘ fst (map κ (fun p ↦ (p.1, f p)))] := by
         congr 2 with x
@@ -245,16 +240,6 @@ lemma entropy_reverse {κ : Kernel T (S × U × V)} [IsZeroOrMarkovKernel κ]
   · conv_lhs => rw [← reverse_reverse κ]
     convert entropy_map_le (κ := reverse κ) (fun p ↦ (p.2.2, p.2.1, p.1)) hκ.reverse
     · rw [reverse_eq]
-
-instance IsZeroOrMarkovKernel.compProd
-    {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
-    (κ : Kernel α β) [IsZeroOrMarkovKernel κ] (η : Kernel (α × β) γ)
-    [IsZeroOrMarkovKernel η] : IsZeroOrMarkovKernel (κ ⊗ₖ η) := by
-  rcases eq_zero_or_isMarkovKernel κ with rfl | hκ
-  · simp only [compProd_zero_left]; infer_instance
-  rcases eq_zero_or_isMarkovKernel η with rfl | hη
-  · simp only [compProd_zero_right]; infer_instance
-  infer_instance
 
 instance IsZeroOrProbabilityMeasure.compProd
     {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}

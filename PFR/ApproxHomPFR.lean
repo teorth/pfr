@@ -1,7 +1,11 @@
-import Mathlib.Combinatorics.Additive.Energy
-import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.Analysis.Normed.Lp.PiLp
+import Mathlib.Combinatorics.Additive.Energy
+import Mathlib.Data.FunLike.Fintype
+import Mathlib.Data.Int.Lemmas
+
 import LeanAPAP.Extras.BSG
+
 import PFR.HomPFR
 import PFR.RhoFunctional
 
@@ -120,7 +124,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       Set.fst_injOn_graph.mono fun _ hx ↦ Set.Finite.subset_toFinset.mp hA' hx.1)
 
   let cH₁ := (c ×ˢ H₁).toFinite.toFinset
-  haveI A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
+  have A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
   replace hc : c.Nonempty := by
     obtain ⟨x, hx, _, _, _⟩ := hH_cover (Classical.choice A_nonempty).property
     exact ⟨x, hx⟩
@@ -140,7 +144,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       exact ((Set.Finite.mem_toFinset _).mp hch.2).1
 
   replace : ∑ _ ∈ cH₁, ((2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * #A / cH₁.card : ℝ) ≤
-      ∑ ch in cH₁, ((translate ch.1 ch.2).toFinite.toFinset.card : ℝ) := by
+      ∑ ch ∈ cH₁, ((translate ch.1 ch.2).toFinite.toFinset.card : ℝ) := by
     rewrite [Finset.sum_const, nsmul_eq_mul, ← mul_div_assoc, mul_div_right_comm, div_self, one_mul]
     · apply hA'1.trans
       norm_cast
@@ -177,3 +181,115 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     _ ≤ ((2 ^ 14 * K ^ 12) ^ 5 * Nat.card A'' ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2 *
           Nat.card H / Nat.card ↑A'' := by gcongr
     _ = 2 ^ 140 * K ^ 120 := by field_simp; rpow_simp; norm_num
+
+noncomputable def dual_iso : G ≃+ (G →+ ZMod 2) := by
+  -- By definition of dual space, we know that $G^*$ is isomorphic to $\text{Hom}(G, \mathbb{Z}/2\mathbb{Z})$.
+  have hdual_iso_hom : (G →+ ZMod 2) ≃+ Module.Dual (ZMod 2) G :=
+    AddMonoidHom.toZModLinearMapEquiv 2;
+  -- Since $G$ is a finite-dimensional vector space over $\mathbb{Z}/2\mathbb{Z}$, it is isomorphic to its dual space.
+  have h_dual_iso_self : G ≃ₗ[ZMod 2] Module.Dual (ZMod 2) G :=
+    (Basis.linearEquiv_dual_iff_finiteDimensional.mpr inferInstance).some
+  exact h_dual_iso_self.toAddEquiv.trans hdual_iso_hom.symm
+
+theorem card_of_dual : Nat.card (G →+ ZMod 2) = Nat.card G := Nat.card_congr dual_iso.toEquiv.symm
+
+theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : 2 * Nat.card { φ: G →+ ZMod 2 | φ x = 1 } = Nat.card G := by
+  suffices h_eq_card : Nat.card {φ : G →+ ZMod 2 | (φ x) = 1} = Nat.card {φ : G →+ ZMod 2 | (φ x) = 0} by
+    have h_eq_card : Nat.card {φ : G →+ ZMod 2 | (φ x) = 1} + Nat.card {φ : G →+ ZMod 2 | (φ x) = 0} = Nat.card (G →+ ZMod 2) := by
+      -- These two sets partition the set of all homomorphisms from $G$ to $\mathbb{Z}/2\mathbb{Z}$.
+      trans Nat.card (Set.univ : Set (G →+ ZMod 2))
+      · -- Since these two sets partition the set of all homomorphisms from $G$ to $\mathbb{Z}/2\mathbb{Z}$, their cardinalities add up to the cardinality of the whole set.
+        have h_partition : {φ : G →+ ZMod 2 | (φ x) = 1} ∪ {φ : G →+ ZMod 2 | (φ x) = 0} = Set.univ := by
+          ext f
+          cases Fin.exists_fin_two.mp ⟨f x, rfl⟩ <;> simp [*]
+        have _ := DFunLike.finite (G →+ ZMod 2)
+        rw [← h_partition, Nat.card_congr <| Equiv.Set.union <| Set.disjoint_left.mpr <| by simp +contextual]
+        simp [Nat.card, Cardinal.toNat_add]
+      · simp [Fintype.card_congr (Equiv.Set.univ _)]
+    -- Since there are $|G|$ homomorphisms in total, we have $|G| = |H_1| + |H_0|$.
+    simp_all [card_of_dual]
+    rw [← h_eq_card]; ring
+  -- Let $y$ be an additive character of $G$ such that $y(x) = 1$.
+  obtain ⟨y, hy⟩ : ∃ (y : G →+ ZMod 2), y x = 1 := by
+    -- Since $G$ is finite, there exists $y : G →+ ZMod 2$ such that $\forall z, y z = \sum_{z \in \{x\}} z$. Let's choose any such $y$.
+    set y := (Basis.ofVectorSpace (ZMod 2) G).equivFun.toLinearMap.toAddMonoidHom;
+    -- Since $x \neq 0$, there exists an index $i$ such that $y(x)(i) = 1$ by definition of $y$.
+    -- In particular, there exists an index $i$ such that $repr x i = 1$.
+    obtain ⟨i, hi⟩ : ∃ i : Basis.ofVectorSpaceIndex (ZMod 2) G, (y x : _) i = 1 := by
+      have h_exists_i : ∃ i : Basis.ofVectorSpaceIndex (ZMod 2) G, (Basis.ofVectorSpace (ZMod 2) G).repr x i ≠ 0 := by
+        contrapose! hx
+        apply Basis.ofVectorSpace (ZMod 2) G |> Basis.ext_elem
+        simp [hx]
+      exact h_exists_i.imp fun _ hi ↦ (Fin.exists_fin_two.mp <| by simp).resolve_left hi
+    -- Define $f : G →+ ZMod 2$ by $f(z) = y(z)(i)$ for all $z \in G$.
+    set f : G →+ ZMod 2 := (Pi.evalAddMonoidHom (fun _ => ZMod 2) i).comp y
+    exact ⟨f, hi⟩
+  -- By definition of $y$, we know that $y$ is a bijection between the set of additive characters that map $x$ to 1 and the set of additive characters that map $x$ to 0.
+  apply Nat.card_congr
+  refine Equiv.ofBijective (⟨· - y, by aesop⟩) ⟨fun _ ↦ by aesop, fun ⟨b, hb⟩ ↦ ?_⟩;
+  rw [Subtype.exists]
+  use b + y
+  aesop
+
+theorem card_of_slice (A: Set G) : ∃ φ : G →+ ZMod 2, 2*Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) := by
+  have _ : Fintype (G →+ ZMod 2) := Fintype.ofEquiv G dual_iso.toEquiv
+  have h1 : 2*∑ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card G) * (Nat.card A-1) := calc
+    _ = 2*∑ φ : G →+ ZMod 2, ∑ x ∈ A, if φ x = 1 then 1 else 0 := by
+      congr 1; apply Finset.sum_congr rfl; intro φ _
+      simp; rw [Fintype.subtype_card]; congr 1
+      aesop
+    _ = 2*∑ x ∈ A, Nat.card { φ : G →+ ZMod 2 | φ x = 1 } := by
+      congr 1; rw [Finset.sum_comm]
+      apply Finset.sum_congr rfl; intro x _
+      simp; rw [Fintype.subtype_card]
+    _ ≥ 2*∑ x ∈ (A.toFinset.erase 0), Nat.card { φ : G →+ ZMod 2 | φ x = 1 } := by
+      by_cases h : 0 ∈ A
+      . rw [←Finset.sum_erase_add (s := A.toFinset) (a := 0)]
+        . simp
+        simp [h]
+      apply le_of_eq
+      congr
+      apply Finset.erase_eq_of_notMem
+      simp [h]
+    _ = ∑ x ∈ (A.toFinset.erase 0), Nat.card G := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl; intro x hx
+      simp at hx
+      exact card_of_dual_constrained x hx.1
+    _ ≥ (Nat.card A-1) * (Nat.card G) := by
+      simp only [sum_const, smul_eq_mul, ge_iff_le, Nat.card_eq_card_toFinset]
+      gcongr
+      exact Finset.pred_card_le_card_erase
+    _ = _ := by ring
+  by_contra! h2
+  replace h2 : 2*∑ φ : G →+ ZMod 2, Nat.card { x | x ∈ A ∧ φ x = 1 } < ∑ φ : G →+ ZMod 2, (Nat.card A-1) := by
+    rw [Finset.mul_sum]
+    apply Finset.sum_lt_sum_of_nonempty
+    . simp
+    intro φ _; exact h2 φ
+  simp only [sum_const, card_univ, smul_eq_mul,←Nat.card_eq_fintype_card,card_of_dual] at h2
+  order
+
+theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
+    (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
+    ∃ (φ'' : G →+ G'), Nat.card {x | f x = φ'' x} ≥ (Nat.card G / (2 ^ 144 * K ^ 122) - 1)/2 := by
+    obtain ⟨ φ, c, h ⟩ := approx_hom_pfr f K hK hf
+    set A := { x | f x = φ x + c }
+    obtain ⟨ φ', h' ⟩ := card_of_slice A
+    let φ'c : G →+ G' := {
+      toFun x := (φ' x) • c
+      map_add' := by intros; simp [add_smul]
+      map_zero' := by simp [smul_zero]
+    }
+    use φ + φ'c
+    rw [ge_iff_le, div_le_iff₀ (by norm_num)]
+    calc
+      _ ≤ Nat.card A - (1:ℝ) := by gcongr
+      _ ≤ (Nat.card ↑A - 1:ℕ) := by norm_cast; convert Int.le_natCast_sub _ _; norm_cast
+      _ ≤ 2 * Nat.card ↑{x | x ∈ A ∧ φ' x = 1} := by norm_cast
+      _ ≤ _ := by
+        rw [mul_comm]; gcongr
+        apply Nat.card_mono
+        . apply Set.toFinite
+        intro x; simp [A, φ'c]; intro h1 h2
+        simp [h1, h2]

@@ -24,7 +24,7 @@ variable (Y : Ω₀ → G) (hY : Measurable Y)
 variable (Z₁ Z₂ Z₃ Z₄ : Ω → G)
   (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)
 
-variable (h_indep : iIndepFun (fun _i => hG) ![Z₁, Z₂, Z₃, Z₄])
+variable (h_indep : iIndepFun ![Z₁, Z₂, Z₃, Z₄])
 
 local notation3 "Sum" => Z₁ + Z₂ + Z₃ + Z₄
 
@@ -76,7 +76,7 @@ lemma gen_ineq_aux2 :
       + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := by
   have hS : Measurable Sum := by fun_prop
   have I : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) := by
-    refine (h_indep.indepFun_prod_mk_prod_mk ?_ 0 2 1 3
+    refine (h_indep.indepFun_prodMk_prodMk ?_ 0 2 1 3
       (by decide) (by decide) (by decide) (by decide))
     intro i; fin_cases i <;> assumption
   calc
@@ -88,30 +88,30 @@ lemma gen_ineq_aux2 :
           left_inv := by intro ⟨a, b⟩; simp [add_assoc]
           right_inv := by intro ⟨a, b⟩; simp [add_assoc] }
       convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
-        (⟨Z₁ + Z₃, Sum⟩) e (hZ₁.add hZ₂) ((hZ₁.add hZ₃).prod_mk hS)
-        (Measurable.of_discrete (f := e)) e.injective).symm
+        (⟨Z₁ + Z₃, Sum⟩) e (hZ₁.add hZ₂) ((hZ₁.add hZ₃).prodMk hS)
+        (.of_discrete (f := e)) e.injective).symm
       simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
       abel
-  _ = ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal *
+  _ = ∑ w, (Measure.real ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) *
         d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]] := by
     rw [condRuzsaDist'_eq_sum']
     exact hZ₁.add hZ₂
-    exact (hZ₁.add hZ₃).prod_mk (hZ₂.add hZ₄)
-  _ ≤ ∑ w, (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})).toReal * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]]
+    exact (hZ₁.add hZ₃).prodMk (hZ₂.add hZ₄)
+  _ ≤ ∑ w, Measure.real ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}) * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]]
       + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]] / 2
       + H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4) := by
     apply Finset.sum_le_sum (fun w _h'w ↦ ?_)
-    rcases eq_or_ne (ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) 0 with hw|hw
+    rcases eq_or_ne (Measure.real ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) 0 with hw|hw
     · simp [hw]
     gcongr
-    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure hw
+    have : IsProbabilityMeasure (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]) := cond_isProbabilityMeasure_of_real hw
     have : IndepFun Z₁ Z₂ (ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]) := by
       have E : (⟨Z₁, Z₃⟩)⁻¹' {p | p.1 + p.2 = w.1} ∩ (⟨Z₂, Z₄⟩)⁻¹' {p | p.1 + p.2 = w.2}
         = ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w} := by aesop
       have I : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩)⁻¹' {p | p.1 + p.2 = w.1}
           ∩ (⟨Z₂, Z₄⟩)⁻¹' {p | p.1 + p.2 = w.2}]) :=
         I.cond (measurable_add (.singleton w.1))
-          (measurable_add (.singleton w.2)) (hZ₁.prod_mk hZ₃) (hZ₂.prod_mk hZ₄)
+          (measurable_add (.singleton w.2)) (hZ₁.prodMk hZ₃) (hZ₂.prodMk hZ₄)
       rw [E] at I
       exact I.comp measurable_fst measurable_fst
     have := condRuzsaDist_diff_le' (ℙ : Measure Ω₀) (μ' := ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w])
@@ -123,7 +123,7 @@ lemma gen_ineq_aux2 :
     congr
     · rw [← condRuzsaDist'_eq_sum' hZ₁ (by fun_prop)]
       apply condRuszaDist_prod_eq_of_indepFun hY hZ₁ (by fun_prop) (by fun_prop)
-      exact I.comp (measurable_fst.prod_mk measurable_add) measurable_add
+      exact I.comp (measurable_fst.prodMk measurable_add) measurable_add
     · simp_rw [← mul_div_assoc, ← Finset.sum_div]
       rw [condRuzsaDist_eq_sum' hZ₁ (by fun_prop) hZ₂ (by fun_prop), Fintype.sum_prod_type]
       congr with x
@@ -132,24 +132,24 @@ lemma gen_ineq_aux2 :
         ext p; simp
       rw [this]
       have J : IndepFun (Z₁ + Z₃) (Z₂ + Z₄) := by exact I.comp measurable_add measurable_add
-      rw [J.measure_inter_preimage_eq_mul _ _ (.singleton x)
-        (.singleton y), ENNReal.toReal_mul]
-      rcases eq_or_ne (ℙ ((Z₁ + Z₃) ⁻¹' {x})) 0 with h1|h1
+      rw [J.measureReal_inter_preimage_eq_mul (.singleton x) (.singleton y)]
+      rcases eq_or_ne (Measure.real ℙ ((Z₁ + Z₃) ⁻¹' {x})) 0 with h1|h1
       · simp [h1]
-      rcases eq_or_ne (ℙ ((Z₂ + Z₄) ⁻¹' {y})) 0 with h2|h2
+      rcases eq_or_ne (Measure.real ℙ ((Z₂ + Z₄) ⁻¹' {y})) 0 with h2|h2
       · simp [h2]
       congr 1
       have A : IdentDistrib Z₁ Z₁ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := by
         rw [← cond_cond_eq_cond_inter']
-        have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure h1
+        have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure_of_real h1
         apply (IndepFun.identDistrib_cond _ (.singleton _) hZ₁ (by fun_prop) _).symm
         · have : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
             I.cond_left (measurable_add (.singleton x))
-              (hZ₁.prod_mk hZ₃)
+              (hZ₁.prodMk hZ₃)
           exact this.comp measurable_fst measurable_add
         · rw [cond_apply, J.measure_inter_preimage_eq_mul _ _ (.singleton x) (.singleton y)]
-          simp [h1, h2]
+          · simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
+            simp [h1, h2]
           · exact hZ₁.add hZ₃ (.singleton _)
         · exact hZ₁.add hZ₃ (.singleton _)
         · exact hZ₂.add hZ₄ (.singleton _)
@@ -157,30 +157,31 @@ lemma gen_ineq_aux2 :
       have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := by
         rw [Set.inter_comm, ← cond_cond_eq_cond_inter']
-        have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure h2
+        have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure_of_real h2
         apply (IndepFun.identDistrib_cond _ (.singleton _) hZ₂ (hZ₁.add hZ₃) _).symm
         · have : IndepFun (⟨Z₂, Z₄⟩) (⟨Z₁, Z₃⟩) (ℙ[|(⟨Z₂, Z₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
             I.symm.cond_left (measurable_add (.singleton y))
-              (hZ₂.prod_mk hZ₄)
+              (hZ₂.prodMk hZ₄)
           exact this.comp measurable_fst measurable_add
         · rw [Pi.add_def, cond_apply (hZ₂.add hZ₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
             J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
+          simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
           simp [h1, h2]
         · exact hZ₂.add hZ₄ (.singleton _)
         · exact hZ₁.add hZ₃ (.singleton _)
         · finiteness
-      exact IdentDistrib.rdist_eq A B
+      exact A.rdist_congr B
     · have I1 : H[Z₂ | Z₂ + Z₄] = H[Z₂ | ⟨Z₂ + Z₄, Z₁ + Z₃⟩] := by
         apply (condEntropy_prod_eq_of_indepFun hZ₂ (by fun_prop) (by fun_prop) _).symm
-        exact I.symm.comp (measurable_fst.prod_mk measurable_add) measurable_add
+        exact I.symm.comp (measurable_fst.prodMk measurable_add) measurable_add
       have I2 : H[Z₂ | ⟨Z₂ + Z₄, Z₁ + Z₃⟩] = H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] :=
-        condEntropy_of_injective' _ hZ₂ ((hZ₁.add hZ₃).prod_mk (hZ₂.add hZ₄))
-          _ (Equiv.prodComm G G).injective ((hZ₂.add hZ₄).prod_mk (hZ₁.add hZ₃))
+        condEntropy_of_injective' _ hZ₂ ((hZ₁.add hZ₃).prodMk (hZ₂.add hZ₄))
+          _ (Equiv.prodComm G G).injective ((hZ₂.add hZ₄).prodMk (hZ₁.add hZ₃))
       rw [I1, I2, condEntropy_eq_sum_fintype _ _ _ (by fun_prop)]
       simp_rw [← mul_div_assoc, Finset.sum_div]
     · have : H[Z₁ | Z₁ + Z₃] = H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩] := by
         apply (condEntropy_prod_eq_of_indepFun hZ₁ (hZ₁.add hZ₃) (hZ₂.add hZ₄) _).symm
-        exact I.comp (measurable_fst.prod_mk measurable_add) measurable_add
+        exact I.comp (measurable_fst.prodMk measurable_add) measurable_add
       rw [this, condEntropy_eq_sum_fintype _ _ _ (by fun_prop)]
       simp_rw [← mul_div_assoc, Finset.sum_div]
   _ ≤ (d[Y # Z₁] + d[Z₁ # Z₃]/2 + H[Z₁]/4 - H[Z₃]/4) + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]/2
@@ -241,9 +242,9 @@ lemma gen_ineq_10 : d[Y # Z₃ + Z₄ | ⟨Z₁ + Z₃, Sum⟩] - d[Y # Z₁] �
       condRuzsaDist'_prod_eq_sum _ _ (by fun_prop) hS (by fun_prop),
       condRuzsaDist'_prod_eq_sum _ _ (by fun_prop) hS (by fun_prop)]
   congr with w
-  rcases eq_or_ne (ℙ ((Z₁ + Z₃) ⁻¹' {w})) 0 with hw|hw
+  rcases eq_or_ne (Measure.real ℙ ((Z₁ + Z₃) ⁻¹' {w})) 0 with hw|hw
   · simp [hw]
-  have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {w}]) := cond_isProbabilityMeasure hw
+  have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {w}]) := cond_isProbabilityMeasure_of_real hw
   have : Sum = (Z₁ + Z₂) + (Z₃ + Z₄) := by abel
   rw [this, condRuzsaDist'_of_inj_map' hY (by fun_prop) (by fun_prop)]
 
@@ -268,7 +269,7 @@ variable {X₁ X₂ X₁' X₂' : Ω → G}
 
 variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
-variable (h_indep : iIndepFun (fun _i => hG) ![X₁, X₂, X₂', X₁'])
+variable (h_indep : iIndepFun ![X₁, X₂, X₂', X₁'])
 
 variable (h_min : tau_minimizes p X₁ X₂)
 
@@ -344,23 +345,22 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   -- rewrite sum2 and sum3 as Rusza distances
   have h2 : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
     simp only [sum2, integral_sub .of_finite .of_finite, integral_const,
-      measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₁ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
-      Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
+      measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj]
+    simp [condRuzsaDist'_eq_sum hT₁ hT₃,
+      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
+      map_measureReal_apply hT₃ (.singleton _), smul_eq_mul]
 
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const,
-      measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, sub_left_inj]
-    simp_rw [condRuzsaDist'_eq_sum hT₂ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ IntegrableOn.finset,
-      Measure.map_apply hT₃ (.singleton _), smul_eq_mul]
+      measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj]
+    simp [condRuzsaDist'_eq_sum hT₂ hT₃,
+      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
+      map_measureReal_apply hT₃ (.singleton _)]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
       + (d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂])) := by
     have : sum4 = sum1 + p.η * (sum2 + sum3) := by
-      simp only [sum4, integral_add .of_finite .of_finite,
-        integral_mul_left]
+      simp only [sum1, sum2, sum3, sum4, integral_add .of_finite .of_finite, integral_const_mul]
     rw [this, h2, h3, add_assoc, mul_add]
     linarith
   have hk : k ≤ sum4 := by
@@ -447,19 +447,23 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
   have hV : Measurable V := by fun_prop
   have hW : Measurable W := by fun_prop
   have hUVW : U + V + W = 0 := sum_uvw_eq_zero X₁ X₂ X₁'
-  have hz (a : ℝ) : a = ∑ z, (ℙ (S ⁻¹' {z})).toReal * a := by
-    rw [← Finset.sum_mul, sum_measure_preimage_singleton' ℙ hS, one_mul]
+  have hz (a : ℝ) : a = ∑ z, (Measure.real ℙ (S ⁻¹' {z})) * a := by
+    rw [← Finset.sum_mul, sum_measureReal_preimage_singleton]
+    · simp only [Finset.coe_univ, Set.preimage_univ, measureReal_univ_eq_one, one_mul]
+    · intro y hy
+      apply hS
+      exact measurableSet_singleton y
   rw [hz k, hz (d[p.X₀₁ # X₁]), hz (d[p.X₀₂ # X₂])]
   simp only [condMutualInfo_eq_sum' hS, ← Finset.sum_add_distrib, ← mul_add,
     condRuzsaDist'_prod_eq_sum', hU, hS, hV, hW, ← Finset.sum_sub_distrib, ← mul_sub, Finset.mul_sum,
     ← mul_assoc (p.η/6), mul_comm (p.η/6), mul_assoc _ _ (p.η/6)]
   rw [Finset.sum_mul, ← Finset.sum_add_distrib]
   apply Finset.sum_le_sum (fun i _hi ↦ ?_)
-  rcases eq_or_ne (ℙ (S ⁻¹' {i})) 0 with h'i|h'i
+  rcases eq_or_ne (Measure.real ℙ (S ⁻¹' {i})) 0 with h'i|h'i
   · simp [h'i]
   rw [mul_assoc, ← mul_add]
   gcongr
-  have : IsProbabilityMeasure (ℙ[|S ⁻¹' {i}]) := cond_isProbabilityMeasure h'i
+  have : IsProbabilityMeasure (ℙ[|S ⁻¹' {i}]) := cond_isProbabilityMeasure_of_real h'i
   linarith [construct_good_improved'' h_min (ℙ[|S ⁻¹' {i}]) hUVW hU hV hW]
 
 variable (p)
@@ -485,70 +489,70 @@ lemma dist_diff_bound_1 :
   have C5 : W + X₂' + X₂ = S := by abel
   have C7 : X₂ + X₁' = V := by abel
   have C8 : X₁ + X₁' = W := by abel
-  have C9 : d[X₁ # X₂'] = d[X₁ # X₂] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂.symm
+  have C9 : d[X₁ # X₂'] = d[X₁ # X₂] := h₂.symm.rdist_congr_right hX₁.aemeasurable
   have C10 : d[X₂ # X₁'] = d[X₁' # X₂] := rdist_symm
-  have C11 : d[X₁ # X₁'] = d[X₁ # X₁] := (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₁.symm
-  have C12 : d[X₁' # X₂'] = d[X₁ # X₂] := h₁.symm.rdist_eq h₂.symm
-  have C13 : d[X₂ # X₂'] = d[X₂ # X₂] := (IdentDistrib.refl hX₂.aemeasurable).rdist_eq h₂.symm
-  have C14 : d[X₁' # X₂] = d[X₁ # X₂] := h₁.symm.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)
+  have C11 : d[X₁ # X₁'] = d[X₁ # X₁] := h₁.symm.rdist_congr_right hX₁.aemeasurable
+  have C12 : d[X₁' # X₂'] = d[X₁ # X₂] := h₁.symm.rdist_congr h₂.symm
+  have C13 : d[X₂ # X₂'] = d[X₂ # X₂] := h₂.symm.rdist_congr_right hX₂.aemeasurable
+  have C14 : d[X₁' # X₂] = d[X₁ # X₂] := h₁.symm.rdist_congr_left hX₂.aemeasurable
   have C15 : H[X₁' + X₂'] = H[U] := by
-    apply ProbabilityTheory.IdentDistrib.entropy_eq
-    have I : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂'⟩) := h₁.prod_mk h₂ (h_indep.indepFun zero_ne_one)
+    apply ProbabilityTheory.IdentDistrib.entropy_congr
+    have I : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂'⟩) := h₁.prodMk h₂ (h_indep.indepFun zero_ne_one)
         (h_indep.indepFun (show 3 ≠ 2 by decide))
     exact I.symm.comp measurable_add
-  have C16 : H[X₂'] = H[X₂] := h₂.symm.entropy_eq
-  have C17 : H[X₁'] = H[X₁] := h₁.symm.entropy_eq
+  have C16 : H[X₂'] = H[X₂] := h₂.symm.entropy_congr
+  have C17 : H[X₁'] = H[X₁] := h₁.symm.entropy_congr
   have C18 : d[X₂' # X₁'] = d[X₁' # X₂'] := rdist_symm
   have C19 : H[X₂' + X₁'] = H[U] := by rw [add_comm]; exact C15
-  have C20 : d[X₂' # X₂] = d[X₂ # X₂] := h₂.symm.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)
+  have C20 : d[X₂' # X₂] = d[X₂ # X₂] := h₂.symm.rdist_congr_left hX₂.aemeasurable
   have C21 : H[V] = H[U] := by
-    apply ProbabilityTheory.IdentDistrib.entropy_eq
+    apply ProbabilityTheory.IdentDistrib.entropy_congr
     have I : IdentDistrib (⟨X₁', X₂⟩) (⟨X₁, X₂⟩) := by
-      apply h₁.symm.prod_mk (IdentDistrib.refl hX₂.aemeasurable)
+      apply h₁.symm.prodMk (.refl hX₂.aemeasurable)
         (h_indep.indepFun (show 3 ≠ 1 by decide)) (h_indep.indepFun zero_ne_one)
     exact I.comp measurable_add
   have C22 : H[X₁ + X₂'] = H[X₁ + X₂] := by
-    apply ProbabilityTheory.IdentDistrib.entropy_eq
+    apply ProbabilityTheory.IdentDistrib.entropy_congr
     have I : IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁, X₂⟩) := by
-      apply (IdentDistrib.refl hX₁.aemeasurable).prod_mk h₂.symm
+      apply (IdentDistrib.refl hX₁.aemeasurable).prodMk h₂.symm
         (h_indep.indepFun (show 0 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
     exact I.comp measurable_add
   have C23 : X₂' + X₂ = X₂ + X₂' := by abel
   have C24 : H[X₁ | X₁ + X₂'] = H[X₁ | X₁ + X₂] := by
     apply IdentDistrib.condEntropy_eq hX₁ (hX₁.add hX₂') hX₁ (hX₁.add hX₂)
     have I : IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁, X₂⟩) := by
-      exact (IdentDistrib.refl hX₁.aemeasurable).prod_mk h₂.symm
+      exact (IdentDistrib.refl hX₁.aemeasurable).prodMk h₂.symm
         (h_indep.indepFun (show 0 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_fst.prod_mk measurable_add)
+    exact I.comp (measurable_fst.prodMk measurable_add)
   have C25 : H[X₂ | V] = H[X₂ | X₁ + X₂] := by
     apply IdentDistrib.condEntropy_eq hX₂ (hX₁'.add hX₂) hX₂ (hX₁.add hX₂)
     have I : IdentDistrib (⟨X₁', X₂⟩) (⟨X₁, X₂⟩) := by
-      exact h₁.symm.prod_mk (IdentDistrib.refl hX₂.aemeasurable)
+      exact h₁.symm.prodMk (IdentDistrib.refl hX₂.aemeasurable)
         (h_indep.indepFun (show 3 ≠ 1 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_snd.prod_mk measurable_add)
+    exact I.comp (measurable_snd.prodMk measurable_add)
   have C26 : H[X₂' | X₂' + X₁'] = H[X₂ | X₁ + X₂] := by
     rw [add_comm]
     apply IdentDistrib.condEntropy_eq hX₂' (hX₁'.add hX₂') hX₂ (hX₁.add hX₂)
-    have I : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂⟩) := h₁.symm.prod_mk h₂.symm
+    have I : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂⟩) := h₁.symm.prodMk h₂.symm
         (h_indep.indepFun (show 3 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_snd.prod_mk measurable_add)
+    exact I.comp (measurable_snd.prodMk measurable_add)
   have C27 : H[X₂' | X₂ + X₂'] = H[X₂ | X₂ + X₂'] := by
     conv_lhs => rw [add_comm]
     apply IdentDistrib.condEntropy_eq hX₂' (hX₂'.add hX₂) hX₂ (hX₂.add hX₂')
-    have I : IdentDistrib (⟨X₂', X₂⟩) (⟨X₂, X₂'⟩) := h₂.symm.prod_mk h₂
+    have I : IdentDistrib (⟨X₂', X₂⟩) (⟨X₂, X₂'⟩) := h₂.symm.prodMk h₂
         (h_indep.indepFun (show 2 ≠ 1 by decide)) (h_indep.indepFun (show 1 ≠ 2 by decide))
-    exact I.comp (measurable_fst.prod_mk measurable_add)
+    exact I.comp (measurable_fst.prodMk measurable_add)
   have C28 : H[X₁' | X₁' + X₂'] = H[X₁ | X₁ + X₂] := by
     apply IdentDistrib.condEntropy_eq hX₁' (hX₁'.add hX₂') hX₁ (hX₁.add hX₂)
-    have I : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂⟩) := h₁.symm.prod_mk h₂.symm
+    have I : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂⟩) := h₁.symm.prodMk h₂.symm
         (h_indep.indepFun (show 3 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_fst.prod_mk measurable_add)
+    exact I.comp (measurable_fst.prodMk measurable_add)
   have C29 : H[X₁' | V] = H[X₁ | X₁ + X₂] := by
     apply IdentDistrib.condEntropy_eq hX₁' (hX₁'.add hX₂) hX₁ (hX₁.add hX₂)
     have I : IdentDistrib (⟨X₁', X₂⟩) (⟨X₁, X₂⟩) :=
-      h₁.symm.prod_mk (IdentDistrib.refl hX₂.aemeasurable)
+      h₁.symm.prodMk (IdentDistrib.refl hX₂.aemeasurable)
       (h_indep.indepFun (show 3 ≠ 1 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_fst.prod_mk measurable_add)
+    exact I.comp (measurable_fst.prodMk measurable_add)
   have C30 : H[X₂ | X₁ + X₂] = H[X₁ | X₁ + X₂] := by
     have := condEntropy_of_injective ℙ hX₁ (hX₁.add hX₂) _ (fun p ↦ add_right_injective p)
     convert this with ω
@@ -580,87 +584,83 @@ lemma dist_diff_bound_2 :
   have C7 : V + X₁ + X₂' = S := by abel
   have C8 : V + X₂' + X₁ = S := by abel
   have C9 : d[X₂ # X₁] = d[X₁ # X₂] := rdist_symm
-  have C10 : d[X₁ # X₂'] = d[X₁ # X₂] :=
-    ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂.symm
+  have C10 : d[X₁ # X₂'] = d[X₁ # X₂] := h₂.symm.rdist_congr_right hX₁.aemeasurable
   have C11 : d[X₂ # X₁'] = d[X₁ # X₂] := by
     rw [rdist_symm]
-    exact ProbabilityTheory.IdentDistrib.rdist_eq h₁.symm (IdentDistrib.refl hX₂.aemeasurable)
+    exact h₁.symm.rdist_congr_left hX₂.aemeasurable
   have C12 : d[X₂' # X₁'] = d[X₁' # X₂'] := rdist_symm
   have C13 : d[X₂' # X₁] = d[X₁ # X₂'] := rdist_symm
   have C14 : d[X₁' # X₁] = d[X₁ # X₁'] := rdist_symm
-  have C15 : d[X₁' # X₂'] = d[X₁ # X₂] :=
-    ProbabilityTheory.IdentDistrib.rdist_eq h₁.symm h₂.symm
+  have C15 : d[X₁' # X₂'] = d[X₁ # X₂] := h₁.symm.rdist_congr h₂.symm
   have C16 : H[X₁' + X₂'] = H[X₁ + X₂] := by
-    apply ProbabilityTheory.IdentDistrib.entropy_eq
-    have I : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂'⟩) := h₁.prod_mk h₂ (h_indep.indepFun zero_ne_one)
+    apply ProbabilityTheory.IdentDistrib.entropy_congr
+    have I : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂'⟩) := h₁.prodMk h₂ (h_indep.indepFun zero_ne_one)
         (h_indep.indepFun (show 3 ≠ 2 by decide))
     exact I.symm.comp measurable_add
   have C17 : H[X₂' + X₁'] = H[X₁ + X₂] := by rw [add_comm]; exact C16
-  have C18 : H[X₁'] = H[X₁] := ProbabilityTheory.IdentDistrib.entropy_eq h₁.symm
-  have C19 : H[X₂'] = H[X₂] := ProbabilityTheory.IdentDistrib.entropy_eq h₂.symm
+  have C18 : H[X₁'] = H[X₁] := h₁.symm.entropy_congr
+  have C19 : H[X₂'] = H[X₂] := h₂.symm.entropy_congr
   have C20 : H[X₁ + X₂'] = H[X₁ + X₂] := by
-    apply ProbabilityTheory.IdentDistrib.entropy_eq
+    apply ProbabilityTheory.IdentDistrib.entropy_congr
     have I : IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁, X₂⟩) :=
-      (IdentDistrib.refl hX₁.aemeasurable).prod_mk h₂.symm
+      (IdentDistrib.refl hX₁.aemeasurable).prodMk h₂.symm
       (h_indep.indepFun (show 0 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
     exact I.comp measurable_add
   have C21 : H[X₁' | W] = H[X₁ | W] := by
     conv_rhs => rw [add_comm]
     apply IdentDistrib.condEntropy_eq hX₁' (hX₁'.add hX₁) hX₁ (hX₁.add hX₁')
-    have I : IdentDistrib (⟨X₁', X₁⟩) (⟨X₁, X₁'⟩) := h₁.symm.prod_mk h₁
+    have I : IdentDistrib (⟨X₁', X₁⟩) (⟨X₁, X₁'⟩) := h₁.symm.prodMk h₁
         (h_indep.indepFun (show 3 ≠ 0 by decide)) (h_indep.indepFun (show 0 ≠ 3 by decide))
-    exact I.comp (measurable_fst.prod_mk measurable_add)
+    exact I.comp (measurable_fst.prodMk measurable_add)
   have C22 : H[X₂' | X₂' + X₁] = H[X₂ | X₁ + X₂] := by
     rw [add_comm]
     apply IdentDistrib.condEntropy_eq hX₂' (hX₁.add hX₂') hX₂ (hX₁.add hX₂)
     have I : IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁, X₂⟩) :=
-      (IdentDistrib.refl hX₁.aemeasurable).prod_mk h₂.symm
+      (IdentDistrib.refl hX₁.aemeasurable).prodMk h₂.symm
       (h_indep.indepFun (show 0 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_snd.prod_mk measurable_add)
+    exact I.comp (measurable_snd.prodMk measurable_add)
   have C23 : H[X₁ | X₁ + X₂'] = H[X₁ | X₁ + X₂] := by
     apply IdentDistrib.condEntropy_eq hX₁ (hX₁.add hX₂') hX₁ (hX₁.add hX₂)
     have I : IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁, X₂⟩) :=
-      (IdentDistrib.refl hX₁.aemeasurable).prod_mk h₂.symm
+      (IdentDistrib.refl hX₁.aemeasurable).prodMk h₂.symm
       (h_indep.indepFun (show 0 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_fst.prod_mk measurable_add)
+    exact I.comp (measurable_fst.prodMk measurable_add)
   have C24 : H[X₂ | V] = H[X₂ | X₁ + X₂] := by
     apply IdentDistrib.condEntropy_eq hX₂ (hX₁'.add hX₂) hX₂ (hX₁.add hX₂)
     have I : IdentDistrib (⟨X₁', X₂⟩) (⟨X₁, X₂⟩) :=
-      h₁.symm.prod_mk (IdentDistrib.refl hX₂.aemeasurable)
+      h₁.symm.prodMk (IdentDistrib.refl hX₂.aemeasurable)
       (h_indep.indepFun (show 3 ≠ 1 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_snd.prod_mk measurable_add)
+    exact I.comp (measurable_snd.prodMk measurable_add)
   have C25 : H[X₂' | X₂' + X₁'] = H[X₂ | X₁ + X₂] := by
     rw [add_comm]
     apply IdentDistrib.condEntropy_eq hX₂' (hX₁'.add hX₂') hX₂ (hX₁.add hX₂)
-    have I : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂⟩) := h₁.symm.prod_mk h₂.symm
+    have I : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂⟩) := h₁.symm.prodMk h₂.symm
         (h_indep.indepFun (show 3 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_snd.prod_mk measurable_add)
+    exact I.comp (measurable_snd.prodMk measurable_add)
   have C26 : H[X₁' | X₁' + X₂'] = H[X₁ | X₁ + X₂] := by
     apply IdentDistrib.condEntropy_eq hX₁' (hX₁'.add hX₂') hX₁ (hX₁.add hX₂)
-    have I : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂⟩) := h₁.symm.prod_mk h₂.symm
+    have I : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂⟩) := h₁.symm.prodMk h₂.symm
       (h_indep.indepFun (show 3 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
-    exact I.comp (measurable_fst.prod_mk measurable_add)
+    exact I.comp (measurable_fst.prodMk measurable_add)
   have C27 : H[X₂ | X₁ + X₂] = H[X₁ | X₁ + X₂] := by
     have := condEntropy_of_injective ℙ hX₁ (hX₁.add hX₂) _ (fun p ↦ add_right_injective p)
     convert this with ω
     simp only [Pi.add_apply, add_comm (X₁ ω), add_assoc (X₂ ω), ZModModule.add_self, add_zero]
   have C28 : H[V] = H[U] := by
-    apply ProbabilityTheory.IdentDistrib.entropy_eq
+    apply ProbabilityTheory.IdentDistrib.entropy_congr
     have I : IdentDistrib (⟨X₁', X₂⟩) (⟨X₁, X₂⟩) :=
-      h₁.symm.prod_mk (IdentDistrib.refl hX₂.aemeasurable)
+      h₁.symm.prodMk (IdentDistrib.refl hX₂.aemeasurable)
       (h_indep.indepFun (show 3 ≠ 1 by decide)) (h_indep.indepFun zero_ne_one)
     exact I.comp measurable_add
   have C29 : H[X₂' + X₁] = H[X₁ + X₂] := by
     rw [add_comm]
-    apply ProbabilityTheory.IdentDistrib.entropy_eq
+    apply ProbabilityTheory.IdentDistrib.entropy_congr
     have I : IdentDistrib (⟨X₁, X₂'⟩) (⟨X₁, X₂⟩) :=
-      (IdentDistrib.refl hX₁.aemeasurable).prod_mk h₂.symm
+      (IdentDistrib.refl hX₁.aemeasurable).prodMk h₂.symm
       (h_indep.indepFun (show 0 ≠ 2 by decide)) (h_indep.indepFun zero_ne_one)
     exact I.comp measurable_add
-  have C30 : d[X₁ # X₁'] = d[X₁ # X₁] :=
-    ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁.symm
-  have C31 : d[X₂ # X₂'] = d[X₂ # X₂] :=
-    ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂.symm
+  have C30 : d[X₁ # X₁'] = d[X₁ # X₁] := h₁.symm.rdist_congr_right hX₁.aemeasurable
+  have C31 : d[X₂ # X₂'] = d[X₂ # X₂] := h₂.symm.rdist_congr_right hX₂.aemeasurable
   simp only [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19,
     C20, C21, C22, C23, C24, C25, C25, C26, C27, C28, C29, C30, C31]
     at I1 I2 I3 I4 I5 I6 ⊢
@@ -705,8 +705,8 @@ include hX₁ hX₂ h_min in
 theorem tau_strictly_decreases' (hp : 8 * p.η < 1) : d[X₁ # X₂] = 0 := by
   let ⟨A, mA, μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
-  rw [← h_id1.rdist_eq h_id2]
-  letI : MeasureSpace A := ⟨μ⟩
+  rw [← h_id1.rdist_congr h_id2]
+  let _ : MeasureSpace A := ⟨μ⟩
   have : IsProbabilityMeasure (ℙ : Measure A) := hμ
   rw [← h_id1.tau_minimizes p h_id2] at h_min
   exact tau_strictly_decreases_aux' p hY₁ hY₂ hY₁' hY₂' (h_id1.trans h_id1'.symm)
@@ -755,7 +755,7 @@ lemma tau_minimizer_exists_rdist_eq_zero :
     let M : MeasureSpace (G × G) := ⟨(μ n).1.prod (μ n).2⟩
     have : IsProbabilityMeasure ((μ n).1.prod (μ n).2) := by infer_instance
     have : d[@Prod.fst G G # @Prod.snd G G] = d[id ; (μ n).1 # id ; (μ n).2] :=
-      IdentDistrib.rdist_eq IdentDistrib.fst_id IdentDistrib.snd_id
+      IdentDistrib.rdist_congr IdentDistrib.fst_id IdentDistrib.snd_id
     rw [← this]
     apply tau_strictly_decreases' (q n) measurable_fst measurable_snd ?_
       (by linarith [(u_mem n).2, p.hη'])
@@ -802,7 +802,7 @@ lemma tau_minimizer_exists_rdist_eq_zero :
     exact le_of_tendsto_of_tendsto' L1 L2 (fun n ↦ hμ (φ n) _ _ h₁ h₂)
   -- check that it has zero Rusza distance, as a limit of a sequence at zero Rusza distance.
   · have : d[@Prod.fst G G # @Prod.snd G G] = d[id ; ν.1 # id ; ν.2] :=
-      IdentDistrib.rdist_eq IdentDistrib.fst_id IdentDistrib.snd_id
+      IdentDistrib.rdist_congr IdentDistrib.fst_id IdentDistrib.snd_id
     rw [this]
     have L1 : Tendsto (fun n ↦ d[id ; (μ (φ n)).1 # id ; (μ (φ n)).2]) atTop
       (𝓝 (d[id ; ν.1 # id ; (ν.2 : Measure G)])) := by
@@ -900,12 +900,12 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   rw [← hHH'] at VH'unif
   have H_fin : Finite (H : Set G) := by infer_instance
 
-  have : d[VA # VH] ≤ 5 * log K := by rw [idVA.rdist_eq idVH]; linarith
+  have : d[VA # VH] ≤ 5 * log K := by rw [idVA.rdist_congr idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos
     positivity
-  have VA_ent : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' A_fin VAunif VAmeas
-  have VH_ent : H[VH] = log (Nat.card H) := IsUniform.entropy_eq' H_fin VHunif VHmeas
+  have VA_ent : H[VA] = log (Nat.card A) := VAunif.entropy_eq' A_fin VAmeas
+  have VH_ent : H[VH] = log (Nat.card H) := VHunif.entropy_eq' H_fin VHmeas
   have Icard : |log (Nat.card A) - log (Nat.card H)| ≤ 10 * log K := by
     rw [← VA_ent, ← VH_ent]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
@@ -993,7 +993,7 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
     PFR_conjecture_improv_aux h₀A hA
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos; positivity
-  rcases le_or_lt (Nat.card H) (Nat.card A) with h|h
+  rcases le_or_gt (Nat.card H) (Nat.card A) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc

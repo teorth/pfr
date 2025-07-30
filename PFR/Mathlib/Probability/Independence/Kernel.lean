@@ -18,8 +18,8 @@ finite index sets, then the tuples formed by `f i` for `i ∈ S j` are mutually 
 when seen as a family indexed by `J`. -/
 lemma iIndepFun.finsets {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
-    (hf_Indep : iIndepFun m f κ μ) (hf_meas : ∀ i, Measurable (f i)) :
-    iIndepFun (fun _ ↦ pi) (fun (j : J) ↦ fun a (i : S j) ↦ f i a) κ μ := by
+    (hf_Indep : iIndepFun f κ μ) (hf_meas : ∀ i, Measurable (f i)) :
+    iIndepFun (fun (j : J) ↦ fun a (i : S j) ↦ f i a) κ μ := by
   set F := fun (j : J) ↦ fun a (i : S j) ↦ f i a
   let M (j : J) := pi (m := fun (i : S j) ↦ m i)
   let πβ (j : J) := Set.pi Set.univ '' Set.pi Set.univ fun (i : S j) => { s | MeasurableSet[m i] s }
@@ -45,7 +45,7 @@ lemma iIndepFun.finsets {J : Type*} [Fintype J]
     rw [(h_sets j).2.symm]
     simp [E']
     ext ω
-    simp
+    simp [F]
   suffices ∀ᵐ (a : α) ∂μ, (κ a) (⋂ (j:s), ⋂ (i : S j), E' j i) = ∏ (j:s), (κ a) (⋂ (i : S j), E' j i) by
     convert this with x
     · rw [Set.iInter_subtype]
@@ -154,10 +154,10 @@ measurable space `γ j`, then the family of random variables formed by `φ j (f 
 indexed by `J` is iIndep. -/
 lemma iIndepFun.finsets_comp {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
-    (hf_Indep : iIndepFun m f κ μ) (hf_meas : ∀ i, Measurable (f i))
+    (hf_Indep : iIndepFun f κ μ) (hf_meas : ∀ i, Measurable (f i))
     (γ : J → Type*) {mγ : ∀ j, MeasurableSpace (γ j)}
     (φ : (j : J) → ((i : S j) → β i) → γ j) (hφ : ∀ j, Measurable (φ j)) :
-    iIndepFun mγ (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) κ μ :=
+    iIndepFun (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) κ μ :=
   (Kernel.iIndepFun.finsets S h_disjoint hf_Indep hf_meas).comp φ hφ
 
 end iIndepFun

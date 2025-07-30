@@ -60,7 +60,7 @@ One random variable is said to be a copy of another if they have the same distri
 
 \begin{lemma}[Copy preserves entropy]\label{copy-ent}
   \uses{entropy-def}
-  \lean{ProbabilityTheory.IdentDistrib.entropy_eq}\leanok
+  \lean{ProbabilityTheory.IdentDistrib.entropy_congr}\leanok
   If $X'$ is a copy of $X$ then $\bbH[X'] = \bbH[X]$.
 \end{lemma}
 
@@ -98,7 +98,7 @@ This is an immediate consequence of the definitions and $X-0\equiv X$ and $\math
 
 \begin{lemma}[Copy preserves Ruzsa distance]\label{ruz-copy}
   \uses{ruz-dist-def}
-  \lean{ProbabilityTheory.IdentDistrib.rdist_eq}\leanok
+  \lean{ProbabilityTheory.IdentDistrib.rdist_congr}\leanok
   If $X',Y'$ are copies of $X,Y$ respectively then $d[X';Y']=d[X ;Y]$.
 \end{lemma}
 

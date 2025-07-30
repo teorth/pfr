@@ -81,13 +81,13 @@ example : ℙᵣ Set.univ = 1 := by simp
 example {A : Type*} [Fintype A] (E : A → Set Ω) : ℙᵣ (⋃ a, E a) ≤ ∑ a, ℙᵣ (E a) :=
   measureReal_iUnion_fintype_le E
 
-example {A : Type*} [Fintype A] (E : A → Set Ω) (hn : Pairwise (Disjoint on E))
+example {A : Type*} [Fintype A] (E : A → Set Ω) (hn : Pairwise fun x y ↦ Disjoint (E x) (E y))
     (h : ∀ i, MeasurableSet (E i)) : ℙᵣ (⋃ a, E a) = ∑ a, ℙᵣ (E a) :=
   measureReal_iUnion_fintype hn h
 
 /-- A simple example of applying real-valued subtraction. -/
 example (E F : Set Ω) (h : NullMeasurableSet F ℙ) : ℙᵣ (E ∩ F) = ℙᵣ E - ℙᵣ (E \ F) := by
-  rw [← measureReal_inter_add_diff₀ E h]
+  rw [← measureReal_inter_add_diff₀ (s := E) h]
   ring
 
 example (E : Set Ω) : 0 ≤ ℙᵣ E ∧ ℙᵣ E ≤ 1 := by
@@ -119,7 +119,7 @@ variable (X : Ω → S) (hX : Measurable X) (Y : Ω → T) (hY : Measurable Y) (
 
 /-- $H[X]$ is the Shannon entropy of $X$. -/
 example : H[X] =
-    - ∑ x, ((ℙ : Measure Ω).map X {x}).toReal * Real.log ((ℙ : Measure Ω).map X {x}).toReal := by
+    - ∑ x, ((ℙ : Measure Ω).map X).real {x} * Real.log (((ℙ : Measure Ω).map X).real {x}) := by
   rw [entropy_eq_sum ℙ, ← Finset.sum_neg_distrib, tsum_eq_sum]
   · congr with x
     unfold Real.negMulLog
@@ -167,13 +167,14 @@ variable (X : Ω → G) (hX : Measurable X) (Y : Ω → G) (hY : Measurable Y) (
 example (h : IndepFun X Y) : d[X # Y] = H[X-Y] - H[X]/2 - H[Y]/2 := h.rdist_eq hX hY
 
 /-- `d[X # Y]` depends only on the distribution of `X` and `Y`.-/
-example (h1 : IdentDistrib X X') (h2 : IdentDistrib Y Y') : d[X # Y] = d[X' # Y'] := h1.rdist_eq h2
+example (h1 : IdentDistrib X X') (h2 : IdentDistrib Y Y') : d[X # Y] = d[X' # Y'] :=
+  h1.rdist_congr h2
 
 /-- The Ruzsa triangle inequality. -/
 example : d[X # Z] ≤ d[X # Y] + d[Y # Z] := rdist_triangle hX hY hZ
 
 /-- The Kaimanovich-Vershik-Madiman inequality -/
-example (h : iIndepFun (fun _ ↦ hG) ![X, Y, Z]) : H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y] :=
+example (h : iIndepFun ![X, Y, Z]) : H[X + Y + Z] - H[X + Y] ≤ H[Y + Z] - H[Y] :=
   kaimanovich_vershik h hX hY hZ
 
 /-- The entropic Balog--Szemeredi--Gowers inequality -/

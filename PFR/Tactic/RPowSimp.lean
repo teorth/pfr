@@ -1,8 +1,7 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Tactic.Rify
 
 namespace Mathlib.Tactic
-open Lean hiding Rat
+open Lean
 open Qq Meta Real
 
 namespace RPowRing
@@ -211,16 +210,19 @@ Runs a tactic in the `RingNF.M` monad, given initial data:
 * `x`: the tactic to run
 -/
 def M.run {α : Type} (s : IO.Ref AtomM.State) (cfg : RPowRing.Config) (x : M α) : MetaM α := do
-  let ctx : Simp.Context := {
-    simpTheorems := #[← Elab.Tactic.simpOnlyBuiltins.foldlM (·.addConst ·) {}]
-    congrTheorems := ← getSimpCongrTheorems }
+  let ctx ← Simp.mkContext
+    Simp.neutralConfig
+    (simpTheorems := #[← Elab.Tactic.simpOnlyBuiltins.foldlM (·.addConst ·) {}])
+    (congrTheorems := ← getSimpCongrTheorems)
   let thms : SimpTheorems := {}
   let thms ← [``mul_one, ``one_mul, ``pow_one, ``RingNF.mul_neg, ``RingNF.add_neg
     ].foldlM (·.addConst ·) thms
-  let ctx' := { ctx with simpTheorems := #[thms] }
+  let ctx' := ctx.setSimpTheorems #[thms]
   let simp (r' : Simp.Result) := do
     r'.mkEqTrans (← Simp.main r'.expr ctx' (methods := ← Lean.Meta.Simp.mkDefaultMethods)).1
-  x { ctx := { ctx with config.singlePass := true }, simp } { red := cfg.red } s
+  x { ctx := ← Simp.mkContext
+        { Simp.neutralConfig with singlePass := true } ctx.simpTheorems ctx.congrTheorems, simp }
+    { red := cfg.red } s
 
 open Elab.Tactic Parser.Tactic
 /-- Use `rpow_ring` to rewrite the main goal. -/

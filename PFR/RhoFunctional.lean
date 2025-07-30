@@ -1,5 +1,4 @@
-import PFR.Mathlib.Probability.ConditionalProbability
-import PFR.Mathlib.Probability.Independence.ThreeVariables
+import PFR.ForMathlib.ThreeVariables
 import PFR.Kullback
 import PFR.Main
 
@@ -76,7 +75,7 @@ lemma rhoMinusSet_eq_of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] {μ' : 
   have I (μ'' : Measure G) : KL[X ; μ # Prod.fst + Prod.snd ; μ''.prod (uniformOn (A : Set G))] =
       KL[X' ; μ' # Prod.fst + Prod.snd ; μ''.prod (uniformOn (A : Set G))] := by
     apply ProbabilityTheory.IdentDistrib.KLDiv_eq _ _ h
-    apply IdentDistrib.refl (by fun_prop)
+    exact .refl (by fun_prop)
   simp only [rhoMinusSet, h.map_eq, I]
 
 /-- For any $G$-valued random variable $X$, we define $\rho^-(X)$ to be the infimum of
@@ -210,17 +209,17 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     {ε : ℝ} (hε : 0 < ε) [TopologicalSpace G] [DiscreteTopology G] :
     ∀ᶠ (μ' : ProbabilityMeasure G) in 𝓝 μ, ρ⁻[id ; μ # A] < ρ⁻[id ; μ' # A] + ε := by
   obtain ⟨c, c_pos, hc⟩ : ∃ c > 0, ∀ g,
-      ((μ : Measure G) {g}).toReal ≠ 0 → c ≤ ((μ : Measure G) {g}).toReal := by
-    let B := {g | ((μ : Measure G) {g}).toReal ≠ 0}
+      μ.toMeasure.real {g} ≠ 0 → c ≤ μ.toMeasure.real {g} := by
+    let B := {g | μ.toMeasure.real {g} ≠ 0}
     have : B.Finite := toFinite B
     have : B.Nonempty := by
       by_contra! H
-      simp [B, eq_empty_iff_forall_not_mem] at H
-      have : ∑ g, ((μ : Measure G) {g}).toReal = 1 := by simp
+      simp [B, eq_empty_iff_forall_notMem] at H
+      have : ∑ g, μ.toMeasure.real {g} = 1 := by simp
       simp [H] at this
-    have Bn : (B.toFinset.image (fun g ↦ ((μ : Measure G) {g}).toReal)).Nonempty := by
+    have Bn : (B.toFinset.image (fun g ↦ μ.toMeasure.real {g})).Nonempty := by
       simpa using this
-    let c := (B.toFinset.image (fun g ↦ ((μ : Measure G) {g}).toReal) ).min' Bn
+    let c := (B.toFinset.image (fun g ↦ μ.toMeasure.real {g})).min' Bn
     refine ⟨c, ?_, fun g hg ↦ ?_⟩
     · have : c ∈ B.toFinset.image (fun g ↦ ((μ : Measure G) {g}).toReal) := Finset.min'_mem _ _
       simp only [ne_eq, toFinset_setOf, Finset.mem_image, Finset.mem_filter, Finset.mem_univ,
@@ -250,7 +249,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
       continuous_entropy_restrict_probabilityMeasure.continuousAt
     exact (tendsto_order.1 (tendsto_iff_norm_sub_tendsto_zero.1 this)).2 _ δpos
   have E₂ : ∀ᶠ (μ' : ProbabilityMeasure G) in 𝓝 μ, ∀ g,
-      |((μ' : Measure G) {g}).toReal - ((μ : Measure G) {g}).toReal| < δ := by
+      |μ'.toMeasure.real {g} - μ.toMeasure.real {g}| < δ := by
     rw [eventually_all]
     intro g
     have : Tendsto (fun (μ' : ProbabilityMeasure G) ↦ ((μ' : Measure G) {g}).toReal)
@@ -260,10 +259,8 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     exact (tendsto_order.1 (tendsto_iff_norm_sub_tendsto_zero.1 this)).2 _ δpos
   have M : ρ⁻[id ; μ # A] < ρ⁻[id ; μ # A] + δ := by linarith
   filter_upwards [rhoMinus_continuous_aux2 hA M, E₁, E₂] with μ' h' h₁ h₂
-  have h₃ g (hg : (μ : Measure G) {g} ≠ 0) : c/2 ≤ ((μ' : Measure G) {g}).toReal := by
-    have : c ≤ ((μ : Measure G) {g}).toReal := by
-      apply hc
-      simp [ENNReal.toReal_eq_zero_iff, hg]
+  have h₃ g (hg : μ.toMeasure.real {g} ≠ 0) : c/2 ≤ μ'.toMeasure.real {g} := by
+    have : c ≤ μ.toMeasure.real {g} := hc _ hg
     linarith [neg_le_of_abs_le (h₂ g).le]
   have : ρ⁻[id ; μ' # A] < ρ⁻[id ; μ' # A] + δ := by linarith
   have : ∃ b ∈ rhoMinusSet id A μ', b < ρ⁻[id ; μ' # A] + δ :=
@@ -282,27 +279,29 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     simp only [Measure.map_id] at Z ⊢
     contrapose! Z
     intro hy
-    have T := h₃ _ Z
-    simp [hy] at T
+    have : μ.toMeasure.real {y} ≠ 0 := by simpa [measureReal_eq_zero_iff] using Z
+    have T := h₃ _ this
+    simp [hy, measureReal_def] at T
     linarith
   have I₀ : KL[id ; μ' # Prod.fst + Prod.snd ; ν.prod (uniformOn A)]
-      = - H[id ; (μ' : Measure G)] - ∑ g, ((μ' : Measure G) {g}).toReal * log ((m {g}).toReal) := by
+      = - H[id ; (μ' : Measure G)] - ∑ g, μ'.toMeasure.real {g} * log (m.real {g}) := by
     rw [KLDiv_eq_sum, entropy_eq_sum, tsum_fintype, ← Finset.sum_neg_distrib,
       ← Finset.sum_sub_distrib]
     congr with g
     simp only [Measure.map_id, negMulLog, neg_mul]
-    rcases eq_or_ne ((μ' : Measure G) {g}) 0 with h | h
+    rcases eq_or_ne (μ'.toMeasure.real {g}) 0 with h | h
     · simp [h]
     rw [log_div, hm]
     · ring
     · simp [ENNReal.toReal_eq_zero_iff, h]
     · contrapose! h
+      simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h ⊢
       apply h'_abs _ (by simpa [ENNReal.toReal_eq_zero_iff] using h)
-  have M g (hg : ((μ : Measure G) {g}).toReal ≠ 0) : |log ((m {g}).toReal)| ≤ C := by
+  have M g (hg : μ.toMeasure.real {g} ≠ 0) : |log (m.real {g})| ≤ C := by
     rw [le_div_iff₀' (by positivity)]
     calc
-    (c / 2) * |log ((m {g}).toReal)|
-    _ ≤ ((μ' : Measure G) {g}).toReal * |log ((m {g}).toReal)| := by
+    (c / 2) * |log (m.real {g})|
+    _ ≤ μ'.toMeasure.real {g} * |log (m.real {g})| := by
       gcongr
       apply h₃ _ (by simpa [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] using hg)
     _ ≤ ∑ g, ((μ' : Measure G) {g}).toReal * |log ((m {g}).toReal)| := by
@@ -322,42 +321,42 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
   ρ⁻[id ; μ # A]
   _ ≤ KL[id ; μ # Prod.fst + Prod.snd ; ν.prod (uniformOn A)] :=
     rhoMinus_le_def measurable_id (by simpa using h_abs)
-  _ = - H[id ; (μ : Measure G)] - ∑ g, ((μ : Measure G) {g}).toReal * log ((m {g}).toReal) := by
+  _ = - H[id ; (μ : Measure G)] - ∑ g, μ.toMeasure.real {g} * log (m.real {g}) := by
     rw [KLDiv_eq_sum, entropy_eq_sum, tsum_fintype, ← Finset.sum_neg_distrib,
       ← Finset.sum_sub_distrib]
     congr with g
     simp only [Measure.map_id, negMulLog, neg_mul]
-    rcases eq_or_ne ((μ : Measure G) {g}) 0 with h | h
+    rcases eq_or_ne (μ.toMeasure.real {g}) 0 with h | h
     · simp [h]
     rw [log_div, hm]
     · ring
     · simp [ENNReal.toReal_eq_zero_iff, h]
     · contrapose! h
-      simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h
+      simp only [measureReal_def, ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h ⊢
       exact h_abs _ h
-  _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | ((μ : Measure G) {g}).toReal ≠ 0},
-        ((μ : Measure G) {g}).toReal * log ((m {g}).toReal) := by
+  _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},
+        μ.toMeasure.real {g} * log (m.real {g}) := by
     gcongr
     · intro g hg h'g
       simp at h'g
       simp [h'g]
     . exact Finset.filter_subset _ _
-   _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | ((μ : Measure G) {g}).toReal ≠ 0},
-        (((μ' : Measure G) {g}).toReal + δ) * log ((m {g}).toReal) := by
+   _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},
+        (μ'.toMeasure.real {g} + δ) * log (m.real {g}) := by
     apply sub_le_sub le_rfl
     apply Finset.sum_le_sum (fun g hg ↦ ?_)
     apply mul_le_mul_of_nonpos_right _ (m_nonpos g)
     linarith [neg_le_of_abs_le (h₂ g).le]
-  _  ≤ - H[id ; (μ : Measure G)] - (∑ g ∈ {g | ((μ : Measure G) {g}).toReal ≠ 0},
-          ((μ' : Measure G) {g}).toReal * log ((m {g}).toReal)
-        + ∑ g ∈ {g | ((μ : Measure G) {g}).toReal ≠ 0}, δ * (-C)) := by
+  _  ≤ - H[id ; (μ : Measure G)] - (∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},
+          μ'.toMeasure.real {g} * log (m.real {g})
+        + ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0}, δ * (-C)) := by
     rw [← Finset.sum_add_distrib]
     gcongr with g hg
     rw [add_mul]
     gcongr
     rw [neg_le]
     exact (neg_le_abs _).trans (M g (by simpa using hg))
-  _ ≤ (-H[id ; (μ' : Measure G)] + δ) + (- ∑ g, ((μ' : Measure G) {g}).toReal * log ((m {g}).toReal)
+  _ ≤ (-H[id ; (μ' : Measure G)] + δ) + (- ∑ g, μ'.toMeasure.real {g} * log (m.real {g})
         + Fintype.card G * (δ * C)) := by
     simp only [mul_neg, Finset.sum_const, nsmul_eq_mul, sub_eq_add_neg, neg_add, ←
       Finset.sum_neg_distrib, neg_neg]
@@ -403,7 +402,7 @@ lemma rhoPlus_continuous [TopologicalSpace G] [DiscreteTopology G] (hA : A.Nonem
 
 lemma rhoPlus_eq_of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] {X' : Ω' → G} {μ' : Measure Ω'}
     (h : IdentDistrib X X' μ μ') : ρ⁺[X ; μ # A] = ρ⁺[X' ; μ' # A] := by
-  simp [rhoPlus, rhoMinus_eq_of_identDistrib h, h.entropy_eq]
+  simp [rhoPlus, rhoMinus_eq_of_identDistrib h, h.entropy_congr]
 
 omit [MeasurableSpace G] [DiscreteMeasurableSpace G] in
 lemma bddAbove_card_inter_add {A H : Set G} :
@@ -450,7 +449,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   have hT : Measurable T := measurable_fst
   let UA : G × G → G := Prod.snd
   have hUA : Measurable UA := measurable_snd
-  letI : MeasureSpace (G × G) := ⟨μ'.prod (uniformOn (A : Set G))⟩
+  let _ : MeasureSpace (G × G) := ⟨μ'.prod (uniformOn (A : Set G))⟩
   have hprod : (ℙ : Measure (G × G)) = μ'.prod (uniformOn (A : Set G)) := rfl
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
     uniformOn_isProbabilityMeasure A.finite_toSet hA
@@ -464,22 +463,24 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   let H' : Finset G := Set.Finite.toFinset (toFinite H)
   have hunif' : IsUniform H' U μ := by convert hunif; simp [H']
   have I₁ : KL[U ; μ # T + UA ; ℙ] =
-      ∑ h ∈ H', 1/Nat.card H * log ((1/Nat.card H) / (volume.map (T + UA) {h}).toReal) := by
+      ∑ h ∈ H', 1/Nat.card H * log ((1/Nat.card H) / (volume.map (T + UA)).real {h}) := by
     rw [KLDiv_eq_sum, ← Finset.sum_subset (Finset.subset_univ H')]; swap
     · intro x _ hH
-      rw [Measure.map_apply hU (measurableSet_singleton x), hunif.measure_preimage_of_nmem]
+      rw [map_measureReal_apply hU (measurableSet_singleton x), hunif.measureReal_preimage_of_nmem]
       · simp
       · simpa [H'] using hH
     apply Finset.sum_congr rfl (fun i hi ↦ ?_)
-    rw [← measureReal_def, hunif'.measureReal_preimage_of_mem' hU hi]
+    rw [hunif'.measureReal_preimage_of_mem' hU hi]
     congr <;> simp [H']
   have I₂ : (∑ h ∈ H', 1/Nat.card H : ℝ) * log ((∑ h ∈ H', 1/Nat.card H : ℝ)
-      / (∑ h ∈ H', (volume.map (T + UA) {h}).toReal)) ≤ KL[U ; μ # T + UA ; ℙ] := by
+      / (∑ h ∈ H', (volume.map (T + UA)).real {h})) ≤ KL[U ; μ # T + UA ; ℙ] := by
     rw [I₁]
     apply Real.sum_mul_log_div_leq (by simp) (by simp) (fun i hi h'i ↦ ?_)
     simp [ENNReal.toReal_eq_zero_iff] at h'i
-    have : (Measure.map U μ {i}).toReal = 0 := by simp [habs i h'i]
-    rw [← measureReal_def, hunif'.measureReal_preimage_of_mem' hU hi] at this
+    have : (Measure.map U μ).real {i} = 0 := by
+      simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, H'] at h'i ⊢
+      simp [habs i h'i]
+    rw [hunif'.measureReal_preimage_of_mem' hU hi] at this
     simpa [H'] using this
   have : (∑ h ∈ H', 1/Nat.card H : ℝ) = 1 := by
     simp only [Finset.sum_const, nsmul_eq_mul, ← mul_div_assoc, mul_one]
@@ -487,18 +488,17 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     · simp [H', ← Nat.card_eq_card_finite_toFinset]
     · simp [ne_of_gt]
   simp only [this, one_mul] at I₂
-  simp only [Finset.sum_toReal_measure_singleton, one_div, log_inv] at I₂
+  simp only [sum_measureReal_singleton, one_div, log_inv] at I₂
   apply le_trans _ I₂
-  have I₃ : ((Measure.map (T + UA) ℙ) ↑H').toReal
+  have I₃ : ((Measure.map (T + UA) ℙ).real ↑H')
       ≤ 1 * ((sSup {Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) | t : G}) / Nat.card A) := by
-    have : ∑ x : G, ((Measure.map T ℙ) {x}).toReal = 1 := by simp
-    rw [← this, add_comm, h_indep.symm.map_add_eq_sum hUA hT,
-      ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top]), Finset.sum_mul]
-    simp_rw [ENNReal.toReal_mul,
-      Measure.map_apply hUA (DiscreteMeasurableSpace.forall_measurableSet _),
-      hUA_unif.measure_preimage hUA]
-    simp only [measure_univ, singleton_add, image_add_left, neg_neg, one_mul,
-      Nat.card_eq_fintype_card, Fintype.card_coe, ENNReal.toReal_div, ENNReal.toReal_nat]
+    have : ∑ x : G, ((Measure.map T ℙ).real {x}) = 1 := by simp
+    rw [← this, add_comm, h_indep.symm.real_map_add_eq_sum hUA hT, Finset.sum_mul]
+    simp_rw [
+     map_measureReal_apply hUA (DiscreteMeasurableSpace.forall_measurableSet _),
+      hUA_unif.measureReal_preimage hUA]
+    simp only [measureReal_univ_eq_one, singleton_add, image_add_left, neg_neg, one_mul,
+      Nat.card_eq_fintype_card, Fintype.card_coe, ge_iff_le, H']
     apply Finset.sum_le_sum (fun i _ ↦ ?_)
     gcongr
     apply le_csSup bddAbove_card_inter_add
@@ -509,12 +509,12 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     simp [H', mem_vadd_set_iff_neg_vadd_mem]
   rw [one_mul] at I₃
   have : - log ((sSup {Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) | t : G}) / Nat.card A) ≤
-      - log ((Measure.map (T + UA) ℙ) ↑H').toReal := by
+      - log ((Measure.map (T + UA) ℙ).real ↑H') := by
     apply neg_le_neg
     apply log_le_log _ I₃
     apply lt_of_le_of_ne (by simp) (fun h ↦ ?_)
-    rw [Eq.comm, ENNReal.toReal_eq_zero_iff] at h
-    simp only [measure_ne_top, or_false] at h
+    rw [Eq.comm] at h
+    simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h
     have : Measure.map (T + UA) ℙ ({(0 : G)} : Set G) = 0 :=
       measure_mono_null (by simp [H', AddSubgroup.zero_mem]) h
     have Z := habs _ this
@@ -537,8 +537,8 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     (h'A : (A ∩ (t +ᵥ (H : Set G)) : Set G).Nonempty) (hU : Measurable U) :
     ρ⁻[U ; μ # A] ≤
       log (Nat.card A) - log (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)) := by
-  have mapU : Measure.map U μ = uniformOn (H : Set G) :=
-    hunif.map_eq_uniformOn hU (toFinite H) H.coe_nonempty
+  have mapU : .map U μ = uniformOn (H : Set G) :=
+    hunif.map_eq_uniformOn hU (H : Set G).toFinite H.coe_nonempty
   obtain ⟨a, ha, h'a⟩ := by exact h'A
   rcases mem_vadd_set.1 h'a with ⟨v, vH, rfl⟩
   simp only [vadd_eq_add, Finset.mem_coe] at ha
@@ -547,6 +547,9 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   have μ'_sing z : μ' {z} = uniformOn (H : Set G) {z + t} := by
     rw [hμ', ← Measure.map_map (by fun_prop) hU,
       Measure.map_apply (by fun_prop) (measurableSet_singleton _), mapU, P]
+  have μ'_sing_real z : μ'.real {z} = (uniformOn (H : Set G)).real {z + t} := by
+    rw [measureReal_def, μ'_sing]
+    rfl
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
     uniformOn_isProbabilityMeasure A.finite_toSet hA
   have : IsProbabilityMeasure μ' :=
@@ -573,24 +576,25 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   have hunif' : IsUniform H' U μ := by convert hunif; simp [H']
   rw [KLDiv_eq_sum, ← Finset.sum_subset (Finset.subset_univ H')]; swap
   · intro x _ hH
-    rw [Measure.map_apply hU (measurableSet_singleton x), hunif.measure_preimage_of_nmem]
+    rw [map_measureReal_apply hU (measurableSet_singleton x), hunif.measureReal_preimage_of_nmem]
     · simp
     · simpa [H'] using hH
-  have : ∑ x ∈ H', ((Measure.map U μ) {x}).toReal *
-      log (((Measure.map U μ) {x}).toReal
-        / ((Measure.map (Prod.fst + Prod.snd) (μ'.prod (uniformOn ↑A))) {x}).toReal)
+  have : ∑ x ∈ H', ((Measure.map U μ).real {x}) *
+      log ((Measure.map U μ).real {x}
+        / (Measure.map (Prod.fst + Prod.snd) (μ'.prod (uniformOn ↑A))).real {x})
       = ∑ x ∈ H', (1/Nat.card H) * log ((1/Nat.card H)
         / (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) / (Nat.card A * Nat.card H))) := by
     apply Finset.sum_congr rfl (fun x hx ↦ ?_)
     have xH : x ∈ H := by simpa [H'] using hx
-    have : (Measure.map U μ) {x} = 1/Nat.card H := by
-      rw [Measure.map_apply hU (measurableSet_singleton _), hunif'.measure_preimage_of_mem hU hx]
+    have : (Measure.map U μ).real {x} = 1/Nat.card H := by
+      rw [map_measureReal_apply hU (measurableSet_singleton _),
+        hunif'.measureReal_preimage_of_mem hU hx]
       simp [H']
-    simp only [this, one_div, ENNReal.toReal_inv, ENNReal.toReal_nat, Nat.cast_eq_zero]
+    simp only [this, one_div, ENNReal.toReal_inv, ENNReal.toReal_natCast, Nat.cast_eq_zero]
     congr
-    rw [h_indep.map_add_singleton_eq_sum measurable_fst measurable_snd, Measure.map_snd_prod,
+    rw [h_indep.real_map_add_singleton_eq_sum measurable_fst measurable_snd, Measure.map_snd_prod,
       Measure.map_fst_prod]
-    simp only [measure_univ, one_smul, μ'_sing]
+    simp only [measure_univ, one_smul, μ'_sing_real]
     let F : Finset G := (toFinite (A ∩ (t +ᵥ (H : Set G)) : Set G)).toFinset
     rw [← Finset.sum_subset F.subset_univ]; swap
     · intro i _ hi
@@ -598,23 +602,25 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
       simp only [mul_eq_zero]
       by_cases h'i : i ∈ A
       · right
+        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, F, H']
         apply uniformOn_apply_singleton_of_not_mem fun h'x ↦  hi h'i ?_
         exact ⟨x - (x-i+t), H.sub_mem xH h'x, by simp; abel⟩
       · left
+        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, F, H']
         exact uniformOn_apply_singleton_of_not_mem h'i
-    have : ∑ i ∈ F, (uniformOn ↑A) {i} * (uniformOn ↑H) {x - i + t} =
-        ∑ i ∈ F, (1 / Nat.card A * (1 / Nat.card H) : ℝ≥0∞) := by
+    have : ∑ i ∈ F, (uniformOn ↑A).real {i} * (uniformOn ↑H).real {x - i + t} =
+        ∑ i ∈ F, (1 / Nat.card A * (1 / Nat.card H) : ℝ) := by
       apply Finset.sum_congr rfl (fun i hi ↦ ?_)
       simp only [Finite.mem_toFinset, mem_inter_iff, Finset.mem_coe, F] at hi
-      rw [uniformOn_apply_singleton_of_mem (by exact hi.1) A.finite_toSet]
-      rw [uniformOn_apply_singleton_of_mem _ (toFinite _)]; swap
+      rw [real_uniformOn_apply_singleton_of_mem (by exact hi.1) A.finite_toSet]
+      rw [real_uniformOn_apply_singleton_of_mem _ (toFinite _)]; swap
       · convert H.sub_mem xH (mem_vadd_set_iff_neg_vadd_mem.1 hi.2) using 1
         simp
         abel
       rfl
     simp only [this, Nat.card_eq_fintype_card, Fintype.card_coe, one_div, Finset.sum_const,
-      nsmul_eq_mul, ENNReal.toReal_mul, ENNReal.toReal_nat, ENNReal.toReal_inv, div_eq_mul_inv,
-      ENNReal.one_toReal, one_mul, mul_inv]
+      nsmul_eq_mul, ENNReal.toReal_mul, ENNReal.toReal_natCast, ENNReal.toReal_inv, div_eq_mul_inv,
+      ENNReal.toReal_one, one_mul, mul_inv]
     congr
     rw [Nat.card_eq_card_finite_toFinset]
   have C : H'.card = Nat.card H := by rw [← Nat.card_eq_card_finite_toFinset]; rfl
@@ -790,14 +796,14 @@ lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
     apply IdentDistrib.add hXX'.symm hYY'.symm h_indep
     exact h_indep'.indepFun zero_ne_one
   have hX'TUY' : IndepFun (⟨X', T + U⟩) Y' ℙ := by
-    have I : iIndepFun (fun x ↦ hGm) ![X', Y', T + U] m :=
+    have I : iIndepFun ![X', Y', T + U] m :=
       ProbabilityTheory.iIndepFun.apply_two_last h_indep' hX' hY' hT hU
         (phi := fun a b ↦ a + b) (by fun_prop)
     exact (I.reindex_three_bac.pair_last_of_three hY' hX' (by fun_prop)).symm
   have I₁ : ρ⁻[X + Y ; μ # A] ≤ KL[X + Y ; μ # (T + Y') + U ; ℙ] := by
     apply rhoMinus_le (by fun_prop) hA _ (by fun_prop) (by fun_prop)
-    · have : iIndepFun (fun x ↦ hGm) ![U, X', T, Y'] := h_indep'.reindex_four_dacb
-      have : iIndepFun (fun x ↦ hGm) ![U, X', T + Y'] :=
+    · have : iIndepFun ![U, X', T, Y'] := h_indep'.reindex_four_dacb
+      have : iIndepFun ![U, X', T + Y'] :=
         this.apply_two_last (phi := fun a b ↦ a + b) hU hX' hT hY' (by fun_prop)
       apply this.indepFun (i := 2) (j := 0)
       simp
@@ -812,8 +818,7 @@ lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
     apply IdentDistrib.KLDiv_eq _ _ hXY
     have : T + Y' + U = T + U + Y' := by abel
     rw [this]
-    apply IdentDistrib.refl
-    fun_prop
+    exact .refl <| by fun_prop
   have I₃ : KL[X' + Y' # (T + U) + Y'] ≤ KL[X' # T + U] := by
     apply KLDiv_add_le_KLDiv_of_indep _ (by fun_prop) (by fun_prop) (by fun_prop)
     · rw [hTU.map_eq, hP, hXX'.map_eq]
@@ -861,17 +866,17 @@ lemma rho_of_translate [IsZeroOrProbabilityMeasure μ]
 /-- We define $\rho(X|Y) := \sum_y {\bf P}(Y=y) \rho(X|Y=y)$. -/
 noncomputable def condRho {S : Type*}
     (X : Ω → G) (Y : Ω → S) (A : Finset G) (μ : Measure Ω): ℝ :=
-  ∑' s, (μ (Y ⁻¹' {s})).toReal * ρ[X ; μ[|Y ← s] # A]
+  ∑' s, μ.real (Y ⁻¹' {s}) * ρ[X ; μ[|Y ← s] # A]
 
 /-- Average of rhoMinus along the fibers-/
 noncomputable def condRhoMinus {S : Type*}
     (X : Ω → G) (Y : Ω → S) (A : Finset G) (μ : Measure Ω) : ℝ :=
-  ∑' s, (μ (Y ⁻¹' {s})).toReal * ρ⁻[X ; μ[|Y ← s] # A]
+  ∑' s, μ.real (Y ⁻¹' {s}) * ρ⁻[X ; μ[|Y ← s] # A]
 
 /-- Average of rhoPlus along the fibers-/
 noncomputable def condRhoPlus {S : Type*}
     (X : Ω → G) (Y : Ω → S) (A : Finset G) (μ : Measure Ω) : ℝ :=
-  ∑' s, (μ (Y ⁻¹' {s})).toReal * ρ⁺[X ; μ[|Y ← s] # A]
+  ∑' s, μ.real (Y ⁻¹' {s}) * ρ⁺[X ; μ[|Y ← s] # A]
 
 @[inherit_doc condRho]
 notation3:max "ρ[" X " | " Z " ; " μ " # " A "]" => condRho X Z A μ
@@ -922,7 +927,8 @@ lemma condRho_eq_of_identDistrib {S : Type*} [MeasurableSpace S] [MeasurableSing
   have M : μ (W ⁻¹' {g}) = μ' (W' ⁻¹' {g}) := by
     have I : IdentDistrib W W' μ μ' := h.comp (u := Prod.snd) measurable_snd
     rw [← map_apply hW (.singleton _), ← map_apply hW' (.singleton _), I.map_eq]
-  rw [M]
+  have M' : μ.real (W ⁻¹' {g}) = μ'.real (W' ⁻¹' {g}) := by simp [measureReal_def, M]
+  rw [M']
   congr 1
   apply rho_eq_of_identDistrib
   refine ⟨hY.aemeasurable, hY'.aemeasurable, ?_⟩
@@ -949,7 +955,7 @@ lemma condRhoMinus_le [IsZeroOrProbabilityMeasure μ] {S : Type*} [MeasurableSpa
   let _ : MeasureSpace (G × G) := ⟨μ'.prod (uniformOn (A : Set G))⟩
   have hP : (ℙ : Measure (G × G)) = μ'.prod (uniformOn (A : Set G)) := rfl
   have : IsProbabilityMeasure (ℙ : Measure (G × G)) := by rw [hP]; infer_instance
-  have : ∑ b : S, (μ (Z ⁻¹' {b})).toReal * ρ⁻[X ; μ[|Z ← b] # A]
+  have : ∑ b : S, μ.real (Z ⁻¹' {b}) * ρ⁻[X ; μ[|Z ← b] # A]
       ≤ KL[ X | Z ; μ # (Prod.fst + Prod.snd : G × G → G) ; ℙ] := by
     rw [condKLDiv, tsum_fintype]
     apply Finset.sum_le_sum (fun i hi ↦ ?_)
@@ -973,9 +979,9 @@ lemma condRhoPlus_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
   simp only [Nat.card_eq_fintype_card, Fintype.card_coe, mul_sub, mul_add, Finset.sum_sub_distrib,
     Finset.sum_add_distrib, tsub_le_iff_right]
   rw [← Finset.sum_mul, ← tsum_fintype, ← condRhoMinus, ← condEntropy_eq_sum_fintype _ _ _ hZ]
-  simp_rw [← Measure.map_apply hZ (measurableSet_singleton _)]
-  simp only [Finset.sum_toReal_measure_singleton, Finset.coe_univ, measure_univ, ENNReal.one_toReal,
-    one_mul, sub_add_cancel, ge_iff_le]
+  simp_rw [← map_measureReal_apply hZ (measurableSet_singleton _)]
+  simp only [sum_measureReal_singleton, Finset.coe_univ, measureReal_univ_eq_one, one_mul,
+    sub_add_cancel, ge_iff_le]
   linarith
 
 omit [Fintype G] [DiscreteMeasurableSpace G] in
@@ -997,7 +1003,7 @@ omit [Fintype G] [DiscreteMeasurableSpace G] in
 lemma condRho_prod_eq_sum [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     [Fintype S] [MeasurableSingletonClass S]
     {Z T : Ω → S} (hZ : Measurable Z) (hT : Measurable T) :
-    ρ[X | ⟨Z, T⟩ ; μ # A] = ∑ g, (μ (T ⁻¹' {g})).toReal * ρ[X | Z ; μ[|T ← g] # A] := by
+    ρ[X | ⟨Z, T⟩ ; μ # A] = ∑ g, μ.real (T ⁻¹' {g}) * ρ[X | Z ; μ[|T ← g] # A] := by
   rw [condRho, tsum_fintype, ← Finset.univ_product_univ, Finset.sum_product_right]
   congr 1 with w
   simp only [condRho, tsum_fintype, Finset.mul_sum]
@@ -1008,12 +1014,15 @@ lemma condRho_prod_eq_sum [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace
   · simp only [A, ProbabilityTheory.cond, Measure.smul_apply,
       Measure.restrict_apply (hZ (.singleton w')),
       smul_eq_mul, ENNReal.toReal_mul]
-    rcases eq_bot_or_bot_lt (μ (T ⁻¹' {w})) with hw|hw
-    · have : μ (Z ⁻¹' {w'} ∩ T ⁻¹' {w}) = 0 :=
-        le_antisymm (le_trans (measure_mono Set.inter_subset_right) hw.le) bot_le
-      simp [hw, this]
-    · rw [← mul_assoc, ← ENNReal.toReal_mul, ENNReal.mul_inv_cancel, ENNReal.one_toReal, one_mul]
-      exacts [hw.ne', by finiteness]
+    rcases le_or_gt (μ.real (T ⁻¹' {w})) 0 with hw|hw
+    · have : μ.real (Z ⁻¹' {w'} ∩ T ⁻¹' {w}) = 0 :=
+        le_antisymm (le_trans (measureReal_mono Set.inter_subset_right) hw) measureReal_nonneg
+      have hw' : μ.real (T ⁻¹' {w}) = 0 := le_antisymm hw measureReal_nonneg
+      simp [hw', this]
+    · simp only [measureReal_ennreal_smul_apply, ENNReal.toReal_inv]
+      rw [← mul_assoc, ← measureReal_def, mul_inv_cancel₀ hw.ne', one_mul]
+      rw [measureReal_def, measureReal_def, Measure.restrict_apply]
+      exact hZ (measurableSet_singleton w')
   · congr 1
     rw [A, cond_cond_eq_cond_inter' (hT (.singleton _)) (hZ (.singleton _)), Set.inter_comm]
     finiteness
@@ -1024,14 +1033,14 @@ lemma condRho_prod_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     {Z T : Ω → S} (hX : Measurable X) (hZ : Measurable Z) (hT : Measurable T) (hA : A.Nonempty) :
     ρ[X | ⟨Z, T⟩ ; μ # A] ≤ ρ[X | T ; μ # A] + (H[X | T ; μ] - H[X | ⟨Z, T⟩ ; μ]) / 2 := by
   rw [condRho_prod_eq_sum hZ hT]
-  have : ∑ g : S, (μ (T ⁻¹' {g})).toReal * ρ[ X | Z ; μ[|T ⁻¹' {g}] # A] ≤
-    ∑ g : S, (μ (T ⁻¹' {g})).toReal *
+  have : ∑ g : S, μ.real (T ⁻¹' {g}) * ρ[ X | Z ; μ[|T ⁻¹' {g}] # A] ≤
+    ∑ g : S, μ.real (T ⁻¹' {g}) *
       (ρ[X ; μ[|T ⁻¹' {g}] # A] + (H[X ; μ[|T ⁻¹' {g}]] - H[X | Z ; μ[|T ⁻¹' {g}]]) / 2) := by
     apply Finset.sum_le_sum (fun g hg ↦ ?_)
-    rcases eq_or_ne (μ (T ⁻¹' {g})) 0 with hpg | hpg
+    rcases eq_or_ne (μ.real (T ⁻¹' {g})) 0 with hpg | hpg
     · simp [hpg]
     gcongr
-    have hμ : IsProbabilityMeasure (μ[|T ⁻¹' {g}]) := cond_isProbabilityMeasure hpg
+    have hμ : IsProbabilityMeasure (μ[|T ⁻¹' {g}]) := cond_isProbabilityMeasure_of_real hpg
     exact condRho_le hX hZ hA
   apply this.trans_eq
   simp_rw [mul_add, mul_div, mul_sub, Finset.sum_add_distrib, ← Finset.sum_div,
@@ -1044,14 +1053,17 @@ lemma condRho_prod_eq_of_indepFun [IsProbabilityMeasure μ]
     (hW' : Measurable W') (h : IndepFun (⟨X, W⟩) W' μ) :
     ρ[X | ⟨W, W'⟩ ; μ # A] = ρ[X | W ; μ # A] := by
   rw [condRho_prod_eq_sum hW hW']
-  have : ρ[X | W ; μ # A] = ∑ z, (μ (W' ⁻¹' {z})).toReal * ρ[X | W ; μ # A] := by
-    rw [← Finset.sum_mul, sum_measure_preimage_singleton' μ hW', one_mul]
+  have : ρ[X | W ; μ # A] = ∑ z, μ.real (W' ⁻¹' {z}) * ρ[X | W ; μ # A] := by
+    rw [← Finset.sum_mul, sum_measureReal_preimage_singleton]
+    · simp
+    · exact fun y hy ↦ hW' (measurableSet_singleton y)
   rw [this]
   congr with w
-  rcases eq_or_ne (μ (W' ⁻¹' {w})) 0 with hw|hw
+  rcases eq_or_ne (μ.real (W' ⁻¹' {w})) 0 with hw|hw
   · simp [hw]
   congr 1
   apply condRho_eq_of_identDistrib hX hW hX hW
+  simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at hw
   exact (h.identDistrib_cond (MeasurableSet.singleton w) (by fun_prop) hW' hw).symm
 
 variable [Module (ZMod 2) G]
@@ -1141,7 +1153,7 @@ lemma phiMinimizes_of_identDistrib {Ω' : Type*} [MeasureSpace Ω']
     phiMinimizes X' Y' η A ℙ := by
   have : phi X Y η A ℙ = phi X' Y' η A ℙ := by
     simp only [phi]
-    rw [h₁.rdist_eq h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
+    rw [h₁.rdist_congr h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
   simpa [phiMinimizes, this] using h_min
 
 lemma phiMinimizes_comm [IsProbabilityMeasure (ℙ : Measure Ω)] {X Y : Ω → G} {η : ℝ} {A : Finset G}
@@ -1187,14 +1199,14 @@ lemma phi_min_exists (hA : A.Nonempty) : ∃ (μ : Measure (G × G)), IsProbabil
     simp only [ProbabilityMeasure.coe_mk, ν', ν]
     rw [Measure.map_map measurable_snd (by fun_prop)]
     rfl
-  simp [phi, h₁.rdist_eq h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
+  simp [phi, h₁.rdist_congr h₂, rho_eq_of_identDistrib h₁, rho_eq_of_identDistrib h₂]
 
 -- Let $(X_1, X_2)$ be a $\phi$-minimizer, and $\tilde X_1, \tilde X_2$ be independent copies
 -- of $X_1,X_2$ respectively.
 variable {X₁ X₂ X₁' X₂' : Ω → G} (h_min : phiMinimizes X₁ X₂ η A ℙ)
   (h₁ : IdentDistrib X₁ X₁')
   (h₂ : IdentDistrib X₂ X₂')
-  (h_indep : iIndepFun (fun _ ↦ hGm) ![X₁, X₂, X₁', X₂'])
+  (h_indep : iIndepFun ![X₁, X₂, X₁', X₂'])
   (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₁' : Measurable X₁') (hX₂' : Measurable X₂')
 
 local notation3 "I₁" => I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂']
@@ -1223,7 +1235,7 @@ lemma le_rdist_of_phiMinimizes (h_min : phiMinimizes X₁ X₂ η A ℙ)
     ⟨measurable_fst.aemeasurable, hX₁'.aemeasurable, by simp [Y₁, hP, m]⟩
   have Id₂ : IdentDistrib Y₂ X₂' ℙ μ₂ :=
     ⟨measurable_snd.aemeasurable, hX₂'.aemeasurable, by simp [Y₂, hP, m]⟩
-  have I : d[Y₁ # Y₂] = d[X₁' ; μ₁ # X₂' ; μ₂] := Id₁.rdist_eq Id₂
+  have I : d[Y₁ # Y₂] = d[X₁' ; μ₁ # X₂' ; μ₂] := Id₁.rdist_congr Id₂
   have J : ρ[Y₁ # A] = ρ[X₁' ; μ₁ # A] := rho_eq_of_identDistrib Id₁
   have K : ρ[Y₂ # A] = ρ[X₂' ; μ₂ # A] := rho_eq_of_identDistrib Id₂
   simp only [phi, I, J, K] at this
@@ -1249,13 +1261,13 @@ lemma condRho_le_condRuzsaDist_of_phiMinimizes {S T : Type*}
       ≤ d[X₁' | Z # X₂' | W] := by
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (Measure.map W ℙ) := isProbabilityMeasure_map hW.aemeasurable
-  have hz (a : ℝ) : a = ∑ z, (ℙ (Z ⁻¹' {z})).toReal * a := by
-    simp_rw [← Finset.sum_mul,← Measure.map_apply hZ (MeasurableSet.singleton _),
-      Finset.sum_toReal_measure_singleton]
+  have hz (a : ℝ) : a = ∑ z, (Measure.real ℙ (Z ⁻¹' {z})) * a := by
+    simp_rw [← Finset.sum_mul, ← map_measureReal_apply hZ (MeasurableSet.singleton _),
+      sum_measureReal_singleton]
     simp
-  have hw (a : ℝ) : a = ∑ w, (ℙ (W ⁻¹' {w})).toReal * a := by
-    simp_rw [← Finset.sum_mul,← Measure.map_apply hW (MeasurableSet.singleton _),
-      Finset.sum_toReal_measure_singleton]
+  have hw (a : ℝ) : a = ∑ w, (Measure.real ℙ (W ⁻¹' {w})) * a := by
+    simp_rw [← Finset.sum_mul, ← map_measureReal_apply hW (MeasurableSet.singleton _),
+      sum_measureReal_singleton]
     simp
   rw [condRuzsaDist_eq_sum' h1 hZ h2 hW, hz d[X₁ # X₂],
     hz (ρ[X₁ # A]), hz (η * (ρ[X₂' | W # A] - ρ[X₂ # A])), condRho, tsum_fintype,
@@ -1263,23 +1275,23 @@ lemma condRho_le_condRuzsaDist_of_phiMinimizes {S T : Type*}
   apply Finset.sum_le_sum
   intro z _
   rw [condRho, tsum_fintype, hw ρ[X₂ # A],
-    hw ( (ℙ (Z ⁻¹' {z})).toReal * k -
-    η * ((ℙ (Z ⁻¹' {z})).toReal * ρ[X₁' ; ℙ[|Z ⁻¹' {z}] # A] - (ℙ (Z ⁻¹' {z})).toReal * ρ[X₁ # A])),
+    hw ( (Measure.real ℙ (Z ⁻¹' {z})) * k -
+    η * ((Measure.real ℙ (Z ⁻¹' {z})) * ρ[X₁' ; ℙ[|Z ⁻¹' {z}] # A] - (Measure.real ℙ (Z ⁻¹' {z})) * ρ[X₁ # A])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro w _
-  rcases eq_or_ne (ℙ (Z ⁻¹' {z})) 0 with hpz | hpz
+  rcases eq_or_ne (Measure.real ℙ (Z ⁻¹' {z})) 0 with hpz | hpz
   · simp [hpz]
-  rcases eq_or_ne (ℙ (W ⁻¹' {w})) 0 with hpw | hpw
+  rcases eq_or_ne (Measure.real ℙ (W ⁻¹' {w})) 0 with hpw | hpw
   · simp [hpw]
   set μ := ℙ[|Z ← z]
-  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure hpz
+  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure_of_real hpz
   set μ' := ℙ[|W ← w]
-  have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure hpw
+  have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure_of_real hpw
   suffices d[X₁ # X₂] - η * (ρ[X₁' ; μ # A] - ρ[X₁ # A]) -
       η * (ρ[X₂' ; μ' # A] - ρ[X₂ # A]) ≤ d[X₁' ; μ # X₂'; μ'] by
     replace this := mul_le_mul_of_nonneg_left this
-      (show 0 ≤ (ℙ (Z ⁻¹' {z})).toReal * (ℙ (W ⁻¹' {w})).toReal by positivity)
+      (show 0 ≤ (Measure.real ℙ (Z ⁻¹' {z})) * (Measure.real ℙ (W ⁻¹' {w})) by positivity)
     convert this using 1
     ring
   exact le_rdist_of_phiMinimizes h h1 h2
@@ -1303,15 +1315,15 @@ lemma I_one_le (hA : A.Nonempty) : I₁ ≤ 2 * η * d[ X₁ # X₂ ] := by
       - η * (ρ[X₂ + X₁' # A] - ρ[X₂ # A]) ≤ d[X₁ + X₂' # X₂ + X₁'] :=
     le_rdist_of_phiMinimizes h_min (hX₁.add hX₂') (hX₂.add hX₁')
   have : ρ[X₁ + X₂' # A] ≤ (ρ[X₁ # A] + ρ[X₂ # A] + d[ X₁ # X₂ ]) / 2 := by
-    rw [rho_eq_of_identDistrib h₂, (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
+    rw [rho_eq_of_identDistrib h₂, h₂.rdist_congr_right hX₁.aemeasurable]
     apply rho_of_sum_le hX₁ hX₂' hA
     simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
   have : ρ[X₂ + X₁' # A] ≤ (ρ[X₁ # A] + ρ[X₂ # A] + d[ X₁ # X₂ ]) / 2 := by
-    rw [add_comm, rho_eq_of_identDistrib h₁, h₁.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)]
+    rw [add_comm, rho_eq_of_identDistrib h₁, h₁.rdist_congr_left hX₂.aemeasurable]
     apply rho_of_sum_le hX₁' hX₂ hA
     simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 1 by decide)
   have : ρ[X₁ | X₁ + X₂' # A] ≤ (ρ[X₁ # A] + ρ[X₂ # A] + d[ X₁ # X₂ ]) / 2 := by
-    rw [rho_eq_of_identDistrib h₂, (IdentDistrib.refl hX₁.aemeasurable).rdist_eq h₂]
+    rw [rho_eq_of_identDistrib h₂, h₂.rdist_congr_right hX₁.aemeasurable]
     apply condRho_of_sum_le hX₁ hX₂' hA
     simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
   have : ρ[X₂ | X₂ + X₁' # A] ≤ (ρ[X₁ # A] + ρ[X₂ # A] + d[ X₁ # X₂ ]) / 2 := by
@@ -1320,7 +1332,7 @@ lemma I_one_le (hA : A.Nonempty) : I₁ ≤ 2 * η * d[ X₁ # X₂ ] := by
       simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 2 by decide)
     have I : ρ[X₁' # A] = ρ[X₁ # A] := rho_eq_of_identDistrib h₁.symm
     have J : d[X₂ # X₁'] = d[X₁ # X₂] := by
-      rw [rdist_symm, h₁.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)]
+      rw [rdist_symm, h₁.rdist_congr_left hX₂.aemeasurable]
     linarith
   nlinarith
 
@@ -1336,15 +1348,15 @@ lemma I_two_aux :
     sum_of_rdist_eq_char_2' X₁' X₁ X₂' X₂ h_indep.reindex_four_cadb hX₁' hX₁ hX₂' hX₂
   have C₁ : X₁' + X₁ + X₂' + X₂ = X₁ + X₂ + X₁' + X₂' := by abel
   have C₂ : X₁' + X₁ = X₁ + X₁' := by abel
-  have C₃ : d[X₁' # X₁] = d[X₁ # X₁] := h₁.symm.rdist_eq (IdentDistrib.refl hX₁.aemeasurable)
-  have C₄ : d[X₂' # X₂] = d[X₂ # X₂] := h₂.symm.rdist_eq (IdentDistrib.refl hX₂.aemeasurable)
+  have C₃ : d[X₁' # X₁] = d[X₁ # X₁] := h₁.symm.rdist_congr_left hX₁.aemeasurable
+  have C₄ : d[X₂' # X₂] = d[X₂ # X₂] := h₂.symm.rdist_congr_left hX₂.aemeasurable
   have C₅ : d[X₁' + X₂' # X₁ + X₂] = d[X₁ + X₂' # X₂ + X₁'] := by
-    apply IdentDistrib.rdist_eq
-    · apply IdentDistrib.add h₁.symm (IdentDistrib.refl hX₂'.aemeasurable)
+    apply IdentDistrib.rdist_congr
+    · apply h₁.symm.add (.refl hX₂'.aemeasurable)
       · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)
       · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
     · rw [add_comm]
-      apply IdentDistrib.add (IdentDistrib.refl hX₂.aemeasurable) h₁
+      refine .add (.refl hX₂.aemeasurable) h₁ ?_ ?_
       · simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 0 by decide)
       · simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 2 by decide)
   have C₆ : d[X₁' | X₁' + X₂' # X₁ | X₁ + X₂] = d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] := by
@@ -1352,13 +1364,13 @@ lemma I_two_aux :
       apply condRuzsaDist_of_copy hX₁' (by fun_prop) hX₁ (by fun_prop) hX₁ (by fun_prop) hX₁'
         (by fun_prop)
       · have : IdentDistrib (⟨X₁', X₂'⟩) (⟨X₁, X₂'⟩) := by
-          apply h₁.symm.prod_mk (IdentDistrib.refl hX₂'.aemeasurable)
+          apply h₁.symm.prodMk (.refl hX₂'.aemeasurable)
           · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 3 by decide)
           · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 3 by decide)
         exact this.comp (u := fun (a : G × G) ↦ (a.1, a.1 + a.2)) (by fun_prop)
       · rw [add_comm]
         have : IdentDistrib (⟨X₁, X₂⟩) (⟨X₁', X₂⟩) := by
-          apply h₁.prod_mk (IdentDistrib.refl hX₂.aemeasurable)
+          apply h₁.prodMk (.refl hX₂.aemeasurable)
           · simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 1 by decide)
           · simpa using h_indep.indepFun (show (2 : Fin 4) ≠ 1 by decide)
         exact this.comp (u := fun (a : G × G) ↦ (a.1, a.2 + a.1)) (by fun_prop)
@@ -1366,7 +1378,7 @@ lemma I_two_aux :
       have J z w : d[X₁ ; ℙ[|(X₁ + X₂') ⁻¹' {z}] # X₁' ; ℙ[|(X₂ + X₁') ⁻¹' {w}]]
           = d[X₁ ; ℙ[|(X₁ + X₂') ⁻¹' {z}] # X₂ ; ℙ[|(X₂ + X₁') ⁻¹' {w}]] := by
         rw [← rdist_add_const hX₁ hX₂ (c := w)]
-        apply ProbabilityTheory.IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable)
+        apply (IdentDistrib.refl hX₁.aemeasurable).rdist_congr
         apply IdentDistrib.of_ae_eq hX₁'.aemeasurable
         filter_upwards [ae_cond_mem (hX₂.add hX₁' (measurableSet_singleton _))] with x hx
         simp only [mem_preimage, Pi.add_apply, mem_singleton_iff] at hx
@@ -1397,7 +1409,7 @@ lemma I_two_aux' :
   have C₁ : X₂ + X₁ = X₁ + X₂ := by abel
   have C₂ : X₁ + X₂ + X₂' + X₁' = X₁ + X₂ + X₁' + X₂' := by abel
   have C₃ : d[X₂ # X₁] = d[X₁ # X₂] := rdist_symm
-  have C₄ : d[X₂' # X₁'] = d[X₁ # X₂] := by rw [rdist_symm]; exact h₁.symm.rdist_eq h₂.symm
+  have C₄ : d[X₂' # X₁'] = d[X₁ # X₂] := by rw [rdist_symm]; exact h₁.symm.rdist_congr h₂.symm
   have C₅ : d[X₂ + X₂' # X₁ + X₁'] = d[X₁ + X₁' # X₂ + X₂'] := rdist_symm
   have C₆ : d[X₂ | X₂ + X₂' # X₁ | X₁ + X₁'] = d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂'] :=
     condRuzsaDist_symm (by fun_prop) (by fun_prop)
@@ -1419,23 +1431,19 @@ lemma I_two_le (hA : A.Nonempty) (h'η : η < 1) :
   have : ρ[X₁ + X₁' # A] ≤ (ρ[X₁ # A] + ρ[X₁ # A] + d[ X₁ # X₁ ]) / 2 := by
     refine (rho_of_sum_le hX₁ hX₁' hA
       (by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide))).trans_eq ?_
-    rw [rho_eq_of_identDistrib h₁.symm,
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁]
+    rw [rho_eq_of_identDistrib h₁.symm, h₁.rdist_congr_right hX₁.aemeasurable]
   have : ρ[X₂ + X₂' # A] ≤ (ρ[X₂ # A] + ρ[X₂ # A] + d[ X₂ # X₂ ]) / 2 := by
     refine (rho_of_sum_le hX₂ hX₂' hA
       (by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide))).trans_eq ?_
-    rw [rho_eq_of_identDistrib h₂.symm,
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂]
+    rw [rho_eq_of_identDistrib h₂.symm, h₂.rdist_congr_right hX₂.aemeasurable]
   have : ρ[X₁ | X₁ + X₁' # A] ≤ (ρ[X₁ # A] + ρ[X₁ # A] + d[ X₁ # X₁ ]) / 2 := by
     refine (condRho_of_sum_le hX₁ hX₁' hA
       (by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide))).trans_eq ?_
-    rw [rho_eq_of_identDistrib h₁.symm,
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁]
+    rw [rho_eq_of_identDistrib h₁.symm, h₁.rdist_congr_right hX₁.aemeasurable]
   have : ρ[X₂ | X₂ + X₂' # A] ≤ (ρ[X₂ # A] + ρ[X₂ # A] + d[ X₂ # X₂ ]) / 2 := by
     refine (condRho_of_sum_le hX₂ hX₂' hA
       (by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide))).trans_eq ?_
-    rw [rho_eq_of_identDistrib h₂.symm,
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂]
+    rw [rho_eq_of_identDistrib h₂.symm, h₂.rdist_congr_right hX₂.aemeasurable]
   have : I₂ ≤ η * (d[X₁ # X₁] + d[X₂ # X₂]) := by nlinarith
   rw [rdist_add_rdist_eq h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂'] at this
   have one_eta : 0 < 1 - η := by linarith
@@ -1461,34 +1469,32 @@ lemma dist_le_of_sum_zero {Ω' : Type*} [MeasurableSpace Ω'] {μ : Measure Ω'}
   let _ : MeasureSpace Ω' := ⟨μ⟩
   have : μ = ℙ := rfl
   simp only [this]
-  have : ∑ t, (ℙ (T₃ ⁻¹' {t})).toReal * d[ X₁ # X₂ ] ≤ ∑ t, (ℙ (T₃ ⁻¹' {t})).toReal *
+  have : ∑ t, (Measure.real ℙ (T₃ ⁻¹' {t})) * d[ X₁ # X₂ ] ≤ ∑ t, (Measure.real ℙ (T₃ ⁻¹' {t})) *
       (d[T₁ ; ℙ[|T₃ ← t] # T₂ ; ℙ[|T₃ ← t]]
         + η * (ρ[T₁ ; ℙ[|T₃ ← t] # A] - ρ[X₁ # A]) + η * (ρ[T₂ ; ℙ[|T₃ ← t] # A] - ρ[X₂ # A])) := by
     apply Finset.sum_le_sum (fun t ht ↦ ?_)
-    rcases eq_or_ne (ℙ (T₃ ⁻¹' {t})) 0 with h't | h't
+    rcases eq_or_ne (Measure.real ℙ (T₃ ⁻¹' {t})) 0 with h't | h't
     · simp [h't]
-    have : IsProbabilityMeasure (ℙ[|T₃ ← t]) := cond_isProbabilityMeasure h't
+    have : IsProbabilityMeasure (ℙ[|T₃ ← t]) := cond_isProbabilityMeasure_of_real h't
     gcongr
     exact le_rdist_of_phiMinimizes' h_min hT₁ hT₂
-  have : k ≤ ∑ x : G, (ℙ (T₃ ⁻¹' {x})).toReal * d[T₁ ; ℙ[|T₃ ← x] # T₂ ; ℙ[|T₃ ← x]] +
+  have : k ≤ ∑ x : G, (Measure.real ℙ (T₃ ⁻¹' {x})) * d[T₁ ; ℙ[|T₃ ← x] # T₂ ; ℙ[|T₃ ← x]] +
       η * (ρ[T₁ | T₃ # A] - ρ[X₁ # A]) + η * (ρ[T₂ | T₃ # A] - ρ[X₂ # A]) := by
-    have S : ∑ i : G, (ℙ (T₃ ⁻¹' {i})).toReal = 1 := by
+    have S : ∑ i : G, (Measure.real ℙ (T₃ ⁻¹' {i})) = 1 := by
       have : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
-      simp [← Measure.map_apply hT₃ (measurableSet_singleton _)]
+      simp [← map_measureReal_apply hT₃ (measurableSet_singleton _)]
     simp_rw [← Finset.sum_mul, S, mul_add, Finset.sum_add_distrib, ← mul_assoc, mul_comm _ η,
       mul_assoc, ← Finset.mul_sum, mul_sub, Finset.sum_sub_distrib, mul_sub,
       ← Finset.sum_mul, S] at this
     simpa [mul_sub, condRho, tsum_fintype] using this
-  have J : ∑ x : G, (ℙ (T₃ ⁻¹' {x})).toReal * d[T₁ ; ℙ[|T₃ ← x] # T₂ ; ℙ[|T₃ ← x]]
+  have J : ∑ x : G, (Measure.real ℙ (T₃ ⁻¹' {x})) * d[T₁ ; ℙ[|T₃ ← x] # T₂ ; ℙ[|T₃ ← x]]
       ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := by
     have h2T₃ : T₃ = T₁ + T₂ :=
       calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hsum, _root_.zero_sub]; simp [ZModModule.neg_eq_self]
         _ = T₁ + T₂ := by rw [add_sub_cancel_right]
     subst h2T₃
-    have := ent_bsg hT₁ hT₂ (μ := ℙ)
-    simp_rw [integral_fintype _ Integrable.of_finite,
-      Measure.map_apply hT₃ (measurableSet_singleton _)] at this
-    exact this
+    simpa [integral_fintype _ Integrable.of_finite, map_measureReal_apply hT₃ (.singleton _)]
+      using ent_bsg hT₁ hT₂ (μ := ℙ)
   linarith
 
 include h_min in
@@ -1501,22 +1507,22 @@ lemma dist_le_of_sum_zero_cond {Ω' : Type*} [MeasureSpace Ω']
     (hS : Measurable S) :
     k ≤ 3 * I[T₁ : T₂ | S] + (2 * H[T₃ | S] - H[T₁ | S] - H[T₂ | S])
       + η * (ρ[T₁ | ⟨T₃, S⟩ # A] + ρ[T₂ | ⟨T₃, S⟩ #  A] - ρ[X₁ # A] - ρ[X₂ # A]) := by
-  have hw (a : ℝ) : a = ∑ w, (ℙ (S ⁻¹' {w})).toReal * a := by
+  have hw (a : ℝ) : a = ∑ w, (Measure.real ℙ (S ⁻¹' {w})) * a := by
     have : IsProbabilityMeasure (map S ℙ) := isProbabilityMeasure_map hS.aemeasurable
-    simp_rw [← Finset.sum_mul,← Measure.map_apply hS (MeasurableSet.singleton _),
-      Finset.sum_toReal_measure_singleton]
+    simp_rw [← Finset.sum_mul, ← map_measureReal_apply hS (MeasurableSet.singleton _),
+      sum_measureReal_singleton]
     simp
   rw [condMutualInfo_eq_sum' hS, condEntropy_eq_sum_fintype _ _ _ hS,
     condEntropy_eq_sum_fintype _ _ _ hS, condEntropy_eq_sum_fintype _ _ _ hS,
     condRho_prod_eq_sum hT₃ hS, condRho_prod_eq_sum hT₃ hS, hw k, hw ρ[X₁ # A], hw ρ[X₂ # A]]
   simp only [Finset.mul_sum, ← Finset.sum_sub_distrib, ← Finset.sum_add_distrib, mul_sub, mul_add]
   gcongr with g hg
-  rcases eq_or_ne (ℙ (S ⁻¹' {g})) 0 with hpg | hpg
+  rcases eq_or_ne (Measure.real ℙ (S ⁻¹' {g})) 0 with hpg | hpg
   · simp [hpg]
   set μ := ℙ[|S ← g]
-  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure hpg
+  have hμ : IsProbabilityMeasure μ := cond_isProbabilityMeasure_of_real hpg
   have := dist_le_of_sum_zero (μ := μ) h_min hsum hT₁ hT₂ hT₃
-  have := mul_le_mul_of_nonneg_left this (show 0 ≤ (ℙ (S ⁻¹' {g})).toReal by simp)
+  have := mul_le_mul_of_nonneg_left this (show 0 ≤ (Measure.real ℙ (S ⁻¹' {g})) by simp)
   linarith
 
 include h_min in
@@ -1562,7 +1568,7 @@ lemma dist_le_of_sum_zero_cond' {Ω' : Type*} [MeasureSpace Ω']
 
 lemma new_gen_ineq_aux1 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₂] + d[Y₃ # Y₄]) / 4 + (d[Y₁ + Y₂ # Y₃ + Y₄]
@@ -1589,7 +1595,7 @@ lemma new_gen_ineq_aux1 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
 
 lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
        (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 4 + d[Y₁ | Y₁ + Y₃ # Y₂ | Y₂ + Y₄] / 2 := by
@@ -1599,7 +1605,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
   set T₁' := Y₃ + Y₄
   set T₂' := Y₂ + Y₄
   have I : IndepFun (⟨Y₁, Y₃⟩) (⟨Y₂, Y₄⟩) := by
-    refine (h_indep.indepFun_prod_mk_prod_mk ?_ 0 2 1 3
+    refine (h_indep.indepFun_prodMk_prodMk ?_ 0 2 1 3
       (by decide) (by decide) (by decide) (by decide))
     intro i; fin_cases i <;> assumption
   calc
@@ -1613,9 +1619,9 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
           left_inv := by intro ⟨a, b⟩; simp [add_assoc]
           right_inv := by intro ⟨a, b⟩; simp [add_assoc] }
       exact condRho_of_injective T₁ (⟨T₂, T₂'⟩) (f := e) (A := A) e.injective
-  _ = ∑ w, (ℙ (⟨T₂, T₂'⟩ ⁻¹' {w})).toReal * ρ[Y₁ + Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A] := by
+  _ = ∑ w, (Measure.real ℙ (⟨T₂, T₂'⟩ ⁻¹' {w})) * ρ[Y₁ + Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A] := by
     rw [condRho, tsum_fintype]
-  _ ≤ ∑ w, (ℙ (⟨T₂, T₂'⟩ ⁻¹' {w})).toReal * ((ρ[Y₁ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A]
+  _ ≤ ∑ w, (Measure.real ℙ (⟨T₂, T₂'⟩ ⁻¹' {w})) * ((ρ[Y₁ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A]
       + ρ[Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A] + d[Y₁ ; ℙ[|⟨T₂, T₂'⟩ ← w] # Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w]]) / 2) := by
     gcongr with w hw
     have : IndepFun Y₁ Y₂ (ℙ[|⟨T₂, T₂'⟩ ⁻¹' {w}]) := by
@@ -1624,7 +1630,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       have I : IndepFun (⟨Y₁, Y₃⟩) (⟨Y₂, Y₄⟩) (ℙ[|(⟨Y₁, Y₃⟩)⁻¹' {p | p.1 + p.2 = w.1}
           ∩ (⟨Y₂, Y₄⟩)⁻¹' {p | p.1 + p.2 = w.2}]) :=
         I.cond (measurable_add (.singleton w.1))
-          (measurable_add (.singleton w.2)) (hY₁.prod_mk hY₃) (hY₂.prod_mk hY₄)
+          (measurable_add (.singleton w.2)) (hY₁.prodMk hY₃) (hY₂.prodMk hY₄)
       rw [E] at I
       exact I.comp measurable_fst measurable_fst
     exact rho_of_sum_le hY₁ hY₂ hA this
@@ -1639,24 +1645,24 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       ext p; simp [T₂, T₂']
     rw [this]
     have J : IndepFun (Y₁ + Y₃) (Y₂ + Y₄) := by exact I.comp measurable_add measurable_add
-    rw [J.measure_inter_preimage_eq_mul _ _ (.singleton x)
-      (.singleton y), ENNReal.toReal_mul]
-    rcases eq_or_ne (ℙ ((Y₁ + Y₃) ⁻¹' {x})) 0 with h1|h1
-    · simp [h1]
-    rcases eq_or_ne (ℙ ((Y₂ + Y₄) ⁻¹' {y})) 0 with h2|h2
-    · simp [h2]
+    rw [J.measureReal_inter_preimage_eq_mul (.singleton x) (.singleton y)]
+    rcases eq_or_ne (Measure.real ℙ ((Y₁ + Y₃) ⁻¹' {x})) 0 with h1|h1
+    · simp [h1, T₂]
+    rcases eq_or_ne (Measure.real ℙ ((Y₂ + Y₄) ⁻¹' {y})) 0 with h2|h2
+    · simp [h2, T₂']
     congr 1
     have A : IdentDistrib Y₁ Y₁ (ℙ[|(Y₁ + Y₃) ⁻¹' {x} ∩ (Y₂ + Y₄) ⁻¹' {y}])
         (ℙ[|(Y₁ + Y₃) ⁻¹' {x}]) := by
       rw [← cond_cond_eq_cond_inter']
-      have : IsProbabilityMeasure (ℙ[|(Y₁ + Y₃) ⁻¹' {x}]) := cond_isProbabilityMeasure h1
+      have : IsProbabilityMeasure (ℙ[|(Y₁ + Y₃) ⁻¹' {x}]) := cond_isProbabilityMeasure_of_real h1
       apply (IndepFun.identDistrib_cond _ (.singleton _) hY₁ (by fun_prop) _).symm
       · have : IndepFun (⟨Y₁, Y₃⟩) (⟨Y₂, Y₄⟩) (ℙ[|(⟨Y₁, Y₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
-          I.cond_left (measurable_add (.singleton x))
-            (hY₁.prod_mk hY₃)
+          I.cond_left (measurable_add (.singleton x)) (hY₁.prodMk hY₃)
         exact this.comp measurable_fst measurable_add
       · rw [cond_apply, J.measure_inter_preimage_eq_mul _ _ (.singleton x) (.singleton y)]
-        simp [h1, h2]
+        · simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, T₂',
+            T₂] at h1 h2
+          simp [h1, h2]
         · exact hY₁.add hY₃ (.singleton _)
       · exact hY₁.add hY₃ (.singleton _)
       · exact hY₂.add hY₄ (.singleton _)
@@ -1664,28 +1670,29 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     have B : IdentDistrib Y₂ Y₂ (ℙ[|(Y₁ + Y₃) ⁻¹' {x} ∩ (Y₂ + Y₄) ⁻¹' {y}])
         (ℙ[|(Y₂ + Y₄) ⁻¹' {y}]) := by
       rw [Set.inter_comm, ← cond_cond_eq_cond_inter']
-      have : IsProbabilityMeasure (ℙ[|(Y₂ + Y₄) ⁻¹' {y}]) := cond_isProbabilityMeasure h2
+      have : IsProbabilityMeasure (ℙ[|(Y₂ + Y₄) ⁻¹' {y}]) := cond_isProbabilityMeasure_of_real h2
       apply (IndepFun.identDistrib_cond _ (.singleton _) hY₂ (hY₁.add hY₃) _).symm
       · have : IndepFun (⟨Y₂, Y₄⟩) (⟨Y₁, Y₃⟩) (ℙ[|(⟨Y₂, Y₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
-          I.symm.cond_left (measurable_add (.singleton y))
-            (hY₂.prod_mk hY₄)
+          I.symm.cond_left (measurable_add (.singleton y)) (hY₂.prodMk hY₄)
         exact this.comp measurable_fst measurable_add
       · rw [Pi.add_def, cond_apply (hY₂.add hY₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
           J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
+        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, T₂',
+            T₂] at h1 h2
         simp [h1, h2]
       · exact hY₂.add hY₄ (.singleton _)
       · exact hY₁.add hY₃ (.singleton _)
       · finiteness
-    exact IdentDistrib.rdist_eq A B
+    exact A.rdist_congr B
   _ = (ρ[Y₁ | T₂ # A] + ρ[Y₂ | T₂' # A] + d[Y₁ | T₂ # Y₂ | T₂']) / 2 := by
     congr 3
     · apply condRho_prod_eq_of_indepFun hY₁ (by fun_prop) (by fun_prop)
-      exact I.comp (measurable_fst.prod_mk measurable_add) measurable_add
+      exact I.comp (measurable_fst.prodMk measurable_add) measurable_add
     · have : ρ[Y₂ | ⟨T₂, T₂'⟩ # A] = ρ[Y₂ | ⟨T₂', T₂⟩ # A] :=
         condRho_of_injective Y₂ (⟨T₂', T₂⟩) (f := Prod.swap) Prod.swap_injective
       rw [this]
       apply condRho_prod_eq_of_indepFun hY₂ (by fun_prop) (by fun_prop)
-      exact I.symm.comp (measurable_fst.prod_mk measurable_add) measurable_add
+      exact I.symm.comp (measurable_fst.prodMk measurable_add) measurable_add
   _ ≤ ((ρ[Y₁ # A] + ρ[Y₃ # A] + d[Y₁ # Y₃]) / 2 +
        (ρ[Y₂ # A] + ρ[Y₄ # A] + d[Y₂ # Y₄]) / 2 + d[Y₁ | T₂ # Y₂ | T₂']) / 2 := by
     gcongr
@@ -1696,7 +1703,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
 
 lemma new_gen_ineq {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 8 + (d[Y₁ + Y₂ # Y₃ + Y₄]
@@ -1712,7 +1719,7 @@ $S:=Y_1+Y_2+Y_3+Y_4$, $T_1:=Y_1+Y_2$, $T_2:=Y_1+Y_3$. Then
 -/
 lemma condRho_sum_le {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-    (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+    (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] + ρ[Y₁ + Y₃ | ⟨Y₁ + Y₂, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] -
       (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 2 ≤
         (d[Y₁ # Y₂] + d[Y₃ # Y₄] + d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 2 := by
@@ -1766,7 +1773,7 @@ $T_1:=Y_1+Y_2, T_2:=Y_1+Y_3, T_3:=Y_2+Y_3$ and $S:=Y_1+Y_2+Y_3+Y_4$. Then
     - \frac{1}{2}\sum_{i} \rho(Y_i))\le \sum_{1\leq i < j \leq 4}d[Y_i;Y_j]$$ -/
 lemma condRho_sum_le' {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       (hY₁ : Measurable Y₁) (hY₂ : Measurable Y₂) (hY₃ : Measurable Y₃) (hY₄ : Measurable Y₄)
-      (h_indep : iIndepFun (fun _ ↦ hGm) ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
+      (h_indep : iIndepFun ![Y₁, Y₂, Y₃, Y₄]) (hA : A.Nonempty) :
     let S := Y₁ + Y₂ + Y₃ + Y₄
     let T₁ := Y₁ + Y₂
     let T₂ := Y₁ + Y₃
@@ -1822,16 +1829,12 @@ lemma dist_of_min_eq_zero' (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] 
   have J₃ : k ≤ I₁ + 2 * I₂ + η / 3 * (6 * k + I₂ - I₁) := by
     apply J₂.trans_eq
     congr 2
-    have : d[X₁ # X₁'] = d[X₁ # X₁] :=
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₁.symm
-    have : d[X₁ # X₂'] = d[X₁ # X₂] :=
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₁.aemeasurable) h₂.symm
+    have : d[X₁ # X₁'] = d[X₁ # X₁] := h₁.symm.rdist_congr_right hX₁.aemeasurable
+    have : d[X₁ # X₂'] = d[X₁ # X₂] := h₂.symm.rdist_congr_right hX₁.aemeasurable
     have : d[X₂ # X₁'] = d[X₁ # X₂] := by
-      rw [rdist_symm]
-      exact IdentDistrib.rdist_eq h₁.symm (IdentDistrib.refl hX₂.aemeasurable)
-    have : d[X₂ # X₂'] = d[X₂ # X₂] :=
-      IdentDistrib.rdist_eq (IdentDistrib.refl hX₂.aemeasurable) h₂.symm
-    have : d[X₁' # X₂'] = d[X₁ # X₂] := IdentDistrib.rdist_eq h₁.symm h₂.symm
+      rw [rdist_symm]; exact h₁.symm.rdist_congr_left hX₂.aemeasurable
+    have : d[X₂ # X₂'] = d[X₂ # X₂] := h₂.symm.rdist_congr_right hX₂.aemeasurable
+    have : d[X₁' # X₂'] = d[X₁ # X₂] := h₁.symm.rdist_congr h₂.symm
     have := rdist_add_rdist_eq h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂'
     linarith
   let D := 2 * η * k - I₁
@@ -1863,8 +1866,8 @@ include hX₁ hX₂ h_min hη in
 theorem dist_of_min_eq_zero (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] = 0 := by
   let ⟨Ω', m', μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
-  rw [← h_id1.rdist_eq h_id2]
-  letI : MeasureSpace Ω' := ⟨μ⟩
+  rw [← h_id1.rdist_congr h_id2]
+  let _ : MeasureSpace Ω' := ⟨μ⟩
   have : IsProbabilityMeasure (ℙ : Measure Ω') := hμ
   have h'_min : phiMinimizes Y₁ Y₂ η A ℙ := phiMinimizes_of_identDistrib h_min h_id1.symm h_id2.symm
   exact dist_of_min_eq_zero' hη h'_min (h_id1.trans h_id1'.symm) (h_id2.trans h_id2'.symm)
@@ -1898,9 +1901,7 @@ lemma phiMinimizer_exists_rdist_eq_zero (hA : A.Nonempty) :
     with ⟨ν, -, φ, φmono, hν⟩
   have φlim : Tendsto φ atTop atTop := φmono.tendsto_atTop
   let M : MeasureSpace (G × G) := ⟨ν⟩
-  have : IsProbabilityMeasure (ℙ : Measure (G × G)) := by
-    change IsProbabilityMeasure ν
-    infer_instance
+  have : IsProbabilityMeasure (ℙ : Measure (G × G)) := ν.instIsProbabilityMeasureToMeasure
   refine ⟨G × G, M, Prod.fst, Prod.snd, measurable_fst, measurable_snd, by infer_instance, ?_, ?_⟩
   -- check that it is indeed a minimizer, as a limit of minimizers.
   · intro Ω' mΩ' X' Y' hP hX' hY'
@@ -1951,7 +1952,7 @@ theorem rho_PFR_conjecture [MeasurableSpace G] [DiscreteMeasurableSpace G]
   obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X₁⁻¹' {x₀}) ≠ 0 := by
     by_contra! h
     have A a : (ℙ : Measure Ω').map X₁ {a} = 0 := by
-      rw [Measure.map_apply hX₁ $ .of_discrete]
+      rw [Measure.map_apply hX₁ .of_discrete]
       exact h _
     have B : (ℙ : Measure Ω').map X₁ = 0 := by
       rw [← Measure.sum_smul_dirac (μ := (ℙ : Measure Ω').map X₁)]
@@ -2090,7 +2091,7 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     better_PFR_conjecture_aux h₀A hA
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos; positivity
-  rcases le_or_lt (Nat.card H) (Nat.card A) with h|h
+  rcases le_or_gt (Nat.card H) (Nat.card A) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc

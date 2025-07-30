@@ -1,10 +1,9 @@
+import Mathlib.Probability.IdentDistrib
+import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.ForMathlib.CompactProb
 import PFR.ForMathlib.FiniteRange.Defs
-import Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Basic
 import PFR.ForMathlib.ProbabilityMeasureProdCont
-import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 /-!
 # Kullback-Leibler divergence
@@ -33,7 +32,7 @@ we use real numbers for ease of computations, this is not a possible choice.
   -/
 noncomputable def KLDiv (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
     (μ' : Measure Ω' := by volume_tac) : ℝ :=
-  ∑' x, (μ.map X {x}).toReal * log ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal)
+  ∑' x, (μ.map X).real {x} * log ((μ.map X).real {x} / ((μ'.map Y).real {x}))
 
 @[inherit_doc KLDiv] notation3:max "KL[" X " ; " μ " # " Y " ; " μ' "]" => KLDiv X Y μ μ'
 
@@ -53,18 +52,18 @@ lemma ProbabilityTheory.IdentDistrib.KLDiv_eq (X' : Ω'' → G) (Y' : Ω''' → 
   · exact hY.map_eq
 
 lemma KLDiv_eq_sum [Fintype G] :
-    KL[X ; μ # Y ; μ'] = ∑ x,
-      (μ.map X {x}).toReal * log ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal) :=
+    KL[X ; μ # Y ; μ'] =
+      ∑ x, (μ.map X).real {x} * log ((μ.map X).real {x} / ((μ'.map Y).real {x})) :=
   tsum_eq_sum (by simp)
 
 lemma KLDiv_eq_sum_negMulLog [Fintype G] :
-    KL[X ; μ # Y ; μ'] = ∑ x, - (μ'.map Y {x}).toReal *
-      negMulLog ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal) := by
+    KL[X ; μ # Y ; μ'] = ∑ x, - (μ'.map Y).real {x} *
+      negMulLog ((μ.map X).real {x} / ((μ'.map Y).real {x})) := by
   rw [KLDiv_eq_sum]
   congr with g
-  rcases eq_or_ne ((Measure.map X μ) {g}).toReal 0 with h | h
+  rcases eq_or_ne ((μ.map X).real {g}) 0 with h | h
   · simp [h]
-  rcases eq_or_ne ((Measure.map Y μ') {g}).toReal 0 with h' | h'
+  rcases eq_or_ne ((μ'.map Y).real {g}) 0 with h' | h'
   · simp [h']
   simp only [negMulLog, ← mul_assoc]
   field_simp
@@ -83,61 +82,60 @@ lemma KLDiv_nonneg [Fintype G] [MeasurableSingletonClass G] [IsZeroOrProbability
     have : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX.aemeasurable
     simp
   · intro i _ hi
-    simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at hi
-    simp [habs i hi]
+    simp only [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at hi
+    simp [Measure.real, habs i hi]
 
 
 /-- `KL(X ‖ Y) = 0` if and only if `Y` is a copy of `X`. -/
 lemma KLDiv_eq_zero_iff_identDistrib [Fintype G] [MeasurableSingletonClass G]
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y)
-    (habs : ∀ x, μ'.map Y {x} = 0 → μ.map X {x} = 0) :
+    (habs : ∀ x, (μ'.map Y).real {x} = 0 → (μ.map X).real {x} = 0) :
     KL[X ; μ # Y ; μ'] = 0 ↔ IdentDistrib X Y μ μ' := by
   refine ⟨fun h ↦ ?_, fun h ↦ by simp [KLDiv, h.map_eq]⟩
   let νY := μ'.map Y
   have : IsProbabilityMeasure νY := isProbabilityMeasure_map hY.aemeasurable
   let νX := μ.map X
   have : IsProbabilityMeasure νX := isProbabilityMeasure_map hX.aemeasurable
-  obtain ⟨r, hr⟩ : ∃ (r : ℝ), ∀ x ∈ Finset.univ, (νX {x}).toReal = r * (νY {x}).toReal := by
+  obtain ⟨r, hr⟩ : ∃ (r : ℝ), ∀ x ∈ Finset.univ, (νX.real {x}) = r * νY.real {x} := by
     apply sum_mul_log_div_eq_iff (by simp) (by simp) (fun i _ hi ↦ ?_)
     · rw [KLDiv_eq_sum] at h
       simpa using h
     · simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at hi
-      simp [habs i hi]
+      simp [habs i hi, νX]
   have r_eq : r = 1 := by
-    have : r * ∑ x, (νY {x}).toReal = ∑ x, (νX {x}).toReal := by
+    have : r * ∑ x, νY.real {x} = ∑ x, νX.real {x} := by
       simp only [Finset.mul_sum, Finset.mem_univ, hr]
     simpa using this
   have : νX = νY := by
     apply Measure.ext_iff_singleton.mpr (fun x ↦ ?_)
-    simpa [r_eq, ENNReal.toReal_eq_toReal] using hr x (Finset.mem_univ _)
+    simpa [Measure.real, r_eq, ENNReal.toReal_eq_toReal] using hr x (Finset.mem_univ _)
   exact ⟨hX.aemeasurable, hY.aemeasurable, this⟩
 
 /-- If $S$ is a finite set, $w_s$ is non-negative,
 and ${\bf P}(X=x) = \sum_{s\in S} w_s {\bf P}(X_s=x)$, ${\bf P}(Y=x) =
   \sum_{s\in S} w_s {\bf P}(Y_s=x)$ for all $x$, then
 $$D_{KL}(X\Vert Y) \le \sum_{s\in S} w_s D_{KL}(X_s\Vert Y_s).$$ -/
-lemma KLDiv_of_convex [Fintype G] [IsFiniteMeasure μ''']
+lemma KLDiv_of_convex [Fintype G]
     {ι : Type*} {S : Finset ι} {w : ι → ℝ} (hw : ∀ s ∈ S, 0 ≤ w s)
     (X' : ι → Ω'' → G) (Y' : ι → Ω''' → G)
-    (hconvex : ∀ x, (μ.map X {x}).toReal = ∑ s ∈ S, (w s) * (μ''.map (X' s) {x}).toReal)
-    (hconvex' : ∀ x, (μ'.map Y {x}).toReal = ∑ s ∈ S, (w s) * (μ'''.map (Y' s) {x}).toReal)
-    (habs : ∀ s ∈ S, ∀ x, μ'''.map (Y' s) {x} = 0 → μ''.map (X' s) {x} = 0) :
+    (hconvex : ∀ x, (μ.map X).real {x} = ∑ s ∈ S, w s * (μ''.map (X' s)).real {x})
+    (hconvex' : ∀ x, (μ'.map Y).real {x} = ∑ s ∈ S, w s * (μ'''.map (Y' s)).real {x})
+    (habs : ∀ s ∈ S, ∀ x, (μ'''.map (Y' s)).real {x} = 0 → (μ''.map (X' s)).real {x} = 0) :
     KL[X ; μ # Y ; μ'] ≤ ∑ s ∈ S, w s * KL[X' s ; μ'' # Y' s ; μ'''] := by
   conv_lhs => rw [KLDiv_eq_sum]
-  have A x : (μ.map X {x}).toReal * log ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal)
-    ≤ ∑ s ∈ S, (w s * (μ''.map (X' s) {x}).toReal) *
-        log ((w s * (μ''.map (X' s) {x}).toReal) / (w s * (μ'''.map (Y' s) {x}).toReal)) := by
+  have A x : (μ.map X).real {x} * log ((μ.map X).real {x} / ((μ'.map Y).real {x}))
+    ≤ ∑ s ∈ S, (w s * (μ''.map (X' s)).real {x}) *
+        log ((w s * (μ''.map (X' s)).real {x}) / (w s * ((μ'''.map (Y' s)).real {x}))) := by
     rw [hconvex, hconvex']
     apply sum_mul_log_div_leq (fun s hs ↦ ?_) (fun s hs ↦ ?_) (fun s hs h's ↦ ?_)
     · exact mul_nonneg (by simp [hw s hs]) (by simp)
     · exact mul_nonneg (by simp [hw s hs]) (by simp)
     · rcases mul_eq_zero.1 h's with h | h
       · simp [h]
-      · simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h
-        simp [habs s hs x h]
-  have B x : (μ.map X {x}).toReal * log ((μ.map X {x}).toReal / (μ'.map Y {x}).toReal)
-    ≤ ∑ s ∈ S, (w s * (μ''.map (X' s) {x}).toReal) *
-        log ((μ''.map (X' s) {x}).toReal / (μ'''.map (Y' s) {x}).toReal) := by
+      · simp [habs s hs x h]
+  have B x : (μ.map X).real {x} * log ((μ.map X).real {x} / ((μ'.map Y).real {x}))
+    ≤ ∑ s ∈ S, (w s * (μ''.map (X' s)).real {x}) *
+        log ((μ''.map (X' s)).real {x} / ((μ'''.map (Y' s)).real {x})) := by
     apply (A x).trans_eq
     apply Finset.sum_congr rfl (fun s _ ↦ ?_)
     rcases eq_or_ne (w s) 0 with h's | h's
@@ -157,28 +155,27 @@ lemma KLDiv_of_comp_inj {H : Type*} [MeasurableSpace H] [DiscreteMeasurableSpace
   rw [← hf.tsum_eq]
   · symm
     congr with x
-    have : (Measure.map X μ) {x} = (Measure.map (f ∘ X) μ) {f x} := by
+    have A : (Measure.map X μ) {x} = (Measure.map (f ∘ X) μ) {f x} := by
       rw [Measure.map_apply, Measure.map_apply]
-      · congr
-        exact Set.Subset.antisymm (fun ⦃a⦄ ↦ congrArg f) fun ⦃a⦄ a_1 ↦ hf a_1
-      · exact Measurable.of_discrete.comp hX
+      · rw [Set.preimage_comp, ← Set.image_singleton, Set.preimage_image_eq _ hf]
+      · exact .comp .of_discrete hX
       · exact measurableSet_singleton (f x)
       · exact hX
       · exact measurableSet_singleton x
-    have :  (Measure.map Y μ') {x} = (Measure.map (f ∘ Y) μ') {f x} := by
+    have B : (Measure.map Y μ') {x} = (Measure.map (f ∘ Y) μ') {f x} := by
       rw [Measure.map_apply, Measure.map_apply]
       · congr
         exact Set.Subset.antisymm (fun ⦃a⦄ ↦ congrArg f) fun ⦃a⦄ a_1 ↦ hf a_1
-      · exact Measurable.of_discrete.comp hY
+      · exact .comp .of_discrete hY
       · exact measurableSet_singleton (f x)
       · exact hY
       · exact measurableSet_singleton x
-    congr
+    simp [A, B, measureReal_def]
   · intro y hy
-    have : Measure.map (f ∘ X) μ {y} ≠ 0 := by
+    have : (μ.map (f ∘ X)).real {y} ≠ 0 := by
       intro h
       simp [h] at hy
-    rw [Measure.map_apply (Measurable.of_discrete.comp hX) (measurableSet_singleton y)] at this
+    rw [map_measureReal_apply (.comp .of_discrete hX) (.singleton y)] at this
     have : f ∘ X ⁻¹' {y} ≠ ∅ := by
       intro h
       simp [h] at this
@@ -247,6 +244,28 @@ lemma ProbabilityTheory.IndepFun.map_add_singleton_eq_sum
   simp
   abel
 
+lemma ProbabilityTheory.IndepFun.real_map_add_eq_sum [IsFiniteMeasure μ]
+    [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
+    {X Z : Ω → G} (h_indep : IndepFun X Z μ)
+    (hX : Measurable X) (hZ : Measurable Z) (S : Set G) :
+    (μ.map (X + Z)).real S = ∑ s, (μ.map Z).real {s} * (μ.map X).real ({-s} + S) := by
+  rw [measureReal_def, h_indep.map_add_eq_sum hX hZ, ENNReal.toReal_sum (by finiteness)]
+  congr with s
+  simp only [singleton_add, image_add_left, neg_neg, ENNReal.toReal_mul]
+  rfl
+
+lemma ProbabilityTheory.IndepFun.real_map_add_singleton_eq_sum
+    [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G] [IsFiniteMeasure μ]
+    {X Z : Ω → G} (h_indep : IndepFun X Z μ)
+    (hX : Measurable X) (hZ : Measurable Z) (x : G) :
+    (μ.map (X + Z)).real {x} = ∑ s, (μ.map Z).real {s} * (μ.map X).real {x - s} := by
+  rw [measureReal_def, h_indep.map_add_singleton_eq_sum hX hZ, ENNReal.toReal_sum]
+  · congr with a
+    rw [ENNReal.toReal_mul]
+    rfl
+  · intro a ha
+    finiteness
+
 lemma absolutelyContinuous_add_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
     {X Y Z : Ω → G} (h_indep : IndepFun (⟨X, Y⟩) Z μ) (hX : Measurable X) (hY : Measurable Y)
     (hZ : Measurable Z)
@@ -274,43 +293,41 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
   · simp [KLDiv]
   set X' : G → Ω → G := fun s ↦ (· + s) ∘ X with hX'
   set Y' : G → Ω → G := fun s ↦ (· + s) ∘ Y with hY'
-  have AX' x i : μ.map (X' i) {x} = μ.map X {x - i} := by
-    rw [hX', ← Measure.map_map (by fun_prop) (by fun_prop),
+  have AX' x i : (μ.map (X' i)).real {x} = (μ.map X).real {x - i} := by
+    rw [measureReal_def, measureReal_def, hX', ← Measure.map_map (by fun_prop) (by fun_prop),
       Measure.map_apply (by fun_prop) (measurableSet_singleton x)]
     congr
     ext y
     simp [sub_eq_add_neg]
-  have AY' x i : μ.map (Y' i) {x} = μ.map Y {x - i} := by
-    rw [hY', ← Measure.map_map (by fun_prop) (by fun_prop),
+  have AY' x i : (μ.map (Y' i)).real {x} = (μ.map Y).real {x - i} := by
+    rw [measureReal_def, measureReal_def, hY', ← Measure.map_map (by fun_prop) (by fun_prop),
       Measure.map_apply (by fun_prop) (measurableSet_singleton x)]
     congr
     ext y
     simp [sub_eq_add_neg]
-  let w : G → ℝ := fun s ↦ (μ.map Z {s}).toReal
-  let S : Finset G := Finset.univ
+  let w (s : G) : ℝ := (μ.map Z).real {s}
   have sum_w : ∑ s, w s = 1 := by
     have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
     simp [w]
-  have A x : (μ.map (X + Z) {x}).toReal = ∑ s ∈ S, w s * (μ.map (X' s) {x}).toReal := by
+  have A x : (μ.map (X + Z)).real {x} = ∑ s, w s * (μ.map (X' s)).real {x} := by
     have : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
-    rw [this.map_add_singleton_eq_sum hX hZ, ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top])]
-    simp only [ENNReal.toReal_mul]
+    rw [this.real_map_add_singleton_eq_sum hX hZ]
     congr with i
     congr 1
     rw [AX']
-  have B x : (μ.map (Y + Z) {x}).toReal = ∑ s ∈ S, w s * (μ.map (Y' s) {x}).toReal := by
+  have B x : (μ.map (Y + Z)).real {x} = ∑ s, w s * (μ.map (Y' s)).real {x} := by
     have : IndepFun Y Z μ := h_indep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
-    rw [this.map_add_singleton_eq_sum hY hZ, ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top])]
-    simp only [ENNReal.toReal_mul]
+    rw [this.real_map_add_singleton_eq_sum hY hZ]
     congr with i
     congr 1
     rw [AY']
-  have : KL[X + Z ; μ # Y + Z; μ] ≤ ∑ s ∈ S, w s * KL[X' s ; μ # Y' s ; μ] := by
+  have : KL[X + Z ; μ # Y + Z; μ] ≤ ∑ s, w s * KL[X' s ; μ # Y' s ; μ] := by
     apply KLDiv_of_convex (fun s _ ↦ by simp [w])
     · exact A
     · exact B
     · intro s _ x
       rw [AX', AY']
+      simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, w]
       exact habs _
   apply this.trans_eq
   have C s : KL[X' s ; μ # Y' s ; μ] = KL[X ; μ # Y ; μ] :=
@@ -321,7 +338,7 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
 $$ D_{KL}(X|Z \Vert Y) := \sum_z \mathbf{P}(Z=z) D_{KL}( (X|Z=z) \Vert Y).$$ -/
 noncomputable def condKLDiv {S : Type*} (X : Ω → G) (Y : Ω' → G) (Z : Ω → S)
     (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac) : ℝ :=
-  ∑' z, (μ (Z⁻¹' {z})).toReal * KL[X ; (ProbabilityTheory.cond μ (Z⁻¹' {z})) # Y ; μ']
+  ∑' z, μ.real (Z⁻¹' {z}) * KL[X ; cond μ (Z⁻¹' {z}) # Y ; μ']
 
 @[inherit_doc condKLDiv]
 notation3:max "KL[" X " | " Z " ; " μ " # " Y " ; " μ' "]" => condKLDiv X Y Z μ μ'
@@ -346,34 +363,37 @@ lemma condKLDiv_eq {S : Type*} [MeasurableSpace S] [Fintype S] [MeasurableSingle
   congr with g
   simp only [negMulLog, neg_mul, Finset.sum_neg_distrib, mul_neg, sub_neg_eq_add, ← sub_eq_add_neg,
     ← mul_sub]
-  simp_rw [← Measure.map_apply hZ (measurableSet_singleton _)]
-  have : Measure.map X μ {g} = ∑ x, (Measure.map Z μ {x}) * (Measure.map X μ[|Z ⁻¹' {x}] {g}) := by
+  simp_rw [← map_measureReal_apply hZ (measurableSet_singleton _)]
+  have A : Measure.map X μ {g} = ∑ x, μ.map Z {x} * (Measure.map X μ[|Z ⁻¹' {x}] {g}) := by
     simp_rw [Measure.map_apply hZ (measurableSet_singleton _)]
     have : Measure.map X μ {g} = Measure.map X (∑ x, μ (Z ⁻¹' {x}) • μ[|Z ⁻¹' {x}]) {g} := by
       rw [sum_meas_smul_cond_fiber hZ μ]
     rw [← MeasureTheory.Measure.sum_fintype, Measure.map_sum hX.aemeasurable] at this
     simpa using this
+  have : (Measure.map X μ).real {g} =
+      ∑ x, (Measure.map Z μ).real {x} * (Measure.map X μ[|Z ⁻¹' {x}]).real {g} := by
+    rw [measureReal_def, A, ENNReal.toReal_sum (fun a ha ↦ by finiteness)]
+    congr with x
+    rw [ENNReal.toReal_mul]
+    rfl
   nth_rewrite 1 [this]
-  rw [ENNReal.toReal_sum (by simp [ENNReal.mul_eq_top]), Finset.sum_mul, ← Finset.sum_add_distrib]
+  rw [Finset.sum_mul, ← Finset.sum_add_distrib]
   congr with s
-  rw [ENNReal.toReal_mul, mul_assoc, ← mul_add, ← mul_add]
-  rcases eq_or_ne (Measure.map Z μ {s}) 0 with hs | hs
+  rw [mul_assoc, ← mul_add, ← mul_add]
+  rcases eq_or_ne ((Measure.map Z μ).real {s}) 0 with hs | hs
   · simp [hs]
-  rcases eq_or_ne (Measure.map X μ[|Z ⁻¹' {s}] {g}) 0 with hg | hg
+  rcases eq_or_ne ((Measure.map X μ[|Z ⁻¹' {s}]).real {g}) 0 with hg | hg
   · simp [hg]
-  have h'g : (Measure.map X μ[|Z ⁻¹' {s}] {g}).toReal ≠ 0 := by
-    simp [ENNReal.toReal_eq_zero_iff, hg]
   congr
-  have hXg : μ.map X {g} ≠ 0 := by
+  have hXg : (μ.map X).real {g} ≠ 0 := by
     intro h
-    rw [this, Finset.sum_eq_zero_iff] at h
+    rw [this, Finset.sum_eq_zero_iff_of_nonneg (fun a ha ↦ by positivity)] at h
     specialize h s (Finset.mem_univ _)
     rw [mul_eq_zero] at h
     tauto
-  have hXg' : (μ.map X {g}).toReal ≠ 0 := by simp [ENNReal.toReal_eq_zero_iff, hXg]
-  have hYg : μ'.map Y {g} ≠ 0 := fun h ↦ hXg (habs _ h)
-  have hYg' : (μ'.map Y {g}).toReal ≠ 0 := by simp [ENNReal.toReal_eq_zero_iff, hYg]
-  rw [Real.log_div h'g hYg', Real.log_div hXg' hYg']
+  have hYg : μ'.map Y {g} ≠ 0 := fun h ↦ by simp [measureReal_def, habs _ h] at hXg
+  have hYg' : (μ'.map Y).real {g} ≠ 0 := by simp [measureReal_eq_zero_iff, hYg]
+  rw [Real.log_div hg hYg', Real.log_div hXg hYg']
   abel
 
 /-- `KL(X|Z ‖ Y) ≥ 0`.-/
@@ -398,19 +418,21 @@ lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Fintype 
     Tendsto (fun n ↦ KL[X ; μ # id ; ν n]) l (𝓝 (KL[X ; μ # id ; ν'])) := by
   simp_rw [KLDiv_eq_sum]
   apply tendsto_finset_sum _ (fun g hg ↦ ?_)
-  rcases eq_or_ne (Measure.map X μ {g}) 0 with h'g | h'g
+  rcases eq_or_ne ((Measure.map X μ).real {g}) 0 with h'g | h'g
   · simpa [h'g] using tendsto_const_nhds
   apply Tendsto.mul tendsto_const_nhds
-  have νg : ((ν' : Measure G) {g}).toReal ≠ 0 := by
+  have νg : (ν' : Measure G).real {g} ≠ 0 := by
     intro h
-    simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h
-    apply h'g (habs _ _)
+    rw [measureReal_eq_zero_iff] at h
+    apply h'g
+    rw [measureReal_eq_zero_iff]
+    apply habs
     exact (ν'.null_iff_toMeasure_null {g}).mpr h
   apply Tendsto.log; swap
-  · have : ((Measure.map X μ) {g}).toReal ≠ 0 := by simp [ENNReal.toReal_eq_zero_iff, h'g]
-    simp only [Measure.map_id, ne_eq, div_eq_zero_iff, this, false_or, νg, not_false_eq_true]
+  · simp only [Measure.map_id, ne_eq, div_eq_zero_iff, h'g, false_or, νg, not_false_eq_true]
   apply Tendsto.div tendsto_const_nhds _ (by simp [νg])
   simp only [Measure.map_id]
+  simp only [measureReal_def]
   rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]
   exact (ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal _ _).1 h g
 
@@ -424,6 +446,6 @@ lemma tendsto_KLDiv_id_left [TopologicalSpace G] [DiscreteTopology G] [Fintype G
   apply Tendsto.const_mul
   apply continuous_negMulLog.continuousAt.tendsto.comp
   apply Tendsto.div_const
-  simp only [Measure.map_id]
+  simp only [Measure.map_id, measureReal_def]
   rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]
   exact (ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal _ _).1 h g

@@ -1,5 +1,4 @@
 import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
-import PFR.Mathlib.SetTheory.Cardinal.Arithmetic
 
 open Cardinal Module Module Set Submodule
 

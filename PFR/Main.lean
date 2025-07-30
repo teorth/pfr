@@ -1,7 +1,7 @@
 import Mathlib.Algebra.Group.Pointwise.Set.Card
+import Mathlib.Algebra.Module.ZMod
 import Mathlib.Combinatorics.Additive.RuzsaCovering
 import Mathlib.GroupTheory.Complement
-import PFR.ForMathlib.ZModModule
 import PFR.EntropyPFR
 import PFR.Tactic.RPowSimp
 
@@ -33,7 +33,7 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
     ext ω; simp [sub_eq_zero, eq_comm]
   rw [this, measureReal_iUnion_fintype _
-    (fun i ↦ (Umeas $ .of_discrete).inter $ Vmeas $ .of_discrete)]; swap
+    (fun i ↦ (Umeas .of_discrete).inter $ Vmeas .of_discrete)]; swap
   · intro g g' hgg'
     apply Set.disjoint_iff_inter_eq_empty.2
     ext a
@@ -45,14 +45,14 @@ lemma IsUniform.measureReal_preimage_sub_zero (Uunif : IsUniform A U) (Umeas : M
       = ∑ p, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply sum_congr _ _ (fun g ↦ ?_)
         rw [h_indep.measureReal_inter_preimage_eq_mul .of_discrete .of_discrete]
-    _ = ∑ p in W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
+    _ = ∑ p ∈ W, (ℙ : Measure Ω).real (U ⁻¹' {p}) * (ℙ : Measure Ω).real (V ⁻¹' {p}) := by
         apply (Finset.sum_subset W.subset_univ _).symm
         intro i _ hi
         replace hi : i ∉ A ∨ i ∉ B := by simp [W] at hi; tauto
         rcases hi with h'i|h'i
         · simp [Uunif.measureReal_preimage_of_nmem h'i]
         · simp [Vunif.measureReal_preimage_of_nmem h'i]
-    _ = ∑ p in W, (1 / Nat.card A : ℝ) * (1 / Nat.card B) := by
+    _ = ∑ p ∈ W, (1 / Nat.card A : ℝ) * (1 / Nat.card B) := by
         apply Finset.sum_congr rfl (fun i hi ↦ ?_)
         replace hi : i ∈ A ∧ i ∈ B := by simpa [W] using hi
         rw [Uunif.measureReal_preimage_of_mem (by trivial) hi.1,
@@ -141,10 +141,9 @@ theorem rdist_le_of_isUniform_of_card_add_le [A_fin : Finite A] [MeasurableSpace
     have J : log (Nat.card (A - A)) ≤ log K + log (Nat.card A) := by
       apply (log_le_log AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
-    rw [UU'_indep.rdist_eq hU hU', IsUniform.entropy_eq' A_fin Uunif hU,
-      IsUniform.entropy_eq' A_fin U'unif hU']
+    rw [UU'_indep.rdist_eq hU hU', Uunif.entropy_eq' A_fin hU, U'unif.entropy_eq' A_fin hU']
     linarith
-  rwa [idU.rdist_eq idU'] at IU
+  rwa [idU.rdist_congr idU'] at IU
 
 variable [Module (ZMod 2) G] [Fintype G]
 
@@ -180,7 +179,7 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/9, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture p (by norm_num) with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
-  have H_fin : Set.Finite (H : Set G) := toFinite ↑H
+  have H_fin : (H : Set G).Finite := (H : Set G).toFinite
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm .of_discrete
@@ -192,12 +191,12 @@ lemma PFR_conjecture_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
 
-  have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_eq idVH]; linarith
+  have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_congr idVH]; linarith
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos
     positivity
-  have VA_ent : H[VA] = log (Nat.card A) := IsUniform.entropy_eq' A_fin VAunif VAmeas
-  have VH_ent : H[VH] = log (Nat.card H) := IsUniform.entropy_eq' H_fin VHunif VHmeas
+  have VA_ent : H[VA] = log (Nat.card A) := VAunif.entropy_eq' A_fin VAmeas
+  have VH_ent : H[VH] = log (Nat.card H) := VHunif.entropy_eq' H_fin VHmeas
   have Icard : |log (Nat.card A) - log (Nat.card H)| ≤ 11 * log K := by
     rw [← VA_ent, ← VH_ent]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
@@ -285,7 +284,7 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
     PFR_conjecture_aux h₀A hA
   have H_pos : (0 : ℝ) < Nat.card H := by
     have : 0 < Nat.card H := Nat.card_pos; positivity
-  rcases le_or_lt (Nat.card H) (Nat.card A) with h|h
+  rcases le_or_gt (Nat.card H) (Nat.card A) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
