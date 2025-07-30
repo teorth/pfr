@@ -1172,9 +1172,9 @@ lemma kaimanovich_vershik' {X Y Z : Ω → G} (h : iIndepFun ![X, Y, Z] μ)
 
 section BalogSzemerediGowers
 
-/-- The **entropic Balog-Szemerédi-Gowers inequality**. Let $A, B$ be $G$-valued random variables on
-$\Omega$, and set $Z := A+B$. Then
-$$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]. $$
+/-- The **entropic Balog-Szemerédi-Gowers inequality**. Let `A, B` be `G`-valued random variables on
+`Ω`, and set `Z := A+B`. Then
+`∑ z, P[Z=z] d[(A | Z = z) ; (B | Z = z)] ≤ 3 I[A :B] + 2 H[Z] - H[A] - H[B].`
 TODO: remove the hypothesis of `Fintype G` from here and from `condIndep_copies'` -/
 lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB : Measurable B)
     [Fintype G] :
@@ -1389,9 +1389,9 @@ lemma comparison_of_ruzsa_distances [IsProbabilityMeasure μ] [IsProbabilityMeas
     ring
 
 variable (μ) in
-/-- Let $X, Y, Z$ be random variables taking values in some abelian group, and with $Y, Z$
+/-- Let `X, Y, Z` be random variables taking values in some abelian group, and with `Y, Z`
 independent. Then we have
-$$d[X ; Y + Z] -d[X ; Y] \leq \tfrac{1}{2} (H[Y+ Z] - H[Y])$$
+`d[X ; Y + Z] - d[X ; Y] ≤ 1/2 (H[Y+ Z] - H[Y])`
 $$= \tfrac{1}{2} d[Y ; Z] + \tfrac{1}{4} H[Z] - \tfrac{1}{4} H[Y]$$
 and
 $$d[X ; Y|Y+ Z] - d[X ; Y] \leq \tfrac{1}{2} \bigl(H[Y+ Z] - H[Z]\bigr)$$
