@@ -548,7 +548,7 @@ private theorem entropy_kvm_step {Ω : Type u_1} {G : Type u_5} [mΩ : Measurabl
   [hG : MeasurableSpace G] [inst : MeasurableSingletonClass G] [inst_1 : AddCommGroup G] [inst_2 : Countable G]
   {I : Type*} {s t : Finset I} (hdisj : Disjoint s t) {X : I → Ω → G}
   (hX : ∀ (i : I), Measurable (X i)) [∀ (i : I), FiniteRange (X i)]
-  (hindep : iIndepFun (fun _ ↦ hG) X μ)
+  (hindep : iIndepFun X μ)
   (f : I → I) (hf : Finset.image f t ⊆ s) (i : I) (hi : i ∈ t) :
   H[-∑ i ∈ s \ {f i}, X i + -X (f i) + X i ; μ] - H[-∑ i ∈ s \ {f i}, X i + -X (f i) ; μ] ≤
     H[-X (f i) + X i ; μ] - H[-X (f i) ; μ] := by
@@ -587,27 +587,28 @@ private theorem entropy_kvm_step {Ω : Type u_1} {G : Type u_5} [mΩ : Measurabl
 
 private theorem entropy_sum_le_entropy_neg_add {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
   (X : I → Ω → G) (hX : ∀ (i : I), Measurable (X i)) [∀ (i : I), FiniteRange (X i)]
-  (hindep : iIndepFun (fun _ ↦ hG) X μ)
+  (hindep : iIndepFun X μ)
   (W_meas : Measurable (∑ i ∈ s, X i)) (U_meas : Measurable (∑ i ∈ t, X i)) :
   H[∑ i ∈ t, X i ; μ] ≤ H[-(∑ i ∈ s, X i) + ∑ i ∈ t, X i ; μ] := by
   haveI : IsProbabilityMeasure μ := hindep.isProbabilityMeasure
   rw [neg_add_eq_sub]
   apply le_trans (le_max_left H[∑ i ∈ t, X i ; μ] H[∑ i ∈ s, X i ; μ])
-  apply ProbabilityTheory.max_entropy_le_entropy_sub U_meas W_meas <| IndepFun.finset_sum hindep hX hdisj.symm
+  apply ProbabilityTheory.max_entropy_le_entropy_sub U_meas W_meas
+    <| IndepFun.finsetSum hindep hX hdisj.symm
 
 private theorem kvm_decomposition_indep_helper {Ω : Type u_1} {G : Type u_5} [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [hG : MeasurableSpace G] [inst : MeasurableSingletonClass G] [inst_1 : AddCommGroup G] [inst_2 : Countable G]
   {I : Type*} {s t : Finset I} (hdisj : Disjoint s t) (X : I → Ω → G)
-  (hX : ∀ i, Measurable (X i)) (hindep : iIndepFun (fun _ ↦ hG) X μ)
+  (hX : ∀ i, Measurable (X i)) (hindep : iIndepFun X μ)
   (W : Ω → G) (hW : W = ∑ i ∈ s, X i) (W_meas : Measurable W)
   (Y : Option { x // x ∈ t } → Ω → G)
   (hY : Y = fun i ↦ match i with | some i => X ↑i | none => -W)
   (Y_meas : ∀ i, Measurable (Y i))
   (Y_finite : ∀ i, FiniteRange (Y i)) :
-  iIndepFun (fun _ ↦ hG) Y μ := by
+  iIndepFun Y μ := by
   set S : Option {x // x ∈ t} → Finset I := fun i => match i with | some i => {i.val} | none => s with hS
-  set φ i : G → G := if i ∈ t then id else - id with hφ
-  set X' i : Ω → G := φ i ∘ X i with hX'
+  set φ : I → G → G := fun i ↦ if i ∈ t then id else - id with hφ
+  set X' : I → Ω → G := fun i ↦ φ i ∘ X i with hX'
   have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
     intro i _ j _ hij
     match i, j with
@@ -635,7 +636,7 @@ private theorem kvm_decomposition_indep_helper {Ω : Type u_1} {G : Type u_5} [m
       simp
       apply Finset.disjoint_left.mp hdisj hx
   rw [h_sum]
-  apply iIndepFun.finsets_sum _ h_disjoint
+  apply iIndepFun.finsetSum _ h_disjoint
   apply iIndepFun.comp hindep
   all_goals
     intro i
@@ -643,7 +644,7 @@ private theorem kvm_decomposition_indep_helper {Ω : Type u_1} {G : Type u_5} [m
 
 private theorem entropy_kvm_decomposition {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
     (X : I → Ω → G) (hX : ∀ (i : I), Measurable (X i))
-    [∀ (i : I), FiniteRange (X i)] (hindep : iIndepFun (fun _ ↦ hG) X μ) :
+    [∀ (i : I), FiniteRange (X i)] (hindep : iIndepFun X μ) :
     H[-(∑ i ∈ s, X i) + ∑ i ∈ t, X i ; μ] ≤ H[-(∑ i ∈ s, X i) ; μ]
       + ∑ i ∈ t, (H[-(∑ i ∈ s, X i) + X i ; μ] - H[-(∑ i ∈ s, X i) ; μ]) := by
   haveI : IsProbabilityMeasure μ := hindep.isProbabilityMeasure
@@ -658,41 +659,39 @@ private theorem entropy_kvm_decomposition {I : Type*} {s t : Finset I} (hdisj : 
     | none => by simpa only [hY] using W_meas.neg
   haveI (i) : FiniteRange (Y i) := by
     match i with | some i => simp only [hY] ; infer_instance | none => simp only [hY] ; infer_instance
-  have Y_indep : iIndepFun (fun i => hG) Y μ := by
+  have Y_indep : iIndepFun Y μ := by
     apply kvm_decomposition_indep_helper hdisj X hX hindep W hW_def W_meas Y hY Y_meas
     exact fun i => by infer_instance
   have kvm := kvm_ineq_I (show none ∉ t.attach.image some by aesop) Y_meas Y_indep
-  have lem₁ : ∑ i ∈ t.attach.image some, Y i = ∑ i in t, X i := by
+  have lem₁ : ∑ i ∈ t.attach.image some, Y i = ∑ i ∈ t, X i := by
     rw [Finset.sum_image, Finset.sum_attach]
     intro x hx y hy hxy
     apply Option.some.inj hxy
   have lem₂ : ∑ x ∈ t.attach, (H[Y none + Y (some x) ; μ] - H[Y none ; μ])
-      = ∑ i in t, (H[- W + X i; μ] - H[- W ; μ]) :=
+      = ∑ i ∈ t, (H[- W + X i; μ] - H[- W ; μ]) :=
     calc
-      _ = ∑ x in t.attach, (fun i : I => H[- W + X i; μ] - H[- W ; μ]) x.val := by
+      _ = ∑ x ∈ t.attach, (fun i : I => H[- W + X i; μ] - H[- W ; μ]) x.val := by
           apply Finset.sum_congr rfl
           intro x hx
           simp only [hY, sub_left_inj]
-      _ = ∑ i in t, (H[- W + X i ; μ] - H[- W ; μ]) := by
+      _ = ∑ i ∈ t, (H[- W + X i ; μ] - H[- W ; μ]) := by
           rw [t.sum_attach (fun i : I => H[- W + X i; μ] - H[- W ; μ])]
   rw [lem₁, Finset.sum_image (fun x hx y hy =>  Option.some.inj), lem₂, tsub_le_iff_right,
     add_comm _ (H[Y none ; μ])] at kvm
   simp only [Finset.card_attach, nsmul_eq_mul, hY, ←hU_def, ←hW_def] at kvm
   exact kvm
 
-/-- Let $(X_i)_{1 \leq i \leq m}$ and $(Y_j)_{1 \leq j \leq l}$ be tuples of jointly independent random variables (so the $X$'s and $Y$'s are also independent of each other), and let $f: \{1,\dots,l\} \to \{1,\dots,m\}$ be a function, then
-  $$ \mathbb{H}[\sum_{j=1}^l Y_j] \leq \mathbb{H}[ \sum_{i=1}^m X_i ] + \sum_{j=1}^l (\mathbb{H}[ Y_j - X_{f(j)}] - \mathbb{H}[X_{f(j)}]).$$
--/
-
-lemma ent_of_sum_le_ent_of_sum' {I:Type*} {s t : Finset I} (hdisj : Disjoint s t)
-  (X : I → Ω → G) (hX: ∀ i, Measurable (X i))
-  [∀ i, FiniteRange (X i)]
-  (hindep: iIndepFun (fun _ => hG) X μ ) (f : I → I) (hf: Finset.image f t ⊆ s) :
-    H[∑ i in t, X i; μ] ≤ H[∑ i in s, X i; μ] + ∑ i in t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by
+/-- Let `X₁, ..., Xₘ` and `Y₁, ..., Yₗ` be tuples of jointly independent random variables (so the
+`X`'s and `Y`'s are also independent of each other), and let `f: {1,..., l} → {1,... ,m}` be a
+function, then `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
+lemma ent_of_sum_le_ent_of_sum {I:Type*} {s t : Finset I} (hdisj : Disjoint s t)
+  (X : I → Ω → G) (hX: ∀ i, Measurable (X i)) [∀ i, FiniteRange (X i)]
+  (hindep: iIndepFun X μ ) (f : I → I) (hf: Finset.image f t ⊆ s) :
+    H[∑ i ∈ t, X i; μ] ≤ H[∑ i ∈ s, X i; μ] + ∑ i ∈ t, (H[ X i - X (f i); μ] - H[X (f i); μ]) := by
   --Write `W := $W := ∑_{i=1}^m X_i$`
-  set W := ∑ i in s, X i with hW
+  set W := ∑ i ∈ s, X i with hW
   --Write `U := ∑_{j=1}^l Y_j` (in the notation of the informal proof)
-  set U := ∑ i in t, X i with hU
+  set U := ∑ i ∈ t, X i with hU
   haveI : FiniteRange U := FiniteRange.finsum X
   haveI : FiniteRange W := FiniteRange.finsum X
   have U_meas : Measurable U := by
@@ -705,17 +704,17 @@ lemma ent_of_sum_le_ent_of_sum' {I:Type*} {s t : Finset I} (hdisj : Disjoint s t
     --We have `H[U] ≤ H[-W + U]`
     _ ≤ H[-W + U ; μ ] := entropy_sum_le_entropy_neg_add hdisj X hX hindep W_meas U_meas
       -- `≤ H[-W] + ∑_{j=1}^l (H[-W + Y_j] - H[-W])`
-    _ ≤ H[- W ; μ] + ∑ i in t, (H[-W + X i ; μ] - H[- W ; μ]) := by
+    _ ≤ H[- W ; μ] + ∑ i ∈ t, (H[-W + X i ; μ] - H[- W ; μ]) := by
       apply entropy_kvm_decomposition hdisj
       -- We'd want to give those to `apply` but this leads to timeouts...
       apply hX
       apply hindep
-    _ ≤ H[- W ; μ] + ∑ i in t, (H[X i - X (f i) ; μ] - H[X (f i) ; μ]) := by
+    _ ≤ H[- W ; μ] + ∑ i ∈ t, (H[X i - X (f i) ; μ] - H[X (f i) ; μ]) := by
       rw [add_le_add_iff_left]
       apply Finset.sum_le_sum
       intro i hi
       calc
-        H[-W + X i ; μ] - H[-W ; μ] = H[(- ∑ i in s \ {f i}, X i) + (- (X (f i))) + X i; μ] - H[(- ∑ i in s \ {f i}, X i) + (- (X (f i))) ; μ]:= by
+        H[-W + X i ; μ] - H[-W ; μ] = H[(- ∑ i ∈ s \ {f i}, X i) + (- (X (f i))) + X i; μ] - H[(- ∑ i ∈ s \ {f i}, X i) + (- (X (f i))) ; μ]:= by
           congr 3
           all_goals
             rw [hW, Finset.sum_sdiff_eq_sub, Finset.sum_singleton, neg_sub]
@@ -729,21 +728,11 @@ lemma ent_of_sum_le_ent_of_sum' {I:Type*} {s t : Finset I} (hdisj : Disjoint s t
       apply le_of_eq
       congr
       abel
-    _ = H[W ; μ] + ∑ i in t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
+    _ = H[W ; μ] + ∑ i ∈ t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
       rw [ProbabilityTheory.entropy_neg]
       measurability
 
-open Classical
-
-/-- Let `X₁, ..., Xₘ` and `Y₁, ..., Yₗ` be tuples of jointly independent random variables (so the
-`X`'s and `Y`'s are also independent of each other), and let `f: {1,..., l} → {1,... ,m}` be a
-function, then `H[∑ j, Y j] ≤ H[∑ i, X i] + ∑ j, H[Y j - X f(j)] - H[X_{f(j)}]`.-/
-lemma ent_of_sum_le_ent_of_sum [IsProbabilityMeasure μ] {I : Type*} {s t : Finset I}
-    (hdisj : Disjoint s t) (hs : Finset.Nonempty s) (ht : Finset.Nonempty t) (X : I → Ω → G)
-    (hX : ∀ i, Measurable (X i)) (hX' : ∀ i, FiniteRange (X i)) (h_indep : iIndepFun X μ)
-    (f : I → I) (hf : .image f t ⊆ s) :
-    H[∑ i ∈ t, X i; μ] ≤ H[∑ i ∈ s, X i; μ] + ∑ i ∈ t, (H[X i - X (f i); μ] - H[X (f i); μ]) := by
-  sorry
+open Classical in
 
 /-- Let `X,Y,X'` be independent `G`-valued random variables, with `X'` a copy of `X`,
 and let `a` be an integer. Then `H[X - (a+1)Y] ≤ H[X - aY] + H[X - Y - X'] - H[X]` -/

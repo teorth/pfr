@@ -67,8 +67,8 @@ lemma iIndepFun.finsets_comp {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
 lemma iIndepFun.finsetSum  [m : MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β']
     {f : ι → Ω → β'} {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
-    (hf_Indep : iIndepFun (fun _ ↦ m) f μ) (hf_meas : ∀ i, Measurable (f i)) :
-    iIndepFun (fun _ ↦ m) (fun (j : J) ↦ fun a ↦ ∑ i ∈ S j, f i a) μ := by
+    (hf_Indep : iIndepFun f μ) (hf_meas : ∀ i, Measurable (f i)) :
+    iIndepFun (fun (j : J) ↦ fun a ↦ ∑ i ∈ S j, f i a) μ := by
   set φ : (j : J) → ((i : S j) → β') → β' := fun j f_j => ∑ i : { i : ι // i ∈ S j}, f_j i with φ_def
   have hφ (j : J) : Measurable (φ j) := by
     rw [φ_def]
@@ -81,8 +81,8 @@ lemma iIndepFun.finsetSum  [m : MeasurableSpace β'] [AddCommMonoid β'] [Measur
   simp [φ_simple] at this
   exact this
 
-lemma IndepFun.finset_sum [m : MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β'] {f : ι → Ω → β'}
-    {s t : Finset ι} (hf_Indep : iIndepFun (fun _ ↦ m) f μ) (hf_meas : ∀ i, Measurable (f i))
+lemma IndepFun.finsetSum [m : MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β'] {f : ι → Ω → β'}
+    {s t : Finset ι} (hf_Indep : iIndepFun f μ) (hf_meas : ∀ i, Measurable (f i))
     (h_disj : Disjoint s t) : IndepFun (∑ i ∈ s, f i) (∑ i ∈ t, f i) μ := by
   let S : Bool → Finset ι := fun b => if b then s else t
   have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
@@ -95,7 +95,7 @@ lemma IndepFun.finset_sum [m : MeasurableSpace β'] [AddCommMonoid β'] [Measura
     · by_cases hc : c
       · simp [hb, hc]; exact h_disj.symm
       · exfalso; exact hbc (eq_false_of_ne_true hb ▸ (eq_false_of_ne_true hc).symm)
-  have hindep := iIndepFun.finsets_sum S h_disjoint hf_Indep hf_meas
+  have hindep := iIndepFun.finsetSum S h_disjoint hf_Indep hf_meas
   have h_true : S true = s := by simp [S]
   have h_false : S false = t := by simp [S]
   rw [← h_true, ← h_false]
