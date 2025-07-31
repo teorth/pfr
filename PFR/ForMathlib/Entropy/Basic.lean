@@ -784,6 +784,39 @@ lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure 
 /-- If `X, Y` are independent, then `H[X, Y] = H[X] + H[Y]`. -/
 protected alias ⟨_, IndepFun.entropy_pair_eq_add⟩ := entropy_pair_eq_add
 
+lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω]
+  [IsProbabilityMeasure hΩ.volume] {m:ℕ}
+  [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
+  {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
+  H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
+    induction' m with m hm
+    . simp; convert entropy_const Fin.elim0 <;> infer_instance
+    calc
+      _ = H[ ⟨(fun ω (i:Fin m) ↦ X i.castSucc ω), X (.last _)⟩ ] := by
+        let f : (Fin (m+1) → S) → (Fin m → S) × S := fun x ↦ (fun i ↦ x i.castSucc, x (.last m))
+        convert (entropy_comp_of_injective _ _ f _).symm; fun_prop
+        intro x y hxy; simp [f] at hxy
+        ext i; rcases Fin.eq_castSucc_or_eq_last i with h | rfl
+        . obtain ⟨ j, rfl ⟩ := h; replace hxy := hxy.1; exact congr($hxy j)
+        tauto
+      _ = H[fun ω (i:Fin m) ↦ X i.castSucc ω] + H[X (.last m)] := by
+        apply (entropy_pair_eq_add _ _).mpr _ <;> try fun_prop
+        let T : Finset (Fin (m+1)) := {.last m}ᶜ
+        let T' : Finset (Fin (m+1)) := {.last m}
+        let φ : (T → S) → (Fin m → S) := fun f j ↦ f ⟨ j.castSucc, by simp [T] ⟩
+        let φ' : (T' → S) → S := fun f ↦ f ⟨ .last m, by simp [T'] ⟩
+        exact finsets_comp' (by simp [T', T]) h_indep hX (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop)
+      _ = ∑ i:Fin m, H[X i.castSucc] + H[X (.last m)] := by
+        congr; apply hm _ _
+        . intro i; fun_prop
+        let T : Fin m → Finset (Fin (m+1)) := fun i ↦ {i.castSucc}
+        let φ : (i:Fin m) → ((_: T i) → S) → S := fun i x ↦ x ⟨ i.castSucc, by simp [T] ⟩
+        convert iIndepFun.finsets_comp T _ h_indep hX φ (by fun_prop)
+        rw [Finset.pairwiseDisjoint_iff]; rintro ⟨ _, _ ⟩ _ ⟨ _, _ ⟩ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+        simp [T] at hij ⊢; cc
+      _ = _ := by rw [Fin.sum_univ_castSucc]
+
+
 variable [Countable S] [Countable T]
 
 /-- `I[X : Y] = I[Y : X]`. -/
