@@ -1092,6 +1092,71 @@ end IsProbabilityMeasure
 end mutualInfo
 end ProbabilityTheory
 
+
+section dataProcessing
+
+open Function MeasureTheory Measure Real
+open scoped ENNReal NNReal Topology ProbabilityTheory
+
+namespace ProbabilityTheory
+
+universe uΩ uS uT uU uV uW
+
+variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} {V : Type uV} {W : Type uW}
+  [mΩ : MeasurableSpace Ω]
+  [Countable S] [Countable T] [Countable V] [Countable W]
+  [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U] [MeasurableSpace V] [MeasurableSpace W]
+  [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
+  [MeasurableSingletonClass V] [MeasurableSingletonClass W]
+  {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
+  {μ : Measure Ω}
+
+/--
+Let `X, Y`be random variables. For any function `f, g` on the range of `X`, we have
+`I[f(X) : Y] ≤ I[X : Y]`.
+-/
+lemma mutual_comp_le [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
+    (hY : Measurable Y) (f : S → U) [FiniteRange X] [FiniteRange Y] :
+    I[f ∘ X : Y ; μ] ≤ I[X : Y ; μ] := by
+  have h_meas : Measurable (f ∘ X) := by fun_prop
+  rw [mutualInfo_comm h_meas hY, mutualInfo_comm hX hY,
+    mutualInfo_eq_entropy_sub_condEntropy hY h_meas, mutualInfo_eq_entropy_sub_condEntropy hY hX]
+  gcongr
+  exact condEntropy_comp_ge μ hX hY f
+
+/-- Let `X, Y` be random variables. For any functions `f, g` on the ranges of `X, Y` respectively,
+we have `I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ]`. -/
+lemma mutual_comp_comp_le [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
+    (hY : Measurable Y) (f : S → U) (g : T → V) (hg : Measurable g)
+    [FiniteRange X] [FiniteRange Y] :
+    I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ] :=
+  calc
+    _ ≤ I[X : g ∘ Y ; μ] := mutual_comp_le μ hX (Measurable.comp hg hY) f
+    _ = I[g ∘ Y : X ; μ] := mutualInfo_comm hX (Measurable.comp hg hY) μ
+    _ ≤ I[Y : X ; μ] := mutual_comp_le μ hY hX g
+    _ = I[X : Y ; μ] := mutualInfo_comm hY hX μ
+
+/-- Let `X, Y, Z`. For any functions `f, g` on the ranges of `X, Y` respectively,
+we have `I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ]`. -/
+lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
+  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) (hg : Measurable g) [FiniteRange X]
+  [FiniteRange Y] [FiniteRange Z] :
+    I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by
+  rw [condMutualInfo_eq_sum hZ, condMutualInfo_eq_sum hZ]
+  apply Finset.sum_le_sum
+  intro i _
+  rcases eq_or_lt_of_le (measureReal_nonneg (μ := μ) (s := (Z ⁻¹' {i}))) with h | h
+  · simp [← h]
+  · rw [mul_le_mul_left h]
+    have : IsProbabilityMeasure (μ[|Z ← i]) := by
+      apply cond_isProbabilityMeasure_of_finite
+      · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).left
+      · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).right
+    apply mutual_comp_comp_le _ hX hY f g hg
+
+end ProbabilityTheory
+end dataProcessing
+
 section MeasureSpace_example
 
 open ProbabilityTheory
