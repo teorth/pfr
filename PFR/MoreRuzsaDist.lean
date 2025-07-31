@@ -1071,7 +1071,7 @@ lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
       · simp only [Finset.mem_univ, implies_true]
       simp only [Finset.mem_univ, imp_self, implies_true]
 
-
+/-- The sum of `f` away from the diagonal. -/
 abbrev offdiag_sum {m : ℕ} (f : Fin m → Fin m → ℝ) := ∑ j, ∑ k, (if j = k then (0:ℝ) else f j k)
 
 lemma offdiag_sum_left {m : ℕ} (hm : m ≥ 1) (f:Fin m → ℝ) : offdiag_sum (fun j _ ↦ f j) = (m - 1) * ∑ j, f j := by
@@ -1755,7 +1755,7 @@ private lemma prob_nonzero_of_prod_prob_nonzero {m : ℕ}
 `D[X_[m] | Y_[m]] = H[∑ i, X_i | (Y_1, ..., Y_m)] - 1/m * ∑ i, H[X_i | Y_i]`
 -/
 lemma condMultiDist_eq {m : ℕ}
-    {Ω : Type*} [hΩ : MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
+    {Ω : Type*} [hΩ : MeasureSpace Ω]
     {S : Type*} [Fintype S] [hS : MeasurableSpace S] [MeasurableSingletonClass S]
     {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i))
     {Y : Fin m → Ω → S} (hY : ∀ i, Measurable (Y i))
@@ -2255,7 +2255,7 @@ theorem multiDist_of_hom {G G': Type*}
   : D[fun i ω ↦ ι (X i ω); fun _ ↦ hΩ] = D[X; fun _ ↦ hΩ] := by
   convert multiDist_of_hom' hι (fun _ ↦ hΩ) hX (fun _ ↦ 0); simp
 
-theorem multiDist_congr {G:Type*} [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
+theorem multiDist_congr {G:Type*} [MeasurableSpace G] [AddCommGroup G]
     {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     {X X' : ∀ i, (Ω i) → G} (hae : ∀ i, X i =ᵐ[ℙ] X' i) : D[X; hΩ] = D[X'; hΩ] := by
     unfold multiDist
@@ -2277,7 +2277,7 @@ theorem condMultiDist_of_hom {G G' S: Type*} [Fintype S]
   by_cases h: ∀ i, ℙ ( Y i ⁻¹' {y i} ) ≠ 0
   . congr; calc
       _ =  D[fun i ω ↦ ι (X i ω) + a i (y i) ; fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩]  := by
-        convert multiDist_congr (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) _ <;> try infer_instance
+        convert multiDist_congr (fun i ↦ ⟨ ℙ[|Y i ⁻¹' {y i}] ⟩) _
         intro i
         convert Filter.EventuallyEq.comp₂ (f := fun ω ↦ Y i ω) (f' := fun ω ↦ y i) (g := id) (g' := id) _ (fun y' ω ↦ ι (X i ω) + a i y') ae_eq_rfl
         rw [Filter.EventuallyEq.eq_1]
@@ -2372,7 +2372,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
   let π₀ (d:Fin (m+2)) (x: G' ⊤) (i: Fin d) : G := if i.val+1 = d then
           (∑ j ∈ Finset.Ici ⟨ d.val-1, by have := d.isLt; simp; omega⟩, x j)
         else
-          x ⟨ i, by have := i.isLt; have h := d.isLt; simp; omega ⟩
+          x ⟨ i, by have := i.isLt; simp; omega ⟩
   let π (d:Fin (m+2)) : G' ⊤ →+ G' d := {
       toFun x i := π₀ d x i
       map_add' x y := by ext i; by_cases hi : i.val + 1 = d <;> simp [hi, π₀, G']; simp [←Finset.sum_add_distrib]

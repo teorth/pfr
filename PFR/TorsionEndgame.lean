@@ -376,7 +376,6 @@ lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := by
       convert iIndepFun.finsets_comp' _ h_indep (by fun_prop) (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop) with ω ω <;> try simp [φ,φ']
       simp [T', disjoint_compl_right]
   have h3 := Q_ent _ h_mes h_indep hident zero
-  have h4 : (2 * ↑p.m - 1) * k - k = 2 * (↑p.m - 1) * k := by ring
   linarith
 
 include h_mes h_indep hident hΩ_prob hX_mes in
@@ -386,7 +385,6 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
   let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
   let one : Fin p.m := ⟨ 1, by linarith [hm]⟩
   have hm_2 : (p.m:ℝ) ≥ 2 := by norm_cast
-  have hm_pos : (p.m:ℝ) > 0 := by linarith
   have hm_pos' : 2*(p.m:ℝ)-1 > 0 := by linarith
   have hk : k ≥ 0 := multiDist_nonneg _ hΩ_prob _ hX_mes
   calc
@@ -566,8 +564,7 @@ include h_mes h_indep hident h_min hΩ hΩ_prob hX_mes in
 lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
   let hm := p.hm
   let hη := p.hη
-  have hm' : p.m > 0 := by linarith
-  let zero : Fin p.m := ⟨ 0, by linarith [hm]⟩
+  let zero : Fin p.m := ⟨ 0, by linarith only [hm]⟩
   let δ : G → ℝ := fun w ↦ I[Z1 : Z2 ; ℙ[|W ⁻¹' {w}]] + I[Z1 : Z3 ; ℙ[|W ⁻¹' {w}]] + I[Z2 : Z3 ; ℙ[|W ⁻¹' {w}]]
   have hδ_int : ∫ w, δ w ∂(Measure.map W ℙ) ≤ 3*p.m*(4*p.m+1)*p.η*k := by
     unfold δ
@@ -611,7 +608,8 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
           apply mul_le_mul_of_nonneg_left _ (by positivity); convert h_ineq using 1
         _ = p.m * ((2 + p.η / p.m * p.m / 2) * (δ w) + p.η / p.m * (∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]])) := by rfl
         _ = _ := by field_simp; ring
-    unfold δ'; linarith
+    unfold δ'
+    linarith only [h1, h2, h3]
 
   replace main_est : k ≤ ∫ w, δ' w := by
     obtain ⟨ w, hwδ, hw ⟩ := pigeonhole δ'
@@ -632,27 +630,23 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
   have h4 : 1 ≤ p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η) + p.η * (4 * (p.m^3 - p.m^2)) := by
     rw [←mul_le_mul_iff_of_pos_right  this]
     simp; calc
-      _ ≤ p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η * k) + p.η * (4 * (p.m^3 - p.m^2)*k) := by linarith
+      _ ≤ p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η * k)
+          + p.η * (4 * (p.m^3 - p.m^2)*k) := by linarith only [main_est, integ_eq]
       _ = _ := by ring
 
   have h5 : p.m * (2 + p.η / 2) * (3 * p.m * (4 * p.m + 1) * p.η) + p.η * (4 * (p.m^3 - p.m^2)) < (1:ℝ) := by
     calc
       _ ≤ p.m * (2 + (1/32) / 2) * (3 * p.m * (4 * p.m + p.m/2) * p.η) + p.η * (4 * p.m^3) := by
         rw [hη_eq]; gcongr
-        . norm_cast; simp; linarith [Nat.pow_le_pow_left hm 3]
-        . norm_cast; linarith [show p.m ≥ (2:ℝ) by simpa]
+        . norm_cast; simp; linarith only [Nat.pow_le_pow_left hm 3]
+        . norm_cast; linarith only [show p.m ≥ (2:ℝ) by simpa]
         simp
       _ < _ := by
         rw [hη_eq]
         field_simp; rw [div_lt_one (by positivity)]
-        ring_nf; linarith [show (p.m:ℝ)^6 > 0 by positivity]
+        ring_nf; linarith only [show (p.m:ℝ)^6 > 0 by positivity]
 
   order
-
-
-
-
-
 
 end AnalyzeMinimizer
 
@@ -705,7 +699,6 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpac
       _ ≤ _ := hclose
     refine ⟨ H, Ω' i, mΩ' i, hΩ'_prob i, U, hU_unif, hU_mes, ?_ ⟩
     convert hclose using 2
-    have : m > (0:ℝ) := by norm_cast; linarith
     simp [p]; field_simp; ring
 
 open Real

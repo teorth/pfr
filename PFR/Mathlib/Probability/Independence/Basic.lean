@@ -75,8 +75,7 @@ lemma iIndepFun.finsetSum  [m : MeasurableSpace β'] [AddCommMonoid β'] [Measur
     simp only [Finset.univ_eq_attach]
     measurability
   have := iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas φ hφ
-  have φ_simple (j : J) (a : Ω) : (φ j (fun i => f ↑i a)) =
-      ∑ i in S j, f i a := by
+  have φ_simple (j : J) (a : Ω) : (φ j (fun i => f ↑i a)) = ∑ i ∈ S j, f i a := by
     simp only [φ_def, Finset.univ_eq_attach, ←Finset.sum_attach (S j)]
   simp [φ_simple] at this
   exact this

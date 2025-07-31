@@ -93,7 +93,6 @@ lemma multiTau_continuous {G Ω₀ : Type u} [MeasurableFinGroup G] [Topological
   · apply Continuous.mul continuous_const
     refine continuous_finset_sum Finset.univ ?_
     intro i hi
-    have := p.hprob
     apply continuous_entropy_restrict_probabilityMeasure.comp
     exact continuous_apply i
   · apply Continuous.mul continuous_const
