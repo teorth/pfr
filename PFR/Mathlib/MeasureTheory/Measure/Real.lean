@@ -8,11 +8,9 @@ namespace MeasureTheory
 variable {α β R Ω Ω' : Type*} {_ : MeasurableSpace Ω} {_ : MeasurableSpace Ω'}
   {_ : MeasurableSpace α} {_ : MeasurableSpace β}
 
-@[simp]
 lemma Measure.ennreal_smul_real_apply (c : ℝ≥0∞) (μ : Measure Ω) (s : Set Ω) :
-    (c • μ).real s = c.toReal • μ.real s := by simp [Measure.real, NNReal.smul_def]
+    (c • μ).real s = c.toReal • μ.real s := by simp
 
-@[simp]
 lemma Measure.nnreal_smul_real_apply (c : ℝ≥0) (μ : Measure Ω) (s : Set Ω) :
     (c • μ).real s = c • μ.real s := by simp [Measure.real, NNReal.smul_def]
 

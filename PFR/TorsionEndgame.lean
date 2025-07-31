@@ -285,7 +285,7 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
       have : (p.m-1:ℕ) = (p.m:ℝ)-(1:ℝ) := by norm_cast; apply (Int.subNatNat_of_le _).symm; omega
       simp [zero, this]; ring
 
-set_option linter.unusedSectionVars false in
+omit hΩ'_prob hΩ' in
 lemma Z2_eq : Z2 = ∑ j ∈ Finset.univ.erase ⟨ 0, by linarith [p.hm]⟩, j.val • Q j := calc
   _ = ∑ j, j.val • Q j := by
     rw [Finset.sum_comm]; apply Finset.sum_congr rfl; intro i _; simp [←Finset.smul_sum]
@@ -677,7 +677,6 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpac
       let _ : MeasureSpace Ω'' := ⟨ μ'' ⟩
       have hY_mes : ∀ i, Measurable (Y i) := by intro i; specialize hYi i; tauto
       have hY_ident : ∀ i, IdentDistrib (Y i) (X'' i) μ'' ℙ := by intro i; specialize hYi i; tauto
-      have hY_fin : ∀ i, FiniteRange (Y i) := by intro i; specialize hYi i; tauto
       convert k_eq_zero mΩ' htau_min hΩ'_prob hX'_mes (by fun_prop) hY_indep _ (by rfl)
       intro i j; specialize hY_ident (i,j); simpa
     have hclose : ∃ i, d[X' i # p.X₀] ≤ (2/p.η) * d[p.X₀ # p.X₀] := by

@@ -182,6 +182,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
           Nat.card H / Nat.card ↑A'' := by gcongr
     _ = 2 ^ 140 * K ^ 120 := by field_simp; rpow_simp; norm_num
 
+/-- Non canonical isomorphism between a finite 2-torsion group and its dual into `ZMod 2`. -/
 noncomputable def dual_iso : G ≃+ (G →+ ZMod 2) := by
   -- By definition of dual space, we know that $G^*$ is isomorphic to $\text{Hom}(G, \mathbb{Z}/2\mathbb{Z})$.
   have hdual_iso_hom : (G →+ ZMod 2) ≃+ Module.Dual (ZMod 2) G :=
