@@ -1,8 +1,10 @@
 import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.HundredPercent
 import PFR.Mathlib.Algebra.BigOperators.Fin
+import PFR.Mathlib.Data.Fin.Basic
 import PFR.Mathlib.Data.Finset.Image
 import PFR.Mathlib.MeasureTheory.Group.Arithmetic
+import PFR.Mathlib.Order.Interval.Finset.Fin
 
 /-!
 # More results about Ruzsa distance
@@ -21,70 +23,6 @@ More facts about Ruzsa distance and related inequalities, for use in the m-torsi
 * `cor_multiDist_chainRule`: The corollary of the chain rule needed for the m-torsion version of PFR
 * `ent_sub_zsmul_sub_ent_le`: Controlling `H[X - aY]` in terms of `H[X]` and `d[X ; Y]`.
 -/
-
-section dataProcessing
-
-open Function MeasureTheory Measure Real
-open scoped ENNReal NNReal Topology ProbabilityTheory
-
-namespace ProbabilityTheory
-
-universe uΩ uS uT uU uV uW
-
-variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} {V : Type uV} {W : Type uW}
-  [mΩ : MeasurableSpace Ω]
-  [Countable S] [Countable T] [Countable V] [Countable W]
-  [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U] [MeasurableSpace V] [MeasurableSpace W]
-  [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
-  [MeasurableSingletonClass V] [MeasurableSingletonClass W]
-  {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
-  {μ : Measure Ω}
-
-/--
-Let `X, Y`be random variables. For any function `f, g` on the range of `X`, we have
-`I[f(X) : Y] ≤ I[X : Y]`.
--/
-lemma mutual_comp_le [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-    (hY : Measurable Y) (f : S → U) [FiniteRange X] [FiniteRange Y] :
-    I[f ∘ X : Y ; μ] ≤ I[X : Y ; μ] := by
-  have h_meas : Measurable (f ∘ X) := by fun_prop
-  rw [mutualInfo_comm h_meas hY, mutualInfo_comm hX hY,
-    mutualInfo_eq_entropy_sub_condEntropy hY h_meas, mutualInfo_eq_entropy_sub_condEntropy hY hX]
-  gcongr
-  exact condEntropy_comp_ge μ hX hY f
-
-/-- Let `X, Y` be random variables. For any functions `f, g` on the ranges of `X, Y` respectively,
-we have `I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ]`. -/
-lemma mutual_comp_comp_le [Countable U] (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-    (hY : Measurable Y) (f : S → U) (g : T → V) (hg : Measurable g)
-    [FiniteRange X] [FiniteRange Y] :
-    I[f ∘ X : g ∘ Y ; μ] ≤ I[X : Y ; μ] :=
-  calc
-    _ ≤ I[X : g ∘ Y ; μ] := mutual_comp_le μ hX (Measurable.comp hg hY) f
-    _ = I[g ∘ Y : X ; μ] := mutualInfo_comm hX (Measurable.comp hg hY) μ
-    _ ≤ I[Y : X ; μ] := mutual_comp_le μ hY hX g
-    _ = I[X : Y ; μ] := mutualInfo_comm hY hX μ
-
-/-- Let `X, Y, Z`. For any functions `f, g` on the ranges of `X, Y` respectively,
-we have `I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ]`. -/
-lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) (hg : Measurable g) [FiniteRange X]
-  [FiniteRange Y] [FiniteRange Z] :
-    I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by
-  rw [condMutualInfo_eq_sum hZ, condMutualInfo_eq_sum hZ]
-  apply Finset.sum_le_sum
-  intro i _
-  rcases eq_or_lt_of_le (measureReal_nonneg (μ := μ) (s := (Z ⁻¹' {i}))) with h | h
-  · simp [← h]
-  · rw [mul_le_mul_left h]
-    have : IsProbabilityMeasure (μ[|Z ← i]) := by
-      apply cond_isProbabilityMeasure_of_finite
-      · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).left
-      · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).right
-    apply mutual_comp_comp_le _ hX hY f g hg
-
-end ProbabilityTheory
-end dataProcessing
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 
@@ -1348,9 +1286,6 @@ lemma multidist_ruzsa_III {m : ℕ} (hm : m ≥ 2) {Ω : Fin m → Type*} (hΩ :
     apply IdentDistrib.rdist_congr
     all_goals exact (hident i₀ 0).trans (hX' _).2.1.symm
 
-theorem Fin.forall_fin_three {p : Fin 3 → Prop} : (∀ i, p i) ↔ p 0 ∧ p 1 ∧ p 2 :=
-  Fin.forall_fin_succ.trans <| and_congr_right fun _ => Fin.forall_fin_two
-
 universe u in
 set_option maxHeartbeats 300000 in
 /-- Let `m ≥ 2`, and let `X_[m]` be a tuple of `G`-valued random
@@ -1372,8 +1307,7 @@ lemma multidist_ruzsa_IV {m : ℕ} (hm : m ≥ 2) {Ω : Type u} [MeasureSpace Ω
       have : IdentDistrib (fun ω i ↦ X' (a, i) ω) (fun ω i ↦ X i ω) := by
         refine IdentDistrib.iprodMk ?_ hprob' inferInstance ?_ h_indep
         . intro i; exact (hX' (a,i)).2.1
-        apply h_indep'.precomp _
-        exact Prod.mk_right_injective a
+        exact h_indep'.precomp (Prod.mk_right_injective a)
       convert IdentDistrib.comp this (u := fun x ↦ ∑ i, x i) (by measurability)
       all_goals ext ω; simp
     have hW₀_ident : IdentDistrib W₀ (∑ i, X i) := hW_ident 0
@@ -1398,30 +1332,18 @@ lemma multidist_ruzsa_IV {m : ℕ} (hm : m ≥ 2) {Ω : Type u} [MeasureSpace Ω
       have h1c : H[X' (1, b) + W₁'] = H[W₁] := by rw [hW₁']
       have h1d : H[X' (0, a) + W₁] = H[X' (0, a) + X' (1, b) + W₁'] := by rw [hW₁', add_assoc]
 
-      have h2a : H[X' (0,a)] = H[X a] := by
-        apply IdentDistrib.entropy_congr
-        exact (hX' (0,a)).2.1
-      have h2b : H[X' (1, b)] = H[X b] := by
-        apply IdentDistrib.entropy_congr
-        exact (hX' (1, b)).2.1
+      have h2a : H[X' (0,a)] = H[X a] := by apply IdentDistrib.entropy_congr (hX' (0,a)).2.1
+      have h2b : H[X' (1, b)] = H[X b] := by apply IdentDistrib.entropy_congr (hX' (1, b)).2.1
       have h2c : H[X' (0, a) + X' (1, b)] = H[X a + X b] := by
         apply IdentDistrib.entropy_congr
-        apply IdentDistrib.add
-        . exact (hX' (0,a)).2.1
-        . exact (hX' (1, b)).2.1
-        . apply h_indep'.indepFun
-          simp
-        apply h_indep.indepFun
-        simp [hab]
+        apply (hX' (0,a)).2.1.add (hX' (1, b)).2.1
+        . apply h_indep'.indepFun; simp
+        apply h_indep.indepFun; simp [hab]
       have h2d: H[X' (0, a) + X' (0, b)] = H[X a + X b] := by
         apply IdentDistrib.entropy_congr
-        apply IdentDistrib.add
-        . exact (hX' (0,a)).2.1
-        . exact (hX' (0, b)).2.1
-        . apply h_indep'.indepFun
-          simp [hab]
-        apply h_indep.indepFun
-        simp [hab]
+        apply (hX' (0,a)).2.1.add (hX' (0, b)).2.1
+        . apply h_indep'.indepFun; simp [hab]
+        apply h_indep.indepFun; simp [hab]
 
       have h3: H[X a + X b] ≤ H[W₀] := by
         set W := ∑ i ∈ {a, b}ᶜ, X' (0, i)
@@ -1437,7 +1359,8 @@ lemma multidist_ruzsa_IV {m : ℕ} (hm : m ≥ 2) {Ω : Type u} [MeasureSpace Ω
         set ι : Fin m ↪ Fin 2 × Fin m := Function.Embedding.sectR (0:Fin 2) (Fin m)
         set S' : Finset (Fin 2 × Fin m) := Finset.map ι {a, b}ᶜ
         have hab' : ((0:Fin 2),a) ≠ (0, b) := by simp [hab]
-        have h_disjoint : Disjoint S S' := by aesop
+        have h_disjoint : Disjoint S S' := by
+          rw [Finset.disjoint_left]; intro ⟨ i, j ⟩ h; simp [S,S',ι] at h ⊢; tauto
         set φ : (S → G) → G := fun x ↦ ∑ i, x i
         set φ' : (S' → G) → G := fun x ↦ ∑ i, x i
         have hφ : Measurable φ := by
@@ -1594,15 +1517,12 @@ lemma multidist_eq_zero [Fintype G] {m : ℕ} (hm : m ≥ 2) {Ω : Fin m → Typ
   have vanish : ∑ j, d[X j # X j] = 0 := by
     apply le_antisymm
     . have := multidist_ruzsa_II hm hΩ hprob X hmes hfin
-      simp [hvanish] at this
-      exact this
+      simpa [hvanish] using this
     apply Finset.sum_nonneg
-    intro j _
-    exact rdist_nonneg (hmes j) (hmes j)
+    intro j _; exact rdist_nonneg (hmes j) (hmes j)
   rw [Finset.sum_eq_zero_iff_of_nonneg ?_] at vanish
   swap
-  . intro j _
-    exact rdist_nonneg (hmes j) (hmes j)
+  . intro j _; exact rdist_nonneg (hmes j) (hmes j)
   intro i
   replace vanish := exists_isUniform_of_rdist_eq_zero (hmes i) (hmes i) $ vanish i $ Finset.mem_univ i
   obtain ⟨H, U, U_mes, U_unif, hdist, hdist'⟩ := vanish
@@ -1639,28 +1559,20 @@ theorem condMultiDist_of_inj {G : Type*} [hG : MeasurableSpace G] [AddCommGroup 
       intro i
       replace hz := hz i (Finset.mem_univ i)
       contrapose! hz
-      have : f ∘ Y i ⁻¹' {z i} = ∅ := by
-        aesop
+      have : f ∘ Y i ⁻¹' {z i} = ∅ := by aesop
       simp [this]
     obtain ⟨y, hy⟩ := Classical.axiomOfChoice this
     use y
     aesop
-  intro y
-  congr
-  . ext i
-    congr
-    aesop
-  ext i
-  congr
-  aesop
+  intro s; congr
+  all_goals ext; congr; aesop
 
 /-- Conditional multidistance against a constant is just multidistance -/
 theorem condMultiDist_of_const {G : Type*} [hG : MeasurableSpace G] [AddCommGroup G] {m : ℕ} {Ω : Fin m → Type*} [hΩ : ∀ i, MeasureSpace (Ω i)] [hprob : ∀ i, IsProbabilityMeasure (hΩ i).volume] {S : Type*} [Fintype S] (c:Fin m → S) (X : ∀ i, (Ω i) → G) : D[X | fun i ↦ fun _ ↦ c i; hΩ] = D[X ; hΩ] := by
   dsimp [condMultiDist]
   rw [Finset.sum_eq_single c]
   . have : ∀ i, (fun _:Ω i ↦ c i) ⁻¹' {c i} = Set.univ := by
-      intro _
-      simp only [Set.mem_singleton_iff, Set.preimage_const_of_mem]
+      intros; simp only [Set.mem_singleton_iff, Set.preimage_const_of_mem]
     simp [this]
   . intro y _ hy
     convert zero_mul _
@@ -1684,7 +1596,7 @@ theorem condMultiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ :
   by_cases h: ∀ i : Fin m, ℙ (Y i ⁻¹' {y i}) ≠ 0
   . apply mul_nonneg
     . apply Finset.prod_nonneg
-      intro i _
+      intros
       exact ENNReal.toReal_nonneg
     exact multiDist_nonneg (fun i => ⟨ℙ[|Y i ⁻¹' {y i}]⟩)
       (fun i => cond_isProbabilityMeasure (h i)) X hX
@@ -2107,8 +2019,6 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
         exact MeasurableSet.preimage (.singleton x) hmes
       exact Measurable.prodMk hmes (measurable_pi_lambda (fun ω i ↦ Y i ω) hY)
 
-lemma Iio_of_succ_eq_Iic_of_castSucc {N : ℕ} (n: Fin N) : Finset.Iio n.succ = Finset.Iic n.castSucc := rfl
-
 
 /-- Let `m` be a positive integer. Suppose one has a sequence `G_m → G_{m - 1} → ... → G_1 → G_0 = {0}`
 of homomorphisms between abelian groups `G_0, ...,G_m`, and for each `d=0, ...,m`, let
@@ -2290,41 +2200,6 @@ theorem condMultiDist_of_hom {G G' S: Type*} [Fintype S]
   simp at h ⊢; right
   obtain ⟨ i, hi ⟩ := h; apply Finset.prod_eq_zero (i:= i) <;> simp [hi]
 
-
-/-- Need a location for this lemma that imports both ForMathlib.Entropy.Basic and
-    Mathlib.Probability.Independence.Basic -/
-lemma ProbabilityTheory.iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω]
-  [IsProbabilityMeasure hΩ.volume] {m:ℕ}
-  [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
-  {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
-  H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
-    induction' m with m hm
-    . simp; convert entropy_const Fin.elim0 <;> infer_instance
-    calc
-      _ = H[ ⟨(fun ω (i:Fin m) ↦ X i.castSucc ω), X (.last _)⟩ ] := by
-        let f : (Fin (m+1) → S) → (Fin m → S) × S := fun x ↦ (fun i ↦ x i.castSucc, x (.last m))
-        convert (entropy_comp_of_injective _ _ f _).symm; fun_prop
-        intro x y hxy; simp [f] at hxy
-        ext i; rcases Fin.eq_castSucc_or_eq_last i with h | rfl
-        . obtain ⟨ j, rfl ⟩ := h; replace hxy := hxy.1; exact congr($hxy j)
-        tauto
-      _ = H[fun ω (i:Fin m) ↦ X i.castSucc ω] + H[X (.last m)] := by
-        apply (entropy_pair_eq_add _ _).mpr _ <;> try fun_prop
-        let T : Finset (Fin (m+1)) := {.last m}ᶜ
-        let T' : Finset (Fin (m+1)) := {.last m}
-        let φ : (T → S) → (Fin m → S) := fun f j ↦ f ⟨ j.castSucc, by simp [T] ⟩
-        let φ' : (T' → S) → S := fun f ↦ f ⟨ .last m, by simp [T'] ⟩
-        exact finsets_comp' (by simp [T', T]) h_indep hX (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop)
-      _ = ∑ i:Fin m, H[X i.castSucc] + H[X (.last m)] := by
-        congr; apply hm _ _
-        . intro i; fun_prop
-        let T : Fin m → Finset (Fin (m+1)) := fun i ↦ {i.castSucc}
-        let φ : (i:Fin m) → ((_: T i) → S) → S := fun i x ↦ x ⟨ i.castSucc, by simp [T] ⟩
-        convert iIndepFun.finsets_comp T _ h_indep hX φ (by fun_prop)
-        rw [Finset.pairwiseDisjoint_iff]; rintro ⟨ _, _ ⟩ _ ⟨ _, _ ⟩ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-        simp [T] at hij ⊢; cc
-      _ = _ := by rw [Fin.sum_univ_castSucc]
-
 lemma cond_entropy_indep {Ω:Type*} [hΩ:MeasureSpace Ω] {S T U: Type*}
     {X: Ω → S} {Y: Ω → T} {Z: Ω → U}
     [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
@@ -2430,7 +2305,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
       simp [S] at hij; cc
-    _ = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ Finset.Iio (.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
+    _ = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ .Iio (.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
       convert (Finset.add_sum_erase _ _ _).symm using 3
       . ext ⟨ j, hj ⟩; simp [Fin.last, Top.top]; omega
       . infer_instance
@@ -2446,8 +2321,8 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       . trans D[fun i ↦ ⇑(π (0:Fin (m+1)).succ) ∘ X' i; fun x ↦ hΩ]
         . let ι' : G →+ G' (.succ 0) := {
              toFun x _ := x
-             map_zero' := by rfl
-             map_add' x y := by rfl
+             map_zero' := rfl
+             map_add' x y := rfl
             }
           have : Function.Injective ⇑ι' := by
             intro x y hxy; simp [ι'] at hxy
@@ -2488,7 +2363,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
               . ext ⟨ l, hl ⟩; obtain ⟨ j, hj ⟩ := j; simp; omega
               obtain ⟨ j, hj ⟩ := j; simp
             congr
-          all_goals intro i; fun_prop
+          all_goals intros; fun_prop
         _ = _ := by
           let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ {p | p.1 = i}
           have h_disjoint : Set.PairwiseDisjoint .univ S := by
