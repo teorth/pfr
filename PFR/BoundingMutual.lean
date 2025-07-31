@@ -123,7 +123,6 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
     set I₀ := I[ fun ω ↦ ( fun j ↦ ∑ i, X' (i, j) ω) : fun ω ↦ ( fun i ↦ ∑ j, X' (i, j) ω) |
     fun ω ↦ ∑ i, ∑ j, X' (i, j) ω ]
     set k := D[X ; fun x ↦ hΩ]
-    have hk: 0 ≤ k := multiDist_nonneg _ inferInstance _ (by fun_prop)
     set one : Fin p.m := ⟨ 1, by omega ⟩
     set last : Fin p.m := ⟨ p.m-1, by omega ⟩
     set column : Fin p.m → Fin p.m → Ω' → G := fun j i ω ↦ X' (i, j) ω
@@ -342,7 +341,6 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       let s : Finset (Fin p.m ⊕ (Fin p.m × Fin p.m)) := Finset.image Sum.inl Finset.univ
       let t : Finset (Fin p.m ⊕ (Fin p.m × Fin p.m)) := Finset.image Sum.inr {q|q.1=i}
       have hdisj : Disjoint s t := by rw [Finset.disjoint_left]; simp [s,t]
-      have hs: s.Nonempty := by use Sum.inl one; simp [s]
       have ht: t.Nonempty := by use Sum.inr (i,one); simp [t]
       choose e he using hperm
       let f : Fin p.m ⊕ (Fin p.m × Fin p.m) → Fin p.m ⊕ (Fin p.m × Fin p.m) := fun x ↦ match x with

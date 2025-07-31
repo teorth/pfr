@@ -190,6 +190,7 @@ variable {ι : Type*} {α : ι → Type*} [Fintype ι]
 
 variable [∀ i, MeasurableSpace (α i)]
 
+/-- The product of finitely many probability measure, as a `ProbabilityMeasure`. -/
 noncomputable def pi (μ : Π i, ProbabilityMeasure (α i)) : ProbabilityMeasure (Π i, α i) :=
   ⟨Measure.pi (fun i ↦ μ i), by infer_instance⟩
 
