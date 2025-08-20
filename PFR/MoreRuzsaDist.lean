@@ -1040,8 +1040,8 @@ lemma offdiag_sum_add {m : ℕ} (f g : Fin m → Fin m → ℝ) :
 
 lemma offdiag_sum_sub {m : ℕ} (f g : Fin m → Fin m → ℝ) :
       offdiag_sum (fun j k ↦ f j k - g j k) = offdiag_sum f - offdiag_sum g := by
-    convert Finset.sum_sub_distrib ?_ ?_
-    convert Finset.sum_sub_distrib using 2 with k _
+    convert Finset.sum_sub_distrib _ _ with j _
+    convert Finset.sum_sub_distrib _ _ using 2 with k _
     by_cases h: j = k
     all_goals simp [h]
 
