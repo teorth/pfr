@@ -594,7 +594,8 @@ private theorem entropy_kvm_decomposition {I : Type*} {s t : Finset I} (hdisj : 
   have Y_meas : ∀ i, Measurable (Y i)
     | some i => by simpa only [hY] using hX i
     | none => by simpa only [hY] using W_meas.neg
-  haveI (i) : FiniteRange (Y i) := by
+  haveI : ∀  i, FiniteRange (Y i) := by
+    intro i
     match i with | some i => simp only [hY] ; infer_instance | none => simp only [hY] ; infer_instance
   have Y_indep : iIndepFun Y μ := by
     apply kvm_decomposition_indep_helper hdisj X hX hindep W hW_def W_meas Y hY Y_meas
