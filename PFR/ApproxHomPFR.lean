@@ -1,13 +1,9 @@
-import Mathlib.Analysis.InnerProductSpace.PiL2
-import Mathlib.Analysis.Normed.Lp.PiLp
-import Mathlib.Combinatorics.Additive.Energy
 import Mathlib.Data.FunLike.Fintype
 import Mathlib.Data.Int.Lemmas
 
 import LeanAPAP.Extras.BSG
 
 import PFR.HomPFR
-import PFR.RhoFunctional
 
 /-!
 # The approximate homomorphism form of PFR
@@ -23,7 +19,7 @@ is true for a positive proportion of x,y.
   and a constant $c$ such that $f(x)=\phi(x)+c$ for a substantial set of values.
 -/
 
-open Finset
+open Finset Module
 open scoped Classical Pointwise Combinatorics.Additive
 
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
@@ -89,7 +85,8 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     rewrite [← h_proj_A'', h_proj_c] at h_le
     apply (h_le.trans Set.natCard_add_le).trans
     gcongr
-    exact Nat.card_image_le c.toFinite
+    · exact Finite.card_image_le Prod.fst
+    · exact Nat.card_le_card_of_injective (fun ⦃a₁⦄ ↦ a₁) fun ⦃a₁ a₂⦄ a ↦ a
 
   have hH₀_pos : (0 : ℝ) < Nat.card H₀ := Nat.cast_pos.mpr Nat.card_pos
   have h_le_H₁ : (Nat.card H₁ : ℝ) ≤ (Nat.card c) * (Nat.card H) / Nat.card A'' := calc

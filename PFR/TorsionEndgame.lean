@@ -55,7 +55,7 @@ lemma indep_yj (j : Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := by
   let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
   convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
   rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-  simp [S] at hij; cc
+  simp [S] at hij; omega
 
 include h_mes h_indep hident h_min in
 /-- We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤ 4m^2 η k`.
@@ -105,7 +105,7 @@ lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k
     let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
     convert iIndepFun.finsets_comp S _ hX'_indep (by fun_prop) φ (by fun_prop) with i ω
     rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-    simp [S] at hij; cc
+    simp [S] at hij; omega
   have := mutual_information_le (by fun_prop) (indep_yj h_mes h_indep zero) ?_ (by fun_prop) hX'_indep ?_
   . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
       apply multiDist_copy; intro i; exact (hident i zero).symm
@@ -156,7 +156,7 @@ lemma mutual_information_le_t_13 : I[Z1 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k
     let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
     convert iIndepFun.finsets_comp S _ hX'_indep (by fun_prop) φ (by fun_prop) with i ω
     rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-    simp [S] at hij; cc
+    simp [S] at hij; omega
   have hindep_yj (j: Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := indep_yj h_mes h_indep j
   have := mutual_information_le (by fun_prop) (hindep_yj zero) ?_ (by fun_prop) hX'_indep ?_
   . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
@@ -268,7 +268,7 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
       convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
       . simp [φ]
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-      simp [S] at hij; cc
+      simp [S] at hij; omega
     _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi zero, 2 * k := by
       gcongr with j hj
       . exact le_of_eq (Q_ent _ h_mes h_indep hident _)
@@ -320,7 +320,7 @@ lemma entropy_of_Z_two_le : H[Z2] ≤ (8 * p.m^2 - 16 * p.m + 1) * k + (p.m:ℝ)
       convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
       . simp [φ, Y']
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-      simp [S] at hij; cc
+      simp [S] at hij; omega
     _ ≤ H[Q one] + ∑ i ∈ .Ioi one, 4 * p.m * (2 * k) := by
       gcongr with i hi
       have hQi_mes : Measurable (-(Q i)) := Q_mes h_mes _
@@ -433,7 +433,7 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
             convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with q ω
             . by_cases h : q = i₀ <;> simp [φ,Y',h]
             rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-            simp [S] at hij; cc
+            simp [S] at hij; grind
           exact mutual_of_W_Z_two_le _ h_mes h_indep hident
         _ = _ := by ring
     _ = ∑ i, d[ X i # X i] + p.m * H[Z2] / 2 - (∑ i, H[X i]) / 2 + p.m * (p.m -1) * k := by
@@ -975,9 +975,12 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
     _ < (K ^ ((128*m^3+1)) * Nat.card A ^ (1 / 2:ℝ) * (Nat.card H ^ (-1 / 2:ℝ)))
           * (Nat.card H / (Nat.card A / m)) := by
         gcongr
-    _ = m * K ^ ((128*m^3+1)) * Nat.card A ^ (-1/2:ℝ) * Nat.card H ^ (1/2:ℝ) := by
+    _ = (K ^ ((128*m^3+1)) * Nat.card A ^ (1 / 2:ℝ) * (Nat.card H ^ (-1 / 2:ℝ)))
+          * (Nat.card H * (Nat.card A : ℝ)⁻¹ * m) := by
         field_simp
+    _ = m * K ^ ((128*m^3+1)) * Nat.card A ^ (-1/2:ℝ) * Nat.card H ^ (1/2:ℝ) := by
         rpow_ring
+        field_simp
         norm_num
     _ ≤ m * K ^ ((128*m^3+1)) * Nat.card A ^ (-1/2:ℝ) * (K ^ (256*m^3) * Nat.card A) ^ (1/2:ℝ) := by
         gcongr

@@ -214,8 +214,11 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     have : B.Finite := toFinite B
     have : B.Nonempty := by
       by_contra! H
-      simp [B, eq_empty_iff_forall_notMem] at H
-      have : ∑ g, μ.toMeasure.real {g} = 1 := by simp
+      simp [-ProbabilityMeasure.measureReal_eq_coe_coeFn, ne_eq, -NNReal.coe_eq_zero,
+        eq_empty_iff_forall_notMem, mem_setOf_eq,
+        Decidable.not_not, B] at H
+      have : ∑ g, μ.toMeasure.real {g} = 1 := by
+        simp [-ProbabilityMeasure.measureReal_eq_coe_coeFn]
       simp [H] at this
     have Bn : (B.toFinset.image (fun g ↦ μ.toMeasure.real {g})).Nonempty := by
       simpa using this
@@ -293,7 +296,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     · simp [h]
     rw [log_div, hm]
     · ring
-    · simp [ENNReal.toReal_eq_zero_iff, h]
+    · exact h
     · contrapose! h
       simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h ⊢
       apply h'_abs _ (by simpa [ENNReal.toReal_eq_zero_iff] using h)
@@ -330,7 +333,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     · simp [h]
     rw [log_div, hm]
     · ring
-    · simp [ENNReal.toReal_eq_zero_iff, h]
+    · exact h
     · contrapose! h
       simp only [measureReal_def, ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h ⊢
       exact h_abs _ h
@@ -338,7 +341,8 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
         μ.toMeasure.real {g} * log (m.real {g}) := by
     gcongr
     · intro g hg h'g
-      simp at h'g
+      simp only [ne_eq, Finset.mem_filter, Finset.mem_univ, true_and,
+        Decidable.not_not] at h'g
       simp [h'g]
     . exact Finset.filter_subset _ _
    _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},
@@ -2126,10 +2130,12 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     _ < (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
-    _ = 2 * K ^ 5 * Nat.card A ^ (-1 / 2 : ℝ) * Nat.card H ^ (1 / 2 : ℝ) := by
+    _ = (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
+          * (Nat.card H * (Nat.card A : ℝ)⁻¹ * 2) := by
         field_simp
-        simp_rw [← rpow_natCast]
+    _ = 2 * K ^ 5 * Nat.card A ^ (-1 / 2 : ℝ) * Nat.card H ^ (1 / 2 : ℝ) := by
         rpow_ring
+        field_simp
         norm_num
     _ ≤ 2 * K ^ 5 * Nat.card A ^ (-1 / 2 : ℝ) * (K ^ 8 * Nat.card A) ^ (1 / 2 : ℝ) := by
         gcongr
