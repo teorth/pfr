@@ -40,18 +40,6 @@ end MeasureTheory.Measure
 
 open MeasureTheory
 
-/-- To put next to quasiMeasurePreserving_fst -/
-theorem MeasureTheory.measurePreserving_fst {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
-    {μ : Measure α} {ν : Measure β} [IsProbabilityMeasure ν] :
-    MeasurePreserving Prod.fst (μ.prod ν) μ :=
-  ⟨measurable_fst, by simp⟩
-
-/-- To put next to quasiMeasurePreserving_fst -/
-theorem MeasureTheory.measurePreserving_snd {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
-    {μ : Measure α} {ν : Measure β} [IsProbabilityMeasure μ] [SFinite ν] :
-    MeasurePreserving Prod.snd (μ.prod ν) ν :=
-  ⟨measurable_snd, by simp⟩
-
 instance {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] {μ : Measure α}
     [IsZeroOrProbabilityMeasure μ] {ν : Measure β} [IsZeroOrProbabilityMeasure ν] :
     IsZeroOrProbabilityMeasure (μ.prod ν) := by

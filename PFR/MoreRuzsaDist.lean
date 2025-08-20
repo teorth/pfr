@@ -2,7 +2,6 @@ import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.HundredPercent
 import PFR.Mathlib.Algebra.BigOperators.Fin
 import PFR.Mathlib.Data.Fin.Basic
-import PFR.Mathlib.Data.Finset.Image
 import PFR.Mathlib.MeasureTheory.Group.Arithmetic
 import PFR.Mathlib.Order.Interval.Finset.Fin
 
@@ -1041,7 +1040,7 @@ lemma offdiag_sum_add {m : ℕ} (f g : Fin m → Fin m → ℝ) :
 
 lemma offdiag_sum_sub {m : ℕ} (f g : Fin m → Fin m → ℝ) :
       offdiag_sum (fun j k ↦ f j k - g j k) = offdiag_sum f - offdiag_sum g := by
-    convert Finset.sum_sub_distrib with j _
+    convert Finset.sum_sub_distrib ?_ ?_
     convert Finset.sum_sub_distrib using 2 with k _
     by_cases h: j = k
     all_goals simp [h]
@@ -2271,7 +2270,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
     let φ : (j:Fin (m+1)) → ((i: S j) → G) → G' ⊤ := fun j x k ↦ x ⟨ (j, k), by simp [S] ⟩
     apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
     rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-    simp [S] at hij; cc
+    simp [S] at hij; omega
   have h1 := iter_multiDist_chainRule' (by linarith) hπ0 hcomp (by fun_prop) h_indep'
   have h2 :  D[X' ; fun _ ↦ hΩ] = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j : Fin m, D[fun i ↦ X ⟨i, j.castSucc⟩; fun _ ↦ hΩ] := calc
     _ = ∑ j, H[∑ i, X ⟨ i, j ⟩ ] - (∑ i, ∑ j, H[X ⟨ i, j ⟩]) / ↑(m + 1) := by
@@ -2285,7 +2284,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
         let φ : (i:Fin (m+1)) → ((_: S i) → G) → G := fun i x ↦ ∑ j, x ⟨ (j,i), by simp [S] ⟩
         apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
         rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-        simp [S] at hij; cc
+        simp [S] at hij; omega
       ext i
       convert iIndepFun.entropy_eq_add _ _ <;> try infer_instance
       . fun_prop
@@ -2294,7 +2293,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       let φ : (j:Fin (m+1)) → ((_: S j) → G) → G := fun j x ↦ x ⟨ (i,j), by simp [S] ⟩
       apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-      simp [S] at hij; cc
+      simp [S] at hij; omega
     _ = ∑ j, (H[∑ i, X ⟨ i, j ⟩ ] - (∑ i, H[X ⟨ i, j ⟩]) / ↑(m + 1)) := by
       rw [Finset.sum_sub_distrib, ←Finset.sum_div, Finset.sum_comm]
     _ = ∑ j, D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
@@ -2304,7 +2303,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
       let φ : (i:Fin (m+1)) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
       apply h_indep.finsets_comp S _ hmes φ (by fun_prop)
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-      simp [S] at hij; cc
+      simp [S] at hij; omega
     _ = D[fun i ↦ X (i, ⊤) ; fun x ↦ hΩ] + ∑ j ∈ .Iio (.last _), D[fun i ↦ X ⟨i, j⟩; fun _ ↦ hΩ] := by
       convert (Finset.add_sum_erase _ _ _).symm using 3
       . ext ⟨ j, hj ⟩; simp [Fin.last, Top.top]; omega
@@ -2368,7 +2367,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
           let S : Fin (m+1) → Finset (Fin (m+1) × Fin (m+1)) := fun i ↦ {p | p.1 = i}
           have h_disjoint : Set.PairwiseDisjoint .univ S := by
             rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-            simp [S] at hij; cc
+            simp [S] at hij; omega
           rw [condMultiDist_eq, condMultiDist_eq] <;> try intros; fun_prop
           . congr 1
             . let f : (Fin (m+1) → G' j.succ.castSucc) → ((Fin (m+1) → G) × (Fin (m+1) → Fin j.val → G)) := fun x ↦ ⟨ fun i ↦ x i ⟨ j, by simp ⟩, fun i ⟨ k, hk ⟩ ↦ x i ⟨ k, by simp; omega ⟩ ⟩

@@ -1028,9 +1028,15 @@ theorem PFR_conjecture_improv (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
     _ < (K ^ 6 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
-    _ = 2 * K ^ 6 * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
+    _ = (K ^ 6 * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+          * (Nat.card H * (Nat.card A :ℝ)⁻¹ * 2) := by
         field_simp
+    _ = 2 * (K ^ 6 * Nat.card A ^ (1 / 2) * (Nat.card A :ℝ)⁻¹ *
+          (Nat.card H ^ (-1 / 2)) * (Nat.card H)) := by
+        ring
+    _ = 2 * K ^ 6 * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
         rpow_ring
+        field_simp
         norm_num
     _ ≤ 2 * K ^ 6 * Nat.card A ^ (-1/2) * (K ^ 10 * Nat.card A) ^ (1/2) := by
         gcongr

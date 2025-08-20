@@ -813,7 +813,7 @@ lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω]
         let φ : (i:Fin m) → ((_: T i) → S) → S := fun i x ↦ x ⟨ i.castSucc, by simp [T] ⟩
         convert iIndepFun.finsets_comp T _ h_indep hX φ (by fun_prop)
         rw [Finset.pairwiseDisjoint_iff]; rintro ⟨ _, _ ⟩ _ ⟨ _, _ ⟩ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-        simp [T] at hij ⊢; cc
+        simp [T] at hij ⊢; omega
       _ = _ := by rw [Fin.sum_univ_castSucc]
 
 

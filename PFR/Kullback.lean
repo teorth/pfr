@@ -430,7 +430,7 @@ lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Fintype 
     exact (ν'.null_iff_toMeasure_null {g}).mpr h
   apply Tendsto.log; swap
   · simp only [Measure.map_id, ne_eq, div_eq_zero_iff, h'g, false_or, νg, not_false_eq_true]
-  apply Tendsto.div tendsto_const_nhds _ (by simp [νg])
+  apply Tendsto.div tendsto_const_nhds _ (by simp; exact ne_of_apply_ne ENNReal.toReal νg)
   simp only [Measure.map_id]
   simp only [measureReal_def]
   rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]

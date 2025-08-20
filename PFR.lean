@@ -35,7 +35,6 @@ import PFR.Main
 import PFR.Mathlib.Algebra.BigOperators.Fin
 import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.Data.Finset.Image
 import PFR.Mathlib.Data.Prod.Basic
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank

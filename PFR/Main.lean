@@ -101,10 +101,16 @@ lemma PFR_conjecture_pos_aux {G : Type*} [AddCommGroup G] {A : Set G} [Finite A]
   have card_AA_pos : (0 : ℝ) < Nat.card (A - A) := by
     have : Nonempty (A - A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.sub h₀A h₀A)
     have : Finite (A - A) := finite_coe_iff.mpr (Finite.image2 _ (Set.toFinite A) (Set.toFinite A))
-    simp [Nat.cast_pos, Nat.card_pos_iff]
+    norm_cast
+    apply Nat.card_pos_iff.mpr
+    tauto
   have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
     have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
-    simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
+    have := (mul_pos_iff.1 (card_AA_pos.trans_le hA))
+    rcases this with h | h
+    · exact h
+    · absurd h
+      simp
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
 lemma PFR_conjecture_pos_aux' {G : Type*} [AddCommGroup G] {A : Set G} [Finite A] {K : ℝ}
@@ -113,10 +119,16 @@ lemma PFR_conjecture_pos_aux' {G : Type*} [AddCommGroup G] {A : Set G} [Finite A
   have card_AA_pos : (0 : ℝ) < Nat.card (A + A) := by
     have : Nonempty (A + A) := Set.nonempty_coe_sort.mpr (Set.Nonempty.add h₀A h₀A)
     have : Finite (A + A) := finite_coe_iff.mpr (Finite.image2 _ (Set.toFinite A) (Set.toFinite A))
-    simp [Nat.cast_pos, Nat.card_pos_iff]
+    norm_cast
+    apply Nat.card_pos_iff.mpr
+    tauto
   have KA_pos : 0 < K ∧ (0 : ℝ) < Nat.card A := by
     have I : ¬ ((Nat.card A : ℝ) < 0) := by simp
-    simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hA)
+    have := mul_pos_iff.1 (card_AA_pos.trans_le hA)
+    rcases this with h | h
+    · exact h
+    · absurd h
+      simp
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
 variable {G : Type*} [AddCommGroup G] {A : Set G} {K : ℝ} [Countable G]
@@ -318,8 +330,22 @@ theorem PFR_conjecture (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.c
     _ < (K ^ (13/2) * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
           * (Nat.card H / (Nat.card A / 2)) := by
         gcongr
-    _ = 2 * K ^ (13/2) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
+    -- TODO: golf this down again
+    _ =  (K ^ (13/2) * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2)))
+          * (Nat.card H * ((Nat.card A / 2) : ℝ)⁻¹) := by
         field_simp
+    _ =  K ^ (13/2) * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2))
+          * Nat.card H * ((Nat.card A :ℝ)* ((1:ℝ) / 2))⁻¹ := by
+        ring
+    _ =  K ^ (13/2) * Nat.card A ^ (1 / 2) * (Nat.card H ^ (-1 / 2))
+          * Nat.card H * (Nat.card A :ℝ)⁻¹* (2:ℝ) := by
+        rpow_ring
+        field_simp
+        norm_num
+    _ =  2 * K ^ (13/2) * (Nat.card A ^ (1 / 2) * (Nat.card A : ℝ)⁻¹)* ((Nat.card H ^ (-1 / 2))
+          * Nat.card H) := by
+        rpow_ring
+    _ = 2 * K ^ (13/2) * Nat.card A ^ (-1/2) * Nat.card H ^ (1/2) := by
         rpow_ring
         norm_num
     _ ≤ 2 * K ^ (13/2) * Nat.card A ^ (-1/2) * (K ^ 11 * Nat.card A) ^ (1/2) := by

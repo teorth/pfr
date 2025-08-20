@@ -481,8 +481,6 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
   · simp [Measure.real, Measure.map_apply hR (.singleton r), hr]
   simp_rw [smul_eq_mul]
   gcongr (?_ * ?_)
-  · apply rdist_nonneg hX₁ hX₂
-  · rfl
   have : IsProbabilityMeasure (ℙ[|R ⁻¹' {r}]) := cond_isProbabilityMeasure hr
   apply construct_good' p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 

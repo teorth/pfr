@@ -950,9 +950,13 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     rw [hAA'_card, hBB'_card] at hM
 
     have hA'_nonfin : A'.Nonempty ∧ Finite A' := by
-      simpa [-Subtype.exists, hAA'_card, Nat.card_pos_iff] using Nat.card_pos (α := A)
+      convert Nat.card_pos_iff.mp ?_
+      · exact Iff.symm nonempty_coe_sort
+      · simpa [hAA'_card] using Nat.card_pos (α := A)
     have hB'_nonfin : B'.Nonempty ∧ Finite B' := by
-      simpa [-Subtype.exists, hBB'_card, Nat.card_pos_iff] using Nat.card_pos (α := B)
+      convert Nat.card_pos_iff.mp ?_
+      · exact Iff.symm nonempty_coe_sort
+      · simpa [hBB'_card] using Nat.card_pos (α := B)
     obtain ⟨hA'_non, hA'_fin⟩ := hA'_nonfin
     obtain ⟨hB'_non, hB'_fin⟩ := hB'_nonfin
 

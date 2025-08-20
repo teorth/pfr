@@ -32,10 +32,9 @@ lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*}
     intro ω
     simp
     by_cases h: X ω ∈ A
-    · left; simp at h; simp [X', h]
     · right
-      simp only [ite_eq_right_iff, X']
-      exact fun h' ↦ absurd h' h
+      simp only [X', h, ↓reduceIte]
+    · left; simp at h; simp [X', h]
   apply Filter.eventuallyEq_of_mem (s := X ⁻¹' A)
   · simp [ae]
     rw [← Set.preimage_compl, ← IdentDistrib.measure_preimage_eq hi]
