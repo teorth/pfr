@@ -140,7 +140,6 @@ lemma first_estimate
   have v5 := (mul_le_mul_left p.hη).2 (diff_rdist_le_2 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
   have v6 := (mul_le_mul_left p.hη).2 (diff_rdist_le_3 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
   have v7 := (mul_le_mul_left p.hη).2 (diff_rdist_le_4 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
-  simp only [inv_eq_one_div] at *
   linarith [v1, v2, v3, v4, v5, v6, v7]
 
 include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_min in

@@ -279,7 +279,6 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
   have h_abs : ∀ g, m {g} = 0 → (μ : Measure G) {g} = 0 := by
     intro y hy
     have Z := h'_abs y hy
-    simp only [Measure.map_id] at Z ⊢
     contrapose! Z
     intro hy
     have : μ.toMeasure.real {y} ≠ 0 := by simpa [measureReal_eq_zero_iff] using Z
@@ -467,7 +466,8 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   let H' : Finset G := Set.Finite.toFinset (toFinite H)
   have hunif' : IsUniform H' U μ := by convert hunif; simp [H']
   have I₁ : KL[U ; μ # T + UA ; ℙ] =
-      ∑ h ∈ H', 1/Nat.card H * log ((1/Nat.card H) / (volume.map (T + UA)).real {h}) := by
+      ∑ h ∈ H',
+        1/(H : Set G).ncard * log ((1/(H : Set G).ncard) / (volume.map (T + UA)).real {h}) := by
     rw [KLDiv_eq_sum, ← Finset.sum_subset (Finset.subset_univ H')]; swap
     · intro x _ hH
       rw [map_measureReal_apply hU (measurableSet_singleton x), hunif.measureReal_preimage_of_nmem]
@@ -475,22 +475,20 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
       · simpa [H'] using hH
     apply Finset.sum_congr rfl (fun i hi ↦ ?_)
     rw [hunif'.measureReal_preimage_of_mem' hU hi]
-    congr <;> simp [H']
-  have I₂ : (∑ h ∈ H', 1/Nat.card H : ℝ) * log ((∑ h ∈ H', 1/Nat.card H : ℝ)
+    congr <;> simp [H', ← Set.ncard_eq_toFinset_card]
+  have I₂ : (∑ h ∈ H', 1/(H : Set G).ncard : ℝ) * log ((∑ h ∈ H', 1/(H : Set G).ncard : ℝ)
       / (∑ h ∈ H', (volume.map (T + UA)).real {h})) ≤ KL[U ; μ # T + UA ; ℙ] := by
     rw [I₁]
     apply Real.sum_mul_log_div_leq (by simp) (by simp) (fun i hi h'i ↦ ?_)
-    simp [ENNReal.toReal_eq_zero_iff] at h'i
     have : (Measure.map U μ).real {i} = 0 := by
-      simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, H'] at h'i ⊢
+      simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h'i ⊢
       simp [habs i h'i]
-    rw [hunif'.measureReal_preimage_of_mem' hU hi] at this
-    simpa [H'] using this
-  have : (∑ h ∈ H', 1/Nat.card H : ℝ) = 1 := by
+    simp [hunif'.measureReal_preimage_of_mem' hU hi, H.coe_nonempty.ne_empty, H'] at this
+  have : (∑ h ∈ H', 1/(H : Set G).ncard : ℝ) = 1 := by
     simp only [Finset.sum_const, nsmul_eq_mul, ← mul_div_assoc, mul_one]
     rw [div_eq_one_iff_eq]
-    · simp [H', ← Nat.card_eq_card_finite_toFinset]
-    · simp [ne_of_gt]
+    · simp [H', ← Set.ncard_eq_toFinset_card]
+    · simp [ne_of_gt, Set.ncard_eq_zero (Set.toFinite _)]
   simp only [this, one_mul] at I₂
   simp only [sum_measureReal_singleton, one_div, log_inv] at I₂
   apply le_trans _ I₂
@@ -510,7 +508,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     refine ⟨-i, ?_⟩
     congr
     ext j
-    simp [H', mem_vadd_set_iff_neg_vadd_mem]
+    simp [mem_vadd_set_iff_neg_vadd_mem]
   rw [one_mul] at I₃
   have : - log ((sSup {Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) | t : G}) / Nat.card A) ≤
       - log ((Measure.map (T + UA) ℙ).real ↑H') := by
@@ -519,11 +517,10 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     apply lt_of_le_of_ne (by simp) (fun h ↦ ?_)
     rw [Eq.comm] at h
     simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h
-    have : Measure.map (T + UA) ℙ ({(0 : G)} : Set G) = 0 :=
-      measure_mono_null (by simp [H', AddSubgroup.zero_mem]) h
+    have : Measure.map (T + UA) ℙ ({(0 : G)} : Set G) = 0 := measure_mono_null (by simp [H']) h
     have Z := habs _ this
     rw [Measure.map_apply hU (measurableSet_singleton 0),
-      hunif'.measure_preimage_of_mem hU (by simp [H', AddSubgroup.zero_mem])] at Z
+      hunif'.measure_preimage_of_mem hU (by simp [H'])] at Z
     simp at Z
   convert this using 1
   rw [log_div]
@@ -586,15 +583,17 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   have : ∑ x ∈ H', ((Measure.map U μ).real {x}) *
       log ((Measure.map U μ).real {x}
         / (Measure.map (Prod.fst + Prod.snd) (μ'.prod (uniformOn ↑A))).real {x})
-      = ∑ x ∈ H', (1/Nat.card H) * log ((1/Nat.card H)
-        / (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) / (Nat.card A * Nat.card H))) := by
+      = ∑ x ∈ H', (1/(H : Set G).ncard) * log ((1/(H : Set G).ncard)
+        / (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) / (Nat.card A * (H : Set G).ncard))) := by
     apply Finset.sum_congr rfl (fun x hx ↦ ?_)
     have xH : x ∈ H := by simpa [H'] using hx
-    have : (Measure.map U μ).real {x} = 1/Nat.card H := by
+    have : (Measure.map U μ).real {x} = 1/(H : Set G).ncard := by
       rw [map_measureReal_apply hU (measurableSet_singleton _),
         hunif'.measureReal_preimage_of_mem hU hx]
-      simp [H']
-    simp only [this, one_div, ENNReal.toReal_inv, ENNReal.toReal_natCast, Nat.cast_eq_zero]
+      simp [H', ← Set.ncard_eq_toFinset_card]
+    simp only [this, one_div, Nat.card_coe_set_eq, Nat.card_eq_fintype_card, Fintype.card_coe,
+      mul_eq_mul_left_iff, inv_eq_zero, Nat.cast_eq_zero, Set.ncard_eq_zero (Set.toFinite _),
+      H.coe_nonempty.ne_empty, or_false]
     congr
     rw [h_indep.real_map_add_singleton_eq_sum measurable_fst measurable_snd, Measure.map_snd_prod,
       Measure.map_fst_prod]
@@ -606,14 +605,14 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
       simp only [mul_eq_zero]
       by_cases h'i : i ∈ A
       · right
-        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, F, H']
+        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff]
         apply uniformOn_apply_singleton_of_not_mem fun h'x ↦  hi h'i ?_
         exact ⟨x - (x-i+t), H.sub_mem xH h'x, by simp; abel⟩
       · left
-        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, F, H']
+        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff]
         exact uniformOn_apply_singleton_of_not_mem h'i
     have : ∑ i ∈ F, (uniformOn ↑A).real {i} * (uniformOn ↑H).real {x - i + t} =
-        ∑ i ∈ F, (1 / Nat.card A * (1 / Nat.card H) : ℝ) := by
+        ∑ i ∈ F, (1 / Nat.card A * (1 / (H : Set G).ncard) : ℝ) := by
       apply Finset.sum_congr rfl (fun i hi ↦ ?_)
       simp only [Finite.mem_toFinset, mem_inter_iff, Finset.mem_coe, F] at hi
       rw [real_uniformOn_apply_singleton_of_mem (by exact hi.1) A.finite_toSet]
@@ -622,12 +621,9 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
         simp
         abel
       rfl
-    simp only [this, Nat.card_eq_fintype_card, Fintype.card_coe, one_div, Finset.sum_const,
-      nsmul_eq_mul, ENNReal.toReal_mul, ENNReal.toReal_natCast, ENNReal.toReal_inv, div_eq_mul_inv,
-      ENNReal.toReal_one, one_mul, mul_inv]
-    congr
-    rw [Nat.card_eq_card_finite_toFinset]
-  have C : H'.card = Nat.card H := by rw [← Nat.card_eq_card_finite_toFinset]; rfl
+    simp [this, Nat.card_eq_fintype_card, Fintype.card_coe, div_eq_mul_inv, one_mul,
+      Finset.sum_const, nsmul_eq_mul, mul_inv_rev, F, ← Set.ncard_eq_toFinset_card, mul_comm]
+  have C : H'.card = (H : Set G).ncard := by rw [← Nat.card_eq_card_finite_toFinset]; rfl
   simp only [this, one_div, Nat.card_eq_fintype_card, Fintype.card_coe, Finset.sum_const, C,
     nsmul_eq_mul, ← mul_assoc]
   rw [mul_inv_cancel₀, one_mul]; swap
@@ -636,7 +632,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   have C₁ : Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) ≠ 0 := by
     have : Nonempty (A ∩ (t +ᵥ (H : Set G)) : Set G) := h'A.to_subtype
     exact Nat.card_pos.ne'
-  have C₃ : Nat.card H ≠ 0 := Nat.card_pos.ne'
+  have C₃ : (H : Set G).ncard ≠ 0 := Nat.card_pos.ne'
   rw [← log_div (by positivity) (by positivity)]
   congr 1
   field_simp
@@ -657,9 +653,9 @@ lemma rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G}
 $\rho^+(U_H) = \log |H| - \log \max_t |A \cap (H+t)|$. -/
 lemma rhoPlus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G}
     {U : Ω → G} (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U) :
-    ρ⁺[U ; μ # A] = log (Nat.card H) -
+    ρ⁺[U ; μ # A] = log ((H : Set G).ncard) -
       log (sSup {Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) | t : G} : ℕ) := by
-  have : H[U ; μ] = log (Nat.card H) := hunif.entropy_eq' (toFinite _) hU
+  have : H[U ; μ] = log ((H : Set G).ncard) := hunif.entropy_eq' (toFinite _) hU
   rw [rhoPlus, rhoMinus_of_subgroup hunif hA hU, this]
   abel
 
@@ -695,12 +691,12 @@ lemma rho_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G} {U : Ω → 
     (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U)
     (r : ℝ) (hr : ρ[U ; μ # A] ≤ r) :
     ∃ t : G,
-      exp (-r) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ) ≤
+      exp (-r) * Nat.card A ^ (1/2 : ℝ) * (H : Set G).ncard ^ (1/2 : ℝ) ≤
         Nat.card ↑(↑A ∩ (t +ᵥ (H : Set G)))
-      ∧ Nat.card A ≤ exp (2 * r) * Nat.card H
-      ∧ Nat.card H ≤ exp (2 * r) * Nat.card A := by
+      ∧ Nat.card A ≤ exp (2 * r) * (H : Set G).ncard
+      ∧ (H : Set G).ncard ≤ exp (2 * r) * Nat.card A := by
   have hr' : ρ[U ; μ # A] ≤ r := hr
-  have Hpos : 0 < (Nat.card H : ℝ) := by exact_mod_cast Nat.card_pos
+  have Hpos : 0 < ((H : Set G).ncard : ℝ) := by exact_mod_cast Nat.card_pos
   have : Nonempty A := hA.to_subtype
   have Apos : 0 < (Nat.card A : ℝ) := by exact_mod_cast Nat.card_pos
   simp only [rho] at hr
@@ -712,29 +708,29 @@ lemma rho_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G} {U : Ω → 
     rw [rhoPlus_of_subgroup hunif hA hU, ← ht, sub_nonneg]
     apply log_le_log (mod_cast hpos)
     norm_cast
-    have : Nat.card (t +ᵥ (H : Set G) : Set G) = Nat.card H := by
+    have : Nat.card (t +ᵥ (H : Set G) : Set G) = (H : Set G).ncard := by
       apply Nat.card_image_of_injective (add_right_injective t)
     rw [← this]
     exact Nat.card_mono (toFinite _) inter_subset_right
-  have I : |log (Nat.card H) - log (Nat.card A)| ≤ 2 * r := calc
-    |log (Nat.card H) - log (Nat.card A)|
-    _ = |H[U ; μ] - log (Nat.card A)| := by rw [hunif.entropy_eq' (toFinite _) hU]; rfl
+  have I : |log ((H : Set G).ncard) - log (Nat.card A)| ≤ 2 * r := calc
+    |log ((H : Set G).ncard) - log (Nat.card A)|
+    _ = |H[U ; μ] - log (Nat.card A)| := by rw [hunif.entropy_eq' (toFinite _) hU]
     _ = |ρ⁺[U ; μ # A] - ρ⁻[U ; μ # A]| := by congr 1; simp [rhoPlus]; abel
     _ ≤ ρ⁺[U ; μ # A] + ρ⁻[U ; μ # A] :=
       (abs_sub _ _).trans_eq (by simp [abs_of_nonneg, Rm, RM])
     _ = 2 * ρ[U ; μ # A] := by simp [rho]; ring
     _ ≤ 2 * r := by linarith
   refine ⟨t, ?_, ?_, ?_⟩
-  · have : - r + (log (Nat.card A) + log (Nat.card H)) * (1 / 2 : ℝ) ≤
+  · have : - r + (log (Nat.card A) + log ((H : Set G).ncard)) * (1 / 2 : ℝ) ≤
       log (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)) := by linarith
     have := exp_monotone this
     rwa [exp_add, exp_log (mod_cast hpos), exp_mul, exp_add,
       exp_log Hpos, exp_log Apos, mul_rpow, ← mul_assoc] at this <;> positivity
-  · have : log (Nat.card A) ≤ 2 * r + log (Nat.card H) := by
+  · have : log (Nat.card A) ≤ 2 * r + log ((H : Set G).ncard) := by
       linarith [(abs_sub_le_iff.1 I).2]
     have := exp_monotone this
     rwa [exp_log Apos, exp_add, exp_log Hpos] at this
-  · have : log (Nat.card H) ≤ 2 * r + log (Nat.card A) := by
+  · have : log ((H : Set G).ncard) ≤ 2 * r + log (Nat.card A) := by
       linarith [(abs_sub_le_iff.1 I).1]
     have := exp_monotone this
     rwa [exp_log Hpos, exp_add, exp_log Apos] at this
@@ -746,10 +742,10 @@ lemma rho_of_submodule [IsProbabilityMeasure μ] [Module (ZMod 2) G]
     (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U)
     (r : ℝ) (hr : ρ[U ; μ # A] ≤ r) :
     ∃ t : G,
-      exp (-r) * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (1 / 2 : ℝ) ≤
+      exp (-r) * Nat.card A ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (1 / 2 : ℝ) ≤
         Nat.card ↑(↑A ∩ (t +ᵥ (H : Set G)))
-      ∧ Nat.card A ≤ exp (2 * r) * Nat.card H
-      ∧ Nat.card H ≤ exp (2 * r) * Nat.card A :=
+      ∧ Nat.card A ≤ exp (2 * r) * (H : Set G).ncard
+      ∧ (H : Set G).ncard ≤ exp (2 * r) * Nat.card A :=
   rho_of_subgroup (H := H.toAddSubgroup) hunif hA hU r hr
 
 /-- \rho(X)$ depends continuously on the distribution of $X$. -/
@@ -1015,9 +1011,7 @@ lemma condRho_prod_eq_sum [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace
   rw [← mul_assoc]
   have A : (fun a ↦ (Z a, T a)) ⁻¹' {(w', w)} = Z ⁻¹' {w'} ∩ T ⁻¹' {w} := by ext; simp
   congr 1
-  · simp only [A, ProbabilityTheory.cond, Measure.smul_apply,
-      Measure.restrict_apply (hZ (.singleton w')),
-      smul_eq_mul, ENNReal.toReal_mul]
+  · simp only [A, ProbabilityTheory.cond]
     rcases le_or_gt (μ.real (T ⁻¹' {w})) 0 with hw|hw
     · have : μ.real (Z ⁻¹' {w'} ∩ T ⁻¹' {w}) = 0 :=
         le_antisymm (le_trans (measureReal_mono Set.inter_subset_right) hw) measureReal_nonneg
@@ -1618,10 +1612,10 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       have : S = T₂ + T₂' := by simp only [S, T₂, T₂']; abel
       rw [this]
       let e : G × G ≃ G × G :=
-        { toFun := fun p ↦ ⟨p.1, p.1 + p.2⟩
-          invFun := fun p ↦ ⟨p.1, p.2 - p.1⟩
-          left_inv := by intro ⟨a, b⟩; simp [add_assoc]
-          right_inv := by intro ⟨a, b⟩; simp [add_assoc] }
+        { toFun p := ⟨p.1, p.1 + p.2⟩
+          invFun p := ⟨p.1, p.2 - p.1⟩
+          left_inv := by intro ⟨a, b⟩; simp
+          right_inv := by intro ⟨a, b⟩; simp }
       exact condRho_of_injective T₁ (⟨T₂, T₂'⟩) (f := e) (A := A) e.injective
   _ = ∑ w, (Measure.real ℙ (⟨T₂, T₂'⟩ ⁻¹' {w})) * ρ[Y₁ + Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A] := by
     rw [condRho, tsum_fintype]
@@ -1664,8 +1658,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
           I.cond_left (measurable_add (.singleton x)) (hY₁.prodMk hY₃)
         exact this.comp measurable_fst measurable_add
       · rw [cond_apply, J.measure_inter_preimage_eq_mul _ _ (.singleton x) (.singleton y)]
-        · simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, T₂',
-            T₂] at h1 h2
+        · simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
           simp [h1, h2]
         · exact hY₁.add hY₃ (.singleton _)
       · exact hY₁.add hY₃ (.singleton _)
@@ -1681,8 +1674,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
         exact this.comp measurable_fst measurable_add
       · rw [Pi.add_def, cond_apply (hY₂.add hY₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
           J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
-        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, T₂',
-            T₂] at h1 h2
+        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
         simp [h1, h2]
       · exact hY₂.add hY₄ (.singleton _)
       · exact hY₁.add hY₃ (.singleton _)
@@ -1987,14 +1979,14 @@ $|A \cap (H+t)| \geq K^{-4} \sqrt{|A||V|}$, and $|H|/|A|\in[K^{-8},K^8]$. -/
 lemma better_PFR_conjecture_aux0 {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (t : G),
-    K ^ (-4 : ℤ) * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (1 / 2 : ℝ) ≤ Nat.card ↑(A ∩ (H + {t})) ∧
-      Nat.card A ≤ K ^ 8 * Nat.card H ∧ Nat.card H ≤ K ^ 8 * Nat.card A := by
+    K ^ (-4 : ℤ) * Nat.card A ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (1 / 2 : ℝ) ≤ Nat.card ↑(A ∩ (H + {t})) ∧
+      Nat.card A ≤ K ^ 8 * (H : Set G).ncard ∧ (H : Set G).ncard ≤ K ^ 8 * Nat.card A := by
   have A_fin : Finite A := by infer_instance
   classical
   let mG : MeasurableSpace G := ⊤
   have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
-    PFR_conjecture_pos_aux' h₀A hA
+    PFR_conjecture_pos_aux' (Set.toFinite _) h₀A hA
   let A' := A.toFinite.toFinset
   have h₀A' : Finset.Nonempty A' := by
     simp [A', Finset.Nonempty]
@@ -2038,19 +2030,19 @@ the same cardinality as $A$ up to a multiplicative factor $K^8$. -/
 lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H : ℝ) ^ (-1 / 2 : ℝ)
-      ∧ Nat.card H ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * Nat.card H ∧ A ⊆ c + H := by
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * ((H : Set G).ncard : ℝ) ^ (-1 / 2 : ℝ)
+      ∧ (H : Set G).ncard ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * (H : Set G).ncard ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
-    PFR_conjecture_pos_aux' h₀A hA
+    PFR_conjecture_pos_aux' (Set.toFinite _) h₀A hA
   rcases better_PFR_conjecture_aux0 h₀A hA with ⟨H, x₀, J, IAH, IHA⟩
-  have H_pos : (0 : ℝ) < Nat.card H := by
-    have : 0 < Nat.card H := Nat.card_pos
+  have H_pos : (0 : ℝ) < (H : Set G).ncard := by
+    have : 0 < (H : Set G).ncard := Nat.card_pos
     positivity
   have Hne : Set.Nonempty (A ∩ (H + {x₀})) := by
     by_contra h'
-    have : 0 < Nat.card H := Nat.card_pos
+    have : 0 < (H : Set G).ncard := Nat.card_pos
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
-    simp only [Nat.card_eq_fintype_card, Nat.card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
+    simp only [Nat.card_eq_fintype_card, CharP.cast_eq_zero, lt_self_iff_false,
       not_nonempty_iff_eq_empty.1 h', Fintype.card_ofIsEmpty] at this
     /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
   (which is contained in `H`). The number of translates is at most
@@ -2058,16 +2050,16 @@ lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
   have Z3 :
       (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ (K ^ 5 * Nat.card A ^ (1/2 : ℝ) *
-        Nat.card H ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
+        (H : Set G).ncard ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
     calc
       (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ)
       _ ≤ Nat.card (A + A) := by
         gcongr; exact Nat.card_mono (toFinite _) <| add_subset_add_left inter_subset_left
       _ ≤ K * Nat.card A := hA
-      _ = (K ^ 5 * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
-          (K ^ (-4 : ℤ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ)) := by
+      _ = (K ^ 5 * Nat.card A ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)) *
+          (K ^ (-4 : ℤ) * Nat.card A ^ (1/2 : ℝ) * (H : Set G).ncard ^ (1/2 : ℝ)) := by
         simp_rw [← rpow_natCast, ← rpow_intCast]; rpow_ring; norm_num
-      _ ≤ (K ^ 5 * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
+      _ ≤ (K ^ 5 * Nat.card A ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)) *
         Nat.card ↑(A ∩ (↑H + {x₀})) := by gcongr
   obtain ⟨u, huA, hucard, hAu, -⟩ :=
     Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
@@ -2084,23 +2076,23 @@ translates of $H$. -/
 lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+      Nat.card c < 2 * K ^ 9 ∧ (H : Set G).ncard ≤ Nat.card A ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
-    PFR_conjecture_pos_aux' h₀A hA
+    PFR_conjecture_pos_aux' (Set.toFinite _) h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)
-      ∧ Nat.card H ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * Nat.card H
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (-1 / 2 : ℝ)
+      ∧ (H : Set G).ncard ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * (H : Set G).ncard
       ∧ A ⊆ c + H :=
     better_PFR_conjecture_aux h₀A hA
-  have H_pos : (0 : ℝ) < Nat.card H := by
-    have : 0 < Nat.card H := Nat.card_pos; positivity
-  rcases le_or_gt (Nat.card H) (Nat.card A) with h|h
+  have H_pos : (0 : ℝ) < (H : Set G).ncard := by
+    have : 0 < (H : Set G).ncard := Nat.card_pos; positivity
+  rcases le_or_gt ((H : Set G).ncard) (Nat.card A) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
-    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ) := hc
-    _ ≤ K ^ 5 * (K ^ 8 * Nat.card H) ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ) := by
+    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (-1 / 2 : ℝ) := hc
+    _ ≤ K ^ 5 * (K ^ 8 * (H : Set G).ncard) ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (-1 / 2 : ℝ) := by
       gcongr
     _ = K ^ 9 := by simp_rw [← rpow_natCast]; rpow_ring; norm_num
     _ < 2 * K ^ 9 := by linarith [show 0 < K ^ 9 by positivity]
@@ -2121,19 +2113,19 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
-    _ ≤ (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
-          * (Nat.card H / Nat.card H') := by
+    _ ≤ (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * ((H : Set G).ncard ^ (-1 / 2 : ℝ)))
+          * ((H : Set G).ncard / Nat.card H') := by
         gcongr
         apply le_of_eq
         rw [eq_div_iff H'_pos.ne']
         norm_cast
-    _ < (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
-          * (Nat.card H / (Nat.card A / 2)) := by
+    _ < (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * ((H : Set G).ncard ^ (-1 / 2 : ℝ)))
+          * ((H : Set G).ncard / (Nat.card A / 2)) := by
         gcongr
-    _ = (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (Nat.card H ^ (-1 / 2 : ℝ)))
-          * (Nat.card H * (Nat.card A : ℝ)⁻¹ * 2) := by
+    _ = (K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * ((H : Set G).ncard ^ (-1 / 2 : ℝ)))
+          * ((H : Set G).ncard * (Nat.card A : ℝ)⁻¹ * 2) := by
         field_simp
-    _ = 2 * K ^ 5 * Nat.card A ^ (-1 / 2 : ℝ) * Nat.card H ^ (1 / 2 : ℝ) := by
+    _ = 2 * K ^ 5 * Nat.card A ^ (-1 / 2 : ℝ) * (H : Set G).ncard ^ (1 / 2 : ℝ) := by
         rpow_ring
         field_simp
         norm_num
@@ -2150,14 +2142,14 @@ theorem better_PFR_conjecture' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
     {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
-      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+      Nat.card c < 2 * K ^ 9 ∧ (H : Set G).ncard ≤ Nat.card A ∧ A ⊆ c + H := by
   let G' := Submodule.span (ZMod 2) A
   let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
   let ι : G'→ₗ[ZMod 2] G := G'.subtype
   have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
   let A' : Set G' := ι ⁻¹' A
   have A_rg : A ⊆ range ι := by
-    simp only [AddMonoidHom.coe_coe, Submodule.coe_subtype, Subtype.range_coe_subtype, G', ι]
+    simp only [Submodule.coe_subtype, Subtype.range_coe_subtype, G', ι]
     exact Submodule.subset_span
   have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
   have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
@@ -2166,7 +2158,6 @@ theorem better_PFR_conjecture' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
   rcases better_PFR_conjecture (h₀A.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
   refine ⟨H'.map ι , ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
   · rwa [Nat.card_image_of_injective ι_inj]
-  · erw [Nat.card_image_of_injective ι_inj, ← cardA']
-    exact hH'
+  · simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA']
   · erw [← image_add]
     exact ⟨⟨x, Submodule.subset_span hx⟩, hH'₂ hx, rfl⟩

@@ -62,55 +62,55 @@ instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX : FiniteRange X] [hY
   finite := (hX.finite.prod hY.finite).subset (Set.range_pair_subset ..)
 
 /-- The product of functions of finite range, has finite range. -/
-@[to_additive "The sum of functions of finite range, has finite range."]
+@[to_additive /-- The sum of functions of finite range, has finite range. -/]
 instance FiniteRange.mul {Ω G : Type*} (X Y : Ω → G) [Mul G]
     [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X * Y) := by
   show FiniteRange ((fun p ↦ p.1 * p.2) ∘ fun ω ↦ (X ω, Y ω))
   infer_instance
 
 /-- The product of functions of finite range, has finite range. -/
-@[to_additive "The sum of functions of finite range, has finite range."]
+@[to_additive /-- The sum of functions of finite range, has finite range. -/]
 instance FiniteRange.mul' {Ω G : Type*} (X Y : Ω → G) [Mul G] [FiniteRange X] [FiniteRange Y] :
     FiniteRange fun ω ↦ X ω * Y ω := FiniteRange.mul ..
 
 /-- The quotient of two functions with finite range, has finite range. -/
-@[to_additive "The difference of functions of finite range, has finite range."]
+@[to_additive /-- The difference of functions of finite range, has finite range. -/]
 instance FiniteRange.div {Ω G : Type*} (X Y : Ω → G) [Div G]
     [hX : FiniteRange X] [hY : FiniteRange Y] : FiniteRange (X/Y) := by
   show FiniteRange ((fun p ↦ p.1 / p.2) ∘ fun ω ↦ (X ω, Y ω))
   infer_instance
 
 /-- The product of functions of finite range, has finite range. -/
-@[to_additive "The sum of functions of finite range, has finite range."]
+@[to_additive /-- The sum of functions of finite range, has finite range. -/]
 instance FiniteRange.div' {Ω G : Type*} (X Y : Ω → G) [Div G] [FiniteRange X] [FiniteRange Y] :
     FiniteRange fun ω ↦ X ω / Y ω := FiniteRange.div ..
 
 /-- The inverse of a function of finite range, has finite range.-/
-@[to_additive "The negation of a function of finite range, has finite range."]
+@[to_additive /-- The negation of a function of finite range, has finite range. -/]
 instance FiniteRange.inv {Ω G : Type*} (X : Ω → G) [Inv G] [hX : FiniteRange X] :
     FiniteRange X⁻¹ := by
   show FiniteRange ((fun p ↦ p⁻¹) ∘ X)
   infer_instance
 
 /-- The product of functions of finite range, has finite range. -/
-@[to_additive "The sum of functions of finite range, has finite range."]
+@[to_additive /-- The sum of functions of finite range, has finite range. -/]
 instance FiniteRange.inv' {Ω G : Type*} (X : Ω → G) [Inv G] [FiniteRange X] :
     FiniteRange fun ω ↦ (X ω)⁻¹ := FiniteRange.inv _
 
 /-- A function of finite range raised to a constant power, has finite range. -/
-@[to_additive "The multiple of a function of finite range by a constant, has finite range."]
+@[to_additive /-- The multiple of a function of finite range by a constant, has finite range. -/]
 instance FiniteRange.zpow {Ω G : Type*} (X : Ω → G) [Pow G ℤ] [hX : FiniteRange X] (n : ℤ) :
     FiniteRange (X ^ n) := by
   show FiniteRange ((· ^ n) ∘ X)
   infer_instance
 
 /-- A function of finite range raised to a constant power, has finite range. -/
-@[to_additive "The multiple of a function of finite range by a constant, has finite range."]
+@[to_additive /-- The multiple of a function of finite range by a constant, has finite range. -/]
 instance FiniteRange.zpow' {Ω G : Type*} (X : Ω → G) [Pow G ℤ] [FiniteRange X] (n : ℤ) :
     FiniteRange fun ω ↦ X ω ^ n := FiniteRange.zpow ..
 
 /-- The product of a finite number of functions with finite range, has finite range. -/
-@[to_additive "The sum of a finite number of functions with finite range, has finite range."]
+@[to_additive /-- The sum of a finite number of functions with finite range, has finite range. -/]
 instance FiniteRange.finprod {Ω G I : Type*} [CommMonoid G] {s : Finset I} (X : I → Ω → G)
     [∀ i, FiniteRange (X i)] :
     FiniteRange (∏ i ∈ s, X i) := by

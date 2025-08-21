@@ -35,6 +35,7 @@ import PFR.Main
 import PFR.Mathlib.Algebra.BigOperators.Fin
 import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
+import PFR.Mathlib.Data.Fin.Basic
 import PFR.Mathlib.Data.Prod.Basic
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
@@ -44,12 +45,14 @@ import PFR.Mathlib.MeasureTheory.Group.Arithmetic
 import PFR.Mathlib.MeasureTheory.Integral.Bochner.Set
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Countable
+import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
 import PFR.Mathlib.MeasureTheory.Measure.Dirac
 import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 import PFR.Mathlib.MeasureTheory.Measure.Prod
 import PFR.Mathlib.MeasureTheory.Measure.Real
 import PFR.Mathlib.MeasureTheory.Measure.Typeclasses.Probability
+import PFR.Mathlib.Order.Interval.Finset.Fin
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Probability.Independence.Basic

@@ -53,9 +53,9 @@ lemma prod_zero : μ.prod (0 : FiniteMeasure β) = 0 := by
   ext s _
   simp
 
-@[simp] lemma map_snd_prod : (μ.prod ν).map Prod.snd = (μ univ) • ν := by
+@[simp] lemma map_snd_prod : (μ.prod ν).map Prod.snd = μ univ • ν := by
   apply Subtype.ext
-  simp only [val_eq_toMeasure, toMeasure_map, toMeasure_prod, Measure.map_fst_prod]
+  simp only [val_eq_toMeasure, toMeasure_map, toMeasure_prod]
   ext s _
   simp
 

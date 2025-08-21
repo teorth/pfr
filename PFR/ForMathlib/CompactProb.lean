@@ -29,8 +29,7 @@ lemma continuous_pmf_apply (i : X) : Continuous fun μ : ProbabilityMeasure X �
   -- KK: The coercion fight here is one reason why I now prefer ℝ-valued and not ℝ≥0-valued probas.
   convert continuous_real_toNNReal.comp (continuous_pmf_apply' i)
   ext
-  simp only [Measure.real, Function.comp_apply, Real.coe_toNNReal', ge_iff_le,
-             ENNReal.toReal_nonneg, max_eq_left]
+  simp [Measure.real, Function.comp_apply]
   rfl
 
 -- KK: I will reuse this, so could be used in `probabilityMeasureHomeoStdSimplex`, too.
@@ -79,8 +78,7 @@ noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingl
     simp only [ProbabilityMeasure.mk_apply, Measure.coe_finset_sum, Measure.coe_smul,
       Finset.sum_apply, Pi.smul_apply, MeasurableSet.singleton, Measure.dirac_apply', smul_eq_mul]
     rw [Finset.sum_eq_single_of_mem i (Finset.mem_univ i)]
-    · simp only [Measure.smul_apply, MeasurableSet.singleton, Measure.dirac_apply',
-        Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, smul_eq_mul, mul_one]
+    · simp only [Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, mul_one]
       exact ENNReal.toReal_ofReal (p_pos i)
     · intro b _ bi
       simp [bi]

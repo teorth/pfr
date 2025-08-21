@@ -97,11 +97,9 @@ lemma KLDiv_eq_zero_iff_identDistrib [Fintype G] [MeasurableSingletonClass G]
   let νX := μ.map X
   have : IsProbabilityMeasure νX := isProbabilityMeasure_map hX.aemeasurable
   obtain ⟨r, hr⟩ : ∃ (r : ℝ), ∀ x ∈ Finset.univ, (νX.real {x}) = r * νY.real {x} := by
-    apply sum_mul_log_div_eq_iff (by simp) (by simp) (fun i _ hi ↦ ?_)
-    · rw [KLDiv_eq_sum] at h
-      simpa using h
-    · simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at hi
-      simp [habs i hi, νX]
+    apply sum_mul_log_div_eq_iff (by simp) (by simp) fun i _ hi ↦ ?_
+    · simpa [KLDiv_eq_sum] using h
+    · simp [habs i hi, νX]
   have r_eq : r = 1 := by
     have : r * ∑ x, νY.real {x} = ∑ x, νX.real {x} := by
       simp only [Finset.mul_sum, Finset.mem_univ, hr]
@@ -204,9 +202,7 @@ lemma ProbabilityTheory.IndepFun.map_add_eq_sum
   have : (X + Z) ⁻¹' S = ⋃ s, X ⁻¹' ({-s} + S) ∩ Z ⁻¹' {s} := by
     apply Subset.antisymm
     · intro y hy
-      simp only [mem_iUnion, mem_inter_iff, mem_preimage, mem_singleton_iff, exists_and_left,
-        exists_prop]
-      simp at hy
+      simp only [mem_iUnion, mem_inter_iff, mem_preimage, mem_singleton_iff]
       exact ⟨Z y, by simpa [add_comm] using hy, rfl⟩
     · simp only [iUnion_subset_iff]
       intro i y hy
@@ -219,7 +215,6 @@ lemma ProbabilityTheory.IndepFun.map_add_eq_sum
     apply Disjoint.inter_left'
     apply Disjoint.inter_right'
     apply disjoint_left.2 (fun a ha hb ↦ ?_)
-    simp [← neg_eq_iff_eq_neg] at ha hb
     rw [← ha, ← hb] at hij
     exact hij rfl
   · intro i
@@ -326,9 +321,7 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
     · exact A
     · exact B
     · intro s _ x
-      rw [AX', AY']
-      simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff, w]
-      exact habs _
+      simpa [AX', AY', measureReal_eq_zero_iff] using habs _
   apply this.trans_eq
   have C s : KL[X' s ; μ # Y' s ; μ] = KL[X ; μ # Y ; μ] :=
     KLDiv_of_comp_inj (add_left_injective s) hX hY
@@ -430,7 +423,7 @@ lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Fintype 
     exact (ν'.null_iff_toMeasure_null {g}).mpr h
   apply Tendsto.log; swap
   · simp only [Measure.map_id, ne_eq, div_eq_zero_iff, h'g, false_or, νg, not_false_eq_true]
-  apply Tendsto.div tendsto_const_nhds _ (by simp; exact ne_of_apply_ne ENNReal.toReal νg)
+  apply Tendsto.div tendsto_const_nhds _ (by simpa using νg)
   simp only [Measure.map_id]
   simp only [measureReal_def]
   rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]

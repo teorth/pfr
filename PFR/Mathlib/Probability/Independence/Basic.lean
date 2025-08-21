@@ -86,7 +86,6 @@ lemma IndepFun.finsetSum [m : MeasurableSpace β'] [AddCommMonoid β'] [Measurab
   let S : Bool → Finset ι := fun b => if b then s else t
   have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
     intro b _ c _ hbc
-    simp only [S, Set.mem_univ, true_implies]
     by_cases hb : b
     · by_cases hc : c
       · exfalso; exact hbc (hb ▸ hc.symm)
@@ -151,8 +150,7 @@ lemma indepFun_fst_snd [IsZeroOrProbabilityMeasure μ] {μ'} [IsZeroOrProbabilit
   · simp
   rw [IndepFun_iff]
   rintro _ _ ⟨s, _, rfl⟩ ⟨t, _, rfl⟩
-  simp [← Set.prod_univ, ← Set.univ_prod, Set.top_eq_univ, Set.prod_inter_prod, Set.inter_univ,
-    Set.univ_inter, Measure.prod_prod, measure_univ, mul_one, one_mul]
+  simp [← Set.prod_univ, ← Set.univ_prod, Set.prod_inter_prod]
 
 variable {f : Ω → α} {g : Ω → β}
 

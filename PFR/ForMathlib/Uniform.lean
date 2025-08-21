@@ -148,18 +148,15 @@ lemma IsUniform.measure_preimage_of_mem
     · simp
 
 /-- A "unit test" for the definition of uniform distribution. -/
-lemma IsUniform.measureReal_preimage_of_mem
-    {H : Finset S} [IsProbabilityMeasure μ]
-    (h : IsUniform H X μ) (hX : Measurable X) {s : S} (hs : s ∈ H) :
-    μ.real (X ⁻¹' {s}) = 1 / Nat.card H := by
-  rw [measureReal_def, h.measure_preimage_of_mem hX hs]
-  simp [ENNReal.toReal_inv]
+lemma IsUniform.measureReal_preimage_of_mem {A : Finset S} [IsProbabilityMeasure μ]
+    (h : IsUniform A X μ) (hX : Measurable X) {s : S} (hs : s ∈ A) :
+    μ.real (X ⁻¹' {s}) = 1 / A.card := by
+  simp [measureReal_def, h.measure_preimage_of_mem hX hs]
 
-lemma IsUniform.measureReal_preimage_of_mem' {H : Finset S} [IsProbabilityMeasure μ]
-    (h : IsUniform H X μ) (hX : Measurable X) {s : S} (hs : s ∈ H) :
-    (μ.map X).real {s} = 1 / Nat.card H := by
-  rw [map_measureReal_apply hX (MeasurableSet.singleton s),
-    IsUniform.measureReal_preimage_of_mem h hX hs]
+lemma IsUniform.measureReal_preimage_of_mem' {A : Finset S} [IsProbabilityMeasure μ]
+    (h : IsUniform A X μ) (hX : Measurable X) {s : S} (hs : s ∈ A) :
+    (μ.map X).real {s} = 1 / A.card := by
+  rw [map_measureReal_apply hX (MeasurableSet.singleton s), h.measureReal_preimage_of_mem hX hs]
 
 /-- $\mathbb{P}(U_H \in H') = \dfrac{|H' \cap H|}{|H|}$ -/
 lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Measurable X)
@@ -287,7 +284,7 @@ lemma isUniform_iff_map_eq_uniformOn [Finite H] {Ω : Type*} [mΩ : MeasurableSp
         by_cases h : x ∈ A
         · by_cases h' : x ∈ H <;>
             simp [h, h', Hf, h_unif'.measure_preimage_of_mem hU, h_unif'.measure_preimage_of_nmem,
-              map_apply hU (MeasurableSet.singleton x), (H.toFinite.coe_toFinset.symm ▸ h')]
+              map_apply hU (MeasurableSet.singleton x)]
         · simp [h]
       _ = Finset.sum AHf (fun _ ↦ (1:ENNReal) / (Nat.card H)) := by
         rw [tsum_eq_sum (s := (A ∩ H).toFinite.toFinset)]
@@ -299,8 +296,7 @@ lemma isUniform_iff_map_eq_uniformOn [Finite H] {Ω : Type*} [mΩ : MeasurableSp
         simp at hx
         simpa
       _ = Nat.card ↑(H ∩ A) / Nat.card H := by
-        simp [Finset.sum_const, ← Set.ncard_eq_toFinset_card (A ∩ H), Set.Nat.card_coe_set_eq,
-          Set.inter_comm, AHf, Hf, ← Nat.card_eq_card_finite_toFinset]
+        simp [Finset.sum_const, Set.inter_comm, AHf, ← Nat.card_eq_card_finite_toFinset]
         rfl
   intro this
   constructor

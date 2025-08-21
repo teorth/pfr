@@ -178,8 +178,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst,
     measurable_snd, ?_, ?_, ?_⟩
   · constructor
-    simp only [coe_finset_sum, smul_toOuterMeasure, OuterMeasure.coe_smul, Finset.sum_apply,
-      Pi.smul_apply, smul_eq_mul, ν]
+    simp only [coe_finset_sum, Finset.sum_apply, ν]
     have : ∑ y ∈ finY.toFinset, μ (Y ⁻¹' {y}) * 1 = 1 := by
       simp only [mul_one]
       rw [sum_measure_preimage_singleton]

@@ -81,18 +81,16 @@ lemma entropy_le_log_card [Fintype S] [MeasurableSingletonClass S]
 lemma entropy_le_log_card_of_mem [DiscreteMeasurableSpace S]
     {A : Finset S} {μ : Measure Ω} {X : Ω → S}
     (hX : Measurable X) (h : ∀ᵐ ω ∂μ, X ω ∈ A) :
-    H[X ; μ] ≤ log (Nat.card A) := by
-  apply measureEntropy_le_log_card_of_mem
-  rwa [Measure.map_apply hX .of_discrete]
+    H[X ; μ] ≤ log A.card :=
+  measureEntropy_le_log_card_of_mem _ <| by rwa [Measure.map_apply hX .of_discrete]
 
 /-- Entropy is at most the logarithm of the cardinality of a set in which X almost surely takes values in. -/
 lemma entropy_le_log_card_of_mem_finite [DiscreteMeasurableSpace S]
     {A : Set S} {μ : Measure Ω} {X : Ω → S}
     (hA : A.Finite) (hX : Measurable X) (h : ∀ᵐ ω ∂μ, X ω ∈ A) :
     H[X ; μ] ≤ log (Nat.card A) := by
-  have := entropy_le_log_card_of_mem (A := Set.Finite.toFinset hA) hX (μ := μ)
-  simp only [Set.Finite.mem_toFinset] at this
-  exact this h
+  lift A to Finset S using hA
+  simpa using entropy_le_log_card_of_mem (A := A) hX (μ := μ) (by simpa)
 
 /-- `H[X] = ∑ₛ P[X=s] log 1 / P[X=s]`. -/
 lemma entropy_eq_sum (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ] :
@@ -172,12 +170,10 @@ open Function
 lemma IsUniform.entropy_eq [DiscreteMeasurableSpace S] {H : Finset S} {X : Ω → S} {μ : Measure Ω}
     [IsProbabilityMeasure μ] (hX : IsUniform H X μ) (hX' : Measurable X) :
     H[X ; μ] = log (Nat.card H) := by
-  have (t : S) : negMulLog ((μ.map X).real {t}) = ((μ.map X).real {t}) * log (Nat.card H) := by
+  have (t : S) : negMulLog ((μ.map X).real {t}) = (μ.map X).real {t} * log (Nat.card H) := by
     by_cases ht : t ∈ H
-    · simp only [negMulLog, neg_mul, neg_mul_eq_mul_neg, IsUniform.measureReal_preimage_of_mem'
-        hX hX' ht, one_div, log_inv, neg_neg]
-    · simp only [negMulLog, map_measureReal_apply hX' (MeasurableSet.singleton t),
-      IsUniform.measureReal_preimage_of_nmem hX ht, neg_zero, log_zero, mul_zero, zero_mul]
+    · simp [negMulLog, IsUniform.measureReal_preimage_of_mem' hX hX' ht]
+    · simp [negMulLog, map_measureReal_apply hX' (.singleton t), hX.measureReal_preimage_of_nmem ht]
   rw [entropy_eq_sum_finset' (A := H), Finset.sum_congr rfl (fun t _ ↦ this t), ← Finset.sum_mul,
     sum_measureReal_singleton]
   · convert one_mul _
@@ -190,9 +186,9 @@ lemma IsUniform.entropy_eq [DiscreteMeasurableSpace S] {H : Finset S} {X : Ω �
 
 /-- Variant of `IsUniform.entropy_congr` where `H` is a finite `Set` rather than `Finset`. -/
 lemma IsUniform.entropy_eq' [DiscreteMeasurableSpace S]
-    {H : Set S} (hH : H.Finite) {X : Ω → S} {μ : Measure Ω} [IsProbabilityMeasure μ]
-    (hX : IsUniform H X μ) (hX' : Measurable X) : H[X ; μ] = log (Nat.card H) := by
-  have : IsUniform hH.toFinset X μ := by simpa using hX
+    {A : Set S} (hA : A.Finite) {X : Ω → S} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (hX : IsUniform A X μ) (hX' : Measurable X) : H[X ; μ] = log A.ncard := by
+  have : IsUniform hA.toFinset X μ := by simpa using hX
   simpa using this.entropy_eq hX'
 
 /-- If `X` is `S`-valued random variable, then `H[X] = log |S|` if and only if `X` is uniformly
@@ -393,7 +389,6 @@ lemma condEntropy_eq_kernel_entropy [Nonempty S] [Countable S] [MeasurableSingle
   rw [condEntropy_def, Kernel.entropy]
   apply integral_congr_finiteSupport
   intro t ht
-  simp only [ENNReal.toReal_eq_zero_iff, measure_ne_top (μ.map Y), or_false] at ht
   rw [Measure.map_apply hY (.singleton _)] at ht
   simp only [entropy_def]
   congr
@@ -784,37 +779,37 @@ lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure 
 /-- If `X, Y` are independent, then `H[X, Y] = H[X] + H[Y]`. -/
 protected alias ⟨_, IndepFun.entropy_pair_eq_add⟩ := entropy_pair_eq_add
 
-lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω]
-  [IsProbabilityMeasure hΩ.volume] {m:ℕ}
-  [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
-  {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
-  H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
-    induction' m with m hm
-    . simp; convert entropy_const Fin.elim0 <;> infer_instance
-    calc
-      _ = H[ ⟨(fun ω (i:Fin m) ↦ X i.castSucc ω), X (.last _)⟩ ] := by
-        let f : (Fin (m+1) → S) → (Fin m → S) × S := fun x ↦ (fun i ↦ x i.castSucc, x (.last m))
-        convert (entropy_comp_of_injective _ _ f _).symm; fun_prop
-        intro x y hxy; simp [f] at hxy
-        ext i; rcases Fin.eq_castSucc_or_eq_last i with h | rfl
-        . obtain ⟨ j, rfl ⟩ := h; replace hxy := hxy.1; exact congr($hxy j)
-        tauto
-      _ = H[fun ω (i:Fin m) ↦ X i.castSucc ω] + H[X (.last m)] := by
-        apply (entropy_pair_eq_add _ _).mpr _ <;> try fun_prop
-        let T : Finset (Fin (m+1)) := {.last m}ᶜ
-        let T' : Finset (Fin (m+1)) := {.last m}
-        let φ : (T → S) → (Fin m → S) := fun f j ↦ f ⟨ j.castSucc, by simp [T] ⟩
-        let φ' : (T' → S) → S := fun f ↦ f ⟨ .last m, by simp [T'] ⟩
-        exact finsets_comp' (by simp [T', T]) h_indep hX (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop)
-      _ = ∑ i:Fin m, H[X i.castSucc] + H[X (.last m)] := by
-        congr; apply hm _ _
-        . intro i; fun_prop
-        let T : Fin m → Finset (Fin (m+1)) := fun i ↦ {i.castSucc}
-        let φ : (i:Fin m) → ((_: T i) → S) → S := fun i x ↦ x ⟨ i.castSucc, by simp [T] ⟩
-        convert iIndepFun.finsets_comp T _ h_indep hX φ (by fun_prop)
-        rw [Finset.pairwiseDisjoint_iff]; rintro ⟨ _, _ ⟩ _ ⟨ _, _ ⟩ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-        simp [T] at hij ⊢; omega
-      _ = _ := by rw [Fin.sum_univ_castSucc]
+lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
+    {m : ℕ} [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
+    {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
+    H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
+  induction' m with m hm
+  . simp; convert entropy_const Fin.elim0 <;> infer_instance
+  calc
+    _ = H[ ⟨(fun ω (i:Fin m) ↦ X i.castSucc ω), X (.last _)⟩ ] := by
+      let f : (Fin (m + 1) → S) → (Fin m → S) × S := fun x ↦ (fun i ↦ x i.castSucc, x (.last m))
+      convert (entropy_comp_of_injective _ _ f _).symm; fun_prop
+      intro x y hxy; simp [f] at hxy
+      ext i; rcases Fin.eq_castSucc_or_eq_last i with h | rfl
+      . obtain ⟨ j, rfl ⟩ := h; replace hxy := hxy.1; exact congr($hxy j)
+      tauto
+    _ = H[fun ω (i:Fin m) ↦ X i.castSucc ω] + H[X (.last m)] := by
+      apply (entropy_pair_eq_add _ _).mpr _ <;> try fun_prop
+      let T : Finset (Fin (m + 1)) := {.last m}ᶜ
+      let T' : Finset (Fin (m + 1)) := {.last m}
+      let φ : (T → S) → (Fin m → S) := fun f j ↦ f ⟨ j.castSucc, by simp [T] ⟩
+      let φ' : (T' → S) → S := fun f ↦ f ⟨ .last m, by simp [T'] ⟩
+      exact finsets_comp' (by simp [T', T]) h_indep hX (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop)
+    _ = ∑ i:Fin m, H[X i.castSucc] + H[X (.last m)] := by
+      congr; apply hm _ _
+      . intro i; fun_prop
+      let T : Fin m → Finset (Fin (m + 1)) := fun i ↦ {i.castSucc}
+      let φ : (i:Fin m) → ((_: T i) → S) → S := fun i x ↦ x ⟨ i.castSucc, by simp [T] ⟩
+      convert iIndepFun.finsets_comp T _ h_indep hX φ (by fun_prop)
+      rw [Finset.pairwiseDisjoint_iff]; rintro ⟨ _, _ ⟩ _ ⟨ _, _ ⟩ _ ⟨ ⟨ _, _ ⟩, hij ⟩
+      simp [T] at hij ⊢
+      grind
+    _ = _ := by rw [Fin.sum_univ_castSucc]
 
 
 variable [Countable S] [Countable T]
