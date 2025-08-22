@@ -31,7 +31,7 @@ variable {G : Type*} [AddCommGroup G] {A B : Set G}
 def IsShift (A B : Set G) : Prop := ∃ x : G, A = x +ᵥ B
 
 lemma IsShift.sub_self_congr : IsShift A B → A - A = B - B := by
-  rintro ⟨x, rfl⟩; simp [vadd_sub_vadd_comm, singleton_zero]
+  rintro ⟨x, rfl⟩; simp [vadd_sub_vadd_comm]
 
 lemma IsShift.card_congr : IsShift A B → Nat.card A = Nat.card B := by rintro ⟨x, rfl⟩; simp
 
@@ -50,13 +50,11 @@ lemma wlog_notInCoset (hA : A.Nonempty) (hB : B.Nonempty) :
   set A' : Set (G' : Set G) := (↑) ⁻¹' ((-x) +ᵥ A) with hA'
   set B' : Set (G' : Set G) := (↑) ⁻¹' ((-y) +ᵥ B) with hB'
   have hxA : -x +ᵥ A ⊆ range ((↑) : G' → G) := by
-    simp only [← singleton_add', ← neg_singleton, neg_add_eq_sub, SetLike.coe_sort_coe,
-      Subtype.range_coe_subtype, SetLike.mem_coe]
+    simp only [← singleton_add', ← neg_singleton, neg_add_eq_sub, Subtype.range_coe_subtype]
     exact (sub_subset_sub_left $ singleton_subset_iff.2 hx).trans $ (subset_union_left ..).trans
       AddSubgroup.subset_closure
   have hyB : -y +ᵥ B ⊆ range ((↑) : G' → G) := by
-    simp only [← singleton_add', ← neg_singleton, neg_add_eq_sub, SetLike.coe_sort_coe,
-      Subtype.range_coe_subtype, SetLike.mem_coe]
+    simp only [← singleton_add', ← neg_singleton, neg_add_eq_sub, Subtype.range_coe_subtype]
     exact (sub_subset_sub_left $ singleton_subset_iff.2 hy).trans $ (subset_union_right ..).trans
       AddSubgroup.subset_closure
   have hA : IsShift A A' := ⟨x, by rwa [hA', Set.image_preimage_eq_of_subset, vadd_neg_vadd]⟩
@@ -87,12 +85,12 @@ variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonCl
 
 /-- If `G` is torsion-free and `X, Y` are `G`-valued random variables then `d[X ; 2Y] ≤ 5d[X ; Y]`. -/
 lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
-    (hX : Measurable X) (hY : Measurable Y) (hG : AddMonoid.IsTorsionFree G) :
+    (hX : Measurable X) (hY : Measurable Y) (hG : IsAddTorsionFree G) :
     d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X ; μ # Y ; μ'] := by
   obtain ⟨A, mA, μA, X', Y'₁, Y'₂, hμA, h_indep, hX'_meas, hY'₁_meas, hY'₂_meas, hX'_ident,
     hY'₁_ident, hY'₂_ident, _, _, _⟩ := independent_copies3_nondep_finiteRange hX hY hY μ μ' μ'
   have h_meas (i : Fin 3) : Measurable (![X', Y'₁, Y'₂] i) := by fin_cases i <;> assumption
-  have : NoZeroSMulDivisors ℕ G := hG.noZeroSMulDivisors_nat
+  have : NoZeroSMulDivisors ℕ G := noZeroSMulDivisors_nat_iff_isAddTorsionFree.mpr hG
   have : H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[X ; μ] + 2 * H[Y ; μ'] := calc
     H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[⟨X', ⟨Y'₁, Y'₂⟩⟩ ; μA] := by
       let f : G × G × G → G × G × G := fun ⟨x, y₁, y₂⟩ ↦ (x, y₁ - y₂, x - 2 • y₁)
@@ -212,7 +210,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
 lemma torsion_dist_shrinking {H : Type*} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
     (hY : Measurable Y) [AddCommGroup H] [Module (ZMod 2) H]
     [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H]
-    (hG : AddMonoid.IsTorsionFree G) (φ : G →+ H) :
+    (hG : IsAddTorsionFree G) (φ : G →+ H) :
     H[φ ∘ X ; μ] ≤ 10 * d[X ; μ # Y ; μ'] :=
   calc
     H[φ ∘ X ; μ] = 2 * d[φ ∘ X ; μ # φ ∘ (Y + Y) ; μ'] := by
@@ -269,7 +267,8 @@ lemma app_ent_PFR' [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (X : Ω →
   have log_sub_le : (log (Nat.card H) - H[X]) + (log (Nat.card H) - H[Y]) ≤ 20 * d[X # Y] := calc
     (log (Nat.card H) - H[X]) + (log (Nat.card H) - H[Y]) =
       (H[U] - H[X]) + (H[U] - H[Y]) := by
-        rw [IsUniform.entropy_eq' H_fin hUunif hUmeas, SetLike.coe_sort_coe]
+        rw [IsUniform.entropy_eq' H_fin hUunif hUmeas]
+        norm_cast
     _ ≤ |(H[U] - H[X])| + |(H[U] - H[Y])| := by gcongr <;> exact le_abs_self _
     _ ≤ 2 * d[X # U] + 2 * d[Y # U] := by
       gcongr
@@ -382,8 +381,7 @@ lemma PFR_projection'
       _ = (α * c) * (H[X ; μ] + H[Y ; μ']) := by ring
   · use ⊥
     constructor
-    · simp only [AddSubgroup.mem_bot, Nat.card_eq_fintype_card, Fintype.card_ofSubsingleton,
-        Nat.cast_one, log_one]
+    · simp only [Nat.card_eq_fintype_card, Fintype.card_ofSubsingleton, Nat.cast_one, log_one]
       positivity
     · simp only [S, Set.mem_setOf_eq, not_and, not_lt] at hE
       exact hE ⟨1, by norm_num, by
@@ -511,7 +509,7 @@ lemma single_fibres {G H Ω Ω': Type*}
       rewrite [hUA_coe.measureReal_preimage hUA', hUB_coe.measureReal_preimage hUB']
       simp_rw [p, A_, B_, measureReal_univ_eq_one, one_mul]
       rewrite [mul_div_mul_comm, Set.inter_comm A, Set.inter_comm B]
-      simp only [Set.Finite.coe_toFinset, Set.Finite.mem_toFinset, Finset.mem_val]; rfl
+      simp only [Set.Finite.coe_toFinset, Set.Finite.mem_toFinset]; rfl
     _ ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by
       rewrite [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe]
       linarith only [rdist_le_sum_fibre φ hUA' hUB' (μ := ℙ) (μ' := ℙ)]
@@ -659,7 +657,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   let _mH : MeasurableSpace H := ⊤
   have : Finite H := ModN.instFinite
   let h_fintype : Fintype H := .ofFinite H
-  have h_torsionfree := AddMonoid.IsTorsionFree.of_noZeroSMulDivisors (M := G)
+  have : NoZeroSMulDivisors ℕ G := by infer_instance
+  have h_torsionfree := IsAddTorsionFree.of_noZeroSMulDivisors_nat (G := G) this
 
   obtain ⟨Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, hUA_mem, hUA_fin⟩ :=
     exists_isUniform_measureSpace' A A_fin hnA
@@ -743,7 +742,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
       have hzf : z ∈ Af := by simp [Af, Set.Finite.mem_toFinset, hz]
       have : (Measure.map UA ℙ).real {z} > 0 := by
         rw [IsUniform.measureReal_preimage_of_mem' hUAf hUA_mes hzf]
-        positivity
+        simp only [one_div, gt_iff_lt, inv_pos, Nat.cast_pos, Finset.card_pos]
+        exact (Finite.toFinset_nonempty (toFinite A)).mpr hnA
       have _ : IsProbabilityMeasure ((ℙ).map UA) :=
         MeasureTheory.isProbabilityMeasure_map (Measurable.aemeasurable hUA_mes)
       replace this := single ((ℙ).map UA) hx this
@@ -768,7 +768,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
       have hzf : z ∈ Bf := by simp [Bf, Set.Finite.mem_toFinset, hz]
       have : (Measure.map UB ℙ).real {z} > 0 := by
         rw [IsUniform.measureReal_preimage_of_mem' hUBf hUB_mes hzf]
-        positivity
+        simp only [one_div, gt_iff_lt, inv_pos, Nat.cast_pos, Finset.card_pos]
+        exact (Finite.toFinset_nonempty (toFinite B)).mpr hnB
       have _ : IsProbabilityMeasure ((ℙ).map UB) :=
         MeasureTheory.isProbabilityMeasure_map (Measurable.aemeasurable hUB_mes)
       replace this := single ((ℙ).map UB) hy this

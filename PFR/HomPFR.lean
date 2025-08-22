@@ -103,7 +103,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
       ext x; simpa [hH₀₁] using fun _ ↦ ⟨φ x, by simp⟩
     have hG_cover : (univ : Set G) = c' + (H₀:Set G) := by
       apply (eq_univ_of_forall (fun g ↦ ?_)).symm
-      have := image_subset Prod.fst hAcH
+      have := image_mono (f := Prod.fst) hAcH
       rw [← AddHom.coe_fst, Set.image_add, AddHom.coe_fst, image_fst_graphOn] at this
       rw [← h_fstH]
       exact this (mem_univ g)
@@ -149,7 +149,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
       _ ≤ Nat.card c * ((Nat.card H / Nat.card A) * Nat.card c) := by gcongr
       _ = Nat.card c ^ 2 * (Nat.card H / Nat.card A) := by ring
       _ ≤ (Nat.card S ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2
-          * (Nat.card H / Nat.card A) := by gcongr
+          * (Nat.card H / Nat.card A) := by gcongr; convert hcS
       _ = (Nat.card S : ℝ) ^ (10 : ℝ) := by
         rw [← Real.rpow_two, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]
         have : 0 < Nat.card S := by
