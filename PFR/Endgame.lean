@@ -324,8 +324,7 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
 omit [Fintype G] hG [MeasurableSingletonClass G] mΩ in
 /-- `U + V + W = 0`. -/
 lemma sum_uvw_eq_zero [Module (ZMod 2) G] : U + V + W = 0 := by
-  simp [add_assoc, add_left_comm (a := X₁), add_left_comm (a := X₂), ← ZModModule.sub_eq_add X₁',
-    ZModModule.add_self]
+  simp [add_assoc, ← ZModModule.sub_eq_add X₁', ZModModule.add_self]
 
 section construct_good
 variable {Ω' : Type*} [MeasureSpace Ω']
@@ -389,10 +388,8 @@ lemma construct_good_prelim :
 
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2) := by
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
-      simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
-        ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj, sum2]
-      simp [condRuzsaDist'_eq_sum hT₁ hT₃,
-        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃),
+      simp only [integral_sub .of_finite .of_finite, integral_const, smul_eq_mul, sum2]
+      simp [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃),
         integral_finset _ _ IntegrableOn.finset, map_measureReal_apply hT₃ (.singleton _)]
 
     gcongr
@@ -400,8 +397,7 @@ lemma construct_good_prelim :
 
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2) := by
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
-      simp only [integral_sub .of_finite .of_finite, integral_const, measure_univ,
-        ENNReal.toReal_one, smul_eq_mul, one_mul, sub_left_inj, sum3]
+      simp only [integral_sub .of_finite .of_finite, integral_const, smul_eq_mul, sum3]
       simp [condRuzsaDist'_eq_sum hT₂ hT₃,
         integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃),
         integral_finset _ _ IntegrableOn.finset,
@@ -461,7 +457,7 @@ lemma delta'_eq_integral :
   simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_fintype _ .of_finite, smul_add,
     Finset.sum_add_distrib]
 
-include hT₁ hT₂ hT₃ hT h_min hR hX₁ hX₂ in
+include hT₁ hT₂ hT₃ hT h_min hR in
 lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
     k ≤ δ' + (p.η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
@@ -480,9 +476,7 @@ lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
   by_cases hr : ℙ (R⁻¹' {r}) = 0
   · simp [Measure.real, Measure.map_apply hR (.singleton r), hr]
   simp_rw [smul_eq_mul]
-  gcongr (?_ * ?_)
-  · apply rdist_nonneg hX₁ hX₂
-  · rfl
+  gcongr
   have : IsProbabilityMeasure (ℙ[|R ⁻¹' {r}]) := cond_isProbabilityMeasure hr
   apply construct_good' p X₁ X₂ h_min hT hT₁ hT₂ hT₃
 
@@ -491,10 +485,9 @@ end construct_good
 include hX₁ hX₂ h_min h₁ h₂ h_indep hX₁ hX₂ hX₁' hX₂' in
 /-- If `d[X₁ ; X₂] > 0` then there are `G`-valued random variables `X₁', X₂'` such that
 Phrased in the contrapositive form for convenience of proof. -/
-theorem tau_strictly_decreases_aux
-    [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2) G]
+theorem tau_strictly_decreases_aux [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2) G]
     (hpη : p.η = 1/9) : d[X₁ # X₂] = 0 := by
-  have h0 := cond_construct_good p X₁ X₂ hX₁ hX₂ h_min (sum_uvw_eq_zero ..)
+  have h0 := cond_construct_good p X₁ X₂ h_min (sum_uvw_eq_zero ..)
     (show Measurable U by fun_prop) (show Measurable V by fun_prop)
     (show Measurable W by fun_prop) (show Measurable S by fun_prop)
   have h1 := sum_condMutual_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min

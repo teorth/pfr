@@ -24,18 +24,12 @@ lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*}
   set A := FiniteRange.toFinset X₀
   classical
   let X' (ω : Ω) : S := if (X ω ∈ A) then X ω else hS.some
-  use X'
-  constructor
-  · exact Measurable.ite (MeasurableSet.preimage (Finset.measurableSet A) hX) hX measurable_const
-  constructor
+  refine ⟨X', ?_, ?_, ?_⟩
+  · exact .ite (.preimage (Finset.measurableSet A) hX) hX measurable_const
   · apply finiteRange_of_finset X' (A ∪ {hS.some})
     intro ω
-    simp
-    by_cases h: X ω ∈ A
-    · left; simp at h; simp [X', h]
-    · right
-      simp only [ite_eq_right_iff, X']
-      exact fun h' ↦ absurd h' h
+    simp [X']
+    split <;> simp [*]
   apply Filter.eventuallyEq_of_mem (s := X ⁻¹' A)
   · simp [ae]
     rw [← Set.preimage_compl, ← IdentDistrib.measure_preimage_eq hi]
@@ -158,20 +152,15 @@ lemma independent_copies'_finiteRange {I : Type u} [Fintype I] {α : I → Type 
     ∃ (A : Type (max u v)) (_ : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
     IsProbabilityMeasure μA ∧ iIndepFun X' μA ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) ∧ FiniteRange (X' i) := by
-  obtain ⟨ A, mA, μA, X', ⟨ hμA, hindep, hident ⟩ ⟩ :=
-    independent_copies' X hX μ
+  obtain ⟨A, mA, μA, X', ⟨hμA, hindep, hident⟩⟩ := independent_copies' X hX μ
   set h := fun i ↦ (identDistrib_of_finiteRange ((hident i).1) (hident i).2.symm)
-  set X'' := fun i ↦ (h i).choose
-  have hX'' (i : I) : Measurable (X'' i) ∧ FiniteRange (X'' i) ∧ X'' i =ᵐ[μA] X' i := by
-    simp only [X'', h]
-    exact (h i).choose_spec
-  use A, mA, μA, X''
-  refine ⟨ hμA, ?_, ?_ ⟩
+  choose X'' hX'' using h
+  refine ⟨A, mA, μA, X'', hμA, ?_, ?_⟩
   . apply hindep.ae_eq
     intro i
     exact (hX'' i).2.2.symm
   intro i
-  refine ⟨ (hX'' i).1, ?_, (hX'' i).2.1 ⟩
+  refine ⟨(hX'' i).1, ?_, (hX'' i).2.1⟩
   exact (ProbabilityTheory.IdentDistrib.of_ae_eq (Measurable.aemeasurable (hX'' i).1) (hX'' i).2.2).trans (hident i).2
 
 

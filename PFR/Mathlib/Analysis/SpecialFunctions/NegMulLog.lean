@@ -36,7 +36,7 @@ lemma sum_mul_log_div_leq {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) (hb :
   let B := ∑ i ∈ s, b i
   have B_pos : 0 < B := by
     apply Finset.sum_pos' hb
-    simp only [not_forall, Classical.not_imp] at h
+    simp only [not_forall] at h
     rcases h with ⟨i, hi, h'i⟩
     exact ⟨i, hi, lt_of_le_of_ne (hb i hi) (Ne.symm h'i)⟩
   suffices - (∑ i ∈ s, a i * log (a i / b i)) / B ≤

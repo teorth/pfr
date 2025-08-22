@@ -55,7 +55,7 @@ lemma indep_yj (j : Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := by
   let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
   convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
   rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-  simp [S] at hij; cc
+  simp [S] at hij; omega
 
 include h_mes h_indep hident h_min in
 /-- We have `I[Z_1 : Z_2 | W], I[Z_2 : Z_3 | W], I[Z_1 : Z_3 | W] ≤ 4m^2 η k`.
@@ -105,7 +105,7 @@ lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k
     let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
     convert iIndepFun.finsets_comp S _ hX'_indep (by fun_prop) φ (by fun_prop) with i ω
     rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-    simp [S] at hij; cc
+    simp [S] at hij; omega
   have := mutual_information_le (by fun_prop) (indep_yj h_mes h_indep zero) ?_ (by fun_prop) hX'_indep ?_
   . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
       apply multiDist_copy; intro i; exact (hident i zero).symm
@@ -156,7 +156,7 @@ lemma mutual_information_le_t_13 : I[Z1 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k
     let φ : (i:Fin p.m) → ((_: S i) → G) → G := fun i x ↦ x ⟨ (i,j), by simp [S] ⟩
     convert iIndepFun.finsets_comp S _ hX'_indep (by fun_prop) φ (by fun_prop) with i ω
     rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-    simp [S] at hij; cc
+    simp [S] at hij; omega
   have hindep_yj (j: Fin p.m) : iIndepFun (fun i ↦ Y (i, j)) := indep_yj h_mes h_indep j
   have := mutual_information_le (by fun_prop) (hindep_yj zero) ?_ (by fun_prop) hX'_indep ?_
   . have k_eq : k = D[fun i ω ↦ Y (i, zero) ω ; fun x ↦ hΩ'] := by
@@ -268,7 +268,7 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
       convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
       . simp [φ]
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-      simp [S] at hij; cc
+      simp [S] at hij; omega
     _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi zero, 2 * k := by
       gcongr with j hj
       . exact le_of_eq (Q_ent _ h_mes h_indep hident _)
@@ -320,7 +320,7 @@ lemma entropy_of_Z_two_le : H[Z2] ≤ (8 * p.m^2 - 16 * p.m + 1) * k + (p.m:ℝ)
       convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with i ω
       . simp [φ, Y']
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-      simp [S] at hij; cc
+      simp [S] at hij; omega
     _ ≤ H[Q one] + ∑ i ∈ .Ioi one, 4 * p.m * (2 * k) := by
       gcongr with i hi
       have hQi_mes : Measurable (-(Q i)) := Q_mes h_mes _
@@ -353,7 +353,7 @@ lemma mutual_of_W_Z_two_le : I[W : Z2] ≤ 2 * (p.m-1) * k := by
       let f : (Finset.univ.erase zero → G) → G := fun x ↦ ∑ j, j.val.val • (x j)
       convert condEntropy_comp_ge _ _ _ f <;> try infer_instance
       . ext ω; simp only [Z2_eq, f]
-        simp only [Finset.sum_apply, Pi.smul_apply, Finset.mem_univ, Function.comp_apply]
+        simp only [Finset.sum_apply, Pi.smul_apply, Function.comp_apply]
         convert Finset.sum_subtype _ _ _
         simp [zero]
       all_goals fun_prop
@@ -433,7 +433,7 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
             convert iIndepFun.finsets_comp S _ h_indep (by fun_prop) φ (by fun_prop) with q ω
             . by_cases h : q = i₀ <;> simp [φ,Y',h]
             rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨ ⟨ _, _ ⟩, hij ⟩
-            simp [S] at hij; cc
+            simp [S] at hij; grind
           exact mutual_of_W_Z_two_le _ h_mes h_indep hident
         _ = _ := by ring
     _ = ∑ i, d[ X i # X i] + p.m * H[Z2] / 2 - (∑ i, H[X i]) / 2 + p.m * (p.m -1) * k := by
@@ -707,21 +707,21 @@ at most `log K`. -/
 theorem rdist_le_of_isUniform_of_card_add_le' {G : Type*} [AddCommGroup G] {A : Set G}
     {K : ℝ} [Countable G] [A_fin : Finite A] [MeasurableSpace G]
     [MeasurableSingletonClass G]
-    (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A)
+    (h₀A : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # -U₀] ≤ log K := by
-  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
-    PFR_conjecture_pos_aux' h₀A hA
+  obtain ⟨A_pos, AA_pos, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < (A + A).ncard ∧ 0 < K :=
+    PFR_conjecture_pos_aux' A_fin h₀A hA
   rcases independent_copies_two U₀meas U₀meas with ⟨Ω, mΩ, U, U', hP, hU, hU', UU'_indep, idU, idU'⟩
   have Uunif : IsUniform A U := U₀unif.of_identDistrib idU.symm .of_discrete
   have U'unif : IsUniform A U' := U₀unif.of_identDistrib idU'.symm .of_discrete
   have IU : d[U # -U'] ≤ log K := by
-    have I : H[U - (-U')] ≤ log (Nat.card (A + A)) := by
+    have I : H[U - (-U')] ≤ log (A + A).ncard := by
       simp only [sub_neg_eq_add]
       apply entropy_le_log_card_of_mem_finite (Set.Finite.add A_fin A_fin) (hU.add hU')
       filter_upwards [Uunif.ae_mem, U'unif.ae_mem] with ω h1 h2
       exact Set.add_mem_add h1 h2
-    have J : log (Nat.card (A + A)) ≤ log K + log (Nat.card A) := by
+    have J : log (A + A).ncard ≤ log K + log A.ncard := by
       apply (log_le_log AA_pos hA).trans (le_of_eq _)
       rw [log_mul K_pos.ne' A_pos.ne']
     have A_fin_neg : Finite (-A: Set G) := Set.Finite.neg A_fin
@@ -734,8 +734,7 @@ theorem rdist_le_of_isUniform_of_card_add_le' {G : Type*} [AddCommGroup G] {A : 
       convert IsUniform.comp U'unif neg_injective
       ext x; simp [hAA']
     rw [UU'_indep.rdist_eq hU hU'.neg, Uunif.entropy_eq' A_fin hU, U'unif.entropy_eq' A_fin_neg hU'.neg]
-    have : log (Nat.card (-A: Set G)) = log (Nat.card A) := by
-      congr 2; simp
+    have : log (-A).ncard = log A.ncard := by congr 2; simp
     linarith
   replace idU' : IdentDistrib (-U') (-U₀) ℙ ℙ := by
     convert ProbabilityTheory.IdentDistrib.comp idU' (u := fun x ↦ -x) (by fun_prop)
@@ -748,15 +747,15 @@ theorem rdist_le_of_isUniform_of_card_add_le' {G : Type*} [AddCommGroup G] {A : 
      -/
 lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2)
     (htorsion: ∀ x:G, m • x = 0) {A : Set G} [A_fin: Finite A] {K : ℝ} (h₀A : A.Nonempty)
-    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    (hA : Nat.card (A + A) ≤ K * A.ncard) :
     ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ K ^ (128 * m^3 + 1) * Nat.card A ^ (1/2:ℝ) * Nat.card H ^ (-1/2 : ℝ )
-      ∧ Nat.card H ≤ K ^ (256 * m^3) * Nat.card A
-      ∧ Nat.card A ≤ K ^ (256 * m^3) * Nat.card H ∧ A ⊆ c + H := by
+    c.ncard ≤ K ^ (128 * m^3 + 1) * A.ncard ^ (1/2:ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)
+      ∧ (H : Set G).ncard ≤ K ^ (256 * m^3) * A.ncard
+      ∧ A.ncard ≤ K ^ (256 * m^3) * (H : Set G).ncard ∧ A ⊆ c + H := by
   let _mG : MeasurableSpace G := ⊤
   have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
-  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
-    PFR_conjecture_pos_aux' h₀A hA
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+    PFR_conjecture_pos_aux' A_fin h₀A hA
   let A' := A.toFinite.toFinset
   have h₀A' : Finset.Nonempty A' := by simpa [Finset.Nonempty, A'] using h₀A
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
@@ -781,31 +780,31 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ
   rw [← hHH'] at VH'unif
 
   have : d[VA # VH] ≤ 64 * m^3 * (2*log K) := by rw [idVA.rdist_congr idVH]; apply huH.trans; gcongr
-  have H_pos : (0 : ℝ) < Nat.card H := by
-    have : 0 < Nat.card H := Nat.card_pos
+  have H_pos : (0 : ℝ) < (H : Set G).ncard := by
+    have : 0 < (H : Set G).ncard := Nat.card_pos
     positivity
-  have VA_ent : H[VA] = log (Nat.card A) := VAunif.entropy_eq' A_fin VAmeas
-  have VH_ent : H[VH] = log (Nat.card H) := VHunif.entropy_eq' H_fin VHmeas
-  have Icard : |log (Nat.card A) - log (Nat.card H)| ≤ 256 * m^3 * log K := by
+  have VA_ent : H[VA] = log (A.ncard) := VAunif.entropy_eq' A_fin VAmeas
+  have VH_ent : H[VH] = log ((H : Set G).ncard) := VHunif.entropy_eq' H_fin VHmeas
+  have Icard : |log (A.ncard) - log ((H : Set G).ncard)| ≤ 256 * m^3 * log K := by
     rw [← VA_ent, ← VH_ent]
     apply (diff_ent_le_rdist VAmeas VHmeas).trans
     linarith
-  have IAH : Nat.card A ≤ K ^ (256 * m^3) * Nat.card H := by
-    have : log (Nat.card A) ≤ log K * (256 * m^3) + log (Nat.card H) := by
+  have IAH : A.ncard ≤ K ^ (256 * m^3) * (H : Set G).ncard := by
+    have : log (A.ncard) ≤ log K * (256 * m^3) + log ((H : Set G).ncard) := by
       linarith [(le_abs_self _).trans Icard]
     convert exp_monotone this using 1
     · exact (exp_log A_pos).symm
     · rw [exp_add, exp_log H_pos, ← rpow_def_of_pos K_pos, ←Real.rpow_natCast]
       norm_cast
-  have IHA : Nat.card H ≤ K ^ (256 * m^3) * Nat.card A := by
-    have : log (Nat.card H) ≤ log K * (256 * m^3) + log (Nat.card A) := by
+  have IHA : (H : Set G).ncard ≤ K ^ (256 * m^3) * A.ncard := by
+    have : log ((H : Set G).ncard) ≤ log K * (256 * m^3) + log (A.ncard) := by
       linarith [(neg_le_abs _).trans Icard]
     convert exp_monotone this using 1
     · exact (exp_log H_pos).symm
     · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos, ←Real.rpow_natCast]
       norm_cast
   -- entropic PFR shows that the entropy of `VA - VH` is small
-  have I : log K * (-128*m^3) + log (Nat.card A) * (-1/2) + log (Nat.card H) * (-1/2)
+  have I : log K * (-128*m^3) + log (A.ncard) * (-1/2) + log ((H : Set G).ncard) * (-1/2)
       ≤ - H[VA - VH] := by
     rw [Vindep.rdist_eq VAmeas VHmeas] at this
     linarith
@@ -813,43 +812,44 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ
   obtain ⟨x₀, h₀⟩ : ∃ x₀ : G, rexp (- H[VA - VH]) ≤ (ℙ : Measure Ω).real ((VA - VH) ⁻¹' {x₀}) :=
     prob_ge_exp_neg_entropy' _ ((VAmeas.sub VHmeas).comp measurable_id')
   -- massage the previous inequality to get that `A ∩ (H + {x₀})` is large
-  have J : K ^ (-128*m^3 : ℝ) * Nat.card A ^ (1/2:ℝ) * Nat.card H ^ (1/2 : ℝ) ≤
-      Nat.card (A ∩ (H + {x₀}) : Set G) := by
+  have J : K ^ (-128*m^3 : ℝ) * A.ncard ^ (1/2:ℝ) * (H : Set G).ncard ^ (1/2 : ℝ) ≤
+      (A ∩ (H + {x₀})).ncard := by
+    classical
     rw [VA'unif.measureReal_preimage_sub VAmeas VH'unif VHmeas Vindep] at h₀
     have := (Real.exp_monotone I).trans h₀
-    have hAA'_card : Nat.card A' = Nat.card A := congrArg Nat.card (congrArg Subtype hAA')
-    have hHH'_card : Nat.card H' = Nat.card H := congrArg Nat.card (congrArg Subtype hHH')
+    have hAA'_card : A'.card = A.ncard := by simp [← hAA']
+    have hHH'_card : H'.card = (H : Set G).ncard := by simp [← hHH']
     rw [hAA'_card, hHH'_card, le_div_iff₀] at this
     convert this using 1
     · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos,
         ← rpow_def_of_pos H_pos]
       rpow_ring
       norm_num
-    · rw [hAA', hHH']
+    · simp [← Set.ncard_coe_finset, hAA', hHH', -add_singleton]
     positivity
 
   have Hne : (A ∩ (H + {x₀} : Set G)).Nonempty := by
     by_contra h'
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
-    simp only [Nat.card_eq_fintype_card, Nat.card_of_isEmpty, CharP.cast_eq_zero, lt_self_iff_false,
+    simp only [Nat.card_eq_fintype_card, CharP.cast_eq_zero, lt_self_iff_false,
       not_nonempty_iff_eq_empty.1 h'] at this
   /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is
   a subset of `A + A`, and the denominator is bounded below by the previous inequality`. -/
   have Z3 :
-      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ (K ^ (128*m^3+1 : ℝ) * Nat.card A ^ (1/2 : ℝ) *
-        Nat.card H ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
+      (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ) ≤ (K ^ (128*m^3+1 : ℝ) * A.ncard ^ (1/2 : ℝ) *
+        (H : Set G).ncard ^ (-1/2 : ℝ)) * Nat.card ↑(A ∩ (↑H + {x₀})) := by
     calc
       (Nat.card (A + A ∩ (↑H + {x₀})) : ℝ)
       _ ≤ Nat.card (A + A) := by
         gcongr; exact Nat.card_mono (toFinite _) <| add_subset_add_left inter_subset_left
-      _ ≤ K * Nat.card A := hA
-      _ = (K ^ (128*m^3+1 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
-          (K ^ (-128*m^3 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (1/2 : ℝ)) := by
+      _ ≤ K * A.ncard := hA
+      _ = (K ^ (128*m^3+1 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)) *
+          (K ^ (-128*m^3 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (1/2 : ℝ)) := by
         rpow_ring; norm_num
-      _ ≤ (K ^ (128*m^3+1 : ℝ) * Nat.card A ^ (1/2 : ℝ) * Nat.card H ^ (-1/2 : ℝ)) *
-        Nat.card ↑(A ∩ (↑H + {x₀})) := by gcongr
+      _ ≤ (K ^ (128*m^3+1 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)) *
+        (A ∩ (H + {x₀})).ncard := by gcongr
   obtain ⟨u, huA, hucard, hAu, -⟩ :=
     Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
@@ -863,18 +863,12 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ
 /-- Every subgroup H of a finite m-torsion abelian group G contains a subgroup H' of order between k and mk, if 0 < k < |H|. -/
 lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2)
     [AddCommGroup G] [Fintype G] (htorsion: ∀ x:G, m • x = 0)
-    {k : ℕ} (H : AddSubgroup G) (hk : k ≤ Nat.card H) (h'k : k ≠ 0) :
-    ∃ (K : AddSubgroup G), Nat.card K ≤ k ∧ k < m * Nat.card K ∧ K ≤ H := by
-    let S := {K: AddSubgroup G | K ≤ H ∧ Nat.card K ≤ k }
-    have hnon : S.Nonempty := by
-      use ⊥
-      simp only [Set.mem_setOf_eq, bot_le, AddSubgroup.mem_bot, Nat.card_eq_fintype_card,
-        Fintype.card_ofSubsingleton, true_and, S]
-      exact Nat.one_le_iff_ne_zero.mpr h'k
-    obtain ⟨K, hK, hK'⟩ := S.toFinite.exists_maximalFor (fun K : AddSubgroup G ↦ Nat.card K) S hnon
-    simp only [ge_iff_le, Set.mem_setOf_eq, S] at hK
-    use K
-    refine ⟨hK.2, ?_, hK.1⟩
+    {k : ℕ} (H : AddSubgroup G) (hk : k ≤ (H : Set G).ncard) (h'k : k ≠ 0) :
+    ∃ (K : AddSubgroup G), (K : Set G).ncard ≤ k ∧ k < m * (K : Set G).ncard ∧ K ≤ H := by
+    let S := {K: AddSubgroup G | K ≤ H ∧ (K : Set G).ncard ≤ k }
+    have hnon : S.Nonempty := ⟨⊥, by simp [S]; omega⟩
+    obtain ⟨K, hK, hK'⟩ := S.toFinite.exists_maximalFor (fun K : AddSubgroup G ↦ (K : Set G).ncard) S hnon
+    refine ⟨K, hK.2, ?_, hK.1⟩
     rcases LE.le.lt_or_eq hK.1 with heq | heq
     · have hneq : (K:Set G) ≠ (H:Set G) := by
         contrapose! heq
@@ -884,11 +878,11 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
       let Z := AddSubgroup.zmultiples a
       let H' := K ⊔ Z
       contrapose! ha'
-      have hcard : Nat.card H' ≤ k := by
+      have hcard : (H' : Set G).ncard ≤ k := by
         apply le_trans _ ha'
-        rw [← SetLike.coe_sort_coe, ← SetLike.coe_sort_coe, AddSubgroup.normal_add K Z, Nat.mul_comm]
+        rw [AddSubgroup.normal_add K Z, Nat.mul_comm]
         calc
-          _ ≤ Nat.card (K : Set G) * Nat.card (Z : Set G) := Set.natCard_add_le
+          _ ≤ (K : Set G).ncard * Nat.card (Z : Set G) := Set.natCard_add_le
           _ ≤ _ := by
             gcongr
             rw [SetLike.coe_sort_coe, Nat.card_zmultiples a]
@@ -896,12 +890,10 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
       have hH' : H' ≤ H := by
         simpa only [sup_le_iff, hK.1, AddSubgroup.zmultiples_le, true_and, H', Z]
       have hsub : (K:Set G) ⊆ (H':Set G) := SetLike.coe_subset_coe.mpr le_sup_left
-      have hcard' : Nat.card K ≤ Nat.card H' := by
-          rw [← SetLike.coe_sort_coe, ← SetLike.coe_sort_coe, Set.Nat.card_coe_set_eq (K:Set G), Set.Nat.card_coe_set_eq (H':Set G)]
-          exact Set.ncard_le_ncard hsub (H' : Set G).toFinite
+      have hcard' : (K : Set G).ncard ≤ (H' : Set G).ncard := by gcongr; exact Set.toFinite _
       have : (K:Set G) = (H':Set G) := by
           apply (Set.subset_iff_eq_of_ncard_le ?_ ?_).mp hsub
-          · rw [← Set.Nat.card_coe_set_eq (H':Set G), ← Set.Nat.card_coe_set_eq (K:Set G)]
+          · rw [← Nat.card_coe_set_eq (H':Set G), ← Nat.card_coe_set_eq (K:Set G)]
             exact hK' ⟨hH', hcard⟩ hcard'
           exact Set.toFinite (H':Set G)
       rw [this]
@@ -909,36 +901,31 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
     rw [heq]
     exact lt_of_le_of_lt hk ((Nat.lt_mul_iff_one_lt_left Nat.card_pos).mpr hm)
 
-
-
-
-
-
-
 /--Suppose that $G$ is a finite abelian group of torsion $m$.
   If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$.
 -/
 theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 2)
      (htorsion : ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
-     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+     (hA : Nat.card (A + A) ≤ K * A.ncard) :
      ∃ (H : AddSubgroup G) (c : Set G),
-      Nat.card c < m * K ^ (256*m^3+1) ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K := PFR_conjecture_pos_aux' h₀A hA
+      Nat.card c < m * K ^ (256*m^3+1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+  obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
+    PFR_conjecture_pos_aux' ‹_› h₀A hA
    -- consider the subgroup `H` given by Lemma `torsion_PFR_conjecture_aux`.
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ K ^ (128 * m^3+1) * Nat.card A ^ (1/2:ℝ) * Nat.card H ^ (-1/2:ℝ)
-      ∧ Nat.card H ≤ K ^ (256*m^3) * Nat.card A ∧ Nat.card A ≤ K ^ (256*m^3) * Nat.card H
+    Nat.card c ≤ K ^ (128 * m^3+1) * A.ncard ^ (1/2:ℝ) * (H : Set G).ncard ^ (-1/2:ℝ)
+      ∧ (H : Set G).ncard ≤ K ^ (256*m^3) * A.ncard ∧ A.ncard ≤ K ^ (256*m^3) * (H : Set G).ncard
       ∧ A ⊆ c + H :=
     torsion_PFR_conjecture_aux hm htorsion h₀A hA
 
-  have H_pos : (0 : ℝ) < Nat.card H := by
-    have : 0 < Nat.card H := Nat.card_pos; positivity
-  rcases le_or_gt (Nat.card H) (Nat.card A) with h|h
+  have H_pos : (0 : ℝ) < (H : Set G).ncard := by
+    have : 0 < (H : Set G).ncard := Nat.card_pos; positivity
+  rcases le_or_gt ((H : Set G).ncard) (A.ncard) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
-    Nat.card c ≤ K ^ ((128*m^3+1)) * Nat.card A ^ (1/2:ℝ) * Nat.card H ^ (-1/2:ℝ) := hc
-    _ ≤ K ^ ((128*m^3+1)) * (K ^ (256*m^3) * Nat.card H) ^ (1/2:ℝ) * Nat.card H ^ (-1/2:ℝ) := by
+    Nat.card c ≤ K ^ ((128*m^3+1)) * A.ncard ^ (1/2:ℝ) * (H : Set G).ncard ^ (-1/2:ℝ) := hc
+    _ ≤ K ^ ((128*m^3+1)) * (K ^ (256*m^3) * (H : Set G).ncard) ^ (1/2:ℝ) * (H : Set G).ncard ^ (-1/2:ℝ) := by
       gcongr
     _ = K ^ (256*m^3+1) := by
       rpow_ring; norm_num
@@ -951,35 +938,38 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m:ℕ} (hm: m ≥ 
       positivity
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
   -- `#A / m < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
-  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, Nat.card H' ≤ Nat.card A
-          ∧ Nat.card A < m * Nat.card H' ∧ H' ≤ H := by
-      have A_pos' : 0 < Nat.card A := mod_cast A_pos
+  · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, (H' : Set G).ncard ≤ A.ncard
+          ∧ A.ncard < m * (H' : Set G).ncard ∧ H' ≤ H := by
+      have A_pos' : 0 < A.ncard := mod_cast A_pos
       exact torsion_exists_subgroup_subset_card_le hm htorsion H h.le A_pos'.ne'
-    have : (Nat.card A / m : ℝ) < Nat.card H' := by
+    have : (A.ncard / m : ℝ) < (H' : Set G).ncard := by
       rw [div_lt_iff₀, mul_comm]
       · norm_cast
       norm_cast; exact Nat.zero_lt_of_lt hm
-    have H'_pos : (0 : ℝ) < Nat.card H' := by
-      have : 0 < Nat.card H' := Nat.card_pos; positivity
+    have H'_pos : (0 : ℝ) < (H' : Set G).ncard := by
+      have : 0 < (H' : Set G).ncard := Nat.card_pos; positivity
     obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H
     refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := mod_cast Set.natCard_add_le
-    _ ≤ (K ^ ((128*m^3+1)) * Nat.card A ^ (1 / 2:ℝ) * (Nat.card H ^ (-1 / 2:ℝ)))
-          * (Nat.card H / Nat.card H') := by
+    _ ≤ (K ^ ((128*m^3+1)) * A.ncard ^ (1 / 2:ℝ) * ((H : Set G).ncard ^ (-1 / 2:ℝ)))
+          * ((H : Set G).ncard / (H' : Set G).ncard) := by
         gcongr
         apply le_of_eq
         rw [eq_div_iff H'_pos.ne']
         norm_cast
-    _ < (K ^ ((128*m^3+1)) * Nat.card A ^ (1 / 2:ℝ) * (Nat.card H ^ (-1 / 2:ℝ)))
-          * (Nat.card H / (Nat.card A / m)) := by
+    _ < (K ^ ((128*m^3+1)) * A.ncard ^ (1 / 2:ℝ) * ((H : Set G).ncard ^ (-1 / 2:ℝ)))
+          * ((H : Set G).ncard / (A.ncard / m)) := by
         gcongr
-    _ = m * K ^ ((128*m^3+1)) * Nat.card A ^ (-1/2:ℝ) * Nat.card H ^ (1/2:ℝ) := by
+    _ = (K ^ ((128*m^3+1)) * A.ncard ^ (1 / 2:ℝ) * ((H : Set G).ncard ^ (-1 / 2:ℝ)))
+          * ((H : Set G).ncard * (A.ncard : ℝ)⁻¹ * m) := by
         field_simp
+    _ = m * K ^ ((128*m^3+1)) * A.ncard ^ (-1/2:ℝ) * (H : Set G).ncard ^ (1/2:ℝ) := by
         rpow_ring
+        field_simp
         norm_num
-    _ ≤ m * K ^ ((128*m^3+1)) * Nat.card A ^ (-1/2:ℝ) * (K ^ (256*m^3) * Nat.card A) ^ (1/2:ℝ) := by
+    _ ≤ m * K ^ ((128*m^3+1)) * A.ncard ^ (-1/2:ℝ) * (K ^ (256*m^3) * A.ncard) ^ (1/2:ℝ) := by
         gcongr
     _ = m * K ^ (256*m^3+1) := by
         rpow_ring

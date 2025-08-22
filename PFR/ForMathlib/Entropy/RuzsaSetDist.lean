@@ -109,7 +109,7 @@ lemma setRuzsaDist_le (A B : Set G) [h'A : Finite A] [h'B : Finite B]
   simp_rw [setRuzsaDist, Kernel.rdistm, ProbabilityTheory.entropy_of_uniformOn]
   gcongr
   convert measureEntropy_le_card_aux (A-B).toFinite.toFinset ?_
-  · rw [Set.Nat.card_coe_set_eq,]
+  · rw [Nat.card_coe_set_eq]
     exact Set.ncard_eq_toFinset_card (A - B)
   · exact isProbabilityMeasure_map (Measurable.aemeasurable measurable_sub)
   rw [Measure.map_apply measurable_sub .of_discrete]

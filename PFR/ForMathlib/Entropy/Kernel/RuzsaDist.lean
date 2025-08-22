@@ -116,16 +116,12 @@ lemma rdist_symm {κ : Kernel T G} {η : Kernel T' G} [IsFiniteKernel κ] [IsFin
     rw [prodMkRight_apply, map_apply _ (by fun_prop), prod_apply, prodMkLeft_apply, const_apply,
       prodMkRight_apply, Measure.map_apply measurable_sub hs,
       Measure.prod_apply (measurable_sub hs)]
-    simp only [Set.mem_preimage, sub_zero, Measure.dirac_apply]
-    have : ∀ x : G, Prod.mk x ⁻¹' ((fun p : G × G ↦ p.1 - p.2) ⁻¹' s) = {y | x - y ∈ s} := by
-      intro x
-      ext y
-      simp
+    have (x : G) : Prod.mk x ⁻¹' ((fun p : G × G ↦ p.1 - p.2) ⁻¹' s) = {y | x - y ∈ s} := by
+      ext; simp
     simp_rw [this]
-    have : ∀ x : G, Set.indicator {y | x - y ∈ s} (1 : G → ℝ≥0∞) 0 = s.indicator (fun _ ↦ 1) x := by
-      intro x
+    have (x : G) : Set.indicator {y | x - y ∈ s} (1 : G → ℝ≥0∞) 0 = s.indicator (fun _ ↦ 1) x := by
       by_cases hx : x ∈ s <;> simp [hx]
-    simp_rw [this]
+    simp only [Measure.dirac_apply, this]
     rw [lintegral_indicator_const hs, one_mul]
   rw [this, entropy_prodMkRight']
 

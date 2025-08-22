@@ -1,13 +1,9 @@
-import Mathlib.Analysis.InnerProductSpace.PiL2
-import Mathlib.Analysis.Normed.Lp.PiLp
-import Mathlib.Combinatorics.Additive.Energy
 import Mathlib.Data.FunLike.Fintype
 import Mathlib.Data.Int.Lemmas
 
 import LeanAPAP.Extras.BSG
 
 import PFR.HomPFR
-import PFR.RhoFunctional
 
 /-!
 # The approximate homomorphism form of PFR
@@ -23,7 +19,7 @@ is true for a positive proportion of x,y.
   and a constant $c$ such that $f(x)=\phi(x)+c$ for a substantial set of values.
 -/
 
-open Finset
+open Finset Module
 open scoped Classical Pointwise Combinatorics.Additive
 
 variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
@@ -74,7 +70,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   obtain ⟨H₀, H₁, φ, hH₀H₁, hH₀H₁_card⟩ := goursat H
 
   have h_le_H₀ : Nat.card A'' ≤ Nat.card c * Nat.card H₀ := by
-    have h_le := Nat.card_mono (Set.toFinite _) (Set.image_subset Prod.fst hH_cover)
+    have h_le := Nat.card_mono (Set.toFinite _) (Set.image_mono (f := Prod.fst) hH_cover)
     have h_proj_A'' : Nat.card A'' = Nat.card (Prod.fst '' A'') := Nat.card_congr
       (Equiv.Set.imageOfInjOn Prod.fst A'' <|
         Set.fst_injOn_graph.mono (Set.Finite.subset_toFinset.mp hA'))
@@ -89,7 +85,8 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     rewrite [← h_proj_A'', h_proj_c] at h_le
     apply (h_le.trans Set.natCard_add_le).trans
     gcongr
-    exact Nat.card_image_le c.toFinite
+    · exact Finite.card_image_le Prod.fst
+    · exact Nat.card_le_card_of_injective (fun ⦃a₁⦄ ↦ a₁) fun ⦃a₁ a₂⦄ a ↦ a
 
   have hH₀_pos : (0 : ℝ) < Nat.card H₀ := Nat.cast_pos.mpr Nat.card_pos
   have h_le_H₁ : (Nat.card H₁ : ℝ) ≤ (Nat.card c) * (Nat.card H) / Nat.card A'' := calc
@@ -179,7 +176,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     _ ≤ Nat.card c * (Nat.card c * Nat.card H / Nat.card ↑A'') := by gcongr
     _ = Nat.card c ^ 2 * Nat.card H / Nat.card ↑A'' := by ring
     _ ≤ ((2 ^ 14 * K ^ 12) ^ 5 * Nat.card A'' ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2 *
-          Nat.card H / Nat.card ↑A'' := by gcongr
+          Nat.card H / Nat.card ↑A'' := by gcongr; exact hc_card
     _ = 2 ^ 140 * K ^ 120 := by field_simp; rpow_simp; norm_num
 
 /-- Non canonical isomorphism between a finite 2-torsion group and its dual into `ZMod 2`. -/
@@ -206,7 +203,7 @@ theorem card_of_dual_constrained (x:G) (hx: x ≠ 0) : 2 * Nat.card { φ: G →+
         have _ := DFunLike.finite (G →+ ZMod 2)
         rw [← h_partition, Nat.card_congr <| Equiv.Set.union <| Set.disjoint_left.mpr <| by simp +contextual]
         simp [Nat.card, Cardinal.toNat_add]
-      · simp [Fintype.card_congr (Equiv.Set.univ _)]
+      · simp
     -- Since there are $|G|$ homomorphisms in total, we have $|G| = |H_1| + |H_0|$.
     simp_all [card_of_dual]
     rw [← h_eq_card]; ring
@@ -280,7 +277,7 @@ theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
     let φ'c : G →+ G' := {
       toFun x := (φ' x) • c
       map_add' := by intros; simp [add_smul]
-      map_zero' := by simp [smul_zero]
+      map_zero' := by simp
     }
     use φ + φ'c
     rw [ge_iff_le, div_le_iff₀ (by norm_num)]

@@ -25,8 +25,8 @@ lemma ProbabilityMeasure.tendsto_iff_forall_apply_tendsto {ι α : Type*} {L : F
     intro a
     -- TODO: rename `ENNReal.continuous_coe` to `ENNReal.continuous_ofNNReal`?
     convert ENNReal.continuous_coe.continuousAt.tendsto.comp (h a)
-    simp only [Function.comp_apply, ne_eq, ennreal_coeFn_eq_coeFn_toMeasure, coe_toNNReal]
-    simp only [ne_eq, ennreal_coeFn_eq_coeFn_toMeasure]
+    · simp [Function.comp_apply, ennreal_coeFn_eq_coeFn_toMeasure]
+    · simp [ennreal_coeFn_eq_coeFn_toMeasure]
 
 /-- Probability measures on a finite space tend to a limit if and only if the probability masses
 of all points tend to the corresponding limits. Version in ℝ≥0∞. -/

@@ -1,6 +1,3 @@
-import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-import Mathlib.MeasureTheory.Integral.Prod
-import PFR.Mathlib.Probability.IdentDistrib
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.FiniteRange.IdentDistrib
@@ -208,9 +205,9 @@ lemma rdist_of_inj {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClas
       set g := fun x : H × H ↦ x.1 - x.2
       set f := fun x : G × G ↦ (φ x.1, φ x.2)
       have : φ ∘ (fun x ↦ x.1 - x.2) = g ∘ f := by ext; simp [f, g]
-      rw [this, ← MeasureTheory.Measure.map_map (g := g) (f := f) .of_discrete
-        .of_discrete, ← MeasureTheory.Measure.map_map .of_discrete hX,
-        ← MeasureTheory.Measure.map_map .of_discrete hY]
+      rw [this, ← Measure.map_map (g := g) (f := f) .of_discrete
+        .of_discrete, ← Measure.map_map .of_discrete hX,
+        ← Measure.map_map .of_discrete hY]
       congr
       convert Measure.map_prod_map _ _ .of_discrete .of_discrete
       · exact instSFiniteMap μ X
@@ -312,34 +309,32 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
     have h_meas_le : ∀ y ∈ FiniteRange.toFinset (π ∘ X'),
         νq.real {y} * H[X' - UH' | (π ∘ X') ← y ; ν] ≤ νq.real {y} * H[UH' ; ν] := by
       intro x _
-      refine mul_le_mul_of_nonneg_left ?_ ENNReal.toReal_nonneg
+      gcongr
       let ν' := ν[|π ∘ X' ← x]
       let π' := QuotientAddGroup.mk (s := H)
-      have h_card : Nat.card (π' ⁻¹' {x}) = Nat.card H := Nat.card_congr <|
+      have h_card : (π' ⁻¹' {x}).ncard = Nat.card H := Nat.card_congr <|
         (QuotientAddGroup.preimageMkEquivAddSubgroupProdSet H _).trans <| Equiv.prodUnique H _
       have : Finite (π' ⁻¹' {x}) :=
         Nat.finite_of_card_ne_zero <| h_card.trans_ne <| Nat.pos_iff_ne_zero.mp (Nat.card_pos)
-      let H_x := (π' ⁻¹' {x}).toFinite.toFinset
-      have h : ∀ᵐ ω ∂ν', (X' - UH') ω ∈ H_x := by
-        let T : Set (G × G) := ((π' ∘ X') ⁻¹' {x})ᶜ
-        let U : Set (G × G) := UH' ⁻¹' Hᶜ
-        have h_subset : (X' - UH') ⁻¹' H_xᶜ ⊆ T ∪ U :=
-          fun ω hω ↦ Classical.byContradiction fun h ↦ by simp_all [not_or, T, U, H_x, π']
-        refine MeasureTheory.mem_ae_iff.mpr (le_zero_iff.mp ?_)
-        calc
-          _ ≤ ν' T + ν' U := (measure_mono h_subset).trans (measure_union_le T U)
-          _ = ν' T + 0 := congrArg _ <| by
-            simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
-            rw [le_zero_iff.mp <| (restrict_apply_le _ U).trans_eq hunif.measure_preimage_compl,
-              mul_zero]
-          _ = 0 := (add_zero _).trans <| by
-            have : restrict ν (π ∘ X' ⁻¹' {x}) T = 0 := by
-              simp [restrict_apply .of_discrete, T, π', π]
-            simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
-            rw [this, mul_zero]
-      convert entropy_le_log_card_of_mem (Measurable.sub hX' hUH') h
-      simp_rw [hunif.entropy_eq' hH hUH', H_x, Set.Finite.mem_toFinset, h_card,
-        SetLike.coe_sort_coe]
+      convert entropy_le_log_card_of_mem_finite this (hX'.sub hUH') ?_
+      simp [hunif.entropy_eq' hH hUH', h_card]
+      simp [← Nat.card_coe_set_eq]
+      let T : Set (G × G) := ((π' ∘ X') ⁻¹' {x})ᶜ
+      let U : Set (G × G) := UH' ⁻¹' Hᶜ
+      have h_subset : (X' - UH') ⁻¹' (π' ⁻¹' {x})ᶜ ⊆ T ∪ U :=
+        fun ω hω ↦ Classical.byContradiction fun h ↦ by simp_all [not_or, T, U, π']
+      refine mem_ae_iff.mpr (le_zero_iff.mp ?_)
+      calc
+        _ ≤ ν' T + ν' U := (measure_mono h_subset).trans (measure_union_le T U)
+        _ = ν' T + 0 := congrArg _ <| by
+          simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
+          rw [le_zero_iff.mp <| (restrict_apply_le _ U).trans_eq hunif.measure_preimage_compl,
+            mul_zero]
+        _ = 0 := (add_zero _).trans <| by
+          have : restrict ν (π ∘ X' ⁻¹' {x}) T = 0 := by
+            simp [restrict_apply .of_discrete, T, π', π]
+          simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
+          rw [this, mul_zero]
     have h_one : ∑ x ∈ FiniteRange.toFinset (π ∘ X'), νq.real {x} = 1 := by
       rewrite [sum_measureReal_singleton]
       apply (ENNReal.toReal_eq_one_iff _).mpr
@@ -347,7 +342,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
       rewrite [← measure_univ (μ := νq), ← FiniteRange.range]
       let rng := Set.range (π ∘ X')
       have h_compl : νq rngᶜ = 0 := ae_map_mem_range (π ∘ X') .of_discrete ν
-      rw [← MeasureTheory.measure_add_measure_compl (MeasurableSet.of_discrete (s := rng)),
+      rw [← measure_add_measure_compl (MeasurableSet.of_discrete (s := rng)),
         h_compl, add_zero]
     have := FiniteRange.sub X' UH'
     have h_ge : H[X' - UH' | π ∘ X' ; ν] ≥ H[UH' ; ν] := calc
@@ -364,7 +359,7 @@ lemma ent_of_proj_le {UH: Ω' → G} [FiniteRange UH]
     _ = H[⟨X' - UH', π ∘ (X' - UH')⟩ ; ν] := (entropy_prod_comp (hX'.sub hUH') ν π).symm
     _ = H[⟨X' - UH', π ∘ X'⟩ ; ν] := by
       apply IdentDistrib.entropy_congr <| IdentDistrib.of_ae_eq (Measurable.aemeasurable
-        .of_discrete) <| MeasureTheory.mem_ae_iff.mpr _
+        .of_discrete) <| mem_ae_iff.mpr _
       convert hunif.measure_preimage_compl
       ext; simp [π]
     _ = H[π ∘ X' ; ν] + H[UH' ; ν] := by
@@ -490,8 +485,7 @@ lemma condRuzsaDist_def (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' �
 @[simp] lemma condRuszaDist_zero_right (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
     (μ : Measure Ω) [IsFiniteMeasure μ] :
     d[X | Z ; μ # Y | W ; 0] = 0 := by
-  simp only [condRuzsaDist, aemeasurable_zero_measure, not_true_eq_false, Measure.map_zero,
-    Kernel.rdist_zero_right]
+  simp only [condRuzsaDist, Measure.map_zero, Kernel.rdist_zero_right]
 
 @[simp] lemma condRuszaDist_zero_left (X : Ω → G) (Z : Ω → S) (Y : Ω' → G) (W : Ω' → T)
     (μ' : Measure Ω') [IsFiniteMeasure μ'] :
@@ -515,12 +509,12 @@ lemma condRuzsaDist_eq_sum' {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : �
   congr with w
   by_cases hz : μ.real (Z ⁻¹' {z}) = 0
   · simp only [mul_eq_mul_left_iff, mul_eq_zero]
-    refine Or.inr (Or.inl ?_)
-    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ, hz]
+    refine .inr <| .inl ?_
+    simp [hz]
   by_cases hw : μ'.real (W ⁻¹' {w}) = 0
   · simp only [mul_eq_mul_left_iff, mul_eq_zero]
-    refine Or.inr (Or.inr ?_)
-    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
+    refine .inr <| .inr ?_
+    simp [hw]
   congr 1
   simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top μ] at hz hw
   rw [rdist_eq_rdistm]
@@ -552,11 +546,11 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
   by_cases hz : μ.real (Z ⁻¹' {z}) = 0
   · simp only [mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inl ?_)
-    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ, hz]
+    simp [hz]
   by_cases hw : μ'.real (W ⁻¹' {w}) = 0
   · simp only [mul_eq_mul_left_iff, mul_eq_zero]
     refine Or.inr (Or.inr ?_)
-    simp [ENNReal.toReal_eq_zero_iff, measure_ne_top μ', hw]
+    simp [hw]
   congr 1
   simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top μ] at hz hw
   rw [rdist_eq_rdistm]
@@ -609,8 +603,7 @@ lemma condRuzsaDist'_def {T : Type*} [MeasurableSpace T]
 @[simp] lemma condRuzsaDist'_zero_right {T : Type*} [MeasurableSpace T]
     (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (μ : Measure Ω) :
     d[X ; μ # Y | W ; 0] = 0 := by
-  simp only [condRuzsaDist'_def, aemeasurable_zero_measure, not_true_eq_false, Measure.map_zero,
-    Kernel.rdist_zero_right]
+  simp only [condRuzsaDist'_def, Measure.map_zero, Kernel.rdist_zero_right]
 
 /-- Explicit formula for conditional Ruzsa distance `d[X ; Y | W]`. -/
 lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY : Measurable Y)
@@ -627,13 +620,11 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     measurability
   rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ .finset]
   simp_rw [Measure.prod_real_singleton, smul_eq_mul, Finset.sum_product]
-  simp only [Finset.univ_unique, PUnit.default_eq_unit, MeasurableSpace.measurableSet_top,
-    Measure.dirac_apply', Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, one_mul,
-    Finset.sum_singleton]
+  simp only [Finset.univ_unique, PUnit.default_eq_unit, Finset.sum_singleton]
   simp_rw [map_measureReal_apply hW (.singleton _)]
   congr with w
   by_cases hw : μ'.real (W ⁻¹' {w}) = 0
-  · simp [measure_ne_top μ', hw]
+  · simp [hw]
   rw [rdist_eq_rdistm, condDistrib_apply hY hW _ _]
   · congr
     simp
@@ -880,12 +871,12 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
   congr with x
   by_cases hz : μ (Z ⁻¹' {x.1}) = 0
   · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
-    refine Or.inr (Or.inl ?_)
-    simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, hz]
+    refine .inr <| .inl ?_
+    simp [Measure.real, hz]
   by_cases hw : μ' (W ⁻¹' {x.2}) = 0
   · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
-    refine Or.inr (Or.inr ?_)
-    simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
+    refine .inr <| .inr ?_
+    simp [Measure.real, hw]
   congr 2
   · have hZZ'x : μ (Z ⁻¹' {x.1}) = μ'' (Z' ⁻¹' {x.1}) := by
       have : μ.map Z {x.1} = μ''.map Z' {x.1} := by rw [hZZ']
@@ -949,8 +940,8 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
   congr with x
   by_cases hw : μ' (W ⁻¹' {x.2}) = 0
   · simp only [smul_eq_mul, mul_eq_mul_left_iff, mul_eq_zero]
-    refine Or.inr (Or.inr ?_)
-    simp [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, hw]
+    refine .inr <| .inr ?_
+    simp [Measure.real, hw]
   congr 2
   · rw [Kernel.const_apply, Kernel.const_apply, h1.map_eq]
   · have hWW'x : μ' (W ⁻¹' {x.2}) = μ''' (W' ⁻¹' {x.2}) := by

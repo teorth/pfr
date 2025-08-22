@@ -123,7 +123,7 @@ lemma mutualInfo_nonneg' {κ : Kernel T (S × U)} {μ : Measure T} [IsFiniteMeas
     integral_finset _ _ IntegrableOn.finset, smul_eq_mul]
   rw [← Finset.sum_add_distrib, ← Finset.sum_sub_distrib]
   simp_rw [← mul_add, ← mul_sub, fst_apply, snd_apply]
-  have (x) : FiniteSupport (κ x) := ⟨hκ x⟩
+  have (x : T) : FiniteSupport (κ x) := ⟨hκ x⟩
   exact Finset.sum_nonneg fun x _ ↦ mul_nonneg ENNReal.toReal_nonneg measureMutualInfo_nonneg
 
 lemma mutualInfo_nonneg [Countable T] {κ : Kernel T (S × U)} {μ : Measure T} [IsFiniteMeasure μ]
@@ -315,7 +315,7 @@ lemma entropy_compProd_triple_add_entropy_le {ξ : Kernel T S} [IsZeroOrMarkovKe
   have : Nonempty V := nonempty_of_isMarkovKernel η
   rw [chain_rule,
     chain_rule (κ := ξ ⊗ₖ snd (κ ⊗ₖ comap η ↑MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable))]
-  simp only [fst_compProd, entropy_condKernel_compProd_triple, fst_deleteMiddle]
+  simp only [fst_compProd, entropy_condKernel_compProd_triple]
   · calc Hk[ξ ⊗ₖ κ , μ] + Hk[η , μ ⊗ₘ (ξ ⊗ₖ κ)] + Hk[ξ , μ]
       = Hk[ξ , μ] + Hk[ξ ⊗ₖ κ , μ] + Hk[η , μ ⊗ₘ (ξ ⊗ₖ κ)] := by abel
     _ ≤ Hk[ξ , μ] + Hk[ξ ⊗ₖ κ , μ]
