@@ -133,7 +133,7 @@ lemma condKernel_prod_ae_eq (κ : Kernel T S) [IsFiniteKernel κ] {μ}
     condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight S η := condKernel_compProd_ae_eq _ _ _
 
 lemma ae_eq_condKernel_of_compProd_eq (κ : Kernel T (S × U)) [IsFiniteKernel κ] {μ}
-    (η : Kernel (T × S) U) [IsMarkovKernel η] [IsFiniteMeasure μ] (h : (fst κ) ⊗ₖ η = κ) :
+    (η : Kernel (T × S) U) [IsMarkovKernel η] [IsFiniteMeasure μ] (h : fst κ ⊗ₖ η = κ) :
     η =ᵐ[μ ⊗ₘ fst κ] condKernel κ := by
   have : condKernel κ = condKernel ((fst κ) ⊗ₖ η) := by congr; exact h.symm
   rw [this]
@@ -142,7 +142,7 @@ lemma ae_eq_condKernel_of_compProd_eq (κ : Kernel T (S × U)) [IsFiniteKernel �
 lemma condKernel_map_prodMk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
     [DiscreteMeasurableSpace V] [Countable V]
     (κ : Kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ]
-    (f : (S × U) → V) :
+    (f : S × U → V) :
     condKernel (map κ (fun p ↦ (p.1, f p)))
       =ᵐ[μ ⊗ₘ fst κ] snd ((condKernel κ) ⊗ₖ (deterministic (fun x : (T × S) × U ↦ f (x.1.2, x.2))
           .of_discrete)) := by
@@ -227,20 +227,6 @@ lemma condDistrib_ae_eq [Nonempty S] (hX : Measurable X) (hY : Measurable Y) (μ
   intro x hx
   rw [Measure.map_apply hY (.singleton _)] at hx
   exact condDistrib_apply hX hY μ x hx
-
-lemma condDistrib_comp [Nonempty S] [Nonempty U]
-    (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsFiniteMeasure μ] (f : S → U) :
-    condDistrib (f ∘ X) Y μ
-      =ᵐ[μ.map Y] Kernel.map (condDistrib X Y μ) f := by
-  have hf : Measurable f := .of_discrete
-  rw [Filter.EventuallyEq, ae_iff_of_countable]
-  intro x hx
-  rw [Measure.map_apply hY (.singleton _)] at hx
-  ext s hs
-  rw [condDistrib_apply' (hf.comp hX) hY _ _ hx hs,
-    Kernel.map_apply' _ .of_discrete _ hs,
-    condDistrib_apply' hX hY _ _ hx (hf hs), Set.preimage_comp]
 
 variable [Nonempty T]
 

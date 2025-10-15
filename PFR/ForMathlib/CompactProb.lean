@@ -12,6 +12,15 @@ theorem which we don't have currently in mathlib.
 
 -/
 
+namespace stdSimplex
+variable {𝕜 ι : Type*} [Semiring 𝕜] [PartialOrder 𝕜] [Fintype ι]
+
+@[simp, norm_cast] lemma coe_mk (f : ι → 𝕜) (hf) : (⟨f, hf⟩ : stdSimplex 𝕜 ι) = f := rfl
+
+@[simp] lemma val_eq_coe (f : stdSimplex 𝕜 ι) : f.val = f := rfl
+
+end stdSimplex
+
 open MeasureTheory
 open scoped Topology ENNReal NNReal BoundedContinuousFunction
 
@@ -61,12 +70,14 @@ noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingl
     simp
   invFun := by
     intro p
-    refine ⟨∑ i, ENNReal.ofReal ((p : X → ℝ) i) • Measure.dirac i, ⟨?_⟩⟩
+    refine ⟨∑ i, ENNReal.ofReal (p i) • Measure.dirac i, ⟨?_⟩⟩
     simp only [Measure.coe_finset_sum, Measure.coe_smul, Finset.sum_apply, Pi.smul_apply,
       measure_univ, smul_eq_mul, mul_one]
     rw [← ENNReal.toReal_eq_toReal (by simp [ENNReal.sum_eq_top]) ENNReal.one_ne_top,
         ENNReal.toReal_sum (by simp)]
-    simp_rw [ENNReal.toReal_ofReal (p.2.1 _), p.2.2, ENNReal.toReal_one]
+    have (x : X) : (ENNReal.ofReal (p x)).toReal = p x := ENNReal.toReal_ofReal (p.2.1 x)
+    have that : ∑ i, p i = 1 := p.2.2
+    simp_rw [this, that, ENNReal.toReal_one]
   left_inv := by
     intro μ
     ext s _hs
@@ -75,8 +86,9 @@ noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingl
   right_inv := by
     rintro ⟨p, p_pos, hp⟩
     ext i
-    simp only [ProbabilityMeasure.mk_apply, Measure.coe_finset_sum, Measure.coe_smul,
-      Finset.sum_apply, Pi.smul_apply, MeasurableSet.singleton, Measure.dirac_apply', smul_eq_mul]
+    simp only [stdSimplex.coe_mk, ProbabilityMeasure.mk_apply, Measure.coe_finset_sum,
+      Measure.coe_smul, Finset.sum_apply, Pi.smul_apply, MeasurableSet.singleton,
+      Measure.dirac_apply', smul_eq_mul]
     rw [Finset.sum_eq_single_of_mem i (Finset.mem_univ i)]
     · simp only [Set.mem_singleton_iff, Set.indicator_of_mem, Pi.one_apply, mul_one]
       exact ENNReal.toReal_ofReal (p_pos i)
@@ -86,11 +98,11 @@ noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingl
 @[simp] lemma probabilityMeasureEquivStdSimplex_symm_coe_apply [MeasurableSingletonClass X]
     (p : stdSimplex ℝ X) :
     (probabilityMeasureEquivStdSimplex.symm p : Measure X) =
-       ∑ i, ENNReal.ofReal ((p : X → ℝ) i) • Measure.dirac i := rfl
+       ∑ i, ENNReal.ofReal (p i) • Measure.dirac i := rfl
 
 @[simp] lemma probabilityMeasureEquivStdSimplex_coe_apply [MeasurableSingletonClass X]
     (μ : ProbabilityMeasure X) (i : X) :
-    (probabilityMeasureEquivStdSimplex μ : X → ℝ) i = (μ {i}).toReal := rfl
+    probabilityMeasureEquivStdSimplex μ i = (μ {i}).toReal := rfl
 
 variable [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X]
 

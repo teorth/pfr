@@ -244,8 +244,8 @@ lemma independent_copies {X : Ω → α} {Y : Ω' → β} (hX : Measurable X) (h
     ∃ ν : Measure (α × β), ∃ X' : α × β → α, ∃ Y' : α × β → β, IsProbabilityMeasure ν
       ∧ Measurable X' ∧ Measurable Y' ∧ IndepFun X' Y' ν
       ∧ IdentDistrib X' X ν μ ∧ IdentDistrib Y' Y ν μ' := by
-  have := MeasureTheory.isProbabilityMeasure_map hX.aemeasurable (μ := μ)
-  have := MeasureTheory.isProbabilityMeasure_map hY.aemeasurable (μ := μ')
+  have := Measure.isProbabilityMeasure_map hX.aemeasurable (μ := μ)
+  have := Measure.isProbabilityMeasure_map hY.aemeasurable (μ := μ')
   exact ⟨(μ.map X).prod (μ'.map Y), _, _, inferInstance, measurable_fst, measurable_snd,
     indepFun_fst_snd, ⟨measurable_fst.aemeasurable, hX.aemeasurable, by simp⟩,
     measurable_snd.aemeasurable, hY.aemeasurable, by simp⟩
