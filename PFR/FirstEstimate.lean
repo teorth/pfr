@@ -136,10 +136,10 @@ lemma first_estimate
   have v1 := rdist_add_rdist_add_condMutual_eq X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_› ‹_› ‹_›
   have v2 := rdist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_› ‹_›
   have v3 := condRuzsaDist_of_sums_ge p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› (by fun_prop) (by aesop)
-  have v4 := (mul_le_mul_left p.hη).2 (diff_rdist_le_1 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
-  have v5 := (mul_le_mul_left p.hη).2 (diff_rdist_le_2 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
-  have v6 := (mul_le_mul_left p.hη).2 (diff_rdist_le_3 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
-  have v7 := (mul_le_mul_left p.hη).2 (diff_rdist_le_4 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›)
+  have v4 := mul_le_mul_of_nonneg_left (diff_rdist_le_1 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›) p.hη.le
+  have v5 := mul_le_mul_of_nonneg_left (diff_rdist_le_2 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›) p.hη.le
+  have v6 := mul_le_mul_of_nonneg_left (diff_rdist_le_3 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›) p.hη.le
+  have v7 := mul_le_mul_of_nonneg_left (diff_rdist_le_4 p X₁ X₂ X₁' X₂' ‹_› ‹_› ‹_› ‹_›) p.hη.le
   linarith [v1, v2, v3, v4, v5, v6, v7]
 
 include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_min in
@@ -169,9 +169,7 @@ lemma ent_ofsum_le
      _ ≤ k + p.η * (k / 2 + H[X₁] / 4 - H[X₂] / 4) + p.η * (k / 2 + H[X₂] / 4 - H[X₁] / 4) := ?_
      _ = (1 + p.η) * k := by ring
     · convert add_le_add lem68.le (neg_le_neg lem610) using 1 <;> ring
-    · refine add_le_add (add_le_add (le_refl _) ?_) ?_
-      · apply (mul_le_mul_left p.hη).mpr lem611c
-      · apply (mul_le_mul_left p.hη).mpr lem611d
+    · gcongr <;> exact p.hη.le
   have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by
     simp [ZModModule.sub_eq_add]
   have rw₁ : X₁ + X₂' + (X₂ + X₁') = X₁ + X₂ + X₁' + X₂' := by abel

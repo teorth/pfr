@@ -11,7 +11,7 @@ pp.proofs.withType = false  # Elide the types of proofs in terms
 [[require]]
 name = "LeanAPAP"
 git = "https://github.com/YaelDillies/LeanAPAP.git"
-rev = "v4.22.0"
+rev = "v4.23.0"
 
 [[lean_lib]]
 name = "PFR"

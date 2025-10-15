@@ -38,7 +38,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   have hA_nonempty : A.Nonempty := by simp [-Set.Finite.toFinset_setOf, A]
   have := calc
     (#A ^ 3 / K ^ 2 : ℝ)
-      = (Nat.card G ^ 2 / K) ^ 2 / #A := by field_simp [hA]; ring
+      = (Nat.card G ^ 2 / K) ^ 2 / #A := by simp [hA]; field_simp
     _ ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2} ^ 2 / #A := by gcongr
     _ = #{ab ∈ A ×ˢ A | ab.1 + ab.2 ∈ A} ^ 2 / #A := by
       congr
@@ -177,7 +177,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     _ = Nat.card c ^ 2 * Nat.card H / Nat.card ↑A'' := by ring
     _ ≤ ((2 ^ 14 * K ^ 12) ^ 5 * Nat.card A'' ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2 *
           Nat.card H / Nat.card ↑A'' := by gcongr; exact hc_card
-    _ = 2 ^ 140 * K ^ 120 := by field_simp; rpow_simp; norm_num
+    _ = 2 ^ 140 * K ^ 120 := by simp; field_simp; rpow_simp; norm_num
 
 /-- Non canonical isomorphism between a finite 2-torsion group and its dual into `ZMod 2`. -/
 noncomputable def dual_iso : G ≃+ (G →+ ZMod 2) := by

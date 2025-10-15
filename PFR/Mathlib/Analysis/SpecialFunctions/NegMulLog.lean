@@ -54,14 +54,12 @@ lemma sum_mul_log_div_leq {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) (hb :
     rcases eq_or_lt_of_le (hb i hi) with h'i | h'i
     · simp [← h'i, habs i hi h'i.symm]
     · field_simp
-      ring
   · have : ∑ x ∈ s, b x / B * (a x / b x) = (∑ x ∈ s, a x) / B := by
       rw [Finset.sum_div]
       apply Finset.sum_congr rfl (fun i hi ↦ ?_)
       rcases eq_or_lt_of_le (hb i hi) with h'i | h'i
       · simp [← h'i, habs i hi h'i.symm]
       · field_simp
-        ring
     simp only [negMulLog, smul_eq_mul, neg_mul, this]
     ring
 
@@ -88,13 +86,11 @@ lemma sum_mul_log_div_eq_iff_aux {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i
     apply Finset.sum_congr rfl (fun i hi ↦ ?_)
     have : 0 < b i := hb i hi
     field_simp
-    ring
   simp only [negMulLog, smul_eq_mul, this, neg_mul, mul_neg, Finset.sum_neg_distrib, neg_inj]
   rw [← mul_div_right_comm, ← heq, Finset.sum_div]
   apply Finset.sum_congr rfl (fun i hi ↦ ?_)
   have : 0 < b i := hb i hi
   field_simp
-  ring
 
 /-- If equality holds in the previous bound, then $a_s=r\cdot b_s$ for every $s\in S$, for some
 constant $r\in \mathbb{R}$. -/

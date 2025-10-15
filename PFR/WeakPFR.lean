@@ -798,12 +798,12 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
       have := rdist_le_avg_ent (Measurable.comp (.of_discrete (f := φ'.toFun)) hUA_mes)
         (Measurable.comp (.of_discrete (f := φ'.toFun)) hUB_mes)
       replace this : 0 < H[φ'.toFun ∘ UA] + H[φ'.toFun ∘ UB] := by linarith
-      rw [← mul_le_mul_left this]
+      rw [← mul_le_mul_iff_right₀ this]
       apply le_trans _ hcard_ineq
       rw [mul_zero]
       change 0 ≤ d[φ'.toFun ∘ UA # φ'.toFun ∘ UB]
         * log (Nat.card A * Nat.card B / ((Nat.card Ax) * (Nat.card By)))
-      rw [← mul_zero d[φ'.toFun ∘ UA # φ'.toFun ∘ UB], mul_le_mul_left h]
+      rw [← mul_zero d[φ'.toFun ∘ UA # φ'.toFun ∘ UB], mul_le_mul_iff_right₀ h]
       apply Real.log_nonneg
       rw [one_le_div]
       gcongr
@@ -813,7 +813,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (34 * (d[UA # UB] - dᵤ[Ax # By])) := by ring
     _ = d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] * (34 * (dᵤ[A # B] - dᵤ[Ax # By])) := by
       rw [←  setRuzsaDist_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes]
-  exact (mul_le_mul_left h).mp this
+  exact (mul_le_mul_iff_right₀ h).mp this
 
 /-- Separating out the conclusion of `weak_PFR_asymm` for convenience of induction arguments.-/
 def WeakPFRAsymmConclusion (A B : Set G) : Prop :=
@@ -1064,10 +1064,9 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
 
   refine ⟨hB, ?_, ?_⟩
   · have := calc 2 * log (Nat.card A / Nat.card B)
-      _ = log ((Nat.card A * Nat.card A) / (Nat.card B * Nat.card B) ) := by
-        convert (log_pow ((Nat.card A : ℝ)/Nat.card B) 2).symm
+      _ = log ((Nat.card A * Nat.card A) / (Nat.card B * Nat.card B)) := by
+        convert (log_pow (Nat.card A / Nat.card B) 2).symm
         field_simp
-        rw [← pow_two, ← pow_two]
       _ ≤ log ((Nat.card A * Nat.card A) / (Nat.card A' * Nat.card A'')) := by
         apply log_le_log
         · positivity
@@ -1078,7 +1077,7 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
       _ = 2 * log (K^17) := by
         congr
         convert (log_pow K 17).symm
-    rw [mul_le_mul_left (by norm_num), log_le_log_iff (by positivity) (by positivity),
+    rw [mul_le_mul_iff_right₀ (by norm_num), log_le_log_iff (by positivity) (by positivity),
       div_le_iff₀ (by positivity), ← mul_inv_le_iff₀' (by positivity), mul_comm] at this
     convert this using 2
     convert zpow_neg K 17 using 1

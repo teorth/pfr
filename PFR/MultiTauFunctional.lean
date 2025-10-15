@@ -152,8 +152,7 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG : MeasurableFinGroup G] [hΩ₀
   have hm : p.m > 0 := by linarith [p.hm]
   have hprob := p.hprob
   calc
-    _ = p.η⁻¹ * (0 + p.η * ∑ i, d[X i # p.X₀]) := by
-      field_simp
+    _ = p.η⁻¹ * (0 + p.η * ∑ i, d[X i # p.X₀]) := by simp; field_simp
     _ ≤ p.η⁻¹ * (D[X ; hΩ] + p.η * ∑ i, d[X i # p.X₀]) := by
       gcongr
       exact multiDist_nonneg hΩ hprobΩ X hX

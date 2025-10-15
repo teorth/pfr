@@ -783,8 +783,9 @@ lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω] [IsProbabil
     {m : ℕ} [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
     {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
     H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
-  induction' m with m hm
-  . simp; convert entropy_const Fin.elim0 <;> infer_instance
+  induction m with
+  | zero => simp; convert entropy_const Fin.elim0 <;> infer_instance
+  | succ m hm =>
   calc
     _ = H[ ⟨(fun ω (i:Fin m) ↦ X i.castSucc ω), X (.last _)⟩ ] := by
       let f : (Fin (m + 1) → S) → (Fin m → S) × S := fun x ↦ (fun i ↦ x i.castSucc, x (.last m))
@@ -1175,7 +1176,7 @@ lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : 
   intro i _
   rcases eq_or_lt_of_le (measureReal_nonneg (μ := μ) (s := (Z ⁻¹' {i}))) with h | h
   · simp [← h]
-  · rw [mul_le_mul_left h]
+  · gcongr
     have : IsProbabilityMeasure (μ[|Z ← i]) := by
       apply cond_isProbabilityMeasure_of_finite
       · exact (ENNReal.toReal_ne_zero.mp (ne_of_gt h)).left

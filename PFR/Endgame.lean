@@ -310,8 +310,8 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
 
   have ineq8 : 3 * H[S ; ℙ] ≤ 3/2 * (H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+p.η)*k - 3*I₁ :=
     calc 3 * H[S ; ℙ] ≤ 3 * (H[X₁ ; ℙ] / 2 + H[X₂ ; ℙ] / 2 + (2+p.η)*k - I₁) := by
-          apply (mul_le_mul_left (zero_lt_three' ℝ)).mpr
-            (ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min)
+          gcongr
+          exact ent_ofsum_le p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep' h_min
       _ = 3/2 * ( H[X₁ ; ℙ] + H[X₂ ; ℙ]) + 3*(2+p.η)*k - 3*I₁ := by ring
 
   -- Final computation

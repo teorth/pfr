@@ -443,9 +443,9 @@ lemma measureEntropy_comap (μ : Measure T) (f : S → T) (hf : MeasurableEmbedd
     Measure.comap_apply f hf.injective hf.measurableSet_image' _ MeasurableSet.univ]
   simp only [Set.image_univ, Set.image_singleton, smul_eq_mul]
   classical
-  rw [← tsum_range
-    (f := fun x ↦ negMulLog (((μ (Set.range f))⁻¹).toReal * (μ.real {x}))) (g := f),measure_congr hf_range]
-  let F : T → ℝ := fun x ↦ negMulLog (((μ (Set.univ))⁻¹).toReal * (μ.real {x}))
+  rw [← tsum_range (f := fun x ↦ negMulLog ((μ (Set.range f))⁻¹.toReal * μ.real {x})) (g := f),
+    measure_congr hf_range]
+  let F : T → ℝ := fun x ↦ negMulLog ((μ .univ)⁻¹.toReal * μ.real {x})
   show ∑' x : (Set.range f), F x = ∑' x : T, F x
   apply tsum_subtype_eq_of_support_subset
   · intro x hx
@@ -674,7 +674,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
   let w (p : S × U) := (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}
   let f (p : S × U) := ((μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2})⁻¹ * μ.real {p}
   have hw1 : ∀ p ∈ (E1 ×ˢ E2), 0 ≤ w p := by intros; positivity
-  have hw2 : ∑ p ∈ (E1 ×ˢ E2), w p = 1 := by
+  have hw2 : ∑ p ∈ E1 ×ˢ E2, w p = 1 := by
     rw [Finset.sum_product]
     simp [w, ← Finset.mul_sum]
     rw [← Finset.sum_mul]
@@ -685,13 +685,13 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
   have hf : ∀ p ∈ E1 ×ˢ E2, 0 ≤ f p := by intros; positivity
   have H :=
   calc
-    ∑ p ∈ (E1 ×ˢ E2), w p * f p
-        = ∑ p ∈ (E1 ×ˢ E2), μ.real {p} := by
+    ∑ p ∈ E1 ×ˢ E2, w p * f p
+        = ∑ p ∈ E1 ×ˢ E2, μ.real {p} := by
           congr with p
           by_cases hp : μ.real {p} = 0
           · simp [f, hp]
-          field_simp [f, h_fst_ne_zero p hp, h_snd_ne_zero p hp]
-          ring
+          · simp [w, f]
+            field_simp [h_fst_ne_zero p hp, h_snd_ne_zero p hp]
       _ = 1 := by
         simp
         rw [show 1 = μ.real Set.univ by simp]
@@ -699,34 +699,34 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
         simp
         convert hE'
         simp
-  have H1 : -measureMutualInfo (μ := μ) = ∑ p ∈ (E1 ×ˢ E2), w p * negMulLog (f p) := calc
-    _ = ∑ p ∈ (E1 ×ˢ E2),
+  have H1 : -measureMutualInfo (μ := μ) = ∑ p ∈ E1 ×ˢ E2, w p * negMulLog (f p) := calc
+    _ = ∑ p ∈ E1 ×ˢ E2,
           (-(μ.real {p} * log (μ.real {p}))
           + (μ.real {p} * log ((μ.map Prod.snd).real {p.2})
             + μ.real {p} * log ((μ.map Prod.fst).real {p.1}))) := by
-        have H0 : Hm[μ] = -∑ p ∈ (E1 ×ˢ E2), (μ.real {p} * log (μ.real {p})) := by
+        have H0 : Hm[μ] = -∑ p ∈ E1 ×ˢ E2, μ.real {p} * log (μ.real {p}) := by
           simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE', negMulLog, neg_mul, Finset.sum_neg_distrib]
-        have H1 : Hm[μ.map Prod.fst] = -∑ p ∈ (E1 ×ˢ E2), (μ.real {p} * log ((μ.map Prod.fst).real {p.1})) := by
-          simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE1, negMulLog, neg_mul, Finset.sum_neg_distrib, Finset.sum_product, ← Finset.sum_mul]
+        have H1 : Hm[μ.map Prod.fst] = -∑ p ∈ E1 ×ˢ E2,
+            μ.real {p} * log ((μ.map Prod.fst).real {p.1}) := by
+          simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE1, negMulLog, neg_mul,
+            Finset.sum_neg_distrib, Finset.sum_product, ← Finset.sum_mul]
           congr! with s _
           exact h1 s
-        have H2 : Hm[μ.map Prod.snd] = -∑ p ∈ (E1 ×ˢ E2), (μ.real {p} * log ((μ.map Prod.snd).real {p.2})) := by
+        have H2 : Hm[μ.map Prod.snd] = -∑ p ∈ E1 ×ˢ E2, μ.real {p} * log ((μ.map Prod.snd).real {p.2}) := by
           simp_rw [measureEntropy_of_isProbabilityMeasure_finite hE2, negMulLog, neg_mul, Finset.sum_neg_distrib, Finset.sum_product_right, ← Finset.sum_mul]
           congr! with s _
           exact h2 s
         simp_rw [measureMutualInfo_def, H0, H1, H2]
         simp [Finset.sum_add_distrib]
-    _ = ∑ p ∈ (E1 ×ˢ E2), w p * negMulLog (f p)
-    := by
+    _ = ∑ p ∈ E1 ×ˢ E2, w p * negMulLog (f p) := by
         congr! 1 with p _
         by_cases hp : μ.real {p} = 0
         · simp [f, hp]
         have := h_fst_ne_zero p hp
         have := h_snd_ne_zero p hp
-        rw [negMulLog, log_mul, log_inv, log_mul]
-        · field_simp [f]
-          ring
-        all_goals positivity
+        simp [negMulLog, log_mul, log_inv, h_fst_ne_zero p hp, h_snd_ne_zero p hp, hp, w, f]
+        field_simp
+        ring
   have H2 : 0 = negMulLog (∑ s ∈ (E1 ×ˢ E2), w s * f s) := by
     rw [H, negMulLog_one]
   constructor

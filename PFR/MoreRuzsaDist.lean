@@ -809,51 +809,50 @@ lemma ent_sub_zsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype
   clear_value n
   have hn : 0 ≤ n := by simp [ha]
   lift n to ℕ using hn with n
-  induction' n with n ih generalizing a
-  · simp [abs_eq_zero.mp ha.symm]
-  · have : a ≠ 0 := by
-      rw [ne_eq, ← abs_eq_zero, ← ha]
-      norm_cast
-    have : n = |a - 1| ∨ n = |a + 1| := by
-      rcases lt_or_gt_of_ne this with h | h
-      · right
-        rw [abs_of_neg h] at ha
-        rw [abs_of_nonpos (by exact h), neg_add, ← ha]
+  induction n generalizing a with
+  | zero => simp [abs_eq_zero.mp ha.symm]
+  | succ n ih =>
+  have : a ≠ 0 := by rw [ne_eq, ← abs_eq_zero, ← ha]; norm_cast
+  have : n = |a - 1| ∨ n = |a + 1| := by
+    rcases lt_or_gt_of_ne this with h | h
+    · right
+      rw [abs_of_neg h] at ha
+      rw [abs_of_nonpos (by exact h), neg_add, ← ha]
+      norm_num
+    · left
+      rw [abs_of_pos h] at ha
+      rw [abs_of_nonneg ?_, ← ha]
+      swap; exact Int.sub_nonneg_of_le h
+      norm_num
+  rcases this with h | h
+  · calc
+      _ ≤ H[X - (a - 1) • Y; μ] - H[X; μ] + 4 * d[X ; μ # Y ; μ] := by
+        nth_rw 1 [(a.sub_add_cancel 1).symm, sub_add_eq_add_sub _ H[X; μ]]
+        gcongr
+        exact h4 (a - 1)
+      _ ≤ 4 * |a - 1| * d[X ; μ # Y ; μ] + 4 * d[X ; μ # Y ; μ] := by
+        gcongr
+        rw [← h]
+        exact ih h
+      _ = 4 * |a| * d[X ; μ # Y ; μ] := by
+        nth_rw 2 [← mul_one 4]
+        rw [← add_mul, ← mul_add, ← ha, ← h]
         norm_num
-      · left
-        rw [abs_of_pos h] at ha
-        rw [abs_of_nonneg ?_, ← ha]
-        swap; exact Int.sub_nonneg_of_le h
+      _ = _ := by rw [← ha]
+  · calc
+      _ ≤ H[X - (a + 1) • Y; μ] - H[X; μ] + 4 * d[X ; μ # Y ; μ] := by
+        nth_rw 1 [(a.add_sub_cancel 1).symm, sub_add_eq_add_sub _ H[X; μ]]
+        gcongr
+        exact h4' (a + 1)
+      _ ≤ 4 * |a + 1| * d[X ; μ # Y ; μ] + 4 * d[X ; μ # Y ; μ] := by
+        gcongr
+        rw [← h]
+        exact ih h
+      _ = 4 * |a| * d[X ; μ # Y ; μ] := by
+        nth_rw 2 [← mul_one 4]
+        rw [← add_mul, ← mul_add, ← ha, ← h]
         norm_num
-    rcases this with h | h
-    · calc
-        _ ≤ H[X - (a - 1) • Y; μ] - H[X; μ] + 4 * d[X ; μ # Y ; μ] := by
-          nth_rw 1 [(a.sub_add_cancel 1).symm, sub_add_eq_add_sub _ H[X; μ]]
-          gcongr
-          exact h4 (a - 1)
-        _ ≤ 4 * |a - 1| * d[X ; μ # Y ; μ] + 4 * d[X ; μ # Y ; μ] := by
-          gcongr
-          rw [← h]
-          exact ih h
-        _ = 4 * |a| * d[X ; μ # Y ; μ] := by
-          nth_rw 2 [← mul_one 4]
-          rw [← add_mul, ← mul_add, ← ha, ← h]
-          norm_num
-        _ = _ := by rw [← ha]
-    · calc
-        _ ≤ H[X - (a + 1) • Y; μ] - H[X; μ] + 4 * d[X ; μ # Y ; μ] := by
-          nth_rw 1 [(a.add_sub_cancel 1).symm, sub_add_eq_add_sub _ H[X; μ]]
-          gcongr
-          exact h4' (a + 1)
-        _ ≤ 4 * |a + 1| * d[X ; μ # Y ; μ] + 4 * d[X ; μ # Y ; μ] := by
-          gcongr
-          rw [← h]
-          exact ih h
-        _ = 4 * |a| * d[X ; μ # Y ; μ] := by
-          nth_rw 2 [← mul_one 4]
-          rw [← add_mul, ← mul_add, ← ha, ← h]
-          norm_num
-        _ = _ := by rw [← ha]
+      _ = _ := by rw [← ha]
 
 /-- Let `X,Y` be independent `G`-valued random variables, and let `a` be a natural number. Then
 `H[X - aY] - H[X] ≤ 4 a d[X ; Y]`. -/
@@ -1173,11 +1172,8 @@ lemma multidist_ruzsa_II {m : ℕ} (hm : m ≥ 2) {Ω : Fin m → Type*} (hΩ : 
         _ ≤ ((m:ℝ)-1)⁻¹ * 2 * offDiag_sum fun j k ↦ d[X j # -X k] := by
           rw [mul_assoc, mul_assoc]
           gcongr
-        _ ≤ ((m:ℝ)-1)⁻¹ * 2 * (m * (m - 1) * D[X ; hΩ]) := by
-          gcongr
-        _ = 2 * m * D[X; hΩ] := by
-          field_simp [this]
-          ring
+        _ ≤ ((m:ℝ)-1)⁻¹ * 2 * (m * (m - 1) * D[X ; hΩ]) := by gcongr
+        _ = 2 * m * D[X; hΩ] := by field_simp [this]
 
 /-- A version of multidist_ruzsa_III assuming independence. -/
 lemma multidist_ruzsa_III' {m : ℕ} (hm : m ≥ 2) {Ω : Type*} {hΩ : MeasureSpace Ω}
@@ -1251,7 +1247,7 @@ lemma multidist_ruzsa_III' {m : ℕ} (hm : m ≥ 2) {Ω : Type*} {hΩ : MeasureS
         linarith
       congr 1; apply Finset.sum_congr rfl
       intro i _; exact hent _
-    _ = ∑ i : Fin m, d[X i.castSucc # X₀] := by simp [X₀, entropy_neg (hmes _)]; field_simp
+    _ = ∑ i : Fin m, d[X i.castSucc # X₀] := by simp [X₀, entropy_neg (hmes _)]; field_simp; ring
     _ = ∑ i : Fin m, d[X i₀.castSucc # X i₀.castSucc] := by
       congr; ext i
       exact (hident _ _).rdist_congr (hident _ _)
@@ -1499,8 +1495,6 @@ lemma multidist_ruzsa_IV {m : ℕ} (hm : m ≥ 2) {Ω : Type u} [MeasureSpace Ω
       exact hW₀_ident.symm
     rw [this]
     field_simp
-    ring
-
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
 `d[X_i; U_{H_i}] = 0`. -/
@@ -1518,8 +1512,6 @@ lemma multidist_eq_zero [Fintype G] {m : ℕ} (hm : m ≥ 2) {Ω : Fin m → Typ
   replace vanish := exists_isUniform_of_rdist_eq_zero (hmes i) (hmes i) $ vanish i $ Finset.mem_univ i
   obtain ⟨H, U, U_mes, U_unif, hdist, hdist'⟩ := vanish
   exact ⟨H, U, U_mes, U_unif, hdist⟩
-
-
 
 -- This is probably not the optimal spelling. For instance one could use the `μ "[|" t "]"` notation from Mathlib.ConditionalProbability to simplify the invocation of `cond`
 /-- If `X_[m] = (X_1, ..., X_m)` and `Y_[m] = (Y_1, ..., Y_m)` are tuples of random variables,

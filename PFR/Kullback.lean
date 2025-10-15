@@ -291,13 +291,13 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
   have AX' x i : (μ.map (X' i)).real {x} = (μ.map X).real {x - i} := by
     rw [measureReal_def, measureReal_def, hX', ← Measure.map_map (by fun_prop) (by fun_prop),
       Measure.map_apply (by fun_prop) (measurableSet_singleton x)]
-    congr
+    congr!
     ext y
     simp [sub_eq_add_neg]
   have AY' x i : (μ.map (Y' i)).real {x} = (μ.map Y).real {x - i} := by
     rw [measureReal_def, measureReal_def, hY', ← Measure.map_map (by fun_prop) (by fun_prop),
       Measure.map_apply (by fun_prop) (measurableSet_singleton x)]
-    congr
+    congr!
     ext y
     simp [sub_eq_add_neg]
   let w (s : G) : ℝ := (μ.map Z).real {s}

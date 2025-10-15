@@ -114,7 +114,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
       Nat.card (c' + (H₀ : Set G)) ≤ Nat.card c' * Nat.card H₀ := natCard_add_le
       _ ≤ Nat.card c * Nat.card H₀ := by gcongr
   have : (Nat.card H₁ : ℝ) ≤ (Nat.card H / Nat.card A) * Nat.card c := by calc
-      (Nat.card H₁ : ℝ) = (Nat.card H : ℝ) / Nat.card H₀ := by field_simp [hH_card, mul_comm]
+      (Nat.card H₁ : ℝ) = (Nat.card H : ℝ) / Nat.card H₀ := by rw [hH_card]; push_cast; field_simp
       _ ≤ (Nat.card H : ℝ) / (Nat.card G / Nat.card c) := by
         gcongr
         rw [div_le_iff₀' (by positivity)]

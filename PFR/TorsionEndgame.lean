@@ -602,12 +602,12 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
 
     have h3 : p.m * d[U # U] + p.η * ∑ i, d[X i # U] ≤
       p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]] := calc
-        _ = p.m * (d[U # U] + p.η / p.m * ∑ i, d[X i # U]) := by
-          field_simp; ring
-        _ ≤ p.m * ((2 + p.η / ↑p.m * ↑p.m / 2) * (I[Z1 : Z2; μ] + I[Z1 : Z3; μ] + I[Z2 : Z3; μ]) + p.η / ↑p.m * ∑ i, d[X i; ℙ # Z2; μ]) := by
-          apply mul_le_mul_of_nonneg_left _ (by positivity); convert h_ineq using 1
-        _ = p.m * ((2 + p.η / p.m * p.m / 2) * (δ w) + p.η / p.m * (∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]])) := by rfl
-        _ = _ := by field_simp; ring
+        _ = p.m * (d[U # U] + p.η / p.m * ∑ i, d[X i # U]) := by field_simp
+        _ ≤ p.m * ((2 + p.η / ↑p.m * ↑p.m / 2) * (I[Z1 : Z2; μ] + I[Z1 : Z3; μ] + I[Z2 : Z3; μ]) +
+              p.η / ↑p.m * ∑ i, d[X i; ℙ # Z2; μ]) := by gcongr _ * ?_; convert h_ineq using 1
+        _ = p.m * ((2 + p.η / p.m * p.m / 2) *
+              δ w + p.η / p.m * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]]) := rfl
+        _ = _ := by field_simp
     unfold δ'
     linarith only [h1, h2, h3]
 
@@ -688,7 +688,7 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpac
       simp at this
       have h' := multiTau_min_sum_le p _ mΩ' hΩ'_prob _ hX'_mes htau_min
       have h'' : ↑p.m * (2 / p.η * d[p.X₀ # p.X₀]) =  2 * ↑p.m * p.η⁻¹ * d[p.X₀ # p.X₀] := by
-        field_simp; ring
+        field_simp
       order
     obtain ⟨ i, hclose ⟩ := hclose
     obtain ⟨ H, U, hU_mes, hU_unif, hdist ⟩ := multidist_eq_zero hm mΩ' hΩ'_prob _ hdist hX'_mes (inferInstance) i
