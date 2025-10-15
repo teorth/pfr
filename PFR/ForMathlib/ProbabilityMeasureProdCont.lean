@@ -1,9 +1,12 @@
 import PFR.ForMathlib.CompactProb
-import PFR.ForMathlib.FiniteMeasureProd
 import Mathlib.Tactic.Peel
+import Mathlib.MeasureTheory.Measure.FiniteMeasureProd
 
 /-!
 # Continuity of products of probability measures on finite types
+
+TODO: we have the continuity of the product measure in mathlib, in full generality, so this file
+could be adapted to greater generality using this, or removed completely.
 -/
 
 open MeasureTheory Topology Metric Filter Set ENNReal NNReal
@@ -56,25 +59,3 @@ lemma ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto
   have obs_μs := ((continuous_pmf_apply ab.1).continuousAt (x := μ)).tendsto.comp μs_lim
   have obs_νs := ((continuous_pmf_apply ab.2).continuousAt (x := ν)).tendsto.comp νs_lim
   exact tendsto_mul.comp (Tendsto.prodMk_nhds obs_μs obs_νs)
-
--- TODO: Prove more generally in Mathlib.
-instance t1Space_probabilityMeasure_of_finite {α : Type*}
-    [Finite α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α] [BorelSpace α] :
-    T1Space (ProbabilityMeasure α) := by
-  cases nonempty_fintype α; exact probabilityMeasureHomeoStdSimplex.symm.t1Space
-
-/-- The product of two probability measures on finite spaces depend continuously on the two
-probability measures.
-TODO: In Mathlib, this should be done on all separable metrizable spaces. -/
-lemma ProbabilityMeasure.continuous_prod_of_finite {α β : Type*}
-    [Finite α] [TopologicalSpace α] [DiscreteTopology α] [MeasurableSpace α] [BorelSpace α]
-    [Finite β] [TopologicalSpace β] [DiscreteTopology β] [MeasurableSpace β] [BorelSpace β] :
-    Continuous (fun (m : ProbabilityMeasure α × ProbabilityMeasure β) ↦ (m.1.prod m.2)) := by
-  rw [continuous_iff_continuousAt]
-  intro μν
-  apply continuousAt_of_tendsto_nhds (y := μν.1.prod μν.2)
-  apply ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto
-  · apply continuous_fst.tendsto
-  · apply continuous_snd.tendsto
-
-end MeasureTheory -- namespace

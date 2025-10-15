@@ -1,3 +1,5 @@
+import Mathlib.MeasureTheory.Measure.FiniteMeasurePi
+import PFR.ForMathlib.CompactProb
 import PFR.MoreRuzsaDist
 
 /-!

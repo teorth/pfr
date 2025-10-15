@@ -534,7 +534,8 @@ lemma single_fibres {G H Ω Ω': Type*}
       Measure.isProbabilityMeasure_map (.comp_measurable .of_discrete hUA')
     have : IsProbabilityMeasure (.map (φ ∘ UB) ℙ) :=
       Measure.isProbabilityMeasure_map (.comp_measurable .of_discrete hUB')
-    rewrite [← Finset.sum_product', ← tsum_eq_sum fun _ ↦ h_compl, ← measureEntropy_prod]
+    rewrite [← Finset.sum_product',
+      ← tsum_eq_sum (L := SummationFilter.unconditional _) fun _ ↦ h_compl, ← measureEntropy_prod]
     apply tsum_congr; intro; congr
     rewrite [← Set.singleton_prod_singleton, measureReal_ennreal_smul_apply, measureReal_def,
       Measure.prod_prod,
