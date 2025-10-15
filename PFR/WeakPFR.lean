@@ -1,4 +1,3 @@
-import Mathlib.GroupTheory.Torsion
 import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import Mathlib.LinearAlgebra.FreeModule.ModN
 import Mathlib.LinearAlgebra.FreeModule.PID
@@ -423,9 +422,11 @@ lemma sum_prob_preimage {G H : Type*} {X : Finset H} {A : Set G} [Finite A] {φ 
   rewrite [Nat.card_eq_fintype_card, ← Finset.card_univ, Finset.card_eq_sum_card_fiberwise
     <| fun a _ ↦ Finset.mem_univ (φ a), ← Finset.sum_coe_sort]
   norm_cast
-  congr; ext
+  congr with x
   rewrite [← Set.Finite.toFinset_setOf, (Set.toFinite _).card_toFinset, ← Nat.card_eq_fintype_card,
-    hφ, Nat.card_image_of_injective Subtype.val_injective]; rfl
+    hφ, Nat.card_image_of_injective Subtype.val_injective]
+  · rfl
+  · exact toFinite {x_1 | φ x_1 = x}
 
 /-- Let $\phi : G\to H$ be a homomorphism and $A,B\subseteq G$ be finite subsets.
 If $x,y\in H$ then let $A_x=A\cap \phi^{-1}(x)$ and $B_y=B\cap \phi^{-1}(y)$.
@@ -529,10 +530,11 @@ lemma single_fibres {G H Ω Ω': Type*}
     unfold M
     unfold entropy
     have : IsProbabilityMeasure (.map (φ ∘ UA) ℙ) :=
-      isProbabilityMeasure_map (.comp_measurable .of_discrete hUA')
+      Measure.isProbabilityMeasure_map (.comp_measurable .of_discrete hUA')
     have : IsProbabilityMeasure (.map (φ ∘ UB) ℙ) :=
-      isProbabilityMeasure_map (.comp_measurable .of_discrete hUB')
-    rewrite [← Finset.sum_product', ← tsum_eq_sum fun _ ↦ h_compl, ← measureEntropy_prod]
+      Measure.isProbabilityMeasure_map (.comp_measurable .of_discrete hUB')
+    rewrite [← Finset.sum_product',
+      ← tsum_eq_sum (L := SummationFilter.unconditional _) fun _ ↦ h_compl, ← measureEntropy_prod]
     apply tsum_congr; intro; congr
     rewrite [← Set.singleton_prod_singleton, measureReal_ennreal_smul_apply, measureReal_def,
       Measure.prod_prod,
@@ -745,7 +747,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
         simp only [one_div, gt_iff_lt, inv_pos, Nat.cast_pos, Finset.card_pos]
         exact (Finite.toFinset_nonempty (toFinite A)).mpr hnA
       have _ : IsProbabilityMeasure ((ℙ).map UA) :=
-        MeasureTheory.isProbabilityMeasure_map (Measurable.aemeasurable hUA_mes)
+        Measure.isProbabilityMeasure_map (Measurable.aemeasurable hUA_mes)
       replace this := single ((ℙ).map UA) hx this
       rwa [Set.mem_preimage, Set.mem_singleton_iff] at this
 
@@ -771,7 +773,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
         simp only [one_div, gt_iff_lt, inv_pos, Nat.cast_pos, Finset.card_pos]
         exact (Finite.toFinset_nonempty (toFinite B)).mpr hnB
       have _ : IsProbabilityMeasure ((ℙ).map UB) :=
-        MeasureTheory.isProbabilityMeasure_map (Measurable.aemeasurable hUB_mes)
+        Measure.isProbabilityMeasure_map (Measurable.aemeasurable hUB_mes)
       replace this := single ((ℙ).map UB) hy this
       rwa [Set.mem_preimage, Set.mem_singleton_iff] at this
 

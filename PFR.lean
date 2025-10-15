@@ -18,7 +18,6 @@ import PFR.ForMathlib.Entropy.Measure
 import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.ForMathlib.Entropy.RuzsaSetDist
 import PFR.ForMathlib.FiniteMeasureComponent
-import PFR.ForMathlib.FiniteMeasureProd
 import PFR.ForMathlib.FiniteRange.ConditionalProbability
 import PFR.ForMathlib.FiniteRange.Defs
 import PFR.ForMathlib.FiniteRange.IdentDistrib
@@ -36,7 +35,6 @@ import PFR.Mathlib.Algebra.BigOperators.Fin
 import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Fin.Basic
-import PFR.Mathlib.Data.Prod.Basic
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
 import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition

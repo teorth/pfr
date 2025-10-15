@@ -978,7 +978,8 @@ lemma condRhoPlus_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
   simp_rw [condRhoPlus, rhoPlus, tsum_fintype]
   simp only [Nat.card_eq_fintype_card, Fintype.card_coe, mul_sub, mul_add, Finset.sum_sub_distrib,
     Finset.sum_add_distrib, tsub_le_iff_right]
-  rw [← Finset.sum_mul, ← tsum_fintype, ← condRhoMinus, ← condEntropy_eq_sum_fintype _ _ _ hZ]
+  rw [← Finset.sum_mul, ← tsum_fintype (L := SummationFilter.unconditional _),
+    ← condRhoMinus, ← condEntropy_eq_sum_fintype _ _ _ hZ]
   simp_rw [← map_measureReal_apply hZ (measurableSet_singleton _)]
   simp only [sum_measureReal_singleton, Finset.coe_univ, measureReal_univ_eq_one, one_mul,
     sub_add_cancel, ge_iff_le]
@@ -988,7 +989,7 @@ omit [Fintype G] [DiscreteMeasurableSpace G] in
 lemma condRho_eq {S : Type*} [Fintype S] {Z : Ω → S} :
     ρ[X | Z ; μ # A] = (ρ⁻[X | Z ; μ # A] + ρ⁺[X | Z ; μ # A]) / 2 := by
   simp_rw [condRho, rho, ← mul_div_assoc, tsum_fintype, ← Finset.sum_div, mul_add,
-    Finset.sum_add_distrib, ← tsum_fintype]
+    Finset.sum_add_distrib, ← tsum_fintype (L := SummationFilter.unconditional _)]
   rfl
 
 /-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z] )$$ -/

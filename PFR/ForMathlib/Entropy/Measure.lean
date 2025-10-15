@@ -388,6 +388,8 @@ lemma entropy_of_uniformOn (H : Set S) [Nonempty H] [Finite H] :
     _ = ∑ s ∈ H.toFinite.toFinset, negMulLog (1 / Nat.card H) := by
       convert tsum_eq_sum (s := H.toFinite.toFinset) ?_ using 2 with s hs
       · simp at hs; simp [hs]
+      · constructor
+        simp
       intro s hs
       simp only [Set.Finite.mem_toFinset] at hs; simp [hs]
     _ = (Nat.card H) * negMulLog (1 / Nat.card H) := by simp [← Set.ncard_coe_finset]
@@ -580,9 +582,9 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
   have : IsProbabilityMeasure (μ.map Prod.fst) :=
-    isProbabilityMeasure_map measurable_fst.aemeasurable
+    Measure.isProbabilityMeasure_map measurable_fst.aemeasurable
   have : IsProbabilityMeasure (μ.map Prod.snd) :=
-    isProbabilityMeasure_map measurable_snd.aemeasurable
+    Measure.isProbabilityMeasure_map measurable_snd.aemeasurable
   let E := μ.support
   have hE := measure_compl_support μ
   classical

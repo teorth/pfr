@@ -111,7 +111,7 @@ lemma setRuzsaDist_le (A B : Set G) [h'A : Finite A] [h'B : Finite B]
   convert measureEntropy_le_card_aux (A-B).toFinite.toFinset ?_
   · rw [Nat.card_coe_set_eq]
     exact Set.ncard_eq_toFinset_card (A - B)
-  · exact isProbabilityMeasure_map (Measurable.aemeasurable measurable_sub)
+  · exact Measure.isProbabilityMeasure_map (Measurable.aemeasurable measurable_sub)
   rw [Measure.map_apply measurable_sub .of_discrete]
   apply measure_mono_null (t := (Aᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ Bᶜ))
   · intro (x, y)

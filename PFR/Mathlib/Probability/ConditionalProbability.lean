@@ -1,4 +1,3 @@
-import Mathlib.MeasureTheory.Measure.Real
 import Mathlib.Probability.ConditionalProbability
 
 open MeasureTheory

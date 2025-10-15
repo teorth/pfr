@@ -338,7 +338,7 @@ lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
   simp_rw [← integral_fintype _ .of_finite]
   rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
     integral_const]
-  have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
+  have : IsProbabilityMeasure (Measure.map Z ℙ) := Measure.isProbabilityMeasure_map hZ.aemeasurable
   simp
 
 variable {T₁ T₂ T₃ : Ω' → G} (hT : T₁+T₂+T₃ = 0)
@@ -370,7 +370,8 @@ lemma construct_good_prelim :
   let sum4 : ℝ := (Measure.map T₃ ℙ)[fun t ↦ ψ[T₁; ℙ[|T₃ ⁻¹' {t}] # T₂; ℙ[|T₃ ⁻¹' {t}]]]
 
   have hp.η : 0 ≤ p.η := by linarith [p.hη]
-  have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
+  have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) :=
+    Measure.isProbabilityMeasure_map hT₃.aemeasurable
   have h2T₃ : T₃ = T₁ + T₂ :=
     calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hT, zero_sub]; simp [ZModModule.neg_eq_self]
       _ = T₁ + T₂ := by rw [add_sub_cancel_right]
@@ -458,14 +459,14 @@ lemma delta'_eq_integral :
     Finset.sum_add_distrib]
 
 include hT₁ hT₂ hT₃ hT h_min hR in
-lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma cond_construct_good :
     k ≤ δ' + (p.η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
   simp_rw [integral_fintype _ .of_finite, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum, mul_smul_comm,
     ← Finset.sum_add_distrib, ← smul_add]
   simp_rw [← integral_fintype _ .of_finite]
-  have : IsProbabilityMeasure (Measure.map R ℙ) := isProbabilityMeasure_map (by fun_prop)
+  have : IsProbabilityMeasure (Measure.map R ℙ) := Measure.isProbabilityMeasure_map (by fun_prop)
   calc
     k = (Measure.map R ℙ)[fun _r => k] := by
       rw [integral_const]; simp

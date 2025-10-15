@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
-import Mathlib.MeasureTheory.Integral.Lebesgue.Countable
 
 /-!
 # TODO
@@ -11,8 +10,6 @@ open ENNReal
 
 namespace MeasureTheory
 variable {α : Type*} [MeasurableSpace α] {μ : Measure α} {s : Set α}
-
-attribute [simp] lintegral_dirac
 
 lemma lintegral_eq_zero_of_ae_zero {f : α → ℝ≥0∞} (hs : μ sᶜ = 0) (hf : ∀ x ∈ s, f x = 0)
     (hmes : MeasurableSet s) : ∫⁻ x, f x ∂μ = 0 := by

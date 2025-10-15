@@ -499,7 +499,7 @@ lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : M
     rw [←entropy_add_left', ←entropy_neg_left] <;> try fun_prop
     congr!; rw [←add_eq_zero_iff_neg_eq, ←hsum]; abel
   let _hG : MeasureSpace G := ⟨Measure.map (T₁ + T₂) ℙ⟩
-  let _ : IsProbabilityMeasure (ℙ: Measure G) := isProbabilityMeasure_map (by fun_prop)
+  let _ : IsProbabilityMeasure (ℙ: Measure G) := Measure.isProbabilityMeasure_map (by fun_prop)
   change ∫ (x : G), (fun z ↦ d[T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]]) x ≤ 3 * I[T₁ : T₂] + 2 * H[T₁ + T₂] - H[T₁] - H[T₂] at h1
   replace h1 : ∫ (z : G), 2 * d[T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] ≤ 2 * δ := by rw [integral_const_mul_of_integrable]; linarith; apply MeasureTheory.Integrable.of_finite
   replace h1 : ∫ (z : G), d[T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] ≤ 2 * δ := by
@@ -579,7 +579,7 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
       _ = _ := by ring
 
   let _ : MeasureSpace G := ⟨ Measure.map W ℙ ⟩
-  have _ : IsProbabilityMeasure (ℙ: Measure G) := isProbabilityMeasure_map (by fun_prop)
+  have _ : IsProbabilityMeasure (ℙ: Measure G) := Measure.isProbabilityMeasure_map (by fun_prop)
 
   let δ' : G → ℝ := fun w ↦ p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]]
 
@@ -643,9 +643,9 @@ lemma k_eq_zero (hη_eq : p.η = 1/(32*p.m^3)): k = 0 := by
         simp
       _ < _ := by
         rw [hη_eq]
-        field_simp; rw [div_lt_one (by positivity)]
-        ring_nf; linarith only [show (p.m:ℝ)^6 > 0 by positivity]
-
+        field_simp
+        ring_nf
+        norm_num
   order
 
 end AnalyzeMinimizer
