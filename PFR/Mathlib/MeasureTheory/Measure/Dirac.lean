@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Measure.Dirac
-import Mathlib.MeasureTheory.Measure.Real
 
 namespace MeasureTheory.Measure
 variable {α : Type*} [MeasurableSpace α] {s : Set α} {a : α}

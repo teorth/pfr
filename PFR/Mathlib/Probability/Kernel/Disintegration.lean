@@ -1,7 +1,6 @@
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Kernel.Composition.Prod
 import Mathlib.Probability.Kernel.CondDistrib
-import PFR.Mathlib.Data.Prod.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Countable
 
@@ -111,7 +110,7 @@ variable [Countable T] [MeasurableSingletonClass S] [MeasurableSingletonClass T]
 
 lemma condKernel_compProd_ae_eq
     (κ : Kernel T S) [IsFiniteKernel κ]
-    (η : Kernel (T × S) U) [IsMarkovKernel η] (μ : Measure T) [IsFiniteMeasure μ] :
+    (η : Kernel (T × S) U) [IsMarkovKernel η] (μ : Measure T) :
     condKernel (κ ⊗ₖ η) =ᵐ[μ ⊗ₘ κ] η := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
@@ -136,13 +135,13 @@ lemma compProd_swapLeft_prodMkLeft {α β γ : Type*} {mα : MeasurableSpace α}
   simp [compProd_apply hs, prod_apply' _ _ _ hs]
 
 lemma condKernel_prod_ae_eq (κ : Kernel T S) [IsFiniteKernel κ] {μ}
-    (η : Kernel T U) [IsMarkovKernel η] [IsFiniteMeasure μ] :
+    (η : Kernel T U) [IsMarkovKernel η] :
     condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight S η := by
   simp_rw [← compProd_swapLeft_prodMkLeft]
   exact condKernel_compProd_ae_eq _ _ _
 
 lemma ae_eq_condKernel_of_compProd_eq (κ : Kernel T (S × U)) [IsFiniteKernel κ] {μ}
-    (η : Kernel (T × S) U) [IsMarkovKernel η] [IsFiniteMeasure μ] (h : fst κ ⊗ₖ η = κ) :
+    (η : Kernel (T × S) U) [IsMarkovKernel η] (h : fst κ ⊗ₖ η = κ) :
     η =ᵐ[μ ⊗ₘ fst κ] condKernel κ := by
   have : condKernel κ = condKernel ((fst κ) ⊗ₖ η) := by congr; exact h.symm
   rw [this]
@@ -150,7 +149,7 @@ lemma ae_eq_condKernel_of_compProd_eq (κ : Kernel T (S × U)) [IsFiniteKernel �
 
 lemma condKernel_map_prodMk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
     [DiscreteMeasurableSpace V] [Countable V]
-    (κ : Kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T) [IsFiniteMeasure μ]
+    (κ : Kernel T (S × U)) [IsMarkovKernel κ] (μ : Measure T)
     (f : S × U → V) :
     condKernel (map κ (fun p ↦ (p.1, f p)))
       =ᵐ[μ ⊗ₘ fst κ] snd ((condKernel κ) ⊗ₖ (deterministic (fun x : (T × S) × U ↦ f (x.1.2, x.2))
@@ -345,7 +344,7 @@ lemma swap_condDistrib_ae_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measu
   have h_swap : (fun a ↦ (X a, Z a)) ⁻¹' {Prod.swap x} = (fun a ↦ (Z a, X a)) ⁻¹' {x} := by
     ext ω
     simp only [Set.mem_preimage, Set.mem_singleton_iff]
-    rw [← Prod.eta x, Prod.swap_mk, Prod.mk_inj, Prod.mk_inj, and_comm]
+    rw [← Prod.eta x, Prod.swap_prod_mk, Prod.mk_inj, Prod.mk_inj, and_comm]
   rw [condDistrib_apply' hY (hX.prodMk hZ) _ _ _ hA]
   swap; · rwa [Measure.map_apply (hZ.prodMk hX) (.singleton _), ← h_swap] at hx
   rw [condDistrib_apply' hY (hZ.prodMk hX) _ _ _ hA]
@@ -590,11 +589,11 @@ section
 
 variable [Countable T] [MeasurableSingletonClass T] {μ : Measure T}
 
-set_option linter.unusedVariables false in
-/-- The definition doesn't use `hκ`, but we keep it here still as it doesn't give anything
+/-- The definition doesn't use `_hκ`, but we keep it here still as it doesn't give anything
 interesting otherwise. -/
+@[nolint unusedArguments]
 noncomputable
-def AEFiniteKernelSupport.mk {μ} {κ : Kernel T S} (hκ : AEFiniteKernelSupport κ μ) :
+def AEFiniteKernelSupport.mk {μ} {κ : Kernel T S} (_hκ : AEFiniteKernelSupport κ μ) :
     Kernel T S := by
   classical
   exact if hS : Nonempty S then
@@ -793,7 +792,7 @@ lemma AEFiniteKernelSupport.snd [MeasurableSingletonClass U] {κ : Kernel T (S �
 lemma aefiniteKernelSupport_of_cond {κ : Kernel T (S × U)} [hU : Nonempty U]
     [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     [MeasurableSingletonClass U] [Countable U] [Countable S] [Countable T]
-    (μ : Measure T) [IsFiniteMeasure μ] (hκ : AEFiniteKernelSupport κ μ) [IsFiniteKernel κ] :
+    (μ : Measure T) (hκ : AEFiniteKernelSupport κ μ) [IsFiniteKernel κ] :
     AEFiniteKernelSupport (condKernel κ) (μ ⊗ₘ (Kernel.fst κ)) := by
   rw [AEFiniteKernelSupport, ae_iff_of_countable] at hκ ⊢
   intro (t, s) hts

@@ -253,7 +253,7 @@ instance IsZeroOrProbabilityMeasure.compProd
 
 lemma entropy_condKernel_compProd_triple [Nonempty V] (ξ : Kernel T S) [IsZeroOrMarkovKernel ξ]
     (κ : Kernel (T × S) U) [IsMarkovKernel κ] (η : Kernel (T × S × U) V) [IsMarkovKernel η]
-    (μ : Measure T) [IsProbabilityMeasure μ] :
+    (μ : Measure T) :
     Hk[condKernel (ξ ⊗ₖ κ ⊗ₖ η) , μ ⊗ₘ (ξ ⊗ₖ κ)] = Hk[η, μ ⊗ₘ (ξ ⊗ₖ κ)] :=
   entropy_congr (condKernel_compProd_ae_eq (ξ ⊗ₖ κ) η μ)
 

@@ -1,0 +1,6 @@
+{"ignore":
+ {"PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic":
+  ["Mathlib.Algebra.Group.Action.Pointwise.Set.Basic"],
+  "PFR.ForMathlib.Pair": ["Mathlib.Tactic.Basic"],
+  "PFR.Examples":
+  ["PFR.ApproxHomPFR", "PFR.ImprovedPFR", "PFR.RhoFunctional", "PFR.WeakPFR"]}}
