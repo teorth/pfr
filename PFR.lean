@@ -23,6 +23,7 @@ import PFR.ForMathlib.FiniteRange.Defs
 import PFR.ForMathlib.FiniteRange.IdentDistrib
 import PFR.ForMathlib.FourVariables
 import PFR.ForMathlib.Pair
+import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.ForMathlib.ThreeVariables
 import PFR.ForMathlib.Uniform
 import PFR.HomPFR

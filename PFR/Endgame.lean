@@ -459,7 +459,7 @@ lemma delta'_eq_integral :
     Finset.sum_add_distrib]
 
 include hT₁ hT₂ hT₃ hT h_min hR in
-lemma cond_construct_good [IsProbabilityMeasure (ℙ : Measure Ω)] :
+lemma cond_construct_good :
     k ≤ δ' + (p.η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
