@@ -111,7 +111,7 @@ variable [Countable T] [MeasurableSingletonClass S] [MeasurableSingletonClass T]
 
 lemma condKernel_compProd_ae_eq
     (κ : Kernel T S) [IsFiniteKernel κ]
-    (η : Kernel (T × S) U) [IsMarkovKernel η] (μ : Measure T) [IsFiniteMeasure μ]:
+    (η : Kernel (T × S) U) [IsMarkovKernel η] (μ : Measure T) [IsFiniteMeasure μ] :
     condKernel (κ ⊗ₖ η) =ᵐ[μ ⊗ₘ κ] η := by
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
@@ -128,9 +128,18 @@ lemma condKernel_compProd_ae_eq
     exact hy.2
   · simp [hyx1] at hy
 
+lemma compProd_swapLeft_prodMkLeft {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+    {mγ : MeasurableSpace γ} (κ : Kernel α β) [IsSFiniteKernel κ]
+    (η : Kernel α γ) [IsSFiniteKernel η] :
+    κ ⊗ₖ swapLeft (prodMkLeft β η) = κ ×ₖ η := by
+  ext x s hs
+  simp [compProd_apply hs, prod_apply' _ _ _ hs]
+
 lemma condKernel_prod_ae_eq (κ : Kernel T S) [IsFiniteKernel κ] {μ}
     (η : Kernel T U) [IsMarkovKernel η] [IsFiniteMeasure μ] :
-    condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight S η := condKernel_compProd_ae_eq _ _ _
+    condKernel (κ ×ₖ η) =ᵐ[μ ⊗ₘ κ] prodMkRight S η := by
+  simp_rw [← compProd_swapLeft_prodMkLeft]
+  exact condKernel_compProd_ae_eq _ _ _
 
 lemma ae_eq_condKernel_of_compProd_eq (κ : Kernel T (S × U)) [IsFiniteKernel κ] {μ}
     (η : Kernel (T × S) U) [IsMarkovKernel η] [IsFiniteMeasure μ] (h : fst κ ⊗ₖ η = κ) :
