@@ -1,5 +1,4 @@
 import Mathlib.Probability.UniformOn
-import Mathlib.MeasureTheory.Measure.Real
 
 open Function MeasureTheory Measure
 

@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Measure.Map
-import Mathlib.MeasureTheory.Measure.Real
 
 /-- The property of having a finite range. -/
 class FiniteRange {Ω G : Type*} (X : Ω → G) : Prop where

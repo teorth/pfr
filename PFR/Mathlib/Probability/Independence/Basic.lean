@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Constructions.Pi
-import Mathlib.MeasureTheory.Measure.Real
 import Mathlib.Probability.Independence.Basic
 import PFR.Mathlib.Probability.Independence.Kernel
 

@@ -1,7 +1,6 @@
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Probability.Kernel.Composition.Prod
 import Mathlib.Probability.Kernel.CondDistrib
-import PFR.Mathlib.Data.Prod.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Countable
 
@@ -345,7 +344,7 @@ lemma swap_condDistrib_ae_eq (hX : Measurable X) (hY : Measurable Y) (hZ : Measu
   have h_swap : (fun a ↦ (X a, Z a)) ⁻¹' {Prod.swap x} = (fun a ↦ (Z a, X a)) ⁻¹' {x} := by
     ext ω
     simp only [Set.mem_preimage, Set.mem_singleton_iff]
-    rw [← Prod.eta x, Prod.swap_mk, Prod.mk_inj, Prod.mk_inj, and_comm]
+    rw [← Prod.eta x, Prod.swap_prod_mk, Prod.mk_inj, Prod.mk_inj, and_comm]
   rw [condDistrib_apply' hY (hX.prodMk hZ) _ _ _ hA]
   swap; · rwa [Measure.map_apply (hZ.prodMk hX) (.singleton _), ← h_swap] at hx
   rw [condDistrib_apply' hY (hZ.prodMk hX) _ _ _ hA]
