@@ -753,7 +753,7 @@ lemma condRuzsaDist_of_indep
   refine Kernel.entropy_congr ?_
   have : Kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2)
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
-    (condDistrib_comp (hX.prodMk hY) (hZ.prodMk hW) _ _).symm
+    (condDistrib_comp _ (by fun_prop) (by fun_prop)).symm
   refine (this.symm.trans ?_).symm
   suffices Kernel.prodMkRight T (condDistrib X Z μ)
         ×ₖ Kernel.prodMkLeft S (condDistrib Y W μ)
@@ -800,7 +800,7 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
   rw [Kernel.entropy_congr this]
   have : Kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2)
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
-    (condDistrib_comp (hX.prodMk hY) (measurable_const.prodMk hW) _ _).symm
+    (condDistrib_comp _ (by fun_prop) (by fun_prop)).symm
   rw [Kernel.entropy_congr this]
   have h_meas : μ.map (⟨Z, W⟩) = (μ.map W).map (Prod.mk ()) := by
     ext s hs

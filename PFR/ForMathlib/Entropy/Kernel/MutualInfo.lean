@@ -61,7 +61,7 @@ lemma mutualInfo_congr {κ η : Kernel T (S × U)} {μ : Measure T} (h : κ =ᵐ
     rw [snd_apply, ht, snd_apply]
   rw [entropy_congr h1, entropy_congr h2, entropy_congr h]
 
-lemma compProd_assoc (ξ : Kernel T S) [IsSFiniteKernel ξ]
+lemma compProd_assoc' (ξ : Kernel T S) [IsSFiniteKernel ξ]
     (κ : Kernel (T × S) U) [IsSFiniteKernel κ] (η : Kernel (T × S × U) V) [IsSFiniteKernel η] :
     map ((ξ ⊗ₖ κ) ⊗ₖ η) MeasurableEquiv.prodAssoc
       = ξ ⊗ₖ (κ ⊗ₖ (comap η MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable)) := by
@@ -361,7 +361,7 @@ lemma entropy_triple_add_entropy_le' {κ : Kernel T (S × U × V)} [IsZeroOrMark
   have h_compProd_triple_eq' :
       ξ ⊗ₖ (κ'' ⊗ₖ comap η MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable)
         = κ := by
-    rw [← compProd_assoc, h_compProd_triple_eq,hκ'_def, map_map _ (by fun_prop) (by fun_prop)]
+    rw [← compProd_assoc', h_compProd_triple_eq,hκ'_def, map_map _ (by fun_prop) (by fun_prop)]
     simp
   have h := entropy_compProd_triple_add_entropy_le (ξ := ξ) (κ := κ'') (η := η) (μ := μ) ?_ ?_ ?_
   rotate_left

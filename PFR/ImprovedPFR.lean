@@ -332,7 +332,8 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   have h2T₃ : T₃ = T₁ + T₂ := by
     calc T₃ = T₁ + T₂ + T₃ - T₃ := by simp [hT, ZModModule.neg_eq_self]
       _ = T₁ + T₂ := by rw [add_sub_cancel_right]
-  have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) := isProbabilityMeasure_map hT₃.aemeasurable
+  have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) :=
+    Measure.isProbabilityMeasure_map hT₃.aemeasurable
   -- control sum1 with entropic BSG
   have h1 : sum1 ≤ δ := by
     have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := by

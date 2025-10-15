@@ -106,6 +106,7 @@ lemma entropy_eq_sum_finset {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ]
     entropy X μ = ∑ x ∈ A, negMulLog ((μ.map X).real {x}) := by
   rw [entropy_eq_sum]
   convert tsum_eq_sum ?_
+  · exact SummationFilter.instLeAtTopUnconditional S
   intro s hs
   convert negMulLog_zero
   rw [Measure.real]
