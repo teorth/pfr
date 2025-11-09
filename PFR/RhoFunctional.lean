@@ -167,7 +167,8 @@ private lemma rhoMinus_continuous_aux1 (hX : Measurable X) (hA : A.Nonempty)
     · exact ENNReal.Tendsto.mul_const hu (by simp)
   let PA : ProbabilityMeasure G := ⟨uniformOn A, uniformOn_isProbabilityMeasure (A.finite_toSet) hA⟩
   have : Tendsto (fun n ↦ (νP n).prod PA) atTop (𝓝 (μ₀P.prod PA)) :=
-    ProbabilityMeasure.tendsto_prod_of_tendsto_of_tendsto _ _ L _ _ tendsto_const_nhds
+    (ProbabilityMeasure.continuous_prod.tendsto (μ₀P, PA)).comp (f := fun n ↦ (νP n, PA)) <|
+      L.prodMk_nhds tendsto_const_nhds
   have C : Continuous (Prod.fst + Prod.snd : G × G → G) := by fun_prop
   have Z := ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous _ _ this
     (f := Prod.fst + Prod.snd) C
