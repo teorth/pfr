@@ -1,8 +1,8 @@
 import Mathlib.MeasureTheory.Measure.FiniteMeasureProd
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
-import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.ForMathlib.FiniteRange.IdentDistrib
+import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 /-!
 # Ruzsa distance

@@ -1,4 +1,5 @@
-import PFR.ForMathlib.FiniteMeasureComponent
+import PFR.Mathlib.Analysis.Convex.StdSimplex
+import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 /-!
 # Compactness of the space of probability measures
@@ -12,47 +13,10 @@ theorem which we don't have currently in mathlib.
 
 -/
 
-namespace stdSimplex
-variable {𝕜 ι : Type*} [Semiring 𝕜] [PartialOrder 𝕜] [Fintype ι]
-
-@[simp, norm_cast] lemma coe_mk (f : ι → 𝕜) (hf) : (⟨f, hf⟩ : stdSimplex 𝕜 ι) = f := rfl
-
-@[simp] lemma val_eq_coe (f : stdSimplex 𝕜 ι) : f.val = f := rfl
-
-end stdSimplex
-
 open MeasureTheory
 open scoped Topology ENNReal NNReal BoundedContinuousFunction
 
 variable {X : Type*} [MeasurableSpace X]
-
-section
-
-variable [TopologicalSpace X] [DiscreteTopology X] [BorelSpace X]
-
-lemma continuous_pmf_apply' (i : X) :
-    Continuous fun μ : ProbabilityMeasure X ↦ (μ : Measure X).real {i} :=
-  continuous_probabilityMeasure_apply_of_isClopen (s := {i}) $ isClopen_discrete _
-
-lemma continuous_pmf_apply (i : X) : Continuous fun μ : ProbabilityMeasure X ↦ μ {i} := by
-  -- KK: The coercion fight here is one reason why I now prefer ℝ-valued and not ℝ≥0-valued probas.
-  convert continuous_real_toNNReal.comp (continuous_pmf_apply' i)
-  ext
-  simp [Measure.real, Function.comp_apply]
-  rfl
-
--- KK: I will reuse this, so could be used in `probabilityMeasureHomeoStdSimplex`, too.
-open Filter in
-lemma tendsto_lintegral_of_forall_of_finite [Finite X] {ι : Type*} {L : Filter ι}
-    (μs : ι → Measure X) (μ : Measure X)
-    (f : X →ᵇ ℝ≥0) (h : ∀ (x : X), Tendsto (fun i ↦ μs i {x}) L (𝓝 (μ {x}))) :
-    Tendsto (fun i ↦ ∫⁻ x, f x ∂(μs i)) L (𝓝 (∫⁻ x, f x ∂μ)) := by
-  cases nonempty_fintype X
-  simp only [lintegral_fintype]
-  refine tendsto_finset_sum Finset.univ ?_
-  exact fun x _ ↦ ENNReal.Tendsto.const_mul (h x) (Or.inr ENNReal.coe_ne_top)
-
-end
 
 section Fintype
 variable [Fintype X]

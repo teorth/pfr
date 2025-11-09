@@ -17,13 +17,11 @@ import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.Entropy.Measure
 import PFR.ForMathlib.Entropy.RuzsaDist
 import PFR.ForMathlib.Entropy.RuzsaSetDist
-import PFR.ForMathlib.FiniteMeasureComponent
 import PFR.ForMathlib.FiniteRange.ConditionalProbability
 import PFR.ForMathlib.FiniteRange.Defs
 import PFR.ForMathlib.FiniteRange.IdentDistrib
 import PFR.ForMathlib.FourVariables
 import PFR.ForMathlib.Pair
-import PFR.ForMathlib.ProbabilityMeasureProdCont
 import PFR.ForMathlib.ThreeVariables
 import PFR.ForMathlib.Uniform
 import PFR.HomPFR
@@ -33,6 +31,7 @@ import PFR.Kullback
 import PFR.Main
 import PFR.Mathlib.Algebra.BigOperators.Fin
 import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
+import PFR.Mathlib.Analysis.Convex.StdSimplex
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Fin.Basic
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
@@ -47,6 +46,7 @@ import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic
 import PFR.Mathlib.MeasureTheory.Measure.Dirac
 import PFR.Mathlib.MeasureTheory.Measure.MeasureSpace
 import PFR.Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import PFR.Mathlib.MeasureTheory.Measure.Prod
 import PFR.Mathlib.MeasureTheory.Measure.Real
 import PFR.Mathlib.MeasureTheory.Measure.Typeclasses.Probability

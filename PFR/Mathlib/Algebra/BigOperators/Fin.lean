@@ -1,5 +1,4 @@
-import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-import Mathlib.Data.Fintype.Fin
+import Mathlib.Algebra.BigOperators.Fin
 
 open Finset
 

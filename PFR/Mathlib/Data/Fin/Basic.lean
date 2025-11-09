@@ -1,4 +1,4 @@
-import Mathlib.Logic.Function.Basic
+import Mathlib.Data.Fin.Basic
 
 theorem Fin.cast_bijective {k l :ℕ} (h : k = l) : Function.Bijective (Fin.cast h) := by
   subst l; simpa using Function.bijective_id
