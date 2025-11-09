@@ -1,9 +1,8 @@
 import Mathlib.Probability.IdentDistrib
-import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.ForMathlib.CompactProb
-import PFR.ForMathlib.FiniteRange.Defs
 import PFR.ForMathlib.Entropy.Basic
-import PFR.ForMathlib.ProbabilityMeasureProdCont
+import PFR.ForMathlib.FiniteRange.Defs
+import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 
 /-!
 # Kullback-Leibler divergence
@@ -78,8 +77,8 @@ lemma KLDiv_nonneg [Fintype G] [MeasurableSingletonClass G] [IsZeroOrProbability
   rcases eq_zero_or_isProbabilityMeasure μ' with rfl | hμ'
   · simp
   apply le_trans ?_ (sum_mul_log_div_leq (by simp) (by simp) ?_)
-  · have : IsProbabilityMeasure (μ'.map Y) := isProbabilityMeasure_map hY.aemeasurable
-    have : IsProbabilityMeasure (μ.map X) := isProbabilityMeasure_map hX.aemeasurable
+  · have : IsProbabilityMeasure (μ'.map Y) := Measure.isProbabilityMeasure_map hY.aemeasurable
+    have : IsProbabilityMeasure (μ.map X) := Measure.isProbabilityMeasure_map hX.aemeasurable
     simp
   · intro i _ hi
     simp only [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at hi
@@ -93,9 +92,9 @@ lemma KLDiv_eq_zero_iff_identDistrib [Fintype G] [MeasurableSingletonClass G]
     KL[X ; μ # Y ; μ'] = 0 ↔ IdentDistrib X Y μ μ' := by
   refine ⟨fun h ↦ ?_, fun h ↦ by simp [KLDiv, h.map_eq]⟩
   let νY := μ'.map Y
-  have : IsProbabilityMeasure νY := isProbabilityMeasure_map hY.aemeasurable
+  have : IsProbabilityMeasure νY := Measure.isProbabilityMeasure_map hY.aemeasurable
   let νX := μ.map X
-  have : IsProbabilityMeasure νX := isProbabilityMeasure_map hX.aemeasurable
+  have : IsProbabilityMeasure νX := Measure.isProbabilityMeasure_map hX.aemeasurable
   obtain ⟨r, hr⟩ : ∃ (r : ℝ), ∀ x ∈ Finset.univ, (νX.real {x}) = r * νY.real {x} := by
     apply sum_mul_log_div_eq_iff (by simp) (by simp) fun i _ hi ↦ ?_
     · simpa [KLDiv_eq_sum] using h
@@ -302,7 +301,7 @@ lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurab
     simp [sub_eq_add_neg]
   let w (s : G) : ℝ := (μ.map Z).real {s}
   have sum_w : ∑ s, w s = 1 := by
-    have : IsProbabilityMeasure (μ.map Z) := isProbabilityMeasure_map hZ.aemeasurable
+    have : IsProbabilityMeasure (μ.map Z) := Measure.isProbabilityMeasure_map hZ.aemeasurable
     simp [w]
   have A x : (μ.map (X + Z)).real {x} = ∑ s, w s * (μ.map (X' s)).real {x} := by
     have : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id

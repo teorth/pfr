@@ -1,3 +1,5 @@
+import Mathlib.MeasureTheory.Measure.FiniteMeasurePi
+import PFR.ForMathlib.CompactProb
 import PFR.MoreRuzsaDist
 
 /-!
@@ -139,7 +141,7 @@ lemma multiTau_min_exists {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpac
   rw [← this]
   apply (multiTau_min_exists_measure p).choose_spec.2
   intro i
-  apply isProbabilityMeasure_map
+  apply Measure.isProbabilityMeasure_map
   exact (hX i).aemeasurable
 
 /-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/

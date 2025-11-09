@@ -1,7 +1,8 @@
+import Mathlib.MeasureTheory.Measure.FiniteMeasureProd
 import PFR.ForMathlib.Entropy.Group
 import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
 import PFR.ForMathlib.FiniteRange.IdentDistrib
-import PFR.ForMathlib.ProbabilityMeasureProdCont
+import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 /-!
 # Ruzsa distance
@@ -85,7 +86,7 @@ lemma continuous_rdist_restrict_probabilityMeasure [Fintype G]
       H[fun x ↦ x.1 - x.2 ; μ.1.toMeasure.prod μ.2.toMeasure]) := by
     simp_rw [entropy_def]
     have diff_cts : Continuous (fun (x : G × G) ↦ x.1 - x.2) := by continuity
-    have key₁ := ProbabilityMeasure.continuous_prod_of_finite (α := G) (β := G)
+    have key₁ := ProbabilityMeasure.continuous_prod (α := G) (β := G)
     have key₂ := ProbabilityMeasure.continuous_map diff_cts
     convert continuous_measureEntropy_probabilityMeasure.comp (key₂.comp key₁)
   have obs₁ : Continuous
@@ -753,7 +754,7 @@ lemma condRuzsaDist_of_indep
   refine Kernel.entropy_congr ?_
   have : Kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2)
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
-    (condDistrib_comp (hX.prodMk hY) (hZ.prodMk hW) _ _).symm
+    (condDistrib_comp _ (by fun_prop) (by fun_prop)).symm
   refine (this.symm.trans ?_).symm
   suffices Kernel.prodMkRight T (condDistrib X Z μ)
         ×ₖ Kernel.prodMkLeft S (condDistrib Y W μ)
@@ -800,7 +801,7 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
   rw [Kernel.entropy_congr this]
   have : Kernel.map (condDistrib (⟨X, Y⟩) (⟨Z, W⟩) μ) (fun x ↦ x.1 - x.2)
       =ᵐ[μ.map (⟨Z, W⟩)] condDistrib (X - Y) (⟨Z, W⟩) μ :=
-    (condDistrib_comp (hX.prodMk hY) (measurable_const.prodMk hW) _ _).symm
+    (condDistrib_comp _ (by fun_prop) (by fun_prop)).symm
   rw [Kernel.entropy_congr this]
   have h_meas : μ.map (⟨Z, W⟩) = (μ.map W).map (Prod.mk ()) := by
     ext s hs
