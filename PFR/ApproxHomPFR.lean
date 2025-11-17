@@ -46,7 +46,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
         Set.Finite.toFinset_prod]
       simp only [Set.Finite.mem_toFinset, A, Set.graphOn_prod_graphOn]
       rw [← Set.natCard_graphOn _ (Prod.map f f),
-        ← Nat.card_image_equiv (Equiv.prodProdProdComm G G' G G'), Set.image_equiv_eq_preimage_symm]
+        ← Nat.card_image_equiv (Equiv.prodProdProdComm G G' G G'), Equiv.image_eq_preimage_symm]
       congr
       aesop
     _ ≤ #A * E[A] / #A := by gcongr; exact mod_cast card_sq_le_card_mul_addEnergy ..
@@ -55,14 +55,12 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     BSG_self' (sq_nonneg K) hA_nonempty (by simpa only [inv_mul_eq_div] using this)
   clear hf this
   have hA'₀ : A'.Nonempty := Finset.card_pos.1 $ Nat.cast_pos.1 $ hA'1.trans_lt' $ by positivity
-  let A'' := A'.toSet
+  let A'' : Set (G × G') := A'
   have hA''_coe : Nat.card A'' = #A' := Nat.card_eq_finsetCard A'
   have hA''_pos : 0 < Nat.card A'' := by rw [hA''_coe]; exact hA'₀.card_pos
   have hA''_nonempty : Set.Nonempty A'' := nonempty_subtype.mp (Finite.card_pos_iff.mp hA''_pos)
-  have : Finset.card (A' - A') = Nat.card (A'' + A'') := calc
-    _ = Nat.card (A' - A').toSet := (Nat.card_eq_finsetCard _).symm
-    _ = Nat.card (A'' + A'') := by rw [Finset.coe_sub, sumset_eq_sub]
-  replace : Nat.card (A'' + A'') ≤ 2 ^ 14 * K ^ 12 * Nat.card A'' := by
+  have : (A' - A').card = (A'' + A'').ncard := by simp [A'', ← Finset.coe_sub, sumset_eq_sub]
+  replace : (A'' + A'').ncard ≤ 2 ^ 14 * K ^ 12 * Nat.card A'' := by
     rewrite [← this, hA''_coe]
     simpa [← pow_mul] using hA'2
   obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := better_PFR_conjecture_aux hA''_nonempty this

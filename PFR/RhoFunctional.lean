@@ -106,15 +106,15 @@ lemma rhoMinus_le [IsZeroOrProbabilityMeasure μ]
     (hU : Measurable U) (h_indep : IndepFun T U μ')
     (habs : ∀ y, (μ'.map (T + U)) {y} = 0 → μ.map X {y} = 0) :
     ρ⁻[X ; μ # A] ≤ KL[X ; μ # T + U ; μ'] := by
-  have : IsProbabilityMeasure (Measure.map T μ') := isProbabilityMeasure_map hT.aemeasurable
+  have : IsProbabilityMeasure (μ'.map T) := isProbabilityMeasure_map hT.aemeasurable
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
     uniformOn_isProbabilityMeasure A.finite_toSet hA
-  have E : Measure.map U μ' = uniformOn (A : Set G) := hunif.map_eq_uniformOn hU A.finite_toSet hA
-  have M : (Measure.map (Prod.fst + Prod.snd) ((Measure.map T μ').prod (uniformOn ↑A))) =
+  have E : μ'.map U = uniformOn (A : Set G) := hunif.map_eq_uniformOn hU A.finite_toSet hA
+  have M : (Measure.map (Prod.fst + Prod.snd) ((μ'.map T).prod (uniformOn ↑A))) =
       (Measure.map (T + U) μ') := by
     ext s _
     rw [h_indep.map_add_eq_sum hT hU]
-    have : IndepFun Prod.fst Prod.snd ((Measure.map T μ').prod (uniformOn (A : Set G))) :=
+    have : IndepFun Prod.fst Prod.snd ((μ'.map T).prod (uniformOn (A : Set G))) :=
       ProbabilityTheory.indepFun_fst_snd
     rw [this.map_add_eq_sum measurable_fst measurable_snd,
       Measure.map_fst_prod, Measure.map_snd_prod]
@@ -481,7 +481,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
       / (∑ h ∈ H', (volume.map (T + UA)).real {h})) ≤ KL[U ; μ # T + UA ; ℙ] := by
     rw [I₁]
     apply Real.sum_mul_log_div_leq (by simp) (by simp) (fun i hi h'i ↦ ?_)
-    have : (Measure.map U μ).real {i} = 0 := by
+    have : (μ.map U).real {i} = 0 := by
       simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h'i ⊢
       simp [habs i h'i]
     simp [hunif'.measureReal_preimage_of_mem' hU hi, H.coe_nonempty.ne_empty, H'] at this
@@ -539,6 +539,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     (h'A : (A ∩ (t +ᵥ (H : Set G)) : Set G).Nonempty) (hU : Measurable U) :
     ρ⁻[U ; μ # A] ≤
       log (Nat.card A) - log (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)) := by
+  classical
   have mapU : .map U μ = uniformOn (H : Set G) :=
     hunif.map_eq_uniformOn hU (H : Set G).toFinite H.coe_nonempty
   obtain ⟨a, ha, h'a⟩ := by exact h'A
@@ -574,57 +575,33 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     · simp at h
     · convert (H.sub_mem yH vH) using 1
       abel
-  let H' : Finset G := Set.Finite.toFinset (toFinite H)
-  have hunif' : IsUniform H' U μ := by convert hunif; simp [H']
+  let H' : Finset G := Set.toFinset H
+  have hunif' : IsUniform H' U μ := by convert hunif; ext; simp [H']
   rw [KLDiv_eq_sum, ← Finset.sum_subset (Finset.subset_univ H')]; swap
   · intro x _ hH
     rw [map_measureReal_apply hU (measurableSet_singleton x), hunif.measureReal_preimage_of_nmem]
     · simp
     · simpa [H'] using hH
-  have : ∑ x ∈ H', ((Measure.map U μ).real {x}) *
-      log ((Measure.map U μ).real {x}
-        / (Measure.map (Prod.fst + Prod.snd) (μ'.prod (uniformOn ↑A))).real {x})
+  have :
+    ∑ x ∈ H', (μ.map U).real {x} *
+      log ((μ.map U).real {x} / ((μ'.prod (uniformOn ↑A)).map (Prod.fst + Prod.snd)).real {x})
       = ∑ x ∈ H', (1/(H : Set G).ncard) * log ((1/(H : Set G).ncard)
         / (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) / (Nat.card A * (H : Set G).ncard))) := by
-    apply Finset.sum_congr rfl (fun x hx ↦ ?_)
-    have xH : x ∈ H := by simpa [H'] using hx
-    have : (Measure.map U μ).real {x} = 1/(H : Set G).ncard := by
+    have (x) (hx : x ∈ H') : (μ.map U).real {x} = 1/(H : Set G).ncard := by
       rw [map_measureReal_apply hU (measurableSet_singleton _),
         hunif'.measureReal_preimage_of_mem hU hx]
-      simp [H', ← Set.ncard_eq_toFinset_card]
-    simp only [this, one_div, Nat.card_coe_set_eq, Nat.card_eq_fintype_card, Fintype.card_coe,
-      mul_eq_mul_left_iff, inv_eq_zero, Nat.cast_eq_zero, Set.ncard_eq_zero (Set.toFinite _),
-      H.coe_nonempty.ne_empty, or_false]
-    congr
-    rw [h_indep.real_map_add_singleton_eq_sum measurable_fst measurable_snd, Measure.map_snd_prod,
-      Measure.map_fst_prod]
-    simp only [measure_univ, one_smul, μ'_sing_real]
-    let F : Finset G := (toFinite (A ∩ (t +ᵥ (H : Set G)) : Set G)).toFinset
-    rw [← Finset.sum_subset F.subset_univ]; swap
-    · intro i _ hi
-      simp only [Finite.mem_toFinset, mem_inter_iff, Finset.mem_coe, not_and, F] at hi
-      simp only [mul_eq_zero]
-      by_cases h'i : i ∈ A
-      · right
-        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff]
-        apply uniformOn_apply_singleton_of_not_mem fun h'x ↦  hi h'i ?_
-        exact ⟨x - (x-i+t), H.sub_mem xH h'x, by simp; abel⟩
-      · left
-        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff]
-        exact uniformOn_apply_singleton_of_not_mem h'i
-    have : ∑ i ∈ F, (uniformOn ↑A).real {i} * (uniformOn ↑H).real {x - i + t} =
-        ∑ i ∈ F, (1 / Nat.card A * (1 / (H : Set G).ncard) : ℝ) := by
-      apply Finset.sum_congr rfl (fun i hi ↦ ?_)
-      simp only [Finite.mem_toFinset, mem_inter_iff, Finset.mem_coe, F] at hi
-      rw [real_uniformOn_apply_singleton_of_mem (by exact hi.1) A.finite_toSet]
-      rw [real_uniformOn_apply_singleton_of_mem _ (toFinite _)]; swap
-      · convert H.sub_mem xH (mem_vadd_set_iff_neg_vadd_mem.1 hi.2) using 1
-        simp
-        abel
-      rfl
-    simp [this, Nat.card_eq_fintype_card, Fintype.card_coe, div_eq_mul_inv, one_mul,
-      Finset.sum_const, nsmul_eq_mul, mul_inv_rev, F, ← Set.ncard_eq_toFinset_card, mul_comm]
-  have C : H'.card = (H : Set G).ncard := by rw [← Nat.card_eq_card_finite_toFinset]; rfl
+      simp [H', ← Nat.card_coe_set_eq]
+    congr! with x hx
+    · exact this _ hx
+    · exact this _ hx
+    replace hx : x ∈ H := by simpa [H'] using hx
+    have (y : G) : x - y + t ∈ H ↔ y ∈ t +ᵥ (H : Set G).toFinset := by
+      simpa [sub_eq_add_neg, add_assoc, H.add_mem_cancel_left hx, ← Finset.neg_vadd_mem_iff]
+        using H.neg_mem_iff (x := -t + y)
+    rw [h_indep.real_map_add_singleton_eq_sum measurable_fst measurable_snd]
+    simp [μ'_sing_real, toFinite, uniformOn_real_singleton, ← ite_and, div_eq_mul_inv, -mul_inv_rev,
+      mul_inv, this, ← Finset.mem_inter, Finset.filter_mem_eq_inter]
+  have C : H'.card = (H : Set G).ncard := by simp [H', ← Nat.card_coe_set_eq]
   simp only [this, one_div, Nat.card_eq_fintype_card, Fintype.card_coe, Finset.sum_const, C,
     nsmul_eq_mul, ← mul_assoc]
   rw [mul_inv_cancel₀, one_mul]; swap
@@ -634,7 +611,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     have : Nonempty (A ∩ (t +ᵥ (H : Set G)) : Set G) := h'A.to_subtype
     exact Nat.card_pos.ne'
   have C₃ : (H : Set G).ncard ≠ 0 := Nat.card_pos.ne'
-  rw [← log_div (by positivity) (by positivity)]
+  rw [← log_div (by positivity) (by simpa using C₁)]
   congr 1
   field_simp
 

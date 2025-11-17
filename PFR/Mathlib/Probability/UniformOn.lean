@@ -1,4 +1,5 @@
 import Mathlib.Probability.UniformOn
+import PFR.Mathlib.Data.Set.Card
 
 open Function MeasureTheory Measure
 
@@ -40,6 +41,10 @@ lemma uniformOn_apply (hs : s.Finite) (t : Set Ω) :
 lemma uniformOn_real (hs : s.Finite) (t : Set Ω) :
     (uniformOn s).real t = (Nat.card ↑(s ∩ t)) / Nat.card s := by
   simp [measureReal_def, uniformOn_apply hs]
+
+lemma uniformOn_real_singleton (hs : s.Finite) (ω : Ω) [Decidable (ω ∈ s)] :
+    (uniformOn s).real {ω} = if ω ∈ s then (s.ncard : ℝ)⁻¹ else 0 := by
+  simp [uniformOn_real hs, Set.ncard_inter_singleton]; split <;> simp
 
 instance uniformOn.instIsProbabilityMeasure [Nonempty s] [Finite s] :
     IsProbabilityMeasure (uniformOn s) := uniformOn_isProbabilityMeasure ‹_› .of_subtype

@@ -383,8 +383,7 @@ lemma entropy_of_uniformOn (H : Set S) [Nonempty H] [Finite H] :
   classical
   calc ∑' s, negMulLog ((Nat.card (H ∩ {s} : Set S)) / Nat.card H)
     _ = ∑' s, if s ∈ H then negMulLog (1 / Nat.card H) else 0 := by
-      congr with s
-      by_cases h : s ∈ H <;> simp [h, Finset.filter_true_of_mem]
+      congr with s; by_cases h : s ∈ H <;> simp [h]
     _ = ∑ s ∈ H.toFinite.toFinset, negMulLog (1 / Nat.card H) := by
       convert tsum_eq_sum (s := H.toFinite.toFinset) ?_ using 2 with s hs
       · simp at hs; simp [hs]
@@ -432,7 +431,7 @@ lemma measureEntropy_map_of_injective
     contrapose! hx
     rw [Set.image_univ]
     exact hx
-  rw [this, tsum_image _ (Set.injective_iff_injOn_univ.mp hf), tsum_univ (fun x ↦ F (f x))]
+  rw [this, tsum_image _ hf.injOn, tsum_univ fun x ↦ F (f x)]
   congr! with s
   ext s'; simp
   exact hf.eq_iff

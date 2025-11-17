@@ -2,7 +2,6 @@ import Mathlib.Algebra.BigOperators.Group.Multiset.Defs
 import PFR.Mathlib.Data.Fin.Basic
 import PFR.MultiTauFunctional
 
-
 /-!
 # Bounding the mutual information
 -/
@@ -147,8 +146,6 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
           simp; apply Function.Bijective.sum_comp ⟨_, _⟩ (fun x ↦ X' x ω)
           . intro ⟨i, j⟩ ⟨i', j'⟩ h; simpa using h
           intro ⟨i, j⟩; use ⟨i.cast hm'.symm, j.cast hm'.symm⟩; simp
-        simp_rw [←Multiset.sum_eq_foldr, ←Finset.sum_eq_multiset_sum]
-        fun_prop
       . rw [add_sub_assoc]; congr 1
         . convert Finset.sum_image (g := fun j:Fin m ↦ j.castSucc.cast hm')
             (f := A) (s := Finset.univ) _ using 2 with _ _ n _
@@ -162,7 +159,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
             ext i ω; simp
             convert Finset.sum_map _ (finCongr hm'.symm).toEmbedding _
             ext i; simp
-          simp
+          simpa using (Fin.cast_injective _).comp (Fin.castSucc_injective _)
         simp [B, column, X'']; congr 1
         . symm; convert multiDist_of_cast hm' (fun _ ↦ hΩ') inferInstance _ with i
           rfl
@@ -349,6 +346,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       . apply IdentDistrib.entropy_congr
         convert hident_X.symm.comp (u := fun x ↦ ∑ j, x j) _ <;> try fun_prop
         all_goals ext ω; simp [Z, Z', s]
+        simp [Finset.sum_image Sum.inl_injective.injOn]
       . let g : Fin p.m ⊕ (Fin p.m × Fin p.m) → Fin p.m := fun x ↦ match x with
         | Sum.inl i => i
         | Sum.inr (i, j) => j

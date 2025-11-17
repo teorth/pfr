@@ -597,8 +597,8 @@ def AEFiniteKernelSupport.mk {μ} {κ : Kernel T S} (_hκ : AEFiniteKernelSuppor
     Kernel T S := by
   classical
   exact if hS : Nonempty S then
-    Kernel.piecewise (s := {t | ∃ A : Finset S, κ t Aᶜ = 0}) (by measurability)
-      κ (Kernel.const _ (Measure.dirac hS.some))
+    κ.piecewise (s := {t | ∃ A : Finset S, κ t Aᶜ = 0}) (by rw [Set.setOf_exists]; measurability)
+       (.const _ <| .dirac hS.some)
   else 0
 
 @[simp] lemma AEFiniteKernelSupport.mk_zero
@@ -617,8 +617,8 @@ def AEFiniteKernelSupport.mk {μ} {κ : Kernel T S} (_hκ : AEFiniteKernelSuppor
 open Classical in
 lemma AEFiniteKernelSupport.mk_eq
     [hS : Nonempty S] {κ : Kernel T S} (hκ : AEFiniteKernelSupport κ μ) :
-    hκ.mk = Kernel.piecewise (s := {t | ∃ A : Finset S, κ t Aᶜ = 0}) (by measurability)
-      κ (Kernel.const _ (Measure.dirac hS.some)) := by
+    hκ.mk = κ.piecewise (s := {t | ∃ A : Finset S, κ t Aᶜ = 0})
+      (by rw [Set.setOf_exists]; measurability) (.const _ <| .dirac hS.some) := by
   simp [mk, hS]
 
 lemma AEFiniteKernelSupport.finiteKernelSupport_mk [MeasurableSingletonClass S] {κ : Kernel T S}
@@ -760,7 +760,8 @@ lemma AEFiniteKernelSupport.comap_equiv [Countable U] [MeasurableSingletonClass 
   rw [ae_map_iff f.symm.measurable.aemeasurable]
   · simp only [MeasurableEquiv.apply_symm_apply]
     exact hκ
-  · measurability
+  · rw [Set.setOf_exists]
+    measurability
 
 /-- Projecting a kernel to first coordinate preserves finite kernel support. -/
 lemma FiniteKernelSupport.fst [MeasurableSingletonClass S]

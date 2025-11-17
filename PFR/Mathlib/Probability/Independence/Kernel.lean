@@ -1,3 +1,4 @@
+import Mathlib.Data.Finset.Pairwise
 import Mathlib.Probability.Independence.Kernel
 
 open MeasureTheory MeasurableSpace

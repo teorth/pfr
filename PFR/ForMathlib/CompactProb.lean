@@ -37,7 +37,7 @@ noncomputable def probabilityMeasureEquivStdSimplex [Fintype X] [MeasurableSingl
     refine ⟨∑ i, ENNReal.ofReal (p i) • Measure.dirac i, ⟨?_⟩⟩
     simp only [Measure.coe_finset_sum, Measure.coe_smul, Finset.sum_apply, Pi.smul_apply,
       measure_univ, smul_eq_mul, mul_one]
-    rw [← ENNReal.toReal_eq_toReal (by simp [ENNReal.sum_eq_top]) ENNReal.one_ne_top,
+    rw [← ENNReal.toReal_eq_toReal_iff' (by simp [ENNReal.sum_eq_top]) ENNReal.one_ne_top,
         ENNReal.toReal_sum (by simp)]
     have (x : X) : (ENNReal.ofReal (p x)).toReal = p x := ENNReal.toReal_ofReal (p.2.1 x)
     have that : ∑ i, p i = 1 := p.2.2

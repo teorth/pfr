@@ -105,7 +105,7 @@ lemma KLDiv_eq_zero_iff_identDistrib [Fintype G] [MeasurableSingletonClass G]
     simpa using this
   have : νX = νY := by
     apply Measure.ext_iff_singleton.mpr (fun x ↦ ?_)
-    simpa [Measure.real, r_eq, ENNReal.toReal_eq_toReal] using hr x (Finset.mem_univ _)
+    simpa [Measure.real, r_eq, ENNReal.toReal_eq_toReal_iff'] using hr x (Finset.mem_univ _)
   exact ⟨hX.aemeasurable, hY.aemeasurable, this⟩
 
 /-- If $S$ is a finite set, $w_s$ is non-negative,

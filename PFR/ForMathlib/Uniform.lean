@@ -160,25 +160,25 @@ lemma IsUniform.measureReal_preimage_of_mem' {A : Finset S} [IsProbabilityMeasur
 
 /-- $\mathbb{P}(U_H \in H') = \dfrac{|H' \cap H|}{|H|}$ -/
 lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Measurable X)
-    (H' : Set S) : μ (X ⁻¹' H') = (μ univ) * (Nat.card (H' ∩ H.toSet : Set S)) / Nat.card H := calc
-  _ = μ (X ⁻¹' (H' ∩ H.toSet) ∪ X ⁻¹' (H' \ H.toSet)) := by simp
-  _ = μ (X ⁻¹' (H' ∩ H.toSet)) + μ (X ⁻¹' (H' \ H.toSet)) :=
+    (H' : Set S) : μ (X ⁻¹' H') = (μ univ) * (Nat.card (H' ∩ H : Set S)) / Nat.card H := calc
+  _ = μ (X ⁻¹' (H' ∩ H) ∪ X ⁻¹' (H' \ H)) := by simp
+  _ = μ (X ⁻¹' (H' ∩ H)) + μ (X ⁻¹' (H' \ H)) :=
     measure_union (Disjoint.preimage X disjoint_inf_sdiff) (by measurability)
-  _ = μ (X ⁻¹' (H' ∩ H.toSet)) + 0 := congrArg _ <| by
+  _ = μ (X ⁻¹' (H' ∩ H)) + 0 := congrArg _ <| by
     rewrite [Set.diff_eq_compl_inter, ← le_zero_iff, ← h.measure_preimage_compl]
     exact measure_mono inter_subset_left
-  _ = μ (X ⁻¹' (H' ∩ H.toSet).toFinite.toFinset) := by simp
-  _ = μ univ * ∑ __ ∈ (H' ∩ H.toSet).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
+  _ = μ (X ⁻¹' (H' ∩ H).toFinite.toFinset) := by simp
+  _ = μ univ * ∑ __ ∈ (H' ∩ H).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
     rewrite [← sum_measure_preimage_singleton _ (by measurability), Finset.mul_sum]
     refine Finset.sum_congr rfl (fun _ hx ↦ ?_)
     rw [mul_one_div, h.measure_preimage_of_mem hX ((Finite.mem_toFinset _).mp hx).2]
-  _ = (μ univ) * (Nat.card (H' ∩ H.toSet).Elem) / Nat.card H := by
+  _ = (μ univ) * (Nat.card (H' ∩ H).Elem) / Nat.card H := by
     rw [Finset.sum_const, Nat.card_eq_card_finite_toFinset, nsmul_eq_mul, ← mul_assoc, mul_one_div]
 
 /-- $\mathbb{P}(U_H \in H') = \dfrac{|H' \cap H|}{|H|}$ -/
 lemma IsUniform.measureReal_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Measurable X)
     (H' : Set S) :
-    μ.real (X ⁻¹' H') = (μ.real univ) * (Nat.card (H' ∩ H.toSet).Elem) / Nat.card H := by
+    μ.real (X ⁻¹' H') = (μ.real univ) * (Nat.card (H' ∩ H).Elem) / Nat.card H := by
   simp [measureReal_def, h.measure_preimage hX H', ENNReal.toReal_div]
 
 lemma IsUniform.nonempty_preimage_of_mem [NeZero μ] {H : Finset S} (h : IsUniform H X μ)

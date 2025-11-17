@@ -83,13 +83,11 @@ variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonCl
   [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- If `G` is torsion-free and `X, Y` are `G`-valued random variables then `d[X ; 2Y] ≤ 5d[X ; Y]`. -/
-lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
-    (hX : Measurable X) (hY : Measurable Y) (hG : IsAddTorsionFree G) :
-    d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X ; μ # Y ; μ'] := by
+lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y] (hX : Measurable X) (hY : Measurable Y)
+    [IsAddTorsionFree G] : d[X ; μ # (Y + Y) ; μ'] ≤ 5 * d[X ; μ # Y ; μ'] := by
   obtain ⟨A, mA, μA, X', Y'₁, Y'₂, hμA, h_indep, hX'_meas, hY'₁_meas, hY'₂_meas, hX'_ident,
     hY'₁_ident, hY'₂_ident, _, _, _⟩ := independent_copies3_nondep_finiteRange hX hY hY μ μ' μ'
   have h_meas (i : Fin 3) : Measurable (![X', Y'₁, Y'₂] i) := by fin_cases i <;> assumption
-  have : NoZeroSMulDivisors ℕ G := noZeroSMulDivisors_nat_iff_isAddTorsionFree.mpr hG
   have : H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[X ; μ] + 2 * H[Y ; μ'] := calc
     H[⟨X', ⟨Y'₁ - Y'₂, X' - 2 • Y'₁⟩⟩ ; μA] = H[⟨X', ⟨Y'₁, Y'₂⟩⟩ ; μA] := by
       let f : G × G × G → G × G × G := fun ⟨x, y₁, y₂⟩ ↦ (x, y₁ - y₂, x - 2 • y₁)
@@ -207,16 +205,15 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y]
 /-- If `G` is a torsion-free group and `X, Y` are `G`-valued random variables and
 `φ : G → 𝔽₂^d` is a homomorphism then `H[φ ∘ X ; μ] ≤ 10 * d[X ; μ # Y ; μ']`. -/
 lemma torsion_dist_shrinking {H : Type*} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
-    (hY : Measurable Y) [AddCommGroup H] [Module (ZMod 2) H]
-    [MeasurableSpace H] [MeasurableSingletonClass H] [Countable H]
-    (hG : IsAddTorsionFree G) (φ : G →+ H) :
+    (hY : Measurable Y) [AddCommGroup H] [Module (ZMod 2) H] [MeasurableSpace H]
+    [MeasurableSingletonClass H] [Countable H] [IsAddTorsionFree G] (φ : G →+ H) :
     H[φ ∘ X ; μ] ≤ 10 * d[X ; μ # Y ; μ'] :=
   calc
     H[φ ∘ X ; μ] = 2 * d[φ ∘ X ; μ # φ ∘ (Y + Y) ; μ'] := by
       rw [map_comp_add, ZModModule.add_self, Pi.zero_def, rdist_zero_eq_half_ent, mul_div_cancel₀]
       exact two_ne_zero
     _ ≤ 2 * d[X ; μ # Y + Y ; μ'] := by gcongr; exact rdist_of_hom_le φ hX (hY.add hY)
-    _ ≤ 2 * (5 * d[X ; μ # Y ; μ']) := by gcongr; exact torsion_free_doubling X Y μ μ' hX hY hG
+    _ ≤ 2 * (5 * d[X ; μ # Y ; μ']) := by gcongr; exact torsion_free_doubling X Y μ μ' hX hY
     _ = 10 * d[X ; μ # Y ; μ'] := by ring
 
 end Torsion
@@ -451,8 +448,8 @@ lemma single_fibres {G H Ω Ω': Type*}
   have : Nonempty B := hB.to_subtype
   have : FiniteRange UA := finiteRange_of_finset UA A.toFinite.toFinset (by simpa)
   have : FiniteRange UB := finiteRange_of_finset UB B.toFinite.toFinset (by simpa)
-  have hUA_coe : IsUniform A.toFinite.toFinset.toSet UA := by rwa [Set.Finite.coe_toFinset]
-  have hUB_coe : IsUniform B.toFinite.toFinset.toSet UB := by rwa [Set.Finite.coe_toFinset]
+  have hUA_coe : IsUniform A.toFinite.toFinset UA := by rwa [Set.Finite.coe_toFinset]
+  have hUB_coe : IsUniform B.toFinite.toFinset UB := by rwa [Set.Finite.coe_toFinset]
 
   let A_ (x : H) : Set G := A ∩ φ.toFun ⁻¹' {x}
   let B_ (y : H) : Set G := B ∩ φ.toFun ⁻¹' {y}
@@ -659,9 +656,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   let _mH : MeasurableSpace H := ⊤
   have : Finite H := ModN.instFinite
   let h_fintype : Fintype H := .ofFinite H
-  have : NoZeroSMulDivisors ℕ G := by infer_instance
-  have h_torsionfree := IsAddTorsionFree.of_noZeroSMulDivisors_nat (G := G) this
-
+  have : IsAddTorsionFree G :=.of_noZeroSMulDivisors_int <| Module.Free.noZeroSMulDivisors ..
   obtain ⟨Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, hUA_mem, hUA_fin⟩ :=
     exists_isUniform_measureSpace' A A_fin hnA
   obtain ⟨Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, hUB_mem, hUB_fin⟩ :=
@@ -683,8 +678,8 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   have Axf : Finite Ax := by rw [hAx]; infer_instance
   have Byf : Finite By := by rw [hBy]; infer_instance
 
-  have h1 := torsion_dist_shrinking (G := G) (H := H) UA UB ℙ ℙ hUA_mes hUB_mes h_torsionfree φ
-  have h2 := torsion_dist_shrinking (G := G) (H := H) UB UA ℙ ℙ hUB_mes hUA_mes h_torsionfree φ
+  have h1 := torsion_dist_shrinking (G := G) (H := H) UA UB ℙ ℙ hUA_mes hUB_mes φ
+  have h2 := torsion_dist_shrinking (G := G) (H := H) UB UA ℙ ℙ hUB_mes hUA_mes φ
   rw [rdist_symm] at h2
   rw [← setRuzsaDist_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes] at h1 h2
   -- using explicit .toFun casts as this saves a lot of heartbeats

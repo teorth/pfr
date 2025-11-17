@@ -1138,10 +1138,7 @@ lemma multidist_ruzsa_I {m : ℕ} (hm : m ≥ 1) {Ω : Fin m → Type*} (hΩ : �
       apply Finset.sum_congr rfl; intro k hk
       by_cases hjk : j = k
       all_goals simp [hjk]
-      apply IdentDistrib.rdist_congr
-      . exact (hX' j).2.1.symm
-      convert IdentDistrib.comp (hX' k).2.1.symm _
-      measurability
+      exact (hX' j).2.1.symm.rdist_congr <| (hX' k).2.1.symm.comp measurable_neg
     congr 1
     apply multiDist_copy
     intro i
