@@ -13,5 +13,9 @@ name = "LeanAPAP"
 git = "https://github.com/YaelDillies/LeanAPAP.git"
 rev = "v4.25.0"
 
+[[require]]
+name = "checkdecls"
+git = "https://github.com/PatrickMassot/checkdecls.git"
+
 [[lean_lib]]
 name = "PFR"
