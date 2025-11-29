@@ -28,8 +28,11 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   If $X$ is an $S$-valued random variable, then $\bbH[X] \leq \log |S|$.
 \end{lemma}
 
-\begin{proof}\uses{jensen}\leanok
-  This is a direct consequence of \Cref{jensen}.
+\begin{proof}
+  \uses{concave}
+  \leanok
+
+  This is a direct consequence of \Cref{concave} and Jensen's inequality.
 \end{proof}
 
 \begin{definition}[Uniform distribution]\label{uniform-def}\leanok
@@ -52,7 +55,12 @@ Random variables in this paper are measurable maps $X : \Omega \to S$ from a pro
   If $X$ is $S$-valued random variable, then $\bbH[X] = \log |S|$ if and only if $X$ is uniformly distributed on $S$.
 \end{lemma}
 
-\begin{proof} \uses{converse-jensen}\leanok Direct computation in one direction.  Converse direction needs \Cref{converse-jensen}.
+\begin{proof}
+  \uses{concave}
+  \leanok
+
+  Direct computation in one direction.
+  Converse direction needs the strict Jensen inequality and \Cref{concave}.
 \end{proof}
 
 \begin{lemma}[Entropy of uniform random variable, II]\label{uniform-entropy-II}
@@ -181,7 +189,11 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   We have $\bbI[X:Y] \geq 0$.
 \end{lemma}
 
-\begin{proof}  \uses{jensen, alternative-mutual}\leanok An application of \Cref{jensen} and \Cref{alternative-mutual}.
+\begin{proof}
+  \uses{concave, alternative-mutual}
+  \leanok
+
+  An application of jensen's inequality and \Cref{concave, alternative-mutual}.
 \end{proof}
 
 \begin{corollary}[Subadditivity]
@@ -241,8 +253,11 @@ $$ \bbH[X, Y | Z] = \bbH[Y | Z] + \bbH[X|Y, Z].$$
   If $X,Y$ are random variables, then $\bbI[X:Y] = 0$ if and only if $X,Y$ are independent.
   \end{lemma}
 
-  \begin{proof} \uses{converse-jensen}\leanok
-    An application of the equality case of Jensen's inequality, \Cref{converse-jensen}.
+  \begin{proof}
+    \uses{concave}
+    \leanok
+
+    An application of the equality case of Jensen's inequality and \Cref{concave}.
   \end{proof}
 
 \begin{corollary}[Additivity of entropy]\label{add-entropy}

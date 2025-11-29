@@ -122,18 +122,26 @@ $$ \bbH[-W + Y_j] - \bbH[-W] \leq \bbH[-X_{f(j)} + Y_j] - \bbH[-X_{f(j)}].$$
 The claim now follows from \Cref{neg-ent} and some elementary algebra.
 \end{proof}
 
-\begin{lemma}[Sums of dilates I]\label{sum-dilate-I}\lean{ent_of_sub_smul, ent_of_sub_smul'}\leanok  Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$, and let $a$ be an integer.  Then
-$$\bbH[X-(a+1)Y] \leq \bbH[X-aY] + \bbH[X-Y-X'] - \bbH[X]$$
-and
-$$\bbH[X-(a-1)Y] \leq \bbH[X-aY] + \bbH[X-Y-X'] - \bbH[X].$$
-\end{lemma}
+\begin{lemma}[Sums of dilates I]
+  \label{sum-dilate-I}
+  \lean{ent_sub_nsmul_le, ent_of_sub_smul'}
+  \leanok
 
-\begin{proof}\uses{ruzsa-triangle-improved, neg-ent}\leanok
-From \Cref{ruzsa-triangle-improved} we have
-$$ \bbH[(X-Y)-aY] \leq \bbH[(X-Y) - X'] + \bbH[X'-aY] - \bbH[X']$$
-which gives the first inequality.  Similarly from \Cref{ruzsa-triangle-improved} we have
-$$ \bbH[(X+Y)-aY] \leq \bbH[(X+Y) - X'] + \bbH[X'-aY] - \bbH[X']$$
-which (when combined with \Cref{neg-ent}) gives the second inequality.
+  Let $X,Y,X'$ be independent $G$-valued random variables, with $X'$ a copy of $X$,
+  and let $a$ be an integer.  Then
+  $$\bbH[X-(a+1)Y] \leq \bbH[X-aY] + \bbH[X-Y-X'] - \bbH[X]$$
+  and
+  $$\bbH[X-(a-1)Y] \leq \bbH[X-aY] + \bbH[X-Y-X'] - \bbH[X].$$
+\end{lemma}
+\begin{proof}
+  \uses{ruzsa-triangle-improved, neg-ent}
+  \leanok
+
+  From \Cref{ruzsa-triangle-improved} we have
+  $$ \bbH[(X-Y)-aY] \leq \bbH[(X-Y) - X'] + \bbH[X'-aY] - \bbH[X']$$
+  which gives the first inequality.  Similarly from \Cref{ruzsa-triangle-improved} we have
+  $$ \bbH[(X+Y)-aY] \leq \bbH[(X+Y) - X'] + \bbH[X'-aY] - \bbH[X']$$
+  which (when combined with \Cref{neg-ent}) gives the second inequality.
 \end{proof}
 
 \begin{lemma}[Sums of dilates II]\label{sum-dilate-II}\lean{ent_sub_zsmul_sub_ent_le}\leanok  Let $X,Y$ be independent $G$-valued random variables, and let $a$ be an integer.  Then
@@ -278,7 +286,14 @@ We set $\eta := \frac{1}{32m^3}$.
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 \end{definition}
 
-\begin{definition}[$\tau$-minimizer]\label{tau-min-multi}\uses{tau-def-multi}\lean{multiTau_minimizes}\leanok  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables.
+\begin{definition}[$\tau$-minimizer]
+  \label{tau-min-multi}
+  \uses{tau-def-multi}
+  \lean{multiTauMinimizes}
+  \leanok
+
+  A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional
+  among all tuples of $G$-valued random variables.
 \end{definition}
 
 \begin{proposition}[Existence of $\tau$-minimizer]\label{tau-min-exist-multi}\lean{multiTau_continuous, multiTau_min_exists}\leanok  If $G$ is finite, then a $\tau$-minimizer exists.

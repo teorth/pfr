@@ -46,14 +46,19 @@ and similarly with the roles of $X,Y$ reversed, giving the claim.
 \begin{proof} \uses{sumset-lower-gen}\leanok This follows from \Cref{sumset-lower-gen} by conditioning to $Z = z$ and summing over $z$ (weighted by $ \bbP[Z=z]$).
 \end{proof}
 
-\begin{corollary}[Independent lower bound on sumset]\label{sumset-lower}
-  \lean{max_entropy_le_entropy_add,max_entropy_le_entropy_sub}\leanok
-  If $X,Y$ are independent $G$-valued random variables, then
-$$\max(\bbH[X], \bbH[Y]) \leq \bbH[X\pm Y].
-$$
-\end{corollary}
+\begin{corollary}[Independent lower bound on sumset]
+  \label{sumset-lower}
+  \lean{ProbabilityTheory.max_entropy_le_entropy_add, ProbabilityTheory.max_entropy_le_entropy_sub}
+  \leanok
 
-\begin{proof} \uses{sumset-lower-gen, vanish-entropy}\leanok Combine \Cref{sumset-lower-gen} with \Cref{vanish-entropy}.
+  If $X,Y$ are independent $G$-valued random variables, then
+  $$\max(\bbH[X], \bbH[Y]) \leq \bbH[X\pm Y]. $$
+\end{corollary}
+\begin{proof}
+  \uses{sumset-lower-gen, vanish-entropy}
+  \leanok
+
+  Combine \Cref{sumset-lower-gen} with \Cref{vanish-entropy}.
 \end{proof}
 
 One random variable is said to be a copy of another if they have the same distribution.

@@ -8,7 +8,12 @@ In the definitions below, $G$ is a set.
   $$ D_{KL}(X\Vert Y) := \sum_x \mathbf{P}(X=x) \log \frac{\mathbf{P}(X=x)}{\mathbf{P}(Y=x)}.$$
 \end{definition}
 
-\begin{lemma}[Kullback--Leibler divergence of copy]\label{kl-div-copy}\lean{KLDiv_eq_of_equiv}\leanok  If $X'$ is a copy of $X$, and $Y'$ is a copy of $Y$, then $D_{KL}(X'\Vert Y') = D_{KL}(X\Vert Y)$.
+\begin{lemma}[Kullback--Leibler divergence of copy]
+  \label{kl-div-copy}
+  \lean{ProbabilityTheory.IdentDistrib.KLDiv_eq}
+  \leanok
+
+  If $X'$ is a copy of $X$, and $Y'$ is a copy of $Y$, then $D_{KL}(X'\Vert Y') = D_{KL}(X\Vert Y)$.
 \end{lemma}
 
 \begin{proof}\uses{kl-div}\leanok  Clear from definition.

@@ -1,27 +1,52 @@
 \chapter{Approximate homomorphism version of PFR}
 
-\begin{definition}[Additive energy]\label{energy-def}\lean{Finset.additiveEnergy}\leanok  If $G$ is a group, and $A$ is a finite subset of $G$, the \emph{additive energy} $E(A)$ of $A$ is the number of quadruples $(a_1,a_2,a_3,a_4) \in A^4$ such that $a_1+a_2 = a_3+a_4$.
+\begin{definition}[Additive energy]
+  \label{energy-def}
+  \lean{Finset.addEnergy}
+  \leanok
+  If $G$ is a group, and $A$ is a finite subset of $G$, the \emph{additive energy} $E(A)$ of $A$
+  is the number of quadruples $(a_1,a_2,a_3,a_4) \in A^4$ such that $a_1+a_2 = a_3+a_4$.
 \end{definition}
 
-\begin{lemma}[Cauchy--Schwarz bound]\label{cs-bound}\uses{energy-def}\lean{cauchy_schwarz}\leanok  If $G$ is a group, $A,B$ are finite subsets of $G$, then
-$$ E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$
-\end{lemma}
+\begin{lemma}[Cauchy--Schwarz bound]
+  \label{cs-bound}
+  \uses{energy-def}
+  \lean{Finset.card_sq_le_card_mul_addEnergy}
+  \leanok
 
-\begin{proof}\leanok  If $B$ is empty then the claim is trivial (with the Lean convention $0/0$), so without loss of generality $B$ is non-empty.  We can rewrite
-$$ |\{ (a,a') \in A \times A: a+a' \in B \}| = \sum_{b \in B} r(b)$$
-where $r: G \to \N$ is the counting function
-$$ r(b) := |\{ (a,a') \in A \times A: a+a' = b \}|.$$
-From double counting we have
-$$ \sum_{b \in G} r(b)^2 = E(A).$$
-The claim now follows from the Cauchy--Schwarz inequality
-$$ (\sum_{b \in B} r(b))^2 \leq |B| \sum_{b \in B} r(b)^2.$$
+  If $G$ is a group, $A,B$ are finite subsets of $G$, then
+  $$E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$
+\end{lemma}
+\begin{proof}
+  \leanok
+
+  If $B$ is empty then the claim is trivial (with the Lean convention $0/0$),
+  so without loss of generality $B$ is non-empty.  We can rewrite
+  $$ |\{ (a,a') \in A \times A: a+a' \in B \}| = \sum_{b \in B} r(b)$$
+  where $r: G \to \N$ is the counting function
+  $$ r(b) := |\{ (a,a') \in A \times A: a+a' = b \}|.$$
+  From double counting we have
+  $$ \sum_{b \in G} r(b)^2 = E(A).$$
+  The claim now follows from the Cauchy--Schwarz inequality
+  $$ (\sum_{b \in B} r(b))^2 \leq |B| \sum_{b \in B} r(b)^2.$$
 \end{proof}
 
-\begin{lemma}[Balog--Szemer\'edi--Gowers lemma]\label{bsg}\uses{energy-def}\lean{bsg}\leanok Let $G$ be an abelian group, and let $A$ be a finite non-empty set with $E(A) \geq |A|^3 / K$ for some $K \geq 1$.  Then there is a subset $A'$ of $A$ with $|A'| \geq |A| / (C_1 K^{C_2})$ and $|A'-A'| \leq C_3 K^{C_4} |A|$, where (provisionally)
-$$ C_1 = 2^4, C_2 = 1, C_3 = 2^{10}, C_4 = 5.$$
-\end{lemma}
+\begin{lemma}[Balog--Szemer\'edi--Gowers lemma]
+  \label{bsg}
+  \lean{BSG}
+  \uses{energy-def}
+  \leanok
 
-\begin{proof}\leanok See \url{https://terrytao.files.wordpress.com/2024/01/simplebsg.pdf}
+  Let $G$ be an abelian group, and let $A$ be a finite non-empty set
+  with $E(A) \geq |A|^3 / K$ for some $K \geq 1$.
+  Then there is a subset $A'$ of $A$ with $|A'| \geq |A| / (C_1 K^{C_2})$ and
+  $|A'-A'| \leq C_3 K^{C_4} |A|$, where (provisionally)
+  $$C_1 = 2^4, C_2 = 1, C_3 = 2^{10}, C_4 = 5.$$
+\end{lemma}
+\begin{proof}
+  \leanok
+
+  See \url{https://terrytao.files.wordpress.com/2024/01/simplebsg.pdf}.
 \end{proof}
 
 \begin{theorem}[Approximate homomorphism form of PFR]\label{approx-hom-pfr}\lean{approx_hom_pfr}\leanok Let $G,G'$ be finite abelian $2$-groups.

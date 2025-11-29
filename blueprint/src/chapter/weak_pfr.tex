@@ -162,8 +162,14 @@ It follows that there exists some $x,y\in H$ such that $\lvert A_x\rvert,\lvert 
 \end{proof}
 
 
-\begin{definition}\label{dimension-def}\lean{dimension}\leanok
-If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the span of $A-A$ over the reals -- equivalently, the smallest $d'$ such that $A$ lies in a coset of a subgroup isomorphic to $\mathbb{Z}^{d'}$.
+\begin{definition}
+  \label{dimension-def}
+  \lean{AffineSpace.finrank}
+  \leanok
+
+  If $A\subseteq \mathbb{Z}^{d}$ then by $\dim(A)$ we mean the dimension of the span of $A-A$
+  over the reals -- equivalently, the smallest $d'$ such that $A$ lies in a coset of a subgroup
+  isomorphic to $\mathbb{Z}^{d'}$.
 \end{definition}
 
 
@@ -200,10 +206,15 @@ Adding these inequalities implies
 as required.
 \end{proof}
 
-\begin{theorem}\label{weak-pfr-symm}\lean{weak_PFR_symm}\leanok
-If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$ then there exists a non-empty $A'\subseteq A$ such that
-\[\lvert A'\rvert\geq K^{-17}\lvert A\rvert\]
-and $\dim A'\leq \frac{40}{\log 2} \log K$.
+\begin{theorem}
+  \label{weak-pfr-symm}
+  \lean{weak_PFR}
+  \leanok
+
+  If $A\subseteq \mathbb{Z}^d$ is a finite non-empty set with $d[U_A;U_A]\leq \log K$
+  then there exists a non-empty $A'\subseteq A$ such that
+  \[\lvert A'\rvert\geq K^{-17}\lvert A\rvert\]
+  and $\dim A'\leq \frac{40}{\log 2} \log K$.
 \end{theorem}
 \begin{proof}
 \uses{weak-pfr-asymm,dimension-def}\leanok
