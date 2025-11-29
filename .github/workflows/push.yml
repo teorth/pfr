@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+  pull_request:
+  workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -30,97 +32,39 @@ jobs:
         run: |
           ! (find PFR/Mathlib -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import PFR.(?!Mathlib)')
 
-  build_project:
-    runs-on: ubuntu-latest
+  build:
     name: Build project
+    runs-on: ubuntu-latest
     steps:
-
-      # The following actions make sure the project builds properly.
-
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Fetch all history for all branches and tags
 
-      - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.18.0
+      - name: Copy README.md to website/index.md
+        run: cp README.md website/index.md
 
-      - name: Get cache
-        run: ~/.elan/bin/lake exe cache get || true
-
-      - name: Build project
-        run: ~/.elan/bin/lake build PFR
-
-      - name: Cache documentation
-        uses: actions/cache@v4
-        with:
-          path: |
-            website/docs
-            !.website/docs/PFR
-          key: Doc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: Doc-
-
-      - name: Build documentation
-        run: scripts/build_docs.sh
-
-      - name: Build blueprint
-        uses: xu-cheng/texlive-action@v2
-        with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
-          run: |
-            # Install necessary dependencies and build the blueprint
-            apk update
-            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
-            git config --global --add safe.directory $GITHUB_WORKSPACE
-            git config --global --add safe.directory `pwd`
-            python3 -m venv env
-            source env/bin/activate
-            pip install --upgrade pip requests wheel
-            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install leanblueprint
-            leanblueprint pdf
-            leanblueprint web
-
-      # The following actions create and deploy the website.
-
-      - name: Copy documentation to website/docs
-        run: mv docs/build/* website/docs
-
-      - name: Copy blueprint to website/blueprint
-        run: |
-          cp blueprint/print/print.pdf website/blueprint.pdf
-          cp -r blueprint/web website/blueprint
-
-      - name: Append README.md to website/index.md
-        run: cat README.md >> website/index.md
+      - name: Build and lint the project
+        id: build-lean
+        uses: leanprover/lean-action@f807b338d95de7813c5c50d018f1c23c9b93b4ec # v1.2.0
 
       - name: Upstreaming dashboard
+        if: github.ref == 'refs/heads/master'
         run: |
           mkdir -p website/_includes
           python3 scripts/upstreaming_dashboard.py
 
       - name: File dependencies
+        if: github.ref == 'refs/heads/master'
         run: |
           sudo apt-get update
           sudo apt install graphviz -y
           ~/.elan/bin/lake exe graph website/file_deps.pdf
 
-      - name: Bundle dependencies
-        uses: ruby/setup-ruby@v1
+      - name: Build project documentation
+        if: github.ref == 'refs/heads/master'
+        id: build-docgen
+        uses: leanprover-community/docgen-action@main
         with:
-          working-directory: website
-          ruby-version: "3.1" # Not needed with a .ruby-version file
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-
-      - name: Bundle website
-        working-directory: website
-        run: JEKYLL_ENV=production bundle exec jekyll build
-
-      - name: Upload docs & blueprint artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: website/_site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          blueprint: true
+          homepage: "website"
