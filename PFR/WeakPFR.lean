@@ -505,7 +505,7 @@ lemma single_fibres {G H Ω Ω': Type*}
       rw [setRuzsaDist_eq_rdist h_μ_unif.1 h_μ_unif.2 hUA' hUB']
       show _ = (Measure.real _ (UA ⁻¹' (_ ⁻¹' _))) * (Measure.real _ (UB ⁻¹' (_ ⁻¹' _))) * _
       rewrite [hUA_coe.measureReal_preimage hUA', hUB_coe.measureReal_preimage hUB']
-      simp_rw [p, A_, B_, measureReal_univ_eq_one, one_mul]
+      simp_rw [p, A_, B_, probReal_univ, one_mul]
       rewrite [mul_div_mul_comm, Set.inter_comm A, Set.inter_comm B]
       simp only [Set.Finite.coe_toFinset, Set.Finite.mem_toFinset]; rfl
     _ ≤ d[UA # UB] - d[φ.toFun ∘ UA # φ.toFun ∘ UB] := by

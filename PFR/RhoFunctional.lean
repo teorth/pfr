@@ -500,7 +500,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     simp_rw [
      map_measureReal_apply hUA (DiscreteMeasurableSpace.forall_measurableSet _),
       hUA_unif.measureReal_preimage hUA]
-    simp only [measureReal_univ_eq_one, singleton_add, image_add_left, neg_neg, one_mul,
+    simp only [probReal_univ, singleton_add, image_add_left, neg_neg, one_mul,
       Nat.card_eq_fintype_card, Fintype.card_coe, ge_iff_le, H']
     apply Finset.sum_le_sum (fun i _ ↦ ?_)
     gcongr
@@ -959,7 +959,7 @@ lemma condRhoPlus_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
   rw [← Finset.sum_mul, ← tsum_fintype (L := SummationFilter.unconditional _),
     ← condRhoMinus, ← condEntropy_eq_sum_fintype _ _ _ hZ]
   simp_rw [← map_measureReal_apply hZ (measurableSet_singleton _)]
-  simp only [sum_measureReal_singleton, Finset.coe_univ, measureReal_univ_eq_one, one_mul,
+  simp only [sum_measureReal_singleton, Finset.coe_univ, probReal_univ, one_mul,
     sub_add_cancel, ge_iff_le]
   linarith
 

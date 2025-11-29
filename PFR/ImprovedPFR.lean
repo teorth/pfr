@@ -448,7 +448,7 @@ lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S
   have hUVW : U + V + W = 0 := sum_uvw_eq_zero X₁ X₂ X₁'
   have hz (a : ℝ) : a = ∑ z, (Measure.real ℙ (S ⁻¹' {z})) * a := by
     rw [← Finset.sum_mul, sum_measureReal_preimage_singleton]
-    · simp only [Finset.coe_univ, Set.preimage_univ, measureReal_univ_eq_one, one_mul]
+    · simp only [Finset.coe_univ, Set.preimage_univ, probReal_univ, one_mul]
     · intro y hy
       apply hS
       exact measurableSet_singleton y

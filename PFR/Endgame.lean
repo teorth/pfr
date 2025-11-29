@@ -137,9 +137,10 @@ lemma sum_condMutual_le [Module (ZMod 2) G] [IsProbabilityMeasure (ℙ : Measure
   have h₂ := second_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
   have h := add_le_add (add_le_add_left h₂ I₁) h₂
   convert h using 1
-  have : 1 - p.η > 0 := by linarith [p.hη']
-  field_simp [this]
-  ring
+  · ring
+  · have : 0 < 1 - p.η := by linarith [p.hη']
+    field_simp [this]
+    ring
   all_goals { simpa }
 
 local notation3:max "c[" A "; " μ " # " B " ; " μ' "]" =>

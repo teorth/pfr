@@ -322,7 +322,7 @@ lemma const_of_nonpos_entropy [MeasurableSingletonClass S]
     rcases prob_ge_exp_neg_entropy' (μ := μ) X hX with ⟨ s, hs ⟩
     use s
     apply LE.le.antisymm
-    · rw [← measureReal_univ_eq_one (μ := μ)]
+    · rw [← probReal_univ (μ := μ)]
       exact measureReal_mono (subset_univ _) (by finiteness)
     refine le_trans ?_ hs
     simp [hent]

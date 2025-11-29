@@ -257,7 +257,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [Measur
     · exact (map_measureReal_apply (hY i) ( .singleton ω)).symm
     replace hΩ'prob := hΩ'prob i
     rw [map_measureReal_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ,
-      measureReal_univ_eq_one]
+      probReal_univ]
 -- μ has total mass one
   have total : ∑ (ω : Fin p.m → S), μ ω = 1 := calc
     _ = ∏ i, ∑ ωi, Measure.real ℙ (Y i ⁻¹' {ωi}) := by
