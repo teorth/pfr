@@ -16,6 +16,7 @@ structure Context where
   simp : Simp.Result → SimpM Simp.Result
 
 /-- Configuration for `ring_nf`. -/
+@[nolint unusedArguments]
 structure Config where
   /-- the reducibility setting to use when comparing atoms for defeq -/
   red := TransparencyMode.reducible
