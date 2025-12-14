@@ -16,6 +16,7 @@ warn.sorry = false
 [[require]]
 name = "LeanAPAP"
 git = "https://github.com/YaelDillies/LeanAPAP.git"
+rev = "v4.26.0"
 
 [[require]]
 name = "checkdecls"

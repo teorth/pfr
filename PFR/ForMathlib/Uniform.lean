@@ -25,8 +25,8 @@ lemma isUniform_uniformOn [MeasurableSingletonClass Ω] {A : Set Ω} :
     IsUniform A id (uniformOn A) := by
   constructor
   · intro x hx y hy
-    have h'x : {x} ∩ A = {x} := by ext y; simp +contextual [hx]
-    have h'y : {y} ∩ A = {y} := by ext y; simp +contextual [hy]
+    have h'x : {x} ∩ A = {x} := by ext y; simp (config := {contextual := true}) [hx]
+    have h'y : {y} ∩ A = {y} := by ext y; simp (config := {contextual := true}) [hy]
     simp [uniformOn, cond, h'x, h'y]
   · exact uniformOn_apply_eq_zero (by simp)
 
@@ -228,8 +228,8 @@ lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) 
       _ ≤ (μ[|X ⁻¹' H']) (X ⁻¹' H'ᶜ) + (μ[|X ⁻¹' H']) (X ⁻¹' Hᶜ) := measure_union_le _ _
       _ = (μ[|X ⁻¹' H']) (X ⁻¹' H'ᶜ) + 0 := congrArg _ <| by
         simp only [cond, Measure.smul_apply, smul_eq_mul]
-        rw [le_zero_iff.mp <| h.measure_preimage_compl.trans_ge <| Measure.restrict_apply_le _ _,
-          mul_zero]
+        convert mul_zero _
+        exact eq_bot_mono (Measure.restrict_apply_le _ _) h.measure_preimage_compl
       _ = 0 := by
         simp only [cond, Measure.smul_apply, smul_eq_mul]
         rw [add_zero, Set.preimage_compl, Measure.restrict_apply <|

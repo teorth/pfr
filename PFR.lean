@@ -57,7 +57,7 @@ import PFR.Mathlib.Order.Interval.Finset.Fin
 import PFR.Mathlib.Probability.ConditionalProbability
 import PFR.Mathlib.Probability.IdentDistrib
 import PFR.Mathlib.Probability.Independence.Basic
-import PFR.Mathlib.Probability.Independence.Kernel
+import PFR.Mathlib.Probability.Independence.Kernel.IndepFun
 import PFR.Mathlib.Probability.Kernel.Composition.Comp
 import PFR.Mathlib.Probability.Kernel.Disintegration
 import PFR.Mathlib.Probability.UniformOn

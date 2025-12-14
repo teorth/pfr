@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Constructions.Pi
 import Mathlib.Probability.Independence.Basic
-import PFR.Mathlib.Probability.Independence.Kernel
+import PFR.Mathlib.Probability.Independence.Kernel.IndepFun
 
 open Function MeasureTheory MeasurableSpace Measure Set
 open scoped MeasureTheory ENNReal

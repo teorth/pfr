@@ -1,5 +1,5 @@
 import Mathlib.Data.Finset.Pairwise
-import Mathlib.Probability.Independence.Kernel
+import Mathlib.Probability.Independence.Kernel.IndepFun
 
 open MeasureTheory MeasurableSpace
 
