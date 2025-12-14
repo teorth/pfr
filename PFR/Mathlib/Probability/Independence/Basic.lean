@@ -63,12 +63,12 @@ lemma iIndepFun.finsets_comp {f : ∀ i, Ω → β i} {J : Type*} [Fintype J]
     iIndepFun (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) μ :=
   Kernel.iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas γ φ hφ
 
-lemma iIndepFun.finsetSum  [m : MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β']
+lemma iIndepFun.finsetSum [MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β']
     {f : ι → Ω → β'} {J : Type*} [Fintype J]
     (S : J → Finset ι) (h_disjoint : Set.PairwiseDisjoint Set.univ S)
     (hf_Indep : iIndepFun f μ) (hf_meas : ∀ i, Measurable (f i)) :
     iIndepFun (fun (j : J) ↦ fun a ↦ ∑ i ∈ S j, f i a) μ := by
-  set φ : (j : J) → ((i : S j) → β') → β' := fun j f_j => ∑ i : { i : ι // i ∈ S j}, f_j i with φ_def
+  set φ : (j : J) → ((i : S j) → β') → β' := fun j f_j ↦ ∑ i : {i : ι // i ∈ S j}, f_j i with φ_def
   have hφ (j : J) : Measurable (φ j) := by
     rw [φ_def]
     simp only [Finset.univ_eq_attach]
@@ -76,11 +76,10 @@ lemma iIndepFun.finsetSum  [m : MeasurableSpace β'] [AddCommMonoid β'] [Measur
   have := iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas φ hφ
   have φ_simple (j : J) (a : Ω) : (φ j (fun i => f ↑i a)) = ∑ i ∈ S j, f i a := by
     simp only [φ_def, Finset.univ_eq_attach, ←Finset.sum_attach (S j)]
-  simp [φ_simple] at this
-  exact this
+  simpa [φ_simple] using this
 
-lemma IndepFun.finsetSum [m : MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β'] {f : ι → Ω → β'}
-    {s t : Finset ι} (hf_Indep : iIndepFun f μ) (hf_meas : ∀ i, Measurable (f i))
+lemma IndepFun.finsetSum [m : MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β']
+    {f : ι → Ω → β'} {s t : Finset ι} (hf_Indep : iIndepFun f μ) (hf_meas : ∀ i, Measurable (f i))
     (h_disj : Disjoint s t) : IndepFun (∑ i ∈ s, f i) (∑ i ∈ t, f i) μ := by
   let S : Bool → Finset ι := fun b => if b then s else t
   have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
@@ -88,9 +87,9 @@ lemma IndepFun.finsetSum [m : MeasurableSpace β'] [AddCommMonoid β'] [Measurab
     by_cases hb : b
     · by_cases hc : c
       · exfalso; exact hbc (hb ▸ hc.symm)
-      · simp [hb, hc]; exact h_disj
+      · simpa [hb, hc] using h_disj
     · by_cases hc : c
-      · simp [hb, hc]; exact h_disj.symm
+      · simpa [hb, hc] using h_disj.symm
       · exfalso; exact hbc (eq_false_of_ne_true hb ▸ (eq_false_of_ne_true hc).symm)
   have hindep := iIndepFun.finsetSum S h_disjoint hf_Indep hf_meas
   have h_true : S true = s := by simp [S]
@@ -100,11 +99,12 @@ lemma IndepFun.finsetSum [m : MeasurableSpace β'] [AddCommMonoid β'] [Measurab
   all_goals simp
 
 universe u
-/-- A variant of iIndepFun.finsets_comp where we conclude the independence of just two functions rather than an entire family. -/
-lemma iIndepFun.finsets_comp' {f : ∀ i, Ω → β i} {S S': Finset ι}  (h_disjoint : Disjoint S S')
+/-- A variant of iIndepFun.finsets_comp where we conclude the independence of just two functions
+rather than an entire family. -/
+lemma iIndepFun.finsets_comp' {f : ∀ i, Ω → β i} {S S' : Finset ι} (h_disjoint : Disjoint S S')
     (hf_Indep : iIndepFun f μ) (hf_meas : ∀ i, Measurable (f i))
-    {γ γ': Type u} {mγ : MeasurableSpace γ} {mγ' : MeasurableSpace γ'}
-    {φ : ((i : S) → β i) → γ} {φ' : ((i : S') → β i) → γ'} (hφ : Measurable φ) (hφ' : Measurable φ') :
+    {γ γ' : Type u} {mγ : MeasurableSpace γ} {mγ' : MeasurableSpace γ'}
+    {φ : (∀ i : S, β i) → γ} {φ' : (∀ i : S', β i) → γ'} (hφ : Measurable φ) (hφ' : Measurable φ') :
     IndepFun (fun a ↦ φ (fun (i : S) ↦ f i a)) (fun a ↦ φ' (fun (i : S') ↦ f i a)) μ := by
   set S₂ := ![S,S']
   set γ₂ := ![γ,γ']
@@ -123,7 +123,7 @@ lemma iIndepFun.finsets_comp' {f : ∀ i, Ω → β i} {S S': Finset ι}  (h_dis
   | 0 => hφ
   | 1 => hφ'
   have hneq : (0:Fin 2) ≠ (1:Fin 2) := by simp
-  convert ProbabilityTheory.iIndepFun.indepFun (iIndepFun.finsets_comp S₂ h_disjoint₂ hf_Indep hf_meas φ₂ hφ₂) hneq
+  convert (iIndepFun.finsets_comp S₂ h_disjoint₂ hf_Indep hf_meas φ₂ hφ₂).indepFun hneq
 
 end iIndepFun
 
@@ -168,9 +168,9 @@ lemma IndepFun.comp_right {i : Ω' → Ω} (hi : MeasurableEmbedding i) (hi' : �
   all_goals first
   | exact hi.injective
   | exact hi.measurableSet_image'
-  | exact hi.measurable $ hf hs
-  | exact hi.measurable $ hg ht
-  | exact hi.measurable $ (hf hs).inter $ hg ht
+  | exact hi.measurable <| hf hs
+  | exact hi.measurable <| hg ht
+  | exact hi.measurable <| (hf hs).inter <| hg ht
 
 -- Same as `iIndepFun_iff` except that the function `f'` returns measurable sets even on junk values
 lemma iIndepFun_iff' [MeasurableSpace Ω] {β : ι → Type*}
@@ -229,10 +229,9 @@ lemma iIndepFun.pi
   · exact fun i ↦ measurable_iff_comap_le.mp (measurable_pi_iff.mpr (f_meas i))
   · exact fun i ↦ IsPiSystem.comap isPiSystem_pi (F i)
   · intro k
-    show MeasurableSpace.comap _ (M k) = _
+    change MeasurableSpace.comap _ (M k) = _
     have : M k = MeasurableSpace.generateFrom (πβ k) := generateFrom_pi.symm
     rewrite [this, MeasurableSpace.comap_generateFrom] ; rfl
-
   rw [iIndepSets_iff]
   intro s E hE
   simp only [mem_image, mem_pi, mem_univ, true_implies, exists_exists_and_eq_and] at hE
@@ -246,14 +245,12 @@ lemma iIndepFun.pi
     ext : 1
     rw [Set.mem_preimage, Set.mem_univ_pi, Set.mem_iInter]
     exact ⟨fun hj j ↦ mem_preimage.mpr (hj j), fun hj j ↦ mem_preimage.mp (hj j)⟩
-
   let set (i : ι) (j : κ i) := f i j ⁻¹' sets' i j
   set set_σ := fun (ij : (i : ι) × κ i) ↦ set ij.fst ij.snd with set_σ_def
   let meas i j := μ (set i j)
   let meas_σ ij := μ (set_σ ij)
   suffices μ (⋂ i ∈ s, ⋂ j, set i j) = ∏ i ∈ s, μ (⋂ j, set i j) by
     convert this with k hk k hk ; all_goals { exact box k hk }
-
   let κ_σ (i : ι) := Finset.sigma {i} fun i ↦ Finset.univ (α := κ i)
   have reindex_prod (i : ι) : ∏ j, meas i j = ∏ ij : κ_σ i, meas_σ ij := by
     rw [Finset.prod_coe_sort, Finset.prod_sigma, Finset.prod_singleton]
@@ -309,32 +306,32 @@ lemma iIndepFun.prod {hf : ∀ (i : ι), Measurable (f i)} {ST : ι' → Finset 
 variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
 
 /-- The new Mathlib tool `Finset.eventuallyEq_iInter` will supersede this result. -/
-theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} (s: Finset ι)
+theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} (s : Finset ι)
     {E : ι → Set α} {F : ι → Set α}
     (h : ∀ i ∈ s, E i =ᶠ[l] F i) :
     ⋂ i ∈ s, E i =ᶠ[l] ⋂ i ∈ s, F i := by
   unfold Filter.EventuallyEq Filter.Eventually at h ⊢
-  simp at h ⊢
+  simp only [eq_iff_iff] at h ⊢
   rw [← Filter.biInter_finset_mem] at h
   apply Filter.mem_of_superset h
   intro a ha
-  simp at ha ⊢
   change a ∈ ⋂ i ∈ s, E i ↔ a ∈ ⋂ i ∈ s, F i
-  simp
+  simp only [mem_iInter, mem_setOf_eq] at ha ⊢
   change ∀ i ∈ s, a ∈ E i ↔ a ∈ F i at ha
   exact forall₂_congr ha
 
-/-- TODO: a kernel version of this theorem-/
+/-- TODO: a kernel version of this theorem -/
 theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}
     {m : ∀ i, MeasurableSpace (β i)} {f g : ∀ i, Ω → β i}
     (hf_Indep : iIndepFun f μ) (hfg : ∀ i, f i =ᵐ[μ] g i) : iIndepFun g μ := by
   rw [iIndepFun_iff_iIndep, iIndep_iff] at hf_Indep ⊢
   intro s E H
-  have (i : ι) : ∃ E' : Set Ω, i ∈ s → MeasurableSet[MeasurableSpace.comap (f i) (m i)] E' ∧ E' =ᵐ[μ] E i := by
+  have (i : ι) :
+      ∃ E' : Set Ω, i ∈ s → MeasurableSet[MeasurableSpace.comap (f i) (m i)] E' ∧ E' =ᵐ[μ] E i := by
     by_cases hi: i ∈ s
     · rcases H i hi with ⟨F, mF, hFE⟩
       use (f i)⁻¹' F
-      simp [hi]
+      simp only [hi, forall_const]
       constructor
       · use F
       rw [← hFE]
@@ -355,3 +352,5 @@ theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}
   apply Finset.prod_congr rfl
   intro i hi
   exact measure_congr (hE''' i hi).symm
+
+end ProbabilityTheory

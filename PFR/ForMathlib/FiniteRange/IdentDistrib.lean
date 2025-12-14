@@ -15,10 +15,11 @@ variable {Ω Ω' α ι β β' T : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : Meas
   {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure Ω} {ν : Measure Ω'} {f g : Ω → β}
   {f' g' : Ω' → β}
 
-/-- If `X` has identical distribution to `X₀`, and `X₀` has finite range, then `X` is almost everywhere equivalent to a random variable of finite range. -/
+/-- If `X` has identical distribution to `X₀`, and `X₀` has finite range, then `X` is almost
+everywhere equivalent to a random variable of finite range. -/
 lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*}
     [MeasurableSpace Ω] [MeasurableSpace Ω₀] [MeasurableSpace S] [MeasurableSingletonClass S]
-    [hS: Nonempty S] {μ: Measure Ω} {μ₀: Measure Ω₀} {X₀: Ω₀ → S} [FiniteRange X₀] {X : Ω → S}
+    [hS : Nonempty S] {μ : Measure Ω} {μ₀ : Measure Ω₀} {X₀ : Ω₀ → S} [FiniteRange X₀] {X : Ω → S}
     (hX : Measurable X) (hi : IdentDistrib X₀ X μ₀ μ) :
     ∃ X' : Ω → S, Measurable X' ∧ FiniteRange X' ∧ X' =ᵐ[μ] X := by
   set A := FiniteRange.toFinset X₀
@@ -31,7 +32,7 @@ lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*}
     simp [X']
     split <;> simp [*]
   apply Filter.eventuallyEq_of_mem (s := X ⁻¹' A)
-  · simp [ae]
+  · simp only [ae, mem_ofCountableUnion]
     rw [← Set.preimage_compl, ← IdentDistrib.measure_preimage_eq hi]
     · convert measure_empty (μ := μ₀)
       ext ω
@@ -41,7 +42,8 @@ lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*}
   simp only [mem_preimage, Finset.mem_coe, ite_eq_left_iff, X']
   tauto
 
-/-- A version of `independent_copies` that guarantees that the copies have `FiniteRange` if the original variables do. -/
+/-- A version of `independent_copies` that guarantees that the copies have `FiniteRange` if the
+original variables do. -/
 lemma independent_copies_finiteRange {X : Ω → α} {Y : Ω' → β}
     (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y]
     [MeasurableSingletonClass α] [MeasurableSingletonClass β]
@@ -111,7 +113,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
     [FiniteRange X₁] [FiniteRange X₂] [FiniteRange X₃] [FiniteRange X₄]
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃) (μ₄ : Measure Ω₄)
     [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂] [hμ₃ : IsProbabilityMeasure μ₃]
-    [hμ₄ : IsProbabilityMeasure μ₄]:
+    [hμ₄ : IsProbabilityMeasure μ₄] :
     ∃ (A : Type (max u_1 u_2 u_3 u_4)) (_ : MeasurableSpace A) (μA : Measure A)
       (X₁' X₂' X₃' X₄' : A → α),
     IsProbabilityMeasure μA ∧
@@ -146,7 +148,8 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
 /-- A version of `independent_copies'` that guarantees that the copies have `FiniteRange`
 if the original variables do. -/
 lemma independent_copies'_finiteRange {I : Type u} [Fintype I] {α : I → Type u'}
-    [mS : ∀ i : I, MeasurableSpace (α i)] [mS' : ∀ i, MeasurableSingletonClass (α i)] [mnon: ∀ i, Nonempty (α i)] {Ω : I → Type v}
+    [mS : ∀ i : I, MeasurableSpace (α i)] [mS' : ∀ i, MeasurableSingletonClass (α i)]
+    [mnon: ∀ i, Nonempty (α i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → α i) (hX : ∀ i : I, Measurable (X i))
     (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] [∀ i, FiniteRange (X i)] :
     ∃ (A : Type (max u v)) (_ : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
@@ -156,13 +159,12 @@ lemma independent_copies'_finiteRange {I : Type u} [Fintype I] {α : I → Type 
   set h := fun i ↦ (identDistrib_of_finiteRange ((hident i).1) (hident i).2.symm)
   choose X'' hX'' using h
   refine ⟨A, mA, μA, X'', hμA, ?_, ?_⟩
-  . apply hindep.ae_eq
+  · apply hindep.ae_eq
     intro i
     exact (hX'' i).2.2.symm
   intro i
   refine ⟨(hX'' i).1, ?_, (hX'' i).2.1⟩
-  exact (ProbabilityTheory.IdentDistrib.of_ae_eq (Measurable.aemeasurable (hX'' i).1) (hX'' i).2.2).trans (hident i).2
-
+  exact .trans (.of_ae_eq (hX'' i).1.aemeasurable (hX'' i).2.2) (hident i).2
 
 /-
   have : Nonempty α := μ.nonempty_of_neZero.map X

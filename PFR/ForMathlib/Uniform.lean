@@ -25,8 +25,8 @@ lemma isUniform_uniformOn [MeasurableSingletonClass Ω] {A : Set Ω} :
     IsUniform A id (uniformOn A) := by
   constructor
   · intro x hx y hy
-    have h'x : {x} ∩ A = {x} := by ext y; simp (config := {contextual := true}) [hx]
-    have h'y : {y} ∩ A = {y} := by ext y; simp (config := {contextual := true}) [hy]
+    have h'x : {x} ∩ A = {x} := by ext y; simp +contextual [hx]
+    have h'y : {y} ∩ A = {y} := by ext y; simp +contextual [hy]
     simp [uniformOn, cond, h'x, h'y]
   · exact uniformOn_apply_eq_zero (by simp)
 
@@ -61,8 +61,8 @@ lemma exists_isUniform [MeasurableSpace S] [MeasurableSingletonClass S]
     simp
 
 /-- The image of a uniform random variable under an injective map is uniform on the image. -/
-lemma IsUniform.comp [DecidableEq T] {H : Finset S} (h : IsUniform H X μ) {f : S → T} (hf : Injective f) :
-    IsUniform (Finset.image f H) (f ∘ X) μ where
+lemma IsUniform.comp [DecidableEq T] {H : Finset S} (h : IsUniform H X μ) {f : S → T}
+    (hf : Injective f) : IsUniform (Finset.image f H) (f ∘ X) μ where
   eq_of_mem := by
     intro x hx y hy
     simp only [Finset.coe_image, mem_image, Finset.mem_coe] at hx hy
@@ -76,11 +76,13 @@ lemma IsUniform.comp [DecidableEq T] {H : Finset S} (h : IsUniform H X μ) {f : 
 lemma exists_isUniform_measureSpace {S : Type uS} [MeasurableSpace S]
     [MeasurableSingletonClass S] (H : Finset S) (h : H.Nonempty) :
     ∃ (Ω : Type uS) (mΩ : MeasureSpace Ω) (U : Ω → S),
-    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω : Ω, U ω ∈ H) ∧ FiniteRange U := by
+    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧ IsUniform H U ∧ (∀ ω : Ω, U ω ∈ H) ∧
+      FiniteRange U := by
   rcases exists_isUniform H h with ⟨Ω, mΩ, X, μ, hμ, Xmeas, Xunif, Xmem, Xfin⟩
   exact ⟨Ω, ⟨μ⟩, X, hμ, Xmeas, Xunif, Xmem, Xfin⟩
 
-/-- Uniform distributions exist, version with a Finite set rather than a Finset and giving a measure space -/
+/-- Uniform distributions exist, version with a Finite set rather than a Finset and giving a measure
+space -/
 lemma exists_isUniform_measureSpace' {S : Type uS} [MeasurableSpace S]
     [MeasurableSingletonClass S] (H : Set S) (hH : H.Finite) (h'H : H.Nonempty) :
     ∃ (Ω : Type uS) (mΩ : MeasureSpace Ω) (U : Ω → S),
@@ -98,9 +100,7 @@ lemma IsUniform.ae_mem (h : IsUniform H X μ) : ∀ᵐ ω ∂μ, X ω ∈ H := h
 /-- Uniform random variables only exist for non-empty sets H. -/
 lemma IsUniform.nonempty {H : Finset S} (h : IsUniform H X μ) [hμ : NeZero μ] : H.Nonempty := by
   rcases Finset.eq_empty_or_nonempty H with rfl|h'
-  · have : μ univ = 0 := by convert h.measure_preimage_compl; simp
-    simp at this
-    exact (hμ.out this).elim
+  · simpa [hμ.out] using h.measure_preimage_compl
   · exact h'
 
 /-- A "unit test" for the definition of uniform distribution. -/
@@ -194,7 +194,7 @@ lemma IsUniform.full_measure (h : IsUniform H X μ) (hX : Measurable X) :
     convert h.measure_preimage_compl
     ext ω; simp
 
-/-- A copy of a uniform random variable is also uniform.-/
+/-- A copy of a uniform random variable is also uniform. -/
 lemma IsUniform.of_identDistrib {Ω' : Type*} [MeasurableSpace Ω'] (h : IsUniform H X μ)
     {X' : Ω' → S} {μ' : Measure Ω'} (h' : IdentDistrib X X' μ μ') (hH : MeasurableSet (H : Set S)) :
     IsUniform H X' μ' := by
@@ -239,14 +239,14 @@ lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) 
 lemma IdentDistrib.of_isUniform {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [Finite H] [Countable S]
     {X : Ω → S} {X' : Ω' → S}
-    (hX : Measurable X) (hX': Measurable X') (hX_unif : IsUniform H X μ)
+    (hX : Measurable X) (hX' : Measurable X') (hX_unif : IsUniform H X μ)
     (hX'_unif : IsUniform H X' μ') : IdentDistrib X X' μ μ' := by
   refine ⟨hX.aemeasurable, hX'.aemeasurable, ?_⟩
   ext E hE
   rw [← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE,
     ← MeasureTheory.Measure.tsum_indicator_apply_singleton _ _ hE]
   congr! 4 with _ x
-  rw [Measure.map_apply hX (MeasurableSet.singleton x), Measure.map_apply hX' (MeasurableSet.singleton x)]
+  rw [Measure.map_apply hX (.singleton x), Measure.map_apply hX' (.singleton x)]
   set Hf := H.toFinite.toFinset
   have hX_unif' : IsUniform Hf X μ := by convert hX_unif; simp [Hf]
   have hX'_unif' : IsUniform Hf X' μ' := by convert hX'_unif; simp [Hf]
@@ -307,3 +307,5 @@ lemma isUniform_iff_map_eq_uniformOn [Finite H] {Ω : Type*} [mΩ : MeasurableSp
       Set.inter_comm H]
   · rw [← map_apply hU (by measurability), this, uniformOn_apply ‹_›]
     simp
+
+end ProbabilityTheory

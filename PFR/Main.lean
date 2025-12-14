@@ -32,8 +32,8 @@ lemma IsUniform.measureReal_preimage_sub_zero [DecidableEq G] (Uunif : IsUniform
       = (A ∩ B).card / (A.card * B.card) := by
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
     ext ω; simp [sub_eq_zero, eq_comm]
-  rw [this, measureReal_iUnion_fintype _
-    (fun i ↦ (Umeas .of_discrete).inter $ Vmeas .of_discrete)]; swap
+  rw [this, measureReal_iUnion_fintype _ (fun i ↦ (Umeas .of_discrete).inter <| Vmeas .of_discrete)]
+  swap
   · intro g g' hgg'
     apply Set.disjoint_iff_inter_eq_empty.2
     ext a
@@ -61,7 +61,8 @@ lemma IsUniform.measureReal_preimage_sub_zero [DecidableEq G] (Uunif : IsUniform
 and `B`, then `U = V + x` with probability `# (A ∩ (B + x)) / #A ⬝ #B`. -/
 lemma IsUniform.measureReal_preimage_sub [DecidableEq G] (Uunif : IsUniform A U)
     (Umeas : Measurable U) (Vunif : IsUniform B V) (Vmeas : Measurable V) (h_indep : IndepFun U V)
-    (x : G) : (ℙ : Measure Ω).real ((U - V) ⁻¹' {x}) = (A ∩ (B + {x})).card / (A.card * B.card) := by
+    (x : G) :
+    (ℙ : Measure Ω).real ((U - V) ⁻¹' {x}) = (A ∩ (B + {x})).card / (A.card * B.card) := by
   classical
   let W := fun ω ↦ V ω + x
   have Wunif : IsUniform (B + {x} : Set G) W := by
@@ -141,13 +142,13 @@ such that `A` can be covered by at most `K^(13/2) |A|^(1/2) / |H|^(1/2)` cosets 
 the same cardinality as `A` up to a multiplicative factor `K^11`. -/
 lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-    Nat.card c ≤ K ^ (13/2 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)
-      ∧ (H : Set G).ncard ≤ K ^ 11 * A.ncard ∧ A.ncard ≤ K ^ 11 * (H : Set G).ncard ∧ A ⊆ c + H := by
+    Nat.card c ≤ K ^ (13/2 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ) ∧
+      (H : Set G).ncard ≤ K ^ 11 * A.ncard ∧ A.ncard ≤ K ^ 11 * (H : Set G).ncard ∧ A ⊆ c + H := by
   classical
   have A_fin : Finite A := by infer_instance
   let _mG : MeasurableSpace G := ⊤
   rw [sumset_eq_sub] at hA
-  have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
+  have : MeasurableSingletonClass G := ⟨fun _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < (A - A).ncard ∧ 0 < K :=
     PFR_conjecture_pos_aux A.toFinite hA₀ hA
   let A' := A.toFinite.toFinset
@@ -171,7 +172,6 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
   have hHH' : H' = (H : Set G) := (toFinite (H : Set G)).coe_toFinset
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
-
   have : d[VA # VH] ≤ 11/2 * log K := by rw [idVA.rdist_congr idVH]; linarith
   have H_pos : (0 : ℝ) < (H : Set G).ncard := by
     have : 0 < (H : Set G).ncard := Nat.card_pos
@@ -216,7 +216,6 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
       rpow_ring
       norm_num
     · simp [← Set.ncard_coe_finset, hAA', hHH', -add_singleton]
-
   have Hne : (A ∩ (H + {x₀} : Set G)).Nonempty := by
     by_contra h'
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
@@ -242,8 +241,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
   obtain ⟨u, huA, hucard, hAu, -⟩ :=
     Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
-    refine hAu.trans $ add_subset_add_left $
-      (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
+    grw [hAu, inter_subset_right]
     rw [add_sub_add_comm, singleton_sub_singleton, sub_self]
     simp
   exact ⟨H, u, hucard, IHA, IAH, A_subset_uH⟩
@@ -269,7 +267,8 @@ theorem PFR_conjecture (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
   · refine ⟨H, c, ?_, h, A_subs_cH⟩
     calc
     Nat.card c ≤ K ^ (13/2 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ) := hc
-    _ ≤ K ^ (13/2 : ℝ) * (K ^ 11 * (H : Set G).ncard) ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ) := by gcongr
+    _ ≤ K ^ (13/2 : ℝ) * (K ^ 11 * (H : Set G).ncard) ^ (1/2) * (H : Set G).ncard ^ (-1/2 : ℝ) := by
+      gcongr
     _ = K ^ 12 := by rpow_ring; norm_num
     _ < 2 * K ^ 12 := by linarith [show 0 < K ^ 12 by positivity]
   -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that

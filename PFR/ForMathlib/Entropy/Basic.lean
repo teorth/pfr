@@ -16,7 +16,8 @@ import PFR.Mathlib.Probability.ConditionalProbability
 
 * `chain_rule`: $H[⟨X, Y⟩] = H[Y] + H[X | Y]$
 * `entropy_cond_le_entropy`: $H[X | Y] ≤ H[X]$. (Chain rule another way.)
-* `entropy_triple_add_entropy_le`: $H[X, Y, Z] + H[Z] ≤ H[X, Z] + H[Y, Z]$. (Submodularity of entropy.)
+* `entropy_triple_add_entropy_le` (Submodularity of entropy.) :
+  $H[X, Y, Z] + H[Z] ≤ H[X, Z] + H[Y, Z]$.
 
 ## Notations
 
@@ -44,15 +45,16 @@ section entropy
 noncomputable
 def entropy (X : Ω → S) (μ : Measure Ω := by volume_tac) := Hm[μ.map X]
 
-@[inherit_doc entropy] notation3:max "H[" X " ; " μ "]" => entropy X μ
+@[inherit_doc entropy] notation3:max "H[" X "; " μ "]" => entropy X μ
 @[inherit_doc entropy] notation3:max "H[" X "]" => entropy X volume
-@[inherit_doc entropy] notation3:max "H[" X " | " Y " ← " y " ; " μ "]" => entropy X (μ[|Y ← y])
+@[inherit_doc entropy] notation3:max "H[" X " | " Y " ← " y "; " μ "]" => entropy X (μ[|Y ← y])
 @[inherit_doc entropy] notation3:max "H[" X " | " Y " ← " y "]" => entropy X (ℙ[|Y ← y])
 
 /-- Entropy of a random variable agrees with entropy of its distribution. -/
 lemma entropy_def (X : Ω → S) (μ : Measure Ω) : entropy X μ = Hm[μ.map X] := rfl
 
-/-- Entropy of a random variable is also the kernel entropy of the distribution over a Dirac mass. -/
+/-- Entropy of a random variable is also the kernel entropy of the distribution over a Dirac mass.
+-/
 lemma entropy_eq_kernel_entropy (X : Ω → S) (μ : Measure Ω) :
     H[X ; μ] = Hk[Kernel.const Unit (μ.map X), Measure.dirac ()] := by simp [entropy]
 
@@ -77,14 +79,16 @@ lemma entropy_le_log_card [Fintype S] [MeasurableSingletonClass S]
     (X : Ω → S) (μ : Measure Ω) : H[X ; μ] ≤ log (Fintype.card S) :=
   measureEntropy_le_log_card _
 
-/-- Entropy is at most the logarithm of the cardinality of a set in which X almost surely takes values in. -/
+/-- Entropy is at most the logarithm of the cardinality of a set in which X almost surely takes
+values in. -/
 lemma entropy_le_log_card_of_mem [DiscreteMeasurableSpace S]
     {A : Finset S} {μ : Measure Ω} {X : Ω → S}
     (hX : Measurable X) (h : ∀ᵐ ω ∂μ, X ω ∈ A) :
     H[X ; μ] ≤ log A.card :=
   measureEntropy_le_log_card_of_mem _ <| by rwa [Measure.map_apply hX .of_discrete]
 
-/-- Entropy is at most the logarithm of the cardinality of a set in which X almost surely takes values in. -/
+/-- Entropy is at most the logarithm of the cardinality of a set in which X almost surely takes
+values in. -/
 lemma entropy_le_log_card_of_mem_finite [DiscreteMeasurableSpace S]
     {A : Set S} {μ : Measure Ω} {X : Ω → S}
     (hA : A.Finite) (hX : Measurable X) (h : ∀ᵐ ω ∂μ, X ω ∈ A) :
@@ -102,7 +106,7 @@ lemma entropy_eq_sum' (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ] :
   simp only [entropy_def, measureEntropy_of_isProbabilityMeasure, Measure.real]
 
 lemma entropy_eq_sum_finset {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ]
-    {A : Finset S} (hA : (μ.map X) Aᶜ = 0):
+    {A : Finset S} (hA : (μ.map X) Aᶜ = 0) :
     entropy X μ = ∑ x ∈ A, negMulLog ((μ.map X).real {x}) := by
   rw [entropy_eq_sum]
   convert tsum_eq_sum ?_
@@ -115,17 +119,17 @@ lemma entropy_eq_sum_finset {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ]
   simp [hs]
 
 lemma entropy_eq_sum_finset' {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ]
-    {A : Finset S} (hA : (μ.map X) Aᶜ = 0):
+    {A : Finset S} (hA : (μ.map X) Aᶜ = 0) :
     entropy X μ = ∑ x ∈ A, negMulLog ((μ.map X).real {x}) :=
   entropy_eq_sum_finset hA
 
 lemma entropy_eq_sum_finiteRange [MeasurableSingletonClass S]
-    (hX : Measurable X) {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ] [FiniteRange X]:
+    (hX : Measurable X) {μ : Measure Ω} [IsZeroOrProbabilityMeasure μ] [FiniteRange X] :
     entropy X μ = ∑ x ∈ FiniteRange.toFinset X, negMulLog ((μ.map X).real {x}) :=
   entropy_eq_sum_finset (A := FiniteRange.toFinset X) (full_measure_of_finiteRange hX)
 
 lemma entropy_eq_sum_finiteRange' [MeasurableSingletonClass S] (hX : Measurable X) {μ : Measure Ω}
-    [IsZeroOrProbabilityMeasure μ] [FiniteRange X]:
+    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] :
     entropy X μ = ∑ x ∈ FiniteRange.toFinset X, negMulLog ((μ.map X).real {x}) :=
   entropy_eq_sum_finiteRange hX
 
@@ -138,7 +142,7 @@ lemma entropy_cond_eq_sum (μ : Measure Ω) (y : T) :
   · rw [entropy_eq_sum]
 
 lemma entropy_cond_eq_sum_finiteRange [MeasurableSingletonClass S]
-    (hX : Measurable X) (μ : Measure Ω) (y : T) [FiniteRange X]:
+    (hX : Measurable X) (μ : Measure Ω) (y : T) [FiniteRange X] :
     H[X | Y ← y ; μ] = ∑ x ∈ FiniteRange.toFinset X, negMulLog (((μ[|Y ← y]).map X).real {x}) := by
   by_cases hy : μ (Y ⁻¹' {y}) = 0
   · rw [entropy_def, cond_eq_zero_of_meas_eq_zero hy]
@@ -177,11 +181,7 @@ lemma IsUniform.entropy_eq [DiscreteMeasurableSpace S] {H : Finset S} {X : Ω �
     · simp [negMulLog, map_measureReal_apply hX' (.singleton t), hX.measureReal_preimage_of_nmem ht]
   rw [entropy_eq_sum_finset' (A := H), Finset.sum_congr rfl (fun t _ ↦ this t), ← Finset.sum_mul,
     sum_measureReal_singleton]
-  · convert one_mul _
-    have := IsUniform.full_measure hX hX'
-    simp at this
-    rw [Measure.real, this]
-    simp
+  · simp [Measure.real, IsUniform.full_measure hX hX']
   rw [Measure.map_apply hX' (by measurability)]
   exact hX.measure_preimage_compl
 
@@ -211,26 +211,22 @@ lemma entropy_eq_log_card {X : Ω → S} [Fintype S] [MeasurableSingletonClass S
 
 TODO: remove the probability measure hypothesis, which is unnecessary here. -/
 lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : Measure Ω)
-    [IsProbabilityMeasure μ] (hX : Measurable X) [hX': FiniteRange X] :
+    [IsProbabilityMeasure μ] (hX : Measurable X) [hX' : FiniteRange X] :
     ∃ s : S, μ Set.univ * (rexp (- H[X ; μ])).toNNReal ≤ μ.map X {s} := by
   have : Nonempty Ω := μ.nonempty_of_neZero
   have : Nonempty S := Nonempty.map X (by infer_instance)
   let μS := μ.map X
   let μs s := μS {s}
   rcases finiteSupport_of_finiteRange (X := X) with ⟨A, hA⟩
-
   let S_nonzero := A.filter (fun s ↦ μs s ≠ 0)
-
   set norm := μS A with rw_norm
   have h_norm : norm = μ Set.univ := by
     have := measure_add_measure_compl (μ := μS) (s := A) (Finset.measurableSet _)
     rw [hA, add_zero] at this
     simp [norm, μS, this, Measure.map_apply hX MeasurableSet.univ]
-
   let pdf_nn s := norm⁻¹ * μs s
   let pdf s := (pdf_nn s).toReal
   let neg_log_pdf s := -log (pdf s)
-
   rcases Finset.eq_empty_or_nonempty S_nonzero with h_empty | h_nonempty
   · have h_norm_zero : μ Set.univ = 0 := by
       have h : ∀ s ∈ A, μs s ≠ 0 → μs s ≠ 0 := fun _ _ h ↦ h
@@ -241,12 +237,10 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
   rcases exists_or_forall_not (fun s ↦ μ.map X {s} = ∞) with h_infty | h_finite
   · obtain ⟨s, h_s⟩ := h_infty
     use s; rw [h_s] ; exact le_top
-
   rcases eq_zero_or_neZero μ with h_zero_measure | _
   · use Classical.arbitrary (α := S)
     rw [h_zero_measure, show (0 : Measure Ω) _ = 0 from rfl, zero_mul]
     exact zero_le _
-
   have h_norm_pos : 0 < norm := by
     rw [h_norm, Measure.measure_univ_pos]
     exact NeZero.ne μ
@@ -261,24 +255,21 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
     rw [← ENNReal.inv_ne_zero, inv_inv]
     exact ne_zero_of_lt h_norm_pos
   have h_pdf_finite : ∀ s, pdf_nn s ≠ ∞ := fun s ↦ ENNReal.mul_ne_top h_invnorm_finite (h_finite s)
-
   have h_norm_cancel : norm * norm⁻¹ = 1 :=
     ENNReal.mul_inv_cancel (ne_zero_of_lt h_norm_pos) (LT.lt.ne_top h_norm_finite)
   have h_pdf1 : (∑ s ∈ A, pdf s) = 1 := by
     rw [← ENNReal.toReal_sum (fun s _ ↦ h_pdf_finite s), ← Finset.mul_sum,
       sum_measure_singleton, mul_comm, h_norm_cancel, ENNReal.toReal_one]
-
   let ⟨s_max, hs, h_min⟩ := Finset.exists_min_image S_nonzero neg_log_pdf h_nonempty
   have h_pdf_s_max_pos : 0 < pdf s_max := by
     rw [Finset.mem_filter] at hs
     have h_nonzero : pdf s_max ≠ 0 := ENNReal.toReal_ne_zero.mpr
       ⟨mul_ne_zero h_invnorm_ne_zero hs.2, ENNReal.mul_ne_top h_invnorm_finite (h_finite s_max)⟩
     exact LE.le.lt_of_ne ENNReal.toReal_nonneg h_nonzero.symm
-
   use s_max
   rw [← h_norm, ← one_mul (μ.map X _), ← h_norm_cancel, mul_assoc]
   apply mul_le_mul_of_nonneg_left _ (le_of_lt h_norm_pos)
-  show ENNReal.ofReal (rexp (-H[X ; μ])) ≤ pdf_nn s_max
+  change ENNReal.ofReal (rexp (-H[X ; μ])) ≤ pdf_nn s_max
   rw [ENNReal.ofReal_le_iff_le_toReal (h_pdf_finite _),
     show (pdf_nn _).toReal = pdf _ from rfl, ← Real.exp_log h_pdf_s_max_pos]
   apply exp_monotone
@@ -314,10 +305,11 @@ lemma prob_ge_exp_neg_entropy' [MeasurableSingletonClass S]
     ENNReal.ofReal_le_iff_le_toReal (measure_ne_top _ _), ← Measure.real,
     map_measureReal_apply hX (MeasurableSet.singleton s)] at hs
 
-/-- If `X` is an `S`-valued random variable of non-positive entropy, then `X` is almost surely constant. -/
+/-- If `X` is an `S`-valued random variable of non-positive entropy, then `X` is almost surely
+constant. -/
 lemma const_of_nonpos_entropy [MeasurableSingletonClass S]
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
-    [IsProbabilityMeasure μ] {X : Ω → S} (hX : Measurable X) [FiniteRange X] (hent: H[X; μ] ≤ 0):
+    [IsProbabilityMeasure μ] {X : Ω → S} (hX : Measurable X) [FiniteRange X] (hent : H[X; μ] ≤ 0) :
     ∃ s : S, μ.real (X ⁻¹' {s}) = 1 := by
     rcases prob_ge_exp_neg_entropy' (μ := μ) X hX with ⟨ s, hs ⟩
     use s
@@ -331,7 +323,7 @@ variable [Countable S] [MeasurableSingletonClass S]
   [MeasurableSpace T] [MeasurableSingletonClass T]
   [Countable U] [MeasurableSingletonClass U]
 
-/-- `H[X, f(X)] = H[X]`.-/
+/-- `H[X, f(X)] = H[X]`. -/
 @[simp] lemma entropy_prod_comp (hX : Measurable X) (μ : Measure Ω) (f : S → T) :
     H[⟨X, f ∘ X⟩; μ] = H[X ; μ] :=
   entropy_comp_of_injective μ hX (fun x ↦ (x, f x)) fun _ _ ab ↦ (Prod.ext_iff.1 ab).1
@@ -348,7 +340,7 @@ lemma entropy_comm (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) :
 lemma entropy_assoc (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) (μ : Measure Ω) :
     H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ] := by
   change H[MeasurableEquiv.prodAssoc ∘ ⟨⟨X, Y⟩, Z⟩ ; μ] = H[⟨⟨X, Y⟩, Z⟩ ; μ]
-  exact entropy_comp_of_injective μ ((hX.prodMk hY).prodMk hZ) _ $ Equiv.injective _
+  exact entropy_comp_of_injective μ ((hX.prodMk hY).prodMk hZ) _ <| Equiv.injective _
 
 end entropy
 
@@ -434,15 +426,15 @@ lemma condEntropy_le_log_card [MeasurableSingletonClass S] [Fintype S]
   · have : IsProbabilityMeasure (μ.map Y) := isProbabilityMeasure_map hY.aemeasurable
     simp
 
-/-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`.-/
+/-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`. -/
 lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
-    [IsFiniteMeasure μ] (hY : Measurable Y) [FiniteRange Y]:
+    [IsFiniteMeasure μ] (hY : Measurable Y) [FiniteRange Y] :
     H[X | Y ; μ] = ∑ y ∈ FiniteRange.toFinset Y, ((μ.map Y).real {y}) * H[X | Y ← y ; μ] := by
   rw [condEntropy_def, integral_eq_setIntegral (full_measure_of_finiteRange hY),
     integral_finset _ _ .finset]
   simp_rw [smul_eq_mul]
 
-/-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`$.-/
+/-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`$. -/
 lemma condEntropy_eq_sum_fintype
     [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
     [IsFiniteMeasure μ] (hY : Measurable Y) [Fintype T] :
@@ -474,7 +466,7 @@ lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [Mea
 
 variable [MeasurableSingletonClass S]
 
-/-- `H[X|Y] = ∑_y ∑_x P[Y=y] P[X=x|Y=y] log ⧸(P[X=x|Y=y])`$.-/
+/-- `H[X|Y] = ∑_y ∑_x P[Y=y] P[X=x|Y=y] log ⧸(P[X=x|Y=y])`$. -/
 lemma condEntropy_eq_sum_sum (hX : Measurable X) {Y : Ω → T} (hY : Measurable Y)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[X | Y ; μ]
@@ -485,7 +477,7 @@ lemma condEntropy_eq_sum_sum (hX : Measurable X) {Y : Ω → T} (hY : Measurable
   rw [entropy_cond_eq_sum_finiteRange hX, Finset.mul_sum]
 
 omit [MeasurableSingletonClass S] in
-/-- `H[X|Y] = ∑_y ∑_x P[Y=y] P[X=x|Y=y] log ⧸(P[X=x|Y=y])`$.-/
+/-- `H[X|Y] = ∑_y ∑_x P[Y=y] P[X=x|Y=y] log ⧸(P[X=x|Y=y])`$. -/
 lemma condEntropy_eq_sum_sum_fintype {Y : Ω → T} (hY : Measurable Y)
     (μ : Measure Ω) [IsProbabilityMeasure μ] [Fintype S] [Fintype T] :
     H[X | Y ; μ] = ∑ y, ∑ x, (μ.map Y).real {y} * negMulLog (((μ[|Y ← y]).map X).real {x}) := by
@@ -496,7 +488,7 @@ lemma condEntropy_eq_sum_sum_fintype {Y : Ω → T} (hY : Measurable Y)
 /-- Same as previous lemma, but with a sum over a product space rather than a double sum. -/
 lemma condEntropy_eq_sum_prod (hX : Measurable X) {Y : Ω → T}
     (hY : Measurable Y)
-    (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
+    (μ : Measure Ω) [IsProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[X | Y ; μ] = ∑ p ∈ (FiniteRange.toFinset X) ×ˢ (FiniteRange.toFinset Y),
       (μ.map Y).real {p.2} * negMulLog (((μ[|Y ⁻¹' {p.2}]).map X).real {p.1}) := by
   rw [condEntropy_eq_sum_sum hX hY, Finset.sum_product_right]
@@ -554,9 +546,9 @@ lemma chain_rule' (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
   · simp
   have : Nonempty T := Nonempty.map Y (μ.nonempty_of_neZero)
   rw [entropy_eq_kernel_entropy, Kernel.chain_rule]
-  simp_rw [← Kernel.map_const _ (hX.prodMk hY), Kernel.fst_map_prod _ hY, Kernel.map_const _ hX,
-    Kernel.map_const _ (hX.prodMk hY)]
-  · congr 1
+  · simp_rw [← Kernel.map_const _ (hX.prodMk hY), Kernel.fst_map_prod _ hY, Kernel.map_const _ hX,
+      Kernel.map_const _ (hX.prodMk hY)]
+    congr 1
     · rw [Kernel.entropy, integral_dirac]
       rfl
     · simp_rw [condEntropy_eq_kernel_entropy hY hX]
@@ -637,14 +629,14 @@ lemma cond_chain_rule' (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
 /-- `H[X, Y | Z] = H[Y | Z] + H[X | Y, Z]`. -/
 lemma cond_chain_rule (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X] [FiniteRange Y]
-    [FiniteRange Z]:
+    [FiniteRange Z] :
     H[⟨X, Y⟩ | Z ; μ] = H[Y | Z ; μ] + H[X | ⟨Y, Z⟩ ; μ] := by
   rw [condEntropy_comm hX hY, cond_chain_rule' _ hY hX hZ]
 
 /-- Data-processing inequality for the entropy: `H[f(X)] ≤ H[X]`.
 To upgrade this to equality, see `entropy_of_comp_eq_of_comp` or `entropy_comp_of_injective`. -/
 lemma entropy_comp_le (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
-    (hX : Measurable X) (f : S → U) [FiniteRange X]:
+    (hX : Measurable X) (f : S → U) [FiniteRange X] :
     H[f ∘ X ; μ] ≤ H[X ; μ] := by
   have hfX : Measurable (f ∘ X) := by fun_prop
   have : H[X ; μ] = H[⟨X, f ∘ X⟩ ; μ] := by
@@ -661,7 +653,7 @@ lemma entropy_comp_le (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ]
   `entropy_comp_of_injective` if one doesn't want to establish the injectivity. -/
 lemma entropy_of_comp_eq_of_comp
     (μ : Measure Ω) [IsZeroOrProbabilityMeasure μ] (hX : Measurable X) (hY : Measurable Y)
-    (f : S → T) (g : T → S) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) [FiniteRange X] [FiniteRange Y]:
+    (f : S → T) (g : T → S) (h1 : Y = f ∘ X) (h2 : X = g ∘ Y) [FiniteRange X] [FiniteRange Y] :
     H[X ; μ] = H[Y ; μ] := by
   have h3 : H[X ; μ] ≤ H[Y ; μ] := by
     rw [h2]; exact entropy_comp_le μ hY _
@@ -690,7 +682,8 @@ lemma mutualInfo_def (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
 lemma entropy_add_entropy_sub_mutualInfo (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) :
     H[X ; μ] + H[Y ; μ] - I[X : Y ; μ] = H[⟨X, Y⟩ ; μ] := sub_sub_self _ _
 
-/-- Substituting variables for ones with the same distributions doesn't change the mutual information. -/
+/-- Substituting variables for ones with the same distributions doesn't change the mutual
+information. -/
 lemma IdentDistrib.mutualInfo_eq {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measure Ω'}
     {X' : Ω' → S} {Y' : Ω' → T} (hXY : IdentDistrib (⟨X, Y⟩) (⟨X', Y'⟩) μ μ') :
       I[X : Y ; μ] = I[X' : Y' ; μ'] := by
@@ -738,9 +731,9 @@ lemma mutualInfo_nonneg (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω
   exact measureMutualInfo_nonneg
 
 /-- Subadditivity of entropy. -/
-lemma entropy_pair_le_add (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [FiniteRange X] [FiniteRange Y] :
-    H[⟨X, Y⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
-  sub_nonneg.1 $ mutualInfo_nonneg hX hY _
+lemma entropy_pair_le_add (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) [FiniteRange X]
+    [FiniteRange Y] : H[⟨X, Y⟩ ; μ] ≤ H[X ; μ] + H[Y ; μ] :=
+  sub_nonneg.1 <| mutualInfo_nonneg hX hY _
 
 /-- `I[X : Y] = 0` iff `X, Y` are independent. -/
 lemma mutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure Ω}
@@ -785,15 +778,19 @@ lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω] [IsProbabil
     {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
     H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
   induction m with
-  | zero => simp; convert entropy_const Fin.elim0 <;> infer_instance
+  | zero =>
+    simp only [Finset.univ_eq_empty, Finset.sum_empty]
+    convert entropy_const Fin.elim0 <;> infer_instance
   | succ m hm =>
   calc
     _ = H[ ⟨(fun ω (i:Fin m) ↦ X i.castSucc ω), X (.last _)⟩ ] := by
       let f : (Fin (m + 1) → S) → (Fin m → S) × S := fun x ↦ (fun i ↦ x i.castSucc, x (.last m))
-      convert (entropy_comp_of_injective _ _ f _).symm; fun_prop
-      intro x y hxy; simp [f] at hxy
+      convert (entropy_comp_of_injective _ _ f _).symm
+      · fun_prop
+      intro x y hxy
+      simp only [Prod.mk.injEq, f] at hxy
       ext i; rcases Fin.eq_castSucc_or_eq_last i with h | rfl
-      . obtain ⟨ j, rfl ⟩ := h; replace hxy := hxy.1; exact congr($hxy j)
+      · obtain ⟨j, rfl⟩ := h; replace hxy := hxy.1; exact congr($hxy j)
       tauto
     _ = H[fun ω (i:Fin m) ↦ X i.castSucc ω] + H[X (.last m)] := by
       apply (entropy_pair_eq_add _ _).mpr _ <;> try fun_prop
@@ -801,10 +798,11 @@ lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω] [IsProbabil
       let T' : Finset (Fin (m + 1)) := {.last m}
       let φ : (T → S) → (Fin m → S) := fun f j ↦ f ⟨ j.castSucc, by simp [T] ⟩
       let φ' : (T' → S) → S := fun f ↦ f ⟨ .last m, by simp [T'] ⟩
-      exact finsets_comp' (by simp [T', T]) h_indep hX (show Measurable φ by fun_prop) (show Measurable φ' by fun_prop)
+      exact finsets_comp' (by simp [T', T]) h_indep hX (show Measurable φ by fun_prop)
+        (show Measurable φ' by fun_prop)
     _ = ∑ i:Fin m, H[X i.castSucc] + H[X (.last m)] := by
       congr; apply hm _ _
-      . intro i; fun_prop
+      · intro i; fun_prop
       let T : Fin m → Finset (Fin (m + 1)) := fun i ↦ {i.castSucc}
       let φ : (i:Fin m) → ((_: T i) → S) → S := fun i x ↦ x ⟨ i.castSucc, by simp [T] ⟩
       convert iIndepFun.finsets_comp T _ h_indep hX φ (by fun_prop)
@@ -823,26 +821,26 @@ lemma mutualInfo_comm (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω) 
 /-- `I[X : Y] = H[X] - H[X|Y]`. -/
 lemma mutualInfo_eq_entropy_sub_condEntropy
     (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
+    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     I[X : Y ; μ] = H[X ; μ] - H[X | Y ; μ] := by
   rw [mutualInfo_def, chain_rule μ hX hY]
   abel
 
 /-- `I[X : Y] = H[Y] - H[Y | X]`. -/
 lemma mutualInfo_eq_entropy_sub_condEntropy' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
+    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     I[X : Y ; μ] = H[Y ; μ] - H[Y | X ; μ] := by
   rw [mutualInfo_comm hX hY, mutualInfo_eq_entropy_sub_condEntropy hY hX]
 
 /-- `H[X] - I[X : Y] = H[X | Y]`. -/
 lemma entropy_sub_mutualInfo_eq_condEntropy (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
+    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[X ; μ] - I[X : Y ; μ] = H[X | Y ; μ] := by
   rw [mutualInfo_eq_entropy_sub_condEntropy hX hY, sub_sub_self]
 
 /-- `H[Y] - I[X : Y] = H[Y | X]`. -/
 lemma entropy_sub_mutualInfo_eq_condEntropy' (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
-    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y]:
+    [IsZeroOrProbabilityMeasure μ] [FiniteRange X] [FiniteRange Y] :
     H[Y ; μ] - I[X : Y ; μ] = H[Y | X ; μ] := by
   rw [mutualInfo_eq_entropy_sub_condEntropy' hX hY, sub_sub_self]
 
@@ -864,8 +862,8 @@ lemma condMutualInfo_eq_kernel_mutualInfo
     I[X : Y | Z ; μ] = Ik[condDistrib (⟨X, Y⟩) Z μ, μ.map Z] := by
   rcases finiteSupport_of_finiteRange (μ := μ) (X := Z) with ⟨A, hA⟩
   simp_rw [condMutualInfo_def, entropy_def, Kernel.mutualInfo, Kernel.entropy,
-    integral_eq_setIntegral hA, integral_finset _ _ IntegrableOn.finset, smul_eq_mul, mul_sub, mul_add,
-    Finset.sum_sub_distrib, Finset.sum_add_distrib]
+    integral_eq_setIntegral hA, integral_finset _ _ IntegrableOn.finset, smul_eq_mul, mul_sub,
+    mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib]
   congr with x
   · have h := condDistrib_fst_ae_eq hX hY hZ μ
     rw [Filter.EventuallyEq, ae_iff_of_countable] at h
@@ -957,7 +955,7 @@ lemma condMutualInfo_eq' [Countable U]
   rw [condMutualInfo_eq hX hY hZ, cond_chain_rule _ hX hY hZ]
   ring
 
-/-- If `f(Z, X)` is injective for each fixed `Z`, then `I[f(Z, X) : Y| Z] = I[X : Y| Z]`.-/
+/-- If `f(Z, X)` is injective for each fixed `Z`, then `I[f(Z, X) : Y| Z] = I[X : Y| Z]`. -/
 lemma condMutualInfo_of_inj_map [Countable U] [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     {V : Type*} [MeasurableSpace V] [MeasurableSingletonClass V] [Countable V]
@@ -979,7 +977,9 @@ lemma condMutualInfo_of_inj [Countable U]
     {f : U → V} (hf : Function.Injective f) :
     I[X : Y | f ∘ Z; μ] = I[X : Y | Z; μ] := by
   have hfZ : Measurable (f ∘ Z) := by fun_prop
-  rw [condMutualInfo_eq hX hY hZ, condMutualInfo_eq hX hY hfZ, condEntropy_of_injective' _ hX hZ _ hf hfZ, condEntropy_of_injective' _ hY hZ _ hf hfZ, condEntropy_of_injective' _ (hX.prodMk hY) hZ _ hf hfZ]
+  rw [condMutualInfo_eq hX hY hZ, condMutualInfo_eq hX hY hfZ,
+    condEntropy_of_injective' _ hX hZ _ hf hfZ, condEntropy_of_injective' _ hY hZ _ hf hfZ,
+    condEntropy_of_injective' _ (hX.prodMk hY) hZ _ hf hfZ]
 
 
 lemma condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace Ω]
@@ -1044,41 +1044,38 @@ lemma condMutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y)
     rw [ae_iff_of_countable]
     intro z _hz
     exact mutualInfo_eq_zero hX hY
-  · dsimp
-    rw [Pi.le_def]
-    intro z; simp
+  · intro z
     by_cases hz : μ (Z ⁻¹' {z}) = 0
-    · have : μ[| Z ⁻¹' {z}] = 0 := cond_eq_zero_of_meas_eq_zero hz
-      simp [this]
-      rw [mutualInfo_def]
-      simp
-    exact mutualInfo_nonneg hX hY _
+    · simp [cond_eq_zero_of_meas_eq_zero hz, mutualInfo_def]
+    · exact mutualInfo_nonneg hX hY _
   · exact integrable_of_finiteSupport _
 
 variable (μ)
 variable [Countable S] [Countable T]
 
-/-- If `X, Y` are conditionally independent over `Z`, then `H[X, Y, Z] = H[X, Z] + H[Y, Z] - H[Z]`. -/
+/-- If `X, Y` are conditionally independent over `Z`, then `H[X, Y, Z] = H[X, Z] + H[Y, Z] - H[Z]`.
+-/
 lemma ent_of_cond_indep (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
      (h : CondIndepFun X Y Z μ) [IsZeroOrProbabilityMeasure μ]
      [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
      H[⟨X, ⟨Y, Z⟩⟩ ; μ] = H[⟨X, Z⟩; μ] + H[⟨Y, Z⟩; μ] - H[Z; μ] := by
   have hI : I[X : Y | Z ; μ] = 0 := (condMutualInfo_eq_zero hX hY).mpr h
   rw [condMutualInfo_eq hX hY hZ] at hI
-  rw [entropy_assoc hX hY hZ, chain_rule _ (hX.prodMk hY) hZ, chain_rule _ hX hZ, chain_rule _ hY hZ]
+  rw [entropy_assoc hX hY hZ, chain_rule _ (hX.prodMk hY) hZ, chain_rule _ hX hZ,
+    chain_rule _ hY hZ]
   linarith [hI]
 
 variable [IsZeroOrProbabilityMeasure μ]
 
 /-- `H[X] - H[X|Y] = I[X : Y]` -/
-lemma entropy_sub_condEntropy (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y] :
-    H[X ; μ] - H[X | Y ; μ] = I[X : Y ; μ] := by
+lemma entropy_sub_condEntropy (hX : Measurable X) (hY : Measurable Y) [FiniteRange X]
+    [FiniteRange Y] : H[X ; μ] - H[X | Y ; μ] = I[X : Y ; μ] := by
   rw [mutualInfo_def, chain_rule _ hX hY, add_comm, add_sub_add_left_eq_sub]
 
-/-- `H[X | Y] ≤ H[X]`.-/
-lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) [FiniteRange X] [FiniteRange Y] :
-    H[X | Y ; μ] ≤ H[X ; μ] :=
-  sub_nonneg.1 $ by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInfo_nonneg hX hY _
+/-- `H[X | Y] ≤ H[X]`. -/
+lemma condEntropy_le_entropy (hX : Measurable X) (hY : Measurable Y) [FiniteRange X]
+    [FiniteRange Y] : H[X | Y ; μ] ≤ H[X ; μ] :=
+  sub_nonneg.1 <| by rw [entropy_sub_condEntropy _ hX hY]; exact mutualInfo_nonneg hX hY _
 
 /-- `H[X | Y, Z] ≤ H[X | Z]`. -/
 lemma entropy_submodular (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
@@ -1101,7 +1098,7 @@ lemma condEntropy_comp_ge
     (hX : Measurable X) (hY : Measurable Y) (f : S → U) : H[Y | f ∘ X ; μ] ≥ H[Y | X; μ] := by
   have h_joint : H[⟨Y, ⟨X, f ∘ X⟩⟩ ; μ] = H[⟨Y, X⟩ ; μ] := by
     let g : T × S → T × S × U := fun (y, x) ↦ (y, (x, f x))
-    show H[g ∘ ⟨Y, X⟩ ; μ] = H[⟨Y, X⟩ ; μ]
+    change H[g ∘ ⟨Y, X⟩ ; μ] = H[⟨Y, X⟩ ; μ]
     refine entropy_comp_of_injective μ (by exact Measurable.prod hY hX) g (fun _ _ h => ?_)
     repeat rewrite [Prod.mk.injEq] at h
     exact Prod.ext h.1 h.2.1
@@ -1133,9 +1130,9 @@ namespace ProbabilityTheory
 universe uΩ uS uT uU uV uW
 
 variable {Ω : Type uΩ} {S : Type uS} {T : Type uT} {U : Type uU} {V : Type uV} {W : Type uW}
-  [mΩ : MeasurableSpace Ω]
+  [mΩ : MeasurableSpace Ω] [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U]
+  [MeasurableSpace V] [MeasurableSpace W]
   [Countable S] [Countable T] [Countable V] [Countable W]
-  [MeasurableSpace S] [MeasurableSpace T] [MeasurableSpace U] [MeasurableSpace V] [MeasurableSpace W]
   [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
   [MeasurableSingletonClass V] [MeasurableSingletonClass W]
   {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
@@ -1169,8 +1166,8 @@ lemma mutual_comp_comp_le [Countable U] (μ : Measure Ω) [IsProbabilityMeasure 
 /-- Let `X, Y, Z`. For any functions `f, g` on the ranges of `X, Y` respectively,
 we have `I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ]`. -/
 lemma condMutual_comp_comp_le (μ : Measure Ω) [IsProbabilityMeasure μ] (hX : Measurable X)
-  (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) (hg : Measurable g) [FiniteRange X]
-  [FiniteRange Y] [FiniteRange Z] :
+    (hY : Measurable Y) (hZ : Measurable Z) (f : S → V) (g : T → W) (hg : Measurable g)
+    [FiniteRange X] [FiniteRange Y] [FiniteRange Z] :
     I[f ∘ X : g ∘ Y | Z ; μ] ≤ I[X : Y | Z ; μ] := by
   rw [condMutualInfo_eq_sum hZ, condMutualInfo_eq_sum hZ]
   apply Finset.sum_le_sum

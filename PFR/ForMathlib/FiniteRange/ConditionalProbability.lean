@@ -24,3 +24,5 @@ lemma sum_meas_smul_cond_fiber' {X : Ω → α} (hX : Measurable X) [finX : Fini
       have : ⋃ x ∈ finX.toFinset, X ⁻¹' {x} ∩ E = E := by ext _; simp
       rw [← measure_biUnion_finset _ fun _ _ ↦ (hX (.singleton _)).inter hE, this]
       aesop (add simp [PairwiseDisjoint, Set.Pairwise, Function.onFun, disjoint_left])
+
+end ProbabilityTheory

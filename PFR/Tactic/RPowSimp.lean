@@ -312,3 +312,5 @@ macro "rpow_simp" loc:(location)? : tactic => `(tactic|
 example (a e b : ℝ) (_ : 0 < a) :
     ((a ^ (e / b)) ^ b) * b ^ e * a ^ (-b) = a ^ (e / b * b - b) * b ^ e := by
   rpow_simp
+
+end Mathlib.Tactic.RPowRing

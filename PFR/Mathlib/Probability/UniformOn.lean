@@ -9,7 +9,7 @@ variable {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSingletonClass Ω]
 
 lemma uniformOn_apply_singleton_of_mem (hx : x ∈ s) (hs : s.Finite) :
     uniformOn s {x} = 1 / Nat.card s := by
-  have : {x} ∩ s = {x} := by ext y; simp (config := {contextual := true}) [hx]
+  have : {x} ∩ s = {x} := by ext y; simp +contextual [hx]
   simp only [uniformOn, cond, Measure.smul_apply, MeasurableSet.singleton, Measure.restrict_apply,
     this, Measure.count_singleton', smul_eq_mul, mul_one, one_div, inv_inj]
   rw [Measure.count_apply_finite _ hs, Nat.card_eq_card_finite_toFinset hs]

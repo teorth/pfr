@@ -43,19 +43,19 @@ example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈
   homomorphism_pfr f S hS
 
 /-- The approximate homomorphism version of PFR -/
-example (f : G → G') (K : ℝ) (hK: K > 0)
+example (f : G → G') (K : ℝ) (hK : K > 0)
     (hf : Nat.card {x : G × G| f (x.1+x.2) = (f x.1) + (f x.2)} ≥ Nat.card G ^ 2 / K) :
     ∃ (φ : G →+ G') (c : G'),
       Nat.card {x : G | f x = φ x + c} ≥ (Nat.card G) / (2 ^ 144 * K ^ 122) :=
   approx_hom_pfr f K hK hf
 
-open Classical Real
+open Real
 
 variable {H : Type*} [AddCommGroup H] [Module.Free ℤ H] [Module.Finite ℤ H]
 
 /-- Weak PFR over the integers -/
 example (A : Set H) [Finite A] (h'A : A.Nonempty) (K : ℝ)
-    (hA : Nat.card (A-A) ≤ K * Nat.card A) :
+    (hA : Nat.card (A - A) ≤ K * Nat.card A) :
     ∃ A' : Set H, A' ⊆ A ∧ (Nat.card A') ≥ K ^ (-17 : ℝ) * (Nat.card A) ∧
     AffineSpace.finrank ℤ A' ≤ (40 / log 2) * log K :=
   weak_PFR_int h'A hA
@@ -108,11 +108,9 @@ open MeasureTheory ProbabilityTheory
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
-variable {S : Type*} [Fintype S] [Nonempty S][MeasurableSpace S] [MeasurableSingletonClass S]
-
+variable {S : Type*} [Fintype S] [Nonempty S] [MeasurableSpace S] [MeasurableSingletonClass S]
 variable {T : Type*} [Fintype T] [Nonempty T] [MeasurableSpace T] [MeasurableSingletonClass T]
-
-variable {U : Type*} [Fintype U] [Nonempty U][MeasurableSpace U] [MeasurableSingletonClass U]
+variable {U : Type*} [Fintype U] [Nonempty U] [MeasurableSpace U] [MeasurableSingletonClass U]
 
 variable (X : Ω → S) (hX : Measurable X) (Y : Ω → T) (hY : Measurable Y) (Z : Ω → U)
   (hZ : Measurable Z)
@@ -128,7 +126,6 @@ example : H[X] =
   simp at hx
 
 /-- $\langle X,Y \rangle$ is the random variable formed by pairing $X$ and $Y$. -/
-
 example (ω : Ω) : (⟨X, Y⟩) ω = (X ω, Y ω) := rfl
 
 /-- $H[X|Y]$ is the conditional entropy of $X$ relative to $Y$. -/
@@ -157,7 +154,7 @@ open MeasureTheory ProbabilityTheory
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
-variable {G : Type*} [hG: MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
+variable {G : Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G]
   [MeasurableSub₂ G] [MeasurableAdd₂ G] [Fintype G]
 
 variable (X : Ω → G) (hX : Measurable X) (Y : Ω → G) (hY : Measurable Y) (Z : Ω → G)
@@ -166,7 +163,7 @@ variable (X : Ω → G) (hX : Measurable X) (Y : Ω → G) (hY : Measurable Y) (
 /-- `d[X # Y]` is the Ruzsa distance when `X`, `Y` are independent. -/
 example (h : IndepFun X Y) : d[X # Y] = H[X-Y] - H[X]/2 - H[Y]/2 := h.rdist_eq hX hY
 
-/-- `d[X # Y]` depends only on the distribution of `X` and `Y`.-/
+/-- `d[X # Y]` depends only on the distribution of `X` and `Y`. -/
 example (h1 : IdentDistrib X X') (h2 : IdentDistrib Y Y') : d[X # Y] = d[X' # Y'] :=
   h1.rdist_congr h2
 

@@ -14,9 +14,10 @@ Definition of the tau functional and basic facts
 ## Main results
 
 * `tau_minimizer_exists`: A pair of random variables minimizing $\tau$ exists.
-* `condRuzsaDistance_ge_of_min`: If $X_1,X_2$ is a tau-minimizer with $k = d[X_1;X_2]$, then $d[X'_1|Z, X'_2|W]$ is at least
-$$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] )$$
-for any $X'_1, Z, X'_2, W$.
+* `condRuzsaDistance_ge_of_min`: If $X_1,X_2$ is a tau-minimizer with $k = d[X_1;X_2]$,
+  then $d[X'_1|Z, X'_2|W]$ is at least
+  $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] )$$
+  for any $X'_1, Z, X'_2, W$.
 -/
 
 open MeasureTheory ProbabilityTheory
@@ -24,7 +25,7 @@ universe uG
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-  variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
+variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
 
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
@@ -68,7 +69,8 @@ noncomputable def tau {Ω₁ Ω₂ : Type*} [MeasurableSpace Ω₁] [MeasurableS
 notation3:max "τ[" X₁ " ; " μ₁ " # " X₂ " ; " μ₂ " | " p"]" => tau p X₁ X₂ μ₁ μ₂
 
 @[inherit_doc tau]
-notation3:max "τ[" X₁ " # " X₂ " | " p"]" => tau p X₁ X₂ MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
+notation3:max "τ[" X₁ " # " X₂ " | " p"]" =>
+  tau p X₁ X₂ MeasureTheory.MeasureSpace.volume MeasureTheory.MeasureSpace.volume
 
 lemma continuous_tau_restrict_probabilityMeasure
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
@@ -190,7 +192,7 @@ omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ 
 /-- Version of `distance_ge_of_min` with the measures made explicit. -/
 lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂)
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X₁': Ω'₁ → G} {X₂': Ω'₂ → G}
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X₁' : Ω'₁ → G} {X₂' : Ω'₂ → G}
     (h1 : Measurable X₁') (h2 : Measurable X₂') :
     d[X₁ # X₂] - p.η * (d[p.X₀₁; ℙ # X₁'; μ] - d[p.X₀₁ # X₁])
       - p.η * (d[p.X₀₂; ℙ # X₂'; μ'] - d[p.X₀₂ # X₂]) ≤ d[X₁'; μ # X₂'; μ'] := by

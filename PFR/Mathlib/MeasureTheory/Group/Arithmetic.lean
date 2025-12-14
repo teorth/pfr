@@ -3,6 +3,7 @@ import Mathlib.MeasureTheory.Group.Arithmetic
 variable {ι α β M : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mM : MeasurableSpace M} [CommMonoid M] [MeasurableMul₂ M]
 
+set_option linter.flexible false in
 -- TODO: Replace `Finset.measurable_prod'`
 /-- Compositional version of `Finset.measurable_prod` for use by `fun_prop`. -/
 @[to_additive (attr := measurability, fun_prop)

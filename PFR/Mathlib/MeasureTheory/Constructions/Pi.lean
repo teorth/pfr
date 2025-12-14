@@ -34,3 +34,5 @@ lemma pi_eval_preimage (i : ι) (s : Set (α i)) :
 lemma map_eval_pi (i : ι) : Measure.map (eval i) (Measure.pi μ) = μ i := by
   ext s hs
   simp_rw [Measure.map_apply (measurable_pi_apply i) hs, pi_eval_preimage]
+
+end MeasureTheory.Measure

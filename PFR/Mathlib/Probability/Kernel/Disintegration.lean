@@ -689,7 +689,9 @@ lemma local_support_of_finiteKernelSupport
   intro t ht
   set B := (h t).choose
   refine measure_mono_null ?_ (h t).choose_spec
-  intro s; simp
+  intro s
+  simp only [Finset.coe_biUnion, SetLike.mem_coe, Set.compl_iUnion, Set.mem_iInter,
+    Set.mem_compl_iff]
   contrapose!; intro h
   use t
 
@@ -699,7 +701,7 @@ lemma finiteKernelSupport_of_finite_range [Fintype S] (κ : Kernel T S) : Finite
   use Finset.univ
   simp
 
-/-- Deterministic kernels have finite kernel support.-/
+/-- Deterministic kernels have finite kernel support. -/
 lemma FiniteKernelSupport.deterministic [Countable S] [Countable T]
     [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
     (f : T × S → U) :
@@ -720,7 +722,10 @@ lemma FiniteKernelSupport.map [MeasurableSingletonClass U]
     use Finset.image f A
     rw [Kernel.map_apply' _ hf]
     · refine measure_mono_null ?_ hA
-      intro s; simp; contrapose!; intro hs; use s
+      intro s
+      simp only [Finset.coe_image, Set.preimage_compl, Set.mem_compl_iff, Set.mem_preimage,
+        Set.mem_image, SetLike.mem_coe, not_exists, not_and]
+      contrapose!; intro hs; use s
     · apply MeasurableSet.compl
       apply Set.Finite.measurableSet
       exact Finset.finite_toSet (Finset.image f A)
@@ -735,7 +740,10 @@ lemma AEFiniteKernelSupport.map [MeasurableSingletonClass U] {κ : Kernel T S} {
     use Finset.image f A
     rw [Kernel.map_apply' _ hf]
     · refine measure_mono_null ?_ hA
-      intro s; simp; contrapose!; intro hs; use s
+      intro s
+      simp only [Finset.coe_image, Set.preimage_compl, Set.mem_compl_iff, Set.mem_preimage,
+        Set.mem_image, SetLike.mem_coe, not_exists, not_and]
+      contrapose!; intro hs; use s
     · apply MeasurableSet.compl
       apply Set.Finite.measurableSet
       exact Finset.finite_toSet (Finset.image f A)
@@ -797,7 +805,7 @@ lemma aefiniteKernelSupport_of_cond {κ : Kernel T (S × U)} [hU : Nonempty U]
     AEFiniteKernelSupport (condKernel κ) (μ ⊗ₘ (Kernel.fst κ)) := by
   rw [AEFiniteKernelSupport, ae_iff_of_countable] at hκ ⊢
   intro (t, s) hts
-  simp [Measure.compProd_apply_singleton, ne_eq, mul_eq_zero] at hts
+  simp only [compProd_apply_singleton, ne_eq, mul_eq_zero, not_or] at hts
   push_neg at hts
   rcases hκ t hts.2 with ⟨A, hA⟩
   classical
@@ -872,7 +880,7 @@ lemma FiniteKernelSupport.compProd [MeasurableSingletonClass S] [MeasurableSingl
     setLIntegral_eq_sum]
   apply Finset.sum_eq_zero
   intro s hs
-  simp
+  simp only [Finset.coe_product, Set.preimage_compl, mul_eq_zero]
   right
   refine measure_mono_null ?_ (hB (t, s) (by simp [hs]))
   intro u; simp; tauto

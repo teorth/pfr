@@ -16,16 +16,13 @@ theorem exists_equiv_fst_sndModFst (E : Submodule R (B × F)) :
   let π₁ := LinearMap.fst R B F
   let f₁ := π₁.submoduleMap E
   have f₁_surj := range_eq_top.mpr (π₁.submoduleMap_surjective E)
-
   obtain ⟨φ', hφ'⟩ := f₁.exists_rightInverse_of_surjective f₁_surj
   obtain ⟨φ, rfl⟩ := φ'.exists_extend
   let φ' := φ ∘ₗ Submodule.subtype (map π₁ E)
-
   let p₂ := (LinearMap.snd R B F).domRestrict E
   let f₂'' := LinearMap.id - φ'.comp f₁
   let f₂' := p₂.comp f₂''
   let f₂ := f₂'.rangeRestrict
-
   have h_compl : IsCompl (ker f₁) (ker f₂) := by
     refine .of_eq ?_ ?_
     · by_contra hc
@@ -34,7 +31,7 @@ theorem exists_equiv_fst_sndModFst (E : Submodule R (B × F)) :
       have h_zero₁ : x.val.1 = 0 := Subtype.ext_iff.mp h_ker.left
       have h_zero₂ : x.val.2 = 0 := calc
         x.val.2 = (f₂'' x).val.2 := by
-          show _ = (x - φ' (f₁ x)).val.2
+          change _ = (x - φ' (f₁ x)).val.2
           rw [mem_ker.mp h_ker.left, φ'.map_zero, sub_zero]
         _ = 0 := (mk_eq_zero _ _).mp h_ker.right
       exact h_nezero (Subtype.ext (Prod.ext h_zero₁ h_zero₂))
@@ -43,12 +40,11 @@ theorem exists_equiv_fst_sndModFst (E : Submodule R (B × F)) :
       apply mem_sup'.mpr
       have : φ x.val.1 = φ' (f₁ x) := rfl
       refine ⟨⟨f₂'' x, ?_⟩, ⟨φ x.val.1, ?_⟩, sub_add_cancel x (φ x.val.1)⟩
-      · show f₁ x - (f₁.comp φ') (f₁ x) = 0
+      · change f₁ x - (f₁.comp φ') (f₁ x) = 0
         rw [hφ']; exact sub_self (f₁ x)
       · rewrite [ker_rangeRestrict]
-        show p₂ (φ x.val.1 - φ' (f₁ (φ x.val.1))) = 0
+        change p₂ (φ x.val.1 - φ' (f₁ (φ x.val.1))) = 0
         rw [this, ← f₁.comp_apply φ', hφ', LinearMap.id_apply, sub_self, p₂.map_zero]
-
   let f := equivProdOfSurjectiveOfIsCompl f₁ f₂ f₁_surj f₂'.range_rangeRestrict h_compl
   refine ⟨E.map π₁, range f₂', f, p₂.comp φ, fun _ ↦ ⟨rfl, rfl⟩, fun x₁ x₂ ↦ ?_⟩
   let x : E := f.symm (x₁, x₂)
@@ -56,7 +52,7 @@ theorem exists_equiv_fst_sndModFst (E : Submodule R (B × F)) :
   have : (f₂ x).val = x.val.2 - p₂ (φ x.val.1) := rfl
   have : x₂.val + p₂ (φ x.val.1) = x.val.2 :=
     eq_sub_iff_add_eq.mp (Eq.trans (Subtype.ext_iff.mp hf.right).symm this)
-  show x.val = _
+  change x.val = _
   rw [← hf.left]
   exact (Prod.mk.injEq ..).mpr ⟨rfl (a := x.val.1), this.symm⟩
 

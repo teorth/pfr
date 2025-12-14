@@ -115,3 +115,5 @@ lemma pair_last_of_three
   intro i
   match i with
   | 0 | 1 => fun_prop
+
+end ProbabilityTheory.iIndepFun

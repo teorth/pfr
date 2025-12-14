@@ -344,7 +344,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
       simp only [ne_eq, Finset.mem_filter, Finset.mem_univ, true_and,
         Decidable.not_not] at h'g
       simp [h'g]
-    . exact Finset.filter_subset _ _
+    · exact Finset.filter_subset _ _
    _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},
         (μ'.toMeasure.real {g} + δ) * log (m.real {g}) := by
     apply sub_le_sub le_rfl
@@ -388,7 +388,8 @@ lemma rhoMinus_continuous [TopologicalSpace G] [DiscreteTopology G] (hA : A.None
   filter_upwards [rhoMinus_continuous_aux3 hA this (μ := μ)] with μ' hμ'
   linarith
 
-/-- For any $G$-valued random variable $X$, we define $\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$. -/
+/-- For any $G$-valued random variable $X$, we define
+$\rho^+(X) := \rho^-(X) + \bbH(X) - \bbH(U_A)$. -/
 noncomputable def rhoPlus (X : Ω → G) (A : Finset G) (μ : Measure Ω) : ℝ :=
   ρ⁻[X ; μ # A] + H[ X ; μ ] - log (Nat.card A)
 
@@ -569,8 +570,8 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     specialize h (t + v)
     simp only [Finset.mem_univ, measure_univ, one_smul,
       uniformOn_apply_singleton_of_mem (by exact ha) A.finite_toSet, Finset.coe_sort_coe,
-      Nat.card_eq_fintype_card, Fintype.card_coe, one_div, μ'_sing, mul_eq_zero, ENNReal.inv_eq_zero,
-      ENNReal.natCast_ne_top, false_or, true_implies] at h
+      Nat.card_eq_fintype_card, Fintype.card_coe, one_div, μ'_sing, mul_eq_zero,
+      ENNReal.inv_eq_zero, ENNReal.natCast_ne_top, false_or, true_implies] at h
     rw [uniformOn_apply_singleton_of_mem _ (toFinite (H : Set G))] at h
     · simp at h
     · convert (H.sub_mem yH vH) using 1
@@ -638,7 +639,7 @@ lemma rhoPlus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup G}
   abel
 
 /-- We define $\rho(X) := (\rho^+(X) + \rho^-(X))/2$. -/
-noncomputable def rho (X : Ω → G) (A : Finset G) (μ : Measure Ω ) : ℝ :=
+noncomputable def rho (X : Ω → G) (A : Finset G) (μ : Measure Ω) : ℝ :=
   (ρ⁻[X ; μ # A] + ρ⁺[X ; μ # A]) / 2
 
 @[inherit_doc rho] notation3:max "ρ[" X " ; " μ " # " A "]" => rho X A μ
@@ -816,8 +817,7 @@ lemma rhoPlus_of_sum [IsZeroOrProbabilityMeasure μ]
   linarith
 
 /-- If $X,Y$ are independent, one has
-  $$ \rho(X+Y) \leq \rho(X) + \frac{1}{2}( \bbH[X+Y] - \bbH[X] ).$$
-  -/
+$$\rho(X+Y) \leq \rho(X) + \frac{1}{2}( \bbH[X+Y] - \bbH[X]).$$ -/
 lemma rho_of_sum [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (h_indep : IndepFun X Y μ) :
     ρ[X + Y ; μ # A] ≤ ρ[X ; μ # A] + (H[X+Y ; μ] - H[X ; μ])/2 := by
@@ -843,15 +843,15 @@ lemma rho_of_translate [IsZeroOrProbabilityMeasure μ]
 -- This may not be the optimal spelling for condRho, feel free to improve
 /-- We define $\rho(X|Y) := \sum_y {\bf P}(Y=y) \rho(X|Y=y)$. -/
 noncomputable def condRho {S : Type*}
-    (X : Ω → G) (Y : Ω → S) (A : Finset G) (μ : Measure Ω): ℝ :=
+    (X : Ω → G) (Y : Ω → S) (A : Finset G) (μ : Measure Ω) : ℝ :=
   ∑' s, μ.real (Y ⁻¹' {s}) * ρ[X ; μ[|Y ← s] # A]
 
-/-- Average of rhoMinus along the fibers-/
+/-- Average of rhoMinus along the fibers. -/
 noncomputable def condRhoMinus {S : Type*}
     (X : Ω → G) (Y : Ω → S) (A : Finset G) (μ : Measure Ω) : ℝ :=
   ∑' s, μ.real (Y ⁻¹' {s}) * ρ⁻[X ; μ[|Y ← s] # A]
 
-/-- Average of rhoPlus along the fibers-/
+/-- Average of rhoPlus along the fibers. -/
 noncomputable def condRhoPlus {S : Type*}
     (X : Ω → G) (Y : Ω → S) (A : Finset G) (μ : Measure Ω) : ℝ :=
   ∑' s, μ.real (Y ⁻¹' {s}) * ρ⁺[X ; μ[|Y ← s] # A]
@@ -970,7 +970,7 @@ lemma condRho_eq {S : Type*} [Fintype S] {Z : Ω → S} :
     Finset.sum_add_distrib, ← tsum_fintype (L := SummationFilter.unconditional _)]
   rfl
 
-/-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z] )$$ -/
+/-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z])$$ -/
 lemma condRho_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     [Fintype S] [MeasurableSingletonClass S]
     {Z : Ω → S} (hX : Measurable X) (hZ : Measurable Z) (hA : A.Nonempty) :
@@ -1004,7 +1004,7 @@ lemma condRho_prod_eq_sum [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace
     rw [A, cond_cond_eq_cond_inter' (hT (.singleton _)) (hZ (.singleton _)), Set.inter_comm]
     finiteness
 
-/-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z] )$$, conditional version -/
+/-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z])$$, conditional version -/
 lemma condRho_prod_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     [Fintype S] [MeasurableSingletonClass S]
     {Z T : Ω → S} (hX : Measurable X) (hZ : Measurable Z) (hT : Measurable T) (hA : A.Nonempty) :
@@ -1046,12 +1046,12 @@ lemma condRho_prod_eq_of_indepFun [IsProbabilityMeasure μ]
 variable [Module (ZMod 2) G]
 
 /-- If $X,Y$ are independent, then
-  $$ \rho(X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$
- -/
+  $$ \rho(X+Y) \leq \frac{1}{2}(\rho(X)+\rho(Y) + d[X;Y]).$$ -/
 lemma rho_of_sum_le [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hA : A.Nonempty) (h_indep : IndepFun X Y μ) :
     ρ[X + Y ; μ # A] ≤ (ρ[X ; μ # A] + ρ[Y ; μ # A] + d[ X ; μ # Y ; μ]) / 2 := by
-  have I : ρ[X + Y ; μ # A] ≤ ρ[X ; μ # A] + (H[X+Y ; μ] - H[X ; μ])/2 := rho_of_sum hX hY hA h_indep
+  have I : ρ[X + Y ; μ # A] ≤ ρ[X ; μ # A] + (H[X+Y ; μ] - H[X ; μ])/2 :=
+    rho_of_sum hX hY hA h_indep
   have J : ρ[Y + X ; μ # A] ≤ ρ[Y ; μ # A] + (H[Y+X ; μ] - H[Y ; μ ])/2 :=
     rho_of_sum hY hX hA h_indep.symm
   have : Y + X = X + Y := by abel
@@ -1117,7 +1117,7 @@ noncomputable def phi {Ω : Type*} [MeasurableSpace Ω]
 /-- Given $G$-valued random variables $X,Y$, define
 $$ \phi[X;Y] := d[X;Y] + \eta(\rho(X) + \rho(Y))$$
 and define a \emph{$\phi$-minimizer} to be a pair of random variables $X,Y$ which
-minimizes $\phi[X;Y]$.-/
+minimizes $\phi[X;Y]$. -/
 def phiMinimizes {Ω : Type*} [MeasurableSpace Ω] (X Y : Ω → G) (η : ℝ) (A : Finset G)
     (μ : Measure Ω) : Prop :=
   ∀ (Ω' : Type uG) (_ : MeasureSpace Ω') (X' Y' : Ω' → G),
@@ -1253,7 +1253,8 @@ lemma condRho_le_condRuzsaDist_of_phiMinimizes {S T : Type*}
   intro z _
   rw [condRho, tsum_fintype, hw ρ[X₂ # A],
     hw ( (Measure.real ℙ (Z ⁻¹' {z})) * k -
-    η * ((Measure.real ℙ (Z ⁻¹' {z})) * ρ[X₁' ; ℙ[|Z ⁻¹' {z}] # A] - (Measure.real ℙ (Z ⁻¹' {z})) * ρ[X₁ # A])),
+    η * ((Measure.real ℙ (Z ⁻¹' {z})) * ρ[X₁' ; ℙ[|Z ⁻¹' {z}] # A]
+      - (Measure.real ℙ (Z ⁻¹' {z})) * ρ[X₁ # A])),
     ← Finset.sum_sub_distrib, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_le_sum
   intro w _
@@ -1437,7 +1438,8 @@ End Game
 include h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- If $G$-valued random variables $T_1,T_2,T_3$ satisfy $T_1+T_2+T_3=0$, then
-  $$d[X_1;X_2]\le 3\bbI[T_1:T_2\mid T_3] + (2\bbH[T_3]-\bbH[T_1]-\bbH[T_2])+ \eta(\rho(T_1|T_3)+\rho(T_2|T_3)-\rho(X_1)-\rho(X_2)).$$ -/
+$$d[X_1;X_2]\le 3\bbI[T_1:T_2\mid T_3] + (2\bbH[T_3]-\bbH[T_1]-\bbH[T_2])
+  + \eta(\rho(T_1|T_3)+\rho(T_2|T_3)-\rho(X_1)-\rho(X_2)).$$ -/
 lemma dist_le_of_sum_zero {Ω' : Type*} [MeasurableSpace Ω'] {μ : Measure Ω'}
     [IsProbabilityMeasure μ] {T₁ T₂ T₃ : Ω' → G}
     (hsum : T₁ + T₂ + T₃ = 0) (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃) :
@@ -1477,7 +1479,8 @@ lemma dist_le_of_sum_zero {Ω' : Type*} [MeasurableSpace Ω'] {μ : Measure Ω'}
 include h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- If $G$-valued random variables $T_1,T_2,T_3$ satisfy $T_1+T_2+T_3=0$, then
-  $$d[X_1;X_2]\le 3\bbI[T_1:T_2\mid T_3] + (2\bbH[T_3]-\bbH[T_1]-\bbH[T_2])+ \eta(\rho(T_1|T_3)+\rho(T_2|T_3)-\rho(X_1)-\rho(X_2)).$$ -/
+$$d[X_1;X_2]\le 3\bbI[T_1:T_2\mid T_3] + (2\bbH[T_3]-\bbH[T_1]-\bbH[T_2])+ \eta(\rho(T_1|T_3)
+  +\rho(T_2|T_3)-\rho(X_1)-\rho(X_2)).$$ -/
 lemma dist_le_of_sum_zero_cond {Ω' : Type*} [MeasureSpace Ω']
     [IsProbabilityMeasure (ℙ : Measure Ω')] {T₁ T₂ T₃ S : Ω' → G}
     (hsum : T₁ + T₂ + T₃ = 0) (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃)
@@ -1598,8 +1601,8 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
       exact condRho_of_injective T₁ (⟨T₂, T₂'⟩) (f := e) (A := A) e.injective
   _ = ∑ w, (Measure.real ℙ (⟨T₂, T₂'⟩ ⁻¹' {w})) * ρ[Y₁ + Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A] := by
     rw [condRho, tsum_fintype]
-  _ ≤ ∑ w, (Measure.real ℙ (⟨T₂, T₂'⟩ ⁻¹' {w})) * ((ρ[Y₁ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A]
-      + ρ[Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A] + d[Y₁ ; ℙ[|⟨T₂, T₂'⟩ ← w] # Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w]]) / 2) := by
+  _ ≤ ∑ w, (Measure.real ℙ (⟨T₂, T₂'⟩ ⁻¹' {w})) * ((ρ[Y₁ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A] +
+      ρ[Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w] # A] + d[Y₁ ; ℙ[|⟨T₂, T₂'⟩ ← w] # Y₂ ; ℙ[|⟨T₂, T₂'⟩ ← w]]) / 2) := by
     gcongr with w hw
     have : IndepFun Y₁ Y₂ (ℙ[|⟨T₂, T₂'⟩ ⁻¹' {w}]) := by
       have E : (⟨Y₁, Y₃⟩)⁻¹' {p | p.1 + p.2 = w.1} ∩ (⟨Y₂, Y₄⟩)⁻¹' {p | p.1 + p.2 = w.2}
@@ -1630,7 +1633,8 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     congr 1
     have A : IdentDistrib Y₁ Y₁ (ℙ[|(Y₁ + Y₃) ⁻¹' {x} ∩ (Y₂ + Y₄) ⁻¹' {y}])
         (ℙ[|(Y₁ + Y₃) ⁻¹' {x}]) := by
-      rw [← cond_cond_eq_cond_inter']
+      rw [← cond_cond_eq_cond_inter' (by exact hY₁.add hY₃ (.singleton _))
+        (by exact hY₂.add hY₄ (.singleton _)) (by finiteness)]
       have : IsProbabilityMeasure (ℙ[|(Y₁ + Y₃) ⁻¹' {x}]) := cond_isProbabilityMeasure_of_real h1
       apply (IndepFun.identDistrib_cond _ (.singleton _) hY₁ (by fun_prop) _).symm
       · have : IndepFun (⟨Y₁, Y₃⟩) (⟨Y₂, Y₄⟩) (ℙ[|(⟨Y₁, Y₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
@@ -1640,25 +1644,18 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
         · simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
           simp [h1, h2]
         · exact hY₁.add hY₃ (.singleton _)
-      · exact hY₁.add hY₃ (.singleton _)
-      · exact hY₂.add hY₄ (.singleton _)
-      · finiteness
-    have B : IdentDistrib Y₂ Y₂ (ℙ[|(Y₁ + Y₃) ⁻¹' {x} ∩ (Y₂ + Y₄) ⁻¹' {y}])
-        (ℙ[|(Y₂ + Y₄) ⁻¹' {y}]) := by
-      rw [Set.inter_comm, ← cond_cond_eq_cond_inter']
-      have : IsProbabilityMeasure (ℙ[|(Y₂ + Y₄) ⁻¹' {y}]) := cond_isProbabilityMeasure_of_real h2
-      apply (IndepFun.identDistrib_cond _ (.singleton _) hY₂ (hY₁.add hY₃) _).symm
-      · have : IndepFun (⟨Y₂, Y₄⟩) (⟨Y₁, Y₃⟩) (ℙ[|(⟨Y₂, Y₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
-          I.symm.cond_left (measurable_add (.singleton y)) (hY₂.prodMk hY₄)
-        exact this.comp measurable_fst measurable_add
-      · rw [Pi.add_def, cond_apply (hY₂.add hY₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
-          J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
-        simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
-        simp [h1, h2]
-      · exact hY₂.add hY₄ (.singleton _)
-      · exact hY₁.add hY₃ (.singleton _)
-      · finiteness
-    exact A.rdist_congr B
+    refine A.rdist_congr ?_
+    rw [Set.inter_comm, ← cond_cond_eq_cond_inter' (by exact hY₂.add hY₄ (.singleton _))
+      (by exact hY₁.add hY₃ (.singleton _)) (by finiteness)]
+    have : IsProbabilityMeasure (ℙ[|(Y₂ + Y₄) ⁻¹' {y}]) := cond_isProbabilityMeasure_of_real h2
+    apply (IndepFun.identDistrib_cond _ (.singleton _) hY₂ (hY₁.add hY₃) _).symm
+    · have : IndepFun (⟨Y₂, Y₄⟩) (⟨Y₁, Y₃⟩) (ℙ[|(⟨Y₂, Y₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
+        I.symm.cond_left (measurable_add (.singleton y)) (hY₂.prodMk hY₄)
+      exact this.comp measurable_fst measurable_add
+    · rw [Pi.add_def, cond_apply (hY₂.add hY₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
+        J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
+      simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
+      simp [h1, h2]
   _ = (ρ[Y₁ | T₂ # A] + ρ[Y₂ | T₂' # A] + d[Y₁ | T₂ # Y₂ | T₂']) / 2 := by
     congr 3
     · apply condRho_prod_eq_of_indepFun hY₁ (by fun_prop) (by fun_prop)
@@ -1773,7 +1770,7 @@ lemma condRho_sum_le' {Y₁ Y₂ Y₃ Y₄ : Ω → G}
 
 include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min hη in
 /-- If $X_1, X_2$ is a $\phi$-minimizer, then $d[X_1;X_2] = 0$. -/
-lemma dist_of_min_eq_zero' (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] = 0 := by
+lemma dist_of_min_eq_zero' (hA : A.Nonempty) (hη' : η < 1 / 8) : d[X₁ # X₂] = 0 := by
   let T₁ := X₁ + X₂
   let T₂ := X₁ + X₁'
   let T₃ := X₁' + X₂
@@ -1838,7 +1835,7 @@ lemma dist_of_min_eq_zero' (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] 
   exact le_antisymm this (rdist_nonneg hX₁ hX₂)
 
 include hX₁ hX₂ h_min hη in
-theorem dist_of_min_eq_zero (hA : A.Nonempty) (hη' : η < 1/8) : d[X₁ # X₂] = 0 := by
+theorem dist_of_min_eq_zero (hA : A.Nonempty) (hη' : η < 1 / 8) : d[X₁ # X₂] = 0 := by
   let ⟨Ω', m', μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
   rw [← h_id1.rdist_congr h_id2]
@@ -1909,7 +1906,7 @@ end phiMinimizer
 
 section PFR
 
-variable {G : Type uG} [AddCommGroup G] [Fintype G]  [Module (ZMod 2) G]
+variable {G : Type uG} [AddCommGroup G] [Fintype G] [Module (ZMod 2) G]
 {Ω : Type uG} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {A : Finset G}
 
 /-- For any random variables $Y_1,Y_2$, there exist a subgroup $H$ such that
@@ -1958,18 +1955,17 @@ $|A \cap (H+t)| \geq K^{-4} \sqrt{|A||V|}$, and $|H|/|A|\in[K^{-8},K^8]$. -/
 lemma better_PFR_conjecture_aux0 {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (t : G),
-    K ^ (-4 : ℤ) * Nat.card A ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (1 / 2 : ℝ) ≤ Nat.card ↑(A ∩ (H + {t})) ∧
+      K ^ (-4 : ℤ) * Nat.card A ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (1 / 2 : ℝ)
+        ≤ Nat.card ↑(A ∩ (H + {t})) ∧
       Nat.card A ≤ K ^ 8 * (H : Set G).ncard ∧ (H : Set G).ncard ≤ K ^ 8 * Nat.card A := by
   have A_fin : Finite A := by infer_instance
   classical
   let mG : MeasurableSpace G := ⊤
-  have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
+  have : MeasurableSingletonClass G := ⟨fun _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' (Set.toFinite _) h₀A hA
   let A' := A.toFinite.toFinset
-  have h₀A' : Finset.Nonempty A' := by
-    simp [A', Finset.Nonempty]
-    exact h₀A
+  have h₀A' : Finset.Nonempty A' := by simpa [A', Finset.Nonempty]
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   rw [hAA'] at UAunif
@@ -2009,8 +2005,9 @@ the same cardinality as $A$ up to a multiplicative factor $K^8$. -/
 lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-    Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * ((H : Set G).ncard : ℝ) ^ (-1 / 2 : ℝ)
-      ∧ (H : Set G).ncard ≤ K ^ 8 * Nat.card A ∧ Nat.card A ≤ K ^ 8 * (H : Set G).ncard ∧ A ⊆ c + H := by
+      Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * ((H : Set G).ncard : ℝ) ^ (-1 / 2 : ℝ)
+      ∧ (H : Set G).ncard ≤ K ^ 8 * Nat.card A
+      ∧ Nat.card A ≤ K ^ 8 * (H : Set G).ncard ∧ A ⊆ c + H := by
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' (Set.toFinite _) h₀A hA
   rcases better_PFR_conjecture_aux0 h₀A hA with ⟨H, x₀, J, IAH, IHA⟩
@@ -2043,9 +2040,7 @@ lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
   obtain ⟨u, huA, hucard, hAu, -⟩ :=
     Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
-    refine hAu.trans $ add_subset_add_left $
-      (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
-    rw [add_sub_add_comm, singleton_sub_singleton, _root_.sub_self]
+    grw [hAu, inter_subset_right, add_sub_add_comm, singleton_sub_singleton, _root_.sub_self]
     simp
   exact ⟨H, u, hucard, IHA, IAH, A_subset_uH⟩
 
@@ -2140,3 +2135,5 @@ theorem better_PFR_conjecture' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
   · simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA']
   · erw [← image_add]
     exact ⟨⟨x, Submodule.subset_span hx⟩, hH'₂ hx, rfl⟩
+
+end PFR

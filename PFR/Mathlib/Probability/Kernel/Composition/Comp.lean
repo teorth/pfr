@@ -200,3 +200,4 @@ lemma AEFiniteKernelSupport.reverse
   apply hκ.map
 
 end
+end ProbabilityTheory.Kernel

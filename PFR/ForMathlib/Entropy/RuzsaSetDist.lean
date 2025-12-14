@@ -7,7 +7,9 @@ namespace ProbabilityTheory
 variable {G : Type*} [Countable G] [MeasurableSpace G] [MeasurableSingletonClass G]
   [AddCommGroup G]
 
-/-- The Ruzsa distance between two subsets `A`, `B` of a group `G` is defined to be the Ruzsa distance between their uniform probability distributions. Is only intended for use when `A`, `B` are finite and non-empty. -/
+/-- The Ruzsa distance between two subsets `A`, `B` of a group `G` is defined to be the Ruzsa
+distance between their uniform probability distributions. Is only intended for use when `A`, `B` are
+finite and non-empty. -/
 noncomputable def setRuzsaDist (A B : Set G) : ℝ := Kernel.rdistm (uniformOn A) (uniformOn B)
 
 @[inherit_doc setRuzsaDist]
@@ -18,7 +20,7 @@ lemma setRuzsaDist_eq_rdist {A B : Set G} [Finite A] [Finite B]
     {Ω Ω' : Type*} [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω']
     {μ : Measure Ω} {μ' : Measure Ω'}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
-    {UA: Ω → G} {UB: Ω' → G} (hUA : IsUniform A UA μ) (hUB : IsUniform B UB μ')
+    {UA : Ω → G} {UB : Ω' → G} (hUA : IsUniform A UA μ) (hUB : IsUniform B UB μ')
     (hUA_mes : Measurable UA) (hUB_mes : Measurable UB) :
     dᵤ[A # B] = d[UA ; μ # UB ; μ'] := by
   rw [rdist_eq_rdistm, setRuzsaDist, (isUniform_iff_map_eq_uniformOn μ hUA_mes).mp hUA,
@@ -35,7 +37,7 @@ lemma setRuzsaDist_nonneg (A B : Set G) [hA : Finite A] [hB : Finite B] [Nonempt
   exact rdist_nonneg hUA_mes hUB_mes
 
 /-- Ruzsa distance between sets is symmetric. -/
-lemma setRuzsaDist_symm (A B: Set G) [hA : Finite A] [hB : Finite B] [Nonempty A] [Nonempty B] :
+lemma setRuzsaDist_symm (A B : Set G) [hA : Finite A] [hB : Finite B] [Nonempty A] [Nonempty B] :
     dᵤ[A # B] = dᵤ[B # A] := by
   obtain ⟨Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, -⟩ :=
     exists_isUniform_measureSpace' A hA .of_subtype
@@ -60,13 +62,14 @@ lemma setRuzsaDist_triangle (A B C : Set G) [hA : Finite A] [hB : Finite B] [hC 
   exact rdist_triangle hUA_mes hUB_mes hUC_mes
 
 /-- Ruzsa distance between sets is translation invariant. -/
-lemma setRuzsaDist_add_const (A B: Set G) [hA : Finite A] [hB : Finite B] [Nonempty A] [Nonempty B]
+lemma setRuzsaDist_add_const (A B : Set G) [hA : Finite A] [hB : Finite B] [Nonempty A] [Nonempty B]
     (c c' : G) : dᵤ[A + {c} # B + {c'}] = dᵤ[A # B] := by
   obtain ⟨Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, hUA_fin ⟩ :=
     exists_isUniform_measureSpace' A hA .of_subtype
   obtain ⟨Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, -, hUB_fin ⟩ :=
     exists_isUniform_measureSpace' B hB .of_subtype
-  rw [setRuzsaDist_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes, ← rdist_add_const' c c' hUA_mes hUB_mes]
+  rw [setRuzsaDist_eq_rdist hUA_unif hUB_unif hUA_mes hUB_mes,
+    ← rdist_add_const' c c' hUA_mes hUB_mes]
   classical
   have : Finite (A + ({c} : Set G)) := Set.Finite.add hA (Set.finite_singleton c)
   have : Finite (B + ({c'} : Set G)) := Set.Finite.add hB (Set.finite_singleton c')
@@ -80,9 +83,9 @@ lemma setRuzsaDist_add_const (A B: Set G) [hA : Finite A] [hB : Finite B] [Nonem
   · fun_prop
 
 /-- Ruzsa distance between sets is preserved by injective homomorphisms. -/
-lemma setRuzsaDist_of_inj (A B: Set G) [hA : Finite A] [hB : Finite B] [Nonempty A] [Nonempty B]
+lemma setRuzsaDist_of_inj (A B : Set G) [hA : Finite A] [hB : Finite B] [Nonempty A] [Nonempty B]
     {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
-    [Countable H] {φ: G →+ H} (hφ: Function.Injective φ) :
+    [Countable H] {φ : G →+ H} (hφ : Function.Injective φ) :
     dᵤ[φ '' A # φ '' B] = dᵤ[A # B] := by
   obtain ⟨Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, -, - ⟩ :=
     exists_isUniform_measureSpace' A hA .of_subtype

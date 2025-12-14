@@ -55,8 +55,11 @@ protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (
     cond_absolutelyContinuous
   map_eq := by
     ext t ht
-    rw [map_apply₀ _ ht.nullMeasurableSet, map_apply₀ _ ht.nullMeasurableSet,
-      cond_apply (hg' hs), cond_apply (hf' hs)]
+    rw [map_apply₀ (by exact
+      (hfg.comp measurable_fst).aemeasurable_fst.mono_ac cond_absolutelyContinuous)
+      ht.nullMeasurableSet, map_apply₀ (by exact
+      (hfg.comp measurable_fst).aemeasurable_snd.mono_ac cond_absolutelyContinuous)
+      ht.nullMeasurableSet, cond_apply (hg' hs), cond_apply (hf' hs)]
     congr
     · simpa only [map_apply₀ (hfg.comp measurable_snd).aemeasurable_fst hs.nullMeasurableSet,
         map_apply₀ (hfg.comp measurable_snd).aemeasurable_snd hs.nullMeasurableSet]
@@ -65,8 +68,6 @@ protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (
       simpa only [map_apply₀ hfg.aemeasurable_fst (ht.prod hs).nullMeasurableSet,
         map_apply₀ hfg.aemeasurable_snd (ht.prod hs).nullMeasurableSet]
         using congr_fun (congr_arg (⇑) hfg.map_eq) (t ×ˢ s)
-    · exact (hfg.comp measurable_fst).aemeasurable_snd.mono_ac cond_absolutelyContinuous
-    · exact (hfg.comp measurable_fst).aemeasurable_fst.mono_ac cond_absolutelyContinuous
 
 /-- A function is identically distributed to itself composed with a measurable embedding of conull
 range. -/
@@ -94,7 +95,7 @@ lemma IdentDistrib.comp_left {i : δ → α} (hi : MeasurableEmbedding i) (hi' :
 gives identically distributed functions. -/
 lemma IdentDistrib.comp_right {i : δ → β} (hi : MeasurableEmbedding i) (hi' : ∀ᵐ a ∂ν, a ∈ range i)
     (hg : Measurable g) (hfg : IdentDistrib f g μ ν) : IdentDistrib f (g ∘ i) μ (ν.comap i) :=
-  hfg.trans $ identDistrib_comp_right hi hi' hg
+  hfg.trans <| identDistrib_comp_right hi hi' hg
 
 lemma _root_.MeasureTheory.MeasurePreserving.identDistrib {α β γ : Type*} {X : β → γ} {f : α → β}
     [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ] {μ : Measure α}
@@ -128,13 +129,15 @@ theorem IdentDistrib.prodMk (hff' : IdentDistrib f f' μ ν) (hgg' : IdentDistri
     rw [h, h', hff'.map_eq, hgg'.map_eq]
 
 /-- Move to a different section? -/
-theorem AEMeasurable.piMk {I: Type*} [Countable I] {F : I → Ω → β} (hF : ∀ i, AEMeasurable (F i) μ) :
+lemma AEMeasurable.piMk {I : Type*} [Countable I] {F : I → Ω → β} (hF : ∀ i, AEMeasurable (F i) μ) :
     AEMeasurable (fun x i => F i x) μ := by
-  refine ⟨ fun x i => (hF i).mk (F i) x, measurable_pi_lambda _ (fun i => (hF i).measurable_mk), ?_ ⟩
+  refine ⟨fun x i => (hF i).mk (F i) x, measurable_pi_lambda _ (fun i => (hF i).measurable_mk), ?_ ⟩
   filter_upwards [eventually_countable_forall.mpr (fun i ↦ (hF i).ae_eq_mk)] with ω hω
   ext i; exact hω i
 
-theorem IdentDistrib.iprodMk {I: Type*} [Fintype I] {F : I → Ω → β} {F' : I → Ω' → β} (hFF': ∀ i, IdentDistrib (F i) (F' i) μ ν) (hμ: IsProbabilityMeasure μ) (hν: IsProbabilityMeasure ν) (h : iIndepFun F μ) (h' : iIndepFun F' ν) :
+theorem IdentDistrib.iprodMk {I : Type*} [Fintype I] {F : I → Ω → β} {F' : I → Ω' → β}
+    (hFF' : ∀ i, IdentDistrib (F i) (F' i) μ ν) (hμ : IsProbabilityMeasure μ)
+    (hν : IsProbabilityMeasure ν) (h : iIndepFun F μ) (h' : iIndepFun F' ν) :
     IdentDistrib (fun x i ↦ F i x) (fun x i ↦ F' i x) μ ν where
   aemeasurable_fst := by
     apply AEMeasurable.piMk
@@ -144,11 +147,11 @@ theorem IdentDistrib.iprodMk {I: Type*} [Fintype I] {F : I → Ω → β} {F' : 
     intro i; exact (hFF' i).aemeasurable_snd
   map_eq := by
     rw [iIndepFun_iff_map_fun_eq_pi_map] at h h'
-    . rw [h,h']
+    · rw [h,h']
       congr
       ext i : 1
       exact (hFF' i).map_eq
-    . intro i; exact (hFF' i).aemeasurable_snd
+    · intro i; exact (hFF' i).aemeasurable_snd
     intro i; exact (hFF' i).aemeasurable_fst
 
 variable [Mul β] [MeasurableMul₂ β] [IsFiniteMeasure μ] [IsFiniteMeasure ν] in
@@ -191,7 +194,7 @@ lemma identDistrib_of_sum {X : Ω → α} {Y : Ω' → α} {μ : T → Measure �
   aemeasurable_snd := hY.aemeasurable
   map_eq := by
     rw [← Measure.mapₗ_apply_of_measurable hX, ← Measure.mapₗ_apply_of_measurable hY]
-    simp
+    simp only [_root_.map_sum, map_smul]
     congr with y E _
     rcases eq_or_ne (w y) 0 with hy | hy
     · simp [hy]
@@ -199,26 +202,8 @@ lemma identDistrib_of_sum {X : Ω → α} {Y : Ω' → α} {μ : T → Measure �
     rw [Measure.mapₗ_apply_of_measurable hX, Measure.mapₗ_apply_of_measurable hY]
     exact (h_ident y hy).map_eq
 
--- [TODO]
--- theorem IdentDistrib.comp' {m : ℕ} {α : (i : Fin m) → Type*} {hα : (i : Fin m) → MeasurableSpace (α i)} {Ω : Fin m → Type*} {Ω' : Fin m → Type*} (hΩ : (i : Fin m) → MeasureSpace (Ω i))
---   (hΩ': (i : Fin m) → MeasureSpace (Ω' i)) (f : (i : Fin m) → (Ω i) → (α i)) (g : (i : Fin m) → (Ω' i) → (α i))
---   (hident : ∀ i, IdentDistrib (f i) (g i)) {u : ((i : Fin m) → α i) → β}
---   (hu : Measurable u) : IdentDistrib (u ∘ (fun i ↦ )) (u ∘ g) μ ν := sorry
-
--- { aemeasurable_fst := hu.comp_aemeasurable h.aemeasurable_fst
---   aemeasurable_snd := by rw [h.map_eq] at hu; exact hu.comp_aemeasurable h.aemeasurable_snd
---   map_eq := by
---     rw [← AEMeasurable.map_map_of_aemeasurable hu h.aemeasurable_fst, ←
---       AEMeasurable.map_map_of_aemeasurable _ h.aemeasurable_snd, h.map_eq]
---     rwa [← h.map_eq] }
--- #align probability_theory.ident_distrib.comp_of_ae_measurable ProbabilityTheory.IdentDistrib.comp_of_aemeasurable
-
--- protected theorem comp {u : γ → δ} (h : IdentDistrib f g μ ν) (hu : Measurable u) :
---   IdentDistrib (u ∘ f) (u ∘ g) μ ν :=
--- h.comp_of_aemeasurable hu.aemeasurable
--- #align probability_theory.ident_distrib.comp ProbabilityTheory.IdentDistrib.comp
-
-/-- A random variable is identically distributed to its lift to a product space (in the first factor). -/
+/-- A random variable is identically distributed to its lift to a product space
+(in the first factor). -/
 lemma identDistrib_comp_fst {X : Ω → α} (hX : Measurable X) (μ : Measure Ω) (μ' : Measure Ω')
     [IsProbabilityMeasure μ'] : IdentDistrib (X ∘ Prod.fst) X (μ.prod μ') μ where
   aemeasurable_fst := (hX.comp measurable_fst).aemeasurable
@@ -228,7 +213,8 @@ lemma identDistrib_comp_fst {X : Ω → α} (hX : Measurable X) (μ : Measure Ω
     congr
     simp
 
-/-- A random variable is identically distributed to its lift to a product space (in the second factor). -/
+/-- A random variable is identically distributed to its lift to a product space
+(in the second factor). -/
 lemma identDistrib_comp_snd {X : Ω → α} (hX : Measurable X) (μ : Measure Ω) (μ' : Measure Ω')
   [SigmaFinite μ] [IsProbabilityMeasure μ'] : IdentDistrib (X ∘ Prod.snd) X (μ'.prod μ) μ where
   aemeasurable_fst := (hX.comp measurable_snd).aemeasurable
@@ -282,7 +268,7 @@ lemma independent_copies' {I : Type u} [Fintype I] {α : I → Type u'}
   · rw [iIndepFun_iff]
     intro t s hs
     choose! u _ hus using hs
-    simp (config := {contextual := true}) [← hus, preimage_comp]
+    simp +contextual only [← hus, preimage_comp, pi_eval_preimage]
     simp_rw [← Finset.mem_coe, ← Set.pi_def, pi_pi_finset]
   · exact (hX i).comp (measurable_pi_apply i)
   · refine ⟨(hX i).comp (measurable_pi_apply i) |>.aemeasurable, (hX i).aemeasurable, ?_⟩
@@ -297,7 +283,7 @@ lemma independent_copies3_nondep {α : Type u}
     {X₁ : Ω₁ → α} {X₂ : Ω₂ → α} {X₃ : Ω₃ → α}
     (hX₁ : Measurable X₁) (hX₂ : Measurable X₂) (hX₃ : Measurable X₃)
     (μ₁ : Measure Ω₁) (μ₂ : Measure Ω₂) (μ₃ : Measure Ω₃)
-    [hμ₁ : IsProbabilityMeasure μ₁] [hμ₂ : IsProbabilityMeasure μ₂] [hμ₃ : IsProbabilityMeasure μ₃] :
+    [IsProbabilityMeasure μ₁] [IsProbabilityMeasure μ₂] [IsProbabilityMeasure μ₃] :
     ∃ (A : Type (max u_1 u_2 u_3)) (_ : MeasurableSpace A) (μA : Measure A) (X₁' X₂' X₃' : A → α),
       IsProbabilityMeasure μA ∧ iIndepFun ![X₁', X₂', X₃'] μA ∧
       Measurable X₁' ∧ Measurable X₂' ∧ Measurable X₃' ∧
@@ -310,8 +296,8 @@ lemma independent_copies3_nondep {α : Type u}
     Fin.cases (inferInstance : MeasurableSpace Ω₁') <|
     Fin.cases (inferInstance : MeasurableSpace Ω₂') <|
     Fin.cases (inferInstance : MeasurableSpace Ω₃') Fin.rec0
-  let X : (i : Fin 3) → Ω i → α :=
-    Fin.cases (X₁ ∘ ULift.down) <| Fin.cases (X₂ ∘ ULift.down) <| Fin.cases (X₃ ∘ ULift.down) Fin.rec0
+  let X : (i : Fin 3) → Ω i → α := Fin.cases (X₁ ∘ ULift.down) <| Fin.cases (X₂ ∘ ULift.down) <|
+    Fin.cases (X₃ ∘ ULift.down) Fin.rec0
   have hX : ∀ (i : Fin 3), @Measurable _ _ (mΩ i) mS (X i) :=
     Fin.cases (hX₁.comp measurable_down) <|
     Fin.cases (hX₂.comp measurable_down) <|

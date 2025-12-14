@@ -62,9 +62,9 @@ instance {Ω G H : Type*} (X : Ω → G) (Y : Ω → H) [hX : FiniteRange X] [hY
 
 /-- The product of functions of finite range, has finite range. -/
 @[to_additive /-- The sum of functions of finite range, has finite range. -/]
-instance FiniteRange.mul {Ω G : Type*} (X Y : Ω → G) [Mul G]
-    [hX: FiniteRange X] [hY: FiniteRange Y] : FiniteRange (X * Y) := by
-  show FiniteRange ((fun p ↦ p.1 * p.2) ∘ fun ω ↦ (X ω, Y ω))
+instance FiniteRange.mul {Ω G : Type*} (X Y : Ω → G) [Mul G] [FiniteRange X] [FiniteRange Y] :
+    FiniteRange (X * Y) := by
+  change FiniteRange ((fun p ↦ p.1 * p.2) ∘ fun ω ↦ (X ω, Y ω))
   infer_instance
 
 /-- The product of functions of finite range, has finite range. -/
@@ -76,7 +76,7 @@ instance FiniteRange.mul' {Ω G : Type*} (X Y : Ω → G) [Mul G] [FiniteRange X
 @[to_additive /-- The difference of functions of finite range, has finite range. -/]
 instance FiniteRange.div {Ω G : Type*} (X Y : Ω → G) [Div G]
     [hX : FiniteRange X] [hY : FiniteRange Y] : FiniteRange (X/Y) := by
-  show FiniteRange ((fun p ↦ p.1 / p.2) ∘ fun ω ↦ (X ω, Y ω))
+  change FiniteRange ((fun p ↦ p.1 / p.2) ∘ fun ω ↦ (X ω, Y ω))
   infer_instance
 
 /-- The product of functions of finite range, has finite range. -/
@@ -84,11 +84,11 @@ instance FiniteRange.div {Ω G : Type*} (X Y : Ω → G) [Div G]
 instance FiniteRange.div' {Ω G : Type*} (X Y : Ω → G) [Div G] [FiniteRange X] [FiniteRange Y] :
     FiniteRange fun ω ↦ X ω / Y ω := FiniteRange.div ..
 
-/-- The inverse of a function of finite range, has finite range.-/
+/-- The inverse of a function of finite range, has finite range. -/
 @[to_additive /-- The negation of a function of finite range, has finite range. -/]
 instance FiniteRange.inv {Ω G : Type*} (X : Ω → G) [Inv G] [hX : FiniteRange X] :
     FiniteRange X⁻¹ := by
-  show FiniteRange ((fun p ↦ p⁻¹) ∘ X)
+  change FiniteRange ((fun p ↦ p⁻¹) ∘ X)
   infer_instance
 
 /-- The product of functions of finite range, has finite range. -/
@@ -100,7 +100,7 @@ instance FiniteRange.inv' {Ω G : Type*} (X : Ω → G) [Inv G] [FiniteRange X] 
 @[to_additive /-- The multiple of a function of finite range by a constant, has finite range. -/]
 instance FiniteRange.zpow {Ω G : Type*} (X : Ω → G) [Pow G ℤ] [hX : FiniteRange X] (n : ℤ) :
     FiniteRange (X ^ n) := by
-  show FiniteRange ((· ^ n) ∘ X)
+  change FiniteRange ((· ^ n) ∘ X)
   infer_instance
 
 /-- A function of finite range raised to a constant power, has finite range. -/
@@ -129,15 +129,15 @@ instance FiniteRange.finprod {Ω G I : Type*} [CommMonoid G] {s : Finset I} (X :
 open MeasureTheory
 
 lemma FiniteRange.full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
-    [MeasurableSingletonClass G] {X : Ω → G} (hX : Measurable X) [FiniteRange X] (μ: Measure Ω) :
+    [MeasurableSingletonClass G] {X : Ω → G} (hX : Measurable X) [FiniteRange X] (μ : Measure Ω) :
     (μ.map X) (FiniteRange.toFinset X) = μ Set.univ := by
-  rw [Measure.map_apply hX]
+  rw [Measure.map_apply hX (by measurability)]
   congr
-  ext ω; simp
-  measurability
+  ext ω
+  simp
 
 lemma FiniteRange.real_full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
-    [MeasurableSingletonClass G] {X : Ω → G} (hX : Measurable X) [FiniteRange X] (μ: Measure Ω) :
+    [MeasurableSingletonClass G] {X : Ω → G} (hX : Measurable X) [FiniteRange X] (μ : Measure Ω) :
     (μ.map X).real (FiniteRange.toFinset X) = μ.real Set.univ := by
   simp [measureReal_def, FiniteRange.full hX]
 
@@ -145,12 +145,8 @@ lemma FiniteRange.null_of_compl {Ω G : Type*} [MeasurableSpace Ω] [MeasurableS
     [MeasurableSingletonClass G] (μ : Measure Ω) (X : Ω → G) [FiniteRange X] :
     (μ.map X) (FiniteRange.toFinset X : Set G)ᶜ = 0 := by
   by_cases hX : AEMeasurable X μ
-  · rw [Measure.map_apply₀ hX]
+  · rw [Measure.map_apply₀ hX (by measurability)]
     convert measure_empty (μ := μ)
     ext ω
-    simp only [Set.preimage_compl, Set.mem_compl_iff, Set.mem_preimage, Finset.mem_coe, mem_iff,
-      exists_apply_eq_apply, not_true_eq_false, Set.mem_empty_iff_false]
-    simp only [NullMeasurableSet.compl_iff]
-    refine MeasurableSet.nullMeasurableSet ?_
-    measurability
+    simp
   · simp [hX]

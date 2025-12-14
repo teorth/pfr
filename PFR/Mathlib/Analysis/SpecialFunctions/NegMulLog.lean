@@ -66,7 +66,7 @@ lemma sum_mul_log_div_leq {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) (hb :
 /-- If equality holds in the previous bound, then $a_s=r\cdot b_s$ for every $s\in S$, for some
 constant $r\in \mathbb{R}$. Auxiliary version assuming the `b i` are positive. -/
 lemma sum_mul_log_div_eq_iff_aux {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) (hb : ∀ i ∈ s, 0 < b i)
-    (heq : ∑ i ∈ s, a i * log (a i / b i) = (∑ i ∈ s, a i) * log ((∑ i ∈ s, a i) / (∑ i ∈ s, b i))) :
+    (heq : ∑ i ∈ s, a i * log (a i / b i) = (∑ i ∈ s, a i) * log ((∑ i ∈ s, a i) / ∑ i ∈ s, b i)) :
     ∃ r, ∀ i ∈ s, a i = r * (b i) := by
   rcases Finset.eq_empty_or_nonempty s with rfl | h's
   · simp

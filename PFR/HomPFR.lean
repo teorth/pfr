@@ -30,7 +30,10 @@ lemma hahn_banach (H₀ : AddSubgroup G) (φ : H₀ →+ G') : ∃ (φ' : G →+
   let H₀ := AddSubgroup.toZModSubmodule 2 H₀
   let φ := (show H₀ →+ G' from φ).toZModLinearMap 2
   obtain ⟨φ', hφ'⟩ := φ.exists_extend
-  use φ'; intro x; show φ x = φ'.comp H₀.subtype x; rw [hφ']
+  use φ'
+  intro x
+  change φ x = φ'.comp H₀.subtype x
+  rw [hφ']
 
 /-- Let $H$ be a subgroup of $G \times G'$. Then there exists a subgroup $H_0$ of $G$, a
 subgroup $H_1$ of $G'$, and a homomorphism $\phi: G \to G'$ such that
@@ -84,7 +87,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
         exact ⟨hS a.1 a'.1,
           by rw [← Prod.fst_add, ha.2, ha'.2, sub_sub, ← Prod.snd_add, haa', sub_sub_self]⟩
     have hB_card : Nat.card B ≤ Nat.card S * Nat.card A :=
-      natCard_sub_le.trans_eq $ by simp only [mul_comm, Set.card_singleton_prod]
+      natCard_sub_le.trans_eq <| by simp only [mul_comm, Set.card_singleton_prod]
     norm_cast
     exact (Nat.card_mono (toFinite B) hAB).trans hB_card
   have hA_nonempty : A.Nonempty := by simp [A]
@@ -129,11 +132,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
         gcongr
         rintro ⟨g, g'⟩ hg
         simp only [SetLike.mem_coe, hH₀₁] at hg
-        refine ⟨(0, g' - φ g), ?_, (g, φ g), ?_⟩
-        · simp only [singleton_prod, mem_image, SetLike.mem_coe,
-            Prod.mk.injEq, true_and, exists_eq_right, hg.2]
-        · simp only [mem_setOf_eq, Prod.mk.injEq, exists_eq_left, Prod.mk_add_mk, zero_add, true_and,
-            sub_add_cancel]
+        exact ⟨(0, g' - φ g), by simp [hg.2], (g, φ g), by simp⟩
       _ = ⋃ (a ∈ T), {(x, a + φ x) | x : G} := by
         rw [← add_assoc, ← vadd_eq_add, ← Set.iUnion_vadd_set, Set.biUnion_image]
         congr! 3 with a
@@ -156,7 +155,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
           have : S.Nonempty := ⟨f (0 + 0) - f 0 - f 0, hS 0 0⟩
           exact this.natCard_pos S.toFinite
         have : 0 < Nat.card A := hA_nonempty.natCard_pos A.toFinite
-        have : 0 < Nat.card H := H.nonempty.natCard_pos $ toFinite _
+        have : 0 < Nat.card H := H.nonempty.natCard_pos <| toFinite _
         simp_rw [← Real.rpow_natCast]
         rpow_ring
         norm_num

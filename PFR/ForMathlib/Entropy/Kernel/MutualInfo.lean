@@ -138,7 +138,7 @@ variable [Countable S] [Countable T]
 lemma mutualInfo_compProd
     {κ : Kernel T S} [IsZeroOrMarkovKernel κ]
     {η : Kernel (T × S) U} [IsMarkovKernel η] {μ : Measure T} [IsZeroOrProbabilityMeasure μ]
-    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η (μ ⊗ₘ κ)):
+    [FiniteSupport μ] (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η (μ ⊗ₘ κ)) :
     Ik[κ ⊗ₖ η, μ] = Hk[κ, μ] + Hk[snd (κ ⊗ₖ η), μ] - Hk[κ ⊗ₖ η, μ] := by
   rw [mutualInfo, entropy_compProd hκ hη, fst_compProd]
 
@@ -155,7 +155,7 @@ lemma mutualInfo_eq_fst_sub [Nonempty S] {κ : Kernel T (S × U)} [IsZeroOrMarko
 lemma mutualInfo_prod {κ : Kernel T S} {η : Kernel T U}
     [IsZeroOrMarkovKernel κ] [IsZeroOrMarkovKernel η]
     (μ : Measure T) [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ]
-    (hκ : AEFiniteKernelSupport κ μ) (hη: AEFiniteKernelSupport η μ) :
+    (hκ : AEFiniteKernelSupport κ μ) (hη : AEFiniteKernelSupport η μ) :
     Ik[κ ×ₖ η, μ] = 0 := by
   rcases eq_zero_or_isMarkovKernel κ with rfl | hκ'
   · simp
@@ -284,13 +284,11 @@ lemma entropy_submodular_compProd {ξ : Kernel T S} [IsZeroOrMarkovKernel ξ]
   have : FiniteSupport (μ ⊗ₘ (ξ ⊗ₖ κ)) := finiteSupport_of_compProd (hξ.compProd hκ)
   have h := entropy_condKernel_le_entropy_snd
     (κ := κ ⊗ₖ (comap η MeasurableEquiv.prodAssoc h_meas)) (μ := μ ⊗ₘ ξ) ?_
-  simp only [fst_compProd] at h
-  have : condKernel (κ ⊗ₖ comap η ↑MeasurableEquiv.prodAssoc h_meas)
-      =ᵐ[μ ⊗ₘ ξ ⊗ₘ κ] comap η ↑MeasurableEquiv.prodAssoc h_meas := by
-    exact condKernel_compProd_ae_eq κ (comap η ↑MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable)
-      (μ ⊗ₘ ξ)
-  rw [entropy_congr this, Measure.compProd_compProd'', entropy_comap_equiv] at h
-  · exact h
+  · simp only [fst_compProd] at h
+    have : condKernel (κ ⊗ₖ comap η ↑MeasurableEquiv.prodAssoc h_meas)
+        =ᵐ[μ ⊗ₘ ξ ⊗ₘ κ] comap η ↑MeasurableEquiv.prodAssoc h_meas := by
+      exact condKernel_compProd_ae_eq κ (comap η _ MeasurableEquiv.prodAssoc.measurable) (μ ⊗ₘ ξ)
+    rwa [entropy_congr this, Measure.compProd_compProd'', entropy_comap_equiv] at h
   · refine (hκ.compProd ?_)
     convert hη.comap_equiv MeasurableEquiv.prodAssoc
     exact Measure.compProd_compProd'' _ _ _
@@ -303,8 +301,8 @@ lemma entropy_compProd_triple_add_entropy_le {ξ : Kernel T S} [IsZeroOrMarkovKe
     (hκ : AEFiniteKernelSupport κ (μ ⊗ₘ ξ))
     (hη : AEFiniteKernelSupport η (μ ⊗ₘ (ξ ⊗ₖ κ))) (hξ : AEFiniteKernelSupport ξ μ) :
     Hk[(ξ ⊗ₖ κ) ⊗ₖ η, μ] + Hk[ξ, μ]
-      ≤ Hk[ξ ⊗ₖ snd (κ ⊗ₖ comap η MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable), μ]
-       + Hk[ξ ⊗ₖ κ, μ] := by
+      ≤ Hk[ξ ⊗ₖ snd (κ ⊗ₖ comap η MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable),
+          μ] + Hk[ξ ⊗ₖ κ, μ] := by
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
   rcases eq_zero_or_isMarkovKernel ξ with rfl | hξ'
@@ -313,10 +311,10 @@ lemma entropy_compProd_triple_add_entropy_le {ξ : Kernel T S} [IsZeroOrMarkovKe
   have : Nonempty T := μ.nonempty_of_neZero
   have : Nonempty U := nonempty_of_isMarkovKernel κ
   have : Nonempty V := nonempty_of_isMarkovKernel η
-  rw [chain_rule,
-    chain_rule (κ := ξ ⊗ₖ snd (κ ⊗ₖ comap η ↑MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable))]
-  simp only [fst_compProd, entropy_condKernel_compProd_triple]
-  · calc Hk[ξ ⊗ₖ κ , μ] + Hk[η , μ ⊗ₘ (ξ ⊗ₖ κ)] + Hk[ξ , μ]
+  rw [chain_rule, chain_rule (κ := ξ ⊗ₖ snd (κ ⊗ₖ comap η MeasurableEquiv.prodAssoc
+    MeasurableEquiv.prodAssoc.measurable))]
+  · simp only [fst_compProd, entropy_condKernel_compProd_triple]
+    calc Hk[ξ ⊗ₖ κ , μ] + Hk[η , μ ⊗ₘ (ξ ⊗ₖ κ)] + Hk[ξ , μ]
       = Hk[ξ , μ] + Hk[ξ ⊗ₖ κ , μ] + Hk[η , μ ⊗ₘ (ξ ⊗ₖ κ)] := by abel
     _ ≤ Hk[ξ , μ] + Hk[ξ ⊗ₖ κ , μ]
       + Hk[condKernel (ξ ⊗ₖ snd (κ ⊗ₖ comap η MeasurableEquiv.prodAssoc _)) , μ ⊗ₘ ξ] := by
@@ -324,7 +322,8 @@ lemma entropy_compProd_triple_add_entropy_le {ξ : Kernel T S} [IsZeroOrMarkovKe
         refine (entropy_submodular_compProd hκ hη hξ).trans_eq ?_
         refine entropy_congr ?_
         exact (condKernel_compProd_ae_eq _ _ _).symm
-    _ = Hk[ξ , μ] + Hk[condKernel (ξ ⊗ₖ snd (κ ⊗ₖ comap η MeasurableEquiv.prodAssoc _)) , μ ⊗ₘ ξ] + Hk[ξ ⊗ₖ κ , μ] := by abel
+    _ = Hk[ξ , μ] + Hk[condKernel (ξ ⊗ₖ snd (κ ⊗ₖ comap η MeasurableEquiv.prodAssoc _)), μ ⊗ₘ ξ] +
+          Hk[ξ ⊗ₖ κ , μ] := by abel
   · refine hξ.compProd ?_
     refine AEFiniteKernelSupport.snd ?_
     refine hκ.compProd ?_
@@ -375,7 +374,8 @@ lemma entropy_triple_add_entropy_le' {κ : Kernel T (S × U × V)} [IsZeroOrMark
     rw [hκ'_def, deleteRight_eq, fst_eq, map_map _ (by fun_prop) (by fun_prop)]
     congr
   have h_middle : deleteMiddle κ
-      = ξ ⊗ₖ snd (κ'' ⊗ₖ comap η MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable) := by
+      = ξ ⊗ₖ snd
+        (κ'' ⊗ₖ comap η MeasurableEquiv.prodAssoc MeasurableEquiv.prodAssoc.measurable) := by
     rw [← deleteMiddle_compProd, h_compProd_triple_eq']
   have hκ : Hk[κ, μ] = Hk[κ', μ] := by
     rw [hκ'_def, entropy_map_of_injective _ _ _ (by fun_prop)]

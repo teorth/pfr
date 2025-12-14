@@ -13,7 +13,7 @@ Definition of Kullback-Leibler divergence and basic facts
 open MeasureTheory ProbabilityTheory Real Filter
 open scoped Topology
 
-variable {Ω Ω' Ω'' Ω''' G: Type*}
+variable {Ω Ω' Ω'' Ω''' G : Type*}
   [mΩ : MeasurableSpace Ω] {μ : Measure Ω}
   [mΩ' : MeasurableSpace Ω'] {μ' : Measure Ω'}
   [mΩ'' : MeasurableSpace Ω''] {μ'' : Measure Ω''}
@@ -27,8 +27,7 @@ variable {X : Ω → G} {Y : Ω' → G}
 
 Note that this definition only makes sense when `X` is absolutely continuous wrt to `Y`,
 i.e., `∀ x, 𝐏(Y = x) = 0 → 𝐏(X = x) = 0`. Otherwise, the divergence should be infinite, but since
-we use real numbers for ease of computations, this is not a possible choice.
-  -/
+we use real numbers for ease of computations, this is not a possible choice. -/
 noncomputable def KLDiv (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω := by volume_tac)
     (μ' : Measure Ω' := by volume_tac) : ℝ :=
   ∑' x, (μ.map X).real {x} * log ((μ.map X).real {x} / ((μ'.map Y).real {x}))
@@ -67,7 +66,7 @@ lemma KLDiv_eq_sum_negMulLog [Fintype G] :
   simp only [negMulLog, ← mul_assoc]
   field_simp
 
-/-- `KL(X ‖ Y) ≥ 0`.-/
+/-- `KL(X ‖ Y) ≥ 0`. -/
 lemma KLDiv_nonneg [Fintype G] [MeasurableSingletonClass G] [IsZeroOrProbabilityMeasure μ]
     [IsZeroOrProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y)
     (habs : ∀ x, μ'.map Y {x} = 0 → μ.map X {x} = 0) : 0 ≤ KL[X ; μ # Y ; μ'] := by
@@ -210,14 +209,15 @@ lemma ProbabilityTheory.IndepFun.map_add_eq_sum
       simp [hy.1, hy.2, add_comm]
   rw [this, measure_iUnion, tsum_fintype]; rotate_left
   · intro i j hij
-    simp [Function.onFun]
+    simp only [Function.onFun, singleton_add, image_add_left, neg_neg]
     apply Disjoint.inter_left'
     apply Disjoint.inter_right'
     apply disjoint_left.2 (fun a ha hb ↦ ?_)
     rw [← ha, ← hb] at hij
     exact hij rfl
   · intro i
-    exact (hX (DiscreteMeasurableSpace.forall_measurableSet _)).inter (hZ (measurableSet_singleton _))
+    exact (hX (DiscreteMeasurableSpace.forall_measurableSet _)).inter
+      (hZ (measurableSet_singleton _))
   congr with i
   rw [h_indep.measure_inter_preimage_eq_mul _ _ (DiscreteMeasurableSpace.forall_measurableSet _)
     (measurableSet_singleton _), mul_comm,
@@ -388,7 +388,7 @@ lemma condKLDiv_eq {S : Type*} [MeasurableSpace S] [Fintype S] [MeasurableSingle
   rw [Real.log_div hg hYg', Real.log_div hXg hYg']
   abel
 
-/-- `KL(X|Z ‖ Y) ≥ 0`.-/
+/-- `KL(X|Z ‖ Y) ≥ 0`. -/
 lemma condKLDiv_nonneg {S : Type*} [MeasurableSingletonClass G] [Fintype G]
     {X : Ω → G} {Y : Ω' → G} {Z : Ω → S}
     [IsZeroOrProbabilityMeasure μ']

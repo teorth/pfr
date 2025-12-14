@@ -217,8 +217,7 @@ lemma ent_of_diff_le (κ : Kernel T (G × G)) (η : Kernel T G) [IsMarkovKernel 
               - Hk[map (κ ×ₖ η) (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2)), μ] := by
             have h' := mutualInfo_nonneg (κ := map (κ ×ₖ η)
               (fun p ↦ (p.1.1 - p.2, p.1.2 - p.2))) (μ := μ) ?_
-            rwa [mutualInfo, fst_map_prod _ .of_discrete,
-              snd_map_prod _ .of_discrete] at h'
+            · rwa [mutualInfo, fst_map_prod _ .of_discrete, snd_map_prod _ .of_discrete] at h'
             apply FiniteKernelSupport.aefiniteKernelSupport
             apply hκη.map
           linarith
@@ -350,7 +349,7 @@ lemma rdist_triangle (κ : Kernel T G) (η : Kernel T' G) (ξ : Kernel T'' G)
     (μ : Measure T) (μ' : Measure T') (μ'' : Measure T'')
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] [IsProbabilityMeasure μ'']
     [FiniteSupport μ] [FiniteSupport μ'] [FiniteSupport μ'']
-    (hκ : FiniteKernelSupport κ) (hη: FiniteKernelSupport η) (hξ: FiniteKernelSupport ξ) :
+    (hκ : FiniteKernelSupport κ) (hη : FiniteKernelSupport η) (hξ : FiniteKernelSupport ξ) :
     dk[κ ; μ # ξ ; μ''] ≤ dk[κ ; μ # η ; μ'] + dk[η ; μ' # ξ ; μ''] := by
   rw [rdist_eq', rdist_eq', rdist_eq']
   have h := ent_of_diff_le (prodMkRight T' (prodMkRight T'' κ ×ₖ prodMkLeft T ξ))

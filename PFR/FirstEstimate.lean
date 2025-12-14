@@ -9,14 +9,16 @@ The first estimate on tau-minimizers.
 Assumptions:
 
 * $X_1, X_2$ are tau-minimizers
-* $X_1, X_2, \tilde X_1, \tilde X_2$ are independent random variables, with $X_1,\tilde X_1$ copies of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
+* $X_1, X_2, \tilde X_1, \tilde X_2$ are independent random variables, with $X_1,\tilde X_1$ copies
+  of $X_1$ and $X_2,\tilde X_2$ copies of $X_2$.
 * $k := d[X_1;X_2]$
 * $I_1 := I [X_1+X_2 : \tilde X_1 + X_2 | X_1+X_2+\tilde X_1+\tilde X_2]$
 
 ## Main results
 
 * `first_estimate` : $I_1 ≤ 2 η k$
-* `ent_ofsum_le` : $H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] + (2 + \eta) k - I_1.$
+* `ent_ofsum_le` : $H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] +
+  (2 + \eta) k - I_1.$
 -/
 
 open MeasureTheory ProbabilityTheory
@@ -70,7 +72,8 @@ lemma rdist_add_rdist_add_condMutual_eq [Module (ZMod 2) G] :
 
 include h_min hX₁ hX₂ hX₁' hX₂' in
 /-- The distance $d[X_1+\tilde X_2; X_2+\tilde X_1]$ is at least
-$$ k - \eta (d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1]) - \eta (d[X^0_2; X_2+\tilde X_1] - d[X^0_2; X_2]).$$ -/
+$$k - \eta (d[X^0_1; X_1+\tilde X_2] - d[X^0_1; X_1]) -
+  \eta (d[X^0_2; X_2+\tilde X_1] - d[X^0_2; X_2]).$$ -/
 lemma rdist_of_sums_ge :
     d[X₁ + X₂' # X₂ + X₁'] ≥
       k - p.η * (d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁])
@@ -79,7 +82,8 @@ lemma rdist_of_sums_ge :
 
 include h_min hX₁ hX₂ hX₁' hX₂' in
 /-- The distance $d[X_1|X_1+\tilde X_2; X_2|X_2+\tilde X_1]$ is at least
-$$ k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1]) - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).$$
+$$ k - \eta (d[X^0_1; X_1 | X_1 + \tilde X_2] - d[X^0_1; X_1])
+  - \eta(d[X^0_2; X_2 | X_2 + \tilde X_1] - d[X^0_2; X_2]).$$
 -/
 lemma condRuzsaDist_of_sums_ge :
     d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] ≥
@@ -90,7 +94,7 @@ lemma condRuzsaDist_of_sums_ge :
 variable [Module (ZMod 2) G]
 
 include hX₁ hX₂' h_indep h₂ in
-/--`d[X₀₁ # X₁ + X₂'] - d[X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4`. -/
+/-- `d[X₀₁ # X₁ + X₂'] - d[X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4`. -/
 lemma diff_rdist_le_1 [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] :
     d[p.X₀₁ # X₁ + X₂'] - d[p.X₀₁ # X₁] ≤ k/2 + H[X₂]/4 - H[X₁]/4 := by
   have h : IndepFun X₁ X₂' := by simpa using h_indep.indepFun (show (0 : Fin 4) ≠ 2 by decide)
@@ -99,7 +103,8 @@ lemma diff_rdist_le_1 [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] :
   · exact h₂.entropy_congr
 
 include hX₁' hX₂ h_indep h₁ in
-/-- $$ d[X^0_2;X_2+\tilde X_1] - d[X^0_2; X_2] \leq \tfrac{1}{2} k + \tfrac{1}{4} \mathbb{H}[X_1] - \tfrac{1}{4} \mathbb{H}[X_2].$$ -/
+/-- $$ d[X^0_2;X_2+\tilde X_1] - d[X^0_2; X_2] \leq \tfrac{1}{2} k +
+  \tfrac{1}{4} \mathbb{H}[X_1] - \tfrac{1}{4} \mathbb{H}[X_2].$$ -/
 lemma diff_rdist_le_2 [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] :
     d[p.X₀₂ # X₂ + X₁'] - d[p.X₀₂ # X₂] ≤ k/2 + H[X₁]/4 - H[X₂]/4 := by
   have h : IndepFun X₂ X₁' := by simpa using h_indep.indepFun (show (1 : Fin 4) ≠ 3 by decide)
@@ -143,9 +148,8 @@ lemma first_estimate
   linarith [v1, v2, v3, v4, v5, v6, v7]
 
 include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_min in
-/--
-$$\mathbb{H}[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} \mathbb{H}[X_1]+\tfrac{1}{2} \mathbb{H}[X_2] + (2 + \eta) k - I_1.$$
--/
+/-- $$\mathbb{H}[X_1+X_2+\tilde X_1+\tilde X_2]
+  \le \tfrac{1}{2} \mathbb{H}[X_1]+\tfrac{1}{2} \mathbb{H}[X_2] + (2 + \eta) k - I_1.$$ -/
 lemma ent_ofsum_le
     [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] :
     H[X₁ + X₂ + X₁' + X₂'] ≤ H[X₁]/2 + H[X₂]/2 + (2+p.η)*k - I₁ := by

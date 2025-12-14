@@ -5,7 +5,7 @@ open scoped BoundedContinuousFunction Topology ENNReal NNReal
 
 variable {ι X : Type*} [MeasurableSpace X] [TopologicalSpace X]
 
-/-- The measure of any connected component depends continuously on the `FiniteMeasure`.-/
+/-- The measure of any connected component depends continuously on the `FiniteMeasure`. -/
 lemma continuous_finiteMeasure_apply_of_isClopen [OpensMeasurableSpace X]
     {s : Set X} (s_clopen : IsClopen s) :
     Continuous fun μ : FiniteMeasure X ↦ (μ : Measure X).real s := by
@@ -14,7 +14,7 @@ lemma continuous_finiteMeasure_apply_of_isClopen [OpensMeasurableSpace X]
   have s_mble : MeasurableSet s := s_clopen.isOpen.measurableSet
   simp [integral_indicator, s_mble, Measure.real]
 
-/-- The probability of any connected component depends continuously on the `ProbabilityMeasure`.-/
+/-- The probability of any connected component depends continuously on the `ProbabilityMeasure`. -/
 lemma continuous_probabilityMeasure_apply_of_isClopen [OpensMeasurableSpace X]
     {s : Set X} (s_clopen : IsClopen s) :
     Continuous fun μ : ProbabilityMeasure X ↦ (μ : Measure X).real s := by
@@ -27,7 +27,7 @@ variable [DiscreteTopology X] [BorelSpace X]
 
 lemma continuous_pmf_apply' (i : X) :
     Continuous fun μ : ProbabilityMeasure X ↦ (μ : Measure X).real {i} :=
-  continuous_probabilityMeasure_apply_of_isClopen (s := {i}) $ isClopen_discrete _
+  continuous_probabilityMeasure_apply_of_isClopen (s := {i}) <| isClopen_discrete _
 
 lemma continuous_pmf_apply (i : X) : Continuous fun μ : ProbabilityMeasure X ↦ μ {i} := by
   -- KK: The coercion fight here is one reason why I now prefer ℝ-valued and not ℝ≥0-valued probas.

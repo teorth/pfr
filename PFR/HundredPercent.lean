@@ -7,7 +7,8 @@ Here we show entropic PFR in the case of doubling constant zero.
 
 ## Main results
 
-* `exists_isUniform_of_rdist_eq_zero` : If $d[X_1;X_2]=0$, then there exists a subgroup $H \leq G$ such that $d[X_1;U_H] = d[X_2;U_H] = 0$.
+* `exists_isUniform_of_rdist_eq_zero` : If $d[X_1;X_2]=0$, then there exists a subgroup $H \leq G$
+such that $d[X_1;U_H] = d[X_2;U_H] = 0$.
 -/
 
 open MeasureTheory ProbabilityTheory Real
@@ -22,7 +23,7 @@ def symmGroup (X : Ω → G) (hX : Measurable X) : AddSubgroup G where
   add_mem' := by
     intro x y hx hy
     let f : G → G := fun g ↦ g + x
-    have : IdentDistrib (f ∘ X) (fun ω ↦ f (X ω + y)) := hy.comp $ measurable_add_const _
+    have : IdentDistrib (f ∘ X) (fun ω ↦ f (X ω + y)) := hy.comp <| measurable_add_const _
     have Z := hx.trans this
     dsimp
     convert Z using 1
@@ -34,7 +35,7 @@ def symmGroup (X : Ω → G) (hX : Measurable X) : AddSubgroup G where
     intro x hx
     dsimp at hx ⊢
     let f : G → G := fun g ↦ g - x
-    have : IdentDistrib (f ∘ X) (fun ω ↦ f (X ω + x)) := hx.comp $ measurable_sub_const' _
+    have : IdentDistrib (f ∘ X) (fun ω ↦ f (X ω + x)) := hx.comp <| measurable_sub_const' _
     convert this.symm using 1
     · ext ω
       simp only [f]
@@ -58,7 +59,7 @@ variable [Fintype G] [MeasurableSingletonClass G] [IsProbabilityMeasure (ℙ : M
 /-- If $d[X ;X]=0$, and $x,y \in G$ are such that $P[X=x], P[X=y]>0$,
 then $x-y \in \mathrm{Sym}[X]$. -/
 lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
-    {x y : G} (hx : ℙ (X⁻¹' {x}) ≠ 0) (hy : ℙ (X⁻¹' {y}) ≠ 0) : x - y ∈ symmGroup X hX := by
+    {x y : G} (hx : ℙ (X ⁻¹' {x}) ≠ 0) (hy : ℙ (X ⁻¹' {y}) ≠ 0) : x - y ∈ symmGroup X hX := by
   /- Consider two independent copies `X'` and `Y'` of `X`. The assumption on the Rusza distance
   ensures that `H[X' - Y' | Y'] = H[X' - Y']`, i.e., `X' - Y'` and `Y'` are independent. Therefore,
   the distribution of `X' - c` is independent of `c` for `c` in the support of `Y'`.
@@ -90,7 +91,7 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
           apply h_indep.comp this measurable_id
         rw [indepFun_iff_measure_inter_preimage_eq_mul.1 hFY' _ _ hs .of_discrete]
       _ = ℙ ((X' - Y') ⁻¹' s ∩ Y' ⁻¹' {c}) := by
-        congr 1; ext z; simp (config := {contextual := true}) [F]
+        congr 1; ext z; simp +contextual [F]
       _ = ℙ ((X' - Y') ⁻¹' s) * ℙ (Y' ⁻¹' {c}) := by
         rw [indepFun_iff_measure_inter_preimage_eq_mul.1 I _ _ hs .of_discrete]
     rwa [ENNReal.mul_left_inj hc (measure_ne_top ℙ _)] at this
@@ -110,7 +111,7 @@ lemma sub_mem_symmGroup (hX : Measurable X) (hdist : d[X # X] = 0)
 /-- If `d[X # X] = 0`, then `X - x₀` is the uniform distribution on the subgroup of `G`
 stabilizing the distribution of `X`, for any `x₀` of positive probability. -/
 lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X] = 0) {x₀ : G}
-    (hx₀ : ℙ (X⁻¹' {x₀}) ≠ 0) : IsUniform (symmGroup X hX) (fun ω ↦ X ω - x₀) where
+    (hx₀ : ℙ (X ⁻¹' {x₀}) ≠ 0) : IsUniform (symmGroup X hX) (fun ω ↦ X ω - x₀) where
   eq_of_mem := by
     have B c z : (fun ω ↦ X ω - c) ⁻¹' {z} = X ⁻¹' {c + z} := by
       ext w; simp [sub_eq_iff_eq_add']
@@ -137,7 +138,7 @@ lemma isUniform_sub_const_of_rdist_eq_zero (hX : Measurable X) (hdist : d[X # X]
 theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X # X] = 0) :
     ∃ H : AddSubgroup G, ∃ U : Ω → G, Measurable U ∧ IsUniform H U ∧ d[X # U] = 0 := by
   -- use for `U` a translate of `X` to make sure that `0` is in its support.
-  obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X⁻¹' {x₀}) ≠ 0 := by
+  obtain ⟨x₀, h₀⟩ : ∃ x₀, ℙ (X ⁻¹' {x₀}) ≠ 0 := by
     by_contra! h
     have A a : (ℙ : Measure Ω).map X {a} = 0 := by
       rw [Measure.map_apply hX .of_discrete]

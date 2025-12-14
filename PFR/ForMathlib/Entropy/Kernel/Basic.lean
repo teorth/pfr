@@ -66,7 +66,8 @@ lemma finiteKernelSupport_of_const (ν : Measure S) [FiniteSupport ν] :
   use ν.support
   simp [measure_compl_support ν]
 
-/-- Composing a finitely supported measure with a finitely supported kernel gives a finitely supported kernel. -/
+/-- Composing a finitely supported measure with a finitely supported kernel gives a finitely
+supported kernel. -/
 lemma finiteSupport_of_compProd' [MeasurableSingletonClass S] [MeasurableSingletonClass T]
     {μ : Measure T} [IsFiniteMeasure μ] {κ : Kernel T S}
     [IsZeroOrMarkovKernel κ] [FiniteSupport μ] (hκ : FiniteKernelSupport κ) :
@@ -78,11 +79,7 @@ lemma finiteSupport_of_compProd' [MeasurableSingletonClass S] [MeasurableSinglet
   rw [Measure.compProd_apply (by measurability), lintegral_eq_setLIntegral hA, setLIntegral_eq_sum]
   apply Finset.sum_eq_zero
   intro t ht
-  simp
-  right
-  refine measure_mono_null ?_ (hB t ht)
-  intro s
-  simp; tauto
+  simpa using .inr <| measure_mono_null (by simp; tauto) (hB t ht)
 
 lemma finiteSupport_of_compProd
     [MeasurableSingletonClass S] [Countable T] [MeasurableSingletonClass T]
@@ -158,8 +155,7 @@ lemma entropy_comap [MeasurableSingletonClass T]
   classical
   rcases hfμ with ⟨A, hA⟩
   have : μ (Finset.image f A : Set T)ᶜ = 0 := by
-    rw [Finset.coe_image, Function.Injective.compl_image_eq hf.injective]
-    simp
+    simp only [Finset.coe_image, hf.injective.compl_image_eq, measure_union_null_iff]
     constructor
     · rwa [← Measure.comap_apply f hf.injective hf.measurableSet_image']
       exact MeasurableSet.compl (Finset.measurableSet A)
@@ -237,27 +233,21 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
       setLIntegral_eq_sum]
     · apply Finset.sum_eq_zero
       intro s hs
-      simp
-      right
-      have hts : (t, s) ∈ A ×ˢ B := by simp [ht, hs]
-      refine measure_mono_null ?_ (hC (t, s) hts)
-      intro u hu
-      simp at hu ⊢
-      exact hu hs
+      simpa using .inr <| measure_mono_null (by simp [*]) (hC (t, s) <| by simp [ht, hs])
     exact MeasurableSet.compl (Finset.measurableSet _)
   rw [measureEntropy_eq_sum hκη, measureEntropy_eq_sum (hB t ht),
     integral_finset _ _ IntegrableOn.finset,
     ← Finset.sum_add_distrib, Finset.sum_product]
   apply Finset.sum_congr rfl
   intro s hs
-  simp
+  simp only [measure_univ, inv_one, one_smul, coe_comap, Function.comp_apply, smul_eq_mul]
   have hts : (t, s) ∈ A ×ˢ B := by simp [ht, hs]
   rw [measureEntropy_eq_sum (hC (t, s) hts)]
-  simp
+  simp only [measure_univ, inv_one, one_smul]
   have : negMulLog ((κ t).real {s}) = ∑ u ∈ C, negMulLog ((κ t).real {s}) *
       ((comap η (Prod.mk t) measurable_prodMk_left) s).real {u} := by
     rw [← Finset.mul_sum]
-    simp
+    simp only [coe_comap, Function.comp_apply, sum_measureReal_singleton]
     suffices (η (t, s)).real ↑C = (η (t, s)).real Set.univ by simp [this]
     have := hC (t, s) hts
     rw [← measureReal_eq_zero_iff] at this

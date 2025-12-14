@@ -270,3 +270,5 @@ lemma apply_two_last
     | 2 =>
       have : Measurable (fun (p : Fin 2 → G) ↦ (p 0, p 1)) := by fun_prop
       exact hphi.comp this
+
+end ProbabilityTheory.iIndepFun

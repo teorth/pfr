@@ -7,7 +7,7 @@ namespace MeasureTheory.Measure
 variable {Ω α β γ : Type*} [MeasurableSpace Ω]
   [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ] {X : Ω → α} {Y : Ω → β} {Z : Ω → γ}
 
-/-- The law of $(X, Z)$ is the image of the law of $(Z,X)$.-/
+/-- The law of $(X, Z)$ is the image of the law of $(Z,X)$. -/
 lemma map_prod_comap_swap (hX : Measurable X) (hZ : Measurable Z) (μ : Measure Ω) :
     (μ.map (fun ω ↦ (X ω, Z ω))).comap Prod.swap = μ.map (fun ω ↦ (Z ω, X ω)) := by
   ext s hs
@@ -41,6 +41,7 @@ end MeasureTheory.Measure
 
 open MeasureTheory
 
+set_option linter.flexible false in
 instance {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] {μ : Measure α}
     [IsZeroOrProbabilityMeasure μ] {ν : Measure β} [IsZeroOrProbabilityMeasure ν] :
     IsZeroOrProbabilityMeasure (μ.prod ν) := by

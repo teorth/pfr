@@ -95,8 +95,8 @@ lemma gen_ineq_aux2 :
   _ = ∑ w, (Measure.real ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w})) *
         d[Y ; ℙ # Z₁ + Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]] := by
     rw [condRuzsaDist'_eq_sum']
-    exact hZ₁.add hZ₂
-    exact (hZ₁.add hZ₃).prodMk (hZ₂.add hZ₄)
+    · exact hZ₁.add hZ₂
+    · exact (hZ₁.add hZ₃).prodMk (hZ₂.add hZ₄)
   _ ≤ ∑ w, Measure.real ℙ (⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}) * (d[Y ; ℙ # Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w]]
       + d[Z₁ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}] # Z₂ ; ℙ[|⟨Z₁ + Z₃, Z₂ + Z₄⟩ ⁻¹' {w}]] / 2
       + H[Z₂ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4 - H[Z₁ | ⟨Z₁ + Z₃, Z₂ + Z₄⟩ ← w] / 4) := by
@@ -140,7 +140,8 @@ lemma gen_ineq_aux2 :
       congr 1
       have A : IdentDistrib Z₁ Z₁ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := by
-        rw [← cond_cond_eq_cond_inter']
+        rw [← cond_cond_eq_cond_inter' (by exact hZ₁.add hZ₃ (.singleton _))
+          (by exact hZ₂.add hZ₄ (.singleton _)) (by finiteness)]
         have : IsProbabilityMeasure (ℙ[|(Z₁ + Z₃) ⁻¹' {x}]) := cond_isProbabilityMeasure_of_real h1
         apply (IndepFun.identDistrib_cond _ (.singleton _) hZ₁ (by fun_prop) _).symm
         · have : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) (ℙ[|(⟨Z₁, Z₃⟩) ⁻¹' {p | p.1 + p.2 = x}]) :=
@@ -151,12 +152,10 @@ lemma gen_ineq_aux2 :
           · simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
             simp [h1, h2]
           · exact hZ₁.add hZ₃ (.singleton _)
-        · exact hZ₁.add hZ₃ (.singleton _)
-        · exact hZ₂.add hZ₄ (.singleton _)
-        · finiteness
       have B : IdentDistrib Z₂ Z₂ (ℙ[|(Z₁ + Z₃) ⁻¹' {x} ∩ (Z₂ + Z₄) ⁻¹' {y}])
           (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := by
-        rw [Set.inter_comm, ← cond_cond_eq_cond_inter']
+        rw [Set.inter_comm, ← cond_cond_eq_cond_inter' (by exact hZ₂.add hZ₄ (.singleton _))
+          (by exact hZ₁.add hZ₃ (.singleton _)) (by finiteness)]
         have : IsProbabilityMeasure (ℙ[|(Z₂ + Z₄) ⁻¹' {y}]) := cond_isProbabilityMeasure_of_real h2
         apply (IndepFun.identDistrib_cond _ (.singleton _) hZ₂ (hZ₁.add hZ₃) _).symm
         · have : IndepFun (⟨Z₂, Z₄⟩) (⟨Z₁, Z₃⟩) (ℙ[|(⟨Z₂, Z₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
@@ -167,9 +166,6 @@ lemma gen_ineq_aux2 :
             J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
           simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
           simp [h1, h2]
-        · exact hZ₂.add hZ₄ (.singleton _)
-        · exact hZ₁.add hZ₃ (.singleton _)
-        · finiteness
       exact A.rdist_congr B
     · have I1 : H[Z₂ | Z₂ + Z₄] = H[Z₂ | ⟨Z₂ + Z₄, Z₁ + Z₃⟩] := by
         apply (condEntropy_prod_eq_of_indepFun hZ₂ (by fun_prop) (by fun_prop) _).symm
@@ -349,7 +345,6 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     simp [condRuzsaDist'_eq_sum hT₁ hT₃,
       integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
       map_measureReal_apply hT₃ (.singleton _), smul_eq_mul]
-
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const, smul_eq_mul]
     simp [condRuzsaDist'_eq_sum hT₂ hT₃,
@@ -364,8 +359,7 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
     linarith
   have hk : k ≤ sum4 := by
     suffices (Measure.map T₃ ℙ)[fun _ ↦ k] ≤ sum4 by simpa using this
-    refine integral_mono_ae .of_finite .of_finite $
-      ae_iff_of_countable.2 fun t ht ↦ ?_
+    refine integral_mono_ae .of_finite .of_finite <| ae_iff_of_countable.2 fun t ht ↦ ?_
     have : IsProbabilityMeasure (ℙ[|T₃ ⁻¹' {t}]) :=
       cond_isProbabilityMeasure (by simpa [hT₃] using ht)
     dsimp only
@@ -433,13 +427,14 @@ omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ 
 $$ \leq I(U : V \, | \, S) + I(V : W \, | \,S) + I(W : U \, | \, S) + \frac{\eta}{6}
 \sum_{i=1}^2 \sum_{A,B \in \{U,V,W\}: A \neq B} (d[X^0_i;A|B,S] - d[X^0_i; X_i]).$$
 -/
-lemma averaged_construct_good : k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S])
-    + (p.η / 6) * (((d[p.X₀₁ # U | ⟨V, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # U | ⟨W, S⟩] - d[p.X₀₁ # X₁])
-                  + (d[p.X₀₁ # V | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # V | ⟨W, S⟩] - d[p.X₀₁ # X₁])
-                  + (d[p.X₀₁ # W | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # W | ⟨V, S⟩] - d[p.X₀₁ # X₁]))
-                 + ((d[p.X₀₂ # U | ⟨V, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # U | ⟨W, S⟩] - d[p.X₀₂ # X₂])
-                  + (d[p.X₀₂ # V | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # V | ⟨W, S⟩] - d[p.X₀₂ # X₂])
-                  + (d[p.X₀₂ # W | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # W | ⟨V, S⟩] - d[p.X₀₂ # X₂])))
+lemma averaged_construct_good :
+    k ≤ (I[U : V | S] + I[V : W | S] + I[W : U | S]) + p.η / 6 *
+      (((d[p.X₀₁ # U | ⟨V, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # U | ⟨W, S⟩] - d[p.X₀₁ # X₁])
+      + (d[p.X₀₁ # V | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # V | ⟨W, S⟩] - d[p.X₀₁ # X₁])
+      + (d[p.X₀₁ # W | ⟨U, S⟩] - d[p.X₀₁ # X₁]) + (d[p.X₀₁ # W | ⟨V, S⟩] - d[p.X₀₁ # X₁]))
+      + ((d[p.X₀₂ # U | ⟨V, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # U | ⟨W, S⟩] - d[p.X₀₂ # X₂])
+      + (d[p.X₀₂ # V | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # V | ⟨W, S⟩] - d[p.X₀₂ # X₂])
+      + (d[p.X₀₂ # W | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # W | ⟨V, S⟩] - d[p.X₀₂ # X₂])))
     := by
   have hS : Measurable S := by fun_prop
   have hU : Measurable U := by fun_prop
@@ -809,9 +804,9 @@ lemma tau_minimizer_exists_rdist_eq_zero :
     have L2 : Tendsto (fun n ↦ d[id ; (μ (φ n)).1 # id ; (μ (φ n)).2]) atTop (𝓝 0) := by simp [I]
     exact tendsto_nhds_unique L1 L2
 
-/-- `entropic_PFR_conjecture_improv`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
-    subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$. -/
-theorem entropic_PFR_conjecture_improv (hpη : p.η = 1/8) :
+/-- `entropic_PFR_conjecture_improv`: For two $G$-valued random variables $X^0_1, X^0_2$, there is
+some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$. -/
+theorem entropic_PFR_conjecture_improv (hpη : p.η = 1 / 8) :
     ∃ (H : Submodule (ZMod 2) G) (Ω : Type uG) (mΩ : MeasureSpace Ω) (U : Ω → G),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
     IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] := by
@@ -829,7 +824,7 @@ theorem entropic_PFR_conjecture_improv (hpη : p.η = 1/8) :
 /-- `entropic_PFR_conjecture_improv'`: For two $G$-valued random variables $X^0_1, X^0_2$, there is
 some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$., and
 d[X^0_1; U_H] and d[X^0_2; U_H] are at most 5/2 * d[X^0_1;X^0_2] -/
-theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1/8) :
+theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1 / 8) :
     ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
     IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] ∧ d[p.X₀₁ # U]
@@ -864,17 +859,16 @@ the same cardinality as $A$ up to a multiplicative factor $K^10$. -/
 lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * A.ncard) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
       Nat.card c ≤ K ^ 6 * A.ncard ^ (1/2) * (H : Set G).ncard ^ (-1/2) ∧
-        (H : Set G).ncard ≤ K ^ 10 * A.ncard ∧ A.ncard ≤ K ^ 10 * (H : Set G).ncard ∧ A ⊆ c + H := by
+      (H : Set G).ncard ≤ K ^ 10 * A.ncard ∧
+      A.ncard ≤ K ^ 10 * (H : Set G).ncard ∧ A ⊆ c + H := by
   have A_fin : Finite A := by infer_instance
   classical
   let mG : MeasurableSpace G := ⊤
-  have : MeasurableSingletonClass G := ⟨λ _ ↦ trivial⟩
+  have : MeasurableSingletonClass G := ⟨fun _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' (Set.toFinite _) h₀A hA
   let A' := A.toFinite.toFinset
-  have h₀A' : Finset.Nonempty A' := by
-    simp [A', Finset.Nonempty]
-    exact h₀A
+  have h₀A' : Finset.Nonempty A' := by simpa [A', Finset.Nonempty]
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -⟩
   rw [hAA'] at UAunif
@@ -882,7 +876,6 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   rw [hadd_sub] at hA
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
   rw [← hadd_sub] at hA
-
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/8, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture_improv p (by norm_num)
@@ -898,7 +891,6 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have VH'unif := VHunif
   rw [← hHH'] at VH'unif
   have H_fin : Finite (H : Set G) := by infer_instance
-
   have : d[VA # VH] ≤ 5 * log K := by rw [idVA.rdist_congr idVH]; linarith
   have H_pos : (0 : ℝ) < (H : Set G).ncard := by
     have : 0 < (H : Set G).ncard := Nat.card_pos
@@ -935,15 +927,13 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     have := (Real.exp_monotone I).trans h₀
     have hAA'_card : A'.card = A.ncard := by simp [← hAA']
     have hHH'_card : H'.card = (H : Set G).ncard := by simp [← hHH']
-    rw [hAA'_card, hHH'_card, le_div_iff₀] at this
+    rw [hAA'_card, hHH'_card, le_div_iff₀ (by positivity)] at this
     convert this using 1
     · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos,
         ← rpow_def_of_pos H_pos]
       rpow_ring
       norm_num
     · simp [← Set.ncard_coe_finset, hAA', hHH', -add_singleton]
-    positivity
-
   have Hne : (A ∩ (H + {x₀} : Set G)).Nonempty := by
     have : (0 : ℝ) < (A ∩ (H + {x₀})).ncard := lt_of_lt_of_le (by positivity) J
     simpa [Set.ncard_pos (Set.toFinite _)] using this
@@ -967,9 +957,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   obtain ⟨u, huA, hucard, hAu, -⟩ :=
     Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
   have A_subset_uH : A ⊆ u + H := by
-    refine hAu.trans $ add_subset_add_left $
-      (sub_subset_sub (inter_subset_right ..) (inter_subset_right ..)).trans ?_
-    rw [add_sub_add_comm, singleton_sub_singleton, sub_self]
+    grw [hAu, inter_subset_right, add_sub_add_comm, singleton_sub_singleton, sub_self]
     simp
   exact ⟨H, u, hucard, IHA, IAH, A_subset_uH⟩
 

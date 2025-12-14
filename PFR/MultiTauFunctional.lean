@@ -22,7 +22,10 @@ class MeasurableFinGroup (G : Type*)
 extends AddCommGroup G, Fintype G,
           MeasurableSpace G, MeasurableSingletonClass G
 
--- May need an instance lemma here that [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] follows automatically from [MeasurableFinGroup G]
+/-
+May need an instance lemma here that [MeasurableSub₂ G] [MeasurableAdd₂ G] [Countable G] follows
+automatically from [MeasurableFinGroup G]
+-/
 
 /-- A structure that packages all the fixed information in the main argument. See https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Problem.20when.20instances.20are.20inside.20a.20structure for more discussion of the design choices here. -/
 structure multiRefPackage (G Ω₀ : Type u) [MeasurableFinGroup G] [MeasureSpace Ω₀] where
@@ -42,10 +45,16 @@ structure multiRefPackage (G Ω₀ : Type u) [MeasurableFinGroup G] [MeasureSpac
 /-- If $(X_i)_{1 \leq i \leq m}$ is a tuple, we define its $\tau$-functional
 $$ \tau[ (X_i)_{1 \leq i \leq m}] := D[(X_i)_{1 \leq i \leq m}] + \eta \sum_{i=1}^m d[X_i; X^0].$$
 -/
-noncomputable def multiTau {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpace Ω₀] (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i)) (X : ∀ i, Ω i → G) : ℝ :=
+noncomputable def multiTau {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpace Ω₀]
+    (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type*) (hΩ : ∀ i, MeasureSpace (Ω i))
+    (X : ∀ i, Ω i → G) : ℝ :=
   D[X; hΩ] + p.η * ∑ i, d[ X i # p.X₀ ]
 
--- I can't figure out how to make a τ notation due to the dependent types in the arguments. But perhaps we don't need one. Also it may be better to define multiTau in terms of probability measures on G, rather than G-valued random variables, again to avoid dependent type issues.
+/-
+I can't figure out how to make a τ notation due to the dependent types in the arguments.
+But perhaps we don't need one. Also it may be better to define multiTau in terms of probability
+measures on G, rather than G-valued random variables, again to avoid dependent type issues.
+-/
 
 lemma multiTau_of_ident {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpace Ω₀]
     (p : multiRefPackage G Ω₀)
@@ -53,13 +62,14 @@ lemma multiTau_of_ident {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpace 
     {X₁ : ∀ i, Ω₁ i → G} {X₂ : ∀ i, Ω₂ i → G} (h_ident : ∀ i, IdentDistrib (X₁ i) (X₂ i)) :
     multiTau p Ω₁ hΩ₁ X₁ = multiTau p Ω₂ hΩ₂ X₂ := by
   unfold multiTau; congr 1
-  . exact multiDist_copy _ _ _ _ h_ident
+  · exact multiDist_copy _ _ _ _ h_ident
   congr 2 with i
   have := p.hmeas
   exact IdentDistrib.rdist_congr_left (by fun_prop) (h_ident i)
 
 -- had to force objects to lie in a fixed universe `u` here to avoid a compilation error
-/-- A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional among all tuples of $G$-valued random variables. -/
+/-- A $\tau$-minimizer is a tuple $(X_i)_{1 \leq i \leq m}$ that minimizes the $\tau$-functional
+among all tuples of $G$-valued random variables. -/
 def multiTauMinimizes {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpace Ω₀]
     (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i))
     (X : ∀ i, Ω i → G) : Prop :=
@@ -85,8 +95,7 @@ lemma multiTau_continuous {G Ω₀ : Type u} [MeasurableFinGroup G] [Topological
       multiTau p (fun _ ↦ G) (fun i ↦ ⟨μ i⟩) (fun _ ↦ id)) := by
   simp only [multiTau, multiDist, Measure.map_id]
   apply Continuous.add (Continuous.sub ?_ ?_) ?_
-  · simp [entropy]
-    let f : (Fin p.m → G) → G := fun x ↦ ∑ i, x i
+  · let f : (Fin p.m → G) → G := fun x ↦ ∑ i, x i
     have fcont : Continuous f := by fun_prop
     change Continuous fun (x : Fin p.m → ProbabilityMeasure G) ↦
       Hm[(ProbabilityMeasure.map (ProbabilityMeasure.pi x) fcont.aemeasurable : Measure G)]
@@ -144,11 +153,12 @@ lemma multiTau_min_exists {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpac
   apply Measure.isProbabilityMeasure_map
   exact (hX i).aemeasurable
 
-/-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/
+/-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer,
+then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/
 lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG : MeasurableFinGroup G] [hΩ₀ : MeasureSpace Ω₀]
     (p : multiRefPackage G Ω₀) (Ω : Fin p.m → Type u) (hΩ : ∀ i, MeasureSpace (Ω i))
     (hprobΩ : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) (X : ∀ i, Ω i → G)
-    (hX : ∀ i, Measurable (X i)) (h_min : multiTauMinimizes p Ω hΩ X):
+    (hX : ∀ i, Measurable (X i)) (h_min : multiTauMinimizes p Ω hΩ X) :
   ∑ i, d[X i # p.X₀] ≤ 2 * p.m * p.η⁻¹ * d[p.X₀ # p.X₀] := by
   have hη : p.η > 0 := p.hη
   have hm : p.m > 0 := by linarith [p.hm]
@@ -171,9 +181,8 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG : MeasurableFinGroup G] [hΩ₀
       · have : NeZero p.m := ⟨hm.ne'⟩
         apply multidist_ruzsa_III p.hm (fun _ ↦ hΩ₀) (fun _ ↦ p.X₀) _ (fun _ ↦ p.hmeas)
           (fun _ ↦ p.hprob) _ 0
-        . intro _ _
-          simp
-          exact .refl p.hmeas.aemeasurable
+        · intro _ _
+          simpa using .refl p.hmeas.aemeasurable
         intro _; infer_instance
       · have : 0 ≤ d[p.X₀ # p.X₀] := rdist_nonneg p.hmeas p.hmeas
         positivity
@@ -183,10 +192,11 @@ lemma multiTau_min_sum_le {G Ω₀ : Type u} [hG : MeasurableFinGroup G] [hΩ₀
       ring
 
 
-/-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
+/-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$,
+then for any other tuple $(X'_i)_{1 \leq i \leq m}$, one has
   $$ k - D[(X'_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i].$$
 -/
-lemma sub_multiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [hΩ₀: MeasureSpace Ω₀]
+lemma sub_multiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [hΩ₀ : MeasureSpace Ω₀]
     {p : multiRefPackage G Ω₀} {Ω : Fin p.m → Type u} {hΩ : ∀ i, MeasureSpace (Ω i)}
     (hΩprob : ∀ i, IsProbabilityMeasure (hΩ i).volume) {X : ∀ i, Ω i → G}
     (hmeasX : ∀ i, Measurable (X i)) (h_min : multiTauMinimizes p Ω hΩ X)
@@ -213,8 +223,8 @@ lemma sub_multiDistance_le' {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSp
     (hΩprob : ∀ i, IsProbabilityMeasure (hΩ i).volume)
     {X : ∀ i, Ω i → G} (hmeasX : ∀ i, Measurable (X i)) (h_min : multiTauMinimizes p Ω hΩ X)
     {Ω' : Fin p.m → Type u} {hΩ' : ∀ i, MeasureSpace (Ω' i)}
-    (hΩ'prob: ∀ i, IsProbabilityMeasure (hΩ' i).volume) {X' : ∀ i, Ω' i → G}
-    (hmeasX': ∀ i, Measurable (X' i)) (φ : Equiv.Perm (Fin p.m)) :
+    (hΩ'prob : ∀ i, IsProbabilityMeasure (hΩ' i).volume) {X' : ∀ i, Ω' i → G}
+    (hmeasX' : ∀ i, Measurable (X' i)) (φ : Equiv.Perm (Fin p.m)) :
     D[X; hΩ] - D[X'; hΩ'] ≤
       p.η * ∑ i, d[X (φ i) ; (hΩ (φ i)).volume # X' i; (hΩ' i).volume ] := by
   let Xφ := fun i => X (φ i)
@@ -238,20 +248,22 @@ lemma sub_multiDistance_le' {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSp
         exact Fintype.sum_equiv φ _ _ fun _ ↦ rfl
       _ ≤ multiTau p Ω'' hΩ'' X'' := h_min Ω'' hΩ'' hprob X'' hX''
 
-/-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$, then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$ $G$-valued, one has
-  $$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}] \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$ -/
+/-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer, and $k := D[(X_i)_{1 \leq i \leq m}]$,
+then for any other tuples $(X'_i)_{1 \leq i \leq m}$ and $(Y_i)_{1 \leq i \leq m}$ with the $X'_i$
+G$-valued, one has
+$$ k - D[(X'_i)_{1 \leq i \leq m} | (Y_i)_{1 \leq i \leq m}]
+  \leq \eta \sum_{i=1}^m d[X_i; X'_i|Y_i].$$ -/
 lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpace Ω₀]
     {p : multiRefPackage G Ω₀} {Ω : Fin p.m → Type u} {hΩ : ∀ i, MeasureSpace (Ω i)}
     (hΩprob : ∀ i, IsProbabilityMeasure (hΩ i).volume) {X : ∀ i, Ω i → G}
     (hmeasX : ∀ i, Measurable (X i)) (h_min : multiTauMinimizes p Ω hΩ X)
     {Ω' : Fin p.m → Type u} {hΩ' : ∀ i, MeasureSpace (Ω' i)}
-    (hΩ'prob: ∀ i, IsProbabilityMeasure (hΩ' i).volume)
-    {X' : ∀ i, Ω' i → G} (hmeasX': ∀ i, Measurable (X' i))
+    (hΩ'prob : ∀ i, IsProbabilityMeasure (hΩ' i).volume)
+    {X' : ∀ i, Ω' i → G} (hmeasX' : ∀ i, Measurable (X' i))
     {S : Type u} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    {Y : ∀ i, Ω' i → S} (hY : ∀ i, Measurable (Y i) ):
+    {Y : ∀ i, Ω' i → S} (hY : ∀ i, Measurable (Y i)) :
     D[X; hΩ] - D[X'|Y; hΩ'] ≤ p.η * ∑ i, d[X i ; (hΩ i).volume # X' i | Y i; (hΩ' i).volume] := by
   set μ := fun ω : Fin p.m → S ↦ ∏ i : Fin p.m, Measure.real ℙ (Y i ⁻¹' {ω i})
-
   have probmes (i : Fin p.m) : ∑ ωi : S, (Measure.real ℙ (Y i ⁻¹' {ωi})) = 1 := by
     convert sum_measureReal_singleton (s := Finset.univ) (μ := .map (Y i) ℙ) with ω _ i _
     · exact (map_measureReal_apply (hY i) ( .singleton ω)).symm
@@ -259,7 +271,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [Measur
     rw [map_measureReal_apply (hY i) (Finset.measurableSet _), Finset.coe_univ, Set.preimage_univ,
       probReal_univ]
 -- μ has total mass one
-  have total : ∑ (ω : Fin p.m → S), μ ω = 1 := calc
+  have total : ∑ ω, μ ω = 1 := calc
     _ = ∏ i, ∑ ωi, Measure.real ℙ (Y i ⁻¹' {ωi}) := by
       convert Finset.sum_prod_piFinset Finset.univ _ with ω _ i _
       rfl
@@ -269,18 +281,17 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [Measur
       exact probmes i
     _ = 1 := by
       simp only [Finset.prod_const_one]
-
   calc
-    _ = ∑ (ω : Fin p.m → S), μ ω * D[X; hΩ] -
-        ∑ (ω : Fin p.m → S), μ ω * D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]] := by
+    _ = ∑ ω, μ ω * D[X; hΩ] -
+        ∑ ω, μ ω * D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]] := by
       congr
       rw [← Finset.sum_mul, total, one_mul]
-    _ = ∑ (ω : Fin p.m → S), μ ω * (D[X; hΩ] - D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]]) := by
+    _ = ∑ ω, μ ω * (D[X; hΩ] - D[X' ; fun i ↦ MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]]) := by
       rw [← Finset.sum_sub_distrib]
       apply Finset.sum_congr rfl
       intro _ _
       exact (mul_sub_left_distrib _ _ _).symm
-    _ ≤ ∑ (ω : Fin p.m → S), μ ω * (p.η * ∑ i, d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ]) := by
+    _ ≤ ∑ ω, μ ω * (p.η * ∑ i, d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ]) := by
       apply Finset.sum_le_sum
       intro ω _
       rcases eq_or_ne (μ ω) 0 with hω | hω
@@ -293,7 +304,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [Measur
         apply Finset.prod_eq_zero (Finset.mem_univ i)
         simp only [measureReal_def, hω, ENNReal.toReal_zero]
       exact sub_multiDistance_le hΩprob hmeasX h_min hΩ'prob_cond hmeasX'
-    _ = p.η * ∑ i, ∑ (ω : Fin p.m → S), μ ω * d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ] := by
+    _ = p.η * ∑ i, ∑ ω, μ ω * d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ] := by
       rw [Finset.sum_comm, Finset.mul_sum]
       apply Finset.sum_congr rfl
       intro ω _
@@ -334,8 +345,8 @@ lemma sub_condMultiDistance_le' {G Ω₀ : Type u} [MeasurableFinGroup G] [Measu
     (hΩprob : ∀ i, IsProbabilityMeasure (hΩ i).volume)
     {X : ∀ i, Ω i → G} (hmeasX : ∀ i, Measurable (X i)) (h_min : multiTauMinimizes p Ω hΩ X)
     {Ω' : Fin p.m → Type u} {hΩ' : ∀ i, MeasureSpace (Ω' i)}
-    (hΩ'prob: ∀ i, IsProbabilityMeasure (hΩ' i).volume) {X' : ∀ i, Ω' i → G}
-    (hmeasX': ∀ i, Measurable (X' i))
+    (hΩ'prob : ∀ i, IsProbabilityMeasure (hΩ' i).volume) {X' : ∀ i, Ω' i → G}
+    (hmeasX' : ∀ i, Measurable (X' i))
     {S : Type u} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
     {Y : ∀ i, Ω' i → S} (hY : ∀ i, Measurable (Y i)) (φ : Equiv.Perm (Fin p.m)) :
     D[X; hΩ] - D[X'|Y; hΩ'] ≤
