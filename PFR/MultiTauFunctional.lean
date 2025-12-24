@@ -1,5 +1,5 @@
 import Mathlib.MeasureTheory.Measure.FiniteMeasurePi
-import PFR.ForMathlib.CompactProb
+import Mathlib.MeasureTheory.Measure.Prokhorov
 import PFR.MoreRuzsaDist
 
 /-!

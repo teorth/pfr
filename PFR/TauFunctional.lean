@@ -1,4 +1,4 @@
-import PFR.ForMathlib.CompactProb
+import Mathlib.MeasureTheory.Measure.Prokhorov
 import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
@@ -126,7 +126,6 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
       τ[id ; μ.1 # id ; μ.2 | p] ≤ τ[id ; ν₁ # id ; ν₂ | p] := by
   let _i : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
   have : DiscreteTopology G := ⟨rfl⟩
-  have GG_cpt : CompactSpace (ProbabilityMeasure G × ProbabilityMeasure G) := inferInstance
   let T : ProbabilityMeasure G × ProbabilityMeasure G → ℝ := -- restrict τ to the compact subspace
     fun ⟨μ₁, μ₂⟩ ↦ τ[id ; μ₁ # id ; μ₂ | p]
   have T_cont : Continuous T := by apply continuous_tau_restrict_probabilityMeasure

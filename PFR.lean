@@ -6,7 +6,6 @@ import PFR.Examples
 import PFR.Fibring
 import PFR.FirstEstimate
 import PFR.ForMathlib.AffineSpaceDim
-import PFR.ForMathlib.CompactProb
 import PFR.ForMathlib.ConditionalIndependence
 import PFR.ForMathlib.Entropy.Basic
 import PFR.ForMathlib.Entropy.Group
@@ -31,7 +30,6 @@ import PFR.Kullback
 import PFR.Main
 import PFR.Mathlib.Algebra.BigOperators.Fin
 import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
-import PFR.Mathlib.Analysis.Convex.StdSimplex
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Fin.Basic
 import PFR.Mathlib.Data.Set.Basic

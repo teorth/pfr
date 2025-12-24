@@ -2256,7 +2256,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
     obtain ⟨i, hi⟩ := i; ext x ⟨j, hj⟩
     by_cases h: j + 1 = i <;> simp only [Fin.castSucc_mk, Fin.val_top, Nat.add_one_sub_one,
       AddMonoidHom.coe_mk, ZeroHom.coe_mk, h, ↓reduceIte, Fin.succ_mk, Fin.val_succ,
-      Fin.coe_castSucc, Nat.add_right_cancel_iff, add_tsub_cancel_right, comp_apply,
+      Fin.val_castSucc, Nat.add_right_cancel_iff, add_tsub_cancel_right, comp_apply,
       right_eq_ite_iff, π, π₀, φ, φ₀]
     · simp only [show ¬i - 1 = i by omega, ↓reduceIte]
       convert (Finset.add_sum_erase _ x _).symm using 3
@@ -2385,7 +2385,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
             by_cases h:k.val = j+1 <;> by_cases h':k.val = j <;>
               simp only [Fin.val_top, Nat.add_one_sub_one, Fin.val_succ, Nat.add_right_cancel_iff,
                 add_tsub_cancel_right, AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, h, h',
-                ↓reduceIte, Fin.castSucc_succ, Fin.coe_castSucc, Fin.val_last, Pi.add_apply,
+                ↓reduceIte, Fin.castSucc_succ, Fin.val_castSucc, Fin.val_last, Pi.add_apply,
                 ↓reduceDIte, G', π, π₀, X', ι', a, Nat.left_eq_add, one_ne_zero, add_zero,
                 Fin.val_top, zero_add]
             · omega
@@ -2409,10 +2409,10 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
                 ⟨fun i ↦ x i ⟨j, by simp⟩, fun i ⟨k, hk⟩ ↦ x i ⟨k, by simp; omega⟩⟩
               have hf : Function.Injective f := by
                 intro x y hxy
-                simp only [Fin.castSucc_succ, Fin.val_succ, Fin.coe_castSucc, Prod.mk.injEq,
+                simp only [Fin.castSucc_succ, Fin.val_succ, Fin.val_castSucc, Prod.mk.injEq,
                   f] at hxy
                 ext i ⟨k, hk⟩
-                simp only [Fin.castSucc_succ, Fin.val_succ, Fin.coe_castSucc] at hk
+                simp only [Fin.castSucc_succ, Fin.val_succ, Fin.val_castSucc] at hk
                 by_cases hk' : k = j
                 · convert congrFun hxy.1 i
                 convert congrFun (congrFun hxy.2 i) ⟨k, by omega⟩
@@ -2444,7 +2444,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
               convert h_indep.finsets_comp' h_disjoint hmes (show Measurable φ by fun_prop)
                 (show Measurable φ' by fun_prop) using 1
               ext ω i <;>
-              simp only [Fin.castSucc_succ, Fin.val_succ, Fin.coe_castSucc, Fin.val_top,
+              simp only [Fin.castSucc_succ, Fin.val_succ, Fin.val_castSucc, Fin.val_top,
                 Nat.add_one_sub_one, Nat.add_right_cancel_iff, add_tsub_cancel_right,
                 AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, ↓reduceIte, Finset.univ_eq_attach,
                 f, π, π₀, X', φ]
@@ -2454,9 +2454,9 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
               ⟨x ⟨j, by simp⟩, fun ⟨k, hk⟩ ↦ x ⟨k, by simp; omega⟩⟩
             have hf : Function.Injective f := by
               intro x y hxy
-              simp only [Fin.castSucc_succ, Fin.val_succ, Fin.coe_castSucc, Prod.mk.injEq, f] at hxy
+              simp only [Fin.castSucc_succ, Fin.val_succ, Fin.val_castSucc, Prod.mk.injEq, f] at hxy
               ext ⟨k, hk⟩
-              simp only [Fin.castSucc_succ, Fin.val_succ, Fin.coe_castSucc] at hk
+              simp only [Fin.castSucc_succ, Fin.val_succ, Fin.val_castSucc] at hk
               by_cases hk' : k = j
               · convert hxy.1
               convert congrFun hxy.2 ⟨k, by omega⟩
@@ -2488,7 +2488,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
             convert h_indep.finsets_comp' h_disjoint' hmes (show Measurable φ by fun_prop)
               (show Measurable φ' by fun_prop) using 1
             ext ω <;>
-              simp only [Fin.castSucc_succ, Fin.val_succ, Fin.coe_castSucc, Fin.val_top,
+              simp only [Fin.castSucc_succ, Fin.val_succ, Fin.val_castSucc, Fin.val_top,
                 Nat.add_one_sub_one, Nat.add_right_cancel_iff, add_tsub_cancel_right,
                 AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, ↓reduceIte, Finset.univ_eq_attach,
                 f, π, π₀, X', φ]

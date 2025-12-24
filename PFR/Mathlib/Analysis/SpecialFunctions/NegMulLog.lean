@@ -42,8 +42,7 @@ lemma sum_mul_log_div_leq {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) (hb :
   suffices - (∑ i ∈ s, a i * log (a i / b i)) / B ≤
         - ((∑ i ∈ s, a i) * log ((∑ i ∈ s, a i) / (∑ i ∈ s, b i))) / B by
     rwa [div_le_div_iff_of_pos_right B_pos, neg_le_neg_iff] at this
-  have A : ∑ i ∈ s, b i / B = 1 := by
-    simpa [← Finset.sum_div] using div_self B_pos.ne'
+  have A : ∑ i ∈ s, b i / B = 1 := by simp [← Finset.sum_div, B, div_self B_pos.ne']
   have A' : ∀ i ∈ s, 0 ≤ b i / B := fun i hi ↦ div_nonneg (hb i hi) B_pos.le
   have A'' : ∀ i ∈ s, 0 ≤ a i / b i := fun i hi ↦ div_nonneg (ha i hi) (hb i hi)
   convert ConcaveOn.le_map_sum Real.concaveOn_negMulLog A' A (p := fun i ↦ a i / b i) A'' using 1
@@ -76,8 +75,7 @@ lemma sum_mul_log_div_eq_iff_aux {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i
     refine ⟨∑ i ∈ s, (b i / B) * (a i / b i), fun j hj ↦ ?_⟩
     specialize this j hj
     rwa [div_eq_iff (hb j hj).ne'] at this
-  have A : ∑ i ∈ s, b i / B = 1 := by
-    simpa [← Finset.sum_div] using div_self B_pos.ne'
+  have A : ∑ i ∈ s, b i / B = 1 := by simp [← Finset.sum_div, B, div_self B_pos.ne']
   have A' : ∀ i ∈ s, 0 < b i / B := fun i hi ↦ div_pos (hb i hi) B_pos
   have A'' : ∀ i ∈ s, 0 ≤ a i / b i := fun i hi ↦ div_nonneg (ha i hi) (hb i hi).le
   apply (StrictConcaveOn.map_sum_eq_iff Real.strictConcaveOn_negMulLog A' A A'').1

@@ -1,8 +1,8 @@
 import Mathlib.Probability.IdentDistrib
-import PFR.ForMathlib.CompactProb
 import PFR.ForMathlib.Entropy.Basic
 import PFR.ForMathlib.FiniteRange.Defs
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
+import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 /-!
 # Kullback-Leibler divergence
