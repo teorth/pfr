@@ -36,6 +36,17 @@ jobs:
     name: Build project
     runs-on: ubuntu-latest
     steps:
+      - name: Cleanup to free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: false
+          haskell: false
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
       - name: Checkout project
         uses: actions/checkout@v5
         with:
