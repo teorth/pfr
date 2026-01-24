@@ -306,4 +306,6 @@ theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
         intro h1 h2
         simp [h1, h2]
 
+/-- info: 'approx_hom_pfr'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
 #print axioms approx_hom_pfr'

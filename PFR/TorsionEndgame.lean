@@ -1032,4 +1032,6 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m �
         rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
         congr; push_cast; ring
 
+/-- info: 'torsion_PFR' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
 #print axioms torsion_PFR

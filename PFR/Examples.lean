@@ -18,6 +18,8 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
   convert PFR_conjecture h₀A hA
   norm_cast
 
+/-- info: 'PFR_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
 #print axioms PFR_conjecture
 
 /-- The improved version -/
@@ -27,6 +29,8 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
   convert PFR_conjecture_improv h₀A hA
   norm_cast
 
+/-- info: 'PFR_conjecture_improv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
 #print axioms PFR_conjecture_improv
 
 /-- The even more improved version -/
@@ -35,6 +39,8 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
       Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H :=
   better_PFR_conjecture h₀A hA
 
+/-- info: 'better_PFR_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
 #print axioms better_PFR_conjecture
 
 /-- The homomorphism version of PFR. -/
