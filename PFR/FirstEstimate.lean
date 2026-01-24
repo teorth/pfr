@@ -23,7 +23,7 @@ Assumptions:
 
 open MeasureTheory ProbabilityTheory
 
-variable {G : Type*} [addgroup : AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+variable {G : Type*} [addgroup : AddCommGroup G] [Finite G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
@@ -55,6 +55,7 @@ is equal to $2k$. -/
 lemma rdist_add_rdist_add_condMutual_eq [Module (ZMod 2) G] :
     d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁']
       + I[X₁ + X₂ : X₁' + X₂ | X₁ + X₂ + X₁' + X₂'] = 2 * k := by
+  cases nonempty_fintype G
   have h0 : ![X₁, X₂, X₂', X₁'] 0 = X₁ := rfl
   have h1 : ![X₁, X₂, X₂', X₁'] 1 = X₂ := rfl
   have h2 : ![X₁, X₂, X₂', X₁'] 2 = X₂' := rfl

@@ -82,7 +82,7 @@ lemma rdist_of_hom_le {Z_1 : Ω → H} {Z_2 : Ω' → H}
 
 end GeneralFibring
 
-variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+variable {G : Type*} [AddCommGroup G] [Finite G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G]
 variable {Ω : Type*} [mΩ : MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMeasure μ]
 
@@ -114,7 +114,7 @@ lemma sum_of_rdist_eq_step_condRuzsaDist {Y : Fin 4 → Ω → G} (h_indep : iIn
 
 /-- The conditional mutual information step of `sum_of_rdist_eq` -/
 lemma sum_of_rdist_eq_step_condMutualInfo {Y : Fin 4 → Ω → G}
-  (h_meas : ∀ i, Measurable (Y i)) :
+    (h_meas : ∀ i, Measurable (Y i)) :
     I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =
     I[Y 0 - Y 1 : Y 1 - Y 3|Y 0 - Y 1 - Y 2 + Y 3;μ] := by
   suffices I[⟨Y 0 - Y 1, Y 2 - Y 3⟩:⟨Y 0 - Y 2, Y 1 - Y 3⟩|Y 0 - Y 1 - (Y 2 - Y 3);μ] =

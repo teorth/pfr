@@ -696,7 +696,8 @@ lemma local_support_of_finiteKernelSupport
   use t
 
 /-- Finite range implies finite kernel support. -/
-lemma finiteKernelSupport_of_finite_range [Fintype S] (κ : Kernel T S) : FiniteKernelSupport κ := by
+lemma finiteKernelSupport_of_finite_range [Finite S] (κ : Kernel T S) : FiniteKernelSupport κ := by
+  cases nonempty_fintype S
   intro t
   use Finset.univ
   simp

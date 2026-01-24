@@ -135,7 +135,7 @@ lemma AEMeasurable.piMk {I : Type*} [Countable I] {F : I → Ω → β} (hF : �
   filter_upwards [eventually_countable_forall.mpr (fun i ↦ (hF i).ae_eq_mk)] with ω hω
   ext i; exact hω i
 
-theorem IdentDistrib.iprodMk {I : Type*} [Fintype I] {F : I → Ω → β} {F' : I → Ω' → β}
+theorem IdentDistrib.iprodMk {I : Type*} [Finite I] {F : I → Ω → β} {F' : I → Ω' → β}
     (hFF' : ∀ i, IdentDistrib (F i) (F' i) μ ν) (hμ : IsProbabilityMeasure μ)
     (hν : IsProbabilityMeasure ν) (h : iIndepFun F μ) (h' : iIndepFun F' ν) :
     IdentDistrib (fun x i ↦ F i x) (fun x i ↦ F' i x) μ ν where
@@ -146,6 +146,7 @@ theorem IdentDistrib.iprodMk {I : Type*} [Fintype I] {F : I → Ω → β} {F' :
     apply AEMeasurable.piMk
     intro i; exact (hFF' i).aemeasurable_snd
   map_eq := by
+    cases nonempty_fintype I
     rw [iIndepFun_iff_map_fun_eq_pi_map] at h h'
     · rw [h,h']
       congr
@@ -257,13 +258,14 @@ lemma independent_copies_two {Ω : Type u} {Ω' : Type v} [MeasureSpace Ω] [Mea
 /-- Let `Xᵢ : Ωᵢ → Sᵢ` be random variables for `i = 1,...,k`.
 Then there exist jointly independent random variables `Xᵢ' : Ω' → Sᵢ` for `i=1,...,k`
 such that each `Xᵢ'` is a copy of `Xᵢ`. -/
-lemma independent_copies' {I : Type u} [Fintype I] {α : I → Type u'}
+lemma independent_copies' {I : Type u} [Finite I] {α : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (α i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → α i) (hX : ∀ i : I, Measurable (X i))
     (μ : ∀ i : I, Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)] :
     ∃ (A : Type (max u v)) (_ : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
     IsProbabilityMeasure μA ∧ iIndepFun X' μA ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) := by
+  cases nonempty_fintype I
   refine ⟨Π i, Ω i, inferInstance, .pi μ, fun i ↦ X i ∘ eval i, inferInstance, ?_, fun i ↦ ⟨?_, ?_⟩⟩
   · rw [iIndepFun_iff]
     intro t s hs

@@ -489,8 +489,9 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
     _ = 4 * (p.m^3 - p.m^2) * k - 3 * p.m * (2*p.m - 1) * k /2 := by ring
     _ ≤ _ := by simp; positivity
 
-lemma pigeonhole {G : Type*} [MeasureSpace G] [IsProbabilityMeasure (ℙ : Measure G)] [Fintype G]
+lemma pigeonhole {G : Type*} [MeasureSpace G] [IsProbabilityMeasure (ℙ : Measure G)] [Finite G]
     [MeasurableSingletonClass G] (f : G → ℝ) : ∃ x, f x ≤ ∫ (z : G), f z ∧ ℙ {x} ≠ 0 := by
+  cases nonempty_fintype G
   set I := ∫ (z : G), f z with hI
   simp only [Integrable.of_finite, integral_fintype, smul_eq_mul] at hI
   by_contra!
@@ -704,11 +705,12 @@ universe u
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. Suppose that $X$ is a $G$-valued
 random variable. Then there exists a subgroup $H \leq G$ such that
 \[ d[X;U_H] \leq 64 m^3 d[X;X].\]. -/
-lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Fintype G] [MeasurableSpace G]
+lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Finite G] [MeasurableSpace G]
     [MeasurableSingletonClass G] {m : ℕ} (hm : m ≥ 2) (htorsion : ∀ x:G, m • x = 0) {Ω : Type u}
     [MeasureSpace Ω] [IsProbabilityMeasure (ℙ:Measure Ω)] {X: Ω → G} (hX: Measurable X) :
     ∃ H : AddSubgroup G, ∃ Ω' : Type u, ∃ mΩ : MeasureSpace Ω', IsProbabilityMeasure mΩ.volume ∧
       ∃ U : Ω' → G, IsUniform H U ∧ Measurable U ∧ d[X # U] ≤ 64 * m^3 * d[X # X] := by
+  cases nonempty_fintype G
   let _ : MeasurableFinGroup G := {
   }
   let p : multiRefPackage G Ω := {
@@ -800,7 +802,7 @@ theorem rdist_le_of_isUniform_of_card_add_le' {G : Type*} [AddCommGroup G] {A : 
 $|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^
 {(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
 $|H|/|A| \in [K^{-64m^3}, K^{64m^3}]$. -/
-lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m : ℕ} (hm : m ≥ 2)
+lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m ≥ 2)
     (htorsion : ∀ x:G, m • x = 0) {A : Set G} [A_fin: Finite A] {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * A.ncard) :
     ∃ (H : AddSubgroup G) (c : Set G),
@@ -913,7 +915,7 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Fintype G] {m : �
 /-- Every subgroup `H` of a finite `m`-torsion abelian group `G` contains a subgroup `H'` of order
 between `k` and `mk`, if `0 < k < |H|`. -/
 lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2)
-    [AddCommGroup G] [Fintype G] (htorsion : ∀ x:G, m • x = 0)
+    [AddCommGroup G] [Finite G] (htorsion : ∀ x:G, m • x = 0)
     {k : ℕ} (H : AddSubgroup G) (hk : k ≤ (H : Set G).ncard) (h'k : k ≠ 0) :
     ∃ (K : AddSubgroup G), (K : Set G).ncard ≤ k ∧ k < m * (K : Set G).ncard ∧ K ≤ H := by
     let S := {K: AddSubgroup G | K ≤ H ∧ (K : Set G).ncard ≤ k }
@@ -956,7 +958,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
 /-- Suppose that $G$ is a finite abelian group of torsion $m$.
 If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$
 translates of a subspace $H$ of $G$ with $|H| \leq |A|$. -/
-theorem torsion_PFR {G : Type*} [AddCommGroup G] [Fintype G] {m : ℕ} (hm : m ≥ 2)
+theorem torsion_PFR {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m ≥ 2)
      (htorsion : ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
      (hA : Nat.card (A + A) ≤ K * A.ncard) :
      ∃ (H : AddSubgroup G) (c : Set G),

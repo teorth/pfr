@@ -164,10 +164,9 @@ lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Mea
   _ = μ (X ⁻¹' (H' ∩ H) ∪ X ⁻¹' (H' \ H)) := by simp
   _ = μ (X ⁻¹' (H' ∩ H)) + μ (X ⁻¹' (H' \ H)) :=
     measure_union (Disjoint.preimage X disjoint_inf_sdiff) (by measurability)
-  _ = μ (X ⁻¹' (H' ∩ H)) + 0 := congrArg _ <| by
-    rewrite [Set.diff_eq_compl_inter, ← le_zero_iff, ← h.measure_preimage_compl]
-    exact measure_mono inter_subset_left
-  _ = μ (X ⁻¹' (H' ∩ H).toFinite.toFinset) := by simp
+  _ = μ (X ⁻¹' (H' ∩ H).toFinite.toFinset) := by
+    simp [Set.diff_eq_compl_inter, measure_mono_null inter_subset_left h.measure_preimage_compl,
+      -preimage_compl]
   _ = μ univ * ∑ __ ∈ (H' ∩ H).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
     rewrite [← sum_measure_preimage_singleton _ (by measurability), Finset.mul_sum]
     refine Finset.sum_congr rfl (fun _ hx ↦ ?_)
@@ -222,8 +221,8 @@ lemma IsUniform.restrict {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) 
     simp only [cond, Measure.smul_apply, smul_eq_mul]
     rw [μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hx.1)),
       μ.restrict_eq_self (preimage_mono (singleton_subset_iff.mpr hy.1)), h.eq_of_mem hx.2 hy.2]
-  measure_preimage_compl := le_zero_iff.mp <| by
-    rewrite [Set.compl_inter, Set.preimage_union]
+  measure_preimage_compl := by
+    rewrite [← nonpos_iff_eq_zero, Set.compl_inter, Set.preimage_union]
     calc
       _ ≤ (μ[|X ⁻¹' H']) (X ⁻¹' H'ᶜ) + (μ[|X ⁻¹' H']) (X ⁻¹' Hᶜ) := measure_union_le _ _
       _ = (μ[|X ⁻¹' H']) (X ⁻¹' H'ᶜ) + 0 := congrArg _ <| by

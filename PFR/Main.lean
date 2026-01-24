@@ -20,7 +20,7 @@ open scoped Pointwise
 universe u
 
 namespace ProbabilityTheory
-variable {G Ω : Type*} [AddCommGroup G] [Fintype G]
+variable {G Ω : Type*} [AddCommGroup G] [Finite G]
     [MeasurableSpace G] [MeasurableSingletonClass G] {A B : Finset G}
     [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U V : Ω → G}
 
@@ -30,6 +30,7 @@ lemma IsUniform.measureReal_preimage_sub_zero [DecidableEq G] (Uunif : IsUniform
     (Umeas : Measurable U) (Vunif : IsUniform B V) (Vmeas : Measurable V) (h_indep : IndepFun U V) :
     (ℙ : Measure Ω).real ((U - V) ⁻¹' {0})
       = (A ∩ B).card / (A.card * B.card) := by
+  cases nonempty_fintype G
   have : (U - V) ⁻¹' {0} = ⋃ (g : G), (U ⁻¹' {g} ∩ V⁻¹' {g}) := by
     ext ω; simp [sub_eq_zero, eq_comm]
   rw [this, measureReal_iUnion_fintype _ (fun i ↦ (Umeas .of_discrete).inter <| Vmeas .of_discrete)]
@@ -127,7 +128,7 @@ theorem rdist_le_of_isUniform_of_card_add_le [A_fin : Finite A] [MeasurableSpace
     linarith
   rwa [idU.rdist_congr idU'] at IU
 
-variable [Module (ZMod 2) G] [Fintype G]
+variable [Module (ZMod 2) G] [Finite G]
 
 lemma sumset_eq_sub {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] (A : Set G) :
     A + A = A - A := by
@@ -144,6 +145,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
     Nat.card c ≤ K ^ (13/2 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ) ∧
       (H : Set G).ncard ≤ K ^ 11 * A.ncard ∧ A.ncard ≤ K ^ 11 * (H : Set G).ncard ∧ A ⊆ c + H := by
+  cases nonempty_fintype G
   classical
   have A_fin : Finite A := by infer_instance
   let _mG : MeasurableSpace G := ⊤

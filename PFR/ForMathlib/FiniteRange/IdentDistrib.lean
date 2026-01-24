@@ -147,7 +147,7 @@ lemma independent_copies4_nondep_finiteRange {α : Type u}
 
 /-- A version of `independent_copies'` that guarantees that the copies have `FiniteRange`
 if the original variables do. -/
-lemma independent_copies'_finiteRange {I : Type u} [Fintype I] {α : I → Type u'}
+lemma independent_copies'_finiteRange {I : Type u} [Finite I] {α : I → Type u'}
     [mS : ∀ i : I, MeasurableSpace (α i)] [mS' : ∀ i, MeasurableSingletonClass (α i)]
     [mnon: ∀ i, Nonempty (α i)] {Ω : I → Type v}
     [mΩ : ∀ i : I, MeasurableSpace (Ω i)] (X : ∀ i : I, Ω i → α i) (hX : ∀ i : I, Measurable (X i))
@@ -155,6 +155,7 @@ lemma independent_copies'_finiteRange {I : Type u} [Fintype I] {α : I → Type 
     ∃ (A : Type (max u v)) (_ : MeasurableSpace A) (μA : Measure A) (X' : ∀ i, A → α i),
     IsProbabilityMeasure μA ∧ iIndepFun X' μA ∧
     ∀ i : I, Measurable (X' i) ∧ IdentDistrib (X' i) (X i) μA (μ i) ∧ FiniteRange (X' i) := by
+  cases nonempty_fintype I
   obtain ⟨A, mA, μA, X', ⟨hμA, hindep, hident⟩⟩ := independent_copies' X hX μ
   set h := fun i ↦ (identDistrib_of_finiteRange ((hident i).1) (hident i).2.symm)
   choose X'' hX'' using h

@@ -94,7 +94,8 @@ noncomputable def FiniteEntropy (μ : Measure S := by volume_tac) : Prop :=
   Summable (fun s ↦ negMulLog (((μ Set.univ)⁻¹ • μ) {s}).toReal) ∧
   ∃ A : Set S, Countable A ∧ μ Aᶜ = 0
 
-instance finiteSupport_of_fintype {μ : Measure S} [Fintype S] : FiniteSupport μ := by
+instance finiteSupport_of_fintype {μ : Measure S} [Finite S] : FiniteSupport μ := by
+  cases nonempty_fintype S
   use Finset.univ
   simp
 

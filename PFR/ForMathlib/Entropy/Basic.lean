@@ -253,10 +253,9 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
   have h_invnorm_ne_zero : norm⁻¹ ≠ 0 := ENNReal.inv_ne_top.mp h_invinvnorm_finite
   have h_invnorm_finite : norm⁻¹ ≠ ∞ := by
     rw [← ENNReal.inv_ne_zero, inv_inv]
-    exact ne_zero_of_lt h_norm_pos
+    exact h_norm_pos.ne'
   have h_pdf_finite : ∀ s, pdf_nn s ≠ ∞ := fun s ↦ ENNReal.mul_ne_top h_invnorm_finite (h_finite s)
-  have h_norm_cancel : norm * norm⁻¹ = 1 :=
-    ENNReal.mul_inv_cancel (ne_zero_of_lt h_norm_pos) (LT.lt.ne_top h_norm_finite)
+  have h_norm_cancel : norm * norm⁻¹ = 1 := ENNReal.mul_inv_cancel h_norm_pos.ne' h_norm_finite.ne
   have h_pdf1 : (∑ s ∈ A, pdf s) = 1 := by
     rw [← ENNReal.toReal_sum (fun s _ ↦ h_pdf_finite s), ← Finset.mul_sum,
       sum_measure_singleton, mul_comm, h_norm_cancel, ENNReal.toReal_one]
@@ -447,8 +446,9 @@ variable [MeasurableSingletonClass T]
 lemma condEntropy_prod_eq_sum {X : Ω → S} {Y : Ω → T} {Z : Ω → T'} [MeasurableSpace T']
     [MeasurableSingletonClass T']
     (μ : Measure Ω) (hY : Measurable Y) (hZ : Measurable Z)
-    [IsFiniteMeasure μ] [Fintype T] [Fintype T'] :
+    [IsFiniteMeasure μ] [Finite T] [Fintype T'] :
     H[X | ⟨Y, Z⟩ ; μ] = ∑ z, μ.real (Z ⁻¹' {z}) * H[X | Y ; μ[|Z ⁻¹' {z}]] := by
+  cases nonempty_fintype T
   simp_rw [condEntropy_eq_sum_fintype _ _ _ (hY.prodMk hZ), condEntropy_eq_sum_fintype _ _ _ hY,
     Fintype.sum_prod_type_right, Finset.mul_sum, ← mul_assoc]
   congr with y
@@ -774,9 +774,10 @@ lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure 
 protected alias ⟨_, IndepFun.entropy_pair_eq_add⟩ := entropy_pair_eq_add
 
 lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
-    {m : ℕ} [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
-    {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep: iIndepFun X) :
+    {m : ℕ} [MeasurableSpace S] [MeasurableSingletonClass S] [Finite S]
+    {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X) :
     H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by
+  cases nonempty_fintype S
   induction m with
   | zero =>
     simp only [Finset.univ_eq_empty, Finset.sum_empty]
@@ -1006,10 +1007,11 @@ lemma condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace 
     _ = _ := by apply condMutualInfo_comm <;> fun_prop
 
 
-lemma condEntropy_prod_eq_of_indepFun [Fintype T] [Fintype U] [IsZeroOrProbabilityMeasure μ]
+lemma condEntropy_prod_eq_of_indepFun [Finite T] [Finite U] [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z) [FiniteRange X]
     (h : IndepFun (⟨X, Y⟩) Z μ) :
     H[X | ⟨Y, Z⟩ ; μ] = H[X | Y ; μ] := by
+  cases nonempty_fintype U
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
   rw [condEntropy_prod_eq_sum _ hY hZ]

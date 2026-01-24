@@ -219,7 +219,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       · obtain ⟨j, hj'⟩ := j; ext ⟨k, hk⟩
         simp [last, one] at hj ⊢
         have : (j+1) % p.m = j+1 := Nat.mod_eq_of_lt (by omega)
-        simp [←Fin.val_fin_le, Fin.val_add, this] at hj ⊢; omega
+        simp [← Fin.val_fin_le, Fin.val_add, this]
       simp
     _ = _ := by
       congr; apply ProbabilityTheory.IndepFun.condEntropy_eq_entropy <;> try fun_prop

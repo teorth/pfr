@@ -22,7 +22,7 @@ is true for a positive proportion of x,y.
 open Finset Module
 open scoped Pointwise Combinatorics.Additive
 
-variable {G G' : Type*} [AddCommGroup G] [Fintype G] [AddCommGroup G'] [Fintype G']
+variable {G G' : Type*} [AddCommGroup G] [Finite G] [AddCommGroup G'] [Finite G']
   [Module (ZMod 2) G] [Module (ZMod 2) G'] (A : Finset G)
 
 /-- Let $G, G'$ be finite abelian $2$-groups.
@@ -33,6 +33,8 @@ $f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {144} * K ^ {122})$ values of $x \in
 theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
     ∃ (φ : G →+ G') (c : G'), Nat.card {x | f x = φ x + c} ≥ Nat.card G / (2 ^ 144 * K ^ 122) := by
+  cases nonempty_fintype G
+  cases nonempty_fintype G'
   classical
   let A := (Set.univ.graphOn f).toFinite.toFinset
   have hA : #A = Nat.card G := by rw [Set.Finite.card_toFinset]; simp [← Nat.card_eq_fintype_card]
@@ -207,7 +209,7 @@ theorem card_of_dual_constrained (x : G) (hx : x ≠ 0) :
         simp [Nat.card, Cardinal.toNat_add]
       · simp
     -- Since there are $|G|$ homomorphisms in total, we have $|G| = |H_1| + |H_0|$.
-    simp_all only [ne_eq, Set.coe_setOf, card_of_dual, Nat.card_eq_fintype_card]
+    simp_all only [ne_eq, Set.coe_setOf, card_of_dual]
     rw [← h_eq_card]; ring
   -- Let $y$ be an additive character of $G$ such that $y(x) = 1$.
   obtain ⟨y, hy⟩ : ∃ (y : G →+ ZMod 2), y x = 1 := by
@@ -235,6 +237,7 @@ theorem card_of_dual_constrained (x : G) (hx : x ≠ 0) :
 
 theorem card_of_slice (A : Set G) :
     ∃ φ : G →+ ZMod 2, 2*Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) := by
+  cases nonempty_fintype G
   classical
   have _ : Fintype (G →+ ZMod 2) := Fintype.ofEquiv G dual_iso.toEquiv
   have h1 := calc

@@ -35,9 +35,10 @@ variable {Ω Ω' Ω'' Ω''' G S T : Type*}
 
 /-- Entropy depends continuously on the measure. -/
 -- TODO: Use notation `Hm[μ]` here? (figure out how)
-lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Fintype Ω]
+lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Finite Ω]
     [TopologicalSpace Ω] [DiscreteTopology Ω] [MeasurableSpace Ω] [OpensMeasurableSpace Ω] :
     Continuous (fun (μ : ProbabilityMeasure Ω) ↦ measureEntropy (S := Ω) μ) := by
+  cases nonempty_fintype Ω
   unfold measureEntropy
   simp_rw [tsum_fintype]
   apply continuous_finset_sum
@@ -46,7 +47,7 @@ lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Fintype Ω]
   simp only [measure_univ, inv_one, one_smul]
   exact continuous_probabilityMeasure_apply_of_isClopen (s := {ω}) <| isClopen_discrete _
 
-lemma continuous_entropy_restrict_probabilityMeasure [Fintype G]
+lemma continuous_entropy_restrict_probabilityMeasure [Finite G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
     Continuous (fun (μ : ProbabilityMeasure G) ↦ H[id ; μ.toMeasure]) := by
   simp only [entropy_def, Measure.map_id]
@@ -76,7 +77,7 @@ lemma rdist_def (X : Ω → G) (Y : Ω' → G) (μ : Measure Ω) (μ' : Measure 
 lemma rdist_eq_rdistm : d[X ; μ # Y ; μ'] = Kernel.rdistm (μ.map X) (μ'.map Y) := rfl
 
 /-- Ruzsa distance depends continuously on the measure. -/
-lemma continuous_rdist_restrict_probabilityMeasure [Fintype G]
+lemma continuous_rdist_restrict_probabilityMeasure [Finite G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G] :
     Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦
@@ -99,7 +100,7 @@ lemma continuous_rdist_restrict_probabilityMeasure [Fintype G]
     simp [entropy_def]
   continuity
 
-lemma continuous_rdist_restrict_probabilityMeasure₁ [Fintype G]
+lemma continuous_rdist_restrict_probabilityMeasure₁ [Finite G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
     (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
     Continuous
@@ -116,7 +117,7 @@ lemma rdist_eq_rdist_id_map : d[X ; μ # Y ; μ'] = d[id ; μ.map X # id ; μ'.m
   simp only [rdist_def, entropy_def, Measure.map_id]
 
 /-- Ruzsa distance depends continuously on the second measure. -/
-lemma continuous_rdist_restrict_probabilityMeasure₁' [Fintype G]
+lemma continuous_rdist_restrict_probabilityMeasure₁' [Finite G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
     (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
     Continuous
@@ -141,7 +142,7 @@ lemma ProbabilityTheory.IdentDistrib.rdist_congr_right {Y' : Ω''' → G}
     d[X ; μ # Y ; μ'] = d[X ; μ # Y' ; μ'''] := (IdentDistrib.refl hX).rdist_congr hY
 
 lemma tendsto_rdist_probabilityMeasure {α : Type*} {l : Filter α}
-    [TopologicalSpace Ω] [BorelSpace Ω] [TopologicalSpace G] [BorelSpace G] [Fintype G]
+    [TopologicalSpace Ω] [BorelSpace Ω] [TopologicalSpace G] [BorelSpace G] [Finite G]
     [DiscreteTopology G]
     {X Y : Ω → G} (hX : Continuous X) (hY : Continuous Y)
     {μ : α → ProbabilityMeasure Ω} {ν : ProbabilityMeasure Ω} (hμ : Tendsto μ l (𝓝 ν)) :
@@ -243,7 +244,7 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
 
 omit [Countable G] in
 /-- Ruzsa distance depends continuously on the first measure. -/
-lemma continuous_rdist_restrict_probabilityMeasure₁_left [Fintype G]
+lemma continuous_rdist_restrict_probabilityMeasure₁_left [Finite G]
     [TopologicalSpace G] [DiscreteTopology G] [BorelSpace G]
     (X : Ω → G) (P : Measure Ω := by volume_tac) [IsProbabilityMeasure P] (X_mble : Measurable X) :
     Continuous
@@ -323,18 +324,18 @@ lemma ent_of_proj_le {UH : Ω' → G} [FiniteRange UH]
       let U : Set (G × G) := UH' ⁻¹' Hᶜ
       have h_subset : (X' - UH') ⁻¹' (π' ⁻¹' {x})ᶜ ⊆ T ∪ U :=
         fun ω hω ↦ Classical.byContradiction fun h ↦ by simp_all [not_or, T, U, π']
-      refine mem_ae_iff.mpr (le_zero_iff.mp ?_)
+      refine mem_ae_iff.mpr (nonpos_iff_eq_zero.mp ?_)
       calc
         _ ≤ ν' T + ν' U := (measure_mono h_subset).trans (measure_union_le T U)
         _ = ν' T + 0 := congrArg _ <| by
           simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
-          rw [le_zero_iff.mp <| (restrict_apply_le _ U).trans_eq hunif.measure_preimage_compl,
-            mul_zero]
-        _ = 0 := (add_zero _).trans <| by
+          rw [nonpos_iff_eq_zero.mp <|
+            (restrict_apply_le _ U).trans_eq hunif.measure_preimage_compl, mul_zero]
+        _ = 0 := by
           have : restrict ν (π ∘ X' ⁻¹' {x}) T = 0 := by
             simp [restrict_apply .of_discrete, T, π', π]
           simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
-          rw [this, mul_zero]
+          simp [this]
     have h_one : ∑ x ∈ FiniteRange.toFinset (π ∘ X'), νq.real {x} = 1 := by
       rewrite [sum_measureReal_singleton]
       apply (ENNReal.toReal_eq_one_iff _).mpr
@@ -955,8 +956,9 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
 lemma condRuszaDist_prod_eq_of_indepFun {μ : Measure Ω} {μ' : Measure Ω'} {X : Ω → G} {Y : Ω' → G}
     {W W' : Ω' → T} (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W)
     (hW' : Measurable W') (h : IndepFun (⟨Y, W⟩) W' μ')
-    [IsProbabilityMeasure μ'] [Fintype T] :
+    [IsProbabilityMeasure μ'] [Finite T] :
     d[X ; μ # Y | ⟨W, W'⟩ ; μ'] = d[X ; μ # Y | W ; μ'] := by
+  cases nonempty_fintype T
   rw [condRuzsaDist'_prod_eq_sum' _ _ hY hW hW']
   have : d[X ; μ # Y | W ; μ'] = ∑ z, μ'.real (W' ⁻¹' {z}) * d[X ; μ # Y | W ; μ'] := by
     rw [← Finset.sum_mul, sum_measureReal_preimage_singleton _ fun _ _ ↦ hW' <| .singleton _]
@@ -972,12 +974,14 @@ lemma condRuszaDist_prod_eq_of_indepFun {μ : Measure Ω} {μ' : Measure Ω'} {X
   simp [measureReal_def, h] at hw
 
 variable (μ μ') in
-lemma condRuzsaDist_comp_right {T' : Type*} [Fintype T] [Fintype T'] [MeasurableSpace T']
+lemma condRuzsaDist_comp_right {T' : Type*} [Finite T] [Finite T'] [MeasurableSpace T']
     [MeasurableSingletonClass T'] [IsFiniteMeasure μ']
     (X : Ω → G) (Y : Ω' → G) (W : Ω' → T) (e : T → T')
     (hY : Measurable Y) (hW : Measurable W) (he : Measurable e)
     (h'e : Injective e) :
     d[X ; μ # Y | e ∘ W ; μ'] = d[X ; μ # Y | W ; μ'] := by
+  cases nonempty_fintype T
+  cases nonempty_fintype T'
   rw [condRuzsaDist'_eq_sum' hY (he.comp hW), condRuzsaDist'_eq_sum' hY hW]
   have A i : e ⁻¹' {e i} = {i} := by ext x; simp [h'e.eq_iff]
   symm
@@ -1160,7 +1164,7 @@ section BalogSzemerediGowers
 `∑ z, P[Z=z] d[(A | Z = z) ; (B | Z = z)] ≤ 3 I[A :B] + 2 H[Z] - H[A] - H[B].`
 TODO: remove the hypothesis of `Fintype G` from here and from `condIndep_copies'` -/
 lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB : Measurable B)
-    [Fintype G] :
+    [Finite G] :
     (μ.map (A + B))[fun z ↦ d[A ; μ[|(A + B) ⁻¹' {z}] # B ; μ[|(A + B) ⁻¹' {z}]]]
       ≤ 3 * I[A : B; μ] + 2 * H[A + B ; μ] - H[A ; μ] - H[B ; μ] := by
   let Z := A + B

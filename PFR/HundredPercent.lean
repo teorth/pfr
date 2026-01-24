@@ -54,7 +54,7 @@ lemma ProbabilityTheory.IdentDistrib.symmGroup_eq {Ω' : Type*} [MeasureSpace Ω
   have A : Measurable (fun a ↦ a + x) := measurable_add_const _
   exact ⟨fun H ↦ h.symm.trans (H.trans (h.comp A)), fun H ↦ h.trans (H.trans (h.symm.comp A))⟩
 
-variable [Fintype G] [MeasurableSingletonClass G] [IsProbabilityMeasure (ℙ : Measure Ω)]
+variable [Finite G] [MeasurableSingletonClass G] [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 /-- If $d[X ;X]=0$, and $x,y \in G$ are such that $P[X=x], P[X=y]>0$,
 then $x-y \in \mathrm{Sym}[X]$. -/

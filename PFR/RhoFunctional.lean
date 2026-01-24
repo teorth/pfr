@@ -14,9 +14,9 @@ universe uG
 
 section
 
-variable {G : Type uG} [AddCommGroup G] [Fintype G] [hGm : MeasurableSpace G]
-[DiscreteMeasurableSpace G] {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
-{X Y Z : Ω → G} {A : Finset G}
+variable {G : Type uG} [AddCommGroup G] [Finite G] [hGm : MeasurableSpace G]
+  [DiscreteMeasurableSpace G] {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
+  {X Y Z : Ω → G} {A : Finset G}
 
 
 /-- The set of possible values of $D_{KL}(X \Vert U_A + T)$, where $U_A$ is uniform on $A$ and
@@ -34,6 +34,7 @@ noncomputable def rhoMinusSet
 lemma map_prod_uniformOn_ne_zero {y : G} (hA : A.Nonempty)
     {μ : Measure G} [IsProbabilityMeasure μ] (hμ : ∀ x, μ {x} ≠ 0) :
     (μ.prod (uniformOn A)).map (Prod.fst + Prod.snd) {y} ≠ 0 := by
+  cases nonempty_fintype G
   intro h
   obtain ⟨a, ha⟩ : ∃ x, x ∈ A := by exact hA
   let ν := uniformOn (A : Set G)
@@ -106,6 +107,7 @@ lemma rhoMinus_le [IsZeroOrProbabilityMeasure μ]
     (hU : Measurable U) (h_indep : IndepFun T U μ')
     (habs : ∀ y, (μ'.map (T + U)) {y} = 0 → μ.map X {y} = 0) :
     ρ⁻[X ; μ # A] ≤ KL[X ; μ # T + U ; μ'] := by
+  cases nonempty_fintype G
   have : IsProbabilityMeasure (μ'.map T) := isProbabilityMeasure_map hT.aemeasurable
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
     uniformOn_isProbabilityMeasure A.finite_toSet hA
@@ -209,6 +211,7 @@ private lemma rhoMinus_continuous_aux2 (hA : A.Nonempty) {μ : ProbabilityMeasur
 private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasure G}
     {ε : ℝ} (hε : 0 < ε) [TopologicalSpace G] [DiscreteTopology G] :
     ∀ᶠ (μ' : ProbabilityMeasure G) in 𝓝 μ, ρ⁻[id ; μ # A] < ρ⁻[id ; μ' # A] + ε := by
+  cases nonempty_fintype G
   obtain ⟨c, c_pos, hc⟩ : ∃ c > 0, ∀ g,
       μ.toMeasure.real {g} ≠ 0 → c ≤ μ.toMeasure.real {g} := by
     let B := {g | μ.toMeasure.real {g} ≠ 0}
@@ -448,6 +451,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     {U : Ω → G} (hunif : IsUniform H U μ) {A : Finset G} (hA : A.Nonempty) (hU : Measurable U) :
     log (Nat.card A) -
       log (sSup {Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G) | t : G} : ℕ) ≤ ρ⁻[U ; μ # A] := by
+  cases nonempty_fintype G
   apply le_csInf (nonempty_rhoMinusSet hA)
   rintro - ⟨μ', hμ', habs, rfl⟩
   let T : G × G → G := Prod.fst
@@ -540,6 +544,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     (h'A : (A ∩ (t +ᵥ (H : Set G)) : Set G).Nonempty) (hU : Measurable U) :
     ρ⁻[U ; μ # A] ≤
       log (Nat.card A) - log (Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G)) := by
+  cases nonempty_fintype G
   classical
   have mapU : .map U μ = uniformOn (H : Set G) :=
     hunif.map_eq_uniformOn hU (H : Set G).toFinite H.coe_nonempty
@@ -874,7 +879,7 @@ lemma condRho_of_translate {S : Type*}
     ρ[fun ω ↦ X ω + s | Y ; μ # A] = ρ[X | Y ; μ # A] := by
   simp [condRho, rho_of_translate hX hA]
 
-omit [Fintype G] [DiscreteMeasurableSpace G] in
+omit [Finite G] [DiscreteMeasurableSpace G] in
 variable (X) in
 /-- If $f$ is injective, then $\rho(X|f(Y))=\rho(X|Y)$. -/
 lemma condRho_of_injective {S T : Type*}
@@ -921,9 +926,10 @@ lemma condRho_eq_of_identDistrib {S : Type*} [MeasurableSpace S] [MeasurableSing
 
 /-- $$ \rho^-(X|Z) \leq \rho^-(X) + \bbH[X] - \bbH[X|Z]$$ -/
 lemma condRhoMinus_le [IsZeroOrProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
-    [Fintype S] [MeasurableSingletonClass S]
+    [Finite S] [MeasurableSingletonClass S]
     {Z : Ω → S} (hX : Measurable X) (hZ : Measurable Z) (hA : A.Nonempty) :
     ρ⁻[X | Z ; μ # A] ≤ ρ⁻[X ; μ # A] + H[X ; μ] - H[X | Z ; μ] := by
+  cases nonempty_fintype S
   have : IsProbabilityMeasure (uniformOn (A : Set G)) := by
     apply uniformOn_isProbabilityMeasure A.finite_toSet hA
   suffices ρ⁻[X | Z ; μ # A] - H[X ; μ] + H[X | Z ; μ] ≤ ρ⁻[X ; μ # A] by linarith
@@ -948,9 +954,10 @@ lemma condRhoMinus_le [IsZeroOrProbabilityMeasure μ] {S : Type*} [MeasurableSpa
 
 /-- $$ \rho^+(X|Z) \leq \rho^+(X)$$ -/
 lemma condRhoPlus_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
-    [Fintype S] [MeasurableSingletonClass S]
+    [Finite S] [MeasurableSingletonClass S]
     {Z : Ω → S} (hX : Measurable X) (hZ : Measurable Z) (hA : A.Nonempty) :
     ρ⁺[X | Z ; μ # A] ≤ ρ⁺[X ; μ # A] := by
+  cases nonempty_fintype S
   have : IsProbabilityMeasure (Measure.map Z μ) := isProbabilityMeasure_map hZ.aemeasurable
   have I₁ := condRhoMinus_le hX hZ hA (μ := μ)
   simp_rw [condRhoPlus, rhoPlus, tsum_fintype]
@@ -963,22 +970,23 @@ lemma condRhoPlus_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     sub_add_cancel, ge_iff_le]
   linarith
 
-omit [Fintype G] [DiscreteMeasurableSpace G] in
-lemma condRho_eq {S : Type*} [Fintype S] {Z : Ω → S} :
+omit [Finite G] [DiscreteMeasurableSpace G] in
+lemma condRho_eq {S : Type*} [Finite S] {Z : Ω → S} :
     ρ[X | Z ; μ # A] = (ρ⁻[X | Z ; μ # A] + ρ⁺[X | Z ; μ # A]) / 2 := by
+  cases nonempty_fintype S
   simp_rw [condRho, rho, ← mul_div_assoc, tsum_fintype, ← Finset.sum_div, mul_add,
     Finset.sum_add_distrib, ← tsum_fintype (L := SummationFilter.unconditional _)]
   rfl
 
 /-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z])$$ -/
 lemma condRho_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
-    [Fintype S] [MeasurableSingletonClass S]
+    [Finite S] [MeasurableSingletonClass S]
     {Z : Ω → S} (hX : Measurable X) (hZ : Measurable Z) (hA : A.Nonempty) :
     ρ[X | Z ; μ # A] ≤ ρ[X ; μ # A] + (H[X ; μ] - H[X | Z ; μ]) / 2 := by
   rw [condRho_eq, rho]
   linarith [condRhoMinus_le hX hZ hA (μ := μ), condRhoPlus_le hX hZ hA (μ := μ)]
 
-omit [Fintype G] [DiscreteMeasurableSpace G] in
+omit [Finite G] [DiscreteMeasurableSpace G] in
 lemma condRho_prod_eq_sum [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     [Fintype S] [MeasurableSingletonClass S]
     {Z T : Ω → S} (hZ : Measurable Z) (hT : Measurable T) :
@@ -1006,9 +1014,10 @@ lemma condRho_prod_eq_sum [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace
 
 /-- $$ \rho(X|Z) \leq \rho(X) + \frac{1}{2}( \bbH[X] - \bbH[X|Z])$$, conditional version -/
 lemma condRho_prod_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
-    [Fintype S] [MeasurableSingletonClass S]
+    [Finite S] [MeasurableSingletonClass S]
     {Z T : Ω → S} (hX : Measurable X) (hZ : Measurable Z) (hT : Measurable T) (hA : A.Nonempty) :
     ρ[X | ⟨Z, T⟩ ; μ # A] ≤ ρ[X | T ; μ # A] + (H[X | T ; μ] - H[X | ⟨Z, T⟩ ; μ]) / 2 := by
+  cases nonempty_fintype S
   rw [condRho_prod_eq_sum hZ hT]
   have : ∑ g : S, μ.real (T ⁻¹' {g}) * ρ[ X | Z ; μ[|T ⁻¹' {g}] # A] ≤
     ∑ g : S, μ.real (T ⁻¹' {g}) *
@@ -1025,10 +1034,11 @@ lemma condRho_prod_le [IsProbabilityMeasure μ] {S : Type*} [MeasurableSpace S]
     condEntropy_prod_eq_sum μ hZ hT]
 
 lemma condRho_prod_eq_of_indepFun [IsProbabilityMeasure μ]
-    {X : Ω → G} {S : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    {X : Ω → G} {S : Type*} [Finite S] [MeasurableSpace S] [MeasurableSingletonClass S]
     {W W' : Ω → S} (hX : Measurable X) (hW : Measurable W)
     (hW' : Measurable W') (h : IndepFun (⟨X, W⟩) W' μ) :
     ρ[X | ⟨W, W'⟩ ; μ # A] = ρ[X | W ; μ # A] := by
+  cases nonempty_fintype S
   rw [condRho_prod_eq_sum hW hW']
   have : ρ[X | W ; μ # A] = ∑ z, μ.real (W' ⁻¹' {z}) * ρ[X | W ; μ # A] := by
     rw [← Finset.sum_mul, sum_measureReal_preimage_singleton]
@@ -1104,7 +1114,7 @@ end
 
 section phiMinimizer
 
-variable {G : Type uG} [AddCommGroup G] [Fintype G] [hGm : MeasurableSpace G]
+variable {G : Type uG} [AddCommGroup G] [Finite G] [hGm : MeasurableSpace G]
 [DiscreteMeasurableSpace G] {Ω : Type*} [MeasureSpace Ω]
 {X Y Z : Ω → G} {A : Finset G}
 
@@ -1230,12 +1240,14 @@ lemma le_rdist_of_phiMinimizes' (h_min : phiMinimizes X₁ X₂ η A ℙ)
 variable [IsProbabilityMeasure (ℙ : Measure Ω)]
 
 lemma condRho_le_condRuzsaDist_of_phiMinimizes {S T : Type*}
-    [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
+    [Finite S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    [Finite T] [MeasurableSpace T] [MeasurableSingletonClass T]
     (h : phiMinimizes X₁ X₂ η A ℙ) (h1 : Measurable X₁') (h2 : Measurable X₂')
     {Z : Ω → S} {W : Ω → T} (hZ : Measurable Z) (hW : Measurable W) :
     k - η * (ρ[X₁' | Z # A] - ρ[X₁ # A]) - η * (ρ[X₂' | W # A] - ρ[X₂ # A])
       ≤ d[X₁' | Z # X₂' | W] := by
+  cases nonempty_fintype S
+  cases nonempty_fintype T
   have : IsProbabilityMeasure (Measure.map Z ℙ) := isProbabilityMeasure_map hZ.aemeasurable
   have : IsProbabilityMeasure (Measure.map W ℙ) := isProbabilityMeasure_map hW.aemeasurable
   have hz (a : ℝ) : a = ∑ z, (Measure.real ℙ (Z ⁻¹' {z})) * a := by
@@ -1321,6 +1333,7 @@ Second estimate
 include hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep in
 lemma I_two_aux :
     d[X₁ # X₁] + d[X₂ # X₂] = d[X₁ + X₂' # X₂ + X₁'] + d[X₁ | X₁ + X₂' # X₂ | X₂ + X₁'] + I₂ := by
+  cases nonempty_fintype G
   have Z : d[X₁' # X₁] + d[X₂' # X₂] = d[X₁' + X₂' # X₁ + X₂] + d[X₁' | X₁' + X₂' # X₁ | X₁ + X₂]
       + I[X₁' + X₁ : X₁ + X₂|X₁' + X₁ + X₂' + X₂] :=
     sum_of_rdist_eq_char_2' X₁' X₁ X₂' X₂ h_indep.reindex_four_cadb hX₁' hX₁ hX₂' hX₂
@@ -1445,6 +1458,7 @@ lemma dist_le_of_sum_zero {Ω' : Type*} [MeasurableSpace Ω'] {μ : Measure Ω'}
     (hsum : T₁ + T₂ + T₃ = 0) (hT₁ : Measurable T₁) (hT₂ : Measurable T₂) (hT₃ : Measurable T₃) :
     k ≤ 3 * I[T₁ : T₂ ; μ] + (2 * H[T₃ ; μ] - H[T₁ ; μ] - H[T₂ ; μ])
       + η * (ρ[T₁ | T₃ ; μ # A] + ρ[T₂ | T₃ ; μ #  A] - ρ[X₁ # A] - ρ[X₂ # A]) := by
+  cases nonempty_fintype G
   let _ : MeasureSpace Ω' := ⟨μ⟩
   have : μ = ℙ := rfl
   simp only [this]
@@ -1487,6 +1501,7 @@ lemma dist_le_of_sum_zero_cond {Ω' : Type*} [MeasureSpace Ω']
     (hS : Measurable S) :
     k ≤ 3 * I[T₁ : T₂ | S] + (2 * H[T₃ | S] - H[T₁ | S] - H[T₂ | S])
       + η * (ρ[T₁ | ⟨T₃, S⟩ # A] + ρ[T₂ | ⟨T₃, S⟩ #  A] - ρ[X₁ # A] - ρ[X₂ # A]) := by
+  cases nonempty_fintype G
   have hw (a : ℝ) : a = ∑ w, (Measure.real ℙ (S ⁻¹' {w})) * a := by
     have : IsProbabilityMeasure (map S ℙ) := isProbabilityMeasure_map hS.aemeasurable
     simp_rw [← Finset.sum_mul, ← map_measureReal_apply hS (MeasurableSet.singleton _),
@@ -1579,6 +1594,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     ρ[Y₁ + Y₂ | ⟨Y₁ + Y₃, Y₁ + Y₂ + Y₃ + Y₄⟩ # A] ≤
        (ρ[Y₁ # A] + ρ[Y₂ # A] + ρ[Y₃ # A] + ρ[Y₄ # A]) / 4
         + (d[Y₁ # Y₃] + d[Y₂ # Y₄]) / 4 + d[Y₁ | Y₁ + Y₃ # Y₂ | Y₂ + Y₄] / 2 := by
+  cases nonempty_fintype G
   set S := Y₁ + Y₂ + Y₃ + Y₄
   set T₁ := Y₁ + Y₂
   set T₂ := Y₁ + Y₃
@@ -1906,7 +1922,7 @@ end phiMinimizer
 
 section PFR
 
-variable {G : Type uG} [AddCommGroup G] [Fintype G] [Module (ZMod 2) G]
+variable {G : Type uG} [AddCommGroup G] [Finite G] [Module (ZMod 2) G]
 {Ω : Type uG} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {A : Finset G}
 
 /-- For any random variables $Y_1,Y_2$, there exist a subgroup $H$ such that

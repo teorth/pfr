@@ -13,7 +13,7 @@ noncomputable def FiniteRange.toFinset {Ω G : Type*} (X : Ω → G) [hX : Finit
     @Set.toFinset _ _ hX.fintype
 
 /-- If the codomain of X is finite, then X has finite range. -/
-instance {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X where
+instance {Ω G : Type*} (X : Ω → G) [Finite G] : FiniteRange X where
   finite := Set.toFinite (Set.range X)
 
 example {Ω G : Type*} (X : Ω → G) [Fintype G] : FiniteRange X := by infer_instance

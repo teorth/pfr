@@ -49,7 +49,7 @@ version)-/
 
 /-- If `X, Y` are `G`-valued, then `d[X;-Y] ≤ 3 d[X;Y]`. -/
 lemma rdist_of_neg_le [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X)
-    (hY : Measurable Y) [Fintype G] :
+    (hY : Measurable Y) [Finite G] :
     d[X ; μ # -Y ; μ'] ≤ 3 * d[X ; μ # Y ; μ'] := by
   obtain ⟨ν, X', Y', hν, mX', mY', h_indep', hXX', hYY'⟩ := independent_copies hX hY μ μ'
   rw [← hXX'.rdist_congr hYY', ← hXX'.rdist_congr hYY'.neg]
@@ -510,11 +510,11 @@ private theorem entropy_kvm_step {Ω G : Type*} [MeasurableSpace Ω] {μ : Measu
         have := Finset.disjoint_right.mp hdisj hi
         fin_cases hj_mem <;> aesop
       · simp_rw [Set.pairwiseDisjoint_singleton]
-      intro j hj hj'
-      have : i ≠ f i := by
+      rintro j rfl hj
+      have : f i ≠ i := by
         intro h
-        exact Finset.disjoint_right.mp hdisj hi (h ▸ (hf (Finset.mem_image_of_mem f hi)))
-      simp [Set.mem_singleton_iff.mp hj, this]
+        exact Finset.disjoint_right.mp hdisj hi (h ▸ hf (Finset.mem_image_of_mem f hi))
+      simp [this]
     have := iIndepFun.finsets_comp S s_disj hindep hX φ (fun j => by
       fin_cases j <;> simp only [hφ] <;> fun_prop)
     suffices (fun j a ↦ φ j fun i ↦ X (↑i) a) = ![-∑ i ∈ s \ {f i}, X i, -X (f i), X i] by
@@ -756,7 +756,7 @@ lemma ent_of_sub_smul' {Y : Ω → G} {X' : Ω → G} [FiniteRange X] [FiniteRan
 
 /-- Let `X,Y` be independent `G`-valued random variables, and let `a` be an integer. Then
   `H[X - aY] - H[X] ≤ 4 |a| d[X ; Y]`. -/
-lemma ent_sub_zsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
+lemma ent_sub_zsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Finite G]
     (hX : Measurable X) (hY : Measurable Y) (h_indep : IndepFun X Y μ) {a : ℤ} :
     H[X - a • Y; μ] - H[X; μ] ≤ 4 * |a| * d[X ; μ # Y ; μ] := by
   obtain ⟨Ω', mΩ', μ', X₁', Y', X₂', hμ', h_indep', hX₁', hY', hX₂', idX₁, idY, idX₂⟩
@@ -868,14 +868,14 @@ lemma ent_sub_zsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype
 
 /-- Let `X,Y` be independent `G`-valued random variables, and let `a` be a natural number. Then
 `H[X - aY] - H[X] ≤ 4 a d[X ; Y]`. -/
-lemma ent_sub_nsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
+lemma ent_sub_nsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Finite G]
     (hX : Measurable X) (hY : Measurable Y) (h_indep : IndepFun X Y μ) {a : ℕ} :
     H[X - a • Y ; μ] - H[X ; μ] ≤ 4 * a * d[X ; μ # Y ; μ] := by
   simpa using ent_sub_zsmul_sub_ent_le hX hY h_indep (a := a)
 
 /-- Let `X,Y` be independent `G`-valued random variables, and let `a` be a natural number. Then
 `H[X + aY] - H[X] ≤ 4 a d[X ; Y]`. -/
-lemma ent_add_nsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Fintype G]
+lemma ent_add_nsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Finite G]
     (hX : Measurable X) (hY : Measurable Y) (h_indep : IndepFun X Y μ) {a : ℕ} :
     H[X + a • Y ; μ] - H[X ; μ] ≤ 4 * a * d[X ; μ # Y ; μ] := by
   simpa using ent_sub_zsmul_sub_ent_le hX hY h_indep (a := -a)
@@ -936,7 +936,7 @@ lemma multiDist_indep {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabil
   ext ω
   simp
 
-lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
+lemma multiDist_nonneg_of_indep [Finite G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
     [IsProbabilityMeasure hΩ.volume] (X : Fin m → Ω → G) (hX : ∀ i, Measurable (X i))
     (h_indep : iIndepFun X ℙ) :
     0 ≤ D[X ; fun _ ↦ hΩ] := by
@@ -957,7 +957,7 @@ lemma multiDist_nonneg_of_indep [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : Measur
       field_simp
 
 /-- We have `D[X_[m]] ≥ 0`. -/
-lemma multiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+lemma multiDist_nonneg [Finite G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     (hprob : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) (X : ∀ i, Ω i → G)
     (hX : ∀ i, Measurable (X i)) :
     0 ≤ D[X ; hΩ] := by
@@ -1509,7 +1509,7 @@ lemma multidist_ruzsa_IV {m : ℕ} (hm : m ≥ 2) {Ω : Type u} [MeasureSpace Ω
 
 /-- If `D[X_[m]]=0`, then for each `i ∈ I` there is a finite subgroup `H_i ≤ G` such that
 `d[X_i; U_{H_i}] = 0`. -/
-lemma multidist_eq_zero [Fintype G] {m : ℕ} (hm : m ≥ 2) {Ω : Fin m → Type*}
+lemma multidist_eq_zero [Finite G] {m : ℕ} (hm : m ≥ 2) {Ω : Fin m → Type*}
     (hΩ : ∀ i, MeasureSpace (Ω i)) (hprob : ∀ i, IsProbabilityMeasure (hΩ i).volume)
     (X : ∀ i, Ω i → G) (hvanish : D[X; hΩ] = 0) (hmes : ∀ i, Measurable (X i))
     (hfin : ∀ i, FiniteRange (X i)) (i) :
@@ -1592,7 +1592,7 @@ theorem condMultiDist_of_const {G : Type*} [hG : MeasurableSpace G] [AddCommGrou
   simp only [Finset.mem_univ, not_true_eq_false, false_implies]
 
 /-- Conditional multidistance is nonnegative. -/
-theorem condMultiDist_nonneg [Fintype G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+theorem condMultiDist_nonneg [Finite G] {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     (hprob : ∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))) {S : Type*} [Fintype S]
     (X : ∀ i, Ω i → G) (Y : ∀ i, Ω i → S) (hX : ∀ i, Measurable (X i)) : 0 ≤ D[X | Y; hΩ] := by
   dsimp [condMultiDist]
@@ -1637,7 +1637,7 @@ distributions -/
 private lemma ident_of_cond_of_indep
     {G : Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G] [Countable G]
     {m : ℕ} {Ω : Type*} [hΩ : MeasureSpace Ω]
-    {S : Type*} [Fintype S] [hS : MeasurableSpace S] [MeasurableSingletonClass S]
+    {S : Type*} [Finite S] [hS : MeasurableSpace S] [MeasurableSingletonClass S]
     {X : Fin m → Ω → G} (hX : (i : Fin m) → Measurable (X i))
     {Y : Fin m → Ω → S} (hY : (i : Fin m) → Measurable (Y i))
     (h_indep : iIndepFun (fun i ↦ ⟨X i, Y i⟩))
@@ -1663,7 +1663,7 @@ private lemma ident_of_cond_of_indep
 individually non-zero -/
 private lemma prob_nonzero_of_prod_prob_nonzero {m : ℕ}
     {Ω : Type*} [hΩ : MeasureSpace Ω]
-    {S : Type*} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    {S : Type*} [Finite S] [MeasurableSpace S] [MeasurableSingletonClass S]
     {Y : Fin m → Ω → S} {y : Fin m → S} (hf : ∏ i, (ℙ (Y i ⁻¹' {y i})).toReal ≠ 0) :
     ∀ i, ℙ (Y i ⁻¹' {y i}) ≠ 0 := by
   simp only [ne_eq, Finset.prod_ne_zero_iff, Finset.mem_univ, ENNReal.toReal_eq_zero_iff, not_or,
@@ -1788,7 +1788,7 @@ independent `G`-valued random variables. Then `D[X_[m]]` is equal to
 where `π(X_[m]) := (π(X_1), ..., π(X_m))`.
 -/
 lemma multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G]
-    [AddCommGroup G] [Fintype G] [hH : MeasurableSpace H]
+    [AddCommGroup G] [Finite G] [hH : MeasurableSpace H]
     [MeasurableSingletonClass H] [AddCommGroup H]
     [Fintype H] (π : G →+ H) {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
     {X : Fin m → Ω → G} (hmes : ∀ i, Measurable (X i))
@@ -1857,7 +1857,7 @@ another (but `X_i` need not be independent of `Y_i`). Then
 `D[X_[m] | Y_[m]] = D[X_[m] ,|, π(X_[m]), Y_[m]] + D[π(X_[m]) ,| , Y_[m]]`
 `+ I[∑ i, X_i : π(X_[m]) ; | ; π(∑ i, X_i), Y_[m]]`. -/
 lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSingletonClass G]
-    [AddCommGroup G] [Fintype G]
+    [AddCommGroup G] [Finite G]
     [hH : MeasurableSpace H] [MeasurableSingletonClass H] [AddCommGroup H]
     [Fintype H] (π : G →+ H)
     {S : Type*} [Fintype S] [hS : MeasurableSpace S] [MeasurableSingletonClass S]
@@ -2122,8 +2122,8 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
       congr 1
 
 theorem multiDist_of_hom' {G G' : Type*} [MeasurableSpace G] [MeasurableSingletonClass G]
-    [AddCommGroup G] [Fintype G] [MeasurableSpace G'] [MeasurableSingletonClass G']
-    [AddCommGroup G'] [Fintype G'] {ι : G →+ G'} (hι : Function.Injective ⇑ι) {m : ℕ}
+    [AddCommGroup G] [Finite G] [MeasurableSpace G'] [MeasurableSingletonClass G']
+    [AddCommGroup G'] [Finite G'] {ι : G →+ G'} (hι : Function.Injective ⇑ι) {m : ℕ}
     {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     [∀ i, IsProbabilityMeasure (ℙ : Measure (Ω i))] {X : ∀ i, Ω i → G} (hX : ∀ i, Measurable (X i))
     (a : Fin m → G') : D[fun i ω ↦ ι (X i ω) + a i; hΩ] = D[X; hΩ] := by
@@ -2150,12 +2150,14 @@ theorem multiDist_of_hom' {G G' : Type*} [MeasurableSpace G] [MeasurableSingleto
   intro x y hxy; simp only [_root_.add_left_inj] at hxy; exact hι hxy
 
 theorem multiDist_of_hom {G G' : Type*}
-    [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Fintype G]
-    [MeasurableSpace G'] [MeasurableSingletonClass G'] [AddCommGroup G'] [Fintype G']
+    [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Finite G]
+    [MeasurableSpace G'] [MeasurableSingletonClass G'] [AddCommGroup G'] [Finite G']
     {ι : G →+ G'} (hι : Function.Injective ⇑ι)
     {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure (ℙ : Measure Ω)]
     {m : ℕ} {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i)) :
     D[fun i ω ↦ ι (X i ω); fun _ ↦ hΩ] = D[X; fun _ ↦ hΩ] := by
+  cases nonempty_fintype G
+  cases nonempty_fintype G'
   convert multiDist_of_hom' hι (fun _ ↦ hΩ) hX (fun _ ↦ 0); simp
 
 theorem multiDist_congr {G : Type*} [MeasurableSpace G] [AddCommGroup G]
@@ -2167,14 +2169,16 @@ theorem multiDist_congr {G : Type*} [MeasurableSpace G] [AddCommGroup G]
   apply entropy_congr (hae i)
 
 theorem condMultiDist_of_hom {G G' S : Type*} [Fintype S]
-    [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Fintype G]
-    [MeasurableSpace G'] [MeasurableSingletonClass G'] [AddCommGroup G'] [Fintype G']
+    [MeasurableSpace G] [MeasurableSingletonClass G] [AddCommGroup G] [Finite G]
+    [MeasurableSpace G'] [MeasurableSingletonClass G'] [AddCommGroup G'] [Finite G']
     [MeasurableSpace S] [MeasurableSingletonClass S]
     {ι : G →+ G'} (hι : Function.Injective ⇑ι)
     {Ω : Type*} (hΩ : MeasureSpace Ω) [IsProbabilityMeasure (ℙ : Measure Ω)]
     {m : ℕ} {X : Fin m → Ω → G} (hX : ∀ i, Measurable (X i))
     {Y : Fin m → Ω → S} (hY : ∀ i, Measurable (Y i)) (a : Fin m → S → G') :
     D[fun i ω ↦ ι (X i ω) + a i (Y i ω) | Y; fun _ ↦ hΩ] = D[X | Y; fun _ ↦ hΩ] := by
+  cases nonempty_fintype G
+  cases nonempty_fintype G'
   unfold condMultiDist
   apply Finset.sum_congr rfl; intro y _
   by_cases h : ∀ i, ℙ ( Y i ⁻¹' {y i}) ≠ 0
@@ -2196,9 +2200,9 @@ theorem condMultiDist_of_hom {G G' S : Type*} [Fintype S]
 
 lemma cond_entropy_indep {Ω : Type*} [hΩ : MeasureSpace Ω] {S T U : Type*}
     {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
-    [MeasurableSpace S] [MeasurableSingletonClass S] [Fintype S]
-    [MeasurableSpace T] [MeasurableSingletonClass T] [Fintype T]
-    [MeasurableSpace U] [MeasurableSingletonClass U] [Fintype U]
+    [MeasurableSpace S] [MeasurableSingletonClass S] [Finite S]
+    [MeasurableSpace T] [MeasurableSingletonClass T] [Finite T]
+    [MeasurableSpace U] [MeasurableSingletonClass U] [Finite U]
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     [IsZeroOrProbabilityMeasure hΩ.volume] (hindep : IndepFun (⟨X, Y⟩) Z) :
     H[X | ⟨Y, Z⟩] = H[X | Y] := by
@@ -2233,7 +2237,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
          - D[fun i ↦ ∑ j, X ⟨i, j⟩; fun _ ↦ hΩ] := by
   let G' : Fin (m + 2) → Type uG := fun i ↦ (Fin i → G)
   let φ₀ (i : Fin (m + 1)) (x : G' i.succ) (j: Fin i) : G := if j.val+1 = i then
-          x ⟨i.val-1, by simp; omega⟩ + x ⟨i.val, by simp⟩
+          x ⟨i.val-1, by simp⟩ + x ⟨i.val, by simp⟩
         else
           x ⟨j, by have := j.isLt; simp only [Fin.val_succ] at this ⊢; omega⟩
   let φ (i : Fin (m + 1)) : G' i.succ →+ G' i.castSucc := {
@@ -2375,7 +2379,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
               by_cases h : k.val = j + 1 <;> by_cases h' : k.val = j <;> simp [h, h', G'] <;> abel
           }
           have : Function.Injective ⇑ι' := by
-            intro x y hxy; replace hxy := congrFun hxy ⟨j.val, by simp; omega⟩
+            intro x y hxy; replace hxy := congrFun hxy ⟨j.val, by simp⟩
             simpa [ι'] using hxy
           let a (i : Fin (m + 1)) (x : G' j.succ.castSucc) : G' j.succ.succ := fun k ↦
             if h:k.val = j+1 then x (Fin.last _) else if h':k.val = j then 0 else
@@ -2391,7 +2395,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
             · omega
             · rw [eq_neg_add_iff_add_eq, add_comm]
               convert Finset.sum_erase_add (a := j.castSucc) _ _ _ using 3
-              · ext ⟨l, hl⟩; obtain ⟨j, hj⟩ := j; simp; omega
+              · ext ⟨l, hl⟩; obtain ⟨j, hj⟩ := j; simp
               obtain ⟨j, hj⟩ := j; simp
             congr
           all_goals intros; fun_prop

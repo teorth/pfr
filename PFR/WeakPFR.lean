@@ -1,12 +1,14 @@
+import Mathlib.GroupTheory.Coset.Card
 import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import Mathlib.LinearAlgebra.FreeModule.ModN
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.MeasureTheory.Constructions.SubmoduleQuotient
-import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
-import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import PFR.ForMathlib.AffineSpaceDim
 import PFR.ForMathlib.Entropy.RuzsaSetDist
 import PFR.ImprovedPFR
+import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
+import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
+import PFR.Mathlib.LinearAlgebra.Quotient.Basic
 
 /-!
 # Weak PFR over the integers
@@ -222,7 +224,7 @@ section F2_projection
 
 open Real ProbabilityTheory MeasureTheory
 
-variable {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] [Fintype G] [MeasurableSpace G]
+variable {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] [Finite G] [MeasurableSpace G]
 [MeasurableSingletonClass G] {Ω Ω' : Type*}
 
 /-- Let $G=\mathbb{F}_2^n$ and `X, Y` be `G`-valued random variables such that
@@ -644,7 +646,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   let _mH : MeasurableSpace H := ⊤
   have : Finite H := ModN.instFinite
   let h_fintype : Fintype H := .ofFinite H
-  have : IsAddTorsionFree G :=.of_noZeroSMulDivisors_int <| Module.Free.noZeroSMulDivisors ..
+  have : IsAddTorsionFree G :=.of_isTorsionFree ℤ _
   obtain ⟨Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, hUA_mem, hUA_fin⟩ :=
     exists_isUniform_measureSpace' A A_fin hnA
   obtain ⟨Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, hUB_mem, hUB_fin⟩ :=

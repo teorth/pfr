@@ -22,7 +22,7 @@ Assumptions:
 
 open MeasureTheory Module ProbabilityTheory
 
-variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+variable {G : Type*} [AddCommGroup G] [Finite G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [Module (ZMod 2) G] [MeasurableAdd₂ G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]

@@ -67,9 +67,10 @@ lemma KLDiv_eq_sum_negMulLog [Fintype G] :
   field_simp
 
 /-- `KL(X ‖ Y) ≥ 0`. -/
-lemma KLDiv_nonneg [Fintype G] [MeasurableSingletonClass G] [IsZeroOrProbabilityMeasure μ]
+lemma KLDiv_nonneg [Finite G] [MeasurableSingletonClass G] [IsZeroOrProbabilityMeasure μ]
     [IsZeroOrProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y)
     (habs : ∀ x, μ'.map Y {x} = 0 → μ.map X {x} = 0) : 0 ≤ KL[X ; μ # Y ; μ'] := by
+  cases nonempty_fintype G
   rw [KLDiv_eq_sum]
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
@@ -85,10 +86,11 @@ lemma KLDiv_nonneg [Fintype G] [MeasurableSingletonClass G] [IsZeroOrProbability
 
 
 /-- `KL(X ‖ Y) = 0` if and only if `Y` is a copy of `X`. -/
-lemma KLDiv_eq_zero_iff_identDistrib [Fintype G] [MeasurableSingletonClass G]
+lemma KLDiv_eq_zero_iff_identDistrib [Finite G] [MeasurableSingletonClass G]
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y)
     (habs : ∀ x, (μ'.map Y).real {x} = 0 → (μ.map X).real {x} = 0) :
     KL[X ; μ # Y ; μ'] = 0 ↔ IdentDistrib X Y μ μ' := by
+  cases nonempty_fintype G
   refine ⟨fun h ↦ ?_, fun h ↦ by simp [KLDiv, h.map_eq]⟩
   let νY := μ'.map Y
   have : IsProbabilityMeasure νY := Measure.isProbabilityMeasure_map hY.aemeasurable
@@ -111,13 +113,14 @@ lemma KLDiv_eq_zero_iff_identDistrib [Fintype G] [MeasurableSingletonClass G]
 and ${\bf P}(X=x) = \sum_{s\in S} w_s {\bf P}(X_s=x)$, ${\bf P}(Y=x) =
   \sum_{s\in S} w_s {\bf P}(Y_s=x)$ for all $x$, then
 $$D_{KL}(X\Vert Y) \le \sum_{s\in S} w_s D_{KL}(X_s\Vert Y_s).$$ -/
-lemma KLDiv_of_convex [Fintype G]
+lemma KLDiv_of_convex [Finite G]
     {ι : Type*} {S : Finset ι} {w : ι → ℝ} (hw : ∀ s ∈ S, 0 ≤ w s)
     (X' : ι → Ω'' → G) (Y' : ι → Ω''' → G)
     (hconvex : ∀ x, (μ.map X).real {x} = ∑ s ∈ S, w s * (μ''.map (X' s)).real {x})
     (hconvex' : ∀ x, (μ'.map Y).real {x} = ∑ s ∈ S, w s * (μ'''.map (Y' s)).real {x})
     (habs : ∀ s ∈ S, ∀ x, (μ'''.map (Y' s)).real {x} = 0 → (μ''.map (X' s)).real {x} = 0) :
     KL[X ; μ # Y ; μ'] ≤ ∑ s ∈ S, w s * KL[X' s ; μ'' # Y' s ; μ'''] := by
+  cases nonempty_fintype G
   conv_lhs => rw [KLDiv_eq_sum]
   have A x : (μ.map X).real {x} * log ((μ.map X).real {x} / ((μ'.map Y).real {x}))
     ≤ ∑ s ∈ S, (w s * (μ''.map (X' s)).real {x}) *
@@ -260,11 +263,12 @@ lemma ProbabilityTheory.IndepFun.real_map_add_singleton_eq_sum
   · intro a ha
     finiteness
 
-lemma absolutelyContinuous_add_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
+lemma absolutelyContinuous_add_of_indep [Finite G] [AddCommGroup G] [DiscreteMeasurableSpace G]
     {X Y Z : Ω → G} (h_indep : IndepFun (⟨X, Y⟩) Z μ) (hX : Measurable X) (hY : Measurable Y)
     (hZ : Measurable Z)
     (habs : ∀ x, μ.map Y {x} = 0 → μ.map X {x} = 0) :
     ∀ x, μ.map (Y + Z) {x} = 0 → μ.map (X + Z) {x} = 0 := by
+  cases nonempty_fintype G
   intro x hx
   have IX : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
   have IY : IndepFun Y Z μ := h_indep.comp (φ := Prod.snd) (ψ := id) measurable_snd measurable_id
@@ -277,12 +281,13 @@ lemma absolutelyContinuous_add_of_indep [Fintype G] [AddCommGroup G] [DiscreteMe
 
 /-- If $X, Y, Z$ are independent $G$-valued random variables, then
   $$D_{KL}(X+Z\Vert Y+Z) \leq D_{KL}(X\Vert Y).$$ -/
-lemma KLDiv_add_le_KLDiv_of_indep [Fintype G] [AddCommGroup G] [DiscreteMeasurableSpace G]
+lemma KLDiv_add_le_KLDiv_of_indep [Finite G] [AddCommGroup G] [DiscreteMeasurableSpace G]
     {X Y Z : Ω → G} [IsZeroOrProbabilityMeasure μ]
     (h_indep : IndepFun (⟨X, Y⟩) Z μ)
     (hX : Measurable X) (hY : Measurable Y) (hZ : Measurable Z)
     (habs : ∀ x, μ.map Y {x} = 0 → μ.map X {x} = 0) :
     KL[X + Z ; μ # Y + Z ; μ] ≤ KL[X ; μ # Y ; μ] := by
+  cases nonempty_fintype G
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp [KLDiv]
   set X' : G → Ω → G := fun s ↦ (· + s) ∘ X with hX'
@@ -341,12 +346,14 @@ notation3:max "KL[" X " | " Z " # " Y "]" => condKLDiv X Y Z volume volume
 /-- If $X, Y$ are $G$-valued random variables, and $Z$ is another random variable
   defined on the same sample space as $X$, then
   $$D_{KL}((X|Z)\Vert Y) = D_{KL}(X\Vert Y) + \bbH[X] - \bbH[X|Z].$$ -/
-lemma condKLDiv_eq {S : Type*} [MeasurableSpace S] [Fintype S] [MeasurableSingletonClass S]
-    [Fintype G] [IsZeroOrProbabilityMeasure μ] [IsFiniteMeasure μ']
+lemma condKLDiv_eq {S : Type*} [MeasurableSpace S] [Finite S] [MeasurableSingletonClass S]
+    [Finite G] [IsZeroOrProbabilityMeasure μ] [IsFiniteMeasure μ']
     {X : Ω → G} {Y : Ω' → G} {Z : Ω → S}
     (hX : Measurable X) (hZ : Measurable Z)
     (habs : ∀ x, μ'.map Y {x} = 0 → μ.map X {x} = 0) :
     KL[ X | Z ; μ # Y ; μ'] = KL[X ; μ # Y ; μ'] + H[X ; μ] - H[ X | Z ; μ] := by
+  cases nonempty_fintype G
+  cases nonempty_fintype S
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp [condKLDiv, tsum_fintype, KLDiv_eq_sum, Finset.mul_sum, entropy_eq_sum]
   simp only [condKLDiv, tsum_fintype, KLDiv_eq_sum, Finset.mul_sum, entropy_eq_sum]
@@ -389,7 +396,7 @@ lemma condKLDiv_eq {S : Type*} [MeasurableSpace S] [Fintype S] [MeasurableSingle
   abel
 
 /-- `KL(X|Z ‖ Y) ≥ 0`. -/
-lemma condKLDiv_nonneg {S : Type*} [MeasurableSingletonClass G] [Fintype G]
+lemma condKLDiv_nonneg {S : Type*} [MeasurableSingletonClass G] [Finite G]
     {X : Ω → G} {Y : Ω' → G} {Z : Ω → S}
     [IsZeroOrProbabilityMeasure μ']
     (hX : Measurable X) (hY : Measurable Y)
@@ -403,11 +410,12 @@ lemma condKLDiv_nonneg {S : Type*} [MeasurableSingletonClass G] [Fintype G]
   rw [Measure.map_apply hX (measurableSet_singleton s)] at habs ⊢
   exact cond_absolutelyContinuous habs
 
-lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Fintype G]
+lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Finite G]
     [DiscreteMeasurableSpace G] [IsFiniteMeasure μ]
     {α : Type*} {l : Filter α} {ν : α → ProbabilityMeasure G} {ν' : ProbabilityMeasure G}
     (h : Tendsto ν l (𝓝 ν')) (habs : ∀ x, ν' {x} = 0 → μ.map X {x} = 0) :
     Tendsto (fun n ↦ KL[X ; μ # id ; ν n]) l (𝓝 (KL[X ; μ # id ; ν'])) := by
+  cases nonempty_fintype G
   simp_rw [KLDiv_eq_sum]
   apply tendsto_finset_sum _ (fun g hg ↦ ?_)
   rcases eq_or_ne ((Measure.map X μ).real {g}) 0 with h'g | h'g
@@ -428,11 +436,12 @@ lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Fintype 
   rw [ENNReal.tendsto_toReal_iff (by simp) (by simp)]
   exact (ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal _ _).1 h g
 
-lemma tendsto_KLDiv_id_left [TopologicalSpace G] [DiscreteTopology G] [Fintype G]
+lemma tendsto_KLDiv_id_left [TopologicalSpace G] [DiscreteTopology G] [Finite G]
     [DiscreteMeasurableSpace G] {Y : Ω → G} {μ : Measure Ω}
     {α : Type*} {l : Filter α} {ν : α → ProbabilityMeasure G} {ν' : ProbabilityMeasure G}
     (h : Tendsto ν l (𝓝 ν')) :
     Tendsto (fun n ↦ KL[id ; ν n # Y ; μ]) l (𝓝 (KL[id ; ν' # Y ; μ])) := by
+  cases nonempty_fintype G
   simp_rw [KLDiv_eq_sum_negMulLog]
   apply tendsto_finset_sum _ (fun g hg ↦ ?_)
   apply Tendsto.const_mul

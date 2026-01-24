@@ -60,7 +60,7 @@ lemma goursat (H : Submodule (ZMod 2) (G × G')) :
           let x₂ : S₂ := { val := x.2 - φ x.1, property := hx.2 }
           exact Set.mem_of_eq_of_mem (by rw [hf_inv, sub_add_cancel]) (f.symm (x₁, x₂)).property
 
-variable [Fintype G] [Fintype G']
+variable [Finite G] [Finite G']
 
 open Set Fintype
 
@@ -69,7 +69,9 @@ $$ S := \{ f(x+y)-f(x)-f(y): x,y \in G \}.$$
 Then there exists a homomorphism $\phi: G \to G'$ such that
 $$ |\{f(x) - \phi(x)\}| \leq |S|^{10}. $$ -/
 theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) - (f x) - (f y) ∈ S) :
-  ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ Nat.card S ^ 10 ∧ ∀ x : G, (f x) - (φ x) ∈ T := by
+    ∃ (φ : G →+ G') (T : Set G'), Nat.card T ≤ Nat.card S ^ 10 ∧ ∀ x : G, (f x) - (φ x) ∈ T := by
+  cases nonempty_fintype G
+  cases nonempty_fintype G'
   classical
   have : 0 < Nat.card G := Nat.card_pos
   let A := univ.graphOn f

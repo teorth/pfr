@@ -30,7 +30,7 @@ Assumptions:
 
 open MeasureTheory ProbabilityTheory
 
-variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+variable {G : Type*} [AddCommGroup G] [Finite G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
@@ -73,7 +73,7 @@ given the quadruple sum `S = X₁ + X₂ + X₁' + X₂'`. -/
 local notation3 "I₂" => I[U : W | S]
 
 --(Mantas) this times out in the proof below
-private lemma hmeas2 {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+private lemma hmeas2 {G : Type*} [AddCommGroup G] [Finite G] [hG : MeasurableSpace G]
     [MeasurableSingletonClass G] :
     Measurable fun p : Fin 4 → G => ((p 0 + p 1, p 0 + p 2), p 0 + p 1 + p 2 + p 3) := by
   fun_prop
@@ -312,7 +312,7 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
       sub_le_sub_right ineq8 _
     _ = (6 - 3 * p.η)*k + 3 * (2*p.η*k - I₁) := by ring
 
-omit [Fintype G] hG [MeasurableSingletonClass G] mΩ in
+omit [Finite G] hG [MeasurableSingletonClass G] mΩ in
 /-- `U + V + W = 0`. -/
 lemma sum_uvw_eq_zero [Module (ZMod 2) G] : U + V + W = 0 := by
   simp [add_assoc, ← ZModModule.sub_eq_add X₁', ZModModule.add_self]
@@ -324,6 +324,7 @@ omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ 
 lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
     {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable Z) : c[Y | Z # Y | Z] =
     (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ← z] # Y ; ℙ[|Z ← z]]] := by
+  cases nonempty_fintype G
   simp only [integral_fintype _ .of_finite, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
     Finset.sum_add_distrib]
   simp_rw [← integral_fintype _ .of_finite]
@@ -439,12 +440,14 @@ local notation3:max "δ'" => I[T₁ : T₂|R] + I[T₂ : T₃|R] + I[T₃ : T₁
 omit [AddCommGroup G] in
 lemma delta'_eq_integral :
     δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
+  cases nonempty_fintype G
   simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_fintype _ .of_finite, smul_add,
     Finset.sum_add_distrib]
 
 include hT₁ hT₂ hT₃ hT h_min hR in
 lemma cond_construct_good :
     k ≤ δ' + (p.η/3) * (δ' + c[T₁ | R # T₁ | R] + c[T₂ | R # T₂ | R] + c[T₃ | R # T₃ | R]) := by
+  cases nonempty_fintype G
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
   simp_rw [integral_fintype _ .of_finite, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum,

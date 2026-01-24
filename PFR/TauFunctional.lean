@@ -25,7 +25,7 @@ universe uG
 
 variable (Ω₀₁ Ω₀₂ : Type*) [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-variable (G : Type uG) [AddCommGroup G] [Fintype G] [MeasurableSpace G]
+variable (G : Type uG) [AddCommGroup G] [Finite G] [MeasurableSpace G]
 
 /-- A structure that packages all the fixed information in the main argument. In this way, when
 defining the τ functional, we will only only need to refer to the package once in the notation
@@ -88,7 +88,7 @@ lemma continuous_tau_restrict_probabilityMeasure
   continuity
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-[Fintype G] in
+[Finite G] in
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. -/
 lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂]
@@ -109,7 +109,7 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-[Fintype G] in
+[Finite G] in
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. -/
 lemma ProbabilityTheory.IdentDistrib.tau_minimizes [MeasureSpace Ω]
     [MeasureSpace Ω']
@@ -161,7 +161,7 @@ variable [MeasureSpace Ω] [hΩ₁ : MeasureSpace Ω'₁] [hΩ₂ : MeasureSpace
   [IsProbabilityMeasure (ℙ : Measure Ω'₁)] [IsProbabilityMeasure (ℙ : Measure Ω'₂)]
   {X₁ : Ω → G} {X₂ : Ω → G} {X₁' : Ω'₁ → G} {X₂' : Ω'₂ → G}
 
-omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Fintype G]
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
 [IsProbabilityMeasure (ℙ : Measure Ω)] in
 lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂') :
     τ[X₁ # X₂ | p] ≤ τ[X₁' # X₂' | p] := by
@@ -172,7 +172,7 @@ lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : M
   convert h ν₁ ν₂ (Measure.isProbabilityMeasure_map h1.aemeasurable)
     (Measure.isProbabilityMeasure_map h2.aemeasurable)
 
-omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Fintype G]
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
 [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Let `X₁` and `X₂` be tau-minimizers associated to `p`, with $d[X_1,X_2]=k$, then
 $$ d[X'_1;X'_2] \geq
@@ -186,7 +186,7 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁')
   simp [tau] at Z
   linarith
 
-omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Fintype G]
+omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
 [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Version of `distance_ge_of_min` with the measures made explicit. -/
 lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂)
@@ -206,8 +206,8 @@ bound $d[X'_1|Z;X'_2|W]$ by
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$
 -/
 lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
-    [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    [Fintype T] [MeasurableSpace T] [MeasurableSingletonClass T]
+    [Finite S] [MeasurableSpace S] [MeasurableSingletonClass S]
+    [Finite T] [MeasurableSpace T] [MeasurableSingletonClass T]
     (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂')
     (Z : Ω'₁ → S) (W : Ω'₂ → T) (hZ : Measurable Z) (hW : Measurable W) :
     d[X₁ # X₂] - p.η * (d[p.X₀₁ # X₁' | Z] - d[p.X₀₁ # X₁])

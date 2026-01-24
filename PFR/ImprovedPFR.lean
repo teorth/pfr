@@ -12,7 +12,7 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 open MeasureTheory ProbabilityTheory
 
 section GeneralInequality
-variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+variable {G : Type*} [AddCommGroup G] [Finite G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [Module (ZMod 2) G] [MeasurableAdd₂ G]
 
 variable {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)]
@@ -74,6 +74,7 @@ lemma gen_ineq_aux2 :
     d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩] ≤ d[Y # Z₁]
       + (d[Z₁ # Z₃] + d[Z₁ | Z₁ + Z₃ # Z₂ | Z₂ + Z₄]) / 2
       + (H[Z₂ | Z₂ + Z₄] - H[Z₁ | Z₁ + Z₃] + H[Z₁] - H[Z₃]) / 4 := by
+  cases nonempty_fintype G
   have hS : Measurable Sum := by fun_prop
   have I : IndepFun (⟨Z₁, Z₃⟩) (⟨Z₂, Z₄⟩) := by
     refine (h_indep.indepFun_prodMk_prodMk ?_ 0 2 1 3
@@ -250,7 +251,7 @@ section MainEstimates
 
 open MeasureTheory ProbabilityTheory
 
-variable {G : Type*} [AddCommGroup G] [Fintype G] [hG : MeasurableSpace G]
+variable {G : Type*} [AddCommGroup G] [Finite G] [hG : MeasurableSpace G]
   [MeasurableSingletonClass G] [Module (ZMod 2) G]
 
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
@@ -436,6 +437,7 @@ lemma averaged_construct_good :
       + (d[p.X₀₂ # V | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # V | ⟨W, S⟩] - d[p.X₀₂ # X₂])
       + (d[p.X₀₂ # W | ⟨U, S⟩] - d[p.X₀₂ # X₂]) + (d[p.X₀₂ # W | ⟨V, S⟩] - d[p.X₀₂ # X₂])))
     := by
+  cases nonempty_fintype G
   have hS : Measurable S := by fun_prop
   have hU : Measurable U := by fun_prop
   have hV : Measurable V := by fun_prop
@@ -719,7 +721,7 @@ open Filter Set
 variable {Ω₀₁ Ω₀₂ : Type*} [MeasureSpace Ω₀₁] [MeasureSpace Ω₀₂]
   [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
 
-variable {G : Type uG} [AddCommGroup G] [Module (ZMod 2) G] [Fintype G] [MeasurableSpace G]
+variable {G : Type uG} [AddCommGroup G] [Module (ZMod 2) G] [Finite G] [MeasurableSpace G]
   [MeasurableSingletonClass G]
 variable (p : refPackage Ω₀₁ Ω₀₂ G)
 
@@ -849,7 +851,7 @@ section PFR
 
 open Pointwise Set MeasureTheory ProbabilityTheory Real Fintype Function
 
-variable {G Ω : Type*} [AddCommGroup G] [Module (ZMod 2) G] [Fintype G]
+variable {G Ω : Type*} [AddCommGroup G] [Module (ZMod 2) G] [Finite G]
     {A B : Set G} {K : ℝ}
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if $A$ is a subset of
