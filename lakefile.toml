@@ -14,9 +14,8 @@ weak.linter.mathlibStandardSet = true
 warn.sorry = false
 
 [[require]]
-name = "LeanAPAP"
-git = "https://github.com/YaelDillies/LeanAPAP.git"
-rev = "v4.27.0"
+name = "APAP"
+git = "https://github.com/YaelDillies/apap.git"
 
 [[require]]
 name = "checkdecls"

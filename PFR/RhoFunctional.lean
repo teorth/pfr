@@ -39,7 +39,7 @@ lemma map_prod_uniformOn_ne_zero {y : G} (hA : A.Nonempty)
   obtain ⟨a, ha⟩ : ∃ x, x ∈ A := by exact hA
   let ν := uniformOn (A : Set G)
   have : IsProbabilityMeasure ν :=
-    uniformOn_isProbabilityMeasure A.finite_toSet hA
+    isProbabilityMeasure_uniformOn A.finite_toSet hA
   have h_indep : IndepFun Prod.fst Prod.snd (μ.prod ν) := ProbabilityTheory.indepFun_fst_snd
   rw [h_indep.map_add_singleton_eq_sum measurable_fst measurable_snd,
     Finset.sum_eq_zero_iff_of_nonneg (fun i _ ↦ by simp)] at h
@@ -53,10 +53,10 @@ lemma map_prod_uniformOn_ne_zero {y : G} (hA : A.Nonempty)
 lemma nonempty_rhoMinusSet [IsZeroOrProbabilityMeasure μ] (hA : A.Nonempty) :
     Set.Nonempty (rhoMinusSet X A μ) := by
   rcases eq_zero_or_isProbabilityMeasure μ with hμ | hμ
-  · refine ⟨0, ⟨uniformOn (A : Set G), uniformOn_isProbabilityMeasure A.finite_toSet hA,
+  · refine ⟨0, ⟨uniformOn (A : Set G), isProbabilityMeasure_uniformOn A.finite_toSet hA,
       by simp [hμ], by simp [hμ, KLDiv]⟩⟩
   set μ' := uniformOn (univ : Set G) with hμ'
-  have : IsProbabilityMeasure μ' := uniformOn_isProbabilityMeasure finite_univ univ_nonempty
+  have : IsProbabilityMeasure μ' := isProbabilityMeasure_uniformOn finite_univ univ_nonempty
   refine ⟨_, ⟨μ', this, fun y hy ↦ (map_prod_uniformOn_ne_zero hA ?_ hy).elim, rfl⟩⟩
   intro x
   simp [hμ', uniformOn_apply_singleton_of_mem (mem_univ _) finite_univ]
@@ -110,7 +110,7 @@ lemma rhoMinus_le [IsZeroOrProbabilityMeasure μ]
   cases nonempty_fintype G
   have : IsProbabilityMeasure (μ'.map T) := isProbabilityMeasure_map hT.aemeasurable
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
-    uniformOn_isProbabilityMeasure A.finite_toSet hA
+    isProbabilityMeasure_uniformOn A.finite_toSet hA
   have E : μ'.map U = uniformOn (A : Set G) := hunif.map_eq_uniformOn hU A.finite_toSet hA
   have M : (Measure.map (Prod.fst + Prod.snd) ((μ'.map T).prod (uniformOn ↑A))) =
       (Measure.map (T + U) μ') := by
@@ -133,7 +133,7 @@ lemma rhoMinus_nonneg [IsZeroOrProbabilityMeasure μ]
 lemma rhoMinus_zero_measure (hP : μ = 0)
     {X : Ω → G} {A : Finset G} : ρ⁻[X ; μ # A] = 0 := by
   have : ∃ (μ' : Measure G), IsProbabilityMeasure μ' :=
-    ⟨uniformOn Set.univ, uniformOn_isProbabilityMeasure finite_univ univ_nonempty⟩
+    ⟨uniformOn Set.univ, isProbabilityMeasure_uniformOn finite_univ univ_nonempty⟩
   simp [rhoMinus, rhoMinusSet, hP, this, KLDiv]
 
 private lemma rhoMinus_continuous_aux1 (hX : Measurable X) (hA : A.Nonempty)
@@ -147,7 +147,7 @@ private lemma rhoMinus_continuous_aux1 (hX : Measurable X) (hA : A.Nonempty)
   obtain ⟨u, -, u_mem, hu⟩ := exists_seq_strictAnti_tendsto' (x := (0 : ℝ≥0∞)) zero_lt_one
   let ν : ℕ → Measure G := fun n ↦ (1 - u n) • μ₀ + u n • uniformOn univ
   have : IsProbabilityMeasure (uniformOn (univ : Set G)) :=
-    uniformOn_isProbabilityMeasure finite_univ univ_nonempty
+    isProbabilityMeasure_uniformOn finite_univ univ_nonempty
   have P n : IsProbabilityMeasure (ν n) := by
     simp only [isProbabilityMeasure_iff, coe_add, coe_smul, Pi.add_apply, Pi.smul_apply,
       measure_univ, smul_eq_mul, mul_one, ν]
@@ -167,7 +167,7 @@ private lemma rhoMinus_continuous_aux1 (hX : Measurable X) (hA : A.Nonempty)
     · apply ENNReal.Tendsto.mul_const _ (by simp)
       exact ENNReal.Tendsto.sub tendsto_const_nhds hu (by simp)
     · exact ENNReal.Tendsto.mul_const hu (by simp)
-  let PA : ProbabilityMeasure G := ⟨uniformOn A, uniformOn_isProbabilityMeasure (A.finite_toSet) hA⟩
+  let PA : ProbabilityMeasure G := ⟨uniformOn A, isProbabilityMeasure_uniformOn (A.finite_toSet) hA⟩
   have : Tendsto (fun n ↦ (νP n).prod PA) atTop (𝓝 (μ₀P.prod PA)) :=
     (ProbabilityMeasure.continuous_prod.tendsto (μ₀P, PA)).comp (f := fun n ↦ (νP n, PA)) <|
       L.prodMk_nhds tendsto_const_nhds
@@ -461,7 +461,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   let _ : MeasureSpace (G × G) := ⟨μ'.prod (uniformOn (A : Set G))⟩
   have hprod : (ℙ : Measure (G × G)) = μ'.prod (uniformOn (A : Set G)) := rfl
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
-    uniformOn_isProbabilityMeasure A.finite_toSet hA
+    isProbabilityMeasure_uniformOn A.finite_toSet hA
   have : IsProbabilityMeasure (Measure.map T ℙ) := by rw [hprod, Measure.map_fst_prod]; simp [hμ']
   have h_indep : IndepFun T UA := ProbabilityTheory.indepFun_fst_snd
   have hUA_unif : IsUniform A UA := by
@@ -560,7 +560,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     rw [measureReal_def, μ'_sing]
     rfl
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
-    uniformOn_isProbabilityMeasure A.finite_toSet hA
+    isProbabilityMeasure_uniformOn A.finite_toSet hA
   have : IsProbabilityMeasure μ' :=
     isProbabilityMeasure_map (Measurable.aemeasurable (by fun_prop))
   have h_indep : IndepFun Prod.fst Prod.snd (μ'.prod (uniformOn (A : Set G))) := indepFun_fst_snd
@@ -763,7 +763,7 @@ lemma rhoMinus_of_sum [IsZeroOrProbabilityMeasure μ]
   · simp [rhoMinus_zero_measure hμ]
   apply le_csInf (nonempty_rhoMinusSet hA)
   have : IsProbabilityMeasure (uniformOn (A : Set G)) :=
-    uniformOn_isProbabilityMeasure A.finite_toSet hA
+    isProbabilityMeasure_uniformOn A.finite_toSet hA
   rintro - ⟨μ', μ'_prob, habs, rfl⟩
   obtain ⟨Ω', hΩ', m, X', Y', T, U, hm, h_indep', hX', hY', hT, hU, hXX', hYY', hTμ, hU_unif⟩ :=
     independent_copies4_nondep (X₁ := X) (X₂ := Y) (X₃ := id) (X₄ := id) hX hY measurable_id
@@ -931,7 +931,7 @@ lemma condRhoMinus_le [IsZeroOrProbabilityMeasure μ] {S : Type*} [MeasurableSpa
     ρ⁻[X | Z ; μ # A] ≤ ρ⁻[X ; μ # A] + H[X ; μ] - H[X | Z ; μ] := by
   cases nonempty_fintype S
   have : IsProbabilityMeasure (uniformOn (A : Set G)) := by
-    apply uniformOn_isProbabilityMeasure A.finite_toSet hA
+    apply isProbabilityMeasure_uniformOn A.finite_toSet hA
   suffices ρ⁻[X | Z ; μ # A] - H[X ; μ] + H[X | Z ; μ] ≤ ρ⁻[X ; μ # A] by linarith
   apply le_csInf (nonempty_rhoMinusSet hA)
   rintro - ⟨μ', hμ', habs, rfl⟩

@@ -47,7 +47,7 @@ lemma uniformOn_real_singleton (hs : s.Finite) (ω : Ω) [Decidable (ω ∈ s)] 
   simp [uniformOn_real hs, Set.ncard_inter_singleton]; split <;> simp
 
 instance uniformOn.instIsProbabilityMeasure [Nonempty s] [Finite s] :
-    IsProbabilityMeasure (uniformOn s) := uniformOn_isProbabilityMeasure ‹_› .of_subtype
+    IsProbabilityMeasure (uniformOn s) := isProbabilityMeasure_uniformOn ‹_› .of_subtype
 
 lemma map_uniformOn_apply {f : Ω → Ω'} (hmes : Measurable f) (hf : Injective f) {t : Set Ω'}
     (ht : MeasurableSet t) :

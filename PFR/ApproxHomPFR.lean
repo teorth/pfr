@@ -1,7 +1,7 @@
 import Mathlib.Data.FunLike.Fintype
 import Mathlib.Data.Int.Lemmas
 
-import LeanAPAP.Extras.BSG
+import APAP.Extras.BSG
 
 import PFR.HomPFR
 

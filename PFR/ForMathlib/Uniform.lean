@@ -260,7 +260,7 @@ lemma IsUniform.map_eq_uniformOn [Countable S] [IsProbabilityMeasure μ]
     {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) (hH : H.Finite) (h'H : H.Nonempty) :
     μ.map X = uniformOn H := by
   have : Finite H := hH
-  have : IsProbabilityMeasure (uniformOn H) := uniformOn_isProbabilityMeasure hH h'H
+  have : IsProbabilityMeasure (uniformOn H) := isProbabilityMeasure_uniformOn hH h'H
   have : IdentDistrib X id μ (uniformOn (H : Set S)) :=
     .of_isUniform (H := H) hX measurable_id h isUniform_uniformOn
   simpa using this.map_eq
