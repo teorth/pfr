@@ -1,4 +1,8 @@
-import Mathlib.Algebra.BigOperators.Fin
+module
+
+public import Mathlib.Algebra.BigOperators.Fin
+
+public section
 
 open Finset
 

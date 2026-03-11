@@ -1,4 +1,8 @@
-import PFR.ForMathlib.Entropy.RuzsaDist
+module
+
+public import PFR.ForMathlib.Entropy.RuzsaDist
+
+public section
 
 open MeasureTheory Pointwise Real
 

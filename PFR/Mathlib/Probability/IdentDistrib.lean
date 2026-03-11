@@ -1,6 +1,10 @@
-import Mathlib.Probability.IdentDistrib
-import PFR.Mathlib.MeasureTheory.Constructions.Pi
-import PFR.Mathlib.Probability.Independence.Basic
+module
+
+public import Mathlib.Probability.IdentDistrib
+public import PFR.Mathlib.MeasureTheory.Constructions.Pi
+public import PFR.Mathlib.Probability.Independence.Basic
+
+public section
 
 -- TODO: Change `ae_snd` to assume `Measurable p`
 

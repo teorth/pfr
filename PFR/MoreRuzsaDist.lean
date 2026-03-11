@@ -1,9 +1,11 @@
-import PFR.ForMathlib.Entropy.RuzsaDist
-import PFR.HundredPercent
-import PFR.Mathlib.Algebra.BigOperators.Fin
-import PFR.Mathlib.Data.Fin.Basic
-import PFR.Mathlib.MeasureTheory.Group.Arithmetic
-import PFR.Mathlib.Order.Interval.Finset.Fin
+module
+
+public import PFR.ForMathlib.Entropy.RuzsaDist
+public import PFR.HundredPercent
+public import PFR.Mathlib.Algebra.BigOperators.Fin
+public import PFR.Mathlib.Data.Fin.Basic
+public import PFR.Mathlib.MeasureTheory.Group.Arithmetic
+public import PFR.Mathlib.Order.Interval.Finset.Fin
 
 /-!
 # More results about Ruzsa distance
@@ -22,6 +24,8 @@ More facts about Ruzsa distance and related inequalities, for use in the m-torsi
 * `cor_multiDist_chainRule`: The corollary of the chain rule needed for the m-torsion version of PFR
 * `ent_sub_zsmul_sub_ent_le`: Controlling `H[X - aY]` in terms of `H[X]` and `d[X ; Y]`.
 -/
+
+public section
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 

@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+module
+
+public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+
+public section
 
 open Set
 

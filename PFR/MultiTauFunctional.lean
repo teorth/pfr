@@ -1,6 +1,8 @@
-import Mathlib.MeasureTheory.Measure.FiniteMeasurePi
-import Mathlib.MeasureTheory.Measure.Prokhorov
-import PFR.MoreRuzsaDist
+module
+
+public import Mathlib.MeasureTheory.Measure.FiniteMeasurePi
+public import Mathlib.MeasureTheory.Measure.Prokhorov
+public import PFR.MoreRuzsaDist
 
 /-!
 # The tau functional for multidistance
@@ -13,6 +15,8 @@ Definition of the tau functional and basic facts
 ## Main results
 
 -/
+
+public section
 
 open MeasureTheory ProbabilityTheory
 universe u

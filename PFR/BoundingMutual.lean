@@ -1,10 +1,14 @@
-import Mathlib.Algebra.BigOperators.Group.Multiset.Defs
-import PFR.Mathlib.Data.Fin.Basic
-import PFR.MultiTauFunctional
+module
+
+public import Mathlib.Algebra.BigOperators.Group.Multiset.Defs
+public import PFR.Mathlib.Data.Fin.Basic
+public import PFR.MultiTauFunctional
 
 /-!
 # Bounding the mutual information
 -/
+
+public section
 
 universe u
 open MeasureTheory ProbabilityTheory

@@ -1,6 +1,8 @@
-import Mathlib.Algebra.BigOperators.Field
-import Mathlib.Analysis.Convex.Jensen
-import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+module
+
+public import Mathlib.Algebra.BigOperators.Field
+public import Mathlib.Analysis.Convex.Jensen
+public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 
 /-!
 # Entropy function
@@ -14,6 +16,8 @@ $$h(x) = - x * \log x$$ on the unit interval, for use in the theory of Shannon e
 * `sum_negMulLog_eq`: the equality case of this inequality
 
 -/
+
+public section
 
 open scoped ENNReal NNReal Topology
 

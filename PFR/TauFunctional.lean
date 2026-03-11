@@ -1,5 +1,7 @@
-import Mathlib.MeasureTheory.Measure.Prokhorov
-import PFR.ForMathlib.Entropy.RuzsaDist
+module
+
+public import Mathlib.MeasureTheory.Measure.Prokhorov
+public import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
 # The tau functional
@@ -19,6 +21,8 @@ Definition of the tau functional and basic facts
   $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] )$$
   for any $X'_1, Z, X'_2, W$.
 -/
+
+@[expose] public section
 
 open MeasureTheory ProbabilityTheory
 universe uG

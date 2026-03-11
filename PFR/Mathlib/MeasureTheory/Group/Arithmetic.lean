@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Group.Arithmetic
+module
+
+public import Mathlib.MeasureTheory.Group.Arithmetic
+
+public section
 
 variable {ι α β M : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mM : MeasurableSpace M} [CommMonoid M] [MeasurableMul₂ M]

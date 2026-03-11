@@ -1,5 +1,9 @@
-import PFR.Mathlib.Probability.IdentDistrib
-import PFR.ForMathlib.FiniteRange.Defs
+module
+
+public import PFR.Mathlib.Probability.IdentDistrib
+public import PFR.ForMathlib.FiniteRange.Defs
+
+public section
 
 -- TODO: Change `ae_snd` to assume `Measurable p`
 

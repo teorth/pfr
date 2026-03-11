@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
-import PFR.Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+module
+
+public import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
+public import PFR.Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+
+public section
 
 namespace MeasureTheory
 variable {Ω : Type*} [Countable Ω] [MeasurableSpace Ω] {μ : Measure Ω}

@@ -1,9 +1,11 @@
-import Mathlib.Data.FunLike.Fintype
-import Mathlib.Data.Int.Lemmas
+module
 
-import APAP.Extras.BSG
+public import Mathlib.Data.FunLike.Fintype
+public import Mathlib.Data.Int.Lemmas
 
-import PFR.HomPFR
+public import APAP.Extras.BSG
+
+public import PFR.HomPFR
 
 /-!
 # The approximate homomorphism form of PFR
@@ -18,6 +20,8 @@ is true for a positive proportion of x,y.
   $f(x+y)=f(x)+f(y)$ for at least $|G|/K$ values, then then there is a homomorphism $\phi: G \to G'$
   and a constant $c$ such that $f(x)=\phi(x)+c$ for a substantial set of values.
 -/
+
+public section
 
 open Finset Module
 open scoped Pointwise Combinatorics.Additive
@@ -305,7 +309,3 @@ theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
           ZeroHom.coe_mk, and_imp, A, φ'c]
         intro h1 h2
         simp [h1, h2]
-
-/-- info: 'approx_hom_pfr'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms approx_hom_pfr'

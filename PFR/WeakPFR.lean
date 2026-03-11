@@ -1,14 +1,16 @@
-import Mathlib.GroupTheory.Coset.Card
-import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
-import Mathlib.LinearAlgebra.FreeModule.ModN
-import Mathlib.LinearAlgebra.FreeModule.PID
-import Mathlib.MeasureTheory.Constructions.SubmoduleQuotient
-import PFR.ForMathlib.AffineSpaceDim
-import PFR.ForMathlib.Entropy.RuzsaSetDist
-import PFR.ImprovedPFR
-import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
-import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
-import PFR.Mathlib.LinearAlgebra.Quotient.Basic
+module
+
+public import Mathlib.GroupTheory.Coset.Card
+public import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
+public import Mathlib.LinearAlgebra.FreeModule.ModN
+public import Mathlib.LinearAlgebra.FreeModule.PID
+public import Mathlib.MeasureTheory.Constructions.SubmoduleQuotient
+public import PFR.ForMathlib.AffineSpaceDim
+public import PFR.ForMathlib.Entropy.RuzsaSetDist
+public import PFR.ImprovedPFR
+public import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
+public import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
+public import PFR.Mathlib.LinearAlgebra.Quotient.Basic
 
 /-!
 # Weak PFR over the integers
@@ -22,6 +24,8 @@ Here we use the entropic form of PFR to deduce a weak form of PFR over the integ
   $\dim A' \leq (40/\log 2)\log K$.
 
 -/
+
+@[expose] public section
 
 open Set
 open scoped Pointwise

@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Integral.Lebesgue.Countable
+module
+
+public import Mathlib.MeasureTheory.Integral.Lebesgue.Countable
+
+public section
 
 open ENNReal
 

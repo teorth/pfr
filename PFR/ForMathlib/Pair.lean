@@ -1,5 +1,9 @@
-import Mathlib.Util.Notation3
-import Mathlib.Tactic.Basic
+module
+
+public import Mathlib.Util.Notation3
+public import Mathlib.Tactic.Basic
+
+public section
 
 /-- The pair of two random variables -/
 abbrev prod {Ω S T : Type*} (X : Ω → S) (Y : Ω → T) (ω : Ω) : S × T := (X ω, Y ω)

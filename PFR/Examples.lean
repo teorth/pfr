@@ -3,6 +3,8 @@ import PFR.ImprovedPFR
 import PFR.WeakPFR
 import PFR.RhoFunctional
 
+public section
+
 section PFR
 
 open Pointwise
@@ -212,3 +214,7 @@ example {Ω Ω' : Type*} [MeasurableSpace Ω] (ν : Measure Ω) [IsFiniteMeasure
     (ν.prod ν') E < ∞ := by finiteness
 
 end Finiteness
+
+/-- info: 'approx_hom_pfr'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms approx_hom_pfr'

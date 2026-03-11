@@ -1,5 +1,9 @@
-import Mathlib.Probability.ConditionalProbability
-import PFR.ForMathlib.FiniteRange.Defs
+module
+
+public import Mathlib.Probability.ConditionalProbability
+public import PFR.ForMathlib.FiniteRange.Defs
+
+public section
 
 open MeasureTheory Set
 

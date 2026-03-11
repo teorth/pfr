@@ -1,7 +1,9 @@
-import Mathlib.MeasureTheory.Integral.Prod
-import PFR.ForMathlib.Entropy.Measure
-import PFR.Mathlib.MeasureTheory.Integral.Bochner.Set
-import PFR.Mathlib.Probability.Kernel.Disintegration
+module
+
+public import Mathlib.MeasureTheory.Integral.Prod
+public import PFR.ForMathlib.Entropy.Measure
+public import PFR.Mathlib.MeasureTheory.Integral.Bochner.Set
+public import PFR.Mathlib.Probability.Kernel.Disintegration
 
 /-!
 # Entropy of a kernel with respect to a measure
@@ -21,6 +23,8 @@ import PFR.Mathlib.Probability.Kernel.Disintegration
 * `Hk[κ, μ] = Kernel.entropy κ μ`
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory
 

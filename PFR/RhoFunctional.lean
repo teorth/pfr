@@ -1,12 +1,16 @@
-import PFR.ForMathlib.ThreeVariables
-import PFR.Kullback
-import PFR.Main
+module
+
+public import PFR.ForMathlib.ThreeVariables
+public import PFR.Kullback
+public import PFR.Main
 
 /-!
 # The rho functional
 
 Definition of the rho functional and basic facts
 -/
+
+@[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Set Function Measure Filter
 open scoped Pointwise ENNReal Topology

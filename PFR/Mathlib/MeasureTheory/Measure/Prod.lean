@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Measure.Prod
+module
+
+public import Mathlib.MeasureTheory.Measure.Prod
+
+public section
 
 open Function
 open scoped ENNReal NNReal

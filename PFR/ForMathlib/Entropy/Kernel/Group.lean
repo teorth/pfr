@@ -1,5 +1,8 @@
-import PFR.ForMathlib.Entropy.Kernel.MutualInfo
-import Mathlib.MeasureTheory.Group.Arithmetic
+module
+
+public import PFR.ForMathlib.Entropy.Kernel.MutualInfo
+public import Mathlib.MeasureTheory.Group.Arithmetic
+
 /-!
 # Kernel entropy and mutual information in a commutative group
 
@@ -8,6 +11,9 @@ import Mathlib.MeasureTheory.Group.Arithmetic
 ## Main results
 
 -/
+
+public section
+
 open MeasureTheory ProbabilityTheory
 
 variable {Ω Ω' Ω'' Ω''' G T : Type*}

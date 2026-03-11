@@ -1,14 +1,18 @@
-import Mathlib.Probability.IdentDistrib
-import PFR.ForMathlib.Entropy.Basic
-import PFR.ForMathlib.FiniteRange.Defs
-import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
-import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+module
+
+public import Mathlib.Probability.IdentDistrib
+public import PFR.ForMathlib.Entropy.Basic
+public import PFR.ForMathlib.FiniteRange.Defs
+public import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
+public import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 /-!
 # Kullback-Leibler divergence
 
 Definition of Kullback-Leibler divergence and basic facts
 -/
+
+@[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Filter
 open scoped Topology

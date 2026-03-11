@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+module
+
+public import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+
+public section
 
 open MeasureTheory ProbabilityMeasure Topology Metric Filter Set ENNReal NNReal
 open scoped BoundedContinuousFunction Topology ENNReal NNReal

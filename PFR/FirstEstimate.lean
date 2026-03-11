@@ -1,5 +1,7 @@
-import PFR.Fibring
-import PFR.TauFunctional
+module
+
+public import PFR.Fibring
+public import PFR.TauFunctional
 
 /-!
 # First estimate
@@ -20,6 +22,8 @@ Assumptions:
 * `ent_ofsum_le` : $H[X_1+X_2+\tilde X_1+\tilde X_2] \le \tfrac{1}{2} H[X_1]+\tfrac{1}{2} H[X_2] +
   (2 + \eta) k - I_1.$
 -/
+
+public section
 
 open MeasureTheory ProbabilityTheory
 

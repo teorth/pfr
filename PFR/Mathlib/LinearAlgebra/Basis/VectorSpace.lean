@@ -1,5 +1,9 @@
-import Mathlib.Algebra.Module.Projective
-import Mathlib.LinearAlgebra.Basis.VectorSpace
+module
+
+public import Mathlib.Algebra.Module.Projective
+public import Mathlib.LinearAlgebra.Basis.VectorSpace
+
+public section
 
 namespace Submodule
 variable {B F R : Type*} [DivisionRing R] [AddCommGroup B] [AddCommGroup F]

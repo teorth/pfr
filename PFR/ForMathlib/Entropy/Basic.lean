@@ -1,7 +1,9 @@
-import PFR.ForMathlib.ConditionalIndependence
-import PFR.ForMathlib.Entropy.Kernel.MutualInfo
-import PFR.ForMathlib.Uniform
-import PFR.Mathlib.Probability.ConditionalProbability
+module
+
+public import PFR.ForMathlib.ConditionalIndependence
+public import PFR.ForMathlib.Entropy.Kernel.MutualInfo
+public import PFR.ForMathlib.Uniform
+public import PFR.Mathlib.Probability.ConditionalProbability
 
 /-!
 # Entropy and conditional entropy
@@ -31,6 +33,8 @@ supposed to be `volume`). For example `H[X ; μ]` and `I[X : Y ; μ]` instead of
 `I[X : Y]` respectively.
 
 -/
+
+@[expose] public section
 
 open Function MeasureTheory Measure Real
 open scoped ENNReal NNReal Topology ProbabilityTheory

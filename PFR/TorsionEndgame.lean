@@ -1,12 +1,16 @@
-import Mathlib.Data.Set.Card
-import Mathlib.Algebra.Group.Pointwise.Finset.BigOperators
-import PFR.Main
-import PFR.MultiTauFunctional
-import PFR.BoundingMutual
+module
+
+public import Mathlib.Data.Set.Card
+public import Mathlib.Algebra.Group.Pointwise.Finset.BigOperators
+public import PFR.Main
+public import PFR.MultiTauFunctional
+public import PFR.BoundingMutual
 
 /-!
 # Endgame for the Torsion PFR theorem
 -/
+
+public section
 
 open MeasureTheory ProbabilityTheory Set
 open scoped Pointwise

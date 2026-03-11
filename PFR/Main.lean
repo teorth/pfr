@@ -1,9 +1,11 @@
-import Mathlib.Algebra.Group.Pointwise.Set.Card
-import Mathlib.Algebra.Module.ZMod
-import Mathlib.Combinatorics.Additive.RuzsaCovering
-import Mathlib.GroupTheory.Complement
-import PFR.EntropyPFR
-import PFR.Tactic.RPowSimp
+module
+
+public import Mathlib.Algebra.Group.Pointwise.Set.Card
+public import Mathlib.Algebra.Module.ZMod
+public import Mathlib.Combinatorics.Additive.RuzsaCovering
+public import Mathlib.GroupTheory.Complement
+public import PFR.EntropyPFR
+public import PFR.Tactic.RPowSimp
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
@@ -13,6 +15,8 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
 Here we prove the polynomial Freiman-Ruzsa conjecture.
 -/
+
+public section
 
 open ProbabilityTheory MeasureTheory Real Set Fintype Function
 open scoped Pointwise

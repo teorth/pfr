@@ -1,4 +1,8 @@
-import Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
+module
+
+public import Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
+
+public section
 
 open scoped Pointwise
 

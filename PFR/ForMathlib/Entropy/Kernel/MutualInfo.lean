@@ -1,5 +1,7 @@
-import PFR.Mathlib.Probability.Kernel.Composition.Comp
-import PFR.ForMathlib.Entropy.Kernel.Basic
+module
+
+public import PFR.Mathlib.Probability.Kernel.Composition.Comp
+public import PFR.ForMathlib.Entropy.Kernel.Basic
 
 /-!
 # Mutual Information of kernels
@@ -21,6 +23,8 @@ import PFR.ForMathlib.Entropy.Kernel.Basic
 * `Ik[κ, μ] = Kernel.entropy κ μ`
 
 -/
+
+@[expose] public section
 
 open Function MeasureTheory Real
 open scoped ENNReal NNReal Topology ProbabilityTheory

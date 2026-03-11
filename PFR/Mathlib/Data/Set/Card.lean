@@ -1,6 +1,10 @@
-import Mathlib.Data.Set.Card
-import PFR.Mathlib.Data.Set.Basic
-import PFR.Mathlib.Data.Set.Insert
+module
+
+public import Mathlib.Data.Set.Card
+public import PFR.Mathlib.Data.Set.Basic
+public import PFR.Mathlib.Data.Set.Insert
+
+public section
 
 namespace Set
 variable {α : Type*}

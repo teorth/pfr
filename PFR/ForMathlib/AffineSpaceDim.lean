@@ -1,7 +1,11 @@
-import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
-import Mathlib.LinearAlgebra.Dimension.Constructions
-import Mathlib.LinearAlgebra.Dimension.Finite
-import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
+module
+
+public import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
+public import Mathlib.LinearAlgebra.Dimension.Constructions
+public import Mathlib.LinearAlgebra.Dimension.Finite
+public import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
+
+@[expose] public section
 
 open scoped Pointwise
 
