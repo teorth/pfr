@@ -279,10 +279,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [Measur
     _ = ∏ i, ∑ ωi, Measure.real ℙ (Y i ⁻¹' {ωi}) := by
       convert Finset.sum_prod_piFinset Finset.univ _ with ω _ i _
       rfl
-    _ = ∏ i, 1 := by
-      apply Finset.prod_congr rfl
-      intro i _
-      exact probmes i
+    _ = ∏ i, 1 := by congr with i; exact probmes i
     _ = 1 := by
       simp only [Finset.prod_const_one]
   calc
@@ -310,11 +307,9 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [Measur
       exact sub_multiDistance_le hΩprob hmeasX h_min hΩ'prob_cond hmeasX'
     _ = p.η * ∑ i, ∑ ω, μ ω * d[X i ; (hΩ i).volume # X' i; ℙ[|Y i ⁻¹' {ω i}] ] := by
       rw [Finset.sum_comm, Finset.mul_sum]
-      apply Finset.sum_congr rfl
-      intro ω _
+      congr with ω
       rw [Finset.mul_sum, Finset.mul_sum, Finset.mul_sum]
-      apply Finset.sum_congr rfl
-      intro i _
+      congr with i
       ring
     _ = _ := by
       congr with i

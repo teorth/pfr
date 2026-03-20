@@ -893,8 +893,7 @@ variable {G : Type uG} [hG : MeasurableSpace G] [AddCommGroup G]
 /-- Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `X_i`.
 Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'` are independent copies
 of the `X_i`. -/
-noncomputable
-def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+@[expose] noncomputable def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     (X : ∀ i, Ω i → G) : ℝ :=
   H[fun x ↦ ∑ i, x i; .pi (fun i ↦ (hΩ i).volume.map (X i))] - (m:ℝ)⁻¹ * ∑ i, H[X i]
 
@@ -2104,7 +2103,9 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
         I[∑ i : Fin m, X i : fun ω i ↦ π d.succ (X i ω)|
           ⟨π d.succ ∘ ∑ i : Fin m, X i, fun ω i ↦ π d.castSucc (X i ω)⟩]) := by
       rw [← Fin.sum_univ_castSucc']
-      congr! <;> rw [Fin.coeSucc_eq_succ]
+      congr!
+      any_goals rw [Fin.coeSucc_eq_succ]
+      simp_all
   _ ≥ _ := by
       rw [Finset.sum_add_distrib]
       gcongr
