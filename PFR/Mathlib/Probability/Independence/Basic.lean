@@ -1,6 +1,10 @@
-import Mathlib.MeasureTheory.Constructions.Pi
-import Mathlib.Probability.Independence.Basic
-import PFR.Mathlib.Probability.Independence.Kernel.IndepFun
+module
+
+public import Mathlib.MeasureTheory.Constructions.Pi
+public import Mathlib.Probability.Independence.Basic
+public import PFR.Mathlib.Probability.Independence.Kernel.IndepFun
+
+public section
 
 open Function MeasureTheory MeasurableSpace Measure Set
 open scoped MeasureTheory ENNReal
@@ -295,11 +299,8 @@ lemma iIndepFun.prod {hf : ∀ (i : ι), Measurable (f i)} {ST : ι' → Finset 
     intro x y hxy
     have : ¬(Disjoint on ST) x.fst y.fst := by
       refine not_forall.mpr ⟨{g y}, ?_⟩
-      rewrite [_root_.not_imp, _root_.not_imp]
-      repeat' apply And.intro
-      · exact Finset.singleton_subset_iff.mpr (by rewrite [← hxy] ; exact Finset.coe_mem x.snd)
-      · exact Finset.singleton_subset_iff.mpr (Finset.coe_mem y.snd)
-      · rewrite [le_bot_iff] ; exact Finset.singleton_ne_empty (g y)
+      simp
+      grind
     exact Sigma.subtype_ext (not_ne_iff.mp ((@hS x.fst y.fst).mt this)) hxy
   let m (i : ι') (j : ST i) : MeasurableSpace (α j) := n j
   exact iIndepFun.pi' (m := m) (hf ∘' g) (h.precomp hg)

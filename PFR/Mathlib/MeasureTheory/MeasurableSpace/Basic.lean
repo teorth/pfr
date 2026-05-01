@@ -1,4 +1,6 @@
-import Mathlib.MeasureTheory.MeasurableSpace.Basic
+module
+
+public import Mathlib.MeasureTheory.MeasurableSpace.Basic
 
 namespace MeasureTheory
 

@@ -1,4 +1,6 @@
-import PFR.ForMathlib.Entropy.Kernel.Group
+module
+
+public import PFR.ForMathlib.Entropy.Kernel.Group
 
 /-!
 # Ruzsa distance between kernels
@@ -7,6 +9,8 @@ import PFR.ForMathlib.Entropy.Kernel.Group
 
 * `dk[κ ; μ # η ; ν] = `
 -/
+
+@[expose] public section
 
 open Real MeasureTheory
 open scoped ENNReal NNReal Topology ProbabilityTheory

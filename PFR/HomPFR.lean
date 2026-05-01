@@ -1,7 +1,9 @@
-import Mathlib.Algebra.Field.ZMod
-import Mathlib.Data.Set.Card
-import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
-import PFR.RhoFunctional
+module
+
+public import Mathlib.Algebra.Field.ZMod
+public import Mathlib.Data.Set.Card
+public import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
+public import PFR.RhoFunctional
 
 /-!
 # The homomorphism form of PFR
@@ -18,6 +20,8 @@ few values.
   that $f(x+y)-f(x)-f(y)$ takes at most $K$ values, then there is a homomorphism $\phi: G \to G'$
   such that $f(x)-\phi(x)$ takes at most $K^{10}$ values.
 -/
+
+public section
 
 open Set
 open scoped Pointwise

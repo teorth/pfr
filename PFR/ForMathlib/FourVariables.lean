@@ -1,4 +1,8 @@
-import PFR.Mathlib.Probability.Independence.Basic
+module
+
+public import PFR.Mathlib.Probability.Independence.Basic
+
+public section
 
 open MeasureTheory ProbabilityTheory
 

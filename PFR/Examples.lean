@@ -2,6 +2,7 @@ import PFR.ApproxHomPFR
 import PFR.ImprovedPFR
 import PFR.WeakPFR
 import PFR.RhoFunctional
+import PFR.TorsionEndgame
 
 section PFR
 
@@ -54,6 +55,18 @@ example (f : G → G') (K : ℝ) (hK : K > 0)
     ∃ (φ : G →+ G') (c : G'),
       Nat.card {x : G | f x = φ x + c} ≥ (Nat.card G) / (2 ^ 144 * K ^ 122) :=
   approx_hom_pfr f K hK hf
+
+/-- The bounded torsion version of PFR. -/
+example [AddCommGroup G] [Finite G] {m : ℕ} (hm : m ≥ 2)
+     (htorsion : ∀ x : G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
+     (hA : Nat.card (A + A) ≤ K * A.ncard) :
+     ∃ (H : AddSubgroup G) (c : Set G),
+      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H :=
+  torsion_PFR hm htorsion h₀A hA
+
+/-- info: 'torsion_PFR' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms torsion_PFR
 
 open Real
 
@@ -212,3 +225,7 @@ example {Ω Ω' : Type*} [MeasurableSpace Ω] (ν : Measure Ω) [IsFiniteMeasure
     (ν.prod ν') E < ∞ := by finiteness
 
 end Finiteness
+
+/-- info: 'approx_hom_pfr'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms approx_hom_pfr'

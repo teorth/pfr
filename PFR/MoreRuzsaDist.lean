@@ -1,9 +1,11 @@
-import PFR.ForMathlib.Entropy.RuzsaDist
-import PFR.HundredPercent
-import PFR.Mathlib.Algebra.BigOperators.Fin
-import PFR.Mathlib.Data.Fin.Basic
-import PFR.Mathlib.MeasureTheory.Group.Arithmetic
-import PFR.Mathlib.Order.Interval.Finset.Fin
+module
+
+public import PFR.ForMathlib.Entropy.RuzsaDist
+public import PFR.HundredPercent
+public import PFR.Mathlib.Algebra.BigOperators.Fin
+public import PFR.Mathlib.Data.Fin.Basic
+public import PFR.Mathlib.MeasureTheory.Group.Arithmetic
+public import PFR.Mathlib.Order.Interval.Finset.Fin
 
 /-!
 # More results about Ruzsa distance
@@ -22,6 +24,8 @@ More facts about Ruzsa distance and related inequalities, for use in the m-torsi
 * `cor_multiDist_chainRule`: The corollary of the chain rule needed for the m-torsion version of PFR
 * `ent_sub_zsmul_sub_ent_le`: Controlling `H[X - aY]` in terms of `H[X]` and `d[X ; Y]`.
 -/
+
+public section
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 
@@ -889,8 +893,7 @@ variable {G : Type uG} [hG : MeasurableSpace G] [AddCommGroup G]
 /-- Let `X_[m] = (X₁, ..., Xₘ)` be a non-empty finite tuple of `G`-valued random variables `X_i`.
 Then we define `D[X_[m]] = H[∑ i, X_i'] - 1/m*∑ i, H[X_i']`, where the `X_i'` are independent copies
 of the `X_i`. -/
-noncomputable
-def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
+@[expose] noncomputable def multiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i))
     (X : ∀ i, Ω i → G) : ℝ :=
   H[fun x ↦ ∑ i, x i; .pi (fun i ↦ (hΩ i).volume.map (X i))] - (m:ℝ)⁻¹ * ∑ i, H[X i]
 
@@ -1535,6 +1538,7 @@ with the `X_i` being `G`-valued (but the `Y_i` need not be), then we define
 `D[X_[m] | Y_[m]] = ∑_{(y_i)_{1 \leq i \leq m}} (∏ i, p_{Y_i}(y_i)) D[(X_i | Y_i = y_i)_{i=1}^m]`
 where each `y_i` ranges over the support of `p_{Y_i}` for `1 ≤ i ≤ m`.
 -/
+@[expose]
 noncomputable
 def condMultiDist {m : ℕ} {Ω : Fin m → Type*} (hΩ : ∀ i, MeasureSpace (Ω i)) {S : Type*} [Fintype S]
     (X : ∀ i, Ω i → G) (Y : ∀ i, Ω i → S) : ℝ :=
@@ -2100,7 +2104,9 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
         I[∑ i : Fin m, X i : fun ω i ↦ π d.succ (X i ω)|
           ⟨π d.succ ∘ ∑ i : Fin m, X i, fun ω i ↦ π d.castSucc (X i ω)⟩]) := by
       rw [← Fin.sum_univ_castSucc']
-      congr! <;> rw [Fin.coeSucc_eq_succ]
+      congr!
+      any_goals rw [Fin.coeSucc_eq_succ]
+      simp_all
   _ ≥ _ := by
       rw [Finset.sum_add_distrib]
       gcongr

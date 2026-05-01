@@ -1,7 +1,11 @@
-import Mathlib.Tactic.Finiteness
-import PFR.Mathlib.Probability.IdentDistrib
-import PFR.ForMathlib.FiniteRange.ConditionalProbability
-import PFR.ForMathlib.Pair
+module
+
+public import Mathlib.Tactic.Finiteness
+public import PFR.Mathlib.Probability.IdentDistrib
+public import PFR.ForMathlib.FiniteRange.ConditionalProbability
+public import PFR.ForMathlib.Pair
+
+@[expose] public section
 
 open MeasureTheory Measure Set
 open scoped ENNReal

@@ -1,4 +1,8 @@
-import Mathlib.Probability.ConditionalProbability
+module
+
+public import Mathlib.Probability.ConditionalProbability
+
+public section
 
 open MeasureTheory
 

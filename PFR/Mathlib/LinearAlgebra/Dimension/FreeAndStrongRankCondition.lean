@@ -1,4 +1,8 @@
-import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
+module
+
+public import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
+
+public section
 
 open Cardinal Module Module Set Submodule
 

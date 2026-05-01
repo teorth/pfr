@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Measure.Map
+module
+
+public import Mathlib.MeasureTheory.Measure.Map
+
+@[expose] public section
 
 /-- The property of having a finite range. -/
 class FiniteRange {Ω G : Type*} (X : Ω → G) : Prop where

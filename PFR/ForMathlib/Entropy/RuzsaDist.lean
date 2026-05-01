@@ -1,8 +1,10 @@
-import Mathlib.MeasureTheory.Measure.FiniteMeasureProd
-import PFR.ForMathlib.Entropy.Group
-import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
-import PFR.ForMathlib.FiniteRange.IdentDistrib
-import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+module
+
+public import Mathlib.MeasureTheory.Measure.FiniteMeasureProd
+public import PFR.ForMathlib.Entropy.Group
+public import PFR.ForMathlib.Entropy.Kernel.RuzsaDist
+public import PFR.ForMathlib.FiniteRange.IdentDistrib
+public import PFR.Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 /-!
 # Ruzsa distance
@@ -22,6 +24,8 @@ Here we define Ruzsa distance and establish its basic properties.
 * `ent_bsg`: If $Z=A+B$, then
   $$\sum_{z} P[Z=z] d[(A | Z = z) ; (B | Z = z)] \leq 3 I[A :B] + 2 H[Z] - H[A] - H[B]$$
 -/
+
+@[expose] public section
 
 open Filter Function MeasureTheory Measure ProbabilityTheory
 open scoped Topology

@@ -1,10 +1,14 @@
-import PFR.Main
+module
+
+public import PFR.Main
 
 /-!
 # Improved PFR
 
 An improvement to PFR that lowers the exponent from 12 to 11.
 -/
+
+public section
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))

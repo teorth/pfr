@@ -1,5 +1,7 @@
-import PFR.ForMathlib.FourVariables
-import PFR.FirstEstimate
+module
+
+public import PFR.ForMathlib.FourVariables
+public import PFR.FirstEstimate
 
 /-!
 # Second estimate
@@ -19,6 +21,8 @@ Assumptions:
 
 * `second_estimate` : $$ I_2 \leq 2 \eta k + \frac{2 \eta (2 \eta k - I_1)}{1 - \eta}.$$
 -/
+
+public section
 
 open MeasureTheory Module ProbabilityTheory
 

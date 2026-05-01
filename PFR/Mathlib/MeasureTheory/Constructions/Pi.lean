@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Constructions.Pi
+module
+
+public import Mathlib.MeasureTheory.Constructions.Pi
+
+public section
 
 open Function Set
 

@@ -1,7 +1,9 @@
-import Mathlib.Algebra.Module.ZMod
-import PFR.TauFunctional
-import PFR.HundredPercent
-import PFR.Endgame
+module
+
+public import Mathlib.Algebra.Module.ZMod
+public import PFR.TauFunctional
+public import PFR.HundredPercent
+public import PFR.Endgame
 
 /-!
 # Entropic version of polynomial Freiman-Ruzsa conjecture
@@ -14,6 +16,8 @@ Here we prove the entropic version of the polynomial Freiman-Ruzsa conjecture.
   subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$.
 
 -/
+
+public section
 
 open MeasureTheory ProbabilityTheory
 universe uG

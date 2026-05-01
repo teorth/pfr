@@ -1,10 +1,14 @@
-import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
+module
+
+public import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 
 /-!
 # TODO
 
 Rename `setLIntegral_congr` to `setLIntegral_congr_set`
 -/
+
+public section
 
 open ENNReal
 

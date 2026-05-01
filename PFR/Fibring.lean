@@ -1,4 +1,6 @@
-import PFR.ForMathlib.Entropy.RuzsaDist
+module
+
+public import PFR.ForMathlib.Entropy.RuzsaDist
 
 /-!
 # The fibring identity
@@ -12,6 +14,8 @@ The proof of the fibring identity, which is a key component of the proof of PFR.
   $$ I[Y_1+Y_2 : Y_2 + Y_4 | Y_1+Y_2+Y_3+Y_4].$$
 
 -/
+
+public section
 
 open MeasureTheory ProbabilityTheory Function
 

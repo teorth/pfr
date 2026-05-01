@@ -1,5 +1,9 @@
-import PFR.ForMathlib.Entropy.Basic
-import PFR.ForMathlib.Entropy.Kernel.Group
+module
+
+public import PFR.ForMathlib.Entropy.Basic
+public import PFR.ForMathlib.Entropy.Kernel.Group
+
+public section
 
 open Function MeasureTheory Measure Real
 open scoped ENNReal NNReal Topology ProbabilityTheory

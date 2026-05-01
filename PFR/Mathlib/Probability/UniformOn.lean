@@ -1,5 +1,9 @@
-import Mathlib.Probability.UniformOn
-import PFR.Mathlib.Data.Set.Card
+module
+
+public import Mathlib.Probability.UniformOn
+public import PFR.Mathlib.Data.Set.Card
+
+public section
 
 open Function MeasureTheory Measure
 

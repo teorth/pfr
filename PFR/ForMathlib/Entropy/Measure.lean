@@ -1,9 +1,11 @@
-import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
-import Mathlib.MeasureTheory.Integral.Bochner.Basic
-import PFR.ForMathlib.FiniteRange.Defs
-import PFR.Mathlib.MeasureTheory.Measure.Dirac
-import PFR.Mathlib.MeasureTheory.Measure.Real
-import PFR.Mathlib.Probability.UniformOn
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+public import Mathlib.MeasureTheory.Integral.Bochner.Basic
+public import PFR.ForMathlib.FiniteRange.Defs
+public import PFR.Mathlib.MeasureTheory.Measure.Dirac
+public import PFR.Mathlib.MeasureTheory.Measure.Real
+public import PFR.Mathlib.Probability.UniformOn
 
 /-!
 # Entropy of a measure
@@ -20,6 +22,8 @@ import PFR.Mathlib.Probability.UniformOn
 * `Im[μ] = measureMutualInfo μ`
 
 -/
+
+@[expose] public section
 
 open MeasureTheory Real Set
 open scoped ENNReal NNReal Topology
@@ -800,7 +804,7 @@ open Lean Meta Qq Function ProbabilityTheory
 
 /-- Extension for `measureMutualInfo`. -/
 @[positivity measureMutualInfo _]
-def evalMeasureMutualInfo : PositivityExt where eval {u α} _ _ e := do
+meta def evalMeasureMutualInfo : PositivityExt where eval {u α} _ _ e := do
   match u, α, e with
   | 0, ~q(ℝ), ~q(@measureMutualInfo $S $T $measS $measT $μ) =>
     assertInstancesCommute

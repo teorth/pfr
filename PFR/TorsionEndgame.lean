@@ -1,12 +1,16 @@
-import Mathlib.Data.Set.Card
-import Mathlib.Algebra.Group.Pointwise.Finset.BigOperators
-import PFR.Main
-import PFR.MultiTauFunctional
-import PFR.BoundingMutual
+module
+
+public import Mathlib.Data.Set.Card
+public import Mathlib.Algebra.Group.Pointwise.Finset.BigOperators
+public import PFR.Main
+public import PFR.MultiTauFunctional
+public import PFR.BoundingMutual
 
 /-!
 # Endgame for the Torsion PFR theorem
 -/
+
+public section
 
 open MeasureTheory ProbabilityTheory Set
 open scoped Pointwise
@@ -1031,7 +1035,3 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m �
         simp_rw [←Real.rpow_natCast]
         rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
         congr; push_cast; ring
-
-/-- info: 'torsion_PFR' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms torsion_PFR

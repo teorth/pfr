@@ -1,4 +1,8 @@
-import Mathlib.Data.Set.Insert
+module
+
+public import Mathlib.Data.Set.Insert
+
+public section
 
 namespace Set
 variable {α : Type*} {s t : Set α}

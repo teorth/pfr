@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Integral.Bochner.Set
+module
+
+public import Mathlib.MeasureTheory.Integral.Bochner.Set
+
+public section
 
 open scoped ENNReal
 

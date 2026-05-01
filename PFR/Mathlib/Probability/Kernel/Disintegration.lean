@@ -1,8 +1,10 @@
-import Mathlib.Probability.Independence.Basic
-import Mathlib.Probability.Kernel.Composition.Prod
-import Mathlib.Probability.Kernel.CondDistrib
-import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Basic
-import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Countable
+module
+
+public import Mathlib.Probability.Independence.Basic
+public import Mathlib.Probability.Kernel.Composition.Prod
+public import Mathlib.Probability.Kernel.CondDistrib
+public import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Basic
+public import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Countable
 
 /-!
 # Disintegration of kernels in finite spaces
@@ -11,6 +13,8 @@ We can write `κ : Kernel S (T × U)` as a composition-product `(fst κ) ⊗ₖ 
 `fst κ : Kernel S T` and `condKernel : Kernel (S × T) U` is defined in this file.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Measure ProbabilityTheory
 open scoped ENNReal NNReal Topology ProbabilityTheory

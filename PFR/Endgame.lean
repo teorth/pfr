@@ -1,5 +1,7 @@
-import PFR.FirstEstimate
-import PFR.SecondEstimate
+module
+
+public import PFR.FirstEstimate
+public import PFR.SecondEstimate
 
 /-!
 # Endgame
@@ -27,6 +29,8 @@ Assumptions:
 * `construct_good`: A construction of two random variables with small Ruzsa distance between them
   given some random variables with control on total cost, as well as total mutual information.
 -/
+
+public section
 
 open MeasureTheory ProbabilityTheory
 
