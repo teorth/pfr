@@ -206,7 +206,7 @@ theorem card_of_dual_constrained (x : G) (hx : x ≠ 0) :
         -- $\mathbb{Z}/2\mathbb{Z}$, their cardinalities add up to the cardinality of the whole set.
         have h_partition : {φ : G →+ ZMod 2 | φ x = 1} ∪ {φ : G →+ ZMod 2 | φ x = 0} = .univ := by
           ext f
-          cases Fin.exists_fin_two.mp ⟨f x, rfl⟩ <;> simp [*]
+          cases Fin.exists_fin_two.mp ⟨f x, rfl⟩ <;> grind
         have _ := DFunLike.finite (G →+ ZMod 2)
         rw [← h_partition, Nat.card_congr <| Equiv.Set.union <| Set.disjoint_left.mpr <| by
           simp +contextual]

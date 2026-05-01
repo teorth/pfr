@@ -93,7 +93,7 @@ private def κ_equiv : (Σ i, κ i) ≃ Fin 3 where
   left_inv := by rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> rfl
   right_inv i := by fin_cases i <;> rfl
 
-private def fintype_kappa : ∀ (i : Fin 2), Fintype (κ i)
+private instance fintype_kappa : ∀ (i : Fin 2), Fintype (κ i)
   | 0 | 1 => inferInstanceAs (Fintype (Fin _))
 
 variable (G) in
@@ -101,7 +101,6 @@ private abbrev self_or_prod : Fin 2 → Type _
   | 0 => G
   | 1 => G × G
 
-attribute [local instance] fintype_kappa in
 lemma pair_last_of_three
     (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) :
     IndepFun Z₁ (⟨Z₂, Z₃⟩) := by

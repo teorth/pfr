@@ -22,7 +22,6 @@ variable {G : Type uG} [AddCommGroup G] [Finite G] [hGm : MeasurableSpace G]
   [DiscreteMeasurableSpace G] {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
   {X Y Z : Ω → G} {A : Finset G}
 
-
 /-- The set of possible values of $D_{KL}(X \Vert U_A + T)$, where $U_A$ is uniform on $A$ and
 $T$ ranges over $G$-valued random variables independent of $U_A$. We also require an absolute
 continuity condition so that the KL divergence makes sense in `ℝ`.
@@ -239,7 +238,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
       rw [← cg]
       exact lt_of_le_of_ne (by simp) (Ne.symm hg)
     · apply Finset.min'_le
-      simp only [ne_eq, Finset.mem_image, mem_toFinset]
+      simp only [Finset.mem_image, mem_toFinset]
       exact ⟨g, hg, rfl⟩
   let C := (ρ⁻[id ; μ # A] + H[id ; (μ : Measure G)] + 3 * c / 2) / (c / 2)
   have C_nonneg : 0 ≤ C := by
@@ -1490,7 +1489,7 @@ lemma dist_le_of_sum_zero {Ω' : Type*} [MeasurableSpace Ω'] {μ : Measure Ω'}
       calc T₃ = T₁ + T₂ + T₃ - T₃ := by rw [hsum, _root_.zero_sub]; simp [ZModModule.neg_eq_self]
         _ = T₁ + T₂ := by rw [add_sub_cancel_right]
     subst h2T₃
-    simpa [integral_fintype _ Integrable.of_finite, map_measureReal_apply hT₃ (.singleton _)]
+    simpa [integral_fintype .of_finite, map_measureReal_apply hT₃ (.singleton _)]
       using ent_bsg hT₁ hT₂ (μ := ℙ)
   linarith
 
@@ -2039,7 +2038,7 @@ lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     have : 0 < (H : Set G).ncard := Nat.card_pos
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
     simp only [Nat.card_eq_fintype_card, CharP.cast_eq_zero, lt_self_iff_false,
-      not_nonempty_iff_eq_empty.1 h', Fintype.card_ofIsEmpty] at this
+      not_nonempty_iff_eq_empty.1 h'] at this
     /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is

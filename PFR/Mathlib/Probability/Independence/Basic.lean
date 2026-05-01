@@ -127,7 +127,7 @@ lemma iIndepFun.finsets_comp' {f : ∀ i, Ω → β i} {S S' : Finset ι} (h_dis
   | 0 => hφ
   | 1 => hφ'
   have hneq : (0:Fin 2) ≠ (1:Fin 2) := by simp
-  convert (iIndepFun.finsets_comp S₂ h_disjoint₂ hf_Indep hf_meas φ₂ hφ₂).indepFun hneq
+  simpa [φ₂] using (iIndepFun.finsets_comp S₂ h_disjoint₂ hf_Indep hf_meas φ₂ hφ₂).indepFun hneq
 
 end iIndepFun
 

@@ -52,7 +52,7 @@ def measureEntropy (μ : Measure S := by volume_tac) : ℝ :=
 
 /-- A measure has finite support if there exists a finite set whose complement has zero measure. -/
 class FiniteSupport (μ : Measure S := by volume_tac) : Prop where
-  finite : ∃ A : Finset S, μ Aᶜ = 0
+  finite : ∃ A : Finset S, ∀ᵐ x ∂μ, x ∈ A
 
 /-- A set on which a measure with finite support is supported. -/
 noncomputable
@@ -82,6 +82,9 @@ lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] : μ μ.su
       exact hx.2.le
   _ = 0 := by simp
 
+lemma ae_mem_support (μ : Measure S) [FiniteSupport μ] : ∀ᵐ x ∂μ, x ∈ μ.support :=
+  measure_compl_support _
+
 @[simp] lemma mem_support {μ : Measure S} [hμ : FiniteSupport μ] {x : S} :
     x ∈ μ.support ↔ μ {x} ≠ 0 := by
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
@@ -104,9 +107,7 @@ instance finiteSupport_of_fintype {μ : Measure S} [Finite S] : FiniteSupport μ
   simp
 
 instance finiteSupport_of_mul {μ : Measure S} [FiniteSupport μ] (c : ℝ≥0∞) :
-    FiniteSupport (c • μ) := by
-  use μ.support
-  simp [measure_compl_support]
+    FiniteSupport (c • μ) := ⟨μ.support, Measure.ae_smul_measure (ae_mem_support _) _⟩
 
 section
 
@@ -117,19 +118,10 @@ lemma finiteSupport_of_comp
     FiniteSupport (μ.map X) := by
   classical
   use Finset.image X μ.support
-  rw [Measure.map_apply hX (MeasurableSet.compl (Finset.measurableSet _))]
-  refine measure_mono_null ?_ (measure_compl_support μ)
-  intro x
-  contrapose!
-  simp only [mem_compl_iff, SetLike.mem_coe, mem_support, ne_eq,
-    Decidable.not_not, Finset.coe_image, preimage_compl, mem_preimage, mem_image, not_exists,
-    not_and, not_forall]
-  intro hx
-  use x
+  rw [ae_map_iff hX.aemeasurable (by exact (Finset.finite_toSet _).measurableSet)]
+  filter_upwards [ae_mem_support _] using fun _ ↦ Finset.mem_image_of_mem _
 
-instance finiteSupport_of_dirac (x : S) : FiniteSupport (Measure.dirac x) := by
-  use {x}
-  simp [Measure.dirac_apply', Set.mem_singleton_iff, MeasurableSet.singleton]
+instance finiteSupport_of_dirac (x : S) : FiniteSupport (Measure.dirac x) := ⟨{x}, by simp⟩
 
 /-- duplicate of `FiniteRange.null_of_compl` -/
 lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S}
@@ -139,6 +131,9 @@ lemma full_measure_of_finiteRange {μ : Measure Ω} {X : Ω → S}
   convert measure_empty (μ := μ)
   ext x
   simp [FiniteRange.toFinset]
+
+lemma ae_mem_of_finiteRange {μ : Measure Ω} {X : Ω → S} (hX : Measurable X) [hX' : FiniteRange X] :
+    ∀ᵐ x ∂μ.map X, x ∈ hX'.toFinset := full_measure_of_finiteRange hX
 
 instance finiteSupport_of_finiteRange {μ : Measure Ω} {X : Ω → S} [hX' : FiniteRange X] :
     FiniteSupport (μ.map X) := by

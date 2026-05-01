@@ -100,7 +100,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y] (hX : Measurable X) 
       change H[f ∘ ⟨X', ⟨Y'₁, Y'₂⟩⟩; μA] = _
       refine entropy_comp_of_injective μA ?_ f ?_
       · exact Measurable.prod hX'_meas <| Measurable.prod hY'₁_meas hY'₂_meas
-      · simp +contextual [Function.Injective, f, smul_right_inj, forall_swap (α := _ - _ = _ - _)]
+      · simp +contextual [Function.Injective, f, smul_right_inj, forall_comm (α := _ - _ = _ - _)]
     _ = H[X; μ] + 2 * H[Y; μ'] := by
       have : IndepFun X' (prod Y'₁ Y'₂) μA := Indep.symm <|
         h_indep.indepFun_prodMk h_meas 1 2 0 (by decide) (by decide)
@@ -559,7 +559,7 @@ lemma single_fibres {G H Ω Ω' : Type*}
     let f (xy : H × H) := (p xy.1 xy.2) * (M * d[UA # UB])
     let g (xy : H × H) := (p xy.1 xy.2) *
       (M * dᵤ[A_ xy.1 # B_ xy.2] + d[φ.toFun ∘ UA # φ.toFun ∘ UB] * -Real.log (p xy.1 xy.2))
-    by_contra hc; push_neg at hc
+    by_contra hc; push Not at hc
     replace hc : ∀ xy ∈ X ×ˢ Y, f xy < g xy := by
       refine fun xy h ↦ mul_lt_mul_of_pos_left ?_ ?_
       · exact hc ⟨xy.1, (Finset.mem_product.mp h).1⟩ ⟨xy.2, (Finset.mem_product.mp h).2⟩

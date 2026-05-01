@@ -348,12 +348,12 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   have h2 : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
     simp only [sum2, integral_sub .of_finite .of_finite, integral_const, smul_eq_mul]
     simp [condRuzsaDist'_eq_sum hT₁ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
+      integral_eq_setIntegral (FiniteRange.ae_mem_toFinset _ T₃), setIntegral_finset _ .finset,
       map_measureReal_apply hT₃ (.singleton _), smul_eq_mul]
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const, smul_eq_mul]
     simp [condRuzsaDist'_eq_sum hT₂ hT₃,
-      integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃), integral_finset _ _ .finset,
+      integral_eq_setIntegral (FiniteRange.ae_mem_toFinset _ T₃), setIntegral_finset _ .finset,
       map_measureReal_apply hT₃ (.singleton _)]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])

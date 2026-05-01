@@ -249,10 +249,9 @@ private def κ_equiv : (Σ i, κ i) ≃ Fin 4 where
   left_inv := by rintro ⟨i, j⟩; fin_cases i <;> fin_cases j <;> rfl
   right_inv i := by fin_cases i <;> rfl
 
-private def fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
+private instance fintype_kappa : ∀ (i : Fin 3), Fintype (κ i)
   | 0 | 1 | 2 => inferInstanceAs (Fintype (Fin _))
 
-attribute [local instance] fintype_kappa in
 /-- If `(Z₁, Z₂, Z₃, Z₄)` are independent, so are `(Z₁, Z₂, φ Z₃ Z₄)` for any measurable `φ`. -/
 lemma apply_two_last
     (hZ₁ : Measurable Z₁) (hZ₂ : Measurable Z₂) (hZ₃ : Measurable Z₃) (hZ₄ : Measurable Z₄)

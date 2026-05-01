@@ -40,7 +40,6 @@ import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
 import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 import PFR.Mathlib.MeasureTheory.Constructions.Pi
 import PFR.Mathlib.MeasureTheory.Group.Arithmetic
-import PFR.Mathlib.MeasureTheory.Integral.Bochner.Set
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 import PFR.Mathlib.MeasureTheory.Integral.Lebesgue.Countable
 import PFR.Mathlib.MeasureTheory.MeasurableSpace.Basic

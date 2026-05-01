@@ -22,13 +22,6 @@ lemma pi_pi_set (t : Set ι) [DecidablePred (· ∈ t)] (s : ∀ i, Set (α i)) 
     Finset.prod_ite, Finset.prod_const_one, mul_one]
 
 @[simp]
-lemma pi_pi_finset (t : Finset ι) (s : ∀ i, Set (α i)) :
-    Measure.pi μ (pi t s) = ∏ i ∈ t, μ i (s i) := by
-  classical
-  rw [pi_pi_set]
-  congr; ext x; simp
-
-@[simp]
 lemma pi_eval_preimage (i : ι) (s : Set (α i)) :
     Measure.pi μ (eval i ⁻¹' s) = μ i s := by
   classical

@@ -123,8 +123,8 @@ variable [MeasurableSingletonClass T]
 lemma mutualInfo_nonneg' {κ : Kernel T (S × U)} {μ : Measure T} [IsFiniteMeasure μ]
     [FiniteSupport μ] (hκ : FiniteKernelSupport κ) :
     0 ≤ Ik[κ, μ] := by
-  simp_rw [mutualInfo, entropy, integral_eq_setIntegral (measure_compl_support μ),
-    integral_finset _ _ IntegrableOn.finset, smul_eq_mul]
+  simp_rw [mutualInfo, entropy, integral_eq_setIntegral (ae_mem_support μ),
+    setIntegral_finset _ .finset, smul_eq_mul]
   rw [← Finset.sum_add_distrib, ← Finset.sum_sub_distrib]
   simp_rw [← mul_add, ← mul_sub, fst_apply, snd_apply]
   have (x : T) : FiniteSupport (κ x) := ⟨hκ x⟩

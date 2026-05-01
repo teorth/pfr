@@ -2,7 +2,6 @@ module
 
 public import Mathlib.MeasureTheory.Integral.Prod
 public import PFR.ForMathlib.Entropy.Measure
-public import PFR.Mathlib.MeasureTheory.Integral.Bochner.Set
 public import PFR.Mathlib.Probability.Kernel.Disintegration
 
 /-!
@@ -80,10 +79,10 @@ lemma finiteSupport_of_compProd' [MeasurableSingletonClass S] [MeasurableSinglet
   have hA := measure_compl_support μ
   rcases (local_support_of_finiteKernelSupport hκ A) with ⟨B, hB⟩
   use A ×ˢ B
-  rw [Measure.compProd_apply (by measurability), lintegral_eq_setLIntegral hA, setLIntegral_eq_sum]
-  apply Finset.sum_eq_zero
-  intro t ht
-  simpa using .inr <| measure_mono_null (by simp; tauto) (hB t ht)
+  rw [Measure.ae_compProd_iff (by exact (Finset.finite_toSet _).measurableSet)]
+  filter_upwards [ae_mem_support μ] with t ht
+  filter_upwards [hB t ht] with s hs
+  exact Finset.mk_mem_product ht hs
 
 lemma finiteSupport_of_compProd
     [MeasurableSingletonClass S] [Countable T] [MeasurableSingletonClass T]
@@ -157,8 +156,9 @@ lemma entropy_comap [MeasurableSingletonClass T]
     [IsFiniteMeasure μ] [IsFiniteMeasure (μ.comap f)] (hfμ : FiniteSupport (μ.comap f)) :
     Hk[comap κ f hf.measurable, μ.comap f] = Hk[κ, μ] := by
   classical
-  rcases hfμ with ⟨A, hA⟩
-  have : μ (Finset.image f A : Set T)ᶜ = 0 := by
+  rcases hfμ with ⟨A, (hA : ∀ᵐ x ∂μ.comap f, x ∈ A)⟩
+  have : ∀ᵐ x ∂μ, x ∈ Finset.image f A := by
+    change μ (Finset.image f A : Set T)ᶜ = 0
     simp only [Finset.coe_image, hf.injective.compl_image_eq, measure_union_null_iff]
     constructor
     · rwa [← Measure.comap_apply f hf.injective hf.measurableSet_image']
@@ -166,7 +166,7 @@ lemma entropy_comap [MeasurableSingletonClass T]
     exact ae_eq_univ.mp hf_range
   simp_rw [entropy]
   simp_rw [integral_eq_setIntegral hA, integral_eq_setIntegral this,
-    integral_finset _ _ IntegrableOn.finset,
+    setIntegral_finset _ .finset,
     Measure.comap_real_apply hf.injective hf.measurableSet_image' _ (.singleton _)]
   simp only [Set.image_singleton, smul_eq_mul]
   simp_rw [comap_apply]
@@ -182,6 +182,7 @@ lemma FiniteSupport.comap_equiv [MeasurableSingletonClass T]
   let A := μ.support
   have hA := measure_compl_support μ
   refine ⟨Finset.image f.symm A, ?_⟩
+  change (Measure.comap (⇑f) μ) (A.image f.symm)ᶜ = 0
   rwa [Finset.coe_image, ← Set.image_compl_eq (MeasurableEquiv.bijective f.symm),
     Measure.comap_apply f (MeasurableEquiv.injective f),MeasurableEquiv.image_symm,
     MeasurableEquiv.image_preimage]
@@ -222,7 +223,7 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   · simp
   let A := μ.support
   have hsum (F : T → ℝ) : ∫ (t : T), F t ∂μ = ∑ t ∈ A, (μ.real {t}) * (F t) := by
-    rw [integral_eq_setIntegral (measure_compl_support μ), integral_finset _ _ IntegrableOn.finset]
+    rw [integral_eq_setIntegral (ae_mem_support μ), setIntegral_finset _ .finset]
     congr with t ht
   simp_rw [entropy, hsum, ← Finset.sum_add_distrib]
   apply Finset.sum_congr rfl
@@ -233,14 +234,13 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
   obtain ⟨C, hC⟩ := local_support_of_finiteKernelSupport hη (A ×ˢ B)
   rw [integral_eq_setIntegral (hB t ht)]
   have hκη : ((κ ⊗ₖ η) t) (B ×ˢ C : Finset (S × U))ᶜ = 0 := by
-    rw [ProbabilityTheory.Kernel.compProd_apply, lintegral_eq_setLIntegral (hB t ht),
-      setLIntegral_eq_sum]
-    · apply Finset.sum_eq_zero
-      intro s hs
-      simpa using .inr <| measure_mono_null (by simp [*]) (hC (t, s) <| by simp [ht, hs])
-    exact MeasurableSet.compl (Finset.measurableSet _)
+    rw [Kernel.compProd_apply (Finset.measurableSet _).compl,
+      lintegral_eq_setLIntegral (ae_iff.1 <| hB t ht), setLIntegral_eq_sum]
+    apply Finset.sum_eq_zero
+    intro s hs
+    simpa using .inr <| measure_mono_null (by simp [*]) (hC (t, s) <| by simp [ht, hs])
   rw [measureEntropy_eq_sum hκη, measureEntropy_eq_sum (hB t ht),
-    integral_finset _ _ IntegrableOn.finset,
+    setIntegral_finset _ .finset,
     ← Finset.sum_add_distrib, Finset.sum_product]
   apply Finset.sum_congr rfl
   intro s hs
@@ -254,14 +254,16 @@ lemma entropy_compProd_aux [MeasurableSingletonClass S] [MeasurableSingletonClas
     simp only [coe_comap, Function.comp_apply, sum_measureReal_singleton]
     suffices (η (t, s)).real ↑C = (η (t, s)).real Set.univ by simp [this]
     have := hC (t, s) hts
-    rw [← measureReal_eq_zero_iff] at this
+    rw [ae_iff, ← measureReal_eq_zero_iff] at this
+    change (η (t, s)).real Cᶜ = 0 at this
     rw [← measureReal_add_measureReal_compl (s := C) _, this, add_zero]
     exact Finset.measurableSet C
   rw [this, Finset.mul_sum, ← Finset.sum_add_distrib]
   congr with u
-  have : ((κ ⊗ₖ η) t).real {(s, u)} = ((κ t).real {s}) * ((η (t, s)).real {u}) := by
-    rw [measureReal_def, compProd_apply (.singleton _), lintegral_eq_setLIntegral (hB t ht),
-      setLIntegral_eq_sum, Finset.sum_eq_single_of_mem s hs]
+  have : ((κ ⊗ₖ η) t).real {(s, u)} = (κ t).real {s} * (η (t, s)).real {u} := by
+    rw [measureReal_def, compProd_apply (.singleton _),
+      lintegral_eq_setLIntegral (ae_iff.1 <| hB t ht), setLIntegral_eq_sum,
+      Finset.sum_eq_single_of_mem s hs]
     · simp [measureReal_def, Set.preimage]
     intro b _ hbs
     simp [hbs, Set.preimage]

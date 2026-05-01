@@ -507,7 +507,7 @@ lemma condRuzsaDist_eq_sum' {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : �
     d[X | Z ; μ # Y | W ; μ']
       = ∑ z, ∑ w, μ.real (Z ⁻¹' {z}) * μ'.real (W ⁻¹' {w})
           * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
-  rw [condRuzsaDist_def, Kernel.rdist, integral_fintype _ .of_finite]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_fintype .of_finite]
   simp_rw [Measure.prod_real_singleton, smul_eq_mul, Fintype.sum_prod_type,
     map_measureReal_apply hZ (.singleton _), map_measureReal_apply hW (.singleton _)]
   congr with z
@@ -535,8 +535,8 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
       = ∑ z ∈ FiniteRange.toFinset Z, ∑ w ∈ FiniteRange.toFinset W,
         μ.real (Z ⁻¹' {z}) * μ'.real (W ⁻¹' {w})
           * d[X ; (μ[|Z ← z]) # Y ; (μ'[|W ← w])] := by
-  have : Measure.prod (μ.map Z) (μ'.map W) ((((FiniteRange.toFinset Z)
-      ×ˢ (FiniteRange.toFinset W)) : Finset (S × T)): Set (S × T))ᶜ = 0 := by
+  have : ∀ᵐ x ∂Measure.prod (μ.map Z) (μ'.map W), x ∈
+    ((((FiniteRange.toFinset Z) ×ˢ (FiniteRange.toFinset W)) : Finset (S × T)): Set (S × T)) := by
     apply Measure.prod_of_full_measure_finset
     all_goals {
       rw [Measure.map_apply ‹_›]
@@ -544,7 +544,7 @@ lemma condRuzsaDist_eq_sum {X : Ω → G} {Z : Ω → S} {Y : Ω' → G} {W : Ω
       simp [← FiniteRange.range]
       measurability
     }
-  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ .finset]
+  rw [condRuzsaDist_def, Kernel.rdist, integral_eq_setIntegral this, setIntegral_finset _ .finset]
   simp_rw [Measure.prod_real_singleton, smul_eq_mul, Finset.sum_product,
     map_measureReal_apply hZ (.singleton _), map_measureReal_apply hW (.singleton _)]
   congr with z
@@ -616,14 +616,14 @@ lemma condRuzsaDist'_eq_sum {X : Ω → G} {Y : Ω' → G} {W : Ω' → T} (hY :
     (hW : Measurable W) (μ : Measure Ω) (μ' : Measure Ω') [IsFiniteMeasure μ'] [FiniteRange W] :
     d[X ; μ # Y | W ; μ']
       = ∑ w ∈ FiniteRange.toFinset W, μ'.real (W ⁻¹' {w}) * d[X ; μ # Y ; (μ'[|W ← w])] := by
-  have : Measure.prod (dirac ()) (μ'.map W) ((Finset.univ (α := Unit) ×ˢ FiniteRange.toFinset W :
-    Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
+  have : ∀ᵐ x ∂Measure.prod (dirac ()) (μ'.map W), x ∈
+    ((Finset.univ (α := Unit) ×ˢ FiniteRange.toFinset W : Finset (Unit × T)) : Set (Unit × T)) := by
     apply Measure.prod_of_full_measure_finset
     · simp
     rw [Measure.map_apply ‹_› (by measurability)]
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
-  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, integral_finset _ _ .finset]
+  rw [condRuzsaDist'_def, Kernel.rdist, integral_eq_setIntegral this, setIntegral_finset _ .finset]
   simp_rw [Measure.prod_real_singleton, smul_eq_mul, Finset.sum_product]
   simp only [Finset.univ_unique, PUnit.default_eq_unit, Finset.sum_singleton]
   simp_rw [map_measureReal_apply hW (.singleton _)]
@@ -711,11 +711,10 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
       = (μ'.map W)[fun w ↦ d[X ; μ # Y ; (μ'[|W ← w])]] := by
   rw [condRuzsaDist'_eq_sum hY hW]
   simp_rw [← smul_eq_mul]
-  have : (μ'.map W) (FiniteRange.toFinset W : Set T)ᶜ = 0 := by
-    rw [Measure.map_apply ‹_› (by measurability)]
-    convert measure_empty (μ := μ)
+  have : ∀ᵐ x ∂(μ'.map W), x ∈ (FiniteRange.toFinset W : Set T) := by
+    rw [ae_map_iff (by measurability) (by exact Finset.measurableSet _)]
     simp [← FiniteRange.range]
-  rw [integral_eq_setIntegral this, integral_finset _ _ IntegrableOn.finset]
+  rw [integral_eq_setIntegral this,  setIntegral_finset _ .finset]
   simp [map_measureReal_apply hW (MeasurableSet.singleton _),]
 
 section
@@ -843,7 +842,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
   classical
   set A := (FiniteRange.toFinset Z) ∪ (FiniteRange.toFinset Z')
   set B := (FiniteRange.toFinset W) ∪ (FiniteRange.toFinset W')
-  have hfull : Measure.prod (μ.map Z) (μ'.map W) ((A ×ˢ B : Finset (S × T)): Set (S × T))ᶜ = 0 := by
+  have hfull : ∀ᵐ x ∂Measure.prod (μ.map Z) (μ'.map W), x ∈
+      ((A ×ˢ B : Finset (S × T)): Set (S × T)) := by
     simp only [A, B]
     apply Measure.prod_of_full_measure_finset
     all_goals {
@@ -852,8 +852,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
       simp [← FiniteRange.range]
       measurability
     }
-  have hfull' : Measure.prod (μ''.map Z') (μ'''.map W')
-    ((A ×ˢ B : Finset (S × T)): Set (S × T))ᶜ = 0 := by
+  have hfull' : ∀ᵐ x ∂Measure.prod (μ''.map Z') (μ'''.map W'), x ∈
+    ((A ×ˢ B : Finset (S × T)): Set (S × T)) := by
     simp only [A, B]
     apply Measure.prod_of_full_measure_finset
     all_goals {
@@ -863,8 +863,8 @@ lemma condRuzsaDist_of_copy {X : Ω → G} (hX : Measurable X) {Z : Ω → S} (h
       measurability
     }
   rw [condRuzsaDist_def, condRuzsaDist_def, Kernel.rdist, Kernel.rdist,
-    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', integral_finset _ _ .finset,
-    integral_finset _ _ .finset]
+    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', setIntegral_finset _ .finset,
+    setIntegral_finset _ .finset]
   have hZZ' : μ.map Z = μ''.map Z' := (h1.comp measurable_snd).map_eq
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_real_apply_singleton, ← hZZ', ← hWW',
@@ -915,16 +915,16 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     d[X ; μ # Y | W ; μ'] = d[X' ; μ'' # Y' | W' ; μ'''] := by
   classical
   set A := (FiniteRange.toFinset W) ∪ (FiniteRange.toFinset W')
-  have hfull : Measure.prod (dirac ()) (μ'.map W)
-      ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
+  have hfull : ∀ᵐ x ∂Measure.prod (dirac ()) (μ'.map W), x ∈
+      ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T)) := by
     apply Measure.prod_of_full_measure_finset
     · simp
     simp only [A]
     rw [Measure.map_apply ‹_› (by measurability)]
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
-  have hfull' : Measure.prod (dirac ()) (μ'''.map W')
-      ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T))ᶜ = 0 := by
+  have hfull' : ∀ᵐ x ∂Measure.prod (dirac ()) (μ'''.map W'), x ∈
+      ((Finset.univ (α := Unit) ×ˢ A : Finset (Unit × T)) : Set (Unit × T)) := by
     apply Measure.prod_of_full_measure_finset
     · simp
     simp only [A]
@@ -932,8 +932,8 @@ lemma condRuzsaDist'_of_copy (X : Ω → G) {Y : Ω' → G} (hY : Measurable Y)
     convert measure_empty (μ := μ)
     simp [← FiniteRange.range]
   rw [condRuzsaDist'_def, condRuzsaDist'_def, Kernel.rdist, Kernel.rdist,
-    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', integral_finset _ _ .finset,
-    integral_finset _ _ .finset]
+    integral_eq_setIntegral hfull, integral_eq_setIntegral hfull', setIntegral_finset _ .finset,
+    setIntegral_finset _ .finset]
   have hWW' : μ'.map W = μ'''.map W' := (h2.comp measurable_snd).map_eq
   simp_rw [Measure.prod_real_apply_singleton, ← hWW', map_measureReal_apply hW (.singleton _)]
   congr with x

@@ -122,7 +122,7 @@ lemma condKernel_compProd_ae_eq
   rw [Measure.compProd_apply (.singleton _), lintegral_eq_tsum] at hx
   simp only [ne_eq, ENNReal.summable.tsum_eq_zero_iff, mul_eq_zero, not_forall] at hx
   obtain ⟨y, hy⟩ := hx
-  push_neg at hy
+  push Not at hy
   classical
   rw [← Prod.eta x, ← Set.singleton_prod_singleton, Set.mk_preimage_prod_right_eq_if] at hy
   simp only [ne_eq, Set.mem_singleton_iff] at hy
@@ -161,11 +161,10 @@ lemma condKernel_map_prodMk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [Measure.compProd_apply (.singleton _), lintegral_eq_tsum] at hx
-  simp only [ne_eq, ENNReal.summable.tsum_eq_zero_iff, mul_eq_zero, not_forall] at hx
+  simp only [ne_eq, ENNReal.summable.tsum_eq_zero_iff, mul_eq_zero, not_forall, not_or,
+    fst_apply' _ _ (measurable_prodMk_left (.singleton _)), Set.mem_preimage, Set.mem_singleton_iff]
+    at hx
   obtain ⟨y, hy⟩ := hx
-  push_neg at hy
-  rw [fst_apply' _ _ (measurable_prodMk_left (.singleton _))] at hy
-  simp only [ne_eq, Set.mem_preimage, Set.mem_singleton_iff] at hy
   have hyx1 : y = x.1 := by
     by_contra hy_ne
     refine hy.2 ?_
@@ -687,10 +686,11 @@ end
 /-- Finite kernel support locally implies uniform finite kernel support. -/
 lemma local_support_of_finiteKernelSupport
     {κ : Kernel T S} (h : FiniteKernelSupport κ) (A : Finset T) :
-    ∃ B : Finset S, ∀ t ∈ A, (κ t) Bᶜ = 0 := by
+    ∃ B : Finset S, ∀ t ∈ A, ∀ᵐ x ∂(κ t), x ∈ B := by
   classical
-  use Finset.biUnion A (fun t ↦ (h t).choose)
+  use A.biUnion (fun t ↦ (h t).choose)
   intro t ht
+  change κ t (A.biUnion fun t ↦ (h t).choose)ᶜ = 0
   set B := (h t).choose
   refine measure_mono_null ?_ (h t).choose_spec
   intro s
@@ -811,7 +811,7 @@ lemma aefiniteKernelSupport_of_cond {κ : Kernel T (S × U)} [hU : Nonempty U]
   rw [AEFiniteKernelSupport, ae_iff_of_countable] at hκ ⊢
   intro (t, s) hts
   simp only [compProd_apply_singleton, ne_eq, mul_eq_zero, not_or] at hts
-  push_neg at hts
+  push Not at hts
   rcases hκ t hts.2 with ⟨A, hA⟩
   classical
   use Finset.image Prod.snd A

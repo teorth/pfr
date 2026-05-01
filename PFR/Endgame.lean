@@ -329,9 +329,9 @@ lemma cond_c_eq_integral [IsProbabilityMeasure (ℙ : Measure Ω')]
     {Y Z : Ω' → G} (hY : Measurable Y) (hZ : Measurable Z) : c[Y | Z # Y | Z] =
     (Measure.map Z ℙ)[fun z => c[Y ; ℙ[|Z ← z] # Y ; ℙ[|Z ← z]]] := by
   cases nonempty_fintype G
-  simp only [integral_fintype _ .of_finite, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
+  simp only [integral_fintype .of_finite, smul_sub, smul_add, smul_sub, Finset.sum_sub_distrib,
     Finset.sum_add_distrib]
-  simp_rw [← integral_fintype _ .of_finite]
+  simp_rw [← integral_fintype .of_finite]
   rw [← condRuzsaDist'_eq_integral _ hY hZ, ← condRuzsaDist'_eq_integral _ hY hZ, integral_const,
     integral_const]
   have : IsProbabilityMeasure (Measure.map Z ℙ) := Measure.isProbabilityMeasure_map hZ.aemeasurable
@@ -383,16 +383,17 @@ lemma construct_good_prelim :
   have h2 : p.η * sum2 ≤ p.η * (d[p.X₀₁ # T₁] - d[p.X₀₁ # X₁] + I[T₁ : T₃] / 2) := by
     have : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
       simp only [integral_sub .of_finite .of_finite, integral_const, smul_eq_mul, sum2]
-      simp [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃),
-        integral_finset _ _ IntegrableOn.finset, map_measureReal_apply hT₃ (.singleton _)]
+      simp [condRuzsaDist'_eq_sum hT₁ hT₃, integral_eq_setIntegral
+        (FiniteRange.ae_mem_toFinset _ T₃), setIntegral_finset _ .finset,
+        map_measureReal_apply hT₃ (.singleton _)]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas1 hT₁ hT₃]
   have h3 : p.η * sum3 ≤ p.η * (d[p.X₀₂ # T₂] - d[p.X₀₂ # X₂] + I[T₂ : T₃] / 2) := by
     have : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
       simp only [integral_sub .of_finite .of_finite, integral_const, smul_eq_mul, sum3]
       simp [condRuzsaDist'_eq_sum hT₂ hT₃,
-        integral_eq_setIntegral (FiniteRange.null_of_compl _ T₃),
-        integral_finset _ _ IntegrableOn.finset,
+        integral_eq_setIntegral (FiniteRange.ae_mem_toFinset _ T₃),
+         setIntegral_finset _ .finset,
         map_measureReal_apply hT₃ (.singleton _)]
     gcongr
     linarith [condRuzsaDist_le' ℙ ℙ p.hmeas2 hT₂ hT₃]
@@ -445,7 +446,7 @@ omit [AddCommGroup G] in
 lemma delta'_eq_integral :
     δ' = (Measure.map R ℙ)[fun r => δ[ℙ[|R⁻¹' {r}]]] := by
   cases nonempty_fintype G
-  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_fintype _ .of_finite, smul_add,
+  simp_rw [condMutualInfo_eq_integral_mutualInfo, integral_fintype .of_finite, smul_add,
     Finset.sum_add_distrib]
 
 include hT₁ hT₂ hT₃ hT h_min hR in
@@ -454,15 +455,15 @@ lemma cond_construct_good :
   cases nonempty_fintype G
   rw [delta'_eq_integral, cond_c_eq_integral _ _ _ hT₁ hR, cond_c_eq_integral _ _ _ hT₂ hR,
     cond_c_eq_integral _ _ _ hT₃ hR]
-  simp_rw [integral_fintype _ .of_finite, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum,
+  simp_rw [integral_fintype .of_finite, ← Finset.sum_add_distrib, ← smul_add, Finset.mul_sum,
     mul_smul_comm, ← Finset.sum_add_distrib, ← smul_add]
-  simp_rw [← integral_fintype _ .of_finite]
+  simp_rw [← integral_fintype .of_finite]
   have : IsProbabilityMeasure (Measure.map R ℙ) := Measure.isProbabilityMeasure_map (by fun_prop)
   calc
     k = (Measure.map R ℙ)[fun _r => k] := by
       rw [integral_const]; simp
     _ ≤ _ := ?_
-  simp_rw [integral_fintype _ .of_finite]
+  simp_rw [integral_fintype .of_finite]
   apply Finset.sum_le_sum
   intro r _
   by_cases hr : ℙ (R⁻¹' {r}) = 0

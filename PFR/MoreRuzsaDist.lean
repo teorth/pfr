@@ -512,7 +512,8 @@ private theorem entropy_kvm_step {Ω G : Type*} [MeasurableSpace Ω] {μ : Measu
       · intro j hj hj'
         have hj_mem : j ∈ ({1, 2} : Finset _) := by simp_all
         have := Finset.disjoint_right.mp hdisj hi
-        fin_cases hj_mem <;> aesop
+        fin_cases hj_mem <;> simp
+        aesop
       · simp_rw [Set.pairwiseDisjoint_singleton]
       rintro j rfl hj
       have : f i ≠ i := by
@@ -530,7 +531,8 @@ private theorem entropy_kvm_step {Ω G : Type*} [MeasurableSpace Ω] {μ : Measu
       Matrix.cons_val_fin_one, Matrix.cons_val_zero, neg_inj,Nat.succ_eq_add_one, Fin.mk_one,
       Matrix.cons_val_one, Fin.reduceFinMk, Matrix.cons_val]
     rw [hS]
-    simp [Finset.sum_attach (s \ {f i}).attach  (X · a), Finset.sum_attach (s \ {f i}) (X · a)]
+    simp only [Fin.isValue, Matrix.cons_val_zero]
+    erw [Finset.sum_attach (s \ {f i}).attach  (X · a), Finset.sum_attach (s \ {f i}) (X · a)]
   · convert Finset.measurable_sum (s \ {f i}) (fun i _ => (hX i).neg)
     simp [Pi.neg_apply, Finset.sum_apply, Finset.sum_neg_distrib]
   · apply (hX <| f i).neg
@@ -784,13 +786,8 @@ lemma ent_sub_zsmul_sub_ent_le {Y : Ω → G} [IsProbabilityMeasure μ] [Finite 
     rw [show H[X₁' - Y' - X₂'; μ'] = H[-(X₁' - Y' - X₂'); μ']
       from entropy_neg (hX₁'.sub hY' |>.sub hX₂') |>.symm]
     rw [show H[X₁' - Y'; μ'] = H[-(X₁' - Y'); μ'] from entropy_neg (hX₁'.sub hY') |>.symm]
-    ring_nf
-    rw [sub_eq_add_neg, add_comm, add_assoc, sub_neg_eq_add]
-    gcongr
-    convert sub_le_iff_le_add'.mp h1 using 1
-    · simp [sub_eq_add_neg, add_comm]
-    · simp only [sub_eq_add_neg, neg_add_rev, neg_neg, add_comm, add_assoc]
-      linarith
+    simp only [sub_sub, neg_sub, add_sub_right_comm, sub_neg_eq_add, add_comm X₂']
+    linear_combination h1
   have h3 : H[X₁' - Y' - X₂' ; μ'] - H[X₁'; μ'] ≤ 4 * d[X₁' ; μ' # Y' ; μ'] :=
     calc
       _ ≤ d[X₁' ; μ' # Y' ; μ'] + d[X₁' ; μ' # -Y' ; μ'] := h2
@@ -1647,17 +1644,15 @@ private lemma ident_of_cond_of_indep
     (h_indep : iIndepFun (fun i ↦ ⟨X i, Y i⟩))
     (y : Fin m → S) (i : Fin m) (hy : ∀ i, ℙ (Y i ⁻¹' {y i}) ≠ 0) :
     IdentDistrib (X i) (X i) (cond ℙ (Y i ⁻¹' {y i})) (cond ℙ (⋂ i, Y i ⁻¹' {y i})) where
-  aemeasurable_fst := Measurable.aemeasurable (hX i)
-  aemeasurable_snd := Measurable.aemeasurable (hX i)
+  aemeasurable_fst := (hX i).aemeasurable
+  aemeasurable_snd := (hX i).aemeasurable
   map_eq := by
     ext s hs
     rw [Measure.map_apply (hX i) hs, Measure.map_apply (hX i) hs]
     let s' : Finset (Fin m) := {i}
     let f' := fun _ : Fin m ↦ X i ⁻¹' s
     have hf' : ∀ i' ∈ s', MeasurableSet[hG.comap (X i')] (f' i') := by
-      intro i' hi'
-      simp only [Finset.mem_singleton.mp hi']
-      exact MeasurableSet.preimage hs (comap_measurable (X i))
+      simpa [s'] using MeasurableSet.preimage hs (comap_measurable (X i))
     have h := cond_iInter hY h_indep hf' (fun _ _ ↦ hy _) fun _ ↦ .singleton _
     simp only [Finset.mem_singleton, Set.iInter_iInter_eq_left, Finset.prod_singleton,
       s'] at h
@@ -1854,6 +1849,7 @@ lemma multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [MeasurableSing
     abel
   linarith only [eq1, eq1a, eq1b, eq1c, eq2, eq3, eq4, eq5, eq6]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Let `π : G → H` be a homomorphism of abelian groups. Let `I` be a finite index set and let
 `X_[m]` be a tuple of `G`-valued random variables. Let `Y_[m]` be another tuple of random variables
 (not necessarily `G`-valued). Suppose that the pairs `(X_i, Y_i)` are jointly independent of one
@@ -1949,7 +1945,8 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
               infer_instance
             funext _
             congr 1
-            dsimp [hΩc, E']
+            unfold hΩc
+            dsimp [E']
             rw [cond_cond_eq_cond_inter (hey_mes y), ← Set.iInter_inter_distrib]
             · congr 1
               apply Set.iInter_congr
@@ -2004,7 +2001,8 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
             intro _
             exact funext_iff
           infer_instance
-        dsimp [hΩc, E']
+        unfold hΩc
+        dsimp [E']
         rw [cond_cond_eq_cond_inter (hey_mes y)]
         · congr
           ext ω
@@ -2016,7 +2014,6 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
           exact Iff.symm funext_iff
         exact MeasurableSet.preimage (.singleton x) hmes
       exact Measurable.prodMk hmes (measurable_pi_lambda (fun ω i ↦ Y i ω) hY)
-
 
 /-- Let `m` be a positive integer. Suppose one has a sequence
 `G_m → G_{m - 1} → ... → G_1 → G_0 = {0}` of homomorphisms between abelian groups `G_0, ...,G_m`,
@@ -2123,7 +2120,7 @@ lemma iter_multiDist_chainRule' {m : ℕ} (hm : m > 0)
           exact (condMutualInfo_of_inj (by fun_prop) (by fun_prop) (by fun_prop) _ hF).symm
         _ = f 0 := ?_
         _ ≤ ∑ j, f j := Finset.single_le_sum (f := f) (fun _ _ ↦ hf _) (Finset.mem_univ _)
-      simp only [Fin.castSucc_zero, hπ0, AddMonoidHom.zero_apply, F, f]
+      simp only [Fin.castSucc_zero, hπ0, F, f]
       rw [← Fin.succ_zero_eq_one']
       congr 1
 
@@ -2225,6 +2222,7 @@ lemma cond_entropy_indep {Ω : Type*} [hΩ : MeasureSpace Ω] {S T U : Type*}
         convert IndepFun.comp (φ := fun x ↦ x.2) (ψ := id) hindep _ _ <;> try fun_prop
       linarith
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Let `G` be an abelian group and let `m ≥ 2`. Suppose that `X_{i,j}`, `1 ≤ i, j ≤ m`, are
 independent `G`-valued random variables. Then
 `I[(∑ i, X_{i,j})_{j=1}^m : (∑ j, X_{i,j})_{i=1}^m | ∑ i j, X_{i,j}]`
@@ -2359,10 +2357,8 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
           · ext j
             simp only [Fin.val_top, Nat.add_one_sub_one, Fin.succ_zero_eq_one, Fin.coe_ofNat_eq_mod,
               Fin.val_eq_zero, zero_add, Nat.one_mod, ↓reduceIte, tsub_self, Fin.zero_eta,
-              AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, Finset.sum_apply, _root_.map_sum, G',
-              π, π₀, X']
-            congr!
-            ext i; simp
+              AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, Finset.sum_apply, G', π, π₀, X', ι']
+            simp [← Fin.bot_eq_zero]
           fun_prop
         convert (condMultiDist_of_const (fun _ ↦ Fin.elim0) _).symm with i ω <;> try infer_instance
         ext ⟨j, hj⟩; simp at hj

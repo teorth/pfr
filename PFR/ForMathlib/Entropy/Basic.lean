@@ -226,6 +226,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
   set norm := μS A with rw_norm
   have h_norm : norm = μ Set.univ := by
     have := measure_add_measure_compl (μ := μS) (s := A) (Finset.measurableSet _)
+    change μS (A : Set S)ᶜ = 0 at hA
     rw [hA, add_zero] at this
     simp [norm, μS, this, Measure.map_apply hX MeasurableSet.univ]
   let pdf_nn s := norm⁻¹ * μs s
@@ -433,16 +434,16 @@ lemma condEntropy_le_log_card [MeasurableSingletonClass S] [Fintype S]
 lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
     [IsFiniteMeasure μ] (hY : Measurable Y) [FiniteRange Y] :
     H[X | Y ; μ] = ∑ y ∈ FiniteRange.toFinset Y, ((μ.map Y).real {y}) * H[X | Y ← y ; μ] := by
-  rw [condEntropy_def, integral_eq_setIntegral (full_measure_of_finiteRange hY),
-    integral_finset _ _ .finset]
+  rw [condEntropy_def, integral_eq_setIntegral (ae_mem_of_finiteRange hY),
+    setIntegral_finset _ .finset]
   simp_rw [smul_eq_mul]
 
-/-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`$. -/
+/-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`. -/
 lemma condEntropy_eq_sum_fintype
     [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)
     [IsFiniteMeasure μ] (hY : Measurable Y) [Fintype T] :
     H[X | Y ; μ] = ∑ y, μ.real (Y ⁻¹' {y}) * H[X | Y ← y ; μ] := by
-  rw [condEntropy_def, integral_fintype _ .of_finite]
+  rw [condEntropy_def, integral_fintype .of_finite]
   simp_rw [smul_eq_mul, map_measureReal_apply hY (.singleton _)]
 
 variable [MeasurableSingletonClass T]
@@ -867,7 +868,7 @@ lemma condMutualInfo_eq_kernel_mutualInfo
     I[X : Y | Z ; μ] = Ik[condDistrib (⟨X, Y⟩) Z μ, μ.map Z] := by
   rcases finiteSupport_of_finiteRange (μ := μ) (X := Z) with ⟨A, hA⟩
   simp_rw [condMutualInfo_def, entropy_def, Kernel.mutualInfo, Kernel.entropy,
-    integral_eq_setIntegral hA, integral_finset _ _ IntegrableOn.finset, smul_eq_mul, mul_sub,
+    integral_eq_setIntegral hA, setIntegral_finset _ .finset, smul_eq_mul, mul_sub,
     mul_add, Finset.sum_sub_distrib, Finset.sum_add_distrib]
   congr with x
   · have h := condDistrib_fst_ae_eq hX hY hZ μ
@@ -896,8 +897,8 @@ lemma condMutualInfo_eq_sum [MeasurableSingletonClass U] [IsFiniteMeasure μ]
     I[X : Y | Z ; μ] = ∑ z ∈ FiniteRange.toFinset Z,
       μ.real (Z ⁻¹' {z}) * I[X : Y ; μ[|Z ← z]] := by
   rw [condMutualInfo_eq_integral_mutualInfo,
-    integral_eq_setIntegral (FiniteRange.null_of_compl _ Z),
-    integral_finset _ _ IntegrableOn.finset]
+    integral_eq_setIntegral (ae_mem_of_finiteRange hZ),
+    setIntegral_finset _ .finset]
   congr 1 with z
   rw [map_measureReal_apply hZ (MeasurableSet.singleton z)]
   rfl

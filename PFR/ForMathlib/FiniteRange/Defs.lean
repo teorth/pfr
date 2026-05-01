@@ -9,7 +9,7 @@ class FiniteRange {Ω G : Type*} (X : Ω → G) : Prop where
   finite : (Set.range X).Finite
 
 /-- fintype structure on the range of a finite range map. -/
-noncomputable def FiniteRange.fintype {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] :
+noncomputable abbrev FiniteRange.fintype {Ω G : Type*} (X : Ω → G) [hX : FiniteRange X] :
     Fintype (Set.range X) := hX.finite.fintype
 
 /-- The range of a finite range map, as a finset. -/
@@ -154,3 +154,7 @@ lemma FiniteRange.null_of_compl {Ω G : Type*} [MeasurableSpace Ω] [MeasurableS
     ext ω
     simp
   · simp [hX]
+
+lemma FiniteRange.ae_mem_toFinset {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
+    [MeasurableSingletonClass G] (μ : Measure Ω) (X : Ω → G) [FiniteRange X] :
+    ∀ᵐ x ∂(μ.map X), x ∈ (FiniteRange.toFinset X : Set G) := FiniteRange.null_of_compl ..

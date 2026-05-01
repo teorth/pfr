@@ -571,20 +571,20 @@ lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : M
       _ = _ := by ring
   have h2 (i:Fin n): ∫ (z : G), d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] ≤ d[Y i # T₂] + δ/2 := calc
     _ = d[Y i # T₂ | T₃] := by
-      rw [condRuzsaDist'_eq_sum', integral_fintype] <;> try fun_prop
-      · classical
-        trans ∑ x ∈ -Finset.univ, (ℙ:Measure G).real {x} • d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {x}]]
-        · simp
-        rw [Finset.sum_neg_index]
-        apply Finset.sum_congr rfl; intro x
-        have : (T₁ + T₂) ⁻¹' {-x} = T₃ ⁻¹' {x} := by
-          rw [add_eq_zero_iff_eq_neg] at hsum; rw [hsum]
-          ext ω; simp
-        simp only [Finset.mem_univ, smul_eq_mul, forall_const, _hG]
-        rw [map_measureReal_apply, this]
-        · fun_prop
-        measurability
-      apply MeasureTheory.Integrable.of_finite
+      rw [condRuzsaDist'_eq_sum', integral_fintype .of_finite] <;> try fun_prop
+      classical
+      trans ∑ x ∈ -Finset.univ, (ℙ:Measure G).real {x} • d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {x}]]
+      · simp
+      rw [Finset.sum_neg_index]
+      apply Finset.sum_congr rfl; intro x
+      have : (T₁ + T₂) ⁻¹' {-x} = T₃ ⁻¹' {x} := by
+        rw [add_eq_zero_iff_eq_neg] at hsum; rw [hsum]
+        ext ω; simp
+      unfold _hG
+      simp only [Finset.mem_univ, smul_eq_mul, forall_const]
+      rw [map_measureReal_apply, this]
+      · fun_prop
+      measurability
     _ ≤ d[Y i # T₂] + I[T₂ : T₃]/2 := by
       convert condRuzsaDist_le' _ _ _ _ _ <;> try infer_instance
       all_goals fun_prop
@@ -612,7 +612,8 @@ lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : M
   refine ⟨?_, ?_, ?_⟩
   · apply cond_isProbabilityMeasure
     convert hpos
-    simp only [_hG]
+    unfold _hG
+    dsimp
     rw [Measure.map_apply (by fun_prop) (by measurability)]
   · fun_prop
   convert h3 using 1
