@@ -14,9 +14,8 @@ weak.linter.mathlibStandardSet = true
 warn.sorry = false
 
 [[require]]
-name = "APAP"
-git = "https://github.com/YaelDillies/apap.git"
-rev = "v4.29.0"
+name = "AddCombi"
+git = "https://github.com/YaelDillies/add-combi.git"
 
 [[require]]
 name = "checkdecls"

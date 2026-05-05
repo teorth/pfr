@@ -2,10 +2,9 @@ module
 
 public import Mathlib.Data.FunLike.Fintype
 public import Mathlib.Data.Int.Lemmas
-
-public import APAP.Extras.BSG
-
 public import PFR.HomPFR
+
+import AddCombi.BSG
 
 /-!
 # The approximate homomorphism form of PFR
@@ -24,43 +23,43 @@ is true for a positive proportion of x,y.
 public section
 
 open Finset Module
-open scoped Pointwise Combinatorics.Additive
+open scoped Pointwise Combinatorics.Additive'
 
-variable {G G' : Type*} [AddCommGroup G] [Finite G] [AddCommGroup G'] [Finite G']
+variable {G G' : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G'] [AddCommGroup G'] [Finite G']
   [Module (ZMod 2) G] [Module (ZMod 2) G'] (A : Finset G)
 
 /-- Let $G, G'$ be finite abelian $2$-groups.
-Let $f : G \to G'$ be a function, and suppose that there are at least
-$|G|^2 / K$ pairs $(x,y) \in G^2$ such that $$ f(x+y) = f(x) + f(y).$$
+Let $f : G \to G'$ be a function, and suppose that there is a proportion of at least
+$K^{-1}$ pairs $(x,y) \in G^2$ such that $$ f(x+y) = f(x) + f(y).$$
 Then there exists a homomorphism $\phi : G \to G'$ and a constant $c \in G'$ such that
 $f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {144} * K ^ {122})$ values of $x \in G$. -/
 theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
-    (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
+    (hf : K⁻¹ ≤ Finset.dens {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
     ∃ (φ : G →+ G') (c : G'), Nat.card {x | f x = φ x + c} ≥ Nat.card G / (2 ^ 144 * K ^ 122) := by
-  cases nonempty_fintype G
   cases nonempty_fintype G'
   classical
   let A := (Set.univ.graphOn f).toFinite.toFinset
   have hA : #A = Nat.card G := by rw [Set.Finite.card_toFinset]; simp [← Nat.card_eq_fintype_card]
   have hA_nonempty : A.Nonempty := by simp [-Set.Finite.toFinset_setOf, A]
+  have : #{x : G × G | f (x.1 + x.2) = f x.1 + f x.2} = #({ab ∈ A ×ˢ A | ab.1 + ab.2 ∈ A}) := by
+    rw [← Nat.card_eq_finsetCard, ← Finset.coe_sort_coe, Finset.coe_filter,
+      Set.Finite.toFinset_prod]
+    simp only [Set.Finite.mem_toFinset, A, Set.graphOn_prod_graphOn]
+    rw [← Set.natCard_graphOn _ (Prod.map f f), Nat.card_eq_card_finite_toFinset (Set.toFinite _),
+      ← Finset.card_image_of_injOn (Equiv.prodProdProdComm G G' G G').injective.injOn]
+    congr
+    aesop
   have := calc
-    (#A ^ 3 / K ^ 2 : ℝ)
-      = (Nat.card G ^ 2 / K) ^ 2 / #A := by simp [hA]; field_simp
-    _ ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2} ^ 2 / #A := by gcongr
-    _ = #{ab ∈ A ×ˢ A | ab.1 + ab.2 ∈ A} ^ 2 / #A := by
-      congr
-      rw [← Nat.card_eq_finsetCard, ← Finset.coe_sort_coe, Finset.coe_filter,
-        Set.Finite.toFinset_prod]
-      simp only [Set.Finite.mem_toFinset, A, Set.graphOn_prod_graphOn]
-      rw [← Set.natCard_graphOn _ (Prod.map f f),
-        ← Nat.card_image_equiv (Equiv.prodProdProdComm G G' G G'), Equiv.image_eq_preimage_symm]
-      congr
-      aesop
-    _ ≤ #A * E[A] / #A := by gcongr; exact mod_cast card_sq_le_card_mul_addEnergy ..
-    _ = E[A] := by field_simp
+    (A.dens ^ 3 / K ^ 2 : ℝ)
+      = A.dens ^ 3 * K⁻¹ ^ 2 := by ring
+    _ ≤ A.dens ^ 3 * Finset.dens {x : G × G | f (x.1 + x.2) = f x.1 + f x.2} ^ 2 := by gcongr
+    _ = {ab ∈ A ×ˢ A | ab.1 + ab.2 ∈ A}.dens ^ 2 / A.dens := by simp [dens, hA, this]; field_simp
+    _ ≤ E[A] := by field_simp; norm_cast; exact card_sq_le_card_mul_addEnergy' ..
   obtain ⟨A', hA', hA'1, hA'2⟩ :=
     BSG_self' (sq_nonneg K) hA_nonempty (by simpa only [inv_mul_eq_div] using this)
   clear hf this
+  replace hA'1 : (2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * #A ≤ #A' := by
+    simp [dens] at hA'1; field_simp at ⊢ hA'1; assumption
   have hA'₀ : A'.Nonempty := Finset.card_pos.1 <| Nat.cast_pos.1 <| hA'1.trans_lt' <| by positivity
   let A'' : Set (G × G') := A'
   have hA''_coe : Nat.card A'' = #A' := Nat.card_eq_finsetCard A'
@@ -69,6 +68,8 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   have : (A' - A').card = (A'' + A'').ncard := by simp [A'', ← Finset.coe_sub, sumset_eq_sub]
   replace : (A'' + A'').ncard ≤ 2 ^ 14 * K ^ 12 * Nat.card A'' := by
     rewrite [← this, hA''_coe]
+    simp [dens] at hA'2
+    field_simp at hA'2
     simpa [← pow_mul] using hA'2
   obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := better_PFR_conjecture_aux hA''_nonempty this
   clear hA'2 hA''_coe hH_le hH_ge
@@ -191,9 +192,12 @@ noncomputable def dual_iso : G ≃+ (G →+ ZMod 2) := by
     (Basis.linearEquiv_dual_iff_finiteDimensional.mpr inferInstance).some
   exact h_dual_iso_self.toAddEquiv.trans hdual_iso_hom.symm
 
-theorem card_of_dual : Nat.card (G →+ ZMod 2) = Nat.card G := Nat.card_congr dual_iso.toEquiv.symm
+omit [Fintype G] in
+theorem card_of_dual [Finite G] : Nat.card (G →+ ZMod 2) = Nat.card G := by
+  cases nonempty_fintype G; exact Nat.card_congr dual_iso.toEquiv.symm
 
-theorem card_of_dual_constrained (x : G) (hx : x ≠ 0) :
+omit [Fintype G] in
+theorem card_of_dual_constrained [Finite G] (x : G) (hx : x ≠ 0) :
     2 * Nat.card { φ: G →+ ZMod 2 | φ x = 1 } = Nat.card G := by
   suffices h_eq_card :
       Nat.card {φ : G →+ ZMod 2 | φ x = 1} = Nat.card {φ : G →+ ZMod 2 | φ x = 0} by
@@ -239,7 +243,8 @@ theorem card_of_dual_constrained (x : G) (hx : x ≠ 0) :
   use b + y
   aesop
 
-theorem card_of_slice (A : Set G) :
+omit [Fintype G] in
+theorem card_of_slice [Finite G] (A : Set G) :
     ∃ φ : G →+ ZMod 2, 2*Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) := by
   cases nonempty_fintype G
   classical
@@ -283,29 +288,29 @@ theorem card_of_slice (A : Set G) :
   simp only [sum_const, card_univ, smul_eq_mul,←Nat.card_eq_fintype_card,card_of_dual] at h2
   order
 
-theorem approx_hom_pfr' (f : G → G') (K : ℝ) (hK : K > 0)
-    (hf : Nat.card G ^ 2 / K ≤ Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
+theorem approx_hom_pfr' [Finite G] (f : G → G') (K : ℝ) (hK : K > 0)
+    (hf : K⁻¹ ≤ Finset.dens {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}) :
     ∃ (φ'' : G →+ G'), Nat.card {x | f x = φ'' x} ≥ (Nat.card G / (2 ^ 144 * K ^ 122) - 1)/2 := by
-    obtain ⟨ φ, c, h ⟩ := approx_hom_pfr f K hK hf
-    set A := { x | f x = φ x + c }
-    obtain ⟨ φ', h' ⟩ := card_of_slice A
-    let φ'c : G →+ G' := {
-      toFun x := (φ' x) • c
-      map_add' := by intros; simp [add_smul]
-      map_zero' := by simp
-    }
-    use φ + φ'c
-    rw [ge_iff_le, div_le_iff₀ (by norm_num)]
-    calc
-      _ ≤ Nat.card A - (1:ℝ) := by gcongr
-      _ ≤ (Nat.card ↑A - 1:ℕ) := by norm_cast; convert Int.le_natCast_sub _ _; norm_cast
-      _ ≤ 2 * Nat.card ↑{x | x ∈ A ∧ φ' x = 1} := by norm_cast
-      _ ≤ _ := by
-        rw [mul_comm]; gcongr
-        apply Nat.card_mono
-        · apply Set.toFinite
-        intro x
-        simp only [Set.mem_setOf_eq, AddMonoidHom.add_apply, AddMonoidHom.coe_mk,
-          ZeroHom.coe_mk, and_imp, A, φ'c]
-        intro h1 h2
-        simp [h1, h2]
+  obtain ⟨ φ, c, h ⟩ := approx_hom_pfr f K hK hf
+  set A := { x | f x = φ x + c }
+  obtain ⟨ φ', h' ⟩ := card_of_slice A
+  let φ'c : G →+ G' := {
+    toFun x := (φ' x) • c
+    map_add' := by intros; simp [add_smul]
+    map_zero' := by simp
+  }
+  use φ + φ'c
+  rw [ge_iff_le, div_le_iff₀ (by norm_num)]
+  calc
+    _ ≤ Nat.card A - (1:ℝ) := by gcongr
+    _ ≤ (Nat.card ↑A - 1:ℕ) := by norm_cast; convert Int.le_natCast_sub _ _; norm_cast
+    _ ≤ 2 * Nat.card ↑{x | x ∈ A ∧ φ' x = 1} := by norm_cast
+    _ ≤ _ := by
+      rw [mul_comm]; gcongr
+      apply Nat.card_mono
+      · apply Set.toFinite
+      intro x
+      simp only [Set.mem_setOf_eq, AddMonoidHom.add_apply, AddMonoidHom.coe_mk,
+        ZeroHom.coe_mk, and_imp, A, φ'c]
+      intro h1 h2
+      simp [h1, h2]

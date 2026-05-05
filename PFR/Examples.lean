@@ -50,8 +50,8 @@ example (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x + y) - f x - f y ∈
   homomorphism_pfr f S hS
 
 /-- The approximate homomorphism version of PFR -/
-example (f : G → G') (K : ℝ) (hK : K > 0)
-    (hf : Nat.card {x : G × G| f (x.1+x.2) = (f x.1) + (f x.2)} ≥ Nat.card G ^ 2 / K) :
+example (f : G → G') (K : ℝ) (hK : K > 0) [DecidableEq G']
+    (hf : Finset.dens {x : G × G | f (x.1 + x.2) = f x.1 + f x.2} ≥ K⁻¹) :
     ∃ (φ : G →+ G') (c : G'),
       Nat.card {x : G | f x = φ x + c} ≥ (Nat.card G) / (2 ^ 144 * K ^ 122) :=
   approx_hom_pfr f K hK hf
