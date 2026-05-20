@@ -71,10 +71,10 @@ instance : Inhabited (Σ e, ExProd e) := ⟨_, .one⟩
 /-- Embed an exponent (an `ExBase, ExProd` pair) as an `ExProd` by multiplying by 1. -/
 def ExBase.toProd {a : Q(ℝ)} (va : ExBase a) : ExProd q($a * 1) := .mul va .one
 
-nonrec abbrev Result := Ring.Result (u := .zero) (α := q(ℝ))
+nonrec abbrev Result := Ring.Common.Result (u := .zero) (α := q(ℝ))
 
 instance (e : Q(ℝ)) : Inhabited (Result ExProd e) :=
-  inferInstanceAs (Inhabited (Ring.Result ExProd e))
+  inferInstanceAs (Inhabited (Ring.Common.Result ExProd e))
 
 theorem atom_pf (a : ℝ) : a = a * 1 := by simp
 theorem atom_pf' {a a' : ℝ} (p : a = a') : a = a * 1 := by simp [*]
@@ -170,7 +170,7 @@ partial def eval (e : Q(ℝ)) : AtomM (Result ExProd e) := Lean.withIncRecDepth 
       let ⟨_, va, pa⟩ ← eval a
       let ⟨_, vb, pb⟩ ← eval b
       let ⟨c, vc, p⟩ := evalMul va vb
-      pure ⟨c, vc, (q(Ring.mul_congr $pa $pb $p) : Expr)⟩
+      pure ⟨c, vc, (q(Ring.Common.mul_congr $pa $pb $p) : Expr)⟩
     | _ => els
   | ``HPow.hPow | ``Pow.pow => match e with
     | ~q($a ^ ($b : ℝ)) =>

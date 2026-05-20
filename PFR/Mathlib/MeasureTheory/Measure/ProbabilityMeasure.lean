@@ -46,7 +46,7 @@ lemma tendsto_lintegral_of_forall_of_finite [Finite X] {L : Filter ι} (μs : ι
     Tendsto (fun i ↦ ∫⁻ x, f x ∂(μs i)) L (𝓝 (∫⁻ x, f x ∂μ)) := by
   cases nonempty_fintype X
   simp only [lintegral_fintype]
-  refine tendsto_finset_sum Finset.univ ?_
+  refine tendsto_finsetSum Finset.univ ?_
   exact fun x _ ↦ ENNReal.Tendsto.const_mul (h x) (Or.inr ENNReal.coe_ne_top)
 
 /-- Probability measures on a finite space tend to a limit if and only if the probability masses

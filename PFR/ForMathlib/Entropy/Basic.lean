@@ -245,7 +245,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
   rcases eq_zero_or_neZero μ with h_zero_measure | _
   · use Classical.arbitrary (α := S)
     rw [h_zero_measure, show (0 : Measure Ω) _ = 0 from rfl, zero_mul]
-    exact zero_le _
+    exact zero_le
   have h_norm_pos : 0 < norm := by
     rw [h_norm, Measure.measure_univ_pos]
     exact NeZero.ne μ

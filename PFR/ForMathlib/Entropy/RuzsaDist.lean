@@ -45,7 +45,7 @@ lemma continuous_measureEntropy_probabilityMeasure {Ω : Type*} [Finite Ω]
   cases nonempty_fintype Ω
   unfold measureEntropy
   simp_rw [tsum_fintype]
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro ω _
   apply Real.continuous_negMulLog.comp
   simp only [measure_univ, inv_one, one_smul]

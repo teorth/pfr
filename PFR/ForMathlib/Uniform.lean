@@ -42,13 +42,13 @@ lemma exists_isUniform [MeasurableSpace S] [MeasurableSingletonClass S]
   refine ⟨H, Subtype.instMeasurableSpace, fun x ↦ x, (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, .dirac i, ?_,
     measurable_subtype_coe, ⟨?_, ?_⟩, fun x ↦ x.2, ?_⟩
   · constructor
-    simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finset_sum, Finset.sum_apply,
+    simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finsetSum, Finset.sum_apply,
       measure_univ, Finset.sum_const, Finset.card_attach, nsmul_eq_mul, mul_one, smul_eq_mul]
     rw [ENNReal.inv_mul_cancel]
     · simpa using h.ne_empty
     · simp
   · intro x hx y hy
-    simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finset_sum,
+    simp only [Finset.univ_eq_attach, Measure.smul_apply, Measure.coe_finsetSum,
       Finset.sum_apply, Measure.dirac_apply, smul_eq_mul]
     rw [Finset.sum_eq_single ⟨x, hx⟩, Finset.sum_eq_single ⟨y, hy⟩]
     · simp
@@ -110,7 +110,7 @@ lemma IsUniform.nonempty {H : Finset S} (h : IsUniform H X μ) [hμ : NeZero μ]
 /-- A "unit test" for the definition of uniform distribution. -/
 lemma IsUniform.measure_preimage_of_nmem (h : IsUniform H X μ) {s : S} (hs : s ∉ H) :
     μ (X ⁻¹' {s}) = 0 := by
-  apply le_antisymm ((measure_mono _).trans h.measure_preimage_compl.le) (zero_le _)
+  apply le_antisymm ((measure_mono _).trans h.measure_preimage_compl.le) zero_le
   apply preimage_mono
   simpa using hs
 

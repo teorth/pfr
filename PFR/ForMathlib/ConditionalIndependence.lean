@@ -182,7 +182,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst,
     measurable_snd, ?_, ?_, ?_⟩
   · constructor
-    simp only [coe_finset_sum, Finset.sum_apply, ν]
+    simp only [coe_finsetSum, Finset.sum_apply, ν]
     have : ∑ y ∈ finY.toFinset, μ (Y ⁻¹' {y}) * 1 = 1 := by
       simp only [mul_one]
       rw [sum_measure_preimage_singleton]
@@ -219,7 +219,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
         simp only [smul_apply, MeasurableSet.singleton, dirac_apply', smul_eq_mul, mul_eq_zero,
           indicator_apply_eq_zero, Pi.one_apply,
           one_ne_zero, imp_false]; right; exact hx
-      simp only [coe_finset_sum, coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul, ν]
+      simp only [coe_finsetSum, coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul, ν]
       rw [Finset.sum_eq_single_of_mem y ?_]
       · rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]
         finiteness

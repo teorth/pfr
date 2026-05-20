@@ -598,7 +598,7 @@ lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : M
   have h3 : ∫ (z : G), F z ≤ 2 * δ + α * ∑ i, d[Y i # T₂] + α * n * δ / 2:= calc
     _ = ∫ (z : G), d[T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] ∂ℙ +
         α * ∑ i, ∫ (z : G), d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] := by
-      rw [integral_add, integral_const_mul,integral_finset_sum] <;> try intros
+      rw [integral_add, integral_const_mul,integral_finsetSum] <;> try intros
       all_goals apply MeasureTheory.Integrable.of_finite
     _ ≤ _ := by
       rw [add_assoc]; gcongr; calc
@@ -673,7 +673,7 @@ lemma k_eq_zero (hη_eq : p.η = 1 / (32 * p.m ^ 3)) : k = 0 := by
       ∫ w, δ' w ≤
         p.m * (2 + p.η / 2) * (3*p.m*(4*p.m+1)*p.η*k) + p.η * (4 * (p.m^3 - p.m^2)*k) := by
     unfold δ'
-    rw [integral_add, integral_const_mul, integral_const_mul, MeasureTheory.integral_finset_sum] <;>
+    rw [integral_add, integral_const_mul, integral_const_mul, MeasureTheory.integral_finsetSum] <;>
       try intros; apply Integrable.of_finite
     gcongr
     · convert hδ_int

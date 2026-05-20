@@ -141,7 +141,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       have hι : Function.Injective ι := by
         intro f g h; ext i; replace h := congrFun h (i.cast hm'); simpa [ι] using h
       observe hid : Function.Injective (id: G → G)
-      convert condMutualInfo_of_inj' _ _ _ _ hι hι hid using 2 <;> try infer_instance
+      convert condMutualInfo_of_inj' _ _ _ _ hι hι hid using 0 <;> try infer_instance
       all_goals try fun_prop
       · ext ω j; simp only [Function.comp_apply, Fin.cast_cast, Fin.cast_eq_self, ι, X'']; symm
         apply Function.Bijective.sum_comp (Fin.cast_bijective hm') (fun i ↦ X' (i, j) ω)
