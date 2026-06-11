@@ -141,18 +141,24 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       have hι : Function.Injective ι := by
         intro f g h; ext i; replace h := congrFun h (i.cast hm'); simpa [ι] using h
       observe hid : Function.Injective (id: G → G)
-      convert condMutualInfo_of_inj' _ _ _ _ hι hι hid using 0 <;> try infer_instance
-      all_goals try fun_prop
-      · ext ω j; simp only [Function.comp_apply, Fin.cast_cast, Fin.cast_eq_self, ι, X'']; symm
+      have hA : ι ∘ (fun ω ↦ (fun j ↦ ∑ i, X'' (i, j) ω)) = fun ω ↦ (fun j ↦ ∑ i, X' (i, j) ω) := by
+        ext ω j
+        simp only [Function.comp_apply]
         apply Function.Bijective.sum_comp (Fin.cast_bijective hm') (fun i ↦ X' (i, j) ω)
-      · ext ω i; simp only [Function.comp_apply, Fin.cast_cast, Fin.cast_eq_self, ι, X'']; symm
+      have hB : ι ∘ (fun ω ↦ (fun i ↦ ∑ j, X'' (i, j) ω)) = fun ω ↦ (fun i ↦ ∑ j, X' (i, j) ω) := by
+        ext ω i
+        simp only [Function.comp_apply]
         apply Function.Bijective.sum_comp (Fin.cast_bijective hm') (fun j ↦ X' (i, j) ω)
-      · ext ω
-        rw [← Multiset.sum_eq_foldr, ← Finset.sum_eq_multiset_sum, ← Finset.sum_product']
-        simp only [Finset.sum_apply, Finset.univ_product_univ, Prod.mk.eta]
+      have hC : (id : G → G) ∘ (∑ p, X'' p) = fun ω ↦ ∑ i, ∑ j, X' (i, j) ω := by
+        ext ω
+        simp only [Function.comp_apply, Finset.sum_apply, ← Finset.sum_product']
         apply Function.Bijective.sum_comp ⟨_, _⟩ (fun x ↦ X' x ω)
-        · intro ⟨i, j⟩ ⟨i', j'⟩ h; simpa using h
-        intro ⟨i, j⟩; use ⟨i.cast hm'.symm, j.cast hm'.symm⟩; simp
+        · intro ⟨_, _⟩ ⟨_, _⟩ h
+          simpa using h
+        intro ⟨i, j⟩
+        use ⟨i.cast hm'.symm, j.cast hm'.symm⟩
+        simp
+      rw [← condMutualInfo_of_inj' ?_ ?_ ?_ _ hι hι hid, hA, hB, hC] <;> fun_prop
     · rw [add_sub_assoc]; congr 1
       · convert Finset.sum_image (g := fun j:Fin m ↦ j.castSucc.cast hm')
           (f := A) (s := Finset.univ) _ using 2 with _ _ n _
