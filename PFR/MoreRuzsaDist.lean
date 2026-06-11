@@ -351,7 +351,7 @@ lemma kvm_ineq_II {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
   let Y' i : Ω → G := φ i ∘ Y i
   have mnY : ∀ i, Measurable (Y' i) := fun i ↦ (hφ i).comp (hY i)
   have h_indep2 : IndepFun (Y i₀) (∑ i ∈ s, Y i) μ :=
-    h_indep.indepFun_finset_sum_of_notMem (fun i ↦ hY i) hs |>.symm
+    h_indep.indepFun_finsetSum_of_notMem (fun i ↦ hY i) hs |>.symm
   have ineq4 : d[Y i₀; μ # ∑ i ∈ s, Y i; μ] + 1/2 * (H[∑ i ∈ s, Y i; μ] - H[Y i₀; μ])
       ≤ ∑ i ∈ s, (d[Y i₀; μ # Y i; μ] + 1/2 * (H[Y i; μ] - H[Y i₀; μ])) := by
     calc

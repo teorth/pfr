@@ -421,7 +421,7 @@ lemma tendsto_KLDiv_id_right [TopologicalSpace G] [DiscreteTopology G] [Finite G
     Tendsto (fun n ↦ KL[X ; μ # id ; ν n]) l (𝓝 (KL[X ; μ # id ; ν'])) := by
   cases nonempty_fintype G
   simp_rw [KLDiv_eq_sum]
-  apply tendsto_finset_sum _ (fun g hg ↦ ?_)
+  apply tendsto_finsetSum _ (fun g hg ↦ ?_)
   rcases eq_or_ne ((Measure.map X μ).real {g}) 0 with h'g | h'g
   · simpa [h'g] using tendsto_const_nhds
   apply Tendsto.mul tendsto_const_nhds
@@ -447,7 +447,7 @@ lemma tendsto_KLDiv_id_left [TopologicalSpace G] [DiscreteTopology G] [Finite G]
     Tendsto (fun n ↦ KL[id ; ν n # Y ; μ]) l (𝓝 (KL[id ; ν' # Y ; μ])) := by
   cases nonempty_fintype G
   simp_rw [KLDiv_eq_sum_negMulLog]
-  apply tendsto_finset_sum _ (fun g hg ↦ ?_)
+  apply tendsto_finsetSum _ (fun g hg ↦ ?_)
   apply Tendsto.const_mul
   apply continuous_negMulLog.continuousAt.tendsto.comp
   apply Tendsto.div_const

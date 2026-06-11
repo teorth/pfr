@@ -492,7 +492,8 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     have : (μ.map U).real {i} = 0 := by
       simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h'i ⊢
       simp [habs i h'i]
-    simp [hunif'.measureReal_preimage_of_mem' hU hi, H.coe_nonempty.ne_empty, H'] at this
+    simp [hunif'.measureReal_preimage_of_mem' hU hi, (ZeroMemClass.coe_nonempty H).ne_empty, H']
+      at this
   have : (∑ h ∈ H', 1/(H : Set G).ncard : ℝ) = 1 := by
     simp only [Finset.sum_const, nsmul_eq_mul, ← mul_div_assoc, mul_one]
     rw [div_eq_one_iff_eq]
@@ -550,7 +551,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
   cases nonempty_fintype G
   classical
   have mapU : .map U μ = uniformOn (H : Set G) :=
-    hunif.map_eq_uniformOn hU (H : Set G).toFinite H.coe_nonempty
+    hunif.map_eq_uniformOn hU (H : Set G).toFinite <| ZeroMemClass.coe_nonempty _
   obtain ⟨a, ha, h'a⟩ := by exact h'A
   rcases mem_vadd_set.1 h'a with ⟨v, vH, rfl⟩
   simp only [vadd_eq_add, Finset.mem_coe] at ha

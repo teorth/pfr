@@ -106,12 +106,12 @@ lemma multiTau_continuous {G Ω₀ : Type u} [MeasurableFinGroup G] [Topological
     apply continuous_measureEntropy_probabilityMeasure.comp
     exact (ProbabilityMeasure.continuous_map fcont).comp ProbabilityMeasure.continuous_pi
   · apply Continuous.mul continuous_const
-    refine continuous_finset_sum Finset.univ ?_
+    refine continuous_finsetSum Finset.univ ?_
     intro i hi
     apply continuous_entropy_restrict_probabilityMeasure.comp
     exact continuous_apply i
   · apply Continuous.mul continuous_const
-    refine continuous_finset_sum Finset.univ ?_
+    refine continuous_finsetSum Finset.univ ?_
     intro i hi
     have := p.hprob
     apply (continuous_rdist_restrict_probabilityMeasure₁_left p.X₀ volume p.hmeas).comp
