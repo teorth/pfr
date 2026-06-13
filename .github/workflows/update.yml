@@ -1,0 +1,22 @@
+name: Update Dependencies
+
+on:
+  schedule:
+    - cron: "37 */6 * * *"   # Check for updates 37 minutes past every six hours
+  workflow_dispatch:
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Open or update incompatibility PR
+        uses: leanprover-community/downstream-reports/.github/actions/track-incompatibility@main
+        with:
+          open-issue: false
+          open-pr: true
