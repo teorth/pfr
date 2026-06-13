@@ -2358,7 +2358,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
             simp only [Fin.val_top, Nat.add_one_sub_one, Fin.succ_zero_eq_one, Fin.coe_ofNat_eq_mod,
               Fin.val_eq_zero, zero_add, Nat.one_mod, ↓reduceIte, tsub_self, Fin.zero_eta,
               AddMonoidHom.coe_mk, ZeroHom.coe_mk, comp_apply, Finset.sum_apply, G', π, π₀, X', ι']
-            simp [← Fin.bot_eq_zero]
+            simp [← bot_eq_zero]
           fun_prop
         convert (condMultiDist_of_const (fun _ ↦ Fin.elim0) _).symm with i ω <;> try infer_instance
         ext ⟨j, hj⟩; simp at hj

@@ -3,6 +3,7 @@ module
 public import Mathlib.Data.FunLike.Fintype
 public import Mathlib.Data.Int.Lemmas
 public import PFR.HomPFR
+public import PFR.Mathlib.Data.Finset.Basic
 
 import AddCombi.BSG
 
@@ -61,24 +62,20 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   replace hA'1 : (2 ^ 4)⁻¹ * (K ^ 2)⁻¹ * #A ≤ #A' := by
     simp [dens] at hA'1; field_simp at ⊢ hA'1; assumption
   have hA'₀ : A'.Nonempty := Finset.card_pos.1 <| Nat.cast_pos.1 <| hA'1.trans_lt' <| by positivity
-  let A'' : Set (G × G') := A'
-  have hA''_coe : Nat.card A'' = #A' := Nat.card_eq_finsetCard A'
-  have hA''_pos : 0 < Nat.card A'' := by rw [hA''_coe]; exact hA'₀.card_pos
-  have hA''_nonempty : Set.Nonempty A'' := nonempty_subtype.mp (Finite.card_pos_iff.mp hA''_pos)
-  have : (A' - A').card = (A'' + A'').ncard := by simp [A'', ← Finset.coe_sub, sumset_eq_sub]
-  replace : (A'' + A'').ncard ≤ 2 ^ 14 * K ^ 12 * Nat.card A'' := by
-    rewrite [← this, hA''_coe]
+  have : (A' - A').card = (A' + A' : Set (G × G')).ncard := by
+    simp [← Finset.coe_sub, sumset_eq_sub]
+  replace : (A' + A' : Set (G × G')).ncard ≤ 2 ^ 14 * K ^ 12 * (A' : Set (G × G')).ncard := by
+    rewrite [← this]
     simp [dens] at hA'2
     field_simp at hA'2
     simpa [← pow_mul] using hA'2
-  obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := better_PFR_conjecture_aux hA''_nonempty this
-  clear hA'2 hA''_coe hH_le hH_ge
+  obtain ⟨H, c, hc_card, hH_le, hH_ge, hH_cover⟩ := better_PFR_conjecture_aux hA'₀ this
+  clear hA'2 hH_le hH_ge
   obtain ⟨H₀, H₁, φ, hH₀H₁, hH₀H₁_card⟩ := goursat H
-  have h_le_H₀ : Nat.card A'' ≤ Nat.card c * Nat.card H₀ := by
-    have h_le := Nat.card_mono (Set.toFinite _) (Set.image_mono (f := Prod.fst) hH_cover)
-    have h_proj_A'' : Nat.card A'' = Nat.card (Prod.fst '' A'') := Nat.card_congr
-      (Equiv.Set.imageOfInjOn Prod.fst A'' <|
-        Set.fst_injOn_graph.mono (Set.Finite.subset_toFinset.mp hA'))
+  have h_le_H₀ : (A' : Set (G × G')).ncard ≤ Nat.card c * Nat.card H₀ := by
+    have h_le := Set.ncard_mono (Set.image_mono (f := Prod.fst) hH_cover)
+    have h_proj_A'' : (Prod.fst '' (A' : Set (G × G'))).ncard = (A' : Set (G × G')).ncard :=
+      (Set.fst_injOn_graph.mono (Set.Finite.subset_toFinset.mp hA')).ncard_image
     have h_proj_c : Prod.fst '' (c + H : Set (G × G')) = (Prod.fst '' c) + H₀ := by
       ext x ; constructor <;> intro hx
       · obtain ⟨x, ⟨⟨c, hc, h, hh, hch⟩, hx⟩⟩ := hx
@@ -88,27 +85,27 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       · obtain ⟨_, ⟨c, hc⟩, h, hh, hch⟩ := hx
         refine ⟨c + (h, φ h), ⟨⟨c, hc.1, (h, φ h), ?_⟩, by rwa [← hc.2] at hch⟩⟩
         exact ⟨(hH₀H₁ ⟨h, φ h⟩).mpr ⟨hh, by rw [sub_self]; apply zero_mem⟩, rfl⟩
-    rewrite [← h_proj_A'', h_proj_c] at h_le
+    rewrite [h_proj_A'', h_proj_c] at h_le
     apply (h_le.trans Set.natCard_add_le).trans
     gcongr
     · exact Finite.card_image_le Prod.fst
     · exact Nat.card_le_card_of_injective (fun ⦃a₁⦄ ↦ a₁) fun ⦃a₁ a₂⦄ a ↦ a
   have hH₀_pos : (0 : ℝ) < Nat.card H₀ := Nat.cast_pos.mpr Nat.card_pos
-  have h_le_H₁ : (Nat.card H₁ : ℝ) ≤ (Nat.card c) * (Nat.card H) / Nat.card A'' := calc
-    _ = (Nat.card H : ℝ) / (Nat.card H₀) :=
+  have h_le_H₁ : (Nat.card H₁ : ℝ) ≤ Nat.card c * Nat.card H / (A' : Set (G × G')).ncard := calc
+    _ = (Nat.card H : ℝ) / Nat.card H₀ :=
       (eq_div_iff <| ne_of_gt <| hH₀_pos).mpr <| by rw [mul_comm, ← Nat.cast_mul, hH₀H₁_card]
-    _ ≤ (Nat.card c : ℝ) * (Nat.card H) / Nat.card A'' := by
+    _ ≤ (Nat.card c : ℝ) * Nat.card H / (A' : Set (G × G')).ncard := by
       nth_rewrite 1 [← mul_one (Nat.card H : ℝ), mul_comm (Nat.card c : ℝ)]
       repeat rewrite [mul_div_assoc]
       refine mul_le_mul_of_nonneg_left ?_ (Nat.cast_nonneg _)
       refine le_of_mul_le_mul_right ?_ hH₀_pos
-      refine le_of_mul_le_mul_right ?_ (Nat.cast_pos.mpr hA''_pos)
+      refine le_of_mul_le_mul_right ?_ (by simpa : (0 : ℝ) < (A' : Set (G × G')).ncard)
       rewrite [div_mul_cancel₀ 1, mul_right_comm, one_mul, div_mul_cancel₀, ← Nat.cast_mul]
       · exact Nat.cast_le.mpr h_le_H₀
-      · exact ne_of_gt (Nat.cast_pos.mpr hA''_pos)
+      · simpa
       · exact ne_of_gt hH₀_pos
-  clear h_le_H₀ hA''_pos hH₀_pos hH₀H₁_card
-  let translate (c : G × G') (h : G') := A'' ∩ ({c} + {(0, h)} + Set.univ.graphOn φ)
+  clear h_le_H₀ hH₀_pos hH₀H₁_card
+  let translate (c : G × G') (h : G') : Set (G × G') := A' ∩ ({c} + {(0, h)} + Set.univ.graphOn φ)
   have h_translate (c : G × G') (h : G') :
       Prod.fst '' translate c h ⊆ { x : G | f x = φ x + (-φ c.1 + c.2 + h) } := by
     intro x hx
@@ -124,9 +121,8 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     Nat.card_congr (Equiv.Set.imageOfInjOn Prod.fst (translate c h) <|
       Set.fst_injOn_graph.mono fun _ hx ↦ Set.Finite.subset_toFinset.mp hA' hx.1)
   let cH₁ := (c ×ˢ H₁).toFinite.toFinset
-  have A_nonempty : Nonempty A'' := Set.nonempty_coe_sort.mpr hA''_nonempty
   replace hc : c.Nonempty := by
-    obtain ⟨x, hx, _, _, _⟩ := hH_cover (Classical.choice A_nonempty).property
+    obtain ⟨x, hx, _, _, _⟩ := hH_cover hA'₀.choose_spec
     exact ⟨x, hx⟩
   replace : A' = Finset.biUnion cH₁ fun ch ↦ (translate ch.1 ch.2).toFinite.toFinset := by
     ext x ; constructor <;> intro hx
@@ -174,11 +170,12 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
       rw [← Nat.cast_mul, ← Finset.card_product, Set.Finite.toFinset_prod]
     _ = Nat.card c * Nat.card H₁ := by
       simp_rw [Set.Finite.card_toFinset, ← Nat.card_eq_fintype_card]; norm_cast
-    _ ≤ Nat.card c * (Nat.card c * Nat.card H / Nat.card ↑A'') := by gcongr
-    _ = Nat.card c ^ 2 * Nat.card H / Nat.card ↑A'' := by ring
-    _ ≤ ((2 ^ 14 * K ^ 12) ^ 5 * Nat.card A'' ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2 *
-          Nat.card H / Nat.card ↑A'' := by gcongr; exact hc_card
-    _ = 2 ^ 140 * K ^ 120 := by simp; field_simp; rpow_simp; norm_num
+    _ ≤ Nat.card c * (Nat.card c * Nat.card H / (A' : Set (G × G')).ncard) := by gcongr
+    _ = Nat.card c ^ 2 * Nat.card H / (A' : Set (G × G')).ncard := by ring
+    _ ≤ ((2 ^ 14 * K ^ 12) ^ 5 * (A' : Set (G × G')).ncard ^ (1 / 2 : ℝ) *
+      Nat.card H ^ (-1 / 2 : ℝ)) ^ 2 * Nat.card H / (A' : Set (G × G')).ncard := by
+      gcongr; exact hc_card
+    _ = 2 ^ 140 * K ^ 120 := by rpow_simp; simp [-Nat.card_eq_fintype_card]; field_simp; norm_num
 
 /-- Non canonical isomorphism between a finite 2-torsion group and its dual into `ZMod 2`. -/
 noncomputable def dual_iso : G ≃+ (G →+ ZMod 2) := by
