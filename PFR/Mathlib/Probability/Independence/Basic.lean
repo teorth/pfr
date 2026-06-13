@@ -91,9 +91,9 @@ lemma IndepFun.finsetSum [m : MeasurableSpace β'] [AddCommMonoid β'] [Measurab
     by_cases hb : b
     · by_cases hc : c
       · exfalso; exact hbc (hb ▸ hc.symm)
-      · simpa [hb, hc] using h_disj
+      · simpa [hb, hc, Function.onFun, S] using h_disj
     · by_cases hc : c
-      · simpa [hb, hc] using h_disj.symm
+      · simpa [hb, hc, Function.onFun, S] using h_disj.symm
       · exfalso; exact hbc (eq_false_of_ne_true hb ▸ (eq_false_of_ne_true hc).symm)
   have hindep := iIndepFun.finsetSum S h_disjoint hf_Indep hf_meas
   have h_true : S true = s := by simp [S]
@@ -127,7 +127,8 @@ lemma iIndepFun.finsets_comp' {f : ∀ i, Ω → β i} {S S' : Finset ι} (h_dis
   | 0 => hφ
   | 1 => hφ'
   have hneq : (0:Fin 2) ≠ (1:Fin 2) := by simp
-  simpa [φ₂] using (iIndepFun.finsets_comp S₂ h_disjoint₂ hf_Indep hf_meas φ₂ hφ₂).indepFun hneq
+  simpa [φ₂, γ₂] using!
+    (iIndepFun.finsets_comp S₂ h_disjoint₂ hf_Indep hf_meas φ₂ hφ₂).indepFun hneq
 
 end iIndepFun
 

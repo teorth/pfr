@@ -67,11 +67,11 @@ protected lemma IdentDistrib.cond (hs : MeasurableSet s) (hf' : Measurable f') (
     congr
     · simpa only [map_apply₀ (hfg.comp measurable_snd).aemeasurable_fst hs.nullMeasurableSet,
         map_apply₀ (hfg.comp measurable_snd).aemeasurable_snd hs.nullMeasurableSet]
-        using congr_fun (congr_arg (⇑) (hfg.comp measurable_snd).map_eq) s
+        using! congr_fun (congr_arg (⇑) (hfg.comp measurable_snd).map_eq) s
     · rw [inter_comm, inter_comm (g' ⁻¹' _)]
       simpa only [map_apply₀ hfg.aemeasurable_fst (ht.prod hs).nullMeasurableSet,
         map_apply₀ hfg.aemeasurable_snd (ht.prod hs).nullMeasurableSet]
-        using congr_fun (congr_arg (⇑) hfg.map_eq) (t ×ˢ s)
+        using! congr_fun (congr_arg (⇑) hfg.map_eq) (t ×ˢ s)
 
 /-- A function is identically distributed to itself composed with a measurable embedding of conull
 range. -/
