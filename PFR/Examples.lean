@@ -57,7 +57,7 @@ example (f : G → G') (K : ℝ) (hK : K > 0) [DecidableEq G']
   approx_hom_pfr f K hK hf
 
 /-- The bounded torsion version of PFR. -/
-example [AddCommGroup G] [Finite G] {m : ℕ} (hm : m ≥ 2)
+example {m : ℕ} (hm : m ≥ 2)
      (htorsion : ∀ x : G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
      (hA : Nat.card (A + A) ≤ K * A.ncard) :
      ∃ (H : AddSubgroup G) (c : Set G),

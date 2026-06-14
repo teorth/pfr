@@ -253,7 +253,7 @@ lemma Q_dist (j j' : Fin p.m) : d[Q j # -(Q j')] ≤ 2 * k := by
   calc
     _ = d[Q j' # -(Q j')] := IdentDistrib.rdist_congr_left (by fun_prop) this
     _ ≤ _ := by
-      convert multidist_ruzsa_IV p.hm (fun i ω ↦ Y (i, j') ω) _ (by simp; fun_prop) (inferInstance)
+      convert multidist_ruzsa_IV p.hm (fun i ω ↦ Y (i, j') ω) _ (by fun_prop) (inferInstance)
         using 2
       · apply multiDist_copy; intro i; convert (hident i j').symm
       exact indep_yj h_mes h_indep j'
@@ -819,7 +819,7 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : �
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' A_fin h₀A hA
   let A' := A.toFinite.toFinset
-  have h₀A' : Finset.Nonempty A' := by simpa [Finset.Nonempty, A'] using h₀A
+  have h₀A' : Finset.Nonempty A' := by simpa [Finset.Nonempty, Set.Nonempty, A'] using h₀A
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
   rw [hAA'] at UAunif

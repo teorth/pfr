@@ -92,7 +92,7 @@ lemma continuous_tau_restrict_probabilityMeasure
   continuity
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-[Finite G] in
+  [Finite G] in
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $\tau[X'_1;X'_2] = \tau[X_1;X_2]$. -/
 lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableSpace Ω₂]
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂]
@@ -113,7 +113,7 @@ def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω �
       τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-[Finite G] in
+  [Finite G] in
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. -/
 lemma ProbabilityTheory.IdentDistrib.tau_minimizes [MeasureSpace Ω]
     [MeasureSpace Ω']
@@ -166,7 +166,7 @@ variable [MeasureSpace Ω] [hΩ₁ : MeasureSpace Ω'₁] [hΩ₂ : MeasureSpace
   {X₁ : Ω → G} {X₂ : Ω → G} {X₁' : Ω'₁ → G} {X₂' : Ω'₂ → G}
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
-[IsProbabilityMeasure (ℙ : Measure Ω)] in
+  [IsProbabilityMeasure (ℙ : Measure Ω)] in
 lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂') :
     τ[X₁ # X₂ | p] ≤ τ[X₁' # X₂' | p] := by
   let ν₁ := (ℙ : Measure Ω'₁).map X₁'
@@ -177,7 +177,7 @@ lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : M
     (Measure.isProbabilityMeasure_map h2.aemeasurable)
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
-[IsProbabilityMeasure (ℙ : Measure Ω)] in
+  [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Let `X₁` and `X₂` be tau-minimizers associated to `p`, with $d[X_1,X_2]=k$, then
 $$ d[X'_1;X'_2] \geq
     k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] )$$
@@ -191,7 +191,7 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁')
   linarith
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
-[IsProbabilityMeasure (ℙ : Measure Ω)] in
+  [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Version of `distance_ge_of_min` with the measures made explicit. -/
 lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂)
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
@@ -204,7 +204,7 @@ lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂
   exact distance_ge_of_min p h h1 h2
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-[IsProbabilityMeasure (ℙ : Measure Ω)] in
+  [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- For any $G$-valued random variables $X'_1,X'_2$ and random variables $Z,W$, one can lower
 bound $d[X'_1|Z;X'_2|W]$ by
 $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X_2] ).$$

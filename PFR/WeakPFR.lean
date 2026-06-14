@@ -229,7 +229,7 @@ section F2_projection
 open Real ProbabilityTheory MeasureTheory
 
 variable {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] [Finite G] [MeasurableSpace G]
-[MeasurableSingletonClass G] {Ω Ω' : Type*}
+  [MeasurableSingletonClass G] {Ω Ω' : Type*}
 
 /-- Let $G=\mathbb{F}_2^n$ and `X, Y` be `G`-valued random variables such that
 \[\mathbb{H}(X)+\mathbb{H}(Y)> (20/\alpha) d[X;Y],\]
@@ -283,8 +283,8 @@ lemma app_ent_PFR' [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (X : Ω →
   exact ⟨by linarith, by linarith⟩
 
 variable [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
-(μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
-[IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
+  (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
+  [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 lemma app_ent_PFR (α : ℝ) (hent : 20 * d[X; μ # Y; μ'] < α * (H[X; μ] + H[Y; μ']))
     (hX : Measurable X) (hY : Measurable Y) :
