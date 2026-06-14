@@ -321,7 +321,7 @@ local notation3:max "ψ[" A "; " μ " # " B " ; " μ' "]" =>
 
 include hT hT₁ hT₂ hT₃ h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-[IsProbabilityMeasure (ℙ : Measure Ω)] in
+  [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- For any $T_1, T_2, T_3$ adding up to $0$, then $k$ is at most
 $$ \delta + \eta (d[X^0_1;T_1|T_3]-d[X^0_1;X_1]) + \eta (d[X^0_2;T_2|T_3]-d[X^0_2;X_2])$$
 where $\delta = I[T₁ : T₂ ; μ] + I[T₂ : T₃ ; μ] + I[T₃ : T₁ ; μ]$. -/
@@ -375,7 +375,7 @@ open Module
 
 include hT hT₁ hT₂ hT₃ h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-[IsProbabilityMeasure (ℙ : Measure Ω)] in
+  [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- In fact $k$ is at most
  $$ \delta + \frac{\eta}{6} \sum_{i=1}^2 \sum_{1 \leq j,l \leq 3; j \neq l}
      (d[X^0_i;T_j|T_l] - d[X^0_i; X_i]).$$
@@ -407,7 +407,7 @@ lemma construct_good_improved' :
 
 include h_min in
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
-[IsProbabilityMeasure (ℙ : Measure Ω)] in
+  [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Rephrase `construct_good_improved'` with an explicit probability measure, as we will
 apply it to (varying) conditional measures. -/
 lemma construct_good_improved'' {Ω' : Type*} [MeasurableSpace Ω'] (μ : Measure Ω')

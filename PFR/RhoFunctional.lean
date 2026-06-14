@@ -1119,8 +1119,7 @@ end
 section phiMinimizer
 
 variable {G : Type uG} [AddCommGroup G] [Finite G] [hGm : MeasurableSpace G]
-[DiscreteMeasurableSpace G] {Ω : Type*} [MeasureSpace Ω]
-{X Y Z : Ω → G} {A : Finset G}
+  [DiscreteMeasurableSpace G] {Ω : Type*} [MeasureSpace Ω] {X Y Z : Ω → G} {A : Finset G}
 
 /-- Given $G$-valued random variables $X,Y$, define
 $$ \phi[X;Y] := d[X;Y] + \eta(\rho(X) + \rho(Y))$$. -/
@@ -1927,7 +1926,7 @@ end phiMinimizer
 section PFR
 
 variable {G : Type uG} [AddCommGroup G] [Finite G] [Module (ZMod 2) G]
-{Ω : Type uG} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {A : Finset G}
+  {Ω : Type uG} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {A : Finset G}
 
 /-- For any random variables $Y_1,Y_2$, there exist a subgroup $H$ such that
   $$ 2\rho(U_H) \leq \rho(Y_1) + \rho(Y_2) + 8 d[Y_1;Y_2].$$ -/

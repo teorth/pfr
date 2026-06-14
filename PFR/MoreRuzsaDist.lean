@@ -607,7 +607,7 @@ private theorem entropy_kvm_decomposition {I : Type*} {s t : Finset I} (hdisj : 
     simp only [hW_def, Finset.sum_apply]
   have Y_meas : ∀ i, Measurable (Y i)
     | some i => by simpa only [hY] using hX i
-    | none => by simpa only [hY] using W_meas.neg
+    | none => by simpa only [hY, Pi.neg_def] using W_meas.neg
   have this (i) : FiniteRange (Y i) := by
     match i with | some i => simp only [hY]; infer_instance | none => simp only [hY]; infer_instance
   have Y_indep : iIndepFun Y μ := by
@@ -2443,7 +2443,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
                 order
               let φ (x : T → G) : G × (Fin (m + 1) → G) :=
                 ⟨∑ i, x ⟨(i, j.castSucc), by simp [T]⟩, fun i ↦ ∑ k : Finset.Ici j.castSucc,
-                  x ⟨⟨i, k⟩, by obtain ⟨k,hk⟩ := k; simpa [T] using hk⟩⟩
+                  x ⟨⟨i, k⟩, by obtain ⟨k,hk⟩ := k; simpa [T, Fin.le_def] using hk⟩⟩
               let φ' (x : T' → G) (i : Fin (m + 1)) (k : Fin j) : G :=
                 x ⟨(i, k.castLE (by obtain ⟨j, hj⟩ := j; simp; omega)), by
                   obtain ⟨k, hk⟩ := k; simpa [T'] using hk⟩
@@ -2486,8 +2486,9 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
               rw [h.2] at h₁
               replace h₁ := h₁.2; replace h₂ := h₂.2; order
             let φ (x : T → G) : G × G :=
-              ⟨x ⟨(i, j.castSucc), by simp [T]⟩,
-                ∑ k : Finset.Ici j.castSucc, x ⟨⟨i, k⟩, by obtain ⟨k,hk⟩ := k; simpa [T] using hk⟩⟩
+            (x ⟨(i, j.castSucc), by simp [T]⟩,
+                ∑ k : Finset.Ici j.castSucc, x ⟨⟨i, k⟩, by
+                  obtain ⟨k, hk⟩ := k; simpa [T, Fin.le_def] using hk⟩)
             let φ' (x : T' → G) (k : Fin j.val) : G :=
               x ⟨⟨i, k.castLE (by obtain ⟨j, hj⟩ := j; simp; omega)⟩, by
                 obtain ⟨k, hk⟩ := k; simpa [T'] using hk⟩

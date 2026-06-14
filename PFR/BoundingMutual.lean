@@ -178,7 +178,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
           simp only [Finset.sum_apply]
           convert Finset.sum_map _ (finCongr hm'.symm).toEmbedding _
           ext i; simp
-        simpa using (Fin.cast_injective _).comp (Fin.castSucc_injective _)
+        simpa [Function.comp_def] using (Fin.cast_injective _).comp (Fin.castSucc_injective _)
       simp only [Fin.cast_top, B, column, X'']; congr 1
       · symm; convert multiDist_of_cast hm' (fun _ ↦ hΩ') inferInstance _ with i
         rfl

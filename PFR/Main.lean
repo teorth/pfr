@@ -158,7 +158,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < (A - A).ncard ∧ 0 < K :=
     PFR_conjecture_pos_aux A.toFinite hA₀ hA
   let A' := A.toFinite.toFinset
-  have hA₀' : Finset.Nonempty A' := by simpa [Finset.Nonempty, A'] using hA₀
+  have hA₀' : Finset.Nonempty A' := by simpa [Finset.Nonempty, Set.Nonempty, A'] using hA₀
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' hA₀' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
   rw [hAA'] at UAunif
