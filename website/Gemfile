@@ -26,3 +26,6 @@ gem "webrick", "~> 1.8"
 
 # See https://github.com/ffi/ffi/issues/1103
 gem "ffi", "< 1.17.0"
+
+# Required for Jekyll under Ruby 3.4+ where csv is no longer a default gem.
+gem "csv"
