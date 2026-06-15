@@ -1685,7 +1685,7 @@ lemma condMultiDist_eq {m : ℕ}
   let E' := fun (y : Fin m → S) ↦ ⋂ i, E i (y i)
   let f := fun (y : Fin m → S) ↦ ∏ i, Measure.real ℙ (E i (y i))
   have f_eq (y : Fin m → S) : f y = (ℙ (E' y)).toReal := calc
-     _ = (∏ i, (ℙ (E i (y i)))).toReal := Eq.symm ENNReal.toReal_prod
+     _ = (∏ i, (ℙ (E i (y i)))).toReal := by rw [ENNReal.toReal_prod]; rfl
      _ = (ℙ (⋂ i, (E i (y i)))).toReal := by
       congr
       exact (iIndepFun.meas_iInter h_indep fun _ ↦ mes_of_comap (.singleton _)).symm
