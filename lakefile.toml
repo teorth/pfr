@@ -16,18 +16,18 @@ weak.linter.style.header = false
 warn.sorry = false
 
 [[require]]
+name = "checkdecls"
+git = "https://github.com/PatrickMassot/checkdecls.git"
+
+[[require]]
 name = "AddCombi"
 git = "https://github.com/leanprover-community/add-combi.git"
-rev = "v4.30.0"
+rev = "v4.31.0"
 
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "89ce8bf5e2ab371b9bd480b4af18d843805f876b"
-
-[[require]]
-name = "checkdecls"
-git = "https://github.com/PatrickMassot/checkdecls.git"
+rev = "v4.31.0"
 
 [[lean_lib]]
 name = "PFR"

@@ -1233,7 +1233,7 @@ lemma multidist_ruzsa_III' {m : ℕ} (hm : m ≥ 2) {Ω : Type*} {hΩ : MeasureS
         intro i
         by_cases h : i = m' <;> simp [f, h]
         all_goals measurability
-      convert this using 1
+      convert! this using 1
       · congr
         · simp [Y, X₀]
         · convert Fin.sum_univ_castSucc' Y using 2 with i _

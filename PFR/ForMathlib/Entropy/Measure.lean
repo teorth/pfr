@@ -196,13 +196,13 @@ theorem Measure.ext_iff_singleton_finiteSupport
     intro h
     ext s
     have h1 : μ1 s = μ1 (s ∩ (A1 ∪ A2)) := by
-      apply (measure_eq_measure_of_null_diff _ _).symm
+      apply (measure_eq_measure_of_null_sdiff _ _).symm
       · simp
       refine measure_mono_null ?_ hA1
       intro x
       simp (config := { contextual := true }) [A1]
     have h2 : μ2 s = μ2 (s ∩ (A1 ∪ A2)) := by
-      apply (measure_eq_measure_of_null_diff _ _).symm
+      apply (measure_eq_measure_of_null_sdiff _ _).symm
       · simp
       exact measure_mono_null (fun x ↦ by simp (config := { contextual := true }) [A2]) hA2
     rw [h1, h2]
@@ -656,7 +656,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
           exists_eq_right', E2, E] at h2 ⊢
         use s
       · convert measure_empty (μ := μ)
-        simp [Set.diff_eq_empty]
+        simp [Set.sdiff_eq_empty]
     · intro s1 _ s2 _ h; simp [h]
     intros; exact .singleton _
   have h2 z : (μ.map Prod.snd).real {z} = ∑ y ∈ E1, μ.real {(y, z)} := by
@@ -673,7 +673,7 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
           E] at h2 ⊢
         use u
       · convert measure_empty (μ := μ)
-        simp [Set.diff_eq_empty]
+        simp [Set.sdiff_eq_empty]
     · intro s1 _ s2 _ h; simp [h]
     intros; exact .singleton _
   let w (p : S × U) := (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}

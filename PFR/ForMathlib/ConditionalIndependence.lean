@@ -216,9 +216,9 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       have h3' {x : β} (hx : x ≠ y) : (m x) ((Prod.snd⁻¹' {y}) ∩ E) = 0 := by
         apply measure_inter_null_of_null_left E
         rw [← Measure.map_apply measurable_snd (by simp), MeasureTheory.Measure.map_snd_prod]
-        simp only [smul_apply, MeasurableSet.singleton, dirac_apply', smul_eq_mul, mul_eq_zero,
-          indicator_apply_eq_zero, Pi.one_apply,
-          one_ne_zero, imp_false]; right; exact hx
+        simp only [Measure.smul_apply, MeasurableSet.singleton, dirac_apply', smul_eq_mul,
+          mul_eq_zero, measure_univ_eq_zero, indicator_apply_eq_zero, mem_singleton_iff,
+          Pi.ofNat_apply, one_ne_zero, imp_false]; right; exact hx
       simp only [coe_finsetSum, coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul, ν]
       rw [Finset.sum_eq_single_of_mem y ?_]
       · rw [h3, ← mul_assoc, ENNReal.inv_mul_cancel hy'', one_mul]

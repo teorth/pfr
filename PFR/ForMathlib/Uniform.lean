@@ -169,7 +169,7 @@ lemma IsUniform.measure_preimage {H : Finset S} (h : IsUniform H X μ) (hX : Mea
   _ = μ (X ⁻¹' (H' ∩ H)) + μ (X ⁻¹' (H' \ H)) :=
     measure_union (Disjoint.preimage X disjoint_inf_sdiff) (by measurability)
   _ = μ (X ⁻¹' (H' ∩ H).toFinite.toFinset) := by
-    simp [Set.diff_eq_compl_inter, measure_mono_null inter_subset_left h.measure_preimage_compl,
+    simp [Set.sdiff_eq_compl_inter, measure_mono_null inter_subset_left h.measure_preimage_compl,
       -preimage_compl]
   _ = μ univ * ∑ __ ∈ (H' ∩ H).toFinite.toFinset, (1 : ENNReal) / Nat.card H := by
     rewrite [← sum_measure_preimage_singleton _ (by measurability), Finset.mul_sum]
@@ -193,7 +193,7 @@ lemma IsUniform.nonempty_preimage_of_mem [NeZero μ] {H : Finset S} (h : IsUnifo
 lemma IsUniform.full_measure (h : IsUniform H X μ) (hX : Measurable X) :
     (μ.map X) H = μ Set.univ := by
     rw [Measure.map_apply hX (by measurability)]
-    refine measure_eq_measure_of_null_diff (subset_univ _) ?h_nulldiff
+    refine measure_eq_measure_of_null_sdiff (subset_univ _) ?h_nulldiff
     convert h.measure_preimage_compl
     ext ω; simp
 
