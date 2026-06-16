@@ -71,8 +71,7 @@ lemma IsUniform.measureReal_preimage_sub [DecidableEq G] (Uunif : IsUniform A U)
   classical
   let W := fun ω ↦ V ω + x
   have Wunif : IsUniform (B + {x} : Set G) W := by
-    convert Vunif.comp (add_left_injective x)
-    simp
+    simpa [W, Function.comp_def] using Vunif.comp (add_left_injective x)
   have Wmeas : Measurable W := Vmeas.add_const _
   have UWindep : IndepFun U W := by
     have : Measurable (fun g ↦ g + x) := measurable_add_const x
@@ -191,15 +190,11 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
   have IAH : A.ncard ≤ K ^ 11 * (H : Set G).ncard := by
     have : log A.ncard ≤ log K * 11 + log (H : Set G).ncard := by
       linarith [(le_abs_self _).trans Icard]
-    convert exp_monotone this using 1
-    · exact (exp_log A_pos).symm
-    · rw [exp_add, exp_log H_pos, ← rpow_def_of_pos K_pos]
+    simpa [exp_log, A_pos, H_pos, exp_add, ← rpow_def_of_pos K_pos] using exp_monotone this
   have IHA : (H : Set G).ncard ≤ K ^ 11 * A.ncard := by
     have : log (H : Set G).ncard ≤ log K * 11 + log A.ncard := by
       linarith [(neg_le_abs _).trans Icard]
-    convert exp_monotone this using 1
-    · exact (exp_log H_pos).symm
-    · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos]
+    simpa [exp_log, A_pos, H_pos, exp_add, ← rpow_def_of_pos K_pos] using exp_monotone this
   -- entropic PFR shows that the entropy of `VA - VH` is small
   have I : log K * (-11/2) + log A.ncard * (-1/2) + log (H : Set G).ncard * (-1/2)
       ≤ - H[VA - VH] := by
@@ -216,7 +211,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
     have hAA'_card : A'.card  = A.ncard := by simp [← hAA']
     have hHH'_card : H'.card = (H : Set G).ncard := by simp [← hHH']
     rw [hAA'_card, hHH'_card, le_div_iff₀ (by positivity)] at this
-    convert this using 1
+    convert! this using 1
     · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos,
         ← rpow_def_of_pos H_pos]
       rpow_ring
@@ -245,7 +240,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
       _ ≤ (K ^ (13/2 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)) *
         (A ∩ (↑H + {x₀})).ncard := by gcongr
   obtain ⟨u, huA, hucard, hAu, -⟩ :=
-    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
+    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by exact Z3)
   have A_subset_uH : A ⊆ u + H := by
     grw [hAu, inter_subset_right]
     rw [add_sub_add_comm, singleton_sub_singleton, sub_self]

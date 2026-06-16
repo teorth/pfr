@@ -26,9 +26,7 @@ public import PFR.Mathlib.Probability.Kernel.Disintegration
 @[expose] public section
 
 open Real MeasureTheory
-
 open scoped ENNReal NNReal Topology ProbabilityTheory
-
 
 namespace ProbabilityTheory.Kernel
 
@@ -209,6 +207,7 @@ lemma entropy_prodMkLeft_unit [MeasurableSingletonClass T]
     (κ : Kernel T S) {μ : Measure T} [IsZeroOrProbabilityMeasure μ] [FiniteSupport μ] :
     Hk[prodMkLeft Unit κ, μ.map (Prod.mk ())] = Hk[κ, μ] := by
   convert entropy_comap_equiv κ (.punitProd) (μ := μ)
+  · rfl
   funext μ
   rw [← MeasurableEquiv.map_symm]
   congr

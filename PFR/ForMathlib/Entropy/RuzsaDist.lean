@@ -93,7 +93,7 @@ lemma continuous_rdist_restrict_probabilityMeasure [Finite G]
     have diff_cts : Continuous (fun (x : G × G) ↦ x.1 - x.2) := by continuity
     have key₁ := ProbabilityMeasure.continuous_prod (α := G) (β := G)
     have key₂ := ProbabilityMeasure.continuous_map diff_cts
-    convert continuous_measureEntropy_probabilityMeasure.comp (key₂.comp key₁)
+    convert! continuous_measureEntropy_probabilityMeasure.comp (key₂.comp key₁)
   have obs₁ : Continuous
       (fun (μ : ProbabilityMeasure G × ProbabilityMeasure G) ↦ H[id ; μ.1.toMeasure]) := by
     convert (continuous_measureEntropy_probabilityMeasure (Ω := G)).comp continuous_fst
@@ -114,7 +114,7 @@ lemma continuous_rdist_restrict_probabilityMeasure₁ [Finite G]
   let ι : ProbabilityMeasure G → ProbabilityMeasure G × ProbabilityMeasure G :=
       fun ν ↦ ⟨⟨P.map X, obs⟩, ν⟩
   have ι_cont : Continuous ι := Continuous.prodMk_right _
-  convert continuous_rdist_restrict_probabilityMeasure.comp ι_cont
+  convert! continuous_rdist_restrict_probabilityMeasure.comp ι_cont
 
 /-- Ruzsa distance between random variables equals Ruzsa distance between their distributions. -/
 lemma rdist_eq_rdist_id_map : d[X ; μ # Y ; μ'] = d[id ; μ.map X # id ; μ'.map Y] := by
@@ -215,10 +215,7 @@ lemma rdist_of_inj {H : Type*} [hH : MeasurableSpace H] [MeasurableSingletonClas
         .of_discrete, ← Measure.map_map .of_discrete hX,
         ← Measure.map_map .of_discrete hY]
       congr
-      convert Measure.map_prod_map _ _ .of_discrete .of_discrete
-      · exact instSFiniteMap μ X
-      · exact instSFiniteMap μ' Y
-      all_goals infer_instance
+      exact Measure.map_prod_map _ _ .of_discrete .of_discrete
     · congr 1
       exact entropy_comp_of_injective _ hX _ hφ
     exact entropy_comp_of_injective _ hY _ hφ
@@ -321,7 +318,7 @@ lemma ent_of_proj_le {UH : Ω' → G} [FiniteRange UH]
         (QuotientAddGroup.preimageMkEquivAddSubgroupProdSet H _).trans <| Equiv.prodUnique H _
       have : Finite (π' ⁻¹' {x}) :=
         Nat.finite_of_card_ne_zero <| h_card.trans_ne <| Nat.pos_iff_ne_zero.mp (Nat.card_pos)
-      convert entropy_le_log_card_of_mem_finite this (hX'.sub hUH') ?_
+      convert! entropy_le_log_card_of_mem_finite this (hX'.sub hUH') ?_
       · simp [hunif.entropy_eq' hH hUH', h_card]
         simp [← Nat.card_coe_set_eq]
       let T : Set (G × G) := ((π' ∘ X') ⁻¹' {x})ᶜ
@@ -1128,7 +1125,7 @@ lemma kaimanovich_vershik {X Y Z : Ω → G} (h : iIndepFun ![X, Y, Z] μ)
   · calc
       H[X ; μ] + H[Y ; μ] + H[Z ; μ] = H[⟨X, Y⟩ ; μ] + H[Z ; μ] := by
         rw [IndepFun.entropy_pair_eq_add hX hY]
-        convert h.indepFun (show 0 ≠ 1 by decide)
+        exact h.indepFun (show 0 ≠ 1 by decide)
       _ = H[⟨⟨X, Y⟩, Z⟩ ; μ] := by
         rw [IndepFun.entropy_pair_eq_add (hX.prodMk hY) hZ]
         exact h.indepFun_prodMk this 0 1 2 (by decide) (by decide)

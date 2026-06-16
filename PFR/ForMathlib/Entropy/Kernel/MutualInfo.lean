@@ -239,11 +239,9 @@ lemma entropy_reverse {κ : Kernel T (S × U × V)} [IsZeroOrMarkovKernel κ]
     (hκ : AEFiniteKernelSupport κ μ) :
     Hk[reverse κ, μ] = Hk[κ, μ] := by
   refine le_antisymm ?_ ?_
-  · convert entropy_map_le (fun p ↦ (p.2.2, p.2.1, p.1)) hκ
-    simp [reverse_eq]
+  · simpa [reverse_eq] using entropy_map_le (fun p ↦ (p.2.2, p.2.1, p.1)) hκ
   · conv_lhs => rw [← reverse_reverse κ]
-    convert entropy_map_le (κ := reverse κ) (fun p ↦ (p.2.2, p.2.1, p.1)) hκ.reverse
-    · rw [reverse_eq]
+    simpa [reverse_eq] using entropy_map_le (fun p ↦ (p.2.2, p.2.1, p.1)) hκ.reverse
 
 instance IsZeroOrProbabilityMeasure.compProd
     {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}

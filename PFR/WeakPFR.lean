@@ -66,7 +66,7 @@ lemma wlog_notInCoset (hA : A.Nonempty) (hB : B.Nonempty) :
   have hB : IsShift B B' := ⟨y, by rwa [hB', Set.image_preimage_eq_of_subset, vadd_neg_vadd]⟩
   refine ⟨G', A', B', hA, hB, ?_⟩
   unfold NotInCoset
-  convert AddSubgroup.closure_preimage_eq_top ((A - A) ∪ (B - B))
+  convert! AddSubgroup.closure_preimage_eq_top ((A - A) ∪ (B - B))
   simp_rw [preimage_union, hA.sub_self_congr, hB.sub_self_congr]
   rw [preimage_sub, preimage_sub]
   · simp only [A', B', Subtype.image_preimage_coe]
@@ -154,7 +154,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y] (hX : Measurable X) 
       (by exact Measurable.prod hY'₁_meas <| Measurable.sub hX'_meas hY'₂_meas) f hf
     _ = H[Y; μ'] + H[X' - Y'₂; μA] := by
       have : FiniteRange (X' - Y'₂) := FiniteRange.sub X' Y'₂
-      convert IndepFun.entropy_pair_eq_add hY'₁_meas (hX'_meas.sub hY'₂_meas)
+      convert! IndepFun.entropy_pair_eq_add hY'₁_meas (hX'_meas.sub hY'₂_meas)
         <| h_indep.indepFun_sub_right h_meas 1 0 2 (by decide) (by decide)
       exact hY'₁_ident.entropy_congr.symm
   have : H[⟨Y'₂, X' - Y'₁ - Y'₂⟩; μA] = H[Y; μ'] + H[X' - Y'₁; μA] := calc
@@ -163,7 +163,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y] (hX : Measurable X) 
       (by exact Measurable.prod hY'₂_meas <| Measurable.sub hX'_meas hY'₁_meas) f hf
     _ = H[Y; μ'] + H[X' - Y'₁; μA] := by
       have : FiniteRange (X' - Y'₁) := FiniteRange.sub X' Y'₁
-      convert IndepFun.entropy_pair_eq_add hY'₂_meas (hX'_meas.sub hY'₁_meas)
+      convert! IndepFun.entropy_pair_eq_add hY'₂_meas (hX'_meas.sub hY'₁_meas)
         <| h_indep.indepFun_sub_right h_meas 2 0 1 (by decide) (by decide)
       exact hY'₂_ident.entropy_congr.symm
   have : H[⟨Y'₁, ⟨Y'₂, X' - Y'₁ - Y'₂⟩⟩; μA] + H[X' - Y'₁ - Y'₂; μA] ≤
@@ -183,11 +183,10 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y] (hX : Measurable X) 
   have : d[X; μ # 2 • Y; μ'] ≤
       d[Y'₁; μA # Y'₂; μA] + (H[Y; μ'] - H[X; μ]) / 2 + 2 * d[X; μ # Y; μ'] := calc
     d[X; μ # 2 • Y; μ'] = H[X' - 2 • Y'₁; μA] - H[X; μ] / 2 - H[2 • Y; μ'] / 2 := by
-      have h2Y_ident : IdentDistrib (2 • Y'₁) (2 • Y) (μ := μA) (ν := μ') := by
-        convert hY'₁_ident.comp <| .of_discrete (f := fun g ↦ 2 • g)
-      have h2Y_indep : IndepFun X' (2 • Y'₁) (μ := μA) := by
-        convert (h_indep.indepFun (show 0 ≠ 1 by decide)).comp measurable_id
-          (measurable_const_smul 2)
+      have h2Y_ident : IdentDistrib (2 • Y'₁) (2 • Y) (μ := μA) (ν := μ') :=
+        hY'₁_ident.comp <| .of_discrete (f := fun g ↦ 2 • g)
+      have h2Y_indep : IndepFun X' (2 • Y'₁) (μ := μA) :=
+        (h_indep.indepFun (show 0 ≠ 1 by decide)).comp measurable_id (measurable_const_smul 2)
       rw [← hX'_ident.rdist_congr h2Y_ident,
         h2Y_indep.rdist_eq hX'_meas <| Measurable.const_smul hY'₁_meas 2,
         hX'_ident.entropy_congr, h2Y_ident.entropy_congr]
@@ -611,12 +610,8 @@ lemma third_iso {G : Type*} [AddCommGroup G] {G₂ : AddSubgroup G} (H' : AddSub
     change H' = AddSubgroup.map (mk' G₂) N
     rw [AddSubgroup.map_comap_eq, AddMonoidHom.range_eq_top_of_surjective _ (mk'_surjective G₂)]
     simp
-  let e1 : H ⧸ H'' ≃+ G ⧸ N := quotientQuotientEquivQuotient _ _ h1
-  let e2 := quotientAddEquivOfEq h2
-  set e := e2.trans e1
-  use e
-  intro x
-  convert (quotientQuotientEquivQuotientAux_mk_mk _ _ h1 x) using 1
+  exact ⟨(quotientAddEquivOfEq h2).trans <| quotientQuotientEquivQuotient _ _ h1,
+    quotientQuotientEquivQuotientAux_mk_mk _ _ h1⟩
 
 lemma single {Ω : Type*} [MeasurableSpace Ω] [DiscreteMeasurableSpace Ω] (μ : Measure Ω)
     [IsProbabilityMeasure μ] {A : Set Ω} {z : Ω} (hA : μ.real A = 1) (hz : 0 < μ.real {z}) :
@@ -737,7 +732,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
       simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, h.2] at this
       intro z hz
       simp only [this, mem_preimage, mem_singleton_iff]
-      convert hAAx hz
+      exact hAAx hz
     have hBBy {z : G} (hz : z ∈ B) : φ'.toFun z = y' := by
       change (ℙ).real (UB⁻¹' (φ'⁻¹' {y'})) = 1 at hy
       rw [← MeasureTheory.map_measureReal_apply hUB_mes .of_discrete] at hy
@@ -761,7 +756,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
       simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, h.2] at this
       intro z hz
       simp only [this, mem_preimage, mem_singleton_iff]
-      convert hBBy hz
+      exact hBBy hz
     simp [hxx, hyy]
   have := calc d[φ'.toFun ∘ UA # φ'.toFun ∘ UB] *
     (log (Nat.card A) + log (Nat.card B) - log (Nat.card Ax) - log (Nat.card By))
@@ -861,7 +856,7 @@ lemma conclusion_transfers {A B : Set G} (G' : AddSubgroup G) (A' B' : Set (G' :
       · rw [hB', Nat.card_image_of_injective hg]
       · rw [Nat.card_image_of_injective hf]
       rw [Nat.card_image_of_injective hg]
-  · convert LE.le.trans _ hdim_ineq using 2
+  · convert! LE.le.trans _ hdim_ineq using 2
     norm_cast
     apply max_le_max
     · exact (dimension_of_shift A'' x).le
@@ -968,8 +963,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
       rw [← hAx_eq, ← hBy_eq, hAx, hBy]
       intro z hz
       simp only [mk'_apply, mem_union, mem_sub, mem_setOf_eq] at hz
-      convert (QuotientAddGroup.eq_zero_iff z).mp ?_
-      · infer_instance
+      refine (QuotientAddGroup.eq_zero_iff z).mp ?_
       rcases hz with ⟨a, ⟨-, ha⟩, a', ⟨-, ha'⟩, haa'⟩ | ⟨b, ⟨-, hb⟩, b', ⟨-,hb'⟩, hbb'⟩
       · rw [← haa']; simp [ha, ha']
       rw [← hbb']; simp [hb, hb']
@@ -983,7 +977,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     infer_instance
   simp only [this, Nat.cast_one, log_one, zero_add] at hdim
   rw [← le_div_iff₀' (by positivity)] at hdim
-  convert le_trans ?_ hdim using 1
+  convert! le_trans ?_ hdim using 1
   · field_simp
   simp only [Nat.cast_max, max_le_iff, Nat.cast_le]
   exact ⟨AffineSpace.finrank_le_moduleFinrank, AffineSpace.finrank_le_moduleFinrank⟩
@@ -1016,7 +1010,7 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
   refine ⟨hB, ?_, ?_⟩
   · have := calc 2 * log (Nat.card A / Nat.card B)
       _ = log ((Nat.card A * Nat.card A) / (Nat.card B * Nat.card B)) := by
-        convert (log_pow (Nat.card A / Nat.card B) 2).symm
+        convert! (log_pow (Nat.card A / Nat.card B) 2).symm
         field_simp
       _ ≤ log ((Nat.card A * Nat.card A) / (Nat.card A' * Nat.card A'')) := by
         apply log_le_log
@@ -1025,13 +1019,11 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
       _ ≤ 34 * dᵤ[A # A] := hcard
       _ ≤ 34 * log K := mul_le_mul_of_nonneg_left hdist (by linarith)
       _ = 2 * (17 * log K) := by ring
-      _ = 2 * log (K^17) := by
-        congr
-        convert (log_pow K 17).symm
+      _ = 2 * log (K^17) := by simp
     rw [mul_le_mul_iff_right₀ (by norm_num), log_le_log_iff (by positivity) (by positivity),
       div_le_iff₀ (by positivity), ← mul_inv_le_iff₀' (by positivity), mul_comm] at this
-    convert this using 2
-    convert zpow_neg K 17 using 1
+    convert! this using 2
+    convert! zpow_neg K 17 using 1
     norm_cast
   calc (AffineSpace.finrank ℤ B : ℝ)
     _ ≤ (((max (AffineSpace.finrank ℤ A') (AffineSpace.finrank ℤ A'')) : ℕ) : ℝ) := by norm_cast

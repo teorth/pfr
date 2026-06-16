@@ -75,7 +75,7 @@ lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ p.m * (4*p.m+1) * p.η * k
       apply multiDist_copy; intro i; exact (hident i zero).symm
     rw [←k_eq, condMutualInfo_comm] at this
     · refine .trans ?_ this
-      convert condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i)
+      convert! condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i)
         (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i) _
       with ω <;> try infer_instance
       all_goals try fun_prop
@@ -124,7 +124,7 @@ lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k
       apply multiDist_copy; intro i; exact (hident i zero).symm
     rw [←k_eq] at this
     apply LE.le.trans _ this
-    convert condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i)
+    convert! condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i)
       (fun (x: Fin p.m → G) ↦ -∑ i, i.val • x i) _
       with ω <;> try infer_instance
     all_goals try fun_prop
@@ -188,7 +188,7 @@ lemma mutual_information_le_t_13 : I[Z1 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k
       apply multiDist_copy; intro i; exact (hident i zero).symm
     rw [←k_eq,condMutualInfo_comm (by fun_prop) (by fun_prop)] at this
     refine .trans ?_ this
-    convert condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i)
+    convert! condMutual_comp_comp_le _ _ _ _ (fun (x: Fin p.m → G) ↦ ∑ i, i.val • x i)
       (fun (x: Fin p.m → G) ↦ -∑ i, i.val • x i) _ with ω <;> try infer_instance
     all_goals try fun_prop
     · ext ω
@@ -343,13 +343,13 @@ lemma entropy_of_Z_two_le : H[Z2] ≤ (8 * p.m^2 - 16 * p.m + 1) * k + (p.m:ℝ)
         _ = ∑ j ∈ Finset.univ.erase zero, j.val • Q j  := Z2_eq
         _ = _ := by
           symm; rw [add_comm, ←this]
-          convert Finset.sum_erase_add _ _ _ using 3 <;> try infer_instance
+          convert! Finset.sum_erase_add _ _ _ using 3 <;> try infer_instance
           · ext ⟨_, _⟩; simp [zero, one]; omega
           simp [one, zero]
     _ ≤ H[Q one] + ∑ i ∈ .Ioi one, (H[Q one + i.val • (Q i)] - H[Q one]) := by
       rw [←sub_le_iff_le_add']
       simp_rw [←this]
-      convert kvm_ineq_I (s := .Ioi one) _ _ _ using 1 <;> try infer_instance
+      convert! kvm_ineq_I (s := .Ioi one) _ _ _ using 1 <;> try infer_instance
       · simp
       · fun_prop
       let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun j ↦ {p|p.2=j}
@@ -616,7 +616,7 @@ lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : M
     dsimp
     rw [Measure.map_apply (by fun_prop) (by measurability)]
   · fun_prop
-  convert h3 using 1
+  convert! h3 using 1
   ring
 
 include h_mes h_indep hident h_min hΩ hΩ_prob hX_mes in
@@ -660,7 +660,7 @@ lemma k_eq_zero (hη_eq : p.η = 1 / (32 * p.m ^ 3)) : k = 0 := by
       p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]] := calc
         _ = p.m * (d[U # U] + p.η / p.m * ∑ i, d[X i # U]) := by field_simp
         _ ≤ p.m * ((2 + p.η / ↑p.m * ↑p.m / 2) * (I[Z1 : Z2; μ] + I[Z1 : Z3; μ] + I[Z2 : Z3; μ]) +
-              p.η / ↑p.m * ∑ i, d[X i; ℙ # Z2; μ]) := by gcongr _ * ?_; convert h_ineq using 1
+              p.η / ↑p.m * ∑ i, d[X i; ℙ # Z2; μ]) := by gcongr _ * ?_; exact h_ineq
         _ = p.m * ((2 + p.η / p.m * p.m / 2) *
               δ w + p.η / p.m * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]]) := rfl
         _ = _ := by field_simp
@@ -676,10 +676,10 @@ lemma k_eq_zero (hη_eq : p.η = 1 / (32 * p.m ^ 3)) : k = 0 := by
     rw [integral_add, integral_const_mul, integral_const_mul, MeasureTheory.integral_finsetSum] <;>
       try intros; apply Integrable.of_finite
     gcongr
-    · convert hδ_int
-    convert sum_of_conditional_distance_le hΩ hΩ_prob hX_mes h_mes h_indep hident with i _
-    symm; convert condRuzsaDist'_eq_integral _ _ _ _ _ <;> try infer_instance
-    all_goals fun_prop
+    · exact hδ_int
+    convert! sum_of_conditional_distance_le hΩ hΩ_prob hX_mes h_mes h_indep hident with i _
+    symm
+    exact condRuzsaDist'_eq_integral _ (by fun_prop) (by fun_prop) _ _
   by_contra!
   replace this : k > 0 := by have : k ≥ 0 := multiDist_nonneg _ hΩ_prob _ hX_mes; order
   have h4 :
@@ -793,14 +793,12 @@ theorem rdist_le_of_isUniform_of_card_add_le' {G : Type*} [AddCommGroup G] {A : 
       have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
       rw [←hAA'] at U'unif
       classical
-      convert IsUniform.comp U'unif neg_injective
-      ext x; simp [hAA']
+      simpa [hAA', Function.comp_def, Pi.neg_def] using IsUniform.comp U'unif neg_injective
     rw [UU'_indep.rdist_eq hU hU'.neg, Uunif.entropy_eq' A_fin hU,
       U'unif.entropy_eq' A_fin_neg hU'.neg]
     have : log (-A).ncard = log A.ncard := by congr 2; simp
     linarith
-  replace idU' : IdentDistrib (-U') (-U₀) ℙ ℙ := by
-    convert ProbabilityTheory.IdentDistrib.comp idU' (u := fun x ↦ -x) (by fun_prop)
+  replace idU' : IdentDistrib (-U') (-U₀) ℙ ℙ := idU'.comp (u := fun x ↦ -x) (by fun_prop)
   rwa [idU.rdist_congr idU'] at IU
 
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. If $A \subset G$ is non-empty and
@@ -853,14 +851,14 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : �
   have IAH : A.ncard ≤ K ^ (256 * m^3) * (H : Set G).ncard := by
     have : log (A.ncard) ≤ log K * (256 * m^3) + log ((H : Set G).ncard) := by
       linarith [(le_abs_self _).trans Icard]
-    convert exp_monotone this using 1
+    convert! exp_monotone this using 1
     · exact (exp_log A_pos).symm
     · rw [exp_add, exp_log H_pos, ← rpow_def_of_pos K_pos, ←Real.rpow_natCast]
       norm_cast
   have IHA : (H : Set G).ncard ≤ K ^ (256 * m^3) * A.ncard := by
     have : log ((H : Set G).ncard) ≤ log K * (256 * m^3) + log (A.ncard) := by
       linarith [(neg_le_abs _).trans Icard]
-    convert exp_monotone this using 1
+    convert! exp_monotone this using 1
     · exact (exp_log H_pos).symm
     · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos, ←Real.rpow_natCast]
       norm_cast
@@ -881,7 +879,7 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : �
     have hAA'_card : A'.card = A.ncard := by simp [← hAA']
     have hHH'_card : H'.card = (H : Set G).ncard := by simp [← hHH']
     rw [hAA'_card, hHH'_card, le_div_iff₀ (by positivity)] at this
-    convert this using 1
+    convert! this using 1
     · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos,
         ← rpow_def_of_pos H_pos]
       rpow_ring
@@ -915,7 +913,8 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : �
     grw [hAu, inter_subset_right, add_sub_add_comm, singleton_sub_singleton, sub_self]
     simp
   refine ⟨H, u, ?_, IHA, IAH, A_subset_uH⟩
-  rw [←Real.rpow_natCast]; convert hucard; norm_cast
+  rw [←Real.rpow_natCast]
+  exact mod_cast hucard
 
 /-- Every subgroup `H` of a finite `m`-torsion abelian group `G` contains a subgroup `H'` of order
 between `k` and `mk`, if `0 < k < |H|`. -/

@@ -49,7 +49,7 @@ lemma sum_mul_log_div_leq {a b : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) (hb :
   have A : ∑ i ∈ s, b i / B = 1 := by simp [← Finset.sum_div, B, div_self B_pos.ne']
   have A' : ∀ i ∈ s, 0 ≤ b i / B := fun i hi ↦ div_nonneg (hb i hi) B_pos.le
   have A'' : ∀ i ∈ s, 0 ≤ a i / b i := fun i hi ↦ div_nonneg (ha i hi) (hb i hi)
-  convert ConcaveOn.le_map_sum Real.concaveOn_negMulLog A' A (p := fun i ↦ a i / b i) A'' using 1
+  convert! ConcaveOn.le_map_sum Real.concaveOn_negMulLog A' A (p := fun i ↦ a i / b i) A'' using 1
   · simp only [negMulLog, neg_mul, smul_eq_mul, mul_neg, Finset.sum_neg_distrib]
     rw [neg_div, Finset.sum_div]
     congr 1

@@ -532,7 +532,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     rw [Measure.map_apply hU (measurableSet_singleton 0),
       hunif'.measure_preimage_of_mem hU (by simp [H'])] at Z
     simp at Z
-  convert this using 1
+  convert! this using 1
   rw [log_div]
   · abel
   · norm_cast
@@ -583,7 +583,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
       ENNReal.inv_eq_zero, ENNReal.natCast_ne_top, false_or, true_implies] at h
     rw [uniformOn_apply_singleton_of_mem _ (toFinite (H : Set G))] at h
     · simp at h
-    · convert (H.sub_mem yH vH) using 1
+    · convert! (H.sub_mem yH vH) using 1
       abel
   let H' : Finset G := Set.toFinset H
   have hunif' : IsUniform H' U μ := by convert hunif; ext; simp [H']
@@ -846,8 +846,7 @@ lemma rho_of_translate [IsZeroOrProbabilityMeasure μ]
     (hX : Measurable X) (hA : A.Nonempty) (s : G) :
     ρ[(fun ω ↦ X ω + s) ; μ # A] = ρ[X ; μ # A] := by
   apply le_antisymm (rho_le_translate hX hA s)
-  convert rho_le_translate (X := fun ω ↦ X ω + s) (by fun_prop) hA (-s) (μ := μ) with ω
-  abel
+  simpa using rho_le_translate (X := fun ω ↦ X ω + s) (by fun_prop) hA (-s)
 
 -- This may not be the optimal spelling for condRho, feel free to improve
 /-- We define $\rho(X|Y) := \sum_y {\bf P}(Y=y) \rho(X|Y=y)$. -/

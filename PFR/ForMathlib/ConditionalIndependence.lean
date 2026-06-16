@@ -226,8 +226,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
       · intro _ _ hx
         rw [h3' hx]
         simp
-      · convert FiniteRange.range Y ▸ Set.preimage_singleton_nonempty.mp
-          (nonempty_of_measure_ne_zero hy'')
+      · simpa using Set.preimage_singleton_nonempty.mp (nonempty_of_measure_ne_zero hy'')
     rw [h2, indepFun_iff_map_prod_eq_prod_map_map]
     · let f : (α × α) × β → α × α := Prod.fst
       change ((m y).map f) = ((m y).map (Prod.fst ∘ f)).prod ((m y).map (Prod.snd ∘ f))

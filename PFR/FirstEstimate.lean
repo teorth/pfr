@@ -177,7 +177,7 @@ lemma ent_ofsum_le
        ≤ k + p.η * (Dc1 - D1) + p.η * (Dc2 - D2) := ?_
      _ ≤ k + p.η * (k / 2 + H[X₁] / 4 - H[X₂] / 4) + p.η * (k / 2 + H[X₂] / 4 - H[X₁] / 4) := ?_
      _ = (1 + p.η) * k := by ring
-    · convert add_le_add lem68.le (neg_le_neg lem610) using 1 <;> ring
+    · linarith
     · gcongr <;> exact p.hη.le
   have ent_sub_eq_ent_add : H[X₁ + X₂' - (X₂ + X₁')] = H[X₁ + X₂' + (X₂ + X₁')] := by
     simp [ZModModule.sub_eq_add]

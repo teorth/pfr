@@ -115,7 +115,7 @@ lemma I₃_eq [IsProbabilityMeasure (ℙ : Measure Ω)] : I[V : W | S] = I₂ :=
   have hmeas1 : Measurable (fun p : Fin 4 → G => (p 0 + p 1, p 0 + p 1 + p 2 + p 3)) := by
     fun_prop
   have hUVS : IdentDistrib (prod U S) (prod V S) := by
-    convert (hident.comp hmeas1); simp; abel
+    convert! hident.comp hmeas1; simp; abel
   have hUVWS : IdentDistrib (prod (prod U W) S) (prod (prod V W) S) := by
     convert (hident.comp hmeas2) <;> simp <;> abel
   have hU : Measurable U := Measurable.add hX₁ hX₂
@@ -140,12 +140,9 @@ lemma sum_condMutual_le [Module (ZMod 2) G] [IsProbabilityMeasure (ℙ : Measure
   rw [I₃_eq, this]
   any_goals simpa
   have h₂ := second_estimate p X₁ X₂ X₁' X₂' hX₁ hX₂ hX₁' hX₂' h₁ h₂ h_indep h_min
-  have h := add_le_add (add_le_add_left h₂ I₁) h₂
-  convert h using 1
-  · ring
-  · have : 0 < 1 - p.η := by linarith [p.hη']
-    field_simp [this]
-    ring
+  have : 0 < 1 - p.η := by linarith [p.hη']
+  field_simp at h₂ ⊢
+  linarith
 
 local notation3:max "c[" A "; " μ " # " B " ; " μ' "]" =>
   d[p.X₀₁; ℙ # A; μ] - d[p.X₀₁ # X₁] + (d[p.X₀₂; ℙ # B; μ'] - d[p.X₀₂ # X₂])

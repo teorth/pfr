@@ -526,11 +526,11 @@ lemma measureMutualInfo_of_not_isFiniteMeasure {μ : Measure (S × U)} (h : ¬ I
   have h1 : ¬ IsFiniteMeasure (μ.map Prod.fst) := by
     rw [not_isFiniteMeasure_iff] at h ⊢
     rw [← h]
-    convert Measure.map_apply measurable_fst MeasurableSet.univ
+    exact Measure.map_apply measurable_fst MeasurableSet.univ
   have h2 : ¬ IsFiniteMeasure (μ.map Prod.snd) := by
     rw [not_isFiniteMeasure_iff] at h ⊢
     rw [← h]
-    convert Measure.map_apply measurable_snd MeasurableSet.univ
+    exact Measure.map_apply measurable_snd MeasurableSet.univ
   rw [measureEntropy_of_not_isFiniteMeasure h, measureEntropy_of_not_isFiniteMeasure h1,
     measureEntropy_of_not_isFiniteMeasure h2]
   simp
@@ -547,11 +547,9 @@ lemma measureMutualInfo_univ_smul (μ : Measure (S × U)) : Im[(μ Set.univ)⁻�
   congr 1
   · congr 1
     · convert measureEntropy_univ_smul
-      simp only [Measure.map_smul]; congr; symm
-      convert Measure.map_apply measurable_fst MeasurableSet.univ
+      simp [Measure.map_smul, Measure.map_apply measurable_fst]
     · convert measureEntropy_univ_smul
-      simp only [Measure.map_smul]; congr; symm
-      convert Measure.map_apply measurable_snd MeasurableSet.univ
+      simp [Measure.map_smul, Measure.map_apply measurable_snd]
   convert measureEntropy_univ_smul
 
 variable [MeasurableSingletonClass S] [MeasurableSingletonClass T] [MeasurableSingletonClass U]
@@ -738,8 +736,8 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
   have H2 : 0 = negMulLog (∑ s ∈ (E1 ×ˢ E2), w s * f s) := by
     rw [H, negMulLog_one]
   constructor
-  · rw [← neg_nonpos, H1]
-    convert concaveOn_negMulLog.le_map_sum hw1 hw2 hf
+  · rw [← neg_nonpos, H1, H2]
+    exact concaveOn_negMulLog.le_map_sum hw1 hw2 hf
   rw [← neg_eq_zero, H1, H2, eq_comm]
   refine (strictConcaveOn_negMulLog.map_sum_eq_iff' hw1 hw2 hf).trans ?_
   have w0 (p : S × U) (hp: w p = 0) : μ.real {p} = 0 := by

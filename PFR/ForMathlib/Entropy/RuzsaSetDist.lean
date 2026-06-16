@@ -79,9 +79,9 @@ lemma setRuzsaDist_add_const (A B : Set G) [hA : Finite A] [hB : Finite B] [None
   have : Finite (B + ({c'} : Set G)) := Set.Finite.add hB (Set.finite_singleton c')
   convert setRuzsaDist_eq_rdist (A := A+{c}) (B := B+{c'}) (μ := (volume : Measure Ω))
       (μ' := (volume : Measure Ω')) ?_ ?_ ?_ ?_
-  · convert IsUniform.comp (A.toFinite.coe_toFinset.symm ▸ hUA_unif) (add_left_injective c) using 1
+  · convert! (A.toFinite.coe_toFinset.symm ▸ hUA_unif).comp (add_left_injective c) using 1
     simp
-  · convert IsUniform.comp (B.toFinite.coe_toFinset.symm ▸ hUB_unif) (add_left_injective c') using 1
+  · convert! (B.toFinite.coe_toFinset.symm ▸ hUB_unif).comp (add_left_injective c') using 1
     simp
   · fun_prop
   · fun_prop
