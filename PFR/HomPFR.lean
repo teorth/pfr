@@ -154,7 +154,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
       _ ≤ Nat.card c * ((Nat.card H / Nat.card A) * Nat.card c) := by gcongr
       _ = Nat.card c ^ 2 * (Nat.card H / Nat.card A) := by ring
       _ ≤ (Nat.card S ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * Nat.card H ^ (-1 / 2 : ℝ)) ^ 2
-          * (Nat.card H / Nat.card A) := by gcongr; convert hcS
+          * (Nat.card H / Nat.card A) := by gcongr; exact hcS
       _ = (Nat.card S : ℝ) ^ (10 : ℝ) := by
         rw [← Real.rpow_two, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]
         have : 0 < Nat.card S := by

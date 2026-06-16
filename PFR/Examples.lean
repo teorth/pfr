@@ -15,9 +15,8 @@ variable {G' : Type*} [AddCommGroup G'] [Module (ZMod 2) G'] [Fintype G']
 /-- A self-contained version of the PFR conjecture using only Mathlib definitions. -/
 example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-      Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  convert PFR_conjecture h₀A hA
-  norm_cast
+      Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H :=
+  mod_cast PFR_conjecture h₀A hA
 
 /-- info: 'PFR_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
@@ -26,9 +25,8 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 /-- The improved version -/
 example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-      Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  convert PFR_conjecture_improv h₀A hA
-  norm_cast
+      Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H :=
+  mod_cast PFR_conjecture_improv h₀A hA
 
 /-- info: 'PFR_conjecture_improv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in

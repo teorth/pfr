@@ -155,10 +155,7 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
     exact IsProbabilityMeasure.ne_zero _ B
   refine ⟨symmGroup X hX, fun ω ↦ X ω - x₀, hX.sub_const _,
     isUniform_sub_const_of_rdist_eq_zero hX hdist h₀, ?_⟩
-  simp_rw [sub_eq_add_neg]
-  suffices d[X # X + fun _ ↦ -x₀] = 0 by convert this
-  rw [rdist_add_const hX hX]
-  exact hdist
+  simp_rw [sub_eq_add_neg, ← Pi.add_def, rdist_add_const hX hX, hdist]
 
 /-- If $d[X_1;X_2]=0$, then there exists a subgroup $H \leq G$ such that
 $d[X_1;U_H] = d[X_2;U_H] = 0$. Follows from the preceding claim by the triangle inequality. -/

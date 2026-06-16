@@ -281,7 +281,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
   let g_lhs s := pdf s * neg_log_pdf s_max
   let g_rhs s := -pdf s * log (pdf s)
   suffices ∑ s ∈ A, g_lhs s ≤ ∑ s ∈ A, g_rhs s by
-    convert this
+    convert! this
     rw [entropy_eq_sum_finset hA]
     congr with s
     simp only [negMulLog, neg_mul, ENNReal.toReal_mul, neg_inj, g_rhs, pdf, pdf_nn]
@@ -751,15 +751,11 @@ lemma mutualInfo_eq_zero (hX : Measurable X) (hY : Measurable Y) {μ : Measure �
   have h_snd : μ.map Y = (μ.map (⟨X, Y⟩)).map Prod.snd := by
     rw [Measure.map_map measurable_snd (hX.prodMk hY)]
     congr
-  rw [h_fst, h_snd]
-  convert measureMutualInfo_eq_zero_iff (μ := μ.map (⟨X, Y⟩))
-  rw [indepFun_iff_map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable,
-    Measure.ext_iff_measureReal_singleton_finiteSupport]
-  congr! with p
-  convert measureReal_prod_prod (μ := μ.map X) (ν := μ.map Y) {p.1} {p.2}
-  · simp
-  · exact Measure.map_map measurable_fst (hX.prodMk hY)
-  · exact Measure.map_map measurable_snd (hX.prodMk hY)
+  rw [h_fst, h_snd, ← measureMutualInfo.eq_def, measureMutualInfo_eq_zero_iff]
+  simp [indepFun_iff_map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable,
+    Measure.ext_iff_measureReal_singleton_finiteSupport,
+    Measure.map_map measurable_fst (hX.prodMk hY),
+    Measure.map_map measurable_snd (hX.prodMk hY), ← measureReal_prod_prod, Function.comp_def]
 
 protected alias ⟨_, IndepFun.mutualInfo_eq_zero⟩ := mutualInfo_eq_zero
 
@@ -791,7 +787,7 @@ lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω] [IsProbabil
   calc
     _ = H[ ⟨(fun ω (i:Fin m) ↦ X i.castSucc ω), X (.last _)⟩ ] := by
       let f : (Fin (m + 1) → S) → (Fin m → S) × S := fun x ↦ (fun i ↦ x i.castSucc, x (.last m))
-      convert (entropy_comp_of_injective _ _ f _).symm
+      convert! (entropy_comp_of_injective _ _ f _).symm
       · fun_prop
       intro x y hxy
       simp only [Prod.mk.injEq, f] at hxy
@@ -1002,13 +998,9 @@ lemma condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace 
     {h : U → U'} (hh : Function.Injective h)
     : I[f ∘ X : g ∘ Y | h ∘ Z; μ] = I[X : Y | Z; μ] := calc
     _ = I[f ∘ X : g ∘ Y | Z; μ] := by rw [condMutualInfo_of_inj _ _ _ _ hh] <;> try fun_prop
-    _ = I[X : g ∘ Y | Z; μ] := by
-      convert condMutualInfo_of_inj_map hX _ hZ (fun _ ↦ f) (fun _ ↦ hf) <;> try infer_instance
-      fun_prop
+    _ = I[X : g ∘ Y | Z; μ] := condMutualInfo_of_inj_map hX (by fun_prop) hZ (fun _ ↦ f) fun _ ↦ hf
     _ = I[g ∘ Y : X | Z; μ] := by apply condMutualInfo_comm <;> fun_prop
-    _ = I[Y : X | Z; μ] := by
-      convert condMutualInfo_of_inj_map hY _ hZ (fun _ ↦ g) (fun _ ↦ hg) <;> try infer_instance
-      fun_prop
+    _ = I[Y : X | Z; μ] := condMutualInfo_of_inj_map hY (by fun_prop) hZ (fun _ ↦ g) (fun _ ↦ hg)
     _ = _ := by apply condMutualInfo_comm <;> fun_prop
 
 

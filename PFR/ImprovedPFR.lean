@@ -92,7 +92,7 @@ lemma gen_ineq_aux2 :
           invFun p := ⟨p.1, p.2 + p.1⟩
           left_inv := by intro ⟨a, b⟩; simp
           right_inv := by intro ⟨a, b⟩; simp }
-      convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
+      convert! (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂)
         (⟨Z₁ + Z₃, Sum⟩) e (hZ₁.add hZ₂) ((hZ₁.add hZ₃).prodMk hS)
         (.of_discrete (f := e)) e.injective).symm
       simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
@@ -221,7 +221,7 @@ lemma gen_ineq_01 : d[Y # Z₁ + Z₂ | ⟨Z₂ + Z₄, Sum⟩] - d[Y # Z₁] �
     invFun p := ⟨- p.1 + p.2, p.2⟩
     left_inv := by intro ⟨a, b⟩; simp
     right_inv := by intro ⟨a, b⟩; simp }
-  convert (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂) (⟨Z₁ + Z₃, Sum⟩) e
+  convert! (condRuzsaDist_comp_right (ℙ : Measure Ω₀) (ℙ : Measure Ω) Y (Z₁ + Z₂) (⟨Z₁ + Z₃, Sum⟩) e
     (by fun_prop) (by fun_prop) (by fun_prop) e.injective) with p
   simp only [e, Pi.add_apply, Equiv.coe_fn_mk, Function.comp_apply]
   abel
@@ -555,7 +555,7 @@ lemma dist_diff_bound_1 :
     exact I.comp (measurable_fst.prodMk measurable_add)
   have C30 : H[X₂ | X₁ + X₂] = H[X₁ | X₁ + X₂] := by
     have := condEntropy_of_injective ℙ hX₁ (hX₁.add hX₂) _ (fun p ↦ add_right_injective p)
-    convert this with ω
+    convert! this with ω
     simp [add_comm (X₁ ω), add_assoc (X₂ ω), ZModModule.add_self]
   simp only [C1, C2, C3, C4, C5, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19,
     C20, C21, C22, C23, C24, C25, C26, C27, C28, C29, C30] at I1 I2 I3 I4 I5 I6 ⊢
@@ -644,7 +644,7 @@ lemma dist_diff_bound_2 :
     exact I.comp (measurable_fst.prodMk measurable_add)
   have C27 : H[X₂ | X₁ + X₂] = H[X₁ | X₁ + X₂] := by
     have := condEntropy_of_injective ℙ hX₁ (hX₁.add hX₂) _ (fun p ↦ add_right_injective p)
-    convert this with ω
+    convert! this with ω
     simp [add_comm (X₁ ω), add_assoc (X₂ ω), ZModModule.add_self]
   have C28 : H[V] = H[U] := by
     apply ProbabilityTheory.IdentDistrib.entropy_congr
@@ -910,15 +910,11 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   have IAH : A.ncard ≤ K ^ 10 * (H : Set G).ncard := by
     have : log A.ncard ≤ log K * 10 + log ((H : Set G).ncard) := by
       linarith [(le_abs_self _).trans Icard]
-    convert exp_monotone this using 1
-    · exact (exp_log A_pos).symm
-    · rw [exp_add, exp_log H_pos, ← rpow_def_of_pos K_pos]
+    simpa [exp_log, A_pos, H_pos, exp_add, ← rpow_def_of_pos K_pos] using exp_monotone this
   have IHA : (H : Set G).ncard ≤ K ^ 10 * A.ncard := by
     have : log ((H : Set G).ncard) ≤ log K * 10 + log A.ncard := by
       linarith [(neg_le_abs _).trans Icard]
-    convert exp_monotone this using 1
-    · exact (exp_log H_pos).symm
-    · rw [exp_add, exp_log A_pos, ← rpow_def_of_pos K_pos]
+    simpa [exp_log, A_pos, H_pos, exp_add, ← rpow_def_of_pos K_pos] using exp_monotone this
   -- entropic PFR shows that the entropy of `VA - VH` is small
   have I : log K * (-5) + log A.ncard * (-1/2) + log ((H : Set G).ncard) * (-1/2)
       ≤ - H[VA - VH] := by
@@ -934,7 +930,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
     have hAA'_card : A'.card = A.ncard := by simp [← hAA']
     have hHH'_card : H'.card = (H : Set G).ncard := by simp [← hHH']
     rw [hAA'_card, hHH'_card, le_div_iff₀ (by positivity)] at this
-    convert this using 1
+    convert! this using 1
     · rw [exp_add, exp_add, ← rpow_def_of_pos K_pos, ← rpow_def_of_pos A_pos,
         ← rpow_def_of_pos H_pos]
       rpow_ring
@@ -961,7 +957,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
       _ ≤ (K ^ 6 * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)) *
         (A ∩ (↑H + {x₀})).ncard := by gcongr
   obtain ⟨u, huA, hucard, hAu, -⟩ :=
-    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by convert Z3)
+    Set.ruzsa_covering_add (toFinite A) (toFinite (A ∩ ((H + {x₀} : Set G)))) Hne (by exact Z3)
   have A_subset_uH : A ⊆ u + H := by
     grw [hAu, inter_subset_right, add_sub_add_comm, singleton_sub_singleton, sub_self]
     simp

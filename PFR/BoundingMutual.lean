@@ -30,7 +30,7 @@ lemma multiDist_of_cast {m m' : ℕ} (h : m' = m) {Ω : Fin m → Type*}
         ext x; dsimp; symm; apply Function.Bijective.sum_comp (Fin.cast_bijective h.symm)
       rw [this, ← Measure.map_map] <;> try fun_prop
       congr
-      convert Measure.pi_map_piCongrLeft (finCongr h) (fun i ↦ Measure.map (X i) ℙ)
+      exact Measure.pi_map_piCongrLeft (finCongr h) (fun i ↦ Measure.map (X i) ℙ)
     congr 1
     · rw [h]
     convert Finset.sum_bijective _ (Fin.cast_bijective h) ?_ ?_ using 1 <;> simp
@@ -67,7 +67,7 @@ lemma ProbabilityTheory.iIndepFun.sum_elim {Ω I J G : Type*} [MeasurableSpace �
     all_goals {
       apply MeasurableSet.iInter; intro ⟨i, hi⟩
       simp only
-      convert measurableSet_preimage (measurable_pi_apply i) _
+      convert! measurableSet_preimage (measurable_pi_apply i) _
       apply (hF _ _).1
     }
   · intro i hi; apply hE; exact Finset.mem_toRight.mp hi
@@ -176,7 +176,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
             (fun i ↦ ∑ k ∈ Finset.Ici (Fin.cast hm' n.castSucc), X' (i, k)) using 2
           ext i ω
           simp only [Finset.sum_apply]
-          convert Finset.sum_map _ (finCongr hm'.symm).toEmbedding _
+          convert! Finset.sum_map _ (finCongr hm'.symm).toEmbedding _
           ext i; simp
         simpa [Function.comp_def] using (Fin.cast_injective _).comp (Fin.castSucc_injective _)
       simp only [Fin.cast_top, B, column, X'']; congr 1
@@ -367,7 +367,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
     | Sum.inr (i, j) => Sum.inl ((e j) i)
     convert ent_of_sum_le_ent_of_sum hdisj _ _ hindep_all f _
     · apply IdentDistrib.entropy_congr
-      convert hident_X'.symm.comp (u := fun x ↦ ∑ j:Fin p.m, x (i, j)) _ <;> try fun_prop
+      convert! hident_X'.symm.comp (u := fun x ↦ ∑ j:Fin p.m, x (i, j)) _ <;> try fun_prop
       ext ω
       simp only [Finset.sum_apply, Finset.coe_filter, Finset.mem_univ, true_and, Sum.inr.injEq,
         implies_true, Set.injOn_of_eq_iff_eq, Finset.sum_image, Sum.elim_inr, Function.comp_apply,
@@ -377,7 +377,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
         simp only [Finset.mem_filter, Finset.mem_univ, true_and, Prod.forall]; rintro a b rfl; rfl
       all_goals simp
     · apply IdentDistrib.entropy_congr
-      convert hident_X.symm.comp (u := fun x ↦ ∑ j, x j) _ <;> try fun_prop
+      convert! hident_X.symm.comp (u := fun x ↦ ∑ j, x j) _ <;> try fun_prop
       all_goals ext ω; simp [Z, Z', s]
       simp [Finset.sum_image Sum.inl_injective.injOn]
     · let g : Fin p.m ⊕ (Fin p.m × Fin p.m) → Fin p.m := fun x ↦ match x with
@@ -388,13 +388,13 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       simp only [Finset.mem_univ, Sum.elim_inr, Sum.elim_inl, forall_const, f]
       intro j
       have hident_1 : IdentDistrib (X' (i, j)) (Z' (i, j)) ℙ ℙ := by
-        convert hident_X'.symm.comp (u := fun x ↦ x (i, j)) _; fun_prop
+        exact hident_X'.symm.comp (u := fun x ↦ x (i, j)) (by fun_prop)
       have hident_2 : IdentDistrib (Z' (i, j)) (Z ((e j) i)) ℙ ℙ := by
         apply hident_1.symm.trans
         have h1 : IdentDistrib (X ((e j) i)) (Z ((e j) i)) ℙ ℙ := by
-          convert hident_X.symm.comp (u := fun x ↦ x ((e j) i)) _; fun_prop
+          exact hident_X.symm.comp (u := fun x ↦ x ((e j) i)) (by fun_prop)
         have h2 : IdentDistrib (X' (i, j)) (X ((e j) i)) ℙ ℙ := by
-          convert (he j).comp (u := fun x ↦ x i) _; fun_prop
+          exact (he j).comp (u := fun x ↦ x i) (by fun_prop)
         exact h2.trans h1
       calc
         _ = d[Z' (i, j) # Z ((e j) i)] :=

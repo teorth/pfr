@@ -553,8 +553,7 @@ lemma _root_.MeasureTheory.Measure.ae_of_ae_compProd {α β : Type*}
   rw [ae_iff] at hp
   have hp' := Measure.ae_of_compProd_eq_zero hp
   filter_upwards [hp'] with a ha
-  rw [ae_iff]
-  convert ha
+  rwa [ae_iff]
 
 lemma compProd_congr_ae {μ} [SFinite μ] {κ κ' : Kernel T S} [IsSFiniteKernel κ] [IsSFiniteKernel κ']
     {η η' : Kernel (T × S) U} [IsSFiniteKernel η] [IsSFiniteKernel η']

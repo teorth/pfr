@@ -272,8 +272,7 @@ lemma iIndepFun.pi
     apply hf (κ_σ i) (sets := fun ij ↦ sets' ij.fst ij.snd)
     intro ij hij
     rw [← Finset.mem_singleton.mp (Finset.mem_sigma.mp hij).left] at hi
-    convert (h_sets ⟨ij.fst, hi⟩).left ij.snd
-    simp [sets', hi]
+    simpa [sets', hi] using (h_sets ⟨ij.fst, hi⟩).left ij.snd
   intros ij hij
   obtain ⟨hi, _⟩ := Finset.mem_sigma.mp hij
   simp_rw [sets', hi]

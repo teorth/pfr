@@ -277,7 +277,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [Measur
 -- μ has total mass one
   have total : ∑ ω, μ ω = 1 := calc
     _ = ∏ i, ∑ ωi, Measure.real ℙ (Y i ⁻¹' {ωi}) := by
-      convert Finset.sum_prod_piFinset Finset.univ _ with ω _ i _
+      convert! Finset.sum_prod_piFinset Finset.univ _ with ω _ i _
       rfl
     _ = ∏ i, 1 := by congr with i; exact probmes i
     _ = 1 := by
