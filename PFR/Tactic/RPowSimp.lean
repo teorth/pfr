@@ -90,7 +90,8 @@ def evalAtom (e : Q(ℝ)) : AtomM (Result ExProd e) := do
   let r ← (← read).evalAtom e
   have a : Q(ℝ) := r.expr
   let (i, _) ← AtomM.addAtom a
-  match ← Positivity.catchNone <| Positivity.core q(inferInstance) q(inferInstance) a, r.proof? with
+  match ← Positivity.catchNone <| Positivity.core q(inferInstance) (some q(inferInstance)) a,
+    r.proof? with
   | .positive pa, none =>
     pure ⟨_, (ExBase.pow i a pa q(1)).toProd, (q(atom_pow_pf $e) : Expr)⟩
   | .positive pa, some (p : Q($e = $a)) =>

@@ -797,14 +797,15 @@ open Lean Meta Qq Function ProbabilityTheory
 
 /-- Extension for `measureMutualInfo`. -/
 @[positivity measureMutualInfo _]
-meta def evalMeasureMutualInfo : PositivityExt where eval {u α} _ _ e := do
+meta def evalMeasureMutualInfo : PositivityExt where eval {u α} _ pα? e := do
+  let some _ := pα? | pure .none
   match u, α, e with
   | 0, ~q(ℝ), ~q(@measureMutualInfo $S $T $measS $measT $μ) =>
     assertInstancesCommute
     let _ ← synthInstanceQ q(MeasurableSingletonClass $S)
     let _ ← synthInstanceQ q(MeasurableSingletonClass $T)
     let _ ← synthInstanceQ q(FiniteSupport $μ)
-    pure <| .nonnegative q(measureMutualInfo_nonneg)
+    pure <| .nonnegative q(measureMutualInfo_nonneg (μ := $μ))
   | _, _, _ => throwError "failed to match ProbabilityTheory.measureMutualInfo"
 
 example {S T : Type*} [MeasurableSpace S] [MeasurableSpace T] [MeasurableSingletonClass S]
