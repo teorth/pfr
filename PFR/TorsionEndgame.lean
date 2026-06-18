@@ -3,6 +3,7 @@ module
 public import Mathlib.Data.Set.Card
 public import Mathlib.Algebra.Group.Pointwise.Finset.BigOperators
 public import PFR.Main
+public import PFR.Mathlib.Order.Interval.Finset.Defs
 public import PFR.MultiTauFunctional
 public import PFR.BoundingMutual
 
@@ -286,16 +287,12 @@ include h_mes h_indep hident in
 /-- We have $\bbH[W] \leq (2m-1)k + \frac1m \sum_{i=1}^m \bbH[X_i]$. -/
 lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] := by
   have hm := p.hm
-  let zero : Fin p.m := ⟨0, by linarith [hm]⟩
+  have : NeZero p.m := ⟨by lia⟩
   calc
     _ = H[∑ i, Q i] := by rw [Finset.sum_comm]
-    _ = H[Q zero + ∑ i ∈ .Ioi zero, Q i] := by
-      congr; rw [add_comm]
-      convert (Finset.sum_erase_add _ _ (show zero ∈ .univ by simp)).symm using 3
-      ext ⟨i, hi⟩; simp [zero]; omega
-    _ ≤ H[Q zero] + ∑ i ∈ .Ioi zero, (H[Q zero + Q i] - H[Q zero]) := by
-      rw [←sub_le_iff_le_add']
-      convert kvm_ineq_I (s := .Ioi zero) _ _ _ <;> try infer_instance
+    _ = H[Q 0 + ∑ i ∈ .Ioi 0, Q i] := by simp [Finset.add_sum_Ioi_eq_sum_Ici (f := Q)]
+    _ ≤ H[Q 0] + ∑ i ∈ .Ioi 0, (H[Q 0 + Q i] - H[Q 0]) := by
+      grw [← sub_le_iff_le_add', kvm_ineq_I (Y := Q)]
       · simp
       · fun_prop
       let S : Fin p.m → Finset (Fin p.m × Fin p.m) := fun j ↦ {p|p.2=j}
@@ -304,22 +301,22 @@ lemma entropy_of_W_le : H[W] ≤ (2*p.m - 1) * k + (p.m:ℝ)⁻¹ * ∑ i, H[X i
       · simp [φ]
       rw [Finset.pairwiseDisjoint_iff]; rintro _ _ _ _ ⟨⟨_, _⟩, hij⟩
       simp [S] at hij; omega
-    _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi zero, 2 * k := by
+    _ ≤ k + (p.m:ℝ)⁻¹ * ∑ i, H[X i] + ∑ i ∈ .Ioi (0 : Fin p.m), 2 * k := by
       gcongr with j hj
       · exact le_of_eq (Q_ent _ h_mes h_indep hident _)
       simp at hj
-      have : IdentDistrib (Q zero) (Q j) ℙ ℙ := Q_ident _ h_mes h_indep hident _ _
+      have : IdentDistrib (Q 0) (Q j) ℙ ℙ := Q_ident _ h_mes h_indep hident _ _
       have hQj_mes : Measurable (-(Q j)) := Q_mes h_mes _
       calc
-        _ = d[Q zero # -(Q j)] := by
+        _ = d[Q 0 # -(Q j)] := by
           rw [IndepFun.rdist_eq _ (by fun_prop) hQj_mes, entropy_neg (by fun_prop),
             ← this.entropy_congr, sub_neg_eq_add]
           · linarith
           exact Q_indep h_mes h_indep (by order)
         _ ≤ _ := Q_dist _ h_mes h_indep hident _ _
     _ = _ := by
-      have : (p.m-1:ℕ) = (p.m:ℝ)-(1:ℝ) := by norm_cast; apply (Int.subNatNat_of_le _).symm; omega
-      simp [zero, this]; ring
+      have : (p.m-1:ℕ) = (p.m:ℝ)-(1:ℝ) := by norm_cast; grind
+      simp [this]; ring
 
 omit hΩ'_prob hΩ' in
 lemma Z2_eq : Z2 = ∑ j ∈ Finset.univ.erase ⟨0, by linarith [p.hm]⟩, j.val • Q j := calc
