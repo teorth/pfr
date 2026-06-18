@@ -208,7 +208,6 @@ lemma entropy_prodMkLeft_unit [MeasurableSingletonClass T]
     Hk[prodMkLeft Unit κ, μ.map (Prod.mk ())] = Hk[κ, μ] := by
   convert entropy_comap_equiv κ (.punitProd) (μ := μ)
   · rfl
-  funext μ
   rw [← MeasurableEquiv.map_symm]
   congr
 
