@@ -27,7 +27,7 @@ rev = "v4.31.0"
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "e1d1de3bbb575ceb968a895a3462d5a9ca4b22c9"
+rev = "360da6fa66c1273b76b6b2d8c5666fd5ac2e3b56"
 
 [[lean_lib]]
 name = "PFR"
