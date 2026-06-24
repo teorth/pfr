@@ -22,11 +22,11 @@
     <h1 class="project-name">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
     <h2 class="project-tagline">{{ page.description | default: site.description | default: site.github.project_tagline
       }}</h2>
-    <a href="{{ site.github.repository_name | append: '/docs' | relative_url }}" class="btn">Documentation</a>
-    <a href="{{ site.github.repository_name | append: '/blueprint' | relative_url }}" class="btn">Blueprint</a>
-    <a href="{{ site.github.repository_name | append: '/blueprint.pdf' | relative_url }}" class="btn">Paper</a>
-    <a href="{{ site.github.repository_name | append: '/upstreaming' | relative_url }}" class="btn">Upstreaming dashboard</a>
-    <a href="{{ site.github.repository_name | append: '/file_deps.pdf' | relative_url }}" class="btn">File dependencies</a>
+    <a href="{{ site.url }}/docs" class="btn">Documentation</a>
+    <a href="{{ site.url }}/blueprint" class="btn">Blueprint</a>
+    <a href="{{ site.url }}/blueprint.pdf" class="btn">Paper</a>
+    <a href="{{ site.url }}/upstreaming" class="btn">Upstreaming dashboard</a>
+    <a href="{{ site.url }}/file_deps.pdf" class="btn">File dependencies</a>
     {% if site.github.is_project_page %}
     <a href="{{ site.github.repository_url }}" class="btn">View on GitHub</a>
     {% endif %}
