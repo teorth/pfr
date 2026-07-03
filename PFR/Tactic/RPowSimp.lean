@@ -166,7 +166,7 @@ theorem inv_congr {a a' b : ℝ} (_ : a = a') (_ : a' ^ (-1 : ℝ) = b) : (a⁻�
   subst_vars; simp [rpow_neg_one]
 
 theorem npow_congr {a a' c : ℝ} {b : ℕ} (_ : a = a') (_ : a' ^ (b : ℝ) = c) :
-    Monoid.npow b a = c := by subst_vars; simp [rpow_natCast]
+    NPow.npow b a = c := by subst_vars; simp [rpow_natCast]
 
 partial def eval (e : Q(ℝ)) : AtomM (Result ExProd e) := Lean.withIncRecDepth do
   let els := evalAtom e
@@ -184,7 +184,7 @@ partial def eval (e : Q(ℝ)) : AtomM (Result ExProd e) := Lean.withIncRecDepth 
       let ⟨_, va, pa⟩ ← eval a
       let some ⟨_, c, vc, p⟩ := evalPow va b | els
       pure ⟨c, vc, (q(pow_congr $pa $p) : Expr)⟩
-    | ~q(Monoid.npow $b $a) =>
+    | ~q(NPow.npow $b $a) =>
       let ⟨_, va, pa⟩ ← eval a
       let some ⟨_, c, vc, p⟩ := evalPow va q($b) | els
       pure ⟨c, vc, (q(npow_congr $pa $p) : Expr)⟩
