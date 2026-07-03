@@ -797,8 +797,9 @@ open Lean Meta Qq Function ProbabilityTheory
 
 /-- Extension for `measureMutualInfo`. -/
 @[positivity measureMutualInfo _]
-meta def evalMeasureMutualInfo : PositivityExt where eval {u α} _ pα? e := do
-  let some _ := pα? | pure .none
+meta def evalMeasureMutualInfo : PositivityExt where eval {u α} _
+  | none, _ => pure .none
+  | some _, e => do
   match u, α, e with
   | 0, ~q(ℝ), ~q(@measureMutualInfo $S $T $measS $measT $μ) =>
     assertInstancesCommute

@@ -123,19 +123,25 @@ partial def evalMul {a b : Q(ℝ)} (va : ExProd a) (vb : ExProd b) : Result ExPr
   match va, vb with
   | .one, vb => ⟨b, vb, q(one_mul $b)⟩
   | va, .one => ⟨a, va, q(mul_one $a)⟩
-  | .mul (x := ax) (b := ab) vax vab, .mul (x := bx) (b := bb) vbx vbb => Id.run do
-    have els (_ : Unit) : Result ExProd q($ax * $ab * ($bx * $bb)) :=
+  | .mul (x := ax) (b := ab) vax vab, .mul (x := bx) (b := bb) vbx vbb =>
+    match vax, vbx with
+    | .pow ai pax ah ae, .pow bi _ _ be =>
+      if ai = bi then
+        let ⟨_, vc, pc⟩ := evalMul vab vbb
+        ⟨_, .mul (.pow ai pax ah q($ae + $be)) vc, (q(mul_pp_pf_overlap $ae $be $ah $pc) : Expr)⟩
+      else if vax.id < vbx.id then
+        let ⟨_, vc, pc⟩ := evalMul vab vb
+        ⟨_, .mul vax vc, (q(mul_pf_left $ax $pc) : Expr)⟩
+      else
+        let ⟨_, vc, pc⟩ := evalMul va vbb
+        ⟨_, .mul vbx vc, (q(mul_pf_right $bx $pc) : Expr)⟩
+    | _, _ =>
       if vax.id < vbx.id then
         let ⟨_, vc, pc⟩ := evalMul vab vb
         ⟨_, .mul vax vc, (q(mul_pf_left $ax $pc) : Expr)⟩
       else
         let ⟨_, vc, pc⟩ := evalMul va vbb
         ⟨_, .mul vbx vc, (q(mul_pf_right $bx $pc) : Expr)⟩
-    let .pow ai ax ah ae := vax | els ()
-    let .pow bi _ _ be := vbx | els ()
-    unless ai = bi do return els ()
-    let ⟨_, vc, pc⟩ := evalMul vab vbb
-    ⟨_, .mul (.pow ai ax ah q($ae + $be)) vc, (q(mul_pp_pf_overlap $ae $be $ah $pc) : Expr)⟩
 
 theorem pow_pos {a b e : ℝ} (ha : 0 < a) (hb : 0 < b) : 0 < a ^ e * b :=
   mul_pos (rpow_pos_of_pos ha e) hb
