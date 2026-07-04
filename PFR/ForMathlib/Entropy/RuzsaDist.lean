@@ -179,7 +179,7 @@ lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
   congr 2
   have h_prod : (μ.map X).prod (μ.map Y) = μ.map (⟨X, Y⟩) :=
     ((indepFun_iff_map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable).mp h).symm
-  rw [h_prod, entropy_def, Measure.map_map (measurable_fst.sub measurable_snd) (hX.prodMk hY)]
+  rw [h_prod, entropy_def, map_map (by fun_prop) (by fun_prop)]
   rfl
 
 /-- `d[X ; Y] ≤ H[X]/2 + H[Y]/2`. -/
@@ -237,10 +237,9 @@ lemma rdist_symm [IsFiniteMeasure μ] [IsFiniteMeasure μ'] :
     d[X ; μ # Y ; μ'] = d[Y ; μ' # X ; μ] := by
   rw [rdist_def, rdist_def, sub_sub, sub_sub, add_comm]
   congr 1
-  rw [← entropy_neg (measurable_fst.sub measurable_snd)]
+  rw [← entropy_neg (by fun_prop)]
   have : (-fun x : G × G ↦ x.1 - x.2) = (fun x ↦ x.1 - x.2) ∘ Prod.swap := by ext ; simp
-  rw [this, entropy_def, ← Measure.map_map (measurable_fst.sub measurable_snd) measurable_swap,
-    Measure.prod_swap]
+  rw [this, entropy_def, ← map_map (by fun_prop) measurable_swap, prod_swap]
   rfl
 
 omit [Countable G] in
