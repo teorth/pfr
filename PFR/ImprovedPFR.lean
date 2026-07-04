@@ -59,13 +59,8 @@ lemma gen_ineq_aux1 :
       have I : IndepFun (Z₁ + Z₂) (Z₃ + Z₄) := by
         exact h_indep.indepFun_add_add (ι := Fin 4) (by intro i; fin_cases i <;> assumption)
           0 1 2 3 (by decide) (by decide) (by decide) (by decide)
-      have J1 : (fun a ↦ Z₁ a + Z₂ a) + (fun a ↦ Z₃ a + Z₄ a) = Sum := by ext; simp; abel
-      have J2 : (fun a ↦ Z₁ a + Z₂ a) = Z₁ + Z₂ := rfl
-      have J3 : (fun a ↦ Z₃ a + Z₄ a) = Z₃ + Z₄ := rfl
-      have A := condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY (hZ₁.add hZ₂)
-        (hZ₃.add hZ₄) I
-      rw [J1, J2, J3] at A
-      linarith
+      grind [condRuzsaDist_diff_le''' (ℙ : Measure Ω₀) (μ' := (ℙ : Measure Ω)) hY (hZ₁.add hZ₂)
+        (hZ₃.add hZ₄) I]
   _ ≤ d[Y # Z₁] + (d[Z₁ # Z₂] + d[Z₁ + Z₂ # Z₃ + Z₄] + I[Z₁ + Z₂ : Z₁ + Z₃ | Sum]) / 2
         + (H[Z₁ + Z₂] - H[Z₃ + Z₄] + H[Z₂] - H[Z₁]) / 4 := by
       have I : IndepFun Z₁ Z₂ := by exact h_indep.indepFun (show 0 ≠ 1 by decide)
@@ -167,7 +162,7 @@ lemma gen_ineq_aux2 :
             I.symm.cond_left (measurable_add (.singleton y))
               (hZ₂.prodMk hZ₄)
           exact this.comp measurable_fst measurable_add
-        · rw [Pi.add_def, cond_apply (hZ₂.add hZ₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
+        · rw [cond_apply (hZ₂.add hZ₄ (.singleton y)),
             J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
           simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
           simp [h1, h2]

@@ -1670,7 +1670,7 @@ lemma new_gen_ineq_aux2 {Y₁ Y₂ Y₃ Y₄ : Ω → G}
     · have : IndepFun (⟨Y₂, Y₄⟩) (⟨Y₁, Y₃⟩) (ℙ[|(⟨Y₂, Y₄⟩) ⁻¹' {p | p.1 + p.2 = y}]) :=
         I.symm.cond_left (measurable_add (.singleton y)) (hY₂.prodMk hY₄)
       exact this.comp measurable_fst measurable_add
-    · rw [Pi.add_def, cond_apply (hY₂.add hY₄ (.singleton y)), ← Pi.add_def, ← Pi.add_def,
+    · rw [cond_apply (hY₂.add hY₄ (.singleton y)),
         J.symm.measure_inter_preimage_eq_mul _ _ (.singleton _) (.singleton _)]
       simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h1 h2
       simp [h1, h2]
