@@ -239,7 +239,7 @@ theorem card_of_dual_constrained [Finite G] (x : G) (hx : x ≠ 0) :
   -- By definition of $y$, we know that $y$ is a bijection between the set of additive characters
   -- that map $x$ to 1 and the set of additive characters that map $x$ to 0.
   apply Nat.card_congr
-  refine Equiv.ofBijective (⟨· - y, by aesop⟩) ⟨fun _ ↦ by aesop, fun ⟨b, hb⟩ ↦ ?_⟩;
+  refine Equiv.ofBijective (⟨· - y, by aesop⟩) ⟨fun _ ↦ by grind, fun ⟨b, hb⟩ ↦ ?_⟩;
   rw [Subtype.exists]
   use b + y
   aesop
@@ -252,17 +252,12 @@ theorem card_of_slice [Finite G] (A : Set G) :
   have _ : Fintype (G →+ ZMod 2) := Fintype.ofEquiv G dual_iso.toEquiv
   have h1 := calc
         2 * ∑ φ : G →+ ZMod 2, Nat.card {x | x ∈ A ∧ φ x = 1}
-    _ = 2 * ∑ φ : G →+ ZMod 2, ∑ x ∈ A, if φ x = 1 then 1 else 0 := by
-      congr 1; apply Finset.sum_congr rfl; intro φ _
-      simp [Fintype.subtype_card]; congr 1
-      aesop
-    _ = 2*∑ x ∈ A, Nat.card { φ : G →+ ZMod 2 | φ x = 1 } := by
-      congr 1; rw [Finset.sum_comm]
-      apply Finset.sum_congr rfl; intro x _
-      simp [Fintype.subtype_card]
-    _ ≥ 2*∑ x ∈ (A.toFinset.erase 0), Nat.card { φ : G →+ ZMod 2 | φ x = 1 } := by
+    _ = 2 * ∑ φ : G →+ ZMod 2, ∑ x ∈ A, if φ x = 1 then 1 else 0 := by simp [Fintype.subtype_card]
+    _ = 2 * ∑ x ∈ A, Nat.card {φ : G →+ ZMod 2 | φ x = 1} := by
+      rw [Finset.sum_comm]; simp [Fintype.subtype_card]
+    _ ≥ 2 * ∑ x ∈ A.toFinset.erase 0, Nat.card {φ : G →+ ZMod 2 | φ x = 1} := by
       by_cases h : 0 ∈ A
-      · rw [←Finset.sum_erase_add (s := A.toFinset) (a := 0)]
+      · rw [← Finset.sum_erase_add (s := A.toFinset) (a := 0)]
         · simp
         simp [h]
       apply le_of_eq
