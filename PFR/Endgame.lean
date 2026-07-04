@@ -254,17 +254,11 @@ lemma sum_dist_diff_le [IsProbabilityMeasure (ℙ : Measure Ω)] [Module (ZMod 2
   have ineq5 : d[X₀₁ # W | S] - d[X₀₁ # X₁] ≤ (H[S ; ℙ] + H[W ; ℙ] - H[X₁ ; ℙ] - H[W' ; ℙ])/2 := by
     have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas1 hX₁ hX₁' (Measurable.add hX₂ hX₂')
       (independenceCondition5 hX₁ hX₂ hX₁' hX₂' h_indep)
-    have S_eq : X₁ + X₁' + (fun a ↦ X₂ a + X₂' a) = S := by
-      rw [(show (fun a ↦ X₂ a + X₂' a) = X₂ + X₂' by rfl), ← add_assoc, add_assoc X₁, add_comm X₁',
-        ← add_assoc]
-    rwa [S_eq, add_comm X₁ X₁'] at this
+    grind
   have ineq6 : d[X₀₂ # W' | S] - d[X₀₂ # X₂] ≤ (H[S ; ℙ] + H[W' ; ℙ] - H[X₂ ; ℙ] - H[W ; ℙ])/2 := by
     have := condRuzsaDist_diff_ofsum_le ℙ p.hmeas2 hX₂ hX₂' (Measurable.add hX₁' hX₁)
       (independenceCondition6 hX₁ hX₂ hX₁' hX₂' h_indep)
-    have S_eq : X₂ + X₂' + (fun a ↦ X₁' a + X₁ a) = S := by
-      rw [(show (fun a ↦ X₁' a + X₁ a) = X₁' + X₁ by rfl), add_comm, ← add_assoc, add_comm X₁',
-      add_assoc X₁, add_comm X₁', ← add_assoc]
-    rwa [S_eq] at this
+    grind
   have dist_eq : d[X₀₂ # W' | S] = d[X₀₂ # W | S] := by
     have S_eq : S = (X₂ + X₂') + (X₁' + X₁) := by
       rw [add_comm X₁' X₁, add_assoc _ X₂', add_comm X₂', ← add_assoc X₂, ← add_assoc X₂,
