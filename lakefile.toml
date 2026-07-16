@@ -22,6 +22,7 @@ git = "https://github.com/PatrickMassot/checkdecls.git"
 [[require]]
 name = "AddCombi"
 git = "https://github.com/leanprover-community/add-combi.git"
+rev = "v4.33.0-rc1"
 
 [[require]]
 name = "mathlib"
