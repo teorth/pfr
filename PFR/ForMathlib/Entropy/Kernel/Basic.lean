@@ -192,10 +192,7 @@ lemma entropy_comap_equiv [MeasurableSingletonClass T]
     (κ : Kernel T S) {μ : Measure T} (f : T' ≃ᵐ T)
     [IsFiniteMeasure μ] [FiniteSupport μ] :
     Hk[comap κ f f.measurable, μ.comap f] = Hk[κ, μ] := by
-  rw [entropy_comap]
-  · exact f.measurableEmbedding
-  · rw [← MeasurableEquiv.coe_toEquiv, Equiv.range_eq_univ]
-  · exact FiniteSupport.comap_equiv f
+  simp [entropy_comap, f.measurableEmbedding, FiniteSupport.comap_equiv f]
 
 lemma entropy_comap_swap [MeasurableSingletonClass T]
     {T' : Type*} [MeasurableSpace T'] [MeasurableSingletonClass T']

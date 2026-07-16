@@ -146,9 +146,9 @@ private lemma rhoMinus_continuous_aux1 (hX : Measurable X) (hA : A.Nonempty)
     KL[X ; μ # Prod.fst + Prod.snd ; μ'.prod (uniformOn A)] < r := by
   rcases (csInf_lt_iff (bddBelow_rhoMinusSet hX) (nonempty_rhoMinusSet hA)).1 hr
     with ⟨-, ⟨μ₀, hPμ₀, habs, rfl⟩, h₀⟩
-  let μ₀P : ProbabilityMeasure G := ⟨μ₀, hPμ₀⟩
+  lift μ₀ to ProbabilityMeasure G using hPμ₀
   obtain ⟨u, -, u_mem, hu⟩ := exists_seq_strictAnti_tendsto' (x := (0 : ℝ≥0∞)) zero_lt_one
-  let ν : ℕ → Measure G := fun n ↦ (1 - u n) • μ₀ + u n • uniformOn univ
+  let ν : ℕ → Measure G := fun n ↦ (1 - u n) • μ₀.toMeasure + u n • uniformOn univ
   have : IsProbabilityMeasure (uniformOn (univ : Set G)) :=
     isProbabilityMeasure_uniformOn finite_univ univ_nonempty
   have P n : IsProbabilityMeasure (ν n) := by
@@ -159,34 +159,35 @@ private lemma rhoMinus_continuous_aux1 (hX : Measurable X) (hA : A.Nonempty)
     · exact (u_mem n).2.le
     · exact ne_of_lt ((u_mem n).2.trans ENNReal.one_lt_top)
   let νP n : ProbabilityMeasure G := ⟨ν n, P n⟩
-  have L : Tendsto νP atTop (𝓝 μ₀P) := by
+  have L : Tendsto νP atTop (𝓝 μ₀) := by
     rw [ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal]
     intro g
     simp only [ProbabilityMeasure.coe_mk, coe_add, coe_smul, Pi.add_apply, Pi.smul_apply,
-      smul_eq_mul, νP, ν, μ₀P]
-    have : 𝓝 (μ₀ {g}) = 𝓝 ((1 - 0) * μ₀ {g} + 0 * (uniformOn univ {g})) := by simp
+      smul_eq_mul, νP, ν]
+    have : 𝓝 (μ₀.toMeasure {g}) = 𝓝 ((1 - 0) * μ₀.toMeasure {g} + 0 * (uniformOn univ {g})) := by
+      simp
     rw [this]
     apply Tendsto.add
     · apply ENNReal.Tendsto.mul_const _ (by simp)
       exact ENNReal.Tendsto.sub tendsto_const_nhds hu (by simp)
     · exact ENNReal.Tendsto.mul_const hu (by simp)
   let PA : ProbabilityMeasure G := ⟨uniformOn A, isProbabilityMeasure_uniformOn (A.finite_toSet) hA⟩
-  have : Tendsto (fun n ↦ (νP n).prod PA) atTop (𝓝 (μ₀P.prod PA)) :=
-    (ProbabilityMeasure.continuous_prod.tendsto (μ₀P, PA)).comp (f := fun n ↦ (νP n, PA)) <|
+  have hPA : (PA : Measure G) = uniformOn ↑A := rfl
+  have : Tendsto (fun n ↦ (νP n).prod PA) atTop (𝓝 (μ₀.prod PA)) :=
+    (ProbabilityMeasure.continuous_prod.tendsto (μ₀, PA)).comp (f := fun n ↦ (νP n, PA)) <|
       L.prodMk_nhds tendsto_const_nhds
   have C : Continuous (Prod.fst + Prod.snd : G × G → G) := by fun_prop
   have Z := ProbabilityMeasure.tendsto_map_of_tendsto_of_continuous _ _ this
     (f := Prod.fst + Prod.snd) C
-  have M : ∀ (x : G), ((μ₀P.prod PA).map C.aemeasurable) {x} = 0 → (Measure.map X μ) {x} = 0 := by
+  have M : ∀ (x : G), ((μ₀.prod PA).map C.aemeasurable) {x} = 0 → (Measure.map X μ) {x} = 0 := by
     intro x hx
     apply habs
-    simpa [μ₀P, PA] using hx
+    simpa [hPA] using hx
   have T := tendsto_KLDiv_id_right (X := X) (μ := μ) (G := G) Z M
-  have : KL[X ; μ # id ; Measure.map (Prod.fst + Prod.snd) (μ₀.prod (uniformOn ↑A))]
-      = KL[X ; μ # Prod.fst + Prod.snd ; (μ₀.prod (uniformOn ↑A))] := by
+  have : KL[X ; μ # id ; Measure.map (Prod.fst + Prod.snd) (μ₀.toMeasure.prod (uniformOn ↑A))]
+      = KL[X ; μ # Prod.fst + Prod.snd ; (μ₀.toMeasure.prod (uniformOn ↑A))] := by
     simp [KLDiv]
-  simp only [ProbabilityMeasure.toMeasure_map, ProbabilityMeasure.toMeasure_prod,
-    ProbabilityMeasure.coe_mk, this, PA, μ₀P] at T
+  simp only [ProbabilityMeasure.toMeasure_map, ProbabilityMeasure.toMeasure_prod, this, hPA] at T
   rcases ((tendsto_order.1 T).2 _ h₀).exists with ⟨n, hn⟩
   refine ⟨ν n, P n, fun y ↦ ?_, ?_⟩
   · simp [(u_mem n).1, ν, uniformOn_apply_singleton_of_mem (mem_univ _) finite_univ]
@@ -2036,8 +2037,8 @@ lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     by_contra h'
     have : 0 < (H : Set G).ncard := Nat.card_pos
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
-    simp only [Nat.card_eq_fintype_card, CharP.cast_eq_zero, lt_self_iff_false,
-      not_nonempty_iff_eq_empty.1 h'] at this
+    rw [not_nonempty_iff_eq_empty.1 h'] at this
+    simp at this
     /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is

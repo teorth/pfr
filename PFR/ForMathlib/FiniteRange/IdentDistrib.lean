@@ -36,8 +36,7 @@ lemma identDistrib_of_finiteRange {Ω Ω₀ S : Type*}
     simp [X']
     split <;> simp [*]
   apply Filter.eventuallyEq_of_mem (s := X ⁻¹' A)
-  · simp only [ae, mem_ofCountableUnion]
-    rw [← Set.preimage_compl, ← IdentDistrib.measure_preimage_eq hi]
+  · rw [mem_ae_iff, ← Set.preimage_compl, ← IdentDistrib.measure_preimage_eq hi]
     · convert measure_empty (μ := μ₀)
       ext ω
       simp [A]

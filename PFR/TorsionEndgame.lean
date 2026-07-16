@@ -885,8 +885,8 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : �
   have Hne : (A ∩ (H + {x₀} : Set G)).Nonempty := by
     by_contra h'
     have : (0 : ℝ) < Nat.card (A ∩ (H + {x₀}) : Set G) := lt_of_lt_of_le (by positivity) J
-    simp only [Nat.card_eq_fintype_card, CharP.cast_eq_zero, lt_self_iff_false,
-      not_nonempty_iff_eq_empty.1 h'] at this
+    rw [not_nonempty_iff_eq_empty.1 h'] at this
+    simp at this
   /- use Rusza covering lemma to cover `A` by few translates of `A ∩ (H + {x₀}) - A ∩ (H + {x₀})`
   (which is contained in `H`). The number of translates is at most
   `#(A + (A ∩ (H + {x₀}))) / #(A ∩ (H + {x₀}))`, where the numerator is controlled as this is

@@ -7,6 +7,16 @@ public section
 open MeasureTheory ProbabilityMeasure Topology Metric Filter Set ENNReal NNReal
 open scoped BoundedContinuousFunction Topology ENNReal NNReal
 
+/-- A `Measure` which is a probability measure can be lifted to a `ProbabilityMeasure`. -/
+instance {Y : Type*} [MeasurableSpace Y] :
+    CanLift (Measure Y) (ProbabilityMeasure Y) (↑) IsProbabilityMeasure where
+  prf μ h := ⟨⟨μ, h⟩, rfl⟩
+
+/-- A `Measure` which is a finite measure can be lifted to a `FiniteMeasure`. -/
+instance {Y : Type*} [MeasurableSpace Y] :
+    CanLift (Measure Y) (FiniteMeasure Y) (↑) IsFiniteMeasure where
+  prf μ h := ⟨⟨μ, h⟩, rfl⟩
+
 variable {ι X : Type*} [MeasurableSpace X] [TopologicalSpace X]
 
 /-- The measure of any connected component depends continuously on the `FiniteMeasure`. -/

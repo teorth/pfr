@@ -232,7 +232,7 @@ theorem card_of_dual_constrained [Finite G] (x : G) (hx : x ≠ 0) :
         contrapose! hx
         apply Basis.ofVectorSpace (ZMod 2) G |> Basis.ext_elem
         simp [hx]
-      exact h_exists_i.imp fun _ hi ↦ (Fin.exists_fin_two.mp <| by simp).resolve_left hi
+      exact h_exists_i.imp fun _ hi ↦ (Fin.exists_fin_two.mp ⟨_, rfl⟩).resolve_left hi
     -- Define $f : G →+ ZMod 2$ by $f(z) = y(z)(i)$ for all $z \in G$.
     set f : G →+ ZMod 2 := (Pi.evalAddMonoidHom (fun _ => ZMod 2) i).comp y
     exact ⟨f, hi⟩

@@ -281,7 +281,7 @@ lemma entropy_submodular_compProd {ξ : Kernel T S} [IsZeroOrMarkovKernel ξ]
   rcases eq_zero_or_isMarkovKernel η with rfl | hκ'
   · simp
   have : Nonempty V := nonempty_of_isMarkovKernel η
-  have h_meas := (MeasurableEquiv.prodAssoc.symm : T × S × U ≃ᵐ (T × S) × U).symm.measurable
+  have h_meas := (MeasurableEquiv.prodAssoc : (T × S) × U ≃ᵐ T × S × U).measurable
   have : FiniteSupport (μ ⊗ₘ ξ) := finiteSupport_of_compProd hξ
   have : FiniteSupport (μ ⊗ₘ (ξ ⊗ₖ κ)) := finiteSupport_of_compProd (hξ.compProd hκ)
   have h := entropy_condKernel_le_entropy_snd
