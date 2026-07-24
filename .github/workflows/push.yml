@@ -52,8 +52,15 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
-      - name: Copy README.md to website/index.md
-        run: cp README.md website/index.md
+      - name: Merge README.md into website/index.md
+        run: |
+          # Preserve Jekyll front matter + MathJax include; append README body.
+          {
+            sed -n '1,/^{% comment %} The rest of the file will be copied from README.md. {% endcomment %}$/p' website/index.md
+            echo
+            cat README.md
+          } > /tmp/pfr-index.md
+          mv /tmp/pfr-index.md website/index.md
 
       - name: Build and lint the project
         id: build-lean
