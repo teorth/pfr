@@ -125,7 +125,7 @@ lemma rhoMinus_le [IsZeroOrProbabilityMeasure μ]
       Measure.map_fst_prod, Measure.map_snd_prod]
     simp [E]
   apply csInf_le (bddBelow_rhoMinusSet hX)
-  simp only [rhoMinusSet, Set.mem_setOf_eq]
+  simp only [rhoMinusSet, Set.mem_ofPred_eq]
   exact ⟨μ'.map T, isProbabilityMeasure_map hT.aemeasurable, by rwa [M], by simp [KLDiv, M]⟩
 
 /-- We have $\rho^-(X) \geq 0$. -/
@@ -223,7 +223,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     have : B.Nonempty := by
       by_contra! H
       simp [-ProbabilityMeasure.measureReal_eq_coe_coeFn, ne_eq, -NNReal.coe_eq_zero,
-        eq_empty_iff_forall_notMem, mem_setOf_eq,
+        eq_empty_iff_forall_notMem, mem_ofPred_eq,
         Decidable.not_not, B] at H
       have : ∑ g, μ.toMeasure.real {g} = 1 := by
         simp [-ProbabilityMeasure.measureReal_eq_coe_coeFn]
@@ -233,7 +233,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     let c := (B.toFinset.image (fun g ↦ μ.toMeasure.real {g})).min' Bn
     refine ⟨c, ?_, fun g hg ↦ ?_⟩
     · have : c ∈ B.toFinset.image (fun g ↦ ((μ : Measure G) {g}).toReal) := Finset.min'_mem _ _
-      simp only [ne_eq, toFinset_setOf, Finset.mem_image, Finset.mem_filter, Finset.mem_univ,
+      simp only [ne_eq, toFinset_ofPred, Finset.mem_image, Finset.mem_filter, Finset.mem_univ,
         true_and, B] at this
       rcases this with ⟨g, hg, cg⟩
       rw [← cg]
@@ -420,7 +420,7 @@ omit [MeasurableSpace G] [DiscreteMeasurableSpace G] in
 lemma bddAbove_card_inter_add {A H : Set G} :
     BddAbove {Nat.card (A ∩ (t +ᵥ H) : Set G) | t : G} := by
   refine ⟨Nat.card A, fun k hk ↦ ?_⟩
-  simp only [mem_setOf_eq] at hk
+  simp only [mem_ofPred_eq] at hk
   rcases hk with ⟨t, rfl⟩
   exact Nat.card_mono (toFinite _) inter_subset_left
 
@@ -433,7 +433,7 @@ lemma exists_mem_card_inter_add (H : AddSubgroup G) {A : Set G} (hA : A.Nonempty
     refine ⟨t, ht, ?_⟩
     exact mem_vadd_set.2 ⟨0, zero_mem H, by simp⟩
   refine ⟨Nat.card (A ∩ (t +ᵥ (H : Set G)) : Set G), Nat.card_pos, ?_⟩
-  simp only [mem_setOf_eq, exists_apply_eq_apply]
+  simp only [mem_ofPred_eq, exists_apply_eq_apply]
 
 omit [MeasurableSpace G] [DiscreteMeasurableSpace G] in
 lemma exists_card_inter_add_eq_sSup (H : AddSubgroup G) {A : Set G} (hA : A.Nonempty) :
@@ -570,7 +570,7 @@ private lemma rhoMinus_le_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     isProbabilityMeasure_map (Measurable.aemeasurable (by fun_prop))
   have h_indep : IndepFun Prod.fst Prod.snd (μ'.prod (uniformOn (A : Set G))) := indepFun_fst_snd
   apply csInf_le (bddBelow_rhoMinusSet hU)
-  simp only [rhoMinusSet, Nat.card_eq_fintype_card, Fintype.card_coe, mem_setOf_eq]
+  simp only [rhoMinusSet, Nat.card_eq_fintype_card, Fintype.card_coe, mem_ofPred_eq]
   refine ⟨μ', this, fun y h ↦ ?_, ?_⟩
   · rw [mapU]
     apply uniformOn_apply_singleton_of_not_mem (fun yH ↦ ?_)

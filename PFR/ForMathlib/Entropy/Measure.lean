@@ -63,7 +63,7 @@ lemma measure_compl_support (μ : Measure S) [hμ : FiniteSupport μ] : μ μ.su
   let A := hμ.finite.choose
   have : (μ.support : Set S)ᶜ ⊆ (A : Set S)ᶜ ∪ ⋃ x ∈ A.filter (μ {·} = 0), {x} := by
     intro z hz
-    simp only [Measure.support, ne_eq, Finset.coe_filter, mem_compl_iff, mem_setOf_eq, not_and,
+    simp only [Measure.support, ne_eq, Finset.coe_filter, mem_compl_iff, mem_ofPred_eq, not_and,
       Decidable.not_not] at hz
     by_cases h'z : z ∈ A
     · simp [hz h'z, h'z]

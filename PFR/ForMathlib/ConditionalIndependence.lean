@@ -150,7 +150,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
   have h3 (y : β) : IdentDistrib (fun ω ↦ (X ω, y)) (⟨X, Y⟩) (μ[|Y ← y]) (μ[|Y ← y]) := by
     apply IdentDistrib.of_ae_eq (hX.prodMk measurable_const).aemeasurable
     apply Filter.eventuallyEq_of_mem (h3' y)
-    intro ω; simp only [mem_setOf_eq, Prod.mk.injEq, true_and]; exact fun a ↦ id a.symm
+    intro ω; simp only [mem_ofPred_eq, Prod.mk.injEq, true_and]; exact fun a ↦ id a.symm
   have h4 (y : β) : { ω : (α × α) × β| ω.2 = y } ∈ ae (m y) := by
     rw [mem_ae_iff]
     have : { ω : (α × α) × β | ω.2 = y}ᶜ = Prod.snd⁻¹' {y}ᶜ := by
@@ -177,7 +177,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     simp only [measure_univ, one_smul] at this; rw [← this]
     apply Measure.map_congr
     apply Filter.eventuallyEq_of_mem (h3' y)
-    intro ω; simp only [mem_setOf_eq]; exact fun a ↦ a.symm
+    intro ω; simp only [mem_ofPred_eq]; exact fun a ↦ a.symm
   refine ⟨(α × α) × β, by infer_instance, fun ω ↦ ω.1.1, fun ω ↦ ω.1.2, fun ω ↦ ω.2, ν, ?_,
     measurable_fst.comp measurable_fst, measurable_snd.comp measurable_fst,
     measurable_snd, ?_, ?_, ?_⟩
@@ -280,7 +280,7 @@ lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY 
   have hi : MeasurableEmbedding i := MeasurableEmbedding.subtype_coe
     ((hp.comp <| hX₁.prodMk hY').and <| hp.comp <| hX₂.prodMk hY').setOf
   have hi' : ∀ᵐ ω ∂ν, ω ∈ range i := by
-    simp only [i, mem_setOf_eq, Subtype.range_coe_subtype, Filter.eventually_and]
+    simp only [i, mem_ofPred_eq, Subtype.range_coe_subtype, Filter.eventually_and]
     exact ⟨hXY₁.symm.ae_snd (p := uncurry p) hp.setOf hp',
       hXY₂.symm.ae_snd (p := uncurry p) hp.setOf hp'⟩
   refine ⟨{ω // p (X₁ ω) (Y' ω) ∧ p (X₂ ω) (Y' ω)}, inferInstance, X₁ ∘ (↑), X₂ ∘ (↑), Y' ∘ (↑),

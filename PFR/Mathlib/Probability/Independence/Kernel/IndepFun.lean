@@ -40,7 +40,7 @@ lemma iIndepFun.finsets {J : Type*} [Finite J]
     change MeasurableSpace.comap _ (M j) = _
     have : M j = MeasurableSpace.generateFrom (πβ j) := generateFrom_pi.symm
     rewrite [this, MeasurableSpace.comap_generateFrom] ; rfl
-  simp only [iIndepSets, Set.mem_image, Set.mem_pi, Set.mem_univ, Set.mem_setOf_eq, forall_const,
+  simp only [iIndepSets, Set.mem_image, Set.mem_pi, Set.mem_univ, Set.mem_ofPred_eq, forall_const,
     Subtype.forall, exists_exists_and_eq_and]
   intro s E hE
   obtain ⟨sets, h_sets⟩ := Classical.axiomOfChoice (fun (j:s) ↦ hE j (Finset.coe_mem j))
