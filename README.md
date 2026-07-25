@@ -18,7 +18,7 @@ Currently, the project is obtaining an extension of PFR to other bounded torsion
 ## Build the Lean files
 
 To build the Lean files of this project, you need to have a working version of Lean.
-See [the installation instructions](https://leanprover-community.github.io/get_started.html) (under Regular install).
+See [the installation instructions](https://leanprover-community.github.io/get_started.html).
 
 To build the project, run `lake exe cache get` and then `lake build`.
 
