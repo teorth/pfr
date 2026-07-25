@@ -52,15 +52,15 @@ lemma ProbabilityTheory.iIndepFun.sum_elim {Ω I J G : Type*} [MeasurableSpace �
     · ext ω
       simp only [Set.mem_iInter, Sum.forall, Finset.inl_mem_disjSum, Finset.mem_toLeft,
         Finset.inr_mem_disjSum, Finset.mem_toRight, Set.mem_inter_iff, Set.mem_preimage,
-        Set.mem_setOf_eq, Subtype.forall, S, T]
+        Set.mem_ofPred_eq, Subtype.forall, S, T]
       congr! with i hi i hi <;> simp [← (hF _ hi).2]
     · ext ω
-      simp only [Finset.mem_toLeft, Set.mem_iInter, Set.mem_preimage, Set.mem_setOf_eq,
+      simp only [Finset.mem_toLeft, Set.mem_iInter, Set.mem_preimage, Set.mem_ofPred_eq,
         Subtype.forall, S]
       congr! with i hi
       simp [← (hF _ hi).2]
     · ext ω
-      simp only [Finset.mem_toRight, Set.mem_iInter, Set.mem_preimage, Set.mem_setOf_eq,
+      simp only [Finset.mem_toRight, Set.mem_iInter, Set.mem_preimage, Set.mem_ofPred_eq,
         Subtype.forall, T]
       congr! with i hi
       simp [← (hF _ hi).2]

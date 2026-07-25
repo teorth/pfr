@@ -168,7 +168,7 @@ theorem homomorphism_pfr (f : G → G') (S : Set G') (hS : ∀ x y : G, f (x+y) 
     exact_mod_cast this
   · intro g
     specialize this (⟨g, by simp⟩ : (g, f g) ∈ A)
-    simp only [mem_iUnion, mem_setOf_eq, Prod.mk.injEq, exists_eq_left] at this
+    simp only [mem_iUnion, mem_ofPred_eq, Prod.mk.injEq, exists_eq_left] at this
     obtain ⟨t, ht, h⟩ := this
     rw [← h]
     convert ht

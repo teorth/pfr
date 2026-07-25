@@ -41,7 +41,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   classical
   let A := (Set.univ.graphOn f).toFinite.toFinset
   have hA : #A = Nat.card G := by rw [Set.Finite.card_toFinset]; simp [← Nat.card_eq_fintype_card]
-  have hA_nonempty : A.Nonempty := by simp [-Set.Finite.toFinset_setOf, A]
+  have hA_nonempty : A.Nonempty := by simp [A]
   have : #{x : G × G | f (x.1 + x.2) = f x.1 + f x.2} = #({ab ∈ A ×ˢ A | ab.1 + ab.2 ∈ A}) := by
     rw [← Nat.card_eq_finsetCard, ← Finset.coe_sort_coe, Finset.coe_filter,
       Set.Finite.toFinset_prod]
@@ -111,7 +111,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     intro x hx
     obtain ⟨x, ⟨hxA'', _, ⟨c', hc, h', hh, hch⟩, x', hx, hchx⟩, hxx⟩ := hx
     change f _ = φ _ + (-φ c.1 + c.2 + h)
-    replace := by simpa [-Set.Finite.toFinset_setOf, A] using hA' hxA''
+    replace := by simpa [A] using hA' hxA''
     rewrite [← hxx, this, ← hchx, ← hch, hc, hh]
     change c.2 + h + x'.2 = φ (c.1 + 0 + x'.1) + (-φ c.1 + c.2 + h)
     replace : φ x'.1 = x'.2 := (Set.mem_graphOn.mp hx).2
@@ -207,7 +207,7 @@ theorem card_of_dual_constrained [Finite G] (x : G) (hx : x ≠ 0) :
         -- $\mathbb{Z}/2\mathbb{Z}$, their cardinalities add up to the cardinality of the whole set.
         have h_partition : {φ : G →+ ZMod 2 | φ x = 1} ∪ {φ : G →+ ZMod 2 | φ x = 0} = .univ := by
           ext f
-          simp only [Set.mem_union, Set.mem_setOf_eq, Set.mem_univ, iff_true]
+          simp only [Set.mem_union, Set.mem_ofPred_eq, Set.mem_univ, iff_true]
           set y := f x
           clear_value y
           fin_cases y
@@ -218,7 +218,7 @@ theorem card_of_dual_constrained [Finite G] (x : G) (hx : x ≠ 0) :
         simp [Nat.card, Cardinal.toNat_add]
       · simp
     -- Since there are $|G|$ homomorphisms in total, we have $|G| = |H_1| + |H_0|$.
-    simp_all only [ne_eq, Set.coe_setOf, card_of_dual]
+    simp_all only [ne_eq, Set.coe_ofPred, card_of_dual]
     rw [← h_eq_card]; ring
   -- Let $y$ be an additive character of $G$ such that $y(x) = 1$.
   obtain ⟨y, hy⟩ : ∃ (y : G →+ ZMod 2), y x = 1 := by
@@ -306,7 +306,7 @@ theorem approx_hom_pfr' [Finite G] (f : G → G') (K : ℝ) (hK : K > 0)
       apply Nat.card_mono
       · apply Set.toFinite
       intro x
-      simp only [Set.mem_setOf_eq, AddMonoidHom.add_apply, AddMonoidHom.coe_mk,
+      simp only [Set.mem_ofPred_eq, AddMonoidHom.add_apply, AddMonoidHom.coe_mk,
         ZeroHom.coe_mk, and_imp, A, φ'c]
       intro h1 h2
       simp [h1, h2]

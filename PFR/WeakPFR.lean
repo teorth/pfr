@@ -359,7 +359,7 @@ lemma PFR_projection'
       _ = (1 + α) / (2 * (1 - α)) * (1 - α * c) * (H[X; μ] + H[Y; μ']) := by
         field_simp; ring
     have HS : H'' ∉ S := fun Hs => Hlt.not_ge (hMaxl Hs Hlt.le)
-    simp only [S, Set.mem_setOf_eq, not_and, not_lt] at HS
+    simp only [S, Set.mem_ofPred_eq, not_and, not_lt] at HS
     refine ⟨?_, HS ⟨α * c, by positivity, cond, ?_⟩⟩
     · calc
       log (Nat.card H'')
@@ -377,7 +377,7 @@ lemma PFR_projection'
   · refine ⟨⊥, ?_, ?_⟩
     · simp only [Nat.card_eq_fintype_card, Fintype.card_ofSubsingleton, Nat.cast_one, log_one]
       positivity
-    · simp only [S, Set.mem_setOf_eq, not_and, not_lt] at hE
+    · simp only [S, Set.mem_ofPred_eq, not_and, not_lt] at hE
       exact hE ⟨1, by norm_num, by
         norm_num; exact add_le_add (entropy_comp_le μ hX _) (entropy_comp_le μ' hY _)⟩
 
@@ -418,7 +418,7 @@ lemma sum_prob_preimage {G H : Type*} {X : Finset H} {A : Set G} [Finite A] {φ 
     <| fun a _ ↦ Finset.mem_univ (φ a), ← Finset.sum_coe_sort]
   norm_cast
   congr with x
-  rewrite [← Set.Finite.toFinset_setOf, (Set.toFinite _).card_toFinset, ← Nat.card_eq_fintype_card,
+  rewrite [← Set.Finite.toFinset_ofPred, (Set.toFinite _).card_toFinset, ← Nat.card_eq_fintype_card,
     hφ, Nat.card_image_of_injective Subtype.val_injective]
   · rfl
   · exact toFinite {x_1 | φ x_1 = x}
@@ -962,7 +962,7 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
     have : (A-A) ∪ (B-B) ⊆ N := by
       rw [← hAx_eq, ← hBy_eq, hAx, hBy]
       intro z hz
-      simp only [mk'_apply, mem_union, mem_sub, mem_setOf_eq] at hz
+      simp only [mk'_apply, mem_union, mem_sub, mem_ofPred_eq] at hz
       refine (QuotientAddGroup.eq_zero_iff z).mp ?_
       rcases hz with ⟨a, ⟨-, ha⟩, a', ⟨-, ha'⟩, haa'⟩ | ⟨b, ⟨-, hb⟩, b', ⟨-,hb'⟩, hbb'⟩
       · rw [← haa']; simp [ha, ha']
