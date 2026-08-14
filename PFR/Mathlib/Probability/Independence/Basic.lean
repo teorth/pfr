@@ -94,7 +94,7 @@ lemma IndepFun.finsetSum [m : MeasurableSpace β'] [AddCommMonoid β'] [Measurab
       · simpa [hb, hc, Function.onFun, S] using h_disj
     · by_cases hc : c
       · simpa [hb, hc, Function.onFun, S] using h_disj.symm
-      · exfalso; exact hbc (eq_false_of_ne_true hb ▸ (eq_false_of_ne_true hc).symm)
+      · exfalso; exact hbc (Bool.eq_false_of_ne_true hb ▸ (Bool.eq_false_of_ne_true hc).symm)
   have hindep := iIndepFun.finsetSum S h_disjoint hf_Indep hf_meas
   have h_true : S true = s := by simp [S]
   have h_false : S false = t := by simp [S]
@@ -187,7 +187,7 @@ lemma iIndepFun_iff' [MeasurableSpace Ω] {β : ι → Type*}
   rw [iIndepFun_iff]
   refine forall_congr' fun s ↦ ⟨fun h f hf ↦ h fun i _ ↦ hf _, fun h f hf ↦ ?_⟩
   let g (i : ι) : Set Ω := if i ∈ s then f i else univ
-  have (i : ι) (hi : i ∈ s) : f i = g i := (if_pos hi).symm
+  have (i : ι) (hi : i ∈ s) : f i = g i := (ite_eq_left hi).symm
   convert @h g _ using 2
   · exact iInter₂_congr this
   · rw [this _ ‹_›]
