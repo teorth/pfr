@@ -540,7 +540,7 @@ private theorem entropy_sum_le_entropy_neg_add {I : Type*} {s t : Finset I} (hdi
   (hindep : iIndepFun X μ)
   (W_meas : Measurable (∑ i ∈ s, X i)) (U_meas : Measurable (∑ i ∈ t, X i)) :
   H[∑ i ∈ t, X i ; μ] ≤ H[-(∑ i ∈ s, X i) + ∑ i ∈ t, X i ; μ] := by
-  haveI : IsProbabilityMeasure μ := hindep.isProbabilityMeasure
+  have : IsProbabilityMeasure μ := hindep.isProbabilityMeasure
   rw [neg_add_eq_sub]
   apply le_trans (le_max_left H[∑ i ∈ t, X i ; μ] H[∑ i ∈ s, X i ; μ])
   apply ProbabilityTheory.max_entropy_le_entropy_sub U_meas W_meas
@@ -595,7 +595,7 @@ private theorem entropy_kvm_decomposition {I : Type*} {s t : Finset I} (hdisj : 
     H[-(∑ i ∈ s, X i) + ∑ i ∈ t, X i ; μ] ≤ H[-(∑ i ∈ s, X i) ; μ]
       + ∑ i ∈ t, (H[-(∑ i ∈ s, X i) + X i ; μ] - H[-(∑ i ∈ s, X i) ; μ]) := by
   classical
-  haveI : IsProbabilityMeasure μ := hindep.isProbabilityMeasure
+  have : IsProbabilityMeasure μ := hindep.isProbabilityMeasure
   set W := ∑ i ∈ s, X i with hW_def
   set U := ∑ i ∈ t, X i with hU_def
   set Y : Option {x // x ∈ t} → Ω → G := fun i => match i with| some i => X i | none => - W with hY
@@ -638,8 +638,8 @@ lemma ent_of_sum_le_ent_of_sum {I : Type*} {s t : Finset I} (hdisj : Disjoint s 
   set W := ∑ i ∈ s, X i with hW
   --Write `U := ∑_{j=1}^l Y_j` (in the notation of the informal proof)
   set U := ∑ i ∈ t, X i with hU
-  haveI : FiniteRange U := .finsum X
-  haveI : FiniteRange W := .finsum X
+  have : FiniteRange U := .finsum X
+  have : FiniteRange W := .finsum X
   have U_meas : Measurable U := by
     convert Finset.measurable_sum t (fun i _ => hX i)
     simp only [hU, Finset.sum_apply]
@@ -1269,7 +1269,7 @@ lemma multidist_ruzsa_III {m : ℕ} (hm : m ≥ 2) {Ω : Fin m → Type*} (hΩ :
     have hmnon: NeZero m := by rw [neZero_iff]; linarith
     obtain ⟨Ω', mΩ', μ', X', hμ', h_indep, hX'⟩
       := independent_copies'_finiteRange (fun (i : Fin (m + 1)) ↦ X 0) (fun _ ↦ hmes 0) (fun i => ℙ)
-    letI hΩ' : MeasureSpace Ω' := ⟨μ'⟩
+    let hΩ' : MeasureSpace Ω' := ⟨μ'⟩
     have hident' (j k : Fin (m + 1)) : IdentDistrib (X' j) (X' k) :=
       (hX' j).2.1.trans (hX' k).2.1.symm
     have hfin' (j : Fin (m + 1)) : FiniteRange (X' j) := (hX' j).2.2
@@ -1295,7 +1295,7 @@ lemma multidist_ruzsa_IV {m : ℕ} (hm : m ≥ 2) {Ω : Type u} [MeasureSpace Ω
     independent_copies'_finiteRange (mS := mS₂) (mΩ := mΩ₂) (fun i ↦ (X i.2)) (fun i ↦ hmes i.2)
       (fun _ ↦ volume)
   have hX'meas i := (hX' i).1
-  letI hΩ' : MeasureSpace Ω' := ⟨μ'⟩
+  let hΩ' : MeasureSpace Ω' := ⟨μ'⟩
   set W₀ := ∑ i, X' (0, i)
   set W₁ := ∑ i, X' (1, i)
   have hW_ident (a: Fin 2) : IdentDistrib (∑ i, X' (a, i)) (∑ i, X i) := by
