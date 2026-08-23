@@ -1,6 +1,6 @@
 name = "PFR"
 keywords = ["math", "additive-combinatorics", "information-theory"]
-defaultTargets = ["PFR"]
+defaultTargets = ["PFR", "Palomar"]
 
 [leanOptions]
 # Pretty-prints `fun a ↦ b`
@@ -31,3 +31,7 @@ rev = "v4.34.0-rc2"
 
 [[lean_lib]]
 name = "PFR"
+
+[[lean_lib]]
+name = "Palomar"
+roots = ["Palomar.Challenge", "Palomar.Solution"]

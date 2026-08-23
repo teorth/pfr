@@ -1,0 +1,406 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Marton's conjecture (the polynomial Freiman-Ruzsa conjecture)"
+  description: >-
+    A Lean formalization of Marton's conjecture, widely known as the
+    polynomial Freiman-Ruzsa conjecture, together with its principal
+    consequences. If A is a non-empty subset of an abelian group of exponent 2
+    with |A + A| <= K|A|, then A is covered by fewer than 2K^12 cosets of a
+    subgroup of cardinality at most |A|; the same conclusion holds with 2K^9
+    cosets. For an abelian group in which mx = 0 for every x, with m >= 2, the
+    covering number is m * K^(256m^3 + 1). Three consequences are also
+    recorded: a finite set of small doubling in Z^D has a subset of at least
+    K^(-34) of its size whose affine dimension is at most (80/log 2) log K; a
+    map between finite groups of exponent 2 whose additive defects
+    f(x+y) - f(x) - f(y) all lie in a set S differs from a homomorphism by a
+    map taking at most |S|^10 values; and a map that is additive on at least a
+    proportion 1/K of pairs agrees with a homomorphism on at least
+    (|G| / (2^144 K^122) - 1)/2 points. The proofs are by an entropy method:
+    one minimizes a functional of the entropic Ruzsa distance between two
+    random variables and shows the minimum is attained at a uniform
+    distribution on a subgroup, so the development also builds a substantial
+    theory of Shannon entropy, entropic Ruzsa distance, and, for the bounded
+    torsion case, a multidistance for m-tuples. The repository is a
+    collaborative formalization project begun in November 2023; the
+    mathematics is due to the cited papers and nothing here is claimed to be
+    new. The compared theorems depend on propext, Classical.choice and
+    Quot.sound and on nothing else, and there is no sorry outside the six
+    deliberate holes in Palomar/Challenge.lean.
+  authors:
+    - "Aaron Anderson"
+    - "Mantas Bakšys"
+    - "Jonas Bayer"
+    - "Mauricio Collares"
+    - "Rémy Degenne"
+    - "Yaël Dillies"
+    - "Ben Eltschig"
+    - "Sébastien Gouëzel"
+    - "Kalle Kytölä"
+    - "Rob Lewis"
+    - "Paul Lez"
+    - "Lorenzo Luccioli"
+    - "Heather Macbeth"
+    - "Patrick Massot"
+    - "Arend Mellendijk"
+    - "Kyle Miller"
+    - "Pietro Monticone"
+    - "Kim Morrison"
+    - "Oliver Nash"
+    - "Utensil Song"
+    - "Terence Tao"
+    - "Floris van Doorn"
+    - "Sky Wilshaw"
+    - "Lawrence Wu"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Terence Tao"
+    - "Yaël Dillies"
+
+repository:
+  role: substantive-development
+
+classification:
+  arxiv: [math.CO, math.NT]
+  msc2020: ["11B30", "11P70", "20K01", "94A17"]
+
+status:
+  scope: >-
+    Complete, with no unproved step, for each of the six compared theorems.
+    Three families of results are formalized but are not among the compared
+    declarations, because Palomar requires the Challenge module to import only
+    Lean core and Mathlib, and Mathlib has no Shannon entropy or entropic
+    Ruzsa distance: the entropy form of the conjecture in characteristic 2
+    (Theorem 1.8 of the arXiv:2311.05762 entry below, formalized as
+    entropic_PFR_conjecture and entropic_PFR_conjecture'), the entropy form in
+    the bounded torsion case (formalized as dist_of_X_U_H_le), and the
+    Kullback-Leibler and rho-functional machinery of the arXiv:2404.09639
+    entry (rho_PFR_conjecture and its supporting theory). The exponent-11
+    intermediate result of an earlier version of arXiv:2404.09639 is likewise
+    formalized (PFR_conjecture_improv) but not compared, being superseded by
+    the exponent-9 statement. Corollary 1.6 and Corollary 1.7 of
+    arXiv:2311.05762 and Corollary 1.2 of arXiv:2404.02244 are not formalized
+    at all.
+  # The proof development contains no sorry at all. The only six in the
+  # repository are the deliberate placeholders in Palomar/Challenge.lean,
+  # which these counts exclude by convention.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "Marton.pfr_conjecture"
+      file: "Palomar/Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "Marton.pfr_conjecture_nine"
+      file: "Palomar/Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "Marton.torsion_pfr_conjecture"
+      file: "Palomar/Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "Marton.weak_pfr_int"
+      file: "Palomar/Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "Marton.homomorphism_pfr"
+      file: "Palomar/Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "Marton.approx_hom_pfr"
+      file: "Palomar/Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+
+fidelity:
+  divergences: >-
+    Faithful to the sources, and in three respects stronger than them. First,
+    the two characteristic-2 statements and the bounded-torsion statement are
+    proved for an arbitrary abelian group in which every element satisfies
+    2x = 0 (respectively mx = 0), with A merely finite, rather than for a
+    finite group; the papers state them for F_2^n and for a group of torsion
+    m. The bounded-torsion generalization is not present in the library
+    itself, whose torsion_PFR assumes a finite ambient group; it is obtained
+    in Palomar/Solution.lean by passing to the span of A over ZMod m, which is
+    finite because A is. Second, every constant is explicit where the papers
+    leave one unspecified: Theorem 1.3 of arXiv:2311.05762 asserts the
+    existence of absolute constants C_1 and C_2, and Marton.weak_pfr_int
+    realizes C_1 = 68 and C_2 = 80/log 2; Corollary 1.4 and Corollary 1.5 of
+    the same paper assert bounds O(K^{C_3}) and >> K^{-C_4}, and the
+    corresponding statements here give |S|^10 and (|G|/(2^144 K^122) - 1)/2;
+    Theorem 1.1 of arXiv:2404.02244 asserts (2K)^{O(m^3)} and
+    Marton.torsion_pfr_conjecture gives m K^{256m^3+1}. Third,
+    Marton.pfr_conjecture_nine implies Marton.pfr_conjecture, since a
+    non-empty A forces K >= 1; the weaker exponent 12 is nevertheless recorded
+    separately because it is the headline theorem of a different paper.
+    In one respect the compared statement is weaker than what the library
+    proves: weak_PFR_int in the library hypothesises |A - A| <= K|A| and
+    concludes with K^(-17) and (40/log 2) log K, whereas the compared
+    Marton.weak_pfr_int hypothesises |A + A| <= K|A| as Theorem 1.3 of
+    arXiv:2311.05762 does, which is obtained from the library statement in
+    Palomar/Solution.lean by Ruzsa's triangle inequality at the cost of
+    squaring K. Hypotheses are phrased for a reader rather than for the
+    library: torsion is stated as a universally quantified equation rather
+    than through a Module (ZMod m) instance, subgroups are returned as
+    AddSubgroup rather than as Submodule (ZMod 2), and affine dimension is
+    expressed as Module.finrank of a vectorSpan rather than through the
+    project's AffineSpace.finrank abbreviation. Declaration names in the
+    library differ from those in Palomar/Challenge.lean; the alignment section
+    below records the correspondence, and blueprint/src/chapter/ records the
+    correspondence with the informal arguments.
+
+# ---------------------------------------------------------------------------
+# Mathematical sources.
+#
+# This is a source-based formalization. None of the results is new, none is
+# claimed to be new, and no literature search was performed: the three papers
+# below are the published sources of every compared theorem, and the
+# repository exists to formalize them.
+# ---------------------------------------------------------------------------
+sources:
+  - title: "On a conjecture of Marton"
+    authors: ["W. T. Gowers", "Ben Green", "Freddie Manners", "Terence Tao"]
+    type: "preprint"
+    id: "arXiv:2311.05762"
+    relationship: formalizes
+    note: >-
+      The source of four of the six compared theorems: Theorem 1.2 is
+      Marton.pfr_conjecture, Theorem 1.3 is Marton.weak_pfr_int, Corollary 1.4
+      is Marton.homomorphism_pfr and Corollary 1.5 is Marton.approx_hom_pfr.
+      Its Theorem 1.8, the entropy form, is formalized in the repository as
+      entropic_PFR_conjecture but is not compared, for the reason given under
+      status.scope. Its Corollary 1.6 (an inverse theorem for the Gowers U^3
+      norm) and Corollary 1.7 (a sum-product consequence attributed there to
+      Mudgal) are not formalized.
+
+  - title: "Marton's conjecture in abelian groups with bounded torsion"
+    authors: ["W. T. Gowers", "Ben Green", "Freddie Manners", "Terence Tao"]
+    type: "preprint"
+    id: "arXiv:2404.02244"
+    relationship: formalizes
+    note: >-
+      The source of Marton.torsion_pfr_conjecture, which is its Theorem 1.1
+      with the implied constant made explicit. Its Theorem 1.3, the entropy
+      form in the bounded torsion case, is formalized in the repository as
+      dist_of_X_U_H_le but is not compared. Its Corollary 1.2 (an inverse
+      theorem for the U^3 norm over F_p^n) is not formalized.
+
+  - title: "Improved Exponent for Marton's Conjecture in $\\mathbb{F}_2^n$"
+    authors: ["Jyun-Jie Liao"]
+    type: "preprint"
+    id: "arXiv:2404.09639"
+    relationship: formalizes
+    note: >-
+      The source of Marton.pfr_conjecture_nine, its main theorem, which
+      improves the exponent in the characteristic-2 case from 12 to 9. The
+      Kullback-Leibler divergence and rho-functional machinery its proof
+      introduces is formalized in PFR/Kullback.lean and PFR/RhoFunctional.lean.
+      An earlier version of this paper obtained the exponent 11; that
+      intermediate result is formalized as PFR_conjecture_improv and is not
+      compared, being superseded.
+
+# ---------------------------------------------------------------------------
+# How this was produced.
+# ---------------------------------------------------------------------------
+automation:
+  methods:
+    - method: manual
+      role: >-
+        The formalization in PFR/ was written by hand by the contributors
+        listed under project.authors, between November 2023 and 2025, as a
+        collaborative open project coordinated through a LaTeX blueprint in
+        blueprint/ and a Zulip stream. No automated proof generation was used
+        for it.
+    - method: agent
+      models: ["Claude Opus 5 (Anthropic)"]
+      framework: "Claude Code"
+      role: >-
+        Wrote the two Palomar files, Palomar/Challenge.lean and
+        Palomar/Solution.lean, under the direction and review of the
+        responsible maintainer: selecting which library results correspond to
+        the headline theorems of the three sources, restating them in
+        Mathlib-only terms, and supplying the two bridging arguments recorded
+        under fidelity.divergences (the passage to a finite span for the
+        bounded torsion case, and the Ruzsa triangle inequality step for the
+        weak statement over the integers). It also made the two-line change to
+        PFR/WeakPFR.lean described under limitations. It did not write, and
+        did not modify, any of the mathematical development in PFR/.
+
+review:
+  status: self-assessed
+  reviewers:
+    - "Terence Tao"
+  notes: >-
+    The development in PFR/ was produced in the open: contributions arrived as
+    pull requests reviewed by project participants, were tracked against a
+    blueprint whose dependency graph is published, and were discussed on a
+    public Zulip stream. That is ordinary open-source project review, not
+    referee review of the formalization, and no external body has certified
+    it. The Palomar files and the correspondence between the compared
+    statements and the three sources were checked by the responsible
+    maintainer. Every step is checked by Lean.
+
+# ---------------------------------------------------------------------------
+# Limitations, stated so that a reader can calibrate the claim.
+# ---------------------------------------------------------------------------
+known_gaps: []
+
+limitations:
+  - >-
+    No novelty is claimed. All three sources predate this formalization, and
+    the repository exists to formalize them. No literature search beyond the
+    three sources was performed, and no claim is made about whether the
+    statements have been formalized elsewhere.
+  - >-
+    The compared theorems depend on propext, Classical.choice and Quot.sound,
+    and on nothing else. There is no sorry in the development, no
+    project-defined axiom, no native_decide, no unsafe declaration, no
+    @[implemented_by] and no Float anywhere in PFR/ or Palomar/. The six
+    sorries in Palomar/Challenge.lean are the deliberate Comparator holes, one
+    per compared theorem.
+  - >-
+    The Lakefile sets warn.sorry = false, so `lake build` is silent about
+    those six deliberate holes. It would be equally silent about an accidental
+    one in Palomar/Solution.lean; that case is caught by Comparator's axiom
+    check rather than by the build.
+  - >-
+    Two lines of PFR/WeakPFR.lean were changed in preparation for this
+    submission, at the two `variable` lines that carried
+    `(mu : Measure Omega := by volume_tac)`. Under the Lean module system the
+    auto-generated helper holding that tactic is not exposed across the module
+    boundary, so an importing module saw `autoParam (Measure Omega) sorry` in
+    the type, and nine declarations in that file, including weak_PFR_int,
+    consequently reported sorryAx even though the file contains no sorry. The
+    defaults were removed; every call site already passed the measures
+    explicitly, no statement changed, and the whole project still builds. Only
+    that file was affected.
+  - >-
+    Marton.weak_pfr_int is stated for a finitely generated free Z-module,
+    which is the Lean rendering of Z^D, rather than for an arbitrary abelian
+    group; that matches Theorem 1.3 of arXiv:2311.05762.
+  - >-
+    Palomar/Challenge.lean states the six results but does not prove them;
+    that is the Comparator convention, and Palomar/Solution.lean supplies the
+    proofs.
+
+# ---------------------------------------------------------------------------
+# How the cited statements correspond to Lean declarations.
+#
+# This is the source-to-formal map, not a lemma index. The full roadmap of
+# intermediate lemmas is the blueprint in blueprint/src/chapter/, whose every
+# statement carries the name of the Lean declaration proving it.
+# ---------------------------------------------------------------------------
+alignment:
+  # The development lives in the root namespace. The six compared declarations
+  # live in `Marton`, which is what comparator.json names and what
+  # Palomar/Challenge.lean states.
+  namespace: ""
+  statements:
+    - source: "arXiv:2311.05762, Theorem 1.2: Marton's conjecture in F_2^n with C = 12"
+      lean: "Marton.pfr_conjecture"
+      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      status: extends-source
+      note: >-
+        Discharged from PFR_conjecture' (PFR/Main.lean), which is the
+        infinite-ambient-group corollary of PFR_conjecture. Stated here for any
+        abelian group of exponent 2 rather than for F_2^n, and with the
+        subgroup returned as an AddSubgroup rather than a Submodule (ZMod 2).
+
+    - source: "arXiv:2404.09639, main theorem: Marton's conjecture in F_2^n with C = 9"
+      lean: "Marton.pfr_conjecture_nine"
+      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      status: extends-source
+      note: >-
+        Discharged from better_PFR_conjecture' (PFR/RhoFunctional.lean). The
+        same generalization of the ambient group as the row above. This
+        statement implies the previous one.
+
+    - source: "arXiv:2404.02244, Theorem 1.1: Marton's conjecture in abelian groups of torsion m"
+      lean: "Marton.torsion_pfr_conjecture"
+      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      status: extends-source
+      note: >-
+        Discharged from torsion_PFR (PFR/TorsionEndgame.lean), which assumes a
+        finite ambient group; the compared statement removes that assumption by
+        passing to the ZMod m-span of A, finite because A is. The paper's
+        (2K)^{O(m^3)} is made explicit as m K^{256m^3+1}.
+
+    - source: "arXiv:2311.05762, Theorem 1.3: weak Marton's conjecture over Z^D"
+      lean: "Marton.weak_pfr_int"
+      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      status: proved
+      note: >-
+        Discharged from weak_PFR_int (PFR/WeakPFR.lean), which hypothesises
+        |A - A| <= K|A|; the compared statement hypothesises |A + A| <= K|A| as
+        the paper does, and is obtained by Ruzsa's triangle inequality
+        (Finset.ruzsa_triangle_inequality_sub_add_add), which gives
+        |A - A| <= K^2|A| and so squares K. This is what turns the library's
+        K^(-17) and (40/log 2) log K into the compared K^(-34) and
+        (80/log 2) log K, realizing the paper's unspecified C_1 = 68 and
+        C_2 = 80/log 2. Affine dimension is expressed as
+        Module.finrank Z (vectorSpan Z A'), which is by definition the
+        project's AffineSpace.finrank Z A'.
+
+    - source: "arXiv:2311.05762, Corollary 1.4: the homomorphism form"
+      lean: "Marton.homomorphism_pfr"
+      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      status: proved
+      note: >-
+        Discharged from homomorphism_pfr (PFR/HomPFR.lean). The paper's
+        O(K^{C_3}) is made explicit as |S|^10, with the hypothesis given as
+        membership of every additive defect in a set S rather than as a
+        cardinality bound on the defect set.
+
+    - source: "arXiv:2311.05762, Corollary 1.5: the approximate homomorphism form"
+      lean: "Marton.approx_hom_pfr"
+      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      status: proved
+      note: >-
+        Discharged from approx_hom_pfr' (PFR/ApproxHomPFR.lean), which is the
+        form matching the paper, with a homomorphism and no additive constant.
+        The library states the density hypothesis with Finset.dens; the
+        compared statement writes it as |G|^2 <= K |{(x,y) : f(x+y) = f x + f y}|
+        to avoid decidability instances in the statement of record. The
+        variant with a constant term, approx_hom_pfr, is also in the library
+        and is not compared.
+
+    - source: "arXiv:2311.05762, Theorem 1.8: the entropy form in characteristic 2"
+      lean: "entropic_PFR_conjecture, entropic_PFR_conjecture'"
+      module: "PFR.EntropyPFR"
+      status: proved-not-compared
+      note: >-
+        Both halves are formalized, with the constants 11 and 6 of the paper.
+        Not compared: the statement needs Shannon entropy and entropic Ruzsa
+        distance, neither of which is in Mathlib, so it cannot be phrased in a
+        Challenge module whose import closure must be Lean core and Mathlib.
+
+    - source: "arXiv:2404.02244, Theorem 1.3: the entropy form in the bounded torsion case"
+      lean: "dist_of_X_U_H_le"
+      module: "PFR.TorsionEndgame"
+      status: proved-not-compared
+      note: >-
+        Formalized with the explicit constant 64 m^3. Not compared, for the
+        same reason as the row above.
+
+    - source: "arXiv:2404.09639, the rho-functional form"
+      lean: "rho_PFR_conjecture"
+      module: "PFR.RhoFunctional"
+      status: proved-not-compared
+      note: >-
+        The rho-functional statement that drives the exponent-9 proof, with
+        the Kullback-Leibler theory it rests on in PFR/Kullback.lean. Not
+        compared, for the same reason as the two rows above.

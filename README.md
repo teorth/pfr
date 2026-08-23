@@ -30,6 +30,29 @@ See instructions at <https://github.com/PatrickMassot/leanblueprint/>.
 
 As the first two phases of the project are completed, we are currently working towards stabilising the new results and contributing them to mathlib.
 
+## Palomar registration
+
+[`Palomar/Challenge.lean`](Palomar/Challenge.lean) states, in Lean-core-and-Mathlib
+terms only, the six headline theorems of the three source papers, and
+[`Palomar/Solution.lean`](Palomar/Solution.lean) proves each of them from the
+corresponding result in `PFR/`. The pair is the [Palomar](https://palomar-registry.org)
+Challenge/Solution record for this project; [`comparator.json`](comparator.json) names the
+six compared declarations and [`formalization.yaml`](formalization.yaml) carries the
+structured provenance, the correspondence with the papers, and the limitations.
+
+The six are: Marton's conjecture in characteristic 2 with exponent 12 (`[GGMT]`,
+Theorem 1.2) and with exponent 9 (`[L]`), Marton's conjecture in abelian groups of
+bounded torsion (`[GGMT2]`, Theorem 1.1), weak PFR over the integers (`[GGMT]`,
+Theorem 1.3), and the homomorphism and approximate homomorphism forms (`[GGMT]`,
+Corollaries 1.4 and 1.5). The entropy forms of the conjecture are proved here too but
+are not among the compared declarations, because a Palomar Challenge module may not
+import anything outside Lean core and Mathlib, and Mathlib has no Shannon entropy or
+entropic Ruzsa distance.
+
+`Palomar/Challenge.lean` contains six deliberate `sorry`s, one per compared theorem;
+that is the Comparator convention, and it is the only place in the repository where
+`sorry` occurs.
+
 ## Source reference
 
 `[GGMT]`: <https://arxiv.org/abs/2311.05762>

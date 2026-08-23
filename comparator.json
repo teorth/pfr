@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.Challenge",
+  "solution_module": "Palomar.Solution",
+  "theorem_names": [
+    "Marton.pfr_conjecture",
+    "Marton.pfr_conjecture_nine",
+    "Marton.torsion_pfr_conjecture",
+    "Marton.weak_pfr_int",
+    "Marton.homomorphism_pfr",
+    "Marton.approx_hom_pfr"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"]
+}
