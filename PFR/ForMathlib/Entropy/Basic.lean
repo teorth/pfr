@@ -211,14 +211,11 @@ lemma entropy_eq_log_card {X : Ω → S} [Fintype S] [MeasurableSingletonClass S
   simp
 
 /-- If `X` is an `S`-valued random variable, then there exists `s ∈ S` such that
-`P[X = s] ≥ \exp(- H[X])`.
-
-TODO: remove the probability measure hypothesis, which is unnecessary here. -/
-lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : Measure Ω)
-    [IsProbabilityMeasure μ] (hX : Measurable X) [hX' : FiniteRange X] :
+`P[X = s] ≥ \exp(- H[X])`. -/
+lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] [Nonempty S]
+    (X : Ω → S) (μ : Measure Ω)
+    (hX : Measurable X) [hX' : FiniteRange X] :
     ∃ s : S, μ Set.univ * (rexp (- H[X ; μ])).toNNReal ≤ μ.map X {s} := by
-  have : Nonempty Ω := μ.nonempty_of_neZero
-  have : Nonempty S := Nonempty.map X (by infer_instance)
   let μS := μ.map X
   let μs s := μS {s}
   rcases finiteSupport_of_finiteRange (X := X) with ⟨A, hA⟩
