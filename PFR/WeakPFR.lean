@@ -85,7 +85,7 @@ open Real ProbabilityTheory MeasureTheory
 
 variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonClass G]
   [Countable G] {Ω Ω' : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
-  (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
+  (μ : Measure Ω) (μ' : Measure Ω')
   [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 /-- If `G` is torsion-free and `X, Y` are `G`-valued random variables then `d[X; 2Y] ≤ 5d[X; Y]`. -/
@@ -282,7 +282,7 @@ lemma app_ent_PFR' [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (X : Ω →
   exact ⟨by linarith, by linarith⟩
 
 variable [MeasurableSpace Ω] [MeasurableSpace Ω'] (X : Ω → G) (Y : Ω' → G)
-  (μ : Measure Ω := by volume_tac) (μ' : Measure Ω' := by volume_tac)
+  (μ : Measure Ω) (μ' : Measure Ω')
   [IsProbabilityMeasure μ] [IsProbabilityMeasure μ']
 
 lemma app_ent_PFR (α : ℝ) (hent : 20 * d[X; μ # Y; μ'] < α * (H[X; μ] + H[Y; μ']))
