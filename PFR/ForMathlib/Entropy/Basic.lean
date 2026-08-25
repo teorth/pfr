@@ -284,10 +284,12 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] [Nonempty S]
       refine Finset.sum_congr rfl fun s _ => ?_
       have hsmul : (((μ.map X) Set.univ)⁻¹ • μ.map X).real {s} = pdf s := by
         have huniv : (μ.map X) Set.univ = norm := by
-          rw [h_norm, Measure.map_apply hX MeasurableSet.univ]
+          rw [Measure.map_apply hX MeasurableSet.univ]
+          exact h_norm.symm
         simp [pdf, pdf_nn, μs, μS, Measure.real, huniv]
       simp [g_rhs, hsmul, negMulLog]
-    rwa [← hEnt]
+    rw [hEnt]
+    exact this
   have h_lhs : ∀ s, μs s = 0 → g_lhs s = 0 := by {intros _ h; simp [g_lhs, pdf, pdf_nn, h]}
   have h_rhs : ∀ s, μs s = 0 → g_rhs s = 0 := by {intros _ h; simp [g_rhs, pdf, pdf_nn, h]}
   rw [← Finset.sum_filter_of_ne (fun s _ ↦ (h_lhs s).mt),
