@@ -299,6 +299,7 @@ lemma prob_ge_exp_neg_entropy' [MeasurableSingletonClass S]
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     [IsProbabilityMeasure μ] (X : Ω → S) (hX : Measurable X) [FiniteRange X] :
     ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by
+  haveI : Nonempty S := (Measure.nonempty_of_neZero μ).map X
   obtain ⟨s, hs⟩ := prob_ge_exp_neg_entropy X μ hX
   use s
   rwa [IsProbabilityMeasure.measure_univ, one_mul,
