@@ -211,14 +211,11 @@ lemma entropy_eq_log_card {X : Ω → S} [Fintype S] [MeasurableSingletonClass S
   simp
 
 /-- If `X` is an `S`-valued random variable, then there exists `s ∈ S` such that
-`P[X = s] ≥ \exp(- H[X])`.
-
-TODO: remove the probability measure hypothesis, which is unnecessary here. -/
-lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : Measure Ω)
-    [IsProbabilityMeasure μ] (hX : Measurable X) [hX' : FiniteRange X] :
+`P[X = s] ≥ \exp(- H[X])`. -/
+lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] [Nonempty S]
+    (X : Ω → S) (μ : Measure Ω)
+    (hX : Measurable X) [hX' : FiniteRange X] :
     ∃ s : S, μ Set.univ * (rexp (- H[X ; μ])).toNNReal ≤ μ.map X {s} := by
-  have : Nonempty Ω := μ.nonempty_of_neZero
-  have : Nonempty S := Nonempty.map X (by infer_instance)
   let μS := μ.map X
   let μs s := μS {s}
   rcases finiteSupport_of_finiteRange (X := X) with ⟨A, hA⟩
@@ -281,12 +278,16 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] (X : Ω → S) (μ : 
   let g_lhs s := pdf s * neg_log_pdf s_max
   let g_rhs s := -pdf s * log (pdf s)
   suffices ∑ s ∈ A, g_lhs s ≤ ∑ s ∈ A, g_rhs s by
+    have hA0 : μ.map X (A : Set S)ᶜ = 0 := ae_iff.mp hA
     convert! this
-    rw [entropy_eq_sum_finset hA]
-    congr with s
-    simp only [negMulLog, neg_mul, ENNReal.toReal_mul, neg_inj, g_rhs, pdf, pdf_nn]
-    simp at h_norm
-    simp [h_norm, μs, μS, Measure.real]
+    rw [entropy_def, measureEntropy_eq_sum hA0]
+    refine Finset.sum_congr rfl fun s _ => ?_
+    have hsmul : (((μ.map X) Set.univ)⁻¹ • μ.map X).real {s} = pdf s := by
+      have huniv : (μ.map X) Set.univ = norm := by
+        rw [Measure.map_apply hX MeasurableSet.univ]
+        exact h_norm.symm
+      simp [pdf, pdf_nn, μs, μS, Measure.real, huniv]
+    simp [g_rhs, hsmul, negMulLog]
   have h_lhs : ∀ s, μs s = 0 → g_lhs s = 0 := by {intros _ h; simp [g_lhs, pdf, pdf_nn, h]}
   have h_rhs : ∀ s, μs s = 0 → g_rhs s = 0 := by {intros _ h; simp [g_rhs, pdf, pdf_nn, h]}
   rw [← Finset.sum_filter_of_ne (fun s _ ↦ (h_lhs s).mt),
@@ -302,6 +303,7 @@ lemma prob_ge_exp_neg_entropy' [MeasurableSingletonClass S]
     {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     [IsProbabilityMeasure μ] (X : Ω → S) (hX : Measurable X) [FiniteRange X] :
     ∃ s : S, rexp (- H[X ; μ]) ≤ μ.real (X ⁻¹' {s}) := by
+  have : Nonempty S := (Measure.nonempty_of_neZero μ).map X
   obtain ⟨s, hs⟩ := prob_ge_exp_neg_entropy X μ hX
   use s
   rwa [IsProbabilityMeasure.measure_univ, one_mul,
