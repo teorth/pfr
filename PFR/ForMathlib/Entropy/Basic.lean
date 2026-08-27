@@ -278,7 +278,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] [Nonempty S]
   let g_lhs s := pdf s * neg_log_pdf s_max
   let g_rhs s := -pdf s * log (pdf s)
   suffices ∑ s ∈ A, g_lhs s ≤ ∑ s ∈ A, g_rhs s by
-    have hA0 : (μ.map X) (A : Set S)ᶜ = 0 := ae_iff.mp hA
+    have hA0 : μ.map X (A : Set S)ᶜ = 0 := ae_iff.mp hA
     have hEnt : H[X ; μ] = ∑ s ∈ A, g_rhs s := by
       rw [entropy_def, measureEntropy_eq_sum hA0]
       refine Finset.sum_congr rfl fun s _ => ?_
