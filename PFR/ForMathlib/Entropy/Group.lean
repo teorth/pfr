@@ -117,7 +117,7 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_div [FiniteRange X] [Fin
   refine (Kernel.max_entropy_sub_mutualInfo_le_entropy_div _ _ ?_).trans_eq ?_
   · exact Kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prodMk hX) hZ
   rw [Kernel.entropy_div_comm]
-  have h := condDistrib_comp Z (hY.prodMk hX).aemeasurable
+  have h := condDistrib_comp hZ.aemeasurable (hY.prodMk hX).aemeasurable
     (f := fun x ↦ x.2 / x.1) (by fun_prop) (μ := μ) (mβ := inferInstance)
   rw [Kernel.entropy_congr h.symm]
   rfl
@@ -226,7 +226,7 @@ lemma max_condEntropy_sub_condMutualInfo_le_condEntropy_mul {Z : Ω → T} [Fini
     max_comm]
   refine (Kernel.max_entropy_sub_mutualInfo_le_entropy_mul' _ _ ?_).trans_eq ?_
   · exact Kernel.aefiniteKernelSupport_condDistrib _ _ _ (hY.prodMk hX) hZ
-  have h := condDistrib_comp Z (hY.prodMk hX).aemeasurable
+  have h := condDistrib_comp hZ.aemeasurable (hY.prodMk hX).aemeasurable
     (f := fun x ↦ x.2 * x.1) (by fun_prop) (μ := μ) (mβ := inferInstance)
   rw [Kernel.entropy_congr h.symm]
   rfl

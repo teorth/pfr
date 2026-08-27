@@ -72,7 +72,7 @@ lemma KLDiv_eq_sum_negMulLog [Fintype G] :
 
 /-- `KL(X ‖ Y) ≥ 0`. -/
 lemma KLDiv_nonneg [Finite G] [MeasurableSingletonClass G] [IsZeroOrProbabilityMeasure μ]
-    [IsZeroOrProbabilityMeasure μ'] (hX : Measurable X) (hY : Measurable Y)
+    [IsZeroOrProbabilityMeasure μ']
     (habs : ∀ x, μ'.map Y {x} = 0 → μ.map X {x} = 0) : 0 ≤ KL[X ; μ # Y ; μ'] := by
   cases nonempty_fintype G
   rw [KLDiv_eq_sum]
@@ -81,9 +81,7 @@ lemma KLDiv_nonneg [Finite G] [MeasurableSingletonClass G] [IsZeroOrProbabilityM
   rcases eq_zero_or_isProbabilityMeasure μ' with rfl | hμ'
   · simp
   apply le_trans ?_ (sum_mul_log_div_leq (by simp) (by simp) ?_)
-  · have : IsProbabilityMeasure (μ'.map Y) := Measure.isProbabilityMeasure_map hY.aemeasurable
-    have : IsProbabilityMeasure (μ.map X) := Measure.isProbabilityMeasure_map hX.aemeasurable
-    simp
+  · simp
   · intro i _ hi
     simp only [Measure.real, ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at hi
     simp [Measure.real, habs i hi]
@@ -97,9 +95,7 @@ lemma KLDiv_eq_zero_iff_identDistrib [Finite G] [MeasurableSingletonClass G]
   cases nonempty_fintype G
   refine ⟨fun h ↦ ?_, fun h ↦ by simp [KLDiv, h.map_eq]⟩
   let νY := μ'.map Y
-  have : IsProbabilityMeasure νY := Measure.isProbabilityMeasure_map hY.aemeasurable
   let νX := μ.map X
-  have : IsProbabilityMeasure νX := Measure.isProbabilityMeasure_map hX.aemeasurable
   obtain ⟨r, hr⟩ : ∃ (r : ℝ), ∀ x ∈ Finset.univ, (νX.real {x}) = r * νY.real {x} := by
     apply sum_mul_log_div_eq_iff (by simp) (by simp) fun i _ hi ↦ ?_
     · simpa [KLDiv_eq_sum] using h
@@ -310,7 +306,6 @@ lemma KLDiv_add_le_KLDiv_of_indep [Finite G] [AddCommGroup G] [DiscreteMeasurabl
     simp [sub_eq_add_neg]
   let w (s : G) : ℝ := (μ.map Z).real {s}
   have sum_w : ∑ s, w s = 1 := by
-    have : IsProbabilityMeasure (μ.map Z) := Measure.isProbabilityMeasure_map hZ.aemeasurable
     simp [w]
   have A x : (μ.map (X + Z)).real {x} = ∑ s, w s * (μ.map (X' s)).real {x} := by
     have : IndepFun X Z μ := h_indep.comp (φ := Prod.fst) (ψ := id) measurable_fst measurable_id
@@ -372,7 +367,7 @@ lemma condKLDiv_eq {S : Type*} [MeasurableSpace S] [Finite S] [MeasurableSinglet
     have : Measure.map X μ {g} = Measure.map X (∑ x, μ (Z ⁻¹' {x}) • μ[|Z ⁻¹' {x}]) {g} := by
       rw [sum_meas_smul_cond_fiber hZ μ]
     rw [← MeasureTheory.Measure.sum_fintype, Measure.map_sum hX.aemeasurable] at this
-    simpa using this
+    simpa [Measure.map_smul _ hX.aemeasurable] using this
   have : (Measure.map X μ).real {g} =
       ∑ x, (Measure.map Z μ).real {x} * (Measure.map X μ[|Z ⁻¹' {x}]).real {g} := by
     rw [measureReal_def, A, ENNReal.toReal_sum (fun a ha ↦ by finiteness)]
@@ -402,13 +397,12 @@ lemma condKLDiv_eq {S : Type*} [MeasurableSpace S] [Finite S] [MeasurableSinglet
 /-- `KL(X|Z ‖ Y) ≥ 0`. -/
 lemma condKLDiv_nonneg {S : Type*} [MeasurableSingletonClass G] [Finite G]
     {X : Ω → G} {Y : Ω' → G} {Z : Ω → S}
-    [IsZeroOrProbabilityMeasure μ']
-    (hX : Measurable X) (hY : Measurable Y)
+    [IsZeroOrProbabilityMeasure μ'] (hX : Measurable X)
     (habs : ∀ x, μ'.map Y {x} = 0 → μ.map X {x} = 0) :
     0 ≤ KL[X | Z; μ # Y ; μ'] := by
   rw [condKLDiv]
   refine tsum_nonneg (fun i ↦ mul_nonneg (by simp) ?_)
-  apply KLDiv_nonneg hX hY
+  apply KLDiv_nonneg
   intro s hs
   specialize habs s hs
   rw [Measure.map_apply hX (measurableSet_singleton s)] at habs ⊢

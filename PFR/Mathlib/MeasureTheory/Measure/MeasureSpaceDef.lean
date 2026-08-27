@@ -9,6 +9,8 @@ open Set
 namespace MeasureTheory
 variable {Ω : Type*} [Countable Ω] [MeasurableSpace Ω] {μ : Measure Ω} {s : Set Ω}
 
+attribute [simp] Measurable.aemeasurable
+
 lemma measure_eq_univ_of_forall_singleton (hμ : ∀ x ∈ sᶜ, μ {x} = 0) : μ s = μ .univ := by
   apply le_antisymm (measure_mono (subset_univ _))
   rw [← Set.union_compl_self s]

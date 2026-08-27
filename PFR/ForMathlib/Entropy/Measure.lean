@@ -3,7 +3,9 @@ module
 public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 public import PFR.ForMathlib.FiniteRange.Defs
-public import PFR.Mathlib.MeasureTheory.Measure.Dirac
+public import PFR.Mathlib.MeasureTheory.MeasurableSpace.Constructions
+public import PFR.Mathlib.MeasureTheory.Measure.Dirac.Def
+public import PFR.Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import PFR.Mathlib.MeasureTheory.Measure.Real
 public import PFR.Mathlib.Probability.UniformOn
 
@@ -137,8 +139,15 @@ lemma ae_mem_of_finiteRange {μ : Measure Ω} {X : Ω → S} (hX : Measurable X)
 
 instance finiteSupport_of_finiteRange {μ : Measure Ω} {X : Ω → S} [hX' : FiniteRange X] :
     FiniteSupport (μ.map X) := by
-  use hX'.toFinset
-  exact FiniteRange.null_of_compl μ X
+  by_cases hX : AEMeasurable X μ
+  · exact ⟨hX'.toFinset, FiniteRange.null_of_compl μ X hX⟩
+  obtain rfl | hμ := eq_or_ne μ 0
+  · exact ⟨∅, by simp⟩
+  have : Nonempty S := by
+    contrapose! hX
+    exact (measurable_of_empty_codomain X).aemeasurable
+  exact ⟨{Classical.ofNonempty}, by
+    rw [Measure.map_of_not_aemeasurable_of_ne_zero hX hμ]; simp⟩
 
 instance finiteSupport_of_prod {μ : Measure S} [FiniteSupport μ] {ν : Measure T} [SigmaFinite ν]
     [FiniteSupport ν] :
@@ -584,10 +593,6 @@ lemma measureMutualInfo_nonneg_aux {μ : Measure (S × U)} [FiniteSupport μ]
     (Im[μ] = 0 ↔ ∀ p, μ.real {p} = (μ.map Prod.fst).real {p.1} * (μ.map Prod.snd).real {p.2}) := by
   rcases eq_zero_or_isProbabilityMeasure μ with rfl | hμ
   · simp
-  have : IsProbabilityMeasure (μ.map Prod.fst) :=
-    Measure.isProbabilityMeasure_map measurable_fst.aemeasurable
-  have : IsProbabilityMeasure (μ.map Prod.snd) :=
-    Measure.isProbabilityMeasure_map measurable_snd.aemeasurable
   let E := μ.support
   have hE := measure_compl_support μ
   classical

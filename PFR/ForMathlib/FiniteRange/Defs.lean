@@ -146,15 +146,15 @@ lemma FiniteRange.real_full {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace
   simp [measureReal_def, FiniteRange.full hX]
 
 lemma FiniteRange.null_of_compl {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
-    [MeasurableSingletonClass G] (μ : Measure Ω) (X : Ω → G) [FiniteRange X] :
+    [MeasurableSingletonClass G] (μ : Measure Ω) (X : Ω → G) [FiniteRange X]
+    (hX : AEMeasurable X μ) :
     (μ.map X) (FiniteRange.toFinset X : Set G)ᶜ = 0 := by
-  by_cases hX : AEMeasurable X μ
-  · rw [Measure.map_apply₀ hX (by measurability)]
-    convert measure_empty (μ := μ)
-    ext ω
-    simp
-  · simp [hX]
+  rw [Measure.map_apply₀ hX (by measurability)]
+  convert measure_empty (μ := μ)
+  ext ω
+  simp
 
 lemma FiniteRange.ae_mem_toFinset {Ω G : Type*} [MeasurableSpace Ω] [MeasurableSpace G]
-    [MeasurableSingletonClass G] (μ : Measure Ω) (X : Ω → G) [FiniteRange X] :
-    ∀ᵐ x ∂(μ.map X), x ∈ (FiniteRange.toFinset X : Set G) := FiniteRange.null_of_compl ..
+    [MeasurableSingletonClass G] {μ : Measure Ω} {X : Ω → G} [FiniteRange X]
+    (hX : AEMeasurable X μ) :
+    ∀ᵐ x ∂(μ.map X), x ∈ (FiniteRange.toFinset X : Set G) := FiniteRange.null_of_compl μ X hX

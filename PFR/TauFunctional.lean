@@ -108,27 +108,27 @@ lemma ProbabilityTheory.IdentDistrib.tau_eq [MeasurableSpace Ω₁] [MeasurableS
 /-- Property recording the fact that two random variables minimize the tau functional. Expressed
 in terms of measures on the group to avoid quantifying over all spaces, but this implies comparison
 with any pair of random variables, see Lemma `is_tau_min`. -/
-def tau_minimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω → G) : Prop :=
-  ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
-      τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
+def TauMinimizes {Ω : Type*} [MeasureSpace Ω] (X₁ : Ω → G) (X₂ : Ω → G) : Prop :=
+  ∀ (ν₁ : Measure G) [IsProbabilityMeasure ν₁] (ν₂ : Measure G) [IsProbabilityMeasure ν₂],
+    τ[X₁ # X₂ | p] ≤ τ[id ; ν₁ # id ; ν₂ | p]
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)]
   [Finite G] in
 /-- If $X'_1, X'_2$ are copies of $X_1,X_2$, then $X_1, X_2$ minimize $\tau$ iff $X_1', X_2'$ do. -/
-lemma ProbabilityTheory.IdentDistrib.tau_minimizes [MeasureSpace Ω]
+lemma ProbabilityTheory.IdentDistrib.tauMinimizes [MeasureSpace Ω]
     [MeasureSpace Ω']
     {X₁ X₂ : Ω → G} {X₁' X₂' : Ω' → G}
     (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂') :
-    tau_minimizes p X₁ X₂ ↔ tau_minimizes p X₁' X₂' := by
-  simp_rw [_root_.tau_minimizes, h₁.tau_eq p h₂]
+    TauMinimizes p X₁ X₂ ↔ TauMinimizes p X₁' X₂' := by
+  simp_rw [TauMinimizes, h₁.tau_eq p h₂]
 
 /-- A pair of measures minimizing $\tau$ exists. -/
 lemma tau_min_exists_measure [MeasurableSingletonClass G] :
     ∃ (μ : Measure G × Measure G),
     IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
-    ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
+    ∀ (ν₁ : Measure G) [IsProbabilityMeasure ν₁] (ν₂ : Measure G) [IsProbabilityMeasure ν₂],
       τ[id ; μ.1 # id ; μ.2 | p] ≤ τ[id ; ν₁ # id ; ν₂ | p] := by
-  let _i : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
+  let : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
   have : DiscreteTopology G := ⟨rfl⟩
   let T : ProbabilityMeasure G × ProbabilityMeasure G → ℝ := -- restrict τ to the compact subspace
     fun ⟨μ₁, μ₂⟩ ↦ τ[id ; μ₁ # id ; μ₂ | p]
@@ -138,7 +138,7 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
                           _ _ _ _ Set.univ isCompact_univ ⟨default, trivial⟩ T T_cont.continuousOn
   use ⟨μ.1.toMeasure, μ.2.toMeasure⟩
   refine ⟨μ.1.prop, μ.2.prop, ?_⟩
-  intro ν₁ ν₂ Pν₁ Pν₂
+  intro ν₁ Pν₁ ν₂ Pν₂
   rw [isMinOn_univ_iff] at hμ
   let ν : ProbabilityMeasure G × ProbabilityMeasure G := ⟨⟨ν₁, Pν₁⟩, ν₂, Pν₂⟩
   exact hμ ν
@@ -147,18 +147,17 @@ lemma tau_min_exists_measure [MeasurableSingletonClass G] :
 lemma tau_minimizer_exists [MeasurableSingletonClass G] :
     ∃ (Ω : Type uG) (_ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
     Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧
-    tau_minimizes p X₁ X₂ := by
+    TauMinimizes p X₁ X₂ := by
   let μ := (tau_min_exists_measure p).choose
   have : IsProbabilityMeasure μ.1 := (tau_min_exists_measure p).choose_spec.1
   have : IsProbabilityMeasure μ.2 := (tau_min_exists_measure p).choose_spec.2.1
   have P : IsProbabilityMeasure (μ.1.prod μ.2) := by infer_instance
   let M : MeasureSpace (G × G) := ⟨μ.1.prod μ.2⟩
   refine ⟨G × G, M, Prod.fst, Prod.snd, measurable_fst, measurable_snd, P, ?_⟩
-  intro ν₁ ν₂ h₁ h₂
+  intro ν₁ h₁ ν₂ h₂
   have A : τ[@Prod.fst G G # @Prod.snd G G | p] = τ[id ; μ.1 # id ; μ.2 | p] :=
     ProbabilityTheory.IdentDistrib.tau_eq p IdentDistrib.fst_id IdentDistrib.snd_id
-  convert (tau_min_exists_measure p).choose_spec.2.2 ν₁ ν₂ h₁ h₂
-
+  convert (tau_min_exists_measure p).choose_spec.2.2 ν₁ ν₂
 
 variable [MeasureSpace Ω] [hΩ₁ : MeasureSpace Ω'₁] [hΩ₂ : MeasureSpace Ω'₂]
   [IsProbabilityMeasure (ℙ : Measure Ω)]
@@ -167,14 +166,13 @@ variable [MeasureSpace Ω] [hΩ₁ : MeasureSpace Ω'₁] [hΩ₂ : MeasureSpace
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
   [IsProbabilityMeasure (ℙ : Measure Ω)] in
-lemma is_tau_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂') :
+lemma is_tau_min (h : TauMinimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂') :
     τ[X₁ # X₂ | p] ≤ τ[X₁' # X₂' | p] := by
   let ν₁ := (ℙ : Measure Ω'₁).map X₁'
   let ν₂ := (ℙ : Measure Ω'₂).map X₂'
   have B : τ[X₁' # X₂' | p] = τ[id ; ν₁ # id ; ν₂ | p] :=
     (identDistrib_id_right h1.aemeasurable).tau_eq p (identDistrib_id_right h2.aemeasurable)
-  convert h ν₁ ν₂ (Measure.isProbabilityMeasure_map h1.aemeasurable)
-    (Measure.isProbabilityMeasure_map h2.aemeasurable)
+  convert h ν₁ ν₂
 
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
   [IsProbabilityMeasure (ℙ : Measure Ω)] in
@@ -183,7 +181,7 @@ $$ d[X'_1;X'_2] \geq
     k - \eta (d[X^0_1;X'_1] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2] - d[X^0_2;X_2] )$$
 for any $G$-valued random variables $X'_1,X'_2$.
 -/
-lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂') :
+lemma distance_ge_of_min (h : TauMinimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂') :
     d[X₁ # X₂] - p.η * (d[p.X₀₁ # X₁'] - d[p.X₀₁ # X₁]) - p.η * (d[p.X₀₂ # X₂'] - d[p.X₀₂ # X₂])
       ≤ d[X₁' # X₂'] := by
   have Z := is_tau_min p h h1 h2
@@ -193,7 +191,7 @@ lemma distance_ge_of_min (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁')
 omit [IsProbabilityMeasure (ℙ : Measure Ω₀₁)] [IsProbabilityMeasure (ℙ : Measure Ω₀₂)] [Finite G]
   [IsProbabilityMeasure (ℙ : Measure Ω)] in
 /-- Version of `distance_ge_of_min` with the measures made explicit. -/
-lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : tau_minimizes p X₁ X₂)
+lemma distance_ge_of_min' {Ω'₁ Ω'₂ : Type*} (h : TauMinimizes p X₁ X₂)
     [MeasurableSpace Ω'₁] [MeasurableSpace Ω'₂] {μ : Measure Ω'₁} {μ' : Measure Ω'₂}
     [IsProbabilityMeasure μ] [IsProbabilityMeasure μ'] {X₁' : Ω'₁ → G} {X₂' : Ω'₂ → G}
     (h1 : Measurable X₁') (h2 : Measurable X₂') :
@@ -212,7 +210,7 @@ $$k - \eta (d[X^0_1;X'_1|Z] - d[X^0_1;X_1] ) - \eta (d[X^0_2;X'_2|W] - d[X^0_2;X
 lemma condRuzsaDistance_ge_of_min [MeasurableSingletonClass G]
     [Finite S] [MeasurableSpace S] [MeasurableSingletonClass S]
     [Finite T] [MeasurableSpace T] [MeasurableSingletonClass T]
-    (h : tau_minimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂')
+    (h : TauMinimizes p X₁ X₂) (h1 : Measurable X₁') (h2 : Measurable X₂')
     (Z : Ω'₁ → S) (W : Ω'₂ → T) (hZ : Measurable Z) (hW : Measurable W) :
     d[X₁ # X₂] - p.η * (d[p.X₀₁ # X₁' | Z] - d[p.X₀₁ # X₁])
       - p.η * (d[p.X₀₂ # X₂' | W] - d[p.X₀₂ # X₂]) ≤ d[X₁' | Z # X₂' | W] := by

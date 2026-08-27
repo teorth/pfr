@@ -48,7 +48,7 @@ lemma gen_ineq_aux1 :
     have J2 : Z₃ + Z₁ = Z₁ + Z₃ := by abel
     simp_rw [J1, J2] at M
     simpa only [rdist_symm (Y := Z₁), rdist_symm (X := Z₄), rdist_symm (X := Z₃ + Z₄),
-      condRuzsaDist_symm (Z := Z₃ + Z₄) (W := Z₁ + Z₂) (by fun_prop) (by fun_prop),
+      condRuzsaDist_symm (Z := Z₃ + Z₄) (W := Z₁ + Z₂),
       condMutualInfo_comm (X := Z₁ + Z₃) (Y := Z₁ + Z₂) (by fun_prop) (by fun_prop)] using M
   calc
   d[Y # Z₁ + Z₂ | ⟨Z₁ + Z₃, Sum⟩]
@@ -267,7 +267,7 @@ variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
 variable (h_indep : iIndepFun ![X₁, X₂, X₂', X₁'])
 
-variable (h_min : tau_minimizes p X₁ X₂)
+variable (h_min : TauMinimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[X₁ # X₂]
@@ -328,8 +328,6 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   have h2T₃ : T₃ = T₁ + T₂ := by
     calc T₃ = T₁ + T₂ + T₃ - T₃ := by simp [hT, ZModModule.neg_eq_self]
       _ = T₁ + T₂ := by rw [add_sub_cancel_right]
-  have hP : IsProbabilityMeasure (Measure.map T₃ ℙ) :=
-    Measure.isProbabilityMeasure_map hT₃.aemeasurable
   -- control sum1 with entropic BSG
   have h1 : sum1 ≤ δ := by
     have h1 : sum1 ≤ 3 * I[T₁ : T₂] + 2 * H[T₃] - H[T₁] - H[T₂] := by
@@ -343,13 +341,13 @@ lemma construct_good_prelim' : k ≤ δ + p.η * c[T₁ | T₃ # T₂ | T₃] :=
   have h2 : sum2 = d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁] := by
     simp only [sum2, integral_sub .of_finite .of_finite, integral_const, smul_eq_mul]
     simp [condRuzsaDist'_eq_sum hT₁ hT₃,
-      integral_eq_setIntegral (FiniteRange.ae_mem_toFinset _ T₃), setIntegral_finset _ .finset,
-      map_measureReal_apply hT₃ (.singleton _), smul_eq_mul]
+      integral_eq_setIntegral (FiniteRange.ae_mem_toFinset hT₃.aemeasurable),
+      setIntegral_finset _ .finset, map_measureReal_apply hT₃ (.singleton _), smul_eq_mul]
   have h3 : sum3 = d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂] := by
     simp only [sum3, integral_sub .of_finite .of_finite, integral_const, smul_eq_mul]
     simp [condRuzsaDist'_eq_sum hT₂ hT₃,
-      integral_eq_setIntegral (FiniteRange.ae_mem_toFinset _ T₃), setIntegral_finset _ .finset,
-      map_measureReal_apply hT₃ (.singleton _)]
+      integral_eq_setIntegral (FiniteRange.ae_mem_toFinset hT₃.aemeasurable),
+      setIntegral_finset _ .finset, map_measureReal_apply hT₃ (.singleton _)]
   -- put all these estimates together to bound sum4
   have h4 : sum4 ≤ δ + p.η * ((d[p.X₀₁ # T₁ | T₃] - d[p.X₀₁ # X₁])
       + (d[p.X₀₂ # T₂ | T₃] - d[p.X₀₂ # X₂])) := by
@@ -701,9 +699,9 @@ theorem tau_strictly_decreases' (hp : 8 * p.η < 1) : d[X₁ # X₂] = 0 := by
   let ⟨A, mA, μ, Y₁, Y₂, Y₁', Y₂', hμ, h_indep, hY₁, hY₂, hY₁', hY₂', h_id1, h_id2, h_id1', h_id2'⟩
     := independent_copies4_nondep hX₁ hX₂ hX₁ hX₂ ℙ ℙ ℙ ℙ
   rw [← h_id1.rdist_congr h_id2]
-  let _ : MeasureSpace A := ⟨μ⟩
+  let : MeasureSpace A := ⟨μ⟩
   have : IsProbabilityMeasure (ℙ : Measure A) := hμ
-  rw [← h_id1.tau_minimizes p h_id2] at h_min
+  rw [← h_id1.tauMinimizes p h_id2] at h_min
   exact tau_strictly_decreases_aux' p hY₁ hY₂ hY₁' hY₂' (h_id1.trans h_id1'.symm)
     (h_id2.trans h_id2'.symm) h_indep.reindex_four_abdc h_min hp
 
@@ -729,7 +727,7 @@ all minimizers are fine, by `tau_strictly_decreases'`. For `p.η = 1/8`, we use 
 minimizers for `η < 1/8`, which exists by compactness. -/
 lemma tau_minimizer_exists_rdist_eq_zero :
     ∃ (Ω : Type uG) (_ : MeasureSpace Ω) (X₁ : Ω → G) (X₂ : Ω → G),
-      Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧ tau_minimizes p X₁ X₂
+      Measurable X₁ ∧ Measurable X₂ ∧ IsProbabilityMeasure (ℙ : Measure Ω) ∧ TauMinimizes p X₁ X₂
       ∧ d[X₁ # X₂] = 0 := by
   -- let `uₙ` be a sequence converging from below to `η`. In particular, `uₙ < 1/8`.
   obtain ⟨u, -, u_mem, u_lim⟩ :
@@ -740,7 +738,7 @@ lemma tau_minimizer_exists_rdist_eq_zero :
     ⟨p.X₀₁, p.X₀₂, p.hmeas1, p.hmeas2, u n, (u_mem n).1, by linarith [(u_mem n).2, p.hη']⟩
   have : ∀ n, ∃ (μ : Measure G × Measure G),
     IsProbabilityMeasure μ.1 ∧ IsProbabilityMeasure μ.2 ∧
-      ∀ (ν₁ : Measure G) (ν₂ : Measure G), IsProbabilityMeasure ν₁ → IsProbabilityMeasure ν₂ →
+      ∀ (ν₁ : Measure G) [IsProbabilityMeasure ν₁] (ν₂ : Measure G) [IsProbabilityMeasure ν₂],
       τ[id ; μ.1 # id ; μ.2 | q n] ≤ τ[id ; ν₁ # id ; ν₂ | q n] :=
     fun n ↦ tau_min_exists_measure (q n)
   choose μ μ1_prob μ2_prob hμ using this
@@ -754,16 +752,16 @@ lemma tau_minimizer_exists_rdist_eq_zero :
     rw [← this]
     apply tau_strictly_decreases' (q n) measurable_fst measurable_snd ?_
       (by linarith [(u_mem n).2, p.hη'])
-    intro ν₁ ν₂ h₁ h₂
+    intro ν₁ h₁ ν₂ h₂
     have A : τ[@Prod.fst G G # @Prod.snd G G | q n] = τ[id ; (μ n).1 # id ; (μ n).2 | q n] :=
       ProbabilityTheory.IdentDistrib.tau_eq (q n) IdentDistrib.fst_id IdentDistrib.snd_id
     rw [A]
-    exact hμ n _ _ h₁ h₂
+    exact hμ n _ _
   -- extract a converging subsequence of the sequence of minimizers, seen as pairs of probability
   -- measures on `G` (which is a compact space).
   let μ' : ℕ → ProbabilityMeasure G × ProbabilityMeasure G :=
     fun n ↦ (⟨(μ n).1, μ1_prob n⟩, ⟨(μ n).2, μ2_prob n⟩)
-  let _i : TopologicalSpace G := (⊥ : TopologicalSpace G)
+  let : TopologicalSpace G := (⊥ : TopologicalSpace G)
   have : DiscreteTopology G := ⟨rfl⟩
   -- The limiting pair of measures will be the desired minimizer.
   rcases IsCompact.tendsto_subseq (x := μ') isCompact_univ (fun n ↦ mem_univ _)
@@ -773,7 +771,7 @@ lemma tau_minimizer_exists_rdist_eq_zero :
   have P : IsProbabilityMeasure ((ν.1 : Measure G).prod (ν.2 : Measure G)) := by infer_instance
   refine ⟨G × G, M, Prod.fst, Prod.snd, measurable_fst, measurable_snd, P, ?_, ?_⟩
   -- check that it is indeed a minimizer, as a limit of minimizers.
-  · intro ν₁ ν₂ h₁ h₂
+  · intro ν₁ h₁ ν₂ h₂
     have A : τ[@Prod.fst G G # @Prod.snd G G | p] = τ[id ; ν.1 # id ; ν.2 | p] :=
       ProbabilityTheory.IdentDistrib.tau_eq p IdentDistrib.fst_id IdentDistrib.snd_id
     rw [A]
@@ -794,7 +792,7 @@ lemma tau_minimizer_exists_rdist_eq_zero :
         (𝓝 (τ[id ; ν₁ # id ; ν₂ | p])) :=
       Tendsto.add (Tendsto.add tendsto_const_nhds (Tendsto.mul (u_lim.comp φlim)
         tendsto_const_nhds)) (Tendsto.mul (u_lim.comp φlim) tendsto_const_nhds)
-    exact le_of_tendsto_of_tendsto' L1 L2 (fun n ↦ hμ (φ n) _ _ h₁ h₂)
+    exact le_of_tendsto_of_tendsto' L1 L2 (fun n ↦ hμ (φ n) _ _)
   -- check that it has zero Rusza distance, as a limit of a sequence at zero Rusza distance.
   · have : d[@Prod.fst G G # @Prod.snd G G] = d[id ; ν.1 # id ; ν.2] :=
       IdentDistrib.rdist_congr IdentDistrib.fst_id IdentDistrib.snd_id

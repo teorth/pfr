@@ -150,8 +150,6 @@ theorem exists_isUniform_of_rdist_self_eq_zero (hX : Measurable X) (hdist : d[X 
     have B : (ℙ : Measure Ω).map X = 0 := by
       rw [← Measure.sum_smul_dirac (μ := (ℙ : Measure Ω).map X)]
       simp [A]
-    have : IsProbabilityMeasure ((ℙ : Measure Ω).map X) :=
-      Measure.isProbabilityMeasure_map hX.aemeasurable
     exact IsProbabilityMeasure.ne_zero _ B
   refine ⟨symmGroup X hX, fun ω ↦ X ω - x₀, hX.sub_const _,
     isUniform_sub_const_of_rdist_eq_zero hX hdist h₀, ?_⟩

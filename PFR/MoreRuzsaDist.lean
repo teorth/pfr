@@ -2136,7 +2136,7 @@ theorem multiDist_of_hom' {G G' : Type*} [MeasurableSpace G] [MeasurableSingleto
     convert (Measure.map_of_pi (f := fun i x ↦ ι x + a i) _ _).symm with i
     · rw [Measure.map_map] <;> try fun_prop
       congr
-    · intro i; exact isProbabilityMeasure_map (by fun_prop)
+    · exact inferInstance
     intro i; fun_prop
   congr 2; ext i
   apply entropy_comp_of_injective _ (hX i) (fun x ↦ ι x + a i) _

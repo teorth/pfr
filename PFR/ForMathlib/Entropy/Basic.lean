@@ -422,13 +422,12 @@ lemma condEntropy_nonneg (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) : 0 ≤
 
 /-- Conditional entropy is at most the logarithm of the cardinality of the range. -/
 lemma condEntropy_le_log_card [MeasurableSingletonClass S] [Fintype S]
-    (X : Ω → S) (Y : Ω → T) (hY : Measurable Y) (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    (X : Ω → S) (Y : Ω → T) (μ : Measure Ω) [IsProbabilityMeasure μ] :
     H[X | Y ; μ] ≤ log (Fintype.card S) := by
   refine (integral_mono_of_nonneg ?_ (integrable_const (log (Fintype.card S))) ?_).trans ?_
   · exact ae_of_all _ (fun _ ↦ entropy_nonneg _ _)
   · exact ae_of_all _ (fun _ ↦ entropy_le_log_card _ _)
-  · have : IsProbabilityMeasure (μ.map Y) := isProbabilityMeasure_map hY.aemeasurable
-    simp
+  · simp
 
 /-- `H[X|Y] = ∑_y P[Y=y] H[X|Y=y]`. -/
 lemma condEntropy_eq_sum [MeasurableSingletonClass T] (X : Ω → S) (Y : Ω → T) (μ : Measure Ω)

@@ -1,6 +1,6 @@
 module
 
-public import Mathlib.MeasureTheory.Measure.Dirac
+public import Mathlib.MeasureTheory.Measure.Dirac.Def
 
 public section
 
