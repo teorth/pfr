@@ -13,7 +13,7 @@ import PFR.WeakPFR
 /-!
 # Marton's conjecture: proofs
 
-Proofs of the statements of `Palomar.Challenge`, obtained from the corresponding results of
+Proofs of the statements of `PFRPalomar.Challenge`, obtained from the corresponding results of
 the `PFR` library.
 -/
 
