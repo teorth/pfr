@@ -102,29 +102,29 @@ lemma multiTau_continuous {G Ω₀ : Type u} [MeasurableFinGroup G] [Topological
   · let f : (Fin p.m → G) → G := fun x ↦ ∑ i, x i
     have fcont : Continuous f := by fun_prop
     change Continuous fun (x : Fin p.m → ProbabilityMeasure G) ↦
-      Hm[(ProbabilityMeasure.map (ProbabilityMeasure.pi x) fcont.aemeasurable : Measure G)]
+      Hm[(ProbabilityMeasure.map (ProbabilityMeasure.pi x) f : Measure G)]
     apply continuous_measureEntropy_probabilityMeasure.comp
-    exact (ProbabilityMeasure.continuous_map fcont).comp ProbabilityMeasure.continuous_pi
+    fun_prop
   · apply Continuous.mul continuous_const
     refine continuous_finsetSum Finset.univ ?_
     intro i hi
     apply continuous_entropy_restrict_probabilityMeasure.comp
-    exact continuous_apply i
+    fun_prop
   · apply Continuous.mul continuous_const
     refine continuous_finsetSum Finset.univ ?_
     intro i hi
     have := p.hprob
     apply (continuous_rdist_restrict_probabilityMeasure₁_left p.X₀ volume p.hmeas).comp
-    exact continuous_apply i
+    fun_prop
 
 /-- If $G$ is finite, then a $\tau$-minimizer exists. -/
 lemma multiTau_min_exists_measure {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpace Ω₀]
     (p : multiRefPackage G Ω₀) :
     ∃ (μ : Fin p.m → Measure G), (∀ i, IsProbabilityMeasure (μ i)) ∧
-    ∀ (ν : Fin p.m → Measure G), (∀ i, IsProbabilityMeasure (ν i)) →
+    ∀ (ν : Fin p.m → Measure G) [∀ i, IsProbabilityMeasure (ν i)],
     multiTau p (fun _ ↦ G) (fun i ↦ ⟨μ i⟩) (fun _ ↦ id) ≤
       multiTau p (fun _ ↦ G) (fun i ↦ ⟨ν i⟩) (fun _ ↦ id) := by
-  let _i : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
+  let : TopologicalSpace G := (⊥ : TopologicalSpace G) -- Equip G with the discrete topology.
   have : DiscreteTopology G := ⟨rfl⟩
   let T : (Π (i : Fin p.m), ProbabilityMeasure G) → ℝ := -- restrict τ to the compact subspace
     fun μ ↦ multiTau p (fun _ ↦ G) (fun i ↦ ⟨μ i⟩) (fun _ ↦ id)
@@ -152,10 +152,7 @@ lemma multiTau_min_exists {G Ω₀ : Type u} [MeasurableFinGroup G] [MeasureSpac
     apply multiTau_of_ident _ _ _ (fun i ↦ ?_)
     apply identDistrib_map (hX i) measurable_id
   rw [← this]
-  apply (multiTau_min_exists_measure p).choose_spec.2
-  intro i
-  apply Measure.isProbabilityMeasure_map
-  exact (hX i).aemeasurable
+  exact (multiTau_min_exists_measure p).choose_spec.2 _
 
 /-- If $(X_i)_{1 \leq i \leq m}$ is a $\tau$-minimizer,
 then $\sum_{i=1}^m d[X_i; X^0] \leq \frac{2m}{\eta} d[X^0; X^0]$. -/

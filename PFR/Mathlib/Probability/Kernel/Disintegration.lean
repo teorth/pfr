@@ -215,7 +215,7 @@ variable {X : Ω → S} {Y : Ω → T} {Z : Ω → U}
 lemma condDistrib_apply' [Nonempty S] (hX : Measurable X) (hY : Measurable Y) (μ : Measure Ω)
     [IsFiniteMeasure μ] (x : T) (hYx : μ (Y ⁻¹' {x}) ≠ 0) {s : Set S} (hs : MeasurableSet s) :
     condDistrib X Y μ x s = (μ (Y ⁻¹' {x}))⁻¹ * μ (Y ⁻¹' {x} ∩ X ⁻¹' s) := by
-  rw [condDistrib_apply_of_ne_zero hX]
+  rw [condDistrib_apply_of_ne_zero hY hX]
   · rw [Measure.map_apply hY (.singleton _),
       Measure.map_apply (hY.prodMk hX) ((measurableSet_singleton _).prod hs)]
     congr

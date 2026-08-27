@@ -43,7 +43,7 @@ variable (h₁ : IdentDistrib X₁ X₁') (h₂ : IdentDistrib X₂ X₂')
 
 variable (h_indep : iIndepFun ![X₁, X₂, X₁', X₂'])
 
-variable (h_min : tau_minimizes p X₁ X₂)
+variable (h_min : TauMinimizes p X₁ X₂)
 
 /-- `k := d[X₁ # X₂]`, the Ruzsa distance `rdist` between X₁ and X₂. -/
 local notation3 "k" => d[X₁ # X₂]
@@ -109,7 +109,7 @@ lemma second_estimate : I₂ ≤ 2 * p.η * k + (2 * p.η * (2 * p.η * k - I₁
   have h := sum_of_rdist_eq_char_2 Y hY_indep hY
   rw [show Y 0 = X₂ by rfl, show Y 1 = X₁ by rfl, show Y 2 = X₂' by rfl, show Y 3 = X₁' by rfl] at h
   rw [← h₂.rdist_congr h₁, rdist_symm, rdist_symm (X := X₂ + X₂'),
-    condRuzsaDist_symm (Z := X₂ + X₂') (W := X₁ + X₁') (hX₂.add hX₂') (hX₁.add hX₁'),
+    condRuzsaDist_symm (Z := X₂ + X₂') (W := X₁ + X₁'),
     ← two_mul] at h
   replace h : 2 * k = d[X₁ + X₁' # X₂ + X₂'] + d[X₁ | X₁ + X₁' # X₂ | X₂ + X₂']
       + I[X₁ + X₂ : X₁ + X₁'|X₁ + X₂ + X₁' + X₂'] := by

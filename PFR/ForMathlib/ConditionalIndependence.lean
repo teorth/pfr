@@ -160,7 +160,7 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     simp [m]
   have h5 {y : β} (hy : μ (Y ⁻¹' {y}) ≠ 0) : IsProbabilityMeasure (m' y) := by
     have : IsProbabilityMeasure (μ[|Y ← y]) := cond_isProbabilityMeasure hy
-    exact isProbabilityMeasure_map hX.aemeasurable
+    exact inferInstance
   have h1 : ν.map Prod.snd = μ.map Y := by
     rw [← sum_meas_smul_cond_fiber' hY μ, ← Measure.mapₗ_apply_of_measurable measurable_snd,
       ← Measure.mapₗ_apply_of_measurable hY]

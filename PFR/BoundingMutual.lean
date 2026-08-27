@@ -340,7 +340,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       independent_copies_finiteRange (X := fun ω i ↦ X i ω) (Y := fun ω q ↦ X' q ω)
       (by fun_prop) (by fun_prop) ℙ ℙ
     let Ω'' := (Fin p.m → G) × (Fin p.m × Fin p.m → G)
-    let _ : MeasureSpace (Ω'') := ⟨ν⟩
+    let : MeasureSpace (Ω'') := ⟨ν⟩
     let Z : Fin p.m → Ω'' → G := fun i ω ↦ XX ω i
     let Z' : Fin p.m × Fin p.m → Ω'' → G := fun i ω ↦ XX' ω i
     -- the claim below could be abstracted into a Mathlib lemma.

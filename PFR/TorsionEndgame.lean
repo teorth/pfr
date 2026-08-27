@@ -546,7 +546,8 @@ lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : M
     rw [←entropy_add_left', ←entropy_neg_left] <;> try fun_prop
     congr!; rw [←add_eq_zero_iff_neg_eq, ←hsum]; abel
   let _hG : MeasureSpace G := ⟨Measure.map (T₁ + T₂) ℙ⟩
-  let _ : IsProbabilityMeasure (ℙ: Measure G) := Measure.isProbabilityMeasure_map (by fun_prop)
+  have : IsProbabilityMeasure (ℙ : Measure G) :=
+    (inferInstance : IsProbabilityMeasure (Measure.map (T₁ + T₂) (ℙ : Measure Ω)))
   change
     ∫ x, (fun z ↦ d[T₁ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂; ℙ[|(T₁ + T₂) ⁻¹' {z}]]) x ≤
       3 * I[T₁ : T₂] + 2 * H[T₁ + T₂] - H[T₁] - H[T₂] at h1
@@ -635,8 +636,9 @@ lemma k_eq_zero (hη_eq : p.η = 1 / (32 * p.m ^ 3)) : k = 0 := by
         · exact mutual_information_le_t_13 hΩ h_min h_mes h_indep hident
         exact mutual_information_le_t_23 hΩ h_min h_mes h_indep hident
       _ = _ := by ring
-  let _ : MeasureSpace G := ⟨Measure.map W ℙ⟩
-  have _ : IsProbabilityMeasure (ℙ: Measure G) := Measure.isProbabilityMeasure_map (by fun_prop)
+  let : MeasureSpace G := ⟨Measure.map W ℙ⟩
+  have _ : IsProbabilityMeasure (ℙ: Measure G) :=
+    (inferInstance : IsProbabilityMeasure (Measure.map W (ℙ : Measure Ω')))
   let δ' : G → ℝ := fun w ↦ p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]]
   have main_est {w:G} (hw: ℙ {w} ≠ 0) : k ≤ δ' w := by
     let μ : Measure Ω' := ℙ[|W ⁻¹' {w}]
@@ -713,7 +715,7 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Finite G] [MeasurableSpace
     ∃ H : AddSubgroup G, ∃ Ω' : Type u, ∃ mΩ : MeasureSpace Ω', IsProbabilityMeasure mΩ.volume ∧
       ∃ U : Ω' → G, IsUniform H U ∧ Measurable U ∧ d[X # U] ≤ 64 * m^3 * d[X # X] := by
   cases nonempty_fintype G
-  let _ : MeasurableFinGroup G := {
+  let : MeasurableFinGroup G := {
   }
   let p : multiRefPackage G Ω := {
     m := m
@@ -732,7 +734,7 @@ lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Finite G] [MeasurableSpace
     let X'' : (q: Fin p.m × Fin p.m) → Ω' q.1 → G := fun q ω ↦ X' q.1 ω
     have := independent_copies'_finiteRange X'' (by fun_prop) (fun q ↦ (mΩ' q.1).volume)
     obtain ⟨Ω'', hΩ'', μ'', Y, hY_prob, hY_indep, hYi⟩ := this
-    let _ : MeasureSpace Ω'' := ⟨μ''⟩
+    let : MeasureSpace Ω'' := ⟨μ''⟩
     have hY_mes : ∀ i, Measurable (Y i) := by intro i; specialize hYi i; tauto
     have hY_ident : ∀ i, IdentDistrib (Y i) (X'' i) μ'' ℙ := by intro i; specialize hYi i; tauto
     convert k_eq_zero mΩ' htau_min hΩ'_prob hX'_mes (by fun_prop) hY_indep _ (by rfl)
@@ -809,7 +811,7 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : �
     c.ncard ≤ K ^ (128 * m^3 + 1) * A.ncard ^ (1/2:ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ)
       ∧ (H : Set G).ncard ≤ K ^ (256 * m^3) * A.ncard
       ∧ A.ncard ≤ K ^ (256 * m^3) * (H : Set G).ncard ∧ A ⊆ c + H := by
-  let _mG : MeasurableSpace G := ⊤
+  let : MeasurableSpace G := ⊤
   have : MeasurableSingletonClass G := ⟨fun _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' A_fin h₀A hA

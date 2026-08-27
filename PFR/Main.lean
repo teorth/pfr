@@ -151,7 +151,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
   cases nonempty_fintype G
   classical
   have A_fin : Finite A := by infer_instance
-  let _mG : MeasurableSpace G := ⊤
+  let : MeasurableSpace G := ⊤
   rw [sumset_eq_sub] at hA
   have : MeasurableSingletonClass G := ⟨fun _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < (A - A).ncard ∧ 0 < K :=
