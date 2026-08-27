@@ -279,7 +279,7 @@ lemma prob_ge_exp_neg_entropy [MeasurableSingletonClass S] [Nonempty S]
   let g_rhs s := -pdf s * log (pdf s)
   suffices ∑ s ∈ A, g_lhs s ≤ ∑ s ∈ A, g_rhs s by
     have hA0 : μ.map X (A : Set S)ᶜ = 0 := ae_iff.mp hA
-    convert this
+    convert! this
     rw [entropy_def, measureEntropy_eq_sum hA0]
     refine Finset.sum_congr rfl fun s _ => ?_
     have hsmul : (((μ.map X) Set.univ)⁻¹ • μ.map X).real {s} = pdf s := by
