@@ -1,6 +1,6 @@
 {
-  "challenge_module": "Palomar.Challenge",
-  "solution_module": "Palomar.Solution",
+  "challenge_module": "PFRPalomar.Challenge",
+  "solution_module": "PFRPalomar.Solution",
   "theorem_names": [
     "Marton.pfr_conjecture",
     "Marton.pfr_conjecture_nine",

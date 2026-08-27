@@ -32,9 +32,9 @@ As the first two phases of the project are completed, we are currently working t
 
 ## Palomar registration
 
-[`Palomar/Challenge.lean`](Palomar/Challenge.lean) states, in Lean-core-and-Mathlib
+[`PFRPalomar/Challenge.lean`](PFRPalomar/Challenge.lean) states, in Lean-core-and-Mathlib
 terms only, the six headline theorems of the three source papers, and
-[`Palomar/Solution.lean`](Palomar/Solution.lean) proves each of them from the
+[`PFRPalomar/Solution.lean`](PFRPalomar/Solution.lean) proves each of them from the
 corresponding result in `PFR/`. The pair is the [Palomar](https://palomar-registry.org)
 Challenge/Solution record for this project; [`comparator.json`](comparator.json) names the
 six compared declarations and [`formalization.yaml`](formalization.yaml) carries the
@@ -49,7 +49,7 @@ are not among the compared declarations, because a Palomar Challenge module may 
 import anything outside Lean core and Mathlib, and Mathlib has no Shannon entropy or
 entropic Ruzsa distance.
 
-`Palomar/Challenge.lean` contains six deliberate `sorry`s, one per compared theorem;
+`PFRPalomar/Challenge.lean` contains six deliberate `sorry`s, one per compared theorem;
 that is the Comparator convention, and it is the only place in the repository where
 `sorry` occurs.
 

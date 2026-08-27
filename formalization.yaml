@@ -27,7 +27,7 @@ project:
     mathematics is due to the cited papers and nothing here is claimed to be
     new. The compared theorems depend on propext, Classical.choice and
     Quot.sound and on nothing else, and there is no sorry outside the six
-    deliberate holes in Palomar/Challenge.lean.
+    deliberate holes in PFRPalomar/Challenge.lean.
   authors:
     - "Aaron Anderson"
     - "Mantas Bakšys"
@@ -83,44 +83,44 @@ status:
     arXiv:2311.05762 and Corollary 1.2 of arXiv:2404.02244 are not formalized
     at all.
   # The proof development contains no sorry at all. The only six in the
-  # repository are the deliberate placeholders in Palomar/Challenge.lean,
+  # repository are the deliberate placeholders in PFRPalomar/Challenge.lean,
   # which these counts exclude by convention.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
   main_results:
     - declaration: "Marton.pfr_conjecture"
-      file: "Palomar/Solution.lean"
+      file: "PFRPalomar/Solution.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
       literature_dependencies: []
     - declaration: "Marton.pfr_conjecture_nine"
-      file: "Palomar/Solution.lean"
+      file: "PFRPalomar/Solution.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
       literature_dependencies: []
     - declaration: "Marton.torsion_pfr_conjecture"
-      file: "Palomar/Solution.lean"
+      file: "PFRPalomar/Solution.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
       literature_dependencies: []
     - declaration: "Marton.weak_pfr_int"
-      file: "Palomar/Solution.lean"
+      file: "PFRPalomar/Solution.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
       literature_dependencies: []
     - declaration: "Marton.homomorphism_pfr"
-      file: "Palomar/Solution.lean"
+      file: "PFRPalomar/Solution.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
       literature_dependencies: []
     - declaration: "Marton.approx_hom_pfr"
-      file: "Palomar/Solution.lean"
+      file: "PFRPalomar/Solution.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
@@ -135,7 +135,7 @@ fidelity:
     finite group; the papers state them for F_2^n and for a group of torsion
     m. The bounded-torsion generalization is not present in the library
     itself, whose torsion_PFR assumes a finite ambient group; it is obtained
-    in Palomar/Solution.lean by passing to the span of A over ZMod m, which is
+    in PFRPalomar/Solution.lean by passing to the span of A over ZMod m, which is
     finite because A is. Second, every constant is explicit where the papers
     leave one unspecified: Theorem 1.3 of arXiv:2311.05762 asserts the
     existence of absolute constants C_1 and C_2, and Marton.weak_pfr_int
@@ -152,14 +152,14 @@ fidelity:
     concludes with K^(-17) and (40/log 2) log K, whereas the compared
     Marton.weak_pfr_int hypothesises |A + A| <= K|A| as Theorem 1.3 of
     arXiv:2311.05762 does, which is obtained from the library statement in
-    Palomar/Solution.lean by Ruzsa's triangle inequality at the cost of
+    PFRPalomar/Solution.lean by Ruzsa's triangle inequality at the cost of
     squaring K. Hypotheses are phrased for a reader rather than for the
     library: torsion is stated as a universally quantified equation rather
     than through a Module (ZMod m) instance, subgroups are returned as
     AddSubgroup rather than as Submodule (ZMod 2), and affine dimension is
     expressed as Module.finrank of a vectorSpan rather than through the
     project's AffineSpace.finrank abbreviation. Declaration names in the
-    library differ from those in Palomar/Challenge.lean; the alignment section
+    library differ from those in PFRPalomar/Challenge.lean; the alignment section
     below records the correspondence, and blueprint/src/chapter/ records the
     correspondence with the informal arguments.
 
@@ -229,8 +229,8 @@ automation:
       models: ["Claude Opus 5 (Anthropic)"]
       framework: "Claude Code"
       role: >-
-        Wrote the two Palomar files, Palomar/Challenge.lean and
-        Palomar/Solution.lean, under the direction and review of the
+        Wrote the two Palomar submission files, PFRPalomar/Challenge.lean
+        PFRPalomar/Solution.lean, under the direction and review of the
         responsible maintainer: selecting which library results correspond to
         the headline theorems of the three sources, restating them in
         Mathlib-only terms, and supplying the two bridging arguments recorded
@@ -270,12 +270,12 @@ limitations:
     and on nothing else. There is no sorry in the development, no
     project-defined axiom, no native_decide, no unsafe declaration, no
     @[implemented_by] and no Float anywhere in PFR/ or Palomar/. The six
-    sorries in Palomar/Challenge.lean are the deliberate Comparator holes, one
+    sorries in PFRPalomar/Challenge.lean are the deliberate Comparator holes, one
     per compared theorem.
   - >-
     The Lakefile sets warn.sorry = false, so `lake build` is silent about
     those six deliberate holes. It would be equally silent about an accidental
-    one in Palomar/Solution.lean; that case is caught by Comparator's axiom
+    one in PFRPalomar/Solution.lean; that case is caught by Comparator's axiom
     check rather than by the build.
   - >-
     Two lines of PFR/WeakPFR.lean were changed in preparation for this
@@ -293,8 +293,8 @@ limitations:
     which is the Lean rendering of Z^D, rather than for an arbitrary abelian
     group; that matches Theorem 1.3 of arXiv:2311.05762.
   - >-
-    Palomar/Challenge.lean states the six results but does not prove them;
-    that is the Comparator convention, and Palomar/Solution.lean supplies the
+    PFRPalomar/Challenge.lean states the six results but does not prove them;
+    that is the Comparator convention, and PFRPalomar/Solution.lean supplies the
     proofs.
 
 # ---------------------------------------------------------------------------
@@ -307,12 +307,12 @@ limitations:
 alignment:
   # The development lives in the root namespace. The six compared declarations
   # live in `Marton`, which is what comparator.json names and what
-  # Palomar/Challenge.lean states.
+  # PFRPalomar/Challenge.lean states.
   namespace: ""
   statements:
     - source: "arXiv:2311.05762, Theorem 1.2: Marton's conjecture in F_2^n with C = 12"
       lean: "Marton.pfr_conjecture"
-      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: extends-source
       note: >-
         Discharged from PFR_conjecture' (PFR/Main.lean), which is the
@@ -322,7 +322,7 @@ alignment:
 
     - source: "arXiv:2404.09639, main theorem: Marton's conjecture in F_2^n with C = 9"
       lean: "Marton.pfr_conjecture_nine"
-      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: extends-source
       note: >-
         Discharged from better_PFR_conjecture' (PFR/RhoFunctional.lean). The
@@ -331,7 +331,7 @@ alignment:
 
     - source: "arXiv:2404.02244, Theorem 1.1: Marton's conjecture in abelian groups of torsion m"
       lean: "Marton.torsion_pfr_conjecture"
-      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: extends-source
       note: >-
         Discharged from torsion_PFR (PFR/TorsionEndgame.lean), which assumes a
@@ -341,7 +341,7 @@ alignment:
 
     - source: "arXiv:2311.05762, Theorem 1.3: weak Marton's conjecture over Z^D"
       lean: "Marton.weak_pfr_int"
-      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: proved
       note: >-
         Discharged from weak_PFR_int (PFR/WeakPFR.lean), which hypothesises
@@ -357,7 +357,7 @@ alignment:
 
     - source: "arXiv:2311.05762, Corollary 1.4: the homomorphism form"
       lean: "Marton.homomorphism_pfr"
-      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: proved
       note: >-
         Discharged from homomorphism_pfr (PFR/HomPFR.lean). The paper's
@@ -367,7 +367,7 @@ alignment:
 
     - source: "arXiv:2311.05762, Corollary 1.5: the approximate homomorphism form"
       lean: "Marton.approx_hom_pfr"
-      module: "Palomar.Challenge (statement), Palomar.Solution (proof)"
+      module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: proved
       note: >-
         Discharged from approx_hom_pfr' (PFR/ApproxHomPFR.lean), which is the
