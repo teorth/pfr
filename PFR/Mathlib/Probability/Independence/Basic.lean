@@ -307,20 +307,6 @@ lemma iIndepFun.prod {hf : ∀ (i : ι), Measurable (f i)} {ST : ι' → Finset 
 
 variable {β β' Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
 
-/-- The new Mathlib tool `Finset.eventuallyEq_iInter` will supersede this result. -/
-theorem EventuallyEq.finite_iInter {ι : Type*} {α : Type u_2} {l : Filter α} (s : Finset ι)
-    {E : ι → Set α} {F : ι → Set α}
-    (h : ∀ i ∈ s, E i =ᶠ[l] F i) :
-    ⋂ i ∈ s, E i =ᶠ[l] ⋂ i ∈ s, F i := by
-  unfold Filter.EventuallyEq Filter.Eventually at h ⊢
-  simp only [eq_iff_iff] at h ⊢
-  rw [← Filter.biInter_finset_mem] at h
-  apply Filter.mem_of_superset h
-  intro a ha
-  change a ∈ ⋂ i ∈ s, E i ↔ a ∈ ⋂ i ∈ s, F i
-  simp only [mem_iInter, mem_ofPred_eq] at ha ⊢
-  change ∀ i ∈ s, a ∈ E i ↔ a ∈ F i at ha
-  exact forall₂_congr ha
 
 /-- TODO: a kernel version of this theorem -/
 theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}
@@ -348,7 +334,7 @@ theorem iIndepFun.ae_eq {ι : Type*} {β : ι → Type*}
     intro i hi; exact (hE' i hi).2
   convert hf_Indep s hE'' using 1 with i
   · apply measure_congr
-    apply EventuallyEq.finite_iInter
+    apply Finset.eventuallyEqSet_iInter
     intro i hi
     exact (hE''' i hi).symm
   apply Finset.prod_congr rfl
