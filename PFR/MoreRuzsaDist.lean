@@ -1718,7 +1718,7 @@ lemma condMultiDist_eq {m : ℕ}
           ext x
           simp only [Set.mem_iInter, Set.mem_preimage, Set.mem_singleton_iff, E']
           exact Iff.symm funext_iff
-        exact .of_eval hY
+        fun_prop
       ext i
       calc
         _ = ∑ y, f y * H[X i; cond ℙ (E i (y i))] := by
