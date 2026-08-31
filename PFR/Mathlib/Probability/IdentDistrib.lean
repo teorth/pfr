@@ -135,8 +135,8 @@ theorem IdentDistrib.prodMk (hff' : IdentDistrib f f' μ ν) (hgg' : IdentDistri
 /-- Move to a different section? -/
 lemma AEMeasurable.piMk {I : Type*} [Countable I] {F : I → Ω → β} (hF : ∀ i, AEMeasurable (F i) μ) :
     AEMeasurable (fun x i => F i x) μ := by
-  refine ⟨fun x i => (hF i).mk (F i) x, measurable_pi_lambda _ (fun i => (hF i).measurable_mk), ?_ ⟩
-  filter_upwards [eventually_countable_forall.mpr (fun i ↦ (hF i).ae_eq_mk)] with ω hω
+  refine ⟨fun x i => (hF i).mk (F i) x, by fun_prop, ?_ ⟩
+  filter_upwards [eventually_countable_forall.mpr fun i ↦ (hF i).ae_eq_mk] with ω hω
   ext i; exact hω i
 
 theorem IdentDistrib.iprodMk {I : Type*} [Finite I] {F : I → Ω → β} {F' : I → Ω' → β}

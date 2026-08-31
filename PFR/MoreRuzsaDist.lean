@@ -997,7 +997,7 @@ lemma multiDist_of_perm {m : ℕ} {Ω : Fin m → Type*}
         · apply Finset.measurable_sum
           intro i _
           exact measurable_pi_apply i
-        apply measurable_pi_lambda
+        refine .of_eval ?_
         intro i
         have : (fun x : Fin m → G ↦ perm x i) = (fun x : Fin m → G ↦ x (φ.symm i)) := by
           ext x
@@ -1718,7 +1718,7 @@ lemma condMultiDist_eq {m : ℕ}
           ext x
           simp only [Set.mem_iInter, Set.mem_preimage, Set.mem_singleton_iff, E']
           exact Iff.symm funext_iff
-        exact measurable_pi_lambda (fun ω i ↦ Y i ω) hY
+        fun_prop
       ext i
       calc
         _ = ∑ y, f y * H[X i; cond ℙ (E i (y i))] := by
@@ -2003,7 +2003,7 @@ lemma cond_multiDist_chainRule {G H : Type*} [hG : MeasurableSpace G] [Measurabl
           intro _
           exact Iff.symm funext_iff
         exact MeasurableSet.preimage (.singleton x) hmes
-      exact Measurable.prodMk hmes (measurable_pi_lambda (fun ω i ↦ Y i ω) hY)
+      fun_prop
 
 /-- Let `m` be a positive integer. Suppose one has a sequence
 `G_m → G_{m - 1} → ... → G_1 → G_0 = {0}` of homomorphisms between abelian groups `G_0, ...,G_m`,
