@@ -57,7 +57,7 @@ such that $f(x) = \phi(x)+c$ for at least $|G| / (2 ^ {144} * K ^ {122})$
 values of $x \in G$.
 \end{theorem}
 
-\begin{proof}\uses{goursat, cs-bound, bsg, pfr_aux-improv}\leanok Consider the graph $A \subset G \times G'$ defined by
+\begin{proof}\uses{goursat, cs-bound, bsg, pfr-9-aux'}\leanok Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have $a+a' \in A$ for at least
 $|A|^2/K$ pairs $(a,a') \in A^2$. By \Cref{cs-bound}, this implies that $E(A)
@@ -115,10 +115,10 @@ With a bit more effort, we can remove the constant term $c$, at the cost of redu
   Let $f: G \to G'$ be a function, and suppose that there are at least $|G|^2 / K$ pairs $(x,y) \in G^2$ such that
 $$ f(x+y) = f(x) + f(y).$$
 Then there exists a homomorphism $\phi'': G \to G'$
-such that $f(x) = \phi''(x)$ for at least $(|G| / (2 ^ {172} * K ^ {146}) - 1)/2$ values of $x \in G$.
+such that $f(x) = \phi''(x)$ for at least $(|G| / (2 ^ {144} * K ^ {122}) - 1)/2$ values of $x \in G$.
 \end{corollary}
 
-\begin{proof}\uses{approx-hom-pfr, gslice}\leanok By Theorem \ref{approx-hom-pfr}, there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that the set $A := \{ x \in G: f(x) = \phi(x) + c\}$ has cardinality at least $|G| / (2 ^ {172} * K ^ {146})$.  By Lemma \ref{gslice}, there exists a homomorphism $\phi': G \to \Z/2\Z$ such that
-$$ |A \cap \phi'^{-1}(1)| \geq (|A|-1)/2 \geq |G| / (2 ^ {173} * K ^ {146}).$$
+\begin{proof}\uses{approx-hom-pfr, gslice}\leanok By Theorem \ref{approx-hom-pfr}, there exists a homomorphism $\phi: G \to G'$ and a constant $c \in G'$ such that the set $A := \{ x \in G: f(x) = \phi(x) + c\}$ has cardinality at least $|G| / (2 ^ {144} * K ^ {122})$.  By Lemma \ref{gslice}, there exists a homomorphism $\phi': G \to \Z/2\Z$ such that
+$$ |A \cap \phi'^{-1}(1)| \geq (|A|-1)/2 \geq (|G| / (2 ^ {144} * K ^ {122}) - 1)/2.$$
 Then the claim follows by taking $\phi'' = \phi + \phi' \bullet c$ (where we view $G'$ as a $\Z/2\Z$-module).
 \end{proof}
