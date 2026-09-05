@@ -4,8 +4,11 @@
   \label{energy-def}
   \lean{Finset.addEnergy'}
   \leanok
-  If $G$ is a group, and $A$ is a finite subset of $G$, the \emph{additive energy} $E(A)$ of $A$
-  is the number of quadruples $(a_1,a_2,a_3,a_4) \in A^4$ such that $a_1+a_2 = a_3+a_4$.
+  If $G$ is a finite additive group and $A$ is a subset of $G$, the \emph{additive energy}
+  $E(A)$ of $A$ is the normalized count
+  $$ E(A) := \frac{|\{(a_1,a_2,a_3,a_4) \in A^4 : a_1+a_2 = a_3+a_4\}|}{|G|^3}. $$
+  The normalization by $|G|^3$ is the convention of \texttt{Finset.addEnergy'}, and every
+  statement in this chapter that mentions $E(A)$ uses it.
 \end{definition}
 
 \begin{lemma}[Cauchy--Schwarz bound]
@@ -14,8 +17,11 @@
   \lean{Finset.card_sq_le_card_mul_addEnergy'}
   \leanok
 
-  If $G$ is a group, $A,B$ are finite subsets of $G$, then
-  $$E(A) \geq \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|^2}{|B|}.$$
+  If $G$ is a finite additive group and $A,B$ are subsets of $G$, then
+  $$ \left( \frac{|\{ (a,a') \in A \times A: a+a' \in B \}|}{|G|^2} \right)^2
+     \leq \frac{|B|}{|G|}\, E(A). $$
+  The left-hand side is the square of the density of a subset of $G \times G$, and the
+  right-hand side involves the density of a subset of $G$.
 \end{lemma}
 \begin{proof}
   \leanok
@@ -26,9 +32,11 @@
   where $r: G \to \N$ is the counting function
   $$ r(b) := |\{ (a,a') \in A \times A: a+a' = b \}|.$$
   From double counting we have
-  $$ \sum_{b \in G} r(b)^2 = E(A).$$
-  The claim now follows from the Cauchy--Schwarz inequality
-  $$ (\sum_{b \in B} r(b))^2 \leq |B| \sum_{b \in B} r(b)^2.$$
+  $$ \sum_{b \in G} r(b)^2 = |G|^3 E(A).$$
+  The Cauchy--Schwarz inequality then gives
+  $$ \Bigl( \sum_{b \in B} r(b) \Bigr)^2 \leq |B| \sum_{b \in B} r(b)^2
+     \leq |B| \sum_{b \in G} r(b)^2 = |B|\, |G|^3 E(A),$$
+  and the claim follows on dividing both sides by $|G|^4$.
 \end{proof}
 
 \begin{lemma}[Balog--Szemer\'edi--Gowers lemma]
@@ -37,11 +45,13 @@
   \uses{energy-def}
   \leanok
 
-  Let $G$ be an abelian group, and let $A$ be a finite non-empty set
-  with $E(A) \geq |A|^3 / K$ for some $K \geq 1$.
+  Let $G$ be a finite abelian group, and let $A$ be a non-empty subset of $G$
+  with $E(A) \geq \frac{1}{K} \left( \frac{|A|}{|G|} \right)^3$ for some $K \geq 1$.
   Then there is a subset $A'$ of $A$ with $|A'| \geq |A| / (C_1 K^{C_2})$ and
   $|A'-A'| \leq C_3 K^{C_4} |A|$, where
   $$C_1 = 2^4, C_2 = 1, C_3 = 2^{10}, C_4 = 5.$$
+  The Lean statement gives the two conclusions as inequalities between densities; these are
+  equivalent to the ones above, the common factor $|G|$ cancelling.
 \end{lemma}
 \begin{proof}
   \leanok
@@ -60,8 +70,8 @@ values of $x \in G$.
 \begin{proof}\uses{goursat, cs-bound, bsg, pfr-9-aux'}\leanok Consider the graph $A \subset G \times G'$ defined by
 $$ A := \{ (x,f(x)): x \in G \}.$$
 Clearly, $|A| = |G|$.  By hypothesis, we have $a+a' \in A$ for at least
-$|A|^2/K$ pairs $(a,a') \in A^2$. By \Cref{cs-bound}, this implies that $E(A)
-\geq |A|^3/K^2$.  Applying \Cref{bsg}, we conclude that there exists a subset
+$|A|^2/K$ pairs $(a,a') \in A^2$. By \Cref{cs-bound}, this implies that
+$E(A) \geq \frac{1}{K^2} \left( \frac{|A|}{|G \times G'|} \right)^3$.  Applying \Cref{bsg}, we conclude that there exists a subset
 $A' \subset A$ with $|A'| \geq |A|/C_1 K^{2C_2}$ and $|A'+A'| \leq C_1C_3
 K^{2(C_2+C_4)} |A'|$. Applying \Cref{pfr-9-aux'}, we may find a subspace $H
 \subset G \times G'$ such that $|H| / |A'| \in [L^{-8}, L^{8}]$ and a subset
