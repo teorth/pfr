@@ -1,5 +1,6 @@
 module
 
+public import Mathlib.Combinatorics.Additive.PluenneckeRuzsa
 public import Mathlib.GroupTheory.Coset.Card
 public import Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition
 public import Mathlib.LinearAlgebra.FreeModule.ModN
@@ -19,9 +20,11 @@ Here we use the entropic form of PFR to deduce a weak form of PFR over the integ
 
 ## Main statement
 
-* `weak_PFR_int`: Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$.
+* `weak_PFR_int`: Let $A\subseteq \mathbb{Z}^d$ and $\lvert A-A\rvert\leq K\lvert A\rvert$.
   There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-17}\lvert A\rvert$ and
   $\dim A' \leq (40/\log 2)\log K$.
+* `weak_PFR_int_sumset`: the same conclusion with $\lvert A+A\rvert\leq K\lvert A\rvert$,
+  at the cost of squaring $K$, hence $K^{-34}$ and $(80/\log 2)\log K$.
 
 -/
 
