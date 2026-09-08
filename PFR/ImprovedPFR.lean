@@ -821,8 +821,8 @@ theorem entropic_PFR_conjecture_improv (hpη : p.η = 1 / 8) :
   linarith
 
 /-- `entropic_PFR_conjecture_improv'`: For two $G$-valued random variables $X^0_1, X^0_2$, there is
-some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$., and
-d[X^0_1; U_H] and d[X^0_2; U_H] are at most 5/2 * d[X^0_1;X^0_2] -/
+some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$, and
+both $d[X^0_1; U_H]$ and $d[X^0_2; U_H]$ are at most $(11/2) d[X^0_1;X^0_2]$. -/
 theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1 / 8) :
     ∃ H : AddSubgroup G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
