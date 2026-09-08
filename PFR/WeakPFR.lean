@@ -1048,3 +1048,44 @@ theorem weak_PFR_int
     norm_cast
     exact Nat.card_pos
   exact_mod_cast ne_of_gt (@Nat.card_pos _ hnA.to_subtype _)
+
+/-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$.
+There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-34}\lvert A\rvert$
+and $\dim A' \leq \frac{80}{\log 2} \log K$.
+
+This is Theorem 1.3 of arXiv:2311.05762 with explicit constants $C_1 = 34$ and
+$C_2 = 80 / \log 2$. It follows from `weak_PFR_int` by Ruzsa's triangle inequality
+`|A-A| |A| ≤ |A+A|^2`, which gives $|A-A| \le K^2 |A|$. -/
+theorem weak_PFR_int_sumset
+    {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
+    {A : Set G} [A_fin : Finite A] (hnA : A.Nonempty) {K : ℝ}
+    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-34 : ℝ) * Nat.card A ∧
+      AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K := by
+  classical
+  have hAfin : A.Finite := Set.finite_coe_iff.mp A_fin
+  obtain ⟨s, rfl⟩ : ∃ s : Finset G, (↑s : Set G) = A := ⟨hAfin.toFinset, hAfin.coe_toFinset⟩
+  have hsne : s.Nonempty := by simpa using hnA
+  have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := fun t ↦ by simp
+  rw [show ((↑s : Set G) + ↑s) = ((s + s : Finset G) : Set G) by simp, hcoe, hcoe] at hA
+  have hK₁ : (1 : ℝ) ≤ K := by
+    have h1 : (s.card : ℝ) ≤ ((s + s).card : ℝ) := by
+      exact_mod_cast Finset.card_le_card_add_left hsne
+    nlinarith
+  have hruzsa : ((s - s).card : ℝ) * s.card ≤ ((s + s).card : ℝ) * ((s + s).card : ℝ) := by
+    exact_mod_cast Finset.ruzsa_triangle_inequality_sub_add_add s s s
+  have hcoesub : ((s : Set G) - (s : Set G)) = ((s - s : Finset G) : Set G) := by
+    simp
+  have hdiff : (Nat.card ((s : Set G) - (s : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (s : Set G) := by
+    rw [hcoesub, hcoe, hcoe]
+    have hsum₀ : (0 : ℝ) ≤ (s + s).card := by positivity
+    nlinarith
+  obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
+  refine ⟨A', hA'sub, ?_, ?_⟩
+  · refine le_trans (le_of_eq ?_) hcard
+    rw [← Real.rpow_natCast K 2, ← Real.rpow_mul (by linarith : (0 : ℝ) ≤ K)]
+    norm_num
+  · refine le_trans hdim (le_of_eq ?_)
+    rw [Real.log_pow]
+    push_cast
+    ring
