@@ -810,9 +810,13 @@ theorem rdist_le_of_isUniform_of_card_add_le' {G : Type*} [AddCommGroup G] {A : 
   rwa [idU.rdist_congr idU'] at IU
 
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. If $A \subset G$ is non-empty and
-$|A+A| \leq K|A|$, then $A$ can be covered by at most $K ^
-{(64m^3+2)/2}|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
-$|H|/|A| \in [K^{-64m^3}, K^{64m^3}]$. -/
+$|A+A| \leq K|A|$, then $A$ can be covered by at most $K^{128 m^3+1}
+|A|^{1/2}/|H|^{1/2}$ translates of a subspace $H$ of $G$ with
+$|H|/|A| \in [K^{-256 m^3}, K^{256 m^3}]$.
+
+These are twice the exponents one would get by substituting the entropy form
+(constant $64 m^3$) into the characteristic-2 covering argument, because here
+$d[U_A; U_A] \le 2\log K$ rather than $\log K$. -/
 lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m ≥ 2)
     (htorsion : ∀ x:G, m • x = 0) {A : Set G} [A_fin: Finite A] {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * A.ncard) :
