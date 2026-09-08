@@ -6,6 +6,11 @@ public import PFR.Main
 # Improved PFR
 
 An improvement to PFR that lowers the exponent from 12 to 11.
+
+The entropy form (`entropic_PFR_conjecture_improv`) gives
+`d[X₁⁰; U_H] + d[X₂⁰; U_H] ≤ 10 d[X₁⁰; X₂⁰]`. Combining with the Ruzsa
+triangle inequality, each summand is at most `(11/2) d[X₁⁰; X₂⁰]`
+(`entropic_PFR_conjecture_improv'`).
 -/
 
 public section
