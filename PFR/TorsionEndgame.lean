@@ -717,7 +717,7 @@ end AnalyzeMinimizer
 universe u
 /-- Suppose that $G$ is a finite abelian group of torsion $m$. Suppose that $X$ is a $G$-valued
 random variable. Then there exists a subgroup $H \leq G$ such that
-\[ d[X;U_H] \leq 64 m^3 d[X;X].\]. -/
+\[ d[X;U_H] \leq 64 m^3 d[X;X]. \] -/
 lemma dist_of_X_U_H_le {G : Type u} [AddCommGroup G] [Finite G] [MeasurableSpace G]
     [MeasurableSingletonClass G] {m : ℕ} (hm : m ≥ 2) (htorsion : ∀ x:G, m • x = 0) {Ω : Type u}
     [MeasureSpace Ω] [IsProbabilityMeasure (ℙ:Measure Ω)] {X: Ω → G} (hX: Measurable X) :
@@ -833,6 +833,7 @@ lemma torsion_PFR_conjecture_aux {G : Type*} [AddCommGroup G] [Finite G] {m : �
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' h₀A' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
   rw [hAA'] at UAunif
+  -- without 2-torsion one only gets d[U_A; -U_A] ≤ log K, hence d[U_A; U_A] ≤ 2 log K
   have : d[UA # -UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le' h₀A hA UAunif UAmeas
   replace : d[UA # UA] ≤ 2 * log K := calc
     _ ≤ d[UA # -UA] + d[-UA # UA] := rdist_triangle UAmeas UAmeas.neg UAmeas
@@ -972,8 +973,8 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
     exact lt_of_le_of_lt hk ((Nat.lt_mul_iff_one_lt_left Nat.card_pos).mpr hm)
 
 /-- Suppose that $G$ is a finite abelian group of torsion $m$.
-If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by most $mK^{64m^3+1}$
-translates of a subspace $H$ of $G$ with $|H| \leq |A|$. -/
+If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by at most
+$m K^{256 m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$. -/
 theorem torsion_PFR {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m ≥ 2)
      (htorsion : ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
      (hA : Nat.card (A + A) ≤ K * A.ncard) :
