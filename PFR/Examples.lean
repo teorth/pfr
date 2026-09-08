@@ -62,7 +62,9 @@ open Pointwise
 
 variable {G : Type*} [AddCommGroup G] [Fintype G]
 
-/-- The bounded torsion version of PFR. -/
+/-- The bounded torsion version of PFR: fewer than `m * K ^ (256 * m ^ 3 + 1)` cosets.
+(The entropy form is `64 m^3`; the covering exponent is larger because
+`d[U_A; U_A] ≤ 2 * log K` when there is no 2-torsion.) -/
 example {m : ℕ} (hm : m ≥ 2)
      (htorsion : ∀ x : G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
      (hA : Nat.card (A + A) ≤ K * A.ncard) :
