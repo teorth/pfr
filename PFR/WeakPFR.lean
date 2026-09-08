@@ -1068,9 +1068,11 @@ theorem weak_PFR_int_sumset
   have hsne : s.Nonempty := by simpa using hnA
   have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := fun t ↦ by simp
   rw [show ((↑s : Set G) + ↑s) = ((s + s : Finset G) : Set G) by simp, hcoe, hcoe] at hA
+  have hpos : (0 : ℝ) < s.card := Nat.cast_pos.mpr hsne.card_pos
+  have h1 : (s.card : ℝ) ≤ ((s + s).card : ℝ) := by
+    exact_mod_cast Finset.card_le_card_add_left hsne
   have hK₁ : (1 : ℝ) ≤ K := by
-    have h1 : (s.card : ℝ) ≤ ((s + s).card : ℝ) := by
-      exact_mod_cast Finset.card_le_card_add_left hsne
+    have hle : (s.card : ℝ) ≤ K * s.card := h1.trans hA
     nlinarith
   have hruzsa : ((s - s).card : ℝ) * s.card ≤ ((s + s).card : ℝ) * ((s + s).card : ℝ) := by
     exact_mod_cast Finset.ruzsa_triangle_inequality_sub_add_add s s s
@@ -1079,6 +1081,8 @@ theorem weak_PFR_int_sumset
   have hdiff : (Nat.card ((s : Set G) - (s : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (s : Set G) := by
     rw [hcoesub, hcoe, hcoe]
     have hsum₀ : (0 : ℝ) ≤ (s + s).card := by positivity
+    have hsq : ((s + s).card : ℝ) * (s + s).card ≤ (K * s.card) * (K * s.card) :=
+      mul_le_mul hA hA hsum₀ (hsum₀.trans hA)
     nlinarith
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
   refine ⟨A', hA'sub, ?_, ?_⟩
