@@ -9,6 +9,15 @@ public import PFR.BoundingMutual
 
 /-!
 # Endgame for the Torsion PFR theorem
+
+* `dist_of_X_U_H_le`: entropy form, with explicit constant `64 m^3`.
+* `torsion_PFR_conjecture_aux`: covering by `K^(128 m^3 + 1) |A|^{1/2}/|H|^{1/2}`
+  cosets, with `|H|/|A|` in `[K^{-256 m^3}, K^{256 m^3}]`.
+* `torsion_PFR`: covering by fewer than `m * K^(256 m^3 + 1)` cosets of a
+  subgroup no larger than `A`.
+
+The extra factor of 2 relative to the entropy form comes from the lack of
+2-torsion: `d[U_A; U_A] ≤ 2 d[U_A; -U_A] ≤ 2 log K`.
 -/
 
 public section
