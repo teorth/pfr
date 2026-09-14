@@ -54,6 +54,14 @@ example (f : G → G') (K : ℝ) (hK : K > 0) [DecidableEq G']
       Nat.card {x : G | f x = φ x + c} ≥ (Nat.card G) / (2 ^ 144 * K ^ 122) :=
   approx_hom_pfr f K hK hf
 
+end PFR
+
+/-! The torsion form does not need `Module (ZMod 2)`. Leaving it under the 2-group
+`variable` block would force `G` to be a 2-group (so odd `m` collapses to `{0}`). -/
+section TorsionPFR
+
+variable {G : Type*} [AddCommGroup G] [Fintype G]
+
 /-- The bounded torsion version of PFR. -/
 example {m : ℕ} (hm : m ≥ 2)
      (htorsion : ∀ x : G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
@@ -66,6 +74,10 @@ example {m : ℕ} (hm : m ≥ 2)
 #guard_msgs in
 #print axioms torsion_PFR
 
+end TorsionPFR
+
+section WeakPFRInt
+
 open Real
 
 variable {H : Type*} [AddCommGroup H] [Module.Free ℤ H] [Module.Finite ℤ H]
@@ -77,7 +89,7 @@ example (A : Set H) [Finite A] (h'A : A.Nonempty) (K : ℝ)
     AffineSpace.finrank ℤ A' ≤ (40 / log 2) * log K :=
   weak_PFR_int h'A hA
 
-end PFR
+end WeakPFRInt
 
 
 section RealMeasure
