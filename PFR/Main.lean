@@ -108,9 +108,9 @@ lemma PFR_conjecture_pos_aux' {G : Type*} [AddCommGroup G] {A : Set G} (hA : A.F
 
 variable {G : Type*} [AddCommGroup G] {A : Set G} {K : ℝ} [Countable G]
 
-/-- A uniform distribution on a set with doubling constant `K` has self Rusza distance
-at most `log K`. -/
-theorem rdist_le_of_isUniform_of_card_add_le [A_fin : Finite A] [MeasurableSpace G]
+/-- A uniform distribution on a set whose difference set has relative size at most `K`
+has self Rusza distance at most `log K`. -/
+theorem rdist_le_of_isUniform_of_card_sub_le [A_fin : Finite A] [MeasurableSpace G]
     [MeasurableSingletonClass G]
     (hA₀ : A.Nonempty) (hA : (A - A).ncard ≤ K * A.ncard)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
@@ -161,7 +161,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
   have hAA' : A' = A := Finite.coe_toFinset (toFinite A)
   rcases exists_isUniform_measureSpace A' hA₀' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
   rw [hAA'] at UAunif
-  have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le hA₀ hA UAunif UAmeas
+  have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_sub_le hA₀ hA UAunif UAmeas
   rw [← sumset_eq_sub] at hA
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/9, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
