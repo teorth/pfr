@@ -140,6 +140,16 @@ lemma sumset_eq_sub {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] (A : Set G)
   show a + b = a - b
   simp [ZModModule.sub_eq_add]
 
+/-- In characteristic 2, a uniform distribution on a set with doubling constant `K`
+has self Rusza distance at most `log K`. -/
+theorem rdist_le_of_isUniform_of_doubling [A_fin : Finite A] [MeasurableSpace G]
+    [MeasurableSingletonClass G]
+    (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
+    {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
+    (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
+  rw [sumset_eq_sub] at hA
+  exact rdist_le_of_isUniform_of_card_add_le hA₀ hA U₀unif U₀meas
+
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup `H`
 such that `A` can be covered by at most `K^(13/2) |A|^(1/2) / |H|^(1/2)` cosets of `H`, and `H` has
