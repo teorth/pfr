@@ -1034,3 +1034,43 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m �
         simp_rw [←Real.rpow_natCast]
         rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
         congr; push_cast; ring
+
+/-- Corollary of `torsion_PFR` in which the ambient group is not required to be finite
+(but then `H` and `c` are finite). -/
+theorem torsion_PFR' {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
+    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) (h₀A : A.Nonempty)
+    {K : ℝ} (hA : Nat.card (A + A) ≤ K * A.ncard) :
+    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧
+      A ⊆ c + H := by
+  have : NeZero m := ⟨by omega⟩
+  letI := AddCommGroup.zmodModule htorsion
+  let G' := Submodule.span (ZMod m) A
+  let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
+  let ι : G' →ₗ[ZMod m] G := G'.subtype
+  have ι_inj : Function.Injective ι := G'.toAddSubgroup.subtype_injective
+  let f : G' →+ G := ι.toAddMonoidHom
+  let A' : Set G' := ι ⁻¹' A
+  have A_rg : A ⊆ range ι := by
+    simpa [G', ι] using Submodule.subset_span (R := ZMod m) (M := G) (s := A)
+  have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
+  have hA' : Nat.card (A' + A') ≤ K * A'.ncard := by
+    rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
+      Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
+  have htorsion' : ∀ x : G', m • x = 0 := fun x ↦ by
+    ext
+    push_cast
+    exact htorsion x.1
+  have : Finite G' := inferInstance
+  have : Finite A' := inferInstance
+  obtain ⟨H', c', hc', hH'A, hsub⟩ := torsion_PFR hm htorsion' (h₀A.preimage' A_rg) hA'
+  have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by
+    rw [AddSubgroup.coe_map]; rfl
+  refine ⟨H'.map f, ι '' c', toFinite _, ?_, ?_, ?_, fun x hx ↦ ?_⟩
+  · rw [hHmap]; exact (toFinite _).image _
+  · rwa [Nat.card_image_of_injective ι_inj]
+  · rw [show Nat.card (H'.map f : AddSubgroup G) =
+        ((H'.map f : AddSubgroup G) : Set G).ncard from rfl, hHmap]
+    simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA'] using hH'A
+  · rw [hHmap, ← image_add]
+    exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
