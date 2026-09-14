@@ -60,6 +60,8 @@ end PFR
 `variable` block would force `G` to be a 2-group (so odd `m` collapses to `{0}`). -/
 section TorsionPFR
 
+open Pointwise
+
 variable {G : Type*} [AddCommGroup G] [Fintype G]
 
 /-- The bounded torsion version of PFR. -/
@@ -78,7 +80,7 @@ end TorsionPFR
 
 section WeakPFRInt
 
-open Real
+open Pointwise Real
 
 variable {H : Type*} [AddCommGroup H] [Module.Free ℤ H] [Module.Finite ℤ H]
 
