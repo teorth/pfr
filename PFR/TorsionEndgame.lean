@@ -1044,9 +1044,10 @@ theorem torsion_PFR' {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧
       A ⊆ c + H := by
   have : NeZero m := ⟨by omega⟩
-  letI := AddCommGroup.zmodModule htorsion
-  let G' := Submodule.span (ZMod m) A
-  let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
+  letI : Module (ZMod m) G := AddCommGroup.zmodModule htorsion
+  let G' : Submodule (ZMod m) G := Submodule.span (ZMod m) A
+  haveI : Finite G' := Afin.submoduleSpan _
+  let G'fin : Fintype G' := Fintype.ofFinite _
   let ι : G' →ₗ[ZMod m] G := G'.subtype
   have ι_inj : Function.Injective ι := G'.toAddSubgroup.subtype_injective
   let f : G' →+ G := ι.toAddMonoidHom
