@@ -251,7 +251,7 @@ lemma app_ent_PFR' [mΩ : MeasureSpace Ω] [mΩ' : MeasureSpace Ω'] (X : Ω →
     η := 1/8
     hη := by norm_num
     hη' := by norm_num }
-  obtain ⟨H, Ω'', hΩ'', U, _, hUmeas, hUunif, ineq⟩ := entropic_PFR_conjecture_improv p rfl
+  obtain ⟨H, Ω'', hΩ'', U, _, hUmeas, hUunif, ineq, _, _⟩ := entropic_PFR_conjecture_improv p rfl
   let ψ := H.mkQ
   use H
   have H_fin : Finite H := Subtype.finite
