@@ -828,6 +828,15 @@ theorem entropic_PFR_conjecture_improv (hpη : p.η = 1 / 8) :
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle p.hmeas2 p.hmeas1 hU
   exact ⟨by linarith, by linarith⟩
 
+/-- Alias of `entropic_PFR_conjecture_improv` (kept for blueprint tags). -/
+theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1 / 8) :
+    ∃ (H : Submodule (ZMod 2) G) (Ω : Type uG) (mΩ : MeasureSpace Ω) (U : Ω → G),
+    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
+    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] ∧
+      d[p.X₀₁ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] ∧
+      d[p.X₀₂ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] :=
+  entropic_PFR_conjecture_improv p hpη
+
 end EntropicPFR
 
 section PFR
