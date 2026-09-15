@@ -828,10 +828,6 @@ theorem entropic_PFR_conjecture_improv (hpη : p.η = 1 / 8) :
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle p.hmeas2 p.hmeas1 hU
   exact ⟨by linarith, by linarith⟩
 
-/-- Alias of `entropic_PFR_conjecture_improv` (kept for blueprint tags). -/
-theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1 / 8) :=
-  entropic_PFR_conjecture_improv p hpη
-
 end EntropicPFR
 
 section PFR
