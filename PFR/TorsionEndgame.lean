@@ -1035,19 +1035,17 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m �
         rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
         congr; push_cast; ring
 
-/-- Corollary of `torsion_PFR` in which the ambient group is not required to be finite
-(but then `H` and `c` are finite). -/
-theorem torsion_PFR' {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
-    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) (h₀A : A.Nonempty)
-    {K : ℝ} (hA : Nat.card (A + A) ≤ K * A.ncard) :
+/-- Same as `torsion_PFR'` but with `[Module (ZMod m) G]` already available, so the
+span `Fintype` instance unifies (cf. `PFR_conjecture'` / Palomar). -/
+private theorem torsion_PFR'_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [NeZero m]
+    [Module (ZMod m) G] (hm : m ≥ 2) (htorsion : ∀ x : G, m • x = 0)
+    {A : Set G} (Afin : A.Finite) (h₀A : A.Nonempty) {K : ℝ}
+    (hA : Nat.card (A + A) ≤ K * A.ncard) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧
       A ⊆ c + H := by
-  have : NeZero m := ⟨by omega⟩
-  letI : Module (ZMod m) G := AddCommGroup.zmodModule htorsion
-  let G' : Submodule (ZMod m) G := Submodule.span (ZMod m) A
-  haveI : Finite G' := Afin.submoduleSpan _
-  let G'fin : Fintype G' := Fintype.ofFinite _
+  let G' := Submodule.span (ZMod m) A
+  let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
   let ι : G' →ₗ[ZMod m] G := G'.subtype
   have ι_inj : Function.Injective ι := G'.toAddSubgroup.subtype_injective
   let f : G' →+ G := ι.toAddMonoidHom
@@ -1075,3 +1073,15 @@ theorem torsion_PFR' {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
     simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA'] using hH'A
   · rw [hHmap, ← image_add]
     exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
+
+/-- Corollary of `torsion_PFR` in which the ambient group is not required to be finite
+(but then `H` and `c` are finite). -/
+theorem torsion_PFR' {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
+    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) (h₀A : A.Nonempty)
+    {K : ℝ} (hA : Nat.card (A + A) ≤ K * A.ncard) :
+    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧
+      A ⊆ c + H := by
+  have : NeZero m := ⟨by omega⟩
+  letI := AddCommGroup.zmodModule htorsion
+  exact torsion_PFR'_of_module hm htorsion Afin h₀A hA
