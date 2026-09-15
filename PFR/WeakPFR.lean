@@ -1092,4 +1092,5 @@ theorem weak_PFR_int_sumset
   · grw [hdim]
     rw [Real.log_pow]
     push_cast
-    ring
+    ring_nf
+    rfl
