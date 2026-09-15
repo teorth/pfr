@@ -822,20 +822,10 @@ theorem entropic_PFR_conjecture_improv (hpη : p.η = 1 / 8) :
     have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle p.hmeas1 hX₁ hU
     have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
     linarith
-  refine ⟨AddSubgroup.toZModSubmodule 2 H, Ω', inferInstance, U, inferInstance, hU, hH_unif,
-    hsum, ?_⟩
+  refine ⟨H.toZModSubmodule 2, Ω', inferInstance, U, inferInstance, hU, hH_unif, hsum, ?_⟩
   have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle p.hmeas1 p.hmeas2 hU
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle p.hmeas2 p.hmeas1 hU
   exact ⟨by linarith, by linarith⟩
-
-/-- Alias of `entropic_PFR_conjecture_improv` (kept for blueprint tags). -/
-theorem entropic_PFR_conjecture_improv' (hpη : p.η = 1 / 8) :
-    ∃ (H : Submodule (ZMod 2) G) (Ω : Type uG) (mΩ : MeasureSpace Ω) (U : Ω → G),
-    IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
-    IsUniform H U ∧ d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 10 * d[p.X₀₁ # p.X₀₂] ∧
-      d[p.X₀₁ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] ∧
-      d[p.X₀₂ # U] ≤ 11/2 * d[p.X₀₁ # p.X₀₂] :=
-  entropic_PFR_conjecture_improv p hpη
 
 end EntropicPFR
 
@@ -873,7 +863,7 @@ lemma PFR_conjecture_improv_aux (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ 
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/8, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture_improv p (by norm_num)
-    with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH, _, _⟩
+    with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH, -, -⟩
   rcases independent_copies_two UAmeas UHmeas
     with ⟨Ω, mΩ, VA, VH, hP, VAmeas, VHmeas, Vindep, idVA, idVH⟩
   have VAunif : IsUniform A VA := UAunif.of_identDistrib idVA.symm .of_discrete
