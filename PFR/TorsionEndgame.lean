@@ -1045,7 +1045,7 @@ private theorem torsion_PFR'_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [N
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧
       A ⊆ c + H := by
   let G' := Submodule.span (ZMod m) A
-  let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
+  let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
   let ι : G' →ₗ[ZMod m] G := G'.subtype
   have ι_inj : Function.Injective ι := G'.toAddSubgroup.subtype_injective
   let f : G' →+ G := ι.toAddMonoidHom
@@ -1054,6 +1054,7 @@ private theorem torsion_PFR'_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [N
     simpa [G', ι] using Submodule.subset_span (R := ZMod m) (M := G) (s := A)
   have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
   have hA' : Nat.card (A' + A') ≤ K * A'.ncard := by
+    rw [show A'.ncard = Nat.card A' from (Nat.card_coe_set_eq _).symm]
     rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
       Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
   have htorsion' : ∀ x : G', m • x = 0 := fun x ↦ by
@@ -1068,9 +1069,8 @@ private theorem torsion_PFR'_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [N
   refine ⟨H'.map f, ι '' c', toFinite _, ?_, ?_, ?_, fun x hx ↦ ?_⟩
   · rw [hHmap]; exact (toFinite _).image _
   · rwa [Nat.card_image_of_injective ι_inj]
-  · rw [show Nat.card (H'.map f : AddSubgroup G) =
-        ((H'.map f : AddSubgroup G) : Set G).ncard from rfl, hHmap]
-    simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA'] using hH'A
+  · rw [hHmap, Set.ncard_image_of_injective _ ι_inj]
+    simpa [← cardA', ← Nat.card_coe_set_eq] using hH'A
   · rw [hHmap, ← image_add]
     exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
 
