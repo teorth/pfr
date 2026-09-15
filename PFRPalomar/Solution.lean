@@ -98,7 +98,7 @@ theorem weak_pfr_int {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Fi
     (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ A' ⊆ A, K ^ (-34 : ℝ) * Nat.card A ≤ Nat.card A' ∧
       (Module.finrank ℤ (vectorSpan ℤ A') : ℝ) ≤ (80 / Real.log 2) * Real.log K := by
-  haveI : Finite A := Set.finite_coe_iff.mpr hA
+  have : Finite A := hA.to_subtype
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int_sumset hA₀ hAK
   exact ⟨A', hA'sub, hcard, by simpa [AffineSpace.finrank] using hdim⟩
 

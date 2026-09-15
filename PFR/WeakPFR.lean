@@ -1063,7 +1063,7 @@ theorem weak_PFR_int_sumset
     ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-34 : ℝ) * Nat.card A ∧
       AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K := by
   classical
-  have hAfin : A.Finite := Set.finite_coe_iff.mp A_fin
+  have hAfin : A.Finite := A_fin.to_subtype
   obtain ⟨s, rfl⟩ : ∃ s : Finset G, (↑s : Set G) = A := ⟨hAfin.toFinset, hAfin.coe_toFinset⟩
   have hsne : s.Nonempty := by simpa using hnA
   have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := fun t ↦ by simp
