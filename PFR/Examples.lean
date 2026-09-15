@@ -56,8 +56,6 @@ example (f : G → G') (K : ℝ) (hK : K > 0) [DecidableEq G']
 
 end PFR
 
-/-! The torsion form does not need `Module (ZMod 2)`. Leaving it under the 2-group
-`variable` block would force `G` to be a 2-group (so odd `m` collapses to `{0}`). -/
 section TorsionPFR
 
 open Pointwise
