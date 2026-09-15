@@ -1086,9 +1086,10 @@ theorem weak_PFR_int_sumset
     nlinarith
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
   refine ⟨A', hA'sub, ?_, ?_⟩
-  · grw [← hcard, ← Real.rpow_natCast K 2, ← Real.rpow_mul (by linarith : (0 : ℝ) ≤ K)]
+  · grw [hcard]
+    rw [← Real.rpow_natCast K 2, ← Real.rpow_mul (by linarith : (0 : ℝ) ≤ K)]
     norm_num
-  · grw [hdim, Real.log_pow]
-    apply le_of_eq
+  · grw [hdim]
+    rw [Real.log_pow]
     push_cast
     ring
