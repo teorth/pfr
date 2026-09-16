@@ -2220,7 +2220,7 @@ is less than
 `- D[(X_{i, j})_{i = 1}^m | (X_{i,j} + ... + X_{i,m})_{i=1}^m])`
 `+ D[(X_{i,m})_{i=1}^m] - D[(∑ j, X_{i,j})_{i=1}^m],`
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
-lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
+lemma cor_multiDist_chainRule [Finite G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
     (X : Fin (m + 1) × Fin (m + 1) → Ω → G) (hmes : ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
     [IsProbabilityMeasure (ℙ : Measure Ω)]:
     I[fun ω ↦ (fun j ↦ ∑ i, X ⟨i, j⟩ ω) : fun ω ↦ (fun i ↦ ∑ j, X ⟨i, j⟩ ω) | ∑ p, X p]
