@@ -6,8 +6,6 @@ public import PFR.Mathlib.Probability.Independence.Basic
 
 public section
 
--- TODO: Change `ae_snd` to assume `Measurable p`
-
 noncomputable section
 
 open MeasureTheory Measure Filter Set
@@ -20,6 +18,12 @@ variable {α β γ δ : Type*} [MeasurableSpace α] [MeasurableSpace β] [Measur
 
 namespace ProbabilityTheory
 variable {μ : Measure α} {ν : Measure β} {f f' : α → γ} {g g' : β → γ} {s : Set γ}
+
+/-- `IdentDistrib.ae_snd` taking `Measurable p` instead of `MeasurableSet {x | p x}`. -/
+theorem IdentDistrib.ae_snd_of_measurable {p : γ → Prop}
+    (h : IdentDistrib f g μ ν) (hp : Measurable p)
+    (h' : ∀ᵐ x ∂μ, p (f x)) : ∀ᵐ x ∂ν, p (g x) :=
+  h.ae_snd hp.setOf h'
 
 attribute [mk_iff] IdentDistrib
 

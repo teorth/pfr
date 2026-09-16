@@ -5,7 +5,7 @@ public import PFR.ForMathlib.FiniteRange.Defs
 
 public section
 
--- TODO: Change `ae_snd` to assume `Measurable p`
+-- See also `IdentDistrib.ae_snd_of_measurable` for the `Measurable p` form.
 
 noncomputable section
 
