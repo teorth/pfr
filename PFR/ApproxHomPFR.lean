@@ -4,6 +4,7 @@ public import Mathlib.Data.FunLike.Fintype
 public import Mathlib.Data.Int.Lemmas
 public import PFR.HomPFR
 public import PFR.Mathlib.Data.Finset.Basic
+public import PFR.Mathlib.Data.ZMod.Basic
 
 import AddCombi.BSG
 
@@ -63,7 +64,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
     simp [dens] at hA'1; field_simp at ⊢ hA'1; assumption
   have hA'₀ : A'.Nonempty := Finset.card_pos.1 <| Nat.cast_pos.1 <| hA'1.trans_lt' <| by positivity
   have : (A' - A').card = (A' + A' : Set (G × G')).ncard := by
-    simp [← Finset.coe_sub, Set.sub_eq_add]
+    simp [← Finset.coe_sub, ← Set.sub_eq_add]
   replace : (A' + A' : Set (G × G')).ncard ≤ 2 ^ 14 * K ^ 12 * (A' : Set (G × G')).ncard := by
     rewrite [← this]
     simp [dens] at hA'2
