@@ -975,7 +975,7 @@ private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [Ne
     (hA : Nat.card (A + A) ≤ K * A.ncard) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
-  wlog hG : Finite G generalizing G A K
+  wlog hG : Finite G generalizing G htorsion A K
   · -- reduce to the finite span of `A` over `ZMod m`
     let G' := Submodule.span (ZMod m) A
     let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
@@ -995,7 +995,7 @@ private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [Ne
       push_cast
       exact htorsion x.1
     obtain ⟨H', c', hc', hH'fin, hcard, hH'A, hsub⟩ :=
-      this (G := G') (A := A') (K := K) hm htorsion' (Set.toFinite A')
+      this (G := G') htorsion' (A := A') (Set.toFinite A') (K := K)
         (h₀A.preimage' A_rg) hA'
     have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by
       rw [AddSubgroup.coe_map]; rfl
