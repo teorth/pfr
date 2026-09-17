@@ -2,7 +2,6 @@
 Copyright (c) 2026 Terence Tao. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Mathlib.Combinatorics.Additive.PluenneckeRuzsa
 import PFR.ApproxHomPFR
 import PFR.HomPFR
 import PFR.Main
@@ -99,33 +98,9 @@ theorem weak_pfr_int {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Fi
     (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ A' ⊆ A, K ^ (-34 : ℝ) * Nat.card A ≤ Nat.card A' ∧
       (Module.finrank ℤ (vectorSpan ℤ A') : ℝ) ≤ (80 / Real.log 2) * Real.log K := by
-  classical
-  obtain ⟨s, rfl⟩ : ∃ s : Finset G, (↑s : Set G) = A := ⟨hA.toFinset, hA.coe_toFinset⟩
-  have hsne : s.Nonempty := by simpa using hA₀
-  have hs₀ : (0 : ℝ) < s.card := by exact_mod_cast Finset.card_pos.2 hsne
-  have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := fun t ↦ by simp
-  rw [show ((↑s : Set G) + ↑s) = ((s + s : Finset G) : Set G) by simp, hcoe, hcoe] at hAK
-  have hsum₀ : (0 : ℝ) ≤ (s + s).card := by positivity
-  have hK₁ : (1 : ℝ) ≤ K := by
-    have h1 : (s.card : ℝ) ≤ ((s + s).card : ℝ) := by
-      exact_mod_cast Finset.card_le_card_add_left hsne
-    nlinarith
-  have hruzsa : ((s - s).card : ℝ) * s.card ≤ ((s + s).card : ℝ) * ((s + s).card : ℝ) := by
-    exact_mod_cast Finset.ruzsa_triangle_inequality_sub_add_add s s s
-  have hcoesub : ((s : Set G) - (s : Set G)) = ((s - s : Finset G) : Set G) := by
-    simp
-  have hdiff : (Nat.card ((s : Set G) - (s : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (s : Set G) := by
-    rw [hcoesub, hcoe, hcoe]
-    nlinarith
-  obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hA₀ hdiff
-  refine ⟨A', hA'sub, ?_, ?_⟩
-  · refine le_trans (le_of_eq ?_) hcard
-    rw [← Real.rpow_natCast K 2, ← Real.rpow_mul (by linarith : (0:ℝ) ≤ K)]
-    norm_num
-  · refine le_trans hdim (le_of_eq ?_)
-    rw [Real.log_pow]
-    push_cast
-    ring
+  have : Finite A := hA.to_subtype
+  obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int_sumset hA₀ hAK
+  exact ⟨A', hA'sub, hcard, by simpa [AffineSpace.finrank] using hdim⟩
 
 private theorem homomorphism_pfr_aux {G G' : Type*} [AddCommGroup G] [AddCommGroup G']
     [Module (ZMod 2) G] [Module (ZMod 2) G'] [Finite G] [Finite G'] (f : G → G') (S : Set G')

@@ -82,12 +82,19 @@ open Pointwise Real
 
 variable {H : Type*} [AddCommGroup H] [Module.Free ℤ H] [Module.Finite ℤ H]
 
-/-- Weak PFR over the integers -/
+/-- Weak PFR over the integers, difference-doubling form. -/
 example (A : Set H) [Finite A] (h'A : A.Nonempty) (K : ℝ)
     (hA : Nat.card (A - A) ≤ K * Nat.card A) :
     ∃ A' : Set H, A' ⊆ A ∧ (Nat.card A') ≥ K ^ (-17 : ℝ) * (Nat.card A) ∧
     AffineSpace.finrank ℤ A' ≤ (40 / log 2) * log K :=
   weak_PFR_int h'A hA
+
+/-- Weak PFR over the integers, sumset form as in `[GGMT]` Theorem 1.3. -/
+example (A : Set H) [Finite A] (h'A : A.Nonempty) (K : ℝ)
+    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    ∃ A' : Set H, A' ⊆ A ∧ (Nat.card A') ≥ K ^ (-34 : ℝ) * (Nat.card A) ∧
+    AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K :=
+  weak_PFR_int_sumset h'A hA
 
 end WeakPFRInt
 

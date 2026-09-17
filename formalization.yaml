@@ -139,7 +139,7 @@ fidelity:
     finite because A is. Second, every constant is explicit where the papers
     leave one unspecified: Theorem 1.3 of arXiv:2311.05762 asserts the
     existence of absolute constants C_1 and C_2, and Marton.weak_pfr_int
-    realizes C_1 = 68 and C_2 = 80/log 2; Corollary 1.4 and Corollary 1.5 of
+    realizes C_1 = 34 and C_2 = 80/log 2; Corollary 1.4 and Corollary 1.5 of
     the same paper assert bounds O(K^{C_3}) and >> K^{-C_4}, and the
     corresponding statements here give |S|^10 and (|G|/(2^144 K^122) - 1)/2;
     Theorem 1.1 of arXiv:2404.02244 asserts (2K)^{O(m^3)} and
@@ -344,14 +344,10 @@ alignment:
       module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: proved
       note: >-
-        Discharged from weak_PFR_int (PFR/WeakPFR.lean), which hypothesises
-        |A - A| <= K|A|; the compared statement hypothesises |A + A| <= K|A| as
-        the paper does, and is obtained by Ruzsa's triangle inequality
-        (Finset.ruzsa_triangle_inequality_sub_add_add), which gives
-        |A - A| <= K^2|A| and so squares K. This is what turns the library's
-        K^(-17) and (40/log 2) log K into the compared K^(-34) and
-        (80/log 2) log K, realizing the paper's unspecified C_1 = 68 and
-        C_2 = 80/log 2. Affine dimension is expressed as
+        Discharged from weak_PFR_int_sumset (PFR/WeakPFR.lean), the |A+A| form
+        of Theorem 1.3. The library also records weak_PFR_int with |A-A| <= K|A|,
+        K^{-17} and (40/log 2) log K; Ruzsa's triangle inequality squares K and
+        turns one into the other. Affine dimension is expressed as
         Module.finrank Z (vectorSpan Z A'), which is by definition the
         project's AffineSpace.finrank Z A'.
 
