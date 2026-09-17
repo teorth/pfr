@@ -1056,7 +1056,6 @@ and $\dim A' \leq \frac{80}{\log 2} \log K$.
 This is Theorem 1.3 of arXiv:2311.05762 with explicit constants $C_1 = 34$ and
 $C_2 = 80 / \log 2$. It follows from `weak_PFR_int` by Ruzsa's triangle inequality
 `|A-A| |A| ≤ |A+A|^2`, which gives $|A-A| \le K^2 |A|$. -/
-attribute [local norm_cast] Nat.card_eq_finsetCard in
 theorem weak_PFR_int_sumset
     {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
     {A : Set G} [Finite A] (hnA : A.Nonempty) {K : ℝ}
@@ -1066,7 +1065,8 @@ theorem weak_PFR_int_sumset
   classical
   lift A to Finset G using A.toFinite
   simp at hnA
-  norm_cast at hA
+  -- `norm_cast` won't fire: after `lift`, `Nat.card` sees `CoeSort`, not a `[coe]`.
+  simp_rw [Nat.card_eq_finsetCard] at hA
   have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hnA.card_pos
   have hK : (0 : ℝ) ≤ K := by
     have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hnA
