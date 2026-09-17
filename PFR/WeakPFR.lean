@@ -1066,16 +1066,17 @@ theorem weak_PFR_int_sumset
   obtain ⟨s, rfl⟩ : ∃ s : Finset G, (↑s : Set G) = A :=
     ⟨A.toFinite.toFinset, A.toFinite.coe_toFinset⟩
   have hsne : s.Nonempty := by simpa using hnA
-  replace hA : ((s + s).card : ℝ) ≤ K * s.card := by simpa using hA
+  have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := fun _ ↦ by simp
+  rw [show ((↑s : Set G) + ↑s) = ((s + s : Finset G) : Set G) by simp, hcoe, hcoe] at hA
   have hspos : (0 : ℝ) < s.card := Nat.cast_pos.mpr hsne.card_pos
   have hK : (0 : ℝ) ≤ K := by
     have : (s.card : ℝ) ≤ (s + s).card := by exact_mod_cast Finset.card_le_card_add_left hsne
     nlinarith
-  have hdiff : (Nat.card ((s : Set G) - s) : ℝ) ≤ K ^ 2 * Nat.card (s : Set G) := by
+  have hdiff : (Nat.card ((s : Set G) - (s : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (s : Set G) := by
     have hruzsa : ((s - s).card : ℝ) * s.card ≤ ((s + s).card : ℝ) * (s + s).card :=
       mod_cast Finset.ruzsa_triangle_inequality_sub_add_add s s s
-    simp only [← Finset.coe_sub, Nat.card_coe_set_eq]
-    nlinarith
+    have : ((s - s).card : ℝ) ≤ K ^ 2 * s.card := by nlinarith
+    simpa [← Finset.coe_sub, hcoe] using this
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
   refine ⟨A', hA'sub, ?_, ?_⟩
   · grw [hcard]
