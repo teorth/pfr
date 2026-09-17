@@ -1049,6 +1049,12 @@ theorem weak_PFR_int
     exact Nat.card_pos
   exact_mod_cast ne_of_gt (@Nat.card_pos _ hnA.to_subtype _)
 
+/-- `Nat.card` of a finset coerced to a set is the finset card. Needed so `norm_cast`
+can rewrite after `lift A to Finset`. -/
+@[local norm_cast] private lemma Nat.card_coe_finset_set {α : Type*} (s : Finset α) :
+    Nat.card (s : Set α) = s.card := by
+  rw [Nat.card_coe_set_eq, Set.ncard_coe_finset]
+
 /-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$.
 There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-34}\lvert A\rvert$
 and $\dim A' \leq \frac{80}{\log 2} \log K$.
@@ -1065,7 +1071,7 @@ theorem weak_PFR_int_sumset
   classical
   lift A to Finset G using A.toFinite
   have hsne : A.Nonempty := by simpa using hnA
-  rw [Nat.card_eq_finsetCard (A + A), Nat.card_eq_finsetCard A] at hA
+  norm_cast at hA
   have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hsne.card_pos
   have hK : (0 : ℝ) ≤ K := by
     have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hsne
@@ -1074,7 +1080,7 @@ theorem weak_PFR_int_sumset
     have hruzsa : ((A - A).card : ℝ) * A.card ≤ ((A + A).card : ℝ) * (A + A).card :=
       mod_cast Finset.ruzsa_triangle_inequality_sub_add_add A A A
     have : ((A - A).card : ℝ) ≤ K ^ 2 * A.card := by nlinarith
-    simpa [← Finset.coe_sub, Nat.card_eq_finsetCard] using this
+    simpa [← Finset.coe_sub] using this
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
   refine ⟨A', hA'sub, ?_, ?_⟩
   · grw [hcard]
