@@ -1065,8 +1065,7 @@ theorem weak_PFR_int_sumset
   classical
   lift A to Finset G using A.toFinite
   simp at hnA
-  have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := by simp
-  rw [show ((↑A : Set G) + ↑A) = ((A + A : Finset G) : Set G) by simp, hcoe, hcoe] at hA
+  norm_cast at hA
   have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hnA.card_pos
   have hK : (0 : ℝ) ≤ K := by
     have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hnA
@@ -1075,7 +1074,7 @@ theorem weak_PFR_int_sumset
     have hruzsa : ((A - A).card : ℝ) * A.card ≤ ((A + A).card : ℝ) * (A + A).card :=
       mod_cast Finset.ruzsa_triangle_inequality_sub_add_add A A A
     have : ((A - A).card : ℝ) ≤ K ^ 2 * A.card := by nlinarith
-    simpa [← Finset.coe_sub, hcoe] using this
+    simpa [← Finset.coe_sub] using this
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
   refine ⟨A', hA'sub, ?_, ?_⟩
   · grw [hcard]
