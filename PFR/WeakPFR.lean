@@ -1064,17 +1064,17 @@ theorem weak_PFR_int_sumset
       AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K := by
   classical
   lift A to Finset G using A.toFinite
-  replace hnA : A.Nonempty := by simpa using hnA
-  simp_rw [Nat.card_eq_finsetCard] at hA
-  have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hnA.card_pos
+  have hsne : A.Nonempty := by simpa using hnA
+  replace hA : ((A + A).card : ℝ) ≤ K * A.card := by exact_mod_cast hA
+  have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hsne.card_pos
   have hK : (0 : ℝ) ≤ K := by
-    have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hnA
+    have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hsne
     nlinarith
   have hdiff : (Nat.card ((A : Set G) - (A : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (A : Set G) := by
     have hruzsa : ((A - A).card : ℝ) * A.card ≤ ((A + A).card : ℝ) * (A + A).card :=
       mod_cast Finset.ruzsa_triangle_inequality_sub_add_add A A A
     have : ((A - A).card : ℝ) ≤ K ^ 2 * A.card := by nlinarith
-    simpa [← Finset.coe_sub] using this
+    simpa [← Finset.coe_sub, Nat.card_eq_finsetCard] using this
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
   refine ⟨A', hA'sub, ?_, ?_⟩
   · grw [hcard]
