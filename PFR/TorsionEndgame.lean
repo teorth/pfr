@@ -1043,9 +1043,12 @@ private theorem torsion_PFR_finite {G : Type*} [AddCommGroup G] [Finite G] {m : 
         rw [← Real.rpow_mul (by positivity), ← Real.rpow_add (by positivity)]
         congr; push_cast; ring
 
-/-- Same as `torsion_PFR`, but with `[Module (ZMod m) G]` so the span `Fintype` unifies.
-Reduces to the finite span of `A` (Yael's `wlog Finite G` pattern, without fighting
-dependent `htorsion` binders). -/
+/-- Private step of `torsion_PFR`: assumes `[Module (ZMod m) G]` already, spans down to a
+finite `G'`, and applies `torsion_PFR_finite`.
+
+Kept separate because putting `letI := AddCommGroup.zmodModule htorsion` *inside* the
+same proof makes `Afin.submoduleSpan`'s `Fintype` fail to unify with
+`let G' := Submodule.span (ZMod m) A`. With the module as a binder it unifies. -/
 private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [NeZero m]
     [Module (ZMod m) G] (hm : m ≥ 2) (htorsion : ∀ x : G, m • x = 0)
     {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
