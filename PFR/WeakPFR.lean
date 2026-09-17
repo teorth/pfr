@@ -1063,19 +1063,18 @@ theorem weak_PFR_int_sumset
     ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-34 : ℝ) * Nat.card A ∧
       AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K := by
   classical
-  obtain ⟨s, rfl⟩ : ∃ s : Finset G, (↑s : Set G) = A :=
-    ⟨A.toFinite.toFinset, A.toFinite.coe_toFinset⟩
-  have hsne : s.Nonempty := by simpa using hnA
-  have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := fun _ ↦ by simp
-  rw [show ((↑s : Set G) + ↑s) = ((s + s : Finset G) : Set G) by simp, hcoe, hcoe] at hA
-  have hspos : (0 : ℝ) < s.card := Nat.cast_pos.mpr hsne.card_pos
+  lift A to Finset G using A.toFinite
+  have hsne : A.Nonempty := by simpa using hnA
+  have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := by simp
+  rw [show ((↑A : Set G) + ↑A) = ((A + A : Finset G) : Set G) by simp, hcoe, hcoe] at hA
+  have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hsne.card_pos
   have hK : (0 : ℝ) ≤ K := by
-    have : (s.card : ℝ) ≤ (s + s).card := by exact_mod_cast Finset.card_le_card_add_left hsne
+    have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hsne
     nlinarith
-  have hdiff : (Nat.card ((s : Set G) - (s : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (s : Set G) := by
-    have hruzsa : ((s - s).card : ℝ) * s.card ≤ ((s + s).card : ℝ) * (s + s).card :=
-      mod_cast Finset.ruzsa_triangle_inequality_sub_add_add s s s
-    have : ((s - s).card : ℝ) ≤ K ^ 2 * s.card := by nlinarith
+  have hdiff : (Nat.card ((A : Set G) - (A : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (A : Set G) := by
+    have hruzsa : ((A - A).card : ℝ) * A.card ≤ ((A + A).card : ℝ) * (A + A).card :=
+      mod_cast Finset.ruzsa_triangle_inequality_sub_add_add A A A
+    have : ((A - A).card : ℝ) ≤ K ^ 2 * A.card := by nlinarith
     simpa [← Finset.coe_sub, hcoe] using this
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
   refine ⟨A', hA'sub, ?_, ?_⟩
