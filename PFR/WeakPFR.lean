@@ -1065,7 +1065,7 @@ theorem weak_PFR_int_sumset
   classical
   lift A to Finset G using A.toFinite
   have hsne : A.Nonempty := by simpa using hnA
-  replace hA : ((A + A).card : ℝ) ≤ K * A.card := by exact_mod_cast hA
+  rw [Nat.card_eq_finsetCard (A + A), Nat.card_eq_finsetCard A] at hA
   have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hsne.card_pos
   have hK : (0 : ℝ) ≤ K := by
     have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hsne
