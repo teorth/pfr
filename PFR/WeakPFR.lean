@@ -1064,8 +1064,7 @@ theorem weak_PFR_int_sumset
       AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K := by
   classical
   lift A to Finset G using A.toFinite
-  simp at hnA
-  -- `norm_cast` won't fire: after `lift`, `Nat.card` sees `CoeSort`, not a `[coe]`.
+  replace hnA : A.Nonempty := by simpa using hnA
   simp_rw [Nat.card_eq_finsetCard] at hA
   have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hnA.card_pos
   have hK : (0 : ℝ) ≤ K := by
