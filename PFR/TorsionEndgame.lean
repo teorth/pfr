@@ -968,18 +968,15 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
     rw [heq]
     exact lt_of_le_of_lt hk ((Nat.lt_mul_iff_one_lt_left Nat.card_pos).mpr hm)
 
-/-- Suppose that $G$ is an abelian group of torsion $m$ (not necessarily finite).
-If $A \subset G$ is a finite non-empty set with $|A+A| \leq K|A|$, then $A$ can be covered by at
-most $m K^{256 m^3+1}$ translates of a finite subspace $H$ of $G$ with $|H| \leq |A|$. -/
-theorem torsion_PFR {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
-    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
+/-- Same as `torsion_PFR`, but with `[Module (ZMod m) G]` so the span `Fintype` unifies. -/
+private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [NeZero m]
+    [Module (ZMod m) G] (hm : m ≥ 2) (htorsion : ∀ x : G, m • x = 0)
+    {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * A.ncard) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
   wlog hG : Finite G generalizing G A K
   · -- reduce to the finite span of `A` over `ZMod m`
-    have : NeZero m := ⟨by omega⟩
-    letI := AddCommGroup.zmodModule htorsion
     let G' := Submodule.span (ZMod m) A
     let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
     let ι : G' →ₗ[ZMod m] G := G'.subtype
@@ -1077,3 +1074,15 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
         simp_rw [← Real.rpow_natCast]
         rw [← Real.rpow_mul (by positivity), ← Real.rpow_add (by positivity)]
         congr; push_cast; ring
+
+/-- Suppose that $G$ is an abelian group of torsion $m$ (not necessarily finite).
+If $A \subset G$ is a finite non-empty set with $|A+A| \leq K|A|$, then $A$ can be covered by at
+most $m K^{256 m^3+1}$ translates of a finite subspace $H$ of $G$ with $|H| \leq |A|$. -/
+theorem torsion_PFR {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
+    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
+    (hA : Nat.card (A + A) ≤ K * A.ncard) :
+    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+  have : NeZero m := ⟨by omega⟩
+  letI := AddCommGroup.zmodModule htorsion
+  exact torsion_PFR_of_module hm htorsion Afin h₀A hA
