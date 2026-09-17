@@ -1056,6 +1056,7 @@ and $\dim A' \leq \frac{80}{\log 2} \log K$.
 This is Theorem 1.3 of arXiv:2311.05762 with explicit constants $C_1 = 34$ and
 $C_2 = 80 / \log 2$. It follows from `weak_PFR_int` by Ruzsa's triangle inequality
 `|A-A| |A| ≤ |A+A|^2`, which gives $|A-A| \le K^2 |A|$. -/
+attribute [local norm_cast] Nat.card_eq_finsetCard in
 theorem weak_PFR_int_sumset
     {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
     {A : Set G} [Finite A] (hnA : A.Nonempty) {K : ℝ}
