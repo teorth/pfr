@@ -968,45 +968,12 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
     rw [heq]
     exact lt_of_le_of_lt hk ((Nat.lt_mul_iff_one_lt_left Nat.card_pos).mpr hm)
 
-/-- Same as `torsion_PFR`, but with `[Module (ZMod m) G]` so the span `Fintype` unifies. -/
-private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [NeZero m]
-    [Module (ZMod m) G] (hm : m ≥ 2) (htorsion : ∀ x : G, m • x = 0)
-    {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
-    (hA : Nat.card (A + A) ≤ K * A.ncard) :
+/-- Finite-ambient case of `torsion_PFR`. -/
+private theorem torsion_PFR_finite {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ}
+    (hm : m ≥ 2) (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) {K : ℝ}
+    (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * A.ncard) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
-  wlog hG : Finite G generalizing G htorsion A K
-  · -- reduce to the finite span of `A` over `ZMod m`
-    let G' := Submodule.span (ZMod m) A
-    let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
-    let ι : G' →ₗ[ZMod m] G := G'.subtype
-    have ι_inj : Function.Injective ι := G'.toAddSubgroup.subtype_injective
-    let f : G' →+ G := ι.toAddMonoidHom
-    let A' : Set G' := ι ⁻¹' A
-    have A_rg : A ⊆ range ι := by
-      simp [G', ι]
-    have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
-    have hA' : Nat.card (A' + A') ≤ K * A'.ncard := by
-      rw [show A'.ncard = Nat.card A' from (Nat.card_coe_set_eq _).symm]
-      rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
-        Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
-    have htorsion' : ∀ x : G', m • x = 0 := fun x ↦ by
-      ext
-      push_cast
-      exact htorsion x.1
-    obtain ⟨H', c', hc', hH'fin, hcard, hH'A, hsub⟩ :=
-      this (G := G') htorsion' (A := A') (Set.toFinite A') (K := K)
-        (h₀A.preimage' A_rg) hA'
-    have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by
-      rw [AddSubgroup.coe_map]; rfl
-    refine ⟨H'.map f, ι '' c', toFinite _, ?_, ?_, ?_, fun x hx ↦ ?_⟩
-    · rw [hHmap]; exact (toFinite _).image _
-    · rwa [Nat.card_image_of_injective ι_inj]
-    · rw [hHmap, Set.ncard_image_of_injective _ ι_inj]
-      simpa [← cardA', ← Nat.card_coe_set_eq] using hH'A
-    · rw [hHmap, ← image_add]
-      exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
-  -- finite ambient group
   have : Finite A := Afin.to_subtype
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' Afin h₀A hA
@@ -1076,6 +1043,43 @@ private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [Ne
         rw [← Real.rpow_mul (by positivity), ← Real.rpow_add (by positivity)]
         congr; push_cast; ring
 
+/-- Same as `torsion_PFR`, but with `[Module (ZMod m) G]` so the span `Fintype` unifies.
+Reduces to the finite span of `A` (Yael's `wlog Finite G` pattern, without fighting
+dependent `htorsion` binders). -/
+private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [NeZero m]
+    [Module (ZMod m) G] (hm : m ≥ 2) (htorsion : ∀ x : G, m • x = 0)
+    {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
+    (hA : Nat.card (A + A) ≤ K * A.ncard) :
+    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+  let G' := Submodule.span (ZMod m) A
+  let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
+  let ι : G' →ₗ[ZMod m] G := G'.subtype
+  have ι_inj : Function.Injective ι := G'.toAddSubgroup.subtype_injective
+  let f : G' →+ G := ι.toAddMonoidHom
+  let A' : Set G' := ι ⁻¹' A
+  have A_rg : A ⊆ range ι := by simp [G', ι]
+  have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
+  have hA' : Nat.card (A' + A') ≤ K * A'.ncard := by
+    rw [show A'.ncard = Nat.card A' from (Nat.card_coe_set_eq _).symm]
+    rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
+      Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
+  have htorsion' : ∀ x : G', m • x = 0 := fun x ↦ by
+    ext
+    push_cast
+    exact htorsion x.1
+  obtain ⟨H', c', hc', hH'fin, hcard, hH'A, hsub⟩ :=
+    torsion_PFR_finite hm htorsion' (Set.toFinite A') (h₀A.preimage' A_rg) hA'
+  have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by
+    rw [AddSubgroup.coe_map]; rfl
+  refine ⟨H'.map f, ι '' c', toFinite _, ?_, ?_, ?_, fun x hx ↦ ?_⟩
+  · rw [hHmap]; exact (toFinite _).image _
+  · rwa [Nat.card_image_of_injective ι_inj]
+  · rw [hHmap, Set.ncard_image_of_injective _ ι_inj]
+    simpa [← cardA', ← Nat.card_coe_set_eq] using hH'A
+  · rw [hHmap, ← image_add]
+    exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
+
 /-- Suppose that $G$ is an abelian group of torsion $m$ (not necessarily finite).
 If $A \subset G$ is a finite non-empty set with $|A+A| \leq K|A|$, then $A$ can be covered by at
 most $m K^{256 m^3+1}$ translates of a finite subspace $H$ of $G$ with $|H| \leq |A|$. -/
@@ -1086,4 +1090,4 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
   have : NeZero m := ⟨by omega⟩
   letI := AddCommGroup.zmodModule htorsion
-  exact torsion_PFR_of_module hm htorsion Afin h₀A hA
+  exact torsion_PFR_of_module (G := G) hm htorsion Afin h₀A hA
