@@ -23,8 +23,8 @@ Here we use the entropic form of PFR to deduce a weak form of PFR over the integ
 * `weak_PFR_int`: Let $A\subseteq \mathbb{Z}^d$ and $\lvert A-A\rvert\leq K\lvert A\rvert$.
   There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-17}\lvert A\rvert$ and
   $\dim A' \leq (40/\log 2)\log K$.
-* `weak_PFR_int_sumset`: the same conclusion with $\lvert A+A\rvert\leq K\lvert A\rvert$,
-  at the cost of squaring $K$, hence $K^{-34}$ and $(80/\log 2)\log K$.
+* `weak_PFR_int_sumset`: the same conclusion but assuming $\lvert A+A\rvert\leq K\lvert A\rvert$,
+  at the cost of squaring $K$.
 
 -/
 
@@ -1058,39 +1058,28 @@ $C_2 = 80 / \log 2$. It follows from `weak_PFR_int` by Ruzsa's triangle inequali
 `|A-A| |A| ≤ |A+A|^2`, which gives $|A-A| \le K^2 |A|$. -/
 theorem weak_PFR_int_sumset
     {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
-    {A : Set G} [A_fin : Finite A] (hnA : A.Nonempty) {K : ℝ}
+    {A : Set G} [Finite A] (hnA : A.Nonempty) {K : ℝ}
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-34 : ℝ) * Nat.card A ∧
       AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K := by
   classical
-  have hAfin : A.Finite := A.toFinite
-  obtain ⟨s, rfl⟩ : ∃ s : Finset G, (↑s : Set G) = A := ⟨hAfin.toFinset, hAfin.coe_toFinset⟩
+  obtain ⟨s, rfl⟩ : ∃ s : Finset G, (↑s : Set G) = A :=
+    ⟨A.toFinite.toFinset, A.toFinite.coe_toFinset⟩
   have hsne : s.Nonempty := by simpa using hnA
-  have hcoe : ∀ t : Finset G, Nat.card (↑t : Set G) = t.card := fun t ↦ by simp
-  rw [show ((↑s : Set G) + ↑s) = ((s + s : Finset G) : Set G) by simp, hcoe, hcoe] at hA
-  have hpos : (0 : ℝ) < s.card := Nat.cast_pos.mpr hsne.card_pos
-  have h1 : (s.card : ℝ) ≤ ((s + s).card : ℝ) := by
-    exact_mod_cast Finset.card_le_card_add_left hsne
-  have hK₁ : (1 : ℝ) ≤ K := by
-    have hle : (s.card : ℝ) ≤ K * s.card := h1.trans hA
+  replace hA : ((s + s).card : ℝ) ≤ K * s.card := by simpa using hA
+  have hspos : (0 : ℝ) < s.card := Nat.cast_pos.mpr hsne.card_pos
+  have hK : (0 : ℝ) ≤ K := by
+    have : (s.card : ℝ) ≤ (s + s).card := by exact_mod_cast Finset.card_le_card_add_left hsne
     nlinarith
-  have hruzsa : ((s - s).card : ℝ) * s.card ≤ ((s + s).card : ℝ) * ((s + s).card : ℝ) := by
-    exact_mod_cast Finset.ruzsa_triangle_inequality_sub_add_add s s s
-  have hcoesub : ((s : Set G) - (s : Set G)) = ((s - s : Finset G) : Set G) := by
-    simp
-  have hdiff : (Nat.card ((s : Set G) - (s : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (s : Set G) := by
-    rw [hcoesub, hcoe, hcoe]
-    have hsum₀ : (0 : ℝ) ≤ (s + s).card := by positivity
-    have hsq : ((s + s).card : ℝ) * (s + s).card ≤ (K * s.card) * (K * s.card) :=
-      mul_le_mul hA hA hsum₀ (hsum₀.trans hA)
+  have hdiff : (Nat.card ((s : Set G) - s) : ℝ) ≤ K ^ 2 * Nat.card (s : Set G) := by
+    have hruzsa : ((s - s).card : ℝ) * s.card ≤ ((s + s).card : ℝ) * (s + s).card :=
+      mod_cast Finset.ruzsa_triangle_inequality_sub_add_add s s s
+    simp only [← Finset.coe_sub, Nat.card_coe_set_eq]
     nlinarith
   obtain ⟨A', hA'sub, hcard, hdim⟩ := weak_PFR_int (K := K ^ 2) hnA hdiff
   refine ⟨A', hA'sub, ?_, ?_⟩
   · grw [hcard]
-    rw [← Real.rpow_natCast K 2, ← Real.rpow_mul (by linarith : (0 : ℝ) ≤ K)]
+    rw [← Real.rpow_natCast K 2, ← Real.rpow_mul hK]
     norm_num
-  · grw [hdim]
-    rw [Real.log_pow]
-    push_cast
-    ring_nf
-    rfl
+  · grw [hdim, Real.log_pow]
+    push_cast; ring_nf; rfl
