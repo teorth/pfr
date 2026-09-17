@@ -73,7 +73,7 @@ status:
     Lean core and Mathlib, and Mathlib has no Shannon entropy or entropic
     Ruzsa distance: the entropy form of the conjecture in characteristic 2
     (Theorem 1.8 of the arXiv:2311.05762 entry below, formalized as
-    entropic_PFR_conjecture and entropic_PFR_conjecture'), the entropy form in
+    entropic_PFR_conjecture), the entropy form in
     the bounded torsion case (formalized as dist_of_X_U_H_le), and the
     Kullback-Leibler and rho-functional machinery of the arXiv:2404.09639
     entry (rho_PFR_conjecture and its supporting theory). The exponent-11
@@ -379,7 +379,7 @@ alignment:
         and is not compared.
 
     - source: "arXiv:2311.05762, Theorem 1.8: the entropy form in characteristic 2"
-      lean: "entropic_PFR_conjecture, entropic_PFR_conjecture'"
+      lean: "entropic_PFR_conjecture"
       module: "PFR.EntropyPFR"
       status: proved-not-compared
       note: >-

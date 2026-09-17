@@ -6,6 +6,10 @@ public import PFR.Main
 # Improved PFR
 
 An improvement to PFR that lowers the exponent from 12 to 11.
+
+The entropy form (`entropic_PFR_conjecture_improv`) gives
+$d[X^0_1; U_H] + d[X^0_2; U_H] \le 10 d[X^0_1; X^0_2]$. Combining with the Ruzsa
+triangle inequality, each summand is at most $(11/2) d[X^0_1; X^0_2]$.
 -/
 
 public section
