@@ -984,7 +984,7 @@ private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [Ne
     let f : G' →+ G := ι.toAddMonoidHom
     let A' : Set G' := ι ⁻¹' A
     have A_rg : A ⊆ range ι := by
-      simpa [G', ι] using Submodule.subset_span (R := ZMod m) (M := G) (s := A)
+      simp [G', ι]
     have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
     have hA' : Nat.card (A' + A') ≤ K * A'.ncard := by
       rw [show A'.ncard = Nat.card A' from (Nat.card_coe_set_eq _).symm]
@@ -995,7 +995,8 @@ private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [Ne
       push_cast
       exact htorsion x.1
     obtain ⟨H', c', hc', hH'fin, hcard, hH'A, hsub⟩ :=
-      this hm htorsion' (Set.toFinite A') (h₀A.preimage' A_rg) hA'
+      this (G := G') (A := A') (K := K) hm htorsion' (Set.toFinite A')
+        (h₀A.preimage' A_rg) hA'
     have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by
       rw [AddSubgroup.coe_map]; rfl
     refine ⟨H'.map f, ι '' c', toFinite _, ?_, ?_, ?_, fun x hx ↦ ?_⟩
