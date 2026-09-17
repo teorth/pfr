@@ -36,6 +36,7 @@ import PFR.Mathlib.Data.Finset.Basic
 import PFR.Mathlib.Data.Set.Basic
 import PFR.Mathlib.Data.Set.Card
 import PFR.Mathlib.Data.Set.Insert
+import PFR.Mathlib.Data.ZMod.Basic
 import PFR.Mathlib.LinearAlgebra.Basis.VectorSpace
 import PFR.Mathlib.LinearAlgebra.Dimension.Finrank
 import PFR.Mathlib.LinearAlgebra.Dimension.FreeAndStrongRankCondition

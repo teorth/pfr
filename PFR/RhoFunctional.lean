@@ -1972,7 +1972,7 @@ lemma better_PFR_conjecture_aux0 {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
   rw [hAA'] at UAunif
   have hadd_sub : A + A = A - A := by ext; simp [Set.mem_add, Set.mem_sub, ZModModule.sub_eq_add]
   rw [hadd_sub] at hA
-  have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_add_le h₀A hA UAunif UAmeas
+  have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_sub_le h₀A hA UAunif UAmeas
   rw [← hadd_sub] at hA
   -- entropic PFR gives a subgroup `H` which is close to `A` for the rho functional
   rcases rho_PFR_conjecture UA UA UAmeas UAmeas A' h₀A'
