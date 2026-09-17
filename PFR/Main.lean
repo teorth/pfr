@@ -7,6 +7,8 @@ public import Mathlib.GroupTheory.Complement
 public import PFR.EntropyPFR
 public import PFR.Tactic.RPowSimp
 
+import PFR.Mathlib.Data.ZMod.Basic
+
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y) => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
@@ -131,14 +133,18 @@ theorem rdist_le_of_isUniform_of_card_sub_le [A_fin : Finite A] [MeasurableSpace
     linarith
   rwa [idU.rdist_congr idU'] at IU
 
-variable [Module (ZMod 2) G] [Finite G]
+variable [Module (ZMod 2) G]
 
-lemma sumset_eq_sub {G : Type*} [AddCommGroup G] [Module (ZMod 2) G] (A : Set G) :
-    A + A = A - A := by
-  rw [← Set.image2_add, ← Set.image2_sub]
-  congr! 1 with a _ b _
-  show a + b = a - b
-  simp [ZModModule.sub_eq_add]
+/-- In characteristic 2, a uniform distribution on a set with doubling constant `K`
+has self Rusza distance at most `log K`. -/
+theorem rdist_le_of_isUniform_of_doubling [A_fin : Finite A] [MeasurableSpace G]
+    [MeasurableSingletonClass G]
+    (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
+    {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
+    (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K :=
+  rdist_le_of_isUniform_of_card_sub_le hA₀ (by simpa [Set.sub_eq_add]) U₀unif U₀meas
+
+variable [Finite G]
 
 /-- Auxiliary statement towards the polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of
 an elementary abelian 2-group of doubling constant at most $K$, then there exists a subgroup `H`
@@ -152,7 +158,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
   classical
   have A_fin : Finite A := by infer_instance
   let : MeasurableSpace G := ⊤
-  rw [sumset_eq_sub] at hA
+  rw [← Set.sub_eq_add] at hA
   have : MeasurableSingletonClass G := ⟨fun _ ↦ trivial⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < (A - A).ncard ∧ 0 < K :=
     PFR_conjecture_pos_aux A.toFinite hA₀ hA
@@ -162,7 +168,7 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
   rcases exists_isUniform_measureSpace A' hA₀' with ⟨Ω₀, mΩ₀, UA, hP₀, UAmeas, UAunif, -, -⟩
   rw [hAA'] at UAunif
   have : d[UA # UA] ≤ log K := rdist_le_of_isUniform_of_card_sub_le hA₀ hA UAunif UAmeas
-  rw [← sumset_eq_sub] at hA
+  rw [Set.sub_eq_add] at hA
   let p : refPackage Ω₀ Ω₀ G := ⟨UA, UA, UAmeas, UAmeas, 1/9, (by norm_num), (by norm_num)⟩
   -- entropic PFR gives a subgroup `H` which is close to `A` for the Rusza distance
   rcases entropic_PFR_conjecture p (by norm_num) with ⟨H, Ω₁, mΩ₁, UH, hP₁, UHmeas, UHunif, hUH⟩
