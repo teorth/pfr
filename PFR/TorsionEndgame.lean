@@ -14,7 +14,7 @@ public import PFR.BoundingMutual
 * `torsion_PFR_conjecture_aux`: covering by `K^(128 m^3 + 1) |A|^{1/2}/|H|^{1/2}`
   cosets, with `|H|/|A|` in `[K^{-256 m^3}, K^{256 m^3}]`.
 * `torsion_PFR`: covering by fewer than `m * K^(256 m^3 + 1)` cosets of a
-  subgroup no larger than `A`.
+  finite subgroup no larger than `A` (ambient group need not be finite).
 
 The extra factors of 2 relative to the entropy form comes from the lack of
 2-torsion: `d[U_A; U_A] ≤ 2 d[U_A; -U_A] ≤ 2 log K`.
@@ -968,44 +968,75 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
     rw [heq]
     exact lt_of_le_of_lt hk ((Nat.lt_mul_iff_one_lt_left Nat.card_pos).mpr hm)
 
-/-- Suppose that $G$ is a finite abelian group of torsion $m$.
-If $A \subset G$ is non-empty and $|A+A| \leq K|A|$, then $A$ can be covered by at most
-$m K^{256 m^3+1}$ translates of a subspace $H$ of $G$ with $|H| \leq |A|$. -/
-theorem torsion_PFR {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m ≥ 2)
-     (htorsion : ∀ x:G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
-     (hA : Nat.card (A + A) ≤ K * A.ncard) :
-     ∃ (H : AddSubgroup G) (c : Set G),
-      Nat.card c < m * K ^ (256*m^3+1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+/-- Suppose that $G$ is an abelian group of torsion $m$ (not necessarily finite).
+If $A \subset G$ is a finite non-empty set with $|A+A| \leq K|A|$, then $A$ can be covered by at
+most $m K^{256 m^3+1}$ translates of a finite subspace $H$ of $G$ with $|H| \leq |A|$. -/
+theorem torsion_PFR {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
+    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
+    (hA : Nat.card (A + A) ≤ K * A.ncard) :
+    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
+      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+  wlog hG : Finite G generalizing G A K
+  · -- reduce to the finite span of `A` over `ZMod m`
+    have : NeZero m := ⟨by omega⟩
+    letI := AddCommGroup.zmodModule htorsion
+    let G' := Submodule.span (ZMod m) A
+    let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
+    let ι : G' →ₗ[ZMod m] G := G'.subtype
+    have ι_inj : Function.Injective ι := G'.toAddSubgroup.subtype_injective
+    let f : G' →+ G := ι.toAddMonoidHom
+    let A' : Set G' := ι ⁻¹' A
+    have A_rg : A ⊆ range ι := by
+      simpa [G', ι] using Submodule.subset_span (R := ZMod m) (M := G) (s := A)
+    have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
+    have hA' : Nat.card (A' + A') ≤ K * A'.ncard := by
+      rw [show A'.ncard = Nat.card A' from (Nat.card_coe_set_eq _).symm]
+      rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
+        Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
+    have htorsion' : ∀ x : G', m • x = 0 := fun x ↦ by
+      ext
+      push_cast
+      exact htorsion x.1
+    obtain ⟨H', c', hc', hH'fin, hcard, hH'A, hsub⟩ :=
+      this hm htorsion' (Set.toFinite A') (h₀A.preimage' A_rg) hA'
+    have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by
+      rw [AddSubgroup.coe_map]; rfl
+    refine ⟨H'.map f, ι '' c', toFinite _, ?_, ?_, ?_, fun x hx ↦ ?_⟩
+    · rw [hHmap]; exact (toFinite _).image _
+    · rwa [Nat.card_image_of_injective ι_inj]
+    · rw [hHmap, Set.ncard_image_of_injective _ ι_inj]
+      simpa [← cardA', ← Nat.card_coe_set_eq] using hH'A
+    · rw [hHmap, ← image_add]
+      exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
+  -- finite ambient group
+  have : Finite A := Afin.to_subtype
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
-    PFR_conjecture_pos_aux' ‹_› h₀A hA
-   -- consider the subgroup `H` given by Lemma `torsion_PFR_conjecture_aux`.
+    PFR_conjecture_pos_aux' Afin h₀A hA
   obtain ⟨H, c, hc, IHA, IAH, A_subs_cH⟩ : ∃ (H : AddSubgroup G) (c : Set G),
-    Nat.card c ≤ K ^ (128 * m^3+1) * A.ncard ^ (1/2:ℝ) * (H : Set G).ncard ^ (-1/2:ℝ)
-      ∧ (H : Set G).ncard ≤ K ^ (256*m^3) * A.ncard ∧ A.ncard ≤ K ^ (256*m^3) * (H : Set G).ncard
-      ∧ A ⊆ c + H :=
+    Nat.card c ≤ K ^ (128 * m ^ 3 + 1) * A.ncard ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (-1 / 2 : ℝ)
+      ∧ (H : Set G).ncard ≤ K ^ (256 * m ^ 3) * A.ncard ∧
+        A.ncard ≤ K ^ (256 * m ^ 3) * (H : Set G).ncard ∧ A ⊆ c + H :=
     torsion_PFR_conjecture_aux hm htorsion h₀A hA
   have H_pos : (0 : ℝ) < (H : Set G).ncard := by
     have : 0 < (H : Set G).ncard := Nat.card_pos; positivity
-  rcases le_or_gt ((H : Set G).ncard) (A.ncard) with h|h
-  -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
-  · refine ⟨H, c, ?_, h, A_subs_cH⟩
+  rcases le_or_gt ((H : Set G).ncard) A.ncard with h | h
+  · refine ⟨H, c, toFinite _, toFinite _, ?_, h, A_subs_cH⟩
     calc
-    Nat.card c ≤ K ^ ((128*m^3+1)) * A.ncard ^ (1/2:ℝ) * (H : Set G).ncard ^ (-1/2:ℝ) := hc
-    _ ≤ K ^ (128 * m ^ 3 + 1) * (K ^ (256 * m ^ 3) * (H : Set G).ncard) ^ (1/2 : ℝ) *
-          (H : Set G).ncard ^ (-1/2:ℝ) := by gcongr
-    _ = K ^ (256*m^3+1) := by
-      rpow_ring; norm_num
-      simp_rw [←Real.rpow_natCast]
-      rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
-      congr; push_cast; ring
-    _ < m * K ^ (256*m^3+1) := by
-      apply (lt_mul_iff_one_lt_left _).mpr
-      · norm_num; linarith [hm]
-      positivity
-  -- otherwise, we decompose `H` into cosets of one of its subgroups `H'`, chosen so that
-  -- `#A / m < #H' ≤ #A`. This `H'` satisfies the desired conclusion.
+      Nat.card c ≤ K ^ (128 * m ^ 3 + 1) * A.ncard ^ (1 / 2 : ℝ) *
+          (H : Set G).ncard ^ (-1 / 2 : ℝ) := hc
+      _ ≤ K ^ (128 * m ^ 3 + 1) * (K ^ (256 * m ^ 3) * (H : Set G).ncard) ^ (1 / 2 : ℝ) *
+            (H : Set G).ncard ^ (-1 / 2 : ℝ) := by gcongr
+      _ = K ^ (256 * m ^ 3 + 1) := by
+        rpow_ring; norm_num
+        simp_rw [← Real.rpow_natCast]
+        rw [← Real.rpow_mul (by positivity), ← Real.rpow_add (by positivity)]
+        congr; push_cast; ring
+      _ < m * K ^ (256 * m ^ 3 + 1) := by
+        apply (lt_mul_iff_one_lt_left _).mpr
+        · norm_num; linarith [hm]
+        positivity
   · obtain ⟨H', IH'A, IAH', H'H⟩ : ∃ H' : AddSubgroup G, (H' : Set G).ncard ≤ A.ncard
-          ∧ A.ncard < m * (H' : Set G).ncard ∧ H' ≤ H := by
+        ∧ A.ncard < m * (H' : Set G).ncard ∧ H' ≤ H := by
       have A_pos' : 0 < A.ncard := mod_cast A_pos
       exact torsion_exists_subgroup_subset_card_le hm htorsion H h.le A_pos'.ne'
     have : (A.ncard / m : ℝ) < (H' : Set G).ncard := by
@@ -1015,83 +1046,34 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] [Finite G] {m : ℕ} (hm : m �
     have H'_pos : (0 : ℝ) < (H' : Set G).ncard := by
       have : 0 < (H' : Set G).ncard := Nat.card_pos; positivity
     obtain ⟨u, HH'u, hu⟩ := AddSubgroup.exists_left_transversal_of_le H'H
-    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
+    refine ⟨H', c + u, toFinite _, toFinite _, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
-    (Nat.card (c + u) : ℝ)
-      ≤ Nat.card c * Nat.card u := mod_cast Set.natCard_add_le
-    _ ≤ (K ^ ((128*m^3+1)) * A.ncard ^ (1 / 2:ℝ) * ((H : Set G).ncard ^ (-1 / 2:ℝ)))
-          * ((H : Set G).ncard / (H' : Set G).ncard) := by
-        gcongr
-        apply le_of_eq
-        rw [eq_div_iff H'_pos.ne']
-        norm_cast
-    _ < (K ^ ((128*m^3+1)) * A.ncard ^ (1 / 2:ℝ) * ((H : Set G).ncard ^ (-1 / 2:ℝ)))
-          * ((H : Set G).ncard / (A.ncard / m)) := by
-        gcongr
-    _ = (K ^ ((128*m^3+1)) * A.ncard ^ (1 / 2:ℝ) * ((H : Set G).ncard ^ (-1 / 2:ℝ)))
-          * ((H : Set G).ncard * (A.ncard : ℝ)⁻¹ * m) := by
-        field_simp
-    _ = m * K ^ ((128*m^3+1)) * A.ncard ^ (-1/2:ℝ) * (H : Set G).ncard ^ (1/2:ℝ) := by
-        rpow_ring
-        field_simp
-        norm_num
-    _ ≤ m * K ^ ((128*m^3+1)) * A.ncard ^ (-1/2:ℝ) * (K ^ (256*m^3) * A.ncard) ^ (1/2:ℝ) := by
-        gcongr
-    _ = m * K ^ (256*m^3+1) := by
+      (Nat.card (c + u) : ℝ)
+        ≤ Nat.card c * Nat.card u := mod_cast Set.natCard_add_le
+      _ ≤ (K ^ (128 * m ^ 3 + 1) * A.ncard ^ (1 / 2 : ℝ) *
+            ((H : Set G).ncard ^ (-1 / 2 : ℝ))) *
+          ((H : Set G).ncard / (H' : Set G).ncard) := by
+            gcongr
+            apply le_of_eq
+            rw [eq_div_iff H'_pos.ne']
+            norm_cast
+      _ < (K ^ (128 * m ^ 3 + 1) * A.ncard ^ (1 / 2 : ℝ) *
+            ((H : Set G).ncard ^ (-1 / 2 : ℝ))) *
+          ((H : Set G).ncard / (A.ncard / m)) := by gcongr
+      _ = (K ^ (128 * m ^ 3 + 1) * A.ncard ^ (1 / 2 : ℝ) *
+            ((H : Set G).ncard ^ (-1 / 2 : ℝ))) *
+          ((H : Set G).ncard * (A.ncard : ℝ)⁻¹ * m) := by field_simp
+      _ = m * K ^ (128 * m ^ 3 + 1) * A.ncard ^ (-1 / 2 : ℝ) *
+          (H : Set G).ncard ^ (1 / 2 : ℝ) := by
+            rpow_ring
+            field_simp
+            norm_num
+      _ ≤ m * K ^ (128 * m ^ 3 + 1) * A.ncard ^ (-1 / 2 : ℝ) *
+          (K ^ (256 * m ^ 3) * A.ncard) ^ (1 / 2 : ℝ) := by gcongr
+      _ = m * K ^ (256 * m ^ 3 + 1) := by
         rpow_ring
         norm_num
         left
-        simp_rw [←Real.rpow_natCast]
-        rw [←Real.rpow_mul (by positivity), ←Real.rpow_add (by positivity)]
+        simp_rw [← Real.rpow_natCast]
+        rw [← Real.rpow_mul (by positivity), ← Real.rpow_add (by positivity)]
         congr; push_cast; ring
-
-/-- Same as `torsion_PFR'` but with `[Module (ZMod m) G]` already available, so the
-span `Fintype` instance unifies (cf. `PFR_conjecture'` / Palomar). -/
-private theorem torsion_PFR'_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [NeZero m]
-    [Module (ZMod m) G] (hm : m ≥ 2) (htorsion : ∀ x : G, m • x = 0)
-    {A : Set G} (Afin : A.Finite) (h₀A : A.Nonempty) {K : ℝ}
-    (hA : Nat.card (A + A) ≤ K * A.ncard) :
-    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
-      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧
-      A ⊆ c + H := by
-  let G' := Submodule.span (ZMod m) A
-  let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
-  let ι : G' →ₗ[ZMod m] G := G'.subtype
-  have ι_inj : Function.Injective ι := G'.toAddSubgroup.subtype_injective
-  let f : G' →+ G := ι.toAddMonoidHom
-  let A' : Set G' := ι ⁻¹' A
-  have A_rg : A ⊆ range ι := by
-    simpa [G', ι] using Submodule.subset_span (R := ZMod m) (M := G) (s := A)
-  have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
-  have hA' : Nat.card (A' + A') ≤ K * A'.ncard := by
-    rw [show A'.ncard = Nat.card A' from (Nat.card_coe_set_eq _).symm]
-    rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
-      Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
-  have htorsion' : ∀ x : G', m • x = 0 := fun x ↦ by
-    ext
-    push_cast
-    exact htorsion x.1
-  have : Finite G' := inferInstance
-  have : Finite A' := inferInstance
-  obtain ⟨H', c', hc', hH'A, hsub⟩ := torsion_PFR hm htorsion' (h₀A.preimage' A_rg) hA'
-  have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by
-    rw [AddSubgroup.coe_map]; rfl
-  refine ⟨H'.map f, ι '' c', toFinite _, ?_, ?_, ?_, fun x hx ↦ ?_⟩
-  · rw [hHmap]; exact (toFinite _).image _
-  · rwa [Nat.card_image_of_injective ι_inj]
-  · rw [hHmap, Set.ncard_image_of_injective _ ι_inj]
-    simpa [← cardA', ← Nat.card_coe_set_eq] using hH'A
-  · rw [hHmap, ← image_add]
-    exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
-
-/-- Corollary of `torsion_PFR` in which the ambient group is not required to be finite
-(but then `H` and `c` are finite). -/
-theorem torsion_PFR' {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
-    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) (h₀A : A.Nonempty)
-    {K : ℝ} (hA : Nat.card (A + A) ≤ K * A.ncard) :
-    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
-      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧
-      A ⊆ c + H := by
-  have : NeZero m := ⟨by omega⟩
-  letI := AddCommGroup.zmodModule htorsion
-  exact torsion_PFR'_of_module hm htorsion Afin h₀A hA

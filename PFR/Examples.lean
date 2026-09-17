@@ -67,8 +67,9 @@ example {m : ℕ} (hm : m ≥ 2)
      (htorsion : ∀ x : G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
      (hA : Nat.card (A + A) ≤ K * A.ncard) :
      ∃ (H : AddSubgroup G) (c : Set G),
-      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H :=
-  torsion_PFR hm htorsion h₀A hA
+      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+  obtain ⟨H, c, -, -, hc, hH, hsub⟩ := torsion_PFR hm htorsion A.toFinite h₀A hA
+  exact ⟨H, c, hc, hH, hsub⟩
 
 /-- info: 'torsion_PFR' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
