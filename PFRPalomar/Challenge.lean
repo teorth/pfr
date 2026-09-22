@@ -105,7 +105,7 @@ finite non-empty subset of `G` with `|A + A| ≤ K * |A|`, then `A` has a subset
 `|A'| ≥ K ^ (-34) * |A|` whose affine dimension — the rank of the `ℤ`-span of its difference
 set — is at most `(80 / log 2) * log K`.
 
-This realises the constants `C₁ = 68` and `C₂ = 80 / log 2` of `[GGMT]`, Theorem 1.3, which
+This realises the constants `C₁ = 34` and `C₂ = 80 / log 2` of `[GGMT]`, Theorem 1.3, which
 is stated there for unspecified absolute constants. -/
 theorem weak_pfr_int {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
     {A : Set G} (hA : A.Finite) (hA₀ : A.Nonempty) {K : ℝ}
