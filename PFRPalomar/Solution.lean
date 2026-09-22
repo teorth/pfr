@@ -53,46 +53,13 @@ theorem pfr_conjecture_nine {G : Type*} [AddCommGroup G] (h2 : ∀ x : G, 2 • 
   letI := AddCommGroup.zmodModule h2
   exact pfr_conjecture_nine_aux hA hA₀ hAK
 
-private theorem torsion_pfr_aux {G : Type*} [AddCommGroup G] {m : ℕ} [NeZero m]
-    [Module (ZMod m) G] (hm : 2 ≤ m) (htorsion : ∀ x : G, m • x = 0) {A : Set G}
-    (hA : A.Finite) (hA₀ : A.Nonempty) {K : ℝ} (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
-      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  let G' := Submodule.span (ZMod m) A
-  let G'fin : Fintype G' := (hA.submoduleSpan _).fintype
-  let ι : G' →ₗ[ZMod m] G := G'.subtype
-  have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
-  let f : G' →+ G := (ι : G' →ₗ[ZMod m] G).toAddMonoidHom
-  let A' : Set G' := ι ⁻¹' A
-  have A_rg : A ⊆ range ι := by simp [G', ι]
-  have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
-  have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
-    rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
-      Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
-  have htorsion' : ∀ x : G', m • x = 0 := fun x ↦ by
-    ext
-    push_cast
-    exact htorsion x.1
-  obtain ⟨H', c', hc', hH'A, hsub⟩ := torsion_PFR hm htorsion' (hA₀.preimage' A_rg) hA'
-  have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by
-    rw [AddSubgroup.coe_map]; rfl
-  refine ⟨H'.map f, ι '' c', toFinite _,
-    by rw [hHmap]; exact (toFinite (H' : Set G')).image ι, ?_, ?_, fun x hx ↦ ?_⟩
-  · rwa [Nat.card_image_of_injective ι_inj]
-  · rw [show Nat.card (H'.map f : AddSubgroup G)
-      = ((H'.map f : AddSubgroup G) : Set G).ncard from rfl, hHmap]
-    simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA'] using hH'A
-  · rw [hHmap, ← image_add]
-    exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
-
 theorem torsion_pfr_conjecture {G : Type*} [AddCommGroup G] {m : ℕ} (hm : 2 ≤ m)
     (htorsion : ∀ x : G, m • x = 0) {A : Set G} (hA : A.Finite) (hA₀ : A.Nonempty) {K : ℝ}
     (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  have hne : NeZero m := ⟨by omega⟩
-  letI := AddCommGroup.zmodModule htorsion
-  exact torsion_pfr_aux hm htorsion hA hA₀ hAK
+  obtain ⟨H, c, hc, hH, hcard, hHA, hsub⟩ := torsion_PFR hm htorsion hA hA₀ hAK
+  exact ⟨H, c, hc, hH, hcard, hHA, hsub⟩
 
 theorem weak_pfr_int {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
     {A : Set G} (hA : A.Finite) (hA₀ : A.Nonempty) {K : ℝ}
