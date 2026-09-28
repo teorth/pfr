@@ -3,6 +3,8 @@ module
 public import Mathlib.Data.Finset.Pairwise
 public import Mathlib.Probability.Independence.Kernel.IndepFun
 
+import Mathlib.MeasureTheory.MeasurableSpace.Pi
+
 public section
 
 open MeasureTheory MeasurableSpace
