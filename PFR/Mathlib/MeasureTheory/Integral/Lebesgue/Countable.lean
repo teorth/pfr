@@ -26,9 +26,8 @@ lemma setLIntegral_eq_sum (μ : Measure α) (s : Finset α) (f : α → ℝ≥0�
 
 lemma lintegral_eq_single (μ : Measure α) (a : α) (f : α → ℝ≥0∞) (ha : ∀ b ≠ a, f b = 0) :
     ∫⁻ x, f x ∂μ = f a * μ {a} := by
-  rw [← lintegral_add_compl f (A := {a}) (MeasurableSet.singleton a), lintegral_singleton,
-    setLIntegral_congr_fun (g := fun _ ↦ 0) (MeasurableSet.compl (MeasurableSet.singleton a)),
-    lintegral_zero, add_zero]
+  rw [← lintegral_add_compl f (.singleton _), lintegral_singleton,
+    setLIntegral_congr_fun (.compl <| .singleton a), ]
   simp +contextual [Set.EqOn, ha]
 
 end MeasureTheory
