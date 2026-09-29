@@ -8,8 +8,8 @@ public import PFR.Main
 An improvement to PFR that lowers the exponent from 12 to 11.
 
 The entropy form (`entropic_PFR_conjecture_improv`) gives
-$d[X^0_1; U_H] + d[X^0_2; U_H] \le 10 d[X^0_1; X^0_2]$. Combining with the Ruzsa
-triangle inequality, each summand is at most $(11/2) d[X^0_1; X^0_2]$.
+$d[X_1^0; U_H] + d[X_2^0; U_H] \le 10 d[X_1^0; X_2^0]$. Combining with the Ruzsa
+triangle inequality, each summand is at most $(11/2) d[X_1^0; X_2^0]$.
 -/
 
 public section
@@ -807,9 +807,9 @@ lemma tau_minimizer_exists_rdist_eq_zero :
     have L2 : Tendsto (fun n ↦ d[id ; (μ (φ n)).1 # id ; (μ (φ n)).2]) atTop (𝓝 0) := by simp [I]
     exact tendsto_nhds_unique L1 L2
 
-/-- `entropic_PFR_conjecture_improv`: For two $G$-valued random variables $X^0_1, X^0_2$, there is
-some subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 10 d[X^0_1;X^0_2]$, and
-both $d[X^0_1; U_H]$ and $d[X^0_2; U_H]$ are at most $\frac{11}2 d[X^0_1;X^0_2]$. -/
+/-- `entropic_PFR_conjecture_improv`: For two $G$-valued random variables $X_1^0, X_2^0$, there is
+some subgroup $H \leq G$ such that $d[X_1^0;U_H] + d[X_2^0;U_H] \le 10 d[X_1^0;X_2^0]$, and
+both $d[X_1^0; U_H]$ and $d[X_2^0; U_H]$ are at most $\frac{11}2 d[X_1^0;X_2^0]$. -/
 theorem entropic_PFR_conjecture_improv (hpη : p.η = 1 / 8) :
     ∃ (H : Submodule (ZMod 2) G) (Ω : Type uG) (mΩ : MeasureSpace Ω) (U : Ω → G),
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧

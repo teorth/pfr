@@ -12,9 +12,9 @@ Here we prove the entropic version of the polynomial Freiman-Ruzsa conjecture.
 
 ## Main results
 
-* `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
-  subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$,
-  and both $d[X^0_1;U_H]$ and $d[X^0_2;U_H]$ are at most $6 d[X^0_1;X^0_2]$.
+* `entropic_PFR_conjecture`: For two $G$-valued random variables $X_1^0, X_2^0$, there is some
+  subgroup $H \leq G$ such that $d[X_1^0;U_H] + d[X_2^0;U_H] \le 11 d[X_1^0;X_2^0]$,
+  and both $d[X_1^0;U_H]$ and $d[X_2^0;U_H]$ are at most $6 d[X_1^0;X_2^0]$.
 
 -/
 
@@ -48,9 +48,9 @@ theorem tau_strictly_decreases (h_min : TauMinimizes p X₁ X₂) (hpη : p.η =
   apply tau_strictly_decreases_aux p Y₁ Y₂ Y₁' Y₂' hY₁ hY₂ hY₁' hY₂' (h_id1.trans h_id1'.symm)
     (h_id2.trans h_id2'.symm) h_indep h_min hpη
 
-/-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X^0_1, X^0_2$, there is some
-subgroup $H \leq G$ such that $d[X^0_1;U_H] + d[X^0_2;U_H] \le 11 d[X^0_1;X^0_2]$, and
-both $d[X^0_1; U_H]$ and $d[X^0_2; U_H]$ are at most $6 d[X^0_1;X^0_2]$. -/
+/-- `entropic_PFR_conjecture`: For two $G$-valued random variables $X_1^0, X_2^0$, there is some
+subgroup $H \leq G$ such that $d[X_1^0;U_H] + d[X_2^0;U_H] \le 11 d[X_1^0;X_2^0]$, and
+both $d[X_1^0; U_H]$ and $d[X_2^0; U_H]$ are at most $6 d[X_1^0;X_2^0]$. -/
 theorem entropic_PFR_conjecture (hpη : p.η = 1 / 9) :
     ∃ H : Submodule (ZMod 2) G, ∃ Ω : Type uG, ∃ mΩ : MeasureSpace Ω, ∃ U : Ω → G,
     IsProbabilityMeasure (ℙ : Measure Ω) ∧ Measurable U ∧
@@ -69,7 +69,7 @@ theorem entropic_PFR_conjecture (hpη : p.η = 1 / 9) :
     have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle p.hmeas1 hX₁ hU
     have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
     linarith
-  refine ⟨AddSubgroup.toZModSubmodule _ H, Ω', inferInstance, U, inferInstance, hU, hH_unif, hsum, ?_⟩
+  refine ⟨H.toZModSubmodule _, Ω', inferInstance, U, inferInstance, hU, hH_unif, hsum, ?_⟩
   have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle p.hmeas1 p.hmeas2 hU
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle p.hmeas2 p.hmeas1 hU
   exact ⟨by linarith, by linarith⟩
