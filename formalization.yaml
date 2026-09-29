@@ -134,7 +134,7 @@ fidelity:
     2x = 0 (respectively mx = 0), with A merely finite, rather than for a
     finite group; the papers state them for F_2^n and for a group of torsion
     m. The bounded-torsion generalization lives in `torsion_PFR` itself (via
-    `wlog` reducing to the finite span of A over ZMod m). Second, every constant is explicit where the papers
+    spanning down to a finite `ZMod m`-submodule). Second, every constant is explicit where the papers
     leave one unspecified: Theorem 1.3 of arXiv:2311.05762 asserts the
     existence of absolute constants C_1 and C_2, and Marton.weak_pfr_int
     realizes C_1 = 68 and C_2 = 80/log 2; Corollary 1.4 and Corollary 1.5 of
