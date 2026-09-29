@@ -90,11 +90,11 @@ example (A : Set H) [Finite A] (h'A : A.Nonempty) (K : ℝ)
   weak_PFR_int h'A hA
 
 /-- Weak PFR over the integers, sumset form as in `[GGMT]` Theorem 1.3. -/
-example (A : Set H) [Finite A] (h'A : A.Nonempty) (K : ℝ)
-    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+example (A : Set H) (hA : A.Finite) (h'A : A.Nonempty) (K : ℝ)
+    (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ A' : Set H, A' ⊆ A ∧ (Nat.card A') ≥ K ^ (-34 : ℝ) * (Nat.card A) ∧
     AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K :=
-  weak_PFR_int_sumset h'A hA
+  weak_PFR_int_sumset hA h'A hAK
 
 end WeakPFRInt
 

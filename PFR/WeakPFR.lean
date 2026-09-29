@@ -1049,11 +1049,7 @@ theorem weak_PFR_int
     exact Nat.card_pos
   exact_mod_cast ne_of_gt (@Nat.card_pos _ hnA.to_subtype _)
 
-/-- `Nat.card` of a finset coerced to a set is the finset card. Needed so `norm_cast`
-can rewrite after `lift A to Finset`. -/
-@[local norm_cast] private lemma Nat.card_coe_finset_set {α : Type*} (s : Finset α) :
-    Nat.card (s : Set α) = s.card := by
-  rw [Nat.card_coe_set_eq, Set.ncard_coe_finset]
+attribute [local norm_cast] Nat.card_coe_set_eq Set.ncard_coe_finset
 
 /-- Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$.
 There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-34}\lvert A\rvert$
@@ -1064,17 +1060,16 @@ $C_2 = 80 / \log 2$. It follows from `weak_PFR_int` by Ruzsa's triangle inequali
 `|A-A| |A| ≤ |A+A|^2`, which gives $|A-A| \le K^2 |A|$. -/
 theorem weak_PFR_int_sumset
     {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
-    {A : Set G} [Finite A] (hnA : A.Nonempty) {K : ℝ}
-    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
+    {A : Set G} (hA : A.Finite) (hnA : A.Nonempty) {K : ℝ}
+    (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-34 : ℝ) * Nat.card A ∧
       AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K := by
   classical
-  lift A to Finset G using A.toFinite
-  have hsne : A.Nonempty := by simpa using hnA
-  norm_cast at hA
-  have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hsne.card_pos
+  lift A to Finset G using hA
+  norm_cast at hAK hnA
+  have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hnA.card_pos
   have hK : (0 : ℝ) ≤ K := by
-    have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hsne
+    have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hnA
     nlinarith
   have hdiff : (Nat.card ((A : Set G) - (A : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (A : Set G) := by
     have hruzsa : ((A - A).card : ℝ) * A.card ≤ ((A + A).card : ℝ) * (A + A).card :=
