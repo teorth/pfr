@@ -230,3 +230,13 @@ A\rvert$ and $\dim A' \leq \frac{40}{\log 2}\log K$.
 \uses{weak-pfr-symm,dimension-def}
 As in the beginning of \Cref{pfr} the doubling condition forces $d[U_A;U_A]\leq \log K$, and then we apply \Cref{weak-pfr-symm}.
 \end{proof}
+
+\begin{corollary}\label{weak-pfr-int-sumset}\lean{weak_PFR_int_sumset}\leanok
+Let $A\subseteq \mathbb{Z}^d$ and $\lvert A+A\rvert\leq K\lvert A\rvert$.
+There exists $A'\subseteq A$ such that $\lvert A'\rvert \geq K^{-34}\lvert
+A\rvert$ and $\dim A' \leq \frac{80}{\log 2}\log K$.
+\end{corollary}
+\begin{proof}\leanok
+\uses{weak-pfr-int}
+By the Ruzsa triangle inequality one has $\lvert A-A\rvert \leq K^2 \lvert A\rvert$, and then we apply \Cref{weak-pfr-int}.
+\end{proof}
