@@ -1043,18 +1043,16 @@ private theorem torsion_PFR_finite {G : Type*} [AddCommGroup G] [Finite G] {m : 
         rw [← Real.rpow_mul (by positivity), ← Real.rpow_add (by positivity)]
         congr; push_cast; ring
 
-/-- Private step of `torsion_PFR`: assumes `[Module (ZMod m) G]` already, spans down to a
-finite `G'`, and applies `torsion_PFR_finite`.
-
-Kept separate because putting `letI := AddCommGroup.zmodModule htorsion` *inside* the
-same proof makes `Afin.submoduleSpan`'s `Fintype` fail to unify with
-`let G' := Submodule.span (ZMod m) A`. With the module as a binder it unifies. -/
-private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [NeZero m]
-    [Module (ZMod m) G] (hm : m ≥ 2) (htorsion : ∀ x : G, m • x = 0)
-    {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
+/-- Suppose that $G$ is an abelian group of torsion $m$ (not necessarily finite).
+If $A \subset G$ is a finite non-empty set with $|A+A| \leq K|A|$, then $A$ can be covered by at
+most $m K^{256 m^3+1}$ translates of a finite subspace $H$ of $G$ with $|H| \leq |A|$. -/
+theorem torsion_PFR {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
+    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
     (hA : Nat.card (A + A) ≤ K * A.ncard) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+  have : NeZero m := ⟨by lia⟩
+  have : Module (ZMod m) G := AddCommGroup.zmodModule htorsion
   let G' := Submodule.span (ZMod m) A
   let _G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
   let ι : G' →ₗ[ZMod m] G := G'.subtype
@@ -1082,15 +1080,3 @@ private theorem torsion_PFR_of_module {G : Type*} [AddCommGroup G] {m : ℕ} [Ne
     simpa [← cardA', ← Nat.card_coe_set_eq] using hH'A
   · rw [hHmap, ← image_add]
     exact ⟨⟨x, Submodule.subset_span hx⟩, hsub hx, rfl⟩
-
-/-- Suppose that $G$ is an abelian group of torsion $m$ (not necessarily finite).
-If $A \subset G$ is a finite non-empty set with $|A+A| \leq K|A|$, then $A$ can be covered by at
-most $m K^{256 m^3+1}$ translates of a finite subspace $H$ of $G$ with $|H| \leq |A|$. -/
-theorem torsion_PFR {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
-    (htorsion : ∀ x : G, m • x = 0) {A : Set G} (Afin : A.Finite) {K : ℝ} (h₀A : A.Nonempty)
-    (hA : Nat.card (A + A) ≤ K * A.ncard) :
-    ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
-      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
-  have : NeZero m := ⟨by omega⟩
-  letI := AddCommGroup.zmodModule htorsion
-  exact torsion_PFR_of_module (G := G) hm htorsion Afin h₀A hA
