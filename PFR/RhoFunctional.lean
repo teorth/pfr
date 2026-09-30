@@ -2047,11 +2047,34 @@ lemma better_PFR_conjecture_aux {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
 
 /-- If $A \subset {\bf F}_2^n$ is finite non-empty with $|A+A| \leq K|A|$, then there exists a
 subgroup $H$ of ${\bf F}_2^n$ with $|H| \leq |A|$ such that $A$ can be covered by at most $2K^9$
-translates of $H$. -/
-lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
+translates of $H$.
+
+The ambient group need not be finite, in which case `H` and `c` are finite. -/
+theorem better_PFR_conjecture {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
+    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
     (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : Submodule (ZMod 2) G) (c : Set G),
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 9 ∧ (H : Set G).ncard ≤ Nat.card A ∧ A ⊆ c + H := by
+  wlog hG : Finite G generalizing G with H
+  · let G' := Submodule.span (ZMod 2) A
+    let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
+    let ι : G'→ₗ[ZMod 2] G := G'.subtype
+    have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
+    let A' : Set G' := ι ⁻¹' A
+    have A_rg : A ⊆ range ι := by
+      simp only [Submodule.coe_subtype, Subtype.range_coe_subtype, G', ι]
+      exact Submodule.subset_span
+    have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
+    have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
+      rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
+           Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
+    obtain ⟨H', c', -, -, hc', hH', hH'₂⟩ :=
+      H (h₀A.preimage' A_rg) (toFinite _) hA' inferInstance
+    refine ⟨H'.map ι , ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
+    · rwa [Nat.card_image_of_injective ι_inj]
+    · simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA']
+    · erw [← image_add]
+      exact ⟨⟨x, Submodule.subset_span hx⟩, hH'₂ hx, rfl⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < Nat.card A ∧ (0 : ℝ) < Nat.card (A + A) ∧ 0 < K :=
     PFR_conjecture_pos_aux' (Set.toFinite _) h₀A hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
@@ -2064,7 +2087,7 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     have : 0 < (H : Set G).ncard := Nat.card_pos; positivity
   rcases le_or_gt ((H : Set G).ncard) (Nat.card A) with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
-  · refine ⟨H, c, ?_, h, A_subs_cH⟩
+  · refine ⟨H, c, toFinite _, toFinite _, ?_, h, A_subs_cH⟩
     calc
     Nat.card c ≤ K ^ 5 * Nat.card A ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (-1 / 2 : ℝ) := hc
     _ ≤ K ^ 5 * (K ^ 8 * (H : Set G).ncard) ^ (1 / 2 : ℝ) * (H : Set G).ncard ^ (-1 / 2 : ℝ) := by
@@ -2084,7 +2107,7 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
     obtain ⟨u, HH'u, hu⟩ :=
       H'.toAddSubgroup.exists_left_transversal_of_le (H := H.toAddSubgroup) H'H
     dsimp at HH'u
-    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
+    refine ⟨H', c + u, toFinite _, toFinite _, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
@@ -2110,31 +2133,5 @@ lemma better_PFR_conjecture {A : Set G} (h₀A : A.Nonempty) {K : ℝ}
         simp_rw [← rpow_natCast]
         rpow_ring
         norm_num
-
-/-- Corollary of `better_PFR_conjecture` in which the ambient group is not required to be finite
-(but) then $H$ and $c$ are finite. -/
-theorem better_PFR_conjecture' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
-    {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (Afin : A.Finite)
-    (hA : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
-      Nat.card c < 2 * K ^ 9 ∧ (H : Set G).ncard ≤ Nat.card A ∧ A ⊆ c + H := by
-  let G' := Submodule.span (ZMod 2) A
-  let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
-  let ι : G'→ₗ[ZMod 2] G := G'.subtype
-  have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
-  let A' : Set G' := ι ⁻¹' A
-  have A_rg : A ⊆ range ι := by
-    simp only [Submodule.coe_subtype, Subtype.range_coe_subtype, G', ι]
-    exact Submodule.subset_span
-  have cardA' : Nat.card A' = Nat.card A := Nat.card_preimage_of_injective ι_inj A_rg
-  have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
-    rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
-         Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
-  rcases better_PFR_conjecture (h₀A.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
-  refine ⟨H'.map ι , ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
-  · rwa [Nat.card_image_of_injective ι_inj]
-  · simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA']
-  · erw [← image_add]
-    exact ⟨⟨x, Submodule.subset_span hx⟩, hH'₂ hx, rfl⟩
 
 end PFR

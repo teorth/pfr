@@ -313,8 +313,8 @@ alignment:
       module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: extends-source
       note: >-
-        Discharged from PFR_conjecture' (PFR/Main.lean), which is the
-        infinite-ambient-group corollary of PFR_conjecture. Stated here for any
+        Discharged from PFR_conjecture (PFR/Main.lean), which is stated for
+        possibly infinite ambient groups. Stated here for any
         abelian group of exponent 2 rather than for F_2^n, and with the
         subgroup returned as an AddSubgroup rather than a Submodule (ZMod 2).
 
@@ -323,7 +323,7 @@ alignment:
       module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: extends-source
       note: >-
-        Discharged from better_PFR_conjecture' (PFR/RhoFunctional.lean). The
+        Discharged from better_PFR_conjecture (PFR/RhoFunctional.lean). The
         same generalization of the ambient group as the row above. This
         statement implies the previous one.
 

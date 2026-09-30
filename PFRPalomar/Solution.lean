@@ -28,7 +28,7 @@ private theorem pfr_conjecture_aux {G : Type*} [AddCommGroup G] [Module (ZMod 2)
     (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  obtain ⟨H, c, hc, hH, hcard, hHA, hsub⟩ := PFR_conjecture' hA₀ hA hAK
+  obtain ⟨H, c, hc, hH, hcard, hHA, hsub⟩ := PFR_conjecture hA₀ hA hAK
   exact ⟨H.toAddSubgroup, c, hc, hH, by exact_mod_cast hcard, hHA, hsub⟩
 
 theorem pfr_conjecture {G : Type*} [AddCommGroup G] (h2 : ∀ x : G, 2 • x = 0) {A : Set G}
@@ -43,7 +43,7 @@ private theorem pfr_conjecture_nine_aux {G : Type*} [AddCommGroup G] [Module (ZM
     (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : AddSubgroup G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
-  obtain ⟨H, c, hc, hH, hcard, hHA, hsub⟩ := better_PFR_conjecture' hA₀ hA hAK
+  obtain ⟨H, c, hc, hH, hcard, hHA, hsub⟩ := better_PFR_conjecture hA₀ hA hAK
   exact ⟨H.toAddSubgroup, c, hc, hH, hcard, hHA, hsub⟩
 
 theorem pfr_conjecture_nine {G : Type*} [AddCommGroup G] (h2 : ∀ x : G, 2 • x = 0) {A : Set G}

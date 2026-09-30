@@ -255,10 +255,32 @@ lemma PFR_conjecture_aux (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncar
 
 /-- The polynomial Freiman-Ruzsa (PFR) conjecture: if `A` is a subset of an elementary abelian
 2-group of doubling constant at most `K`, then `A` can be covered by at most `2 * K ^ 12` cosets of
-a subgroup of cardinality at most `|A|`. -/
-theorem PFR_conjecture (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard) :
-     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
+a subgroup of cardinality at most `|A|`.
+
+The ambient group need not be finite, in which case `H` and `c` are finite. -/
+theorem PFR_conjecture {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
+    {A : Set G} {K : ℝ} (hA₀ : A.Nonempty) (Afin : A.Finite)
+    (hA : (A + A).ncard ≤ K * A.ncard) :
+    ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
       Nat.card c < 2 * K ^ 12 ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+  wlog hG : Finite G generalizing G with H
+  · let G' := Submodule.span (ZMod 2) A
+    let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
+    let ι : G'→ₗ[ZMod 2] G := G'.subtype
+    have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
+    let A' : Set G' := ι ⁻¹' A
+    have A_rg : A ⊆ range ι := by simp [G', ι]
+    have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
+    have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
+      rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
+           Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
+    obtain ⟨H', c', -, -, hc', hH', hH'₂⟩ :=
+      H (hA₀.preimage' A_rg) (toFinite _) hA' inferInstance
+    refine ⟨H'.map ι , ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
+    · rwa [Nat.card_image_of_injective ι_inj]
+    · simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA']
+    · erw [← image_add]
+      exact ⟨⟨x, Submodule.subset_span hx⟩, hH'₂ hx, rfl⟩
   obtain ⟨A_pos, -, K_pos⟩ : (0 : ℝ) < A.ncard ∧ (0 : ℝ) < (A + A).ncard ∧ 0 < K :=
     PFR_conjecture_pos_aux' A.toFinite hA₀ hA
   -- consider the subgroup `H` given by Lemma `PFR_conjecture_aux`.
@@ -271,7 +293,7 @@ theorem PFR_conjecture (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
     have : 0 < (H : Set G).ncard := Nat.card_pos; positivity
   rcases le_or_gt ((H : Set G).ncard) A.ncard with h|h
   -- If `#H ≤ #A`, then `H` satisfies the conclusion of the theorem
-  · refine ⟨H, c, ?_, h, A_subs_cH⟩
+  · refine ⟨H, c, toFinite _, toFinite _, ?_, h, A_subs_cH⟩
     calc
     Nat.card c ≤ K ^ (13/2 : ℝ) * A.ncard ^ (1/2 : ℝ) * (H : Set G).ncard ^ (-1/2 : ℝ) := hc
     _ ≤ K ^ (13/2 : ℝ) * (K ^ 11 * (H : Set G).ncard) ^ (1/2) * (H : Set G).ncard ^ (-1/2 : ℝ) := by
@@ -291,7 +313,7 @@ theorem PFR_conjecture (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
     obtain ⟨u, HH'u, hu⟩ :=
       H'.toAddSubgroup.exists_left_transversal_of_le (H := H.toAddSubgroup) H'H
     dsimp at HH'u
-    refine ⟨H', c + u, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
+    refine ⟨H', c + u, toFinite _, toFinite _, ?_, IH'A, by rwa [add_assoc, HH'u]⟩
     calc
     (Nat.card (c + u) : ℝ)
       ≤ Nat.card c * Nat.card u := mod_cast natCard_add_le
@@ -313,27 +335,3 @@ theorem PFR_conjecture (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
     _ = 2 * K ^ 12 := by
         rpow_ring
         norm_num
-
-/-- Corollary of `PFR_conjecture` in which the ambient group is not required to be finite (but) then
-`H` and `c` are finite. -/
-theorem PFR_conjecture' {G : Type*} [AddCommGroup G] [Module (ZMod 2) G]
-    {A : Set G} {K : ℝ} (hA₀ : A.Nonempty) (Afin : A.Finite)
-    (hA : (A + A).ncard ≤ K * A.ncard) :
-    ∃ (H : Submodule (ZMod 2) G) (c : Set G), c.Finite ∧ (H : Set G).Finite ∧
-      Nat.card c < 2 * K ^ 12 ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
-  let G' := Submodule.span (ZMod 2) A
-  let G'fin : Fintype G' := (Afin.submoduleSpan _).fintype
-  let ι : G'→ₗ[ZMod 2] G := G'.subtype
-  have ι_inj : Injective ι := G'.toAddSubgroup.subtype_injective
-  let A' : Set G' := ι ⁻¹' A
-  have A_rg : A ⊆ range ι := by simp [G', ι]
-  have cardA' : Nat.card A' = A.ncard := Nat.card_preimage_of_injective ι_inj A_rg
-  have hA' : Nat.card (A' + A') ≤ K * Nat.card A' := by
-    rwa [cardA', ← preimage_add _ ι_inj A_rg A_rg,
-         Nat.card_preimage_of_injective ι_inj (add_subset_range _ A_rg A_rg)]
-  rcases PFR_conjecture (hA₀.preimage' A_rg) hA' with ⟨H', c', hc', hH', hH'₂⟩
-  refine ⟨H'.map ι , ι '' c', toFinite _, toFinite (ι '' H'), ?_, ?_, fun x hx ↦ ?_⟩
-  · rwa [Nat.card_image_of_injective ι_inj]
-  · simpa [Set.ncard_image_of_injective _ ι_inj, ← cardA']
-  · erw [← image_add]
-    exact ⟨⟨x, Submodule.subset_span hx⟩, hH'₂ hx, rfl⟩
