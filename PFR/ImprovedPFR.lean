@@ -9,7 +9,7 @@ An improvement to PFR that lowers the exponent from 12 to 11.
 
 The entropy form (`entropic_PFR_conjecture_improv`) gives
 $d[X_1^0; U_H] + d[X_2^0; U_H] \le 10 d[X_1^0; X_2^0]$. Combining with the Ruzsa
-triangle inequality, each summand is at most $(11/2) d[X_1^0; X_2^0]$.
+triangle inequality, each summand is at most $\frac{11}{2} d[X_1^0; X_2^0]$.
 -/
 
 public section

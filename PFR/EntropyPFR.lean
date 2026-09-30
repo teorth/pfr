@@ -62,14 +62,12 @@ theorem entropic_PFR_conjecture (hpη : p.η = 1 / 9) :
   have hdist : d[X₁ # X₂] = 0 := tau_strictly_decreases p hX₁ hX₂ htau_min hpη
   obtain ⟨H, U, hU, hH_unif, hdistX₁, hdistX₂⟩ := exists_isUniform_of_rdist_eq_zero hX₁ hX₂ hdist
   have : d[p.X₀₁ # p.X₀₂] = d[p.X₀₂ # p.X₀₁] := rdist_symm
-  have hsum : d[p.X₀₁ # U] + d[p.X₀₂ # U] ≤ 11 * d[p.X₀₁ # p.X₀₂] := by
-    have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
-    rw [tau, tau, hpη] at h
-    norm_num at h
-    have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle p.hmeas1 hX₁ hU
-    have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
-    linarith
-  refine ⟨H.toZModSubmodule _, Ω', inferInstance, U, inferInstance, hU, hH_unif, hsum, ?_⟩
+  have h : τ[X₁ # X₂ | p] ≤ τ[p.X₀₂ # p.X₀₁ | p] := is_tau_min p htau_min p.hmeas2 p.hmeas1
+  rw [tau, tau, hpη] at h
+  norm_num at h
+  have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # X₁] + d[X₁ # U] := rdist_triangle p.hmeas1 hX₁ hU
+  have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # X₂] + d[X₂ # U] := rdist_triangle p.hmeas2 hX₂ hU
   have : d[p.X₀₁ # U] ≤ d[p.X₀₁ # p.X₀₂] + d[p.X₀₂ # U] := rdist_triangle p.hmeas1 p.hmeas2 hU
   have : d[p.X₀₂ # U] ≤ d[p.X₀₂ # p.X₀₁] + d[p.X₀₁ # U] := rdist_triangle p.hmeas2 p.hmeas1 hU
-  exact ⟨by linarith, by linarith⟩
+  exact ⟨H.toZModSubmodule _, Ω', inferInstance, U, inferInstance, hU, hH_unif,
+    by linarith, by linarith, by linarith⟩
