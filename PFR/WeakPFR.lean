@@ -1062,14 +1062,14 @@ theorem weak_PFR_int_sumset
     {G : Type*} [AddCommGroup G] [Module.Free ℤ G] [Module.Finite ℤ G]
     {A : Set G} (hA : A.Finite) (hnA : A.Nonempty) {K : ℝ}
     (hAK : Nat.card (A + A) ≤ K * Nat.card A) :
-    ∃ A' : Set G, A' ⊆ A ∧ Nat.card A' ≥ K ^ (-34 : ℝ) * Nat.card A ∧
+    ∃ A' ⊆ A, Nat.card A' ≥ K ^ (-34 : ℝ) * Nat.card A ∧
       AffineSpace.finrank ℤ A' ≤ (80 / log 2) * log K := by
   classical
   lift A to Finset G using hA
   norm_cast at hAK hnA
   have hspos : (0 : ℝ) < A.card := Nat.cast_pos.mpr hnA.card_pos
   have hK : (0 : ℝ) ≤ K := by
-    have : (A.card : ℝ) ≤ (A + A).card := by exact_mod_cast Finset.card_le_card_add_left hnA
+    have : (A.card : ℝ) ≤ (A + A).card := mod_cast Finset.card_le_card_add_left hnA
     nlinarith
   have hdiff : (Nat.card ((A : Set G) - (A : Set G)) : ℝ) ≤ K ^ 2 * Nat.card (A : Set G) := by
     have hruzsa : ((A - A).card : ℝ) * A.card ≤ ((A + A).card : ℝ) * (A + A).card :=
