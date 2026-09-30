@@ -15,8 +15,9 @@ variable {G' : Type*} [AddCommGroup G'] [Module (ZMod 2) G'] [Fintype G']
 /-- A self-contained version of the PFR conjecture using only Mathlib definitions. -/
 example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-      Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H :=
-  mod_cast PFR_conjecture h₀A hA
+      Nat.card c < 2 * K ^ 12 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  obtain ⟨H, c, -, -, hc, hH, hsub⟩ := PFR_conjecture h₀A A.toFinite hA
+  exact ⟨H, c, mod_cast hc, mod_cast hH, hsub⟩
 
 /-- info: 'PFR_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
@@ -25,8 +26,9 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 /-- The improved version -/
 example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-      Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H :=
-  mod_cast PFR_conjecture_improv h₀A hA
+      Nat.card c < 2 * K ^ 11 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  obtain ⟨H, c, -, -, hc, hH, hsub⟩ := PFR_conjecture_improv h₀A A.toFinite hA
+  exact ⟨H, c, mod_cast hc, mod_cast hH, hsub⟩
 
 /-- info: 'PFR_conjecture_improv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
@@ -35,8 +37,9 @@ example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K 
 /-- The even more improved version -/
 example {A : Set G} {K : ℝ} (h₀A : A.Nonempty) (hA : Nat.card (A + A) ≤ K * Nat.card A) :
     ∃ (H : Submodule (ZMod 2) G) (c : Set G),
-      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H :=
-  better_PFR_conjecture h₀A hA
+      Nat.card c < 2 * K ^ 9 ∧ Nat.card H ≤ Nat.card A ∧ A ⊆ c + H := by
+  obtain ⟨H, c, -, -, hc, hH, hsub⟩ := better_PFR_conjecture h₀A A.toFinite hA
+  exact ⟨H, c, hc, hH, hsub⟩
 
 /-- info: 'better_PFR_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
@@ -67,8 +70,9 @@ example {m : ℕ} (hm : m ≥ 2)
      (htorsion : ∀ x : G, m • x = 0) {A : Set G} [Finite A] {K : ℝ} (h₀A : A.Nonempty)
      (hA : Nat.card (A + A) ≤ K * A.ncard) :
      ∃ (H : AddSubgroup G) (c : Set G),
-      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H :=
-  torsion_PFR hm htorsion h₀A hA
+      Nat.card c < m * K ^ (256 * m ^ 3 + 1) ∧ (H : Set G).ncard ≤ A.ncard ∧ A ⊆ c + H := by
+  obtain ⟨H, c, -, -, hc, hH, hsub⟩ := torsion_PFR hm htorsion A.toFinite h₀A hA
+  exact ⟨H, c, hc, hH, hsub⟩
 
 /-- info: 'torsion_PFR' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in

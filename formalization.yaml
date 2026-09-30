@@ -133,10 +133,8 @@ fidelity:
     proved for an arbitrary abelian group in which every element satisfies
     2x = 0 (respectively mx = 0), with A merely finite, rather than for a
     finite group; the papers state them for F_2^n and for a group of torsion
-    m. The bounded-torsion generalization is not present in the library
-    itself, whose torsion_PFR assumes a finite ambient group; it is obtained
-    in PFRPalomar/Solution.lean by passing to the span of A over ZMod m, which is
-    finite because A is. Second, every constant is explicit where the papers
+    m. The bounded-torsion generalization lives in `torsion_PFR` itself (via
+    spanning down to a finite `ZMod m`-submodule). Second, every constant is explicit where the papers
     leave one unspecified: Theorem 1.3 of arXiv:2311.05762 asserts the
     existence of absolute constants C_1 and C_2, and Marton.weak_pfr_int
     realizes C_1 = 68 and C_2 = 80/log 2; Corollary 1.4 and Corollary 1.5 of
@@ -315,8 +313,8 @@ alignment:
       module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: extends-source
       note: >-
-        Discharged from PFR_conjecture' (PFR/Main.lean), which is the
-        infinite-ambient-group corollary of PFR_conjecture. Stated here for any
+        Discharged from PFR_conjecture (PFR/Main.lean), which is stated for
+        possibly infinite ambient groups. Stated here for any
         abelian group of exponent 2 rather than for F_2^n, and with the
         subgroup returned as an AddSubgroup rather than a Submodule (ZMod 2).
 
@@ -325,7 +323,7 @@ alignment:
       module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: extends-source
       note: >-
-        Discharged from better_PFR_conjecture' (PFR/RhoFunctional.lean). The
+        Discharged from better_PFR_conjecture (PFR/RhoFunctional.lean). The
         same generalization of the ambient group as the row above. This
         statement implies the previous one.
 
@@ -334,10 +332,10 @@ alignment:
       module: "PFRPalomar.Challenge (statement), PFRPalomar.Solution (proof)"
       status: extends-source
       note: >-
-        Discharged from torsion_PFR (PFR/TorsionEndgame.lean), which assumes a
-        finite ambient group; the compared statement removes that assumption by
-        passing to the ZMod m-span of A, finite because A is. The paper's
-        (2K)^{O(m^3)} is made explicit as m K^{256m^3+1}.
+        Discharged from torsion_PFR (PFR/TorsionEndgame.lean), which already
+        allows an infinite ambient group (finite H and c) by reducing to the
+        ZMod m-span of A. The paper's (2K)^{O(m^3)} is made explicit as
+        m K^{256m^3+1}.
 
     - source: "arXiv:2311.05762, Theorem 1.3: weak Marton's conjecture over Z^D"
       lean: "Marton.weak_pfr_int"
