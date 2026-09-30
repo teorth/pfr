@@ -2,6 +2,7 @@ module
 
 public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 public import Mathlib.MeasureTheory.Integral.Bochner.Basic
+public import Mathlib.MeasureTheory.Integral.IntegrableOn
 public import PFR.ForMathlib.FiniteRange.Defs
 public import PFR.Mathlib.MeasureTheory.MeasurableSpace.Constructions
 public import PFR.Mathlib.MeasureTheory.Measure.Dirac.Def
@@ -155,34 +156,12 @@ instance finiteSupport_of_prod {μ : Measure S} [FiniteSupport μ] {ν : Measure
   use μ.support ×ˢ ν.support
   exact Measure.prod_of_full_measure_finset (measure_compl_support μ) (measure_compl_support ν)
 
-/-- The countability hypothesis can probably be dropped here. Proof is unwieldy and can probably
-be golfed. -/
+/-- Every function is integrable against a finite measure with finite support. -/
 lemma integrable_of_finiteSupport (μ : Measure S) [FiniteSupport μ]
-    {β : Type*} [NormedAddCommGroup β] [IsFiniteMeasure μ] [Countable S]
-    {f : S → β} :
-    Integrable f μ := by
-  let A := μ.support
-  have hA : μ Aᶜ = 0 := measure_compl_support μ
-  by_cases hA' : A = ∅
-  · simp only [hA', Finset.coe_empty, compl_empty, Measure.measure_univ_eq_zero] at hA
-    rw [hA]
-    exact integrable_zero_measure
-  have : ∃ s₀, s₀ ∈ A := by
-    contrapose! hA'
-    ext s
-    simpa using hA' s
-  rcases this with ⟨s₀, hs₀⟩
-  let f' : A → β := fun a ↦ f a
-  classical
-  let g : S → A := fun s ↦ if h : s ∈ A then ⟨s, h⟩ else ⟨s₀, hs₀⟩
-  have : (f' ∘ g) =ᵐ[μ] f := by
-    apply Filter.eventuallyEq_of_mem (s := A) hA
-    intro a ha
-    simp at ha
-    simp [f', g, ha]
-  apply Integrable.congr _ this
-  apply Integrable.comp_measurable .of_finite
-  fun_prop
+    {β : Type*} [NormedAddCommGroup β] [IsFiniteMeasure μ]
+    {f : S → β} : Integrable f μ := by
+  have h : IntegrableOn f (μ.support : Set S) μ := IntegrableOn.finset
+  rwa [IntegrableOn, Measure.restrict_eq_self_of_ae_mem (ae_mem_support μ)] at h
 
 lemma integral_congr_finiteSupport {μ : Measure Ω} {G : Type*}
     [NormedAddCommGroup G] [NormedSpace ℝ G] {f g : Ω → G} [FiniteSupport μ]
