@@ -711,10 +711,6 @@ lemma condRuzsaDist'_eq_integral (X : Ω → G) {Y : Ω' → G} {W : Ω' → T}
   rw [integral_eq_setIntegral this,  setIntegral_finset _ .finset]
   simp [map_measureReal_apply hW (MeasurableSet.singleton _),]
 
-section
-
-variable [Countable T]
-
 /-- Conditioning by a constant does not affect Ruzsa distance. -/
 lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X)
     (Y : Ω' → G) (W : Ω' → T) (c : S)
@@ -726,6 +722,7 @@ lemma condRuzsaDist_of_const {X : Ω → G} (hX : Measurable X)
   congr!
   rw [condDistrib_apply hX measurable_const] <;> simp
 
+variable [Countable T] in
 /-- If `$(X,Z)$` and `$(Y,W)$` are independent, then
 `d[X | Z ; Y | W] = H[X'- Y' | Z', W'] - H[X'|Z']/2 - H[Y'|W']/2`. -/
 lemma condRuzsaDist_of_indep
@@ -754,6 +751,7 @@ lemma condRuzsaDist_of_indep
     rw [Kernel.map_apply _ (by fun_prop), Kernel.map_apply _ (by fun_prop), hx]
   exact (condDistrib_eq_prod_of_indepFun hX hZ hY hW μ h).symm
 
+variable [Countable T] in
 /-- Formula for conditional Ruzsa distance for independent sets of variables. -/
 lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     (hX : Measurable X) (hY : Measurable Y) (hW : Measurable W)
@@ -816,8 +814,6 @@ lemma condRuzsaDist'_of_indep {X : Ω → G} {Y : Ω → G} {W : Ω → T}
     · exact hX.sub hY
     congr
   rw [Kernel.entropy_congr h_ker, h_meas, Kernel.entropy_prodMkLeft_unit]
-
-end
 
 omit [Countable S] in
 /-- The conditional Ruzsa distance is unchanged if the sets of random variables are replaced with

@@ -2,12 +2,14 @@
 Copyright (c) 2026 Terence Tao. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Mathlib.Algebra.Group.Pointwise.Set.Card
-import Mathlib.Algebra.Module.ZMod
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Defs
-import Mathlib.LinearAlgebra.Dimension.Finrank
-import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+module
+
+public import Mathlib.Algebra.Group.Pointwise.Set.Card
+public import Mathlib.Algebra.Module.ZMod
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
+public import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Defs
+public import Mathlib.LinearAlgebra.Dimension.Finrank
+public import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 
 /-!
 # Marton's conjecture (the polynomial Freiman–Ruzsa conjecture)
@@ -47,6 +49,8 @@ read them. Torsion hypotheses are stated as `∀ x : G, m • x = 0` rather than
 `Module (ZMod m) G` instance, so that the statements do not depend on which `ZMod`-algebra
 instance path is in scope.
 -/
+
+public section
 
 open Pointwise
 
