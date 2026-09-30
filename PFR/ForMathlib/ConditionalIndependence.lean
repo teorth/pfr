@@ -127,8 +127,6 @@ universe u
 variable {Ω : Type*} {α β : Type u} [MeasurableSpace Ω] [MeasurableSpace α] [MeasurableSpace β]
     [MeasurableSingletonClass β]
 
-variable [Countable β] -- can we remove this hp?
-
 open Function Set Measure
 
 /-- For `X, Y` random variables, there exist conditionally independent trials `X_1, X_2, Y'`. -/
@@ -194,14 +192,24 @@ lemma condIndep_copies (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY :
     · simp [hy]
     have : IsProbabilityMeasure (m' y) := h5 hy
     simp
-  · rw [condIndepFun_iff, ae_iff_of_countable]
-    intro y hy
+  · rw [condIndepFun_iff, h1]
+    have hmem : ∀ᵐ y ∂μ.map Y, y ∈ finY.toFinset :=
+      FiniteRange.null_of_compl μ Y hY.aemeasurable
+    have hnull : ∀ y ∈ finY.toFinset, ∀ᵐ z ∂μ.map Y,
+        (μ.map Y) {y} = 0 → z ≠ y := by
+      intro y _
+      by_cases hy : (μ.map Y) {y} = 0
+      · simpa [hy] using (measure_eq_zero_iff_ae_notMem.mp hy)
+      · simp [hy]
+    have hpos : ∀ᵐ y ∂μ.map Y, (μ.map Y) {y} ≠ 0 := by
+      filter_upwards [hmem, (ae_ball_iff finY.toFinset.countable_toSet).2 hnull] with y hy hz
+      exact fun h ↦ hz y hy h rfl
+    filter_upwards [hpos] with y hy
     have hy' : ν (Prod.snd⁻¹' {y}) = μ (Y ⁻¹' {y}) := by
       rw [← map_apply measurable_snd (by simp), ← map_apply hY <| .singleton y, h1]
-    rw [h1] at hy
     have hy'' : μ (Y ⁻¹' {y}) ≠ 0 := by
       convert hy
-      exact (map_apply hY .of_discrete).symm
+      exact (map_apply hY (.singleton y)).symm
     have h2 : ν[| Prod.snd⁻¹' {y}] = m y := by
       rw [Measure.ext_iff]
       intro E _
