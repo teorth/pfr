@@ -30,7 +30,7 @@ jobs:
 
       - name: Files in PFR.Mathlib can't import PFR files outside PFR.Mathlib
         run: |
-          ! (find PFR/Mathlib -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import PFR.(?!Mathlib)')
+          python3 scripts/check_mathlib_imports.py
 
   build:
     name: Build project
