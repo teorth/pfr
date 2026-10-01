@@ -30,6 +30,7 @@ jobs:
 
       - name: Files in PFR.Mathlib can't import PFR files outside PFR.Mathlib
         run: |
+          python3 -m unittest discover -s tests -p test_mathlib_imports.py
           python3 scripts/check_mathlib_imports.py
 
   build:
