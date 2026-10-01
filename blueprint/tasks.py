@@ -1,5 +1,5 @@
 import os
-import random
+from functools import partial
 from pathlib import Path
 import http.server
 import socketserver
@@ -47,20 +47,13 @@ def web(ctx):
 
 @task
 def serve(ctx, random_port=False):
-    cwd = os.getcwd()
-    os.chdir(BP_DIR/'web')
-    Handler = http.server.SimpleHTTPRequestHandler
-    if random_port:
-        port = random.randint(8000, 8100)
-    else:
-        port = 8000
-
-    httpd = socketserver.TCPServer(("", port), Handler)
-    try:
-        (ip, port) = httpd.server_address
-        ip = ip or 'localhost'
-        print(f'Serving http://{ip}:{port}/ ...')
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
+    Handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(BP_DIR/'web'))
+    # Let the OS choose an available port rather than guessing an unused one.
+    port = 0 if random_port else 8000
+    with socketserver.TCPServer(("", port), Handler) as httpd:
+        (_, port) = httpd.server_address
+        print(f'Serving http://localhost:{port}/ ...')
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
