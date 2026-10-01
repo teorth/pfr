@@ -93,7 +93,7 @@ variable {G : Type*} [AddCommGroup G] [MeasurableSpace G] [MeasurableSingletonCl
 
 /-- If `G` is torsion-free and `X, Y` are `G`-valued random variables then `d[X; 2Y] ≤ 5d[X; Y]`. -/
 lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y] (hX : Measurable X) (hY : Measurable Y)
-    [IsAddTorsionFree G] : d[X; μ # (Y + Y); μ'] ≤ 5 * d[X; μ # Y; μ'] := by
+    [HasUniqueDiv G] : d[X; μ # (Y + Y); μ'] ≤ 5 * d[X; μ # Y; μ'] := by
   obtain ⟨A, mA, μA, X', Y'₁, Y'₂, hμA, h_indep, hX'_meas, hY'₁_meas, hY'₂_meas, hX'_ident,
     hY'₁_ident, hY'₂_ident, _, _, _⟩ := independent_copies3_nondep_finiteRange hX hY hY μ μ' μ'
   have h_meas (i : Fin 3) : Measurable (![X', Y'₁, Y'₂] i) := by fin_cases i <;> assumption
@@ -214,7 +214,7 @@ lemma torsion_free_doubling [FiniteRange X] [FiniteRange Y] (hX : Measurable X) 
 `φ : G → 𝔽₂^d` is a homomorphism then `H[φ ∘ X; μ] ≤ 10 * d[X; μ # Y; μ']`. -/
 lemma torsion_dist_shrinking {H : Type*} [FiniteRange X] [FiniteRange Y] (hX : Measurable X)
     (hY : Measurable Y) [AddCommGroup H] [Module (ZMod 2) H] [MeasurableSpace H]
-    [MeasurableSingletonClass H] [Countable H] [IsAddTorsionFree G] (φ : G →+ H) :
+    [MeasurableSingletonClass H] [Countable H] [HasUniqueDiv G] (φ : G →+ H) :
     H[φ ∘ X; μ] ≤ 10 * d[X; μ # Y; μ'] :=
   calc
     H[φ ∘ X; μ] = 2 * d[φ ∘ X; μ # φ ∘ (Y + Y); μ'] := by
@@ -644,7 +644,7 @@ lemma weak_PFR_asymm_prelim (A B : Set G) [A_fin : Finite A] [B_fin : Finite B]
   let : MeasurableSpace H := ⊤
   have : Finite H := ModN.instFinite
   let h_fintype : Fintype H := .ofFinite H
-  have : IsAddTorsionFree G :=.of_isTorsionFree ℤ _
+  have : HasUniqueDiv G :=.of_isTorsionFree ℤ _
   obtain ⟨Ω, mΩ, UA, hμ, hUA_mes, hUA_unif, hUA_mem, hUA_fin⟩ :=
     exists_isUniform_measureSpace' A A_fin hnA
   obtain ⟨Ω', mΩ', UB, hμ', hUB_mes, hUB_unif, hUB_mem, hUB_fin⟩ :=
