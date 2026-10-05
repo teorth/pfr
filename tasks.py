@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from invoke import run, task
 import json
@@ -12,16 +13,53 @@ ROOT = Path(__file__).parent
 BP_DIR = ROOT/'blueprint'
 PROJ = 'PFR'
 
+def _publish_blueprint(include_pdf):
+    """Stage complete outputs, then replace them while retaining rollback copies."""
+    docs = ROOT/'docs'
+    docs.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix='.blueprint-', dir=docs))
+    cleanup = True
+    backups = []
+    published = []
+    try:
+        shutil.copytree(ROOT/'blueprint'/'web', staging/'web')
+        outputs = [(staging/'web', docs/'blueprint')]
+        if include_pdf:
+            shutil.copy2(ROOT/'blueprint'/'print'/'print.pdf', staging/'print.pdf')
+            outputs.append((staging/'print.pdf', docs/'blueprint.pdf'))
+        cleanup = False
+        try:
+            for index, (source, destination) in enumerate(outputs):
+                if destination.exists():
+                    backup = staging/('previous-' + str(index))
+                    os.replace(destination, backup)
+                    backups.append((backup, destination))
+                os.replace(source, destination)
+                published.append(destination)
+        except BaseException:
+            for destination in reversed(published):
+                if destination.is_dir():
+                    shutil.rmtree(destination)
+                else:
+                    destination.unlink()
+            for backup, destination in reversed(backups):
+                os.replace(backup, destination)
+            cleanup = True
+            raise
+        cleanup = True
+    finally:
+        # If rollback itself fails, retain the previous outputs for recovery.
+        if cleanup:
+            shutil.rmtree(staging)
+
+
 @task(bp, web)
 def all(ctx):
-    shutil.rmtree(ROOT/'docs'/'blueprint', ignore_errors=True)
-    shutil.copytree(ROOT/'blueprint'/'web', ROOT/'docs'/'blueprint')
-    shutil.copy2(ROOT/'blueprint'/'print'/'print.pdf', ROOT/'docs'/'blueprint.pdf')
+    _publish_blueprint(include_pdf=True)
 
 @task(web)
 def html(ctx):
-    shutil.rmtree(ROOT/'docs'/'blueprint', ignore_errors=True)
-    shutil.copytree(ROOT/'blueprint'/'web', ROOT/'docs'/'blueprint')
+    _publish_blueprint(include_pdf=False)
 
 @task(all)
 def dev(ctx):
