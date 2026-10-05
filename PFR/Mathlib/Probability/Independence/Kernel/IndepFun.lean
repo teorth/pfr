@@ -166,8 +166,10 @@ lemma iIndepFun.finite_blocks {J : Type*} {K : J → Type*} [∀ j, Finite (K j)
     apply measurable_pi_iff.mpr
     intro k
     exact measurable_pi_apply _
-  simpa only [φ] using hf.finsets_comp T hT hmeas
-    (fun j ↦ (k : K j) → β (S j k)) φ hφ
+  refine iIndep_of_iIndep_of_le (hf.finsets T hT hmeas) fun j ↦ ?_
+  change MeasurableSpace.pi.comap ((φ j) ∘ (fun a (i : T j) ↦ f i a)) ≤ _
+  rw [← MeasurableSpace.comap_comp]
+  exact MeasurableSpace.comap_mono (hφ j).comap_le
 
 /-- Measurable functions of disjoint finite blocks, indexed by arbitrary dependent types,
 form an independent family. -/
