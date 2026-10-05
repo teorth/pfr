@@ -143,4 +143,41 @@ lemma iIndepFun.finsets_comp {J : Type*}
     iIndepFun (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) κ μ :=
   (Kernel.iIndepFun.finsets S h_disjoint hf_Indep hf_meas).comp φ hφ
 
+/-- Tuples indexed by finite types with pairwise disjoint coordinate ranges are independent.
+The coordinate maps need not be injective within a block. -/
+lemma iIndepFun.finite_blocks {J : Type*} {K : J → Type*} [∀ j, Finite (K j)]
+    (S : ∀ j, K j → ι)
+    (hS : Pairwise fun j j' ↦ Disjoint (Set.range (S j)) (Set.range (S j')))
+    (hf : iIndepFun f κ μ) (hmeas : ∀ i, Measurable (f i)) :
+    iIndepFun (fun j a k ↦ f (S j k) a) κ μ := by
+  classical
+  let (j : J) : Fintype (K j) := Fintype.ofFinite _
+  let T (j : J) := Finset.univ.image (S j)
+  have hT : Set.PairwiseDisjoint Set.univ T := by
+    intro j _ j' _ hjj'
+    apply Finset.disjoint_left.mpr
+    intro i hi hi'
+    simp only [T, Finset.mem_image, Finset.mem_univ, true_and] at hi hi'
+    obtain ⟨k, rfl⟩ := hi
+    exact Set.disjoint_left.mp (hS hjj') ⟨k, rfl⟩ hi'
+  let φ (j : J) (x : (i : T j) → β i) (k : K j) :=
+    x ⟨S j k, by simp [T]⟩
+  have hφ (j : J) : Measurable (φ j) := by
+    apply measurable_pi_iff.mpr
+    intro k
+    exact measurable_pi_apply _
+  simpa only [φ] using hf.finsets_comp T hT hmeas
+    (fun j ↦ (k : K j) → β (S j k)) φ hφ
+
+/-- Measurable functions of disjoint finite blocks, indexed by arbitrary dependent types,
+form an independent family. -/
+lemma iIndepFun.finite_blocks_comp {J : Type*} {K : J → Type*} [∀ j, Finite (K j)]
+    (S : ∀ j, K j → ι)
+    (hS : Pairwise fun j j' ↦ Disjoint (Set.range (S j)) (Set.range (S j')))
+    (hf : iIndepFun f κ μ) (hmeas : ∀ i, Measurable (f i))
+    {γ : J → Type*} {mγ : ∀ j, MeasurableSpace (γ j)}
+    (φ : (j : J) → ((k : K j) → β (S j k)) → γ j) (hφ : ∀ j, Measurable (φ j)) :
+    iIndepFun (fun j a ↦ φ j (fun k ↦ f (S j k) a)) κ μ :=
+  (hf.finite_blocks S hS hmeas).comp φ hφ
+
 end ProbabilityTheory.Kernel.iIndepFun
