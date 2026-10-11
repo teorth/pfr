@@ -275,10 +275,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
   rcases this with ⟨-, ⟨ν, νP, h'_abs, rfl⟩, h⟩
   simp only [Measure.map_id] at h'_abs
   set m := Measure.map (Prod.fst + Prod.snd) (ν.prod (uniformOn A)) with hm
-  have m_nonpos g : log (m {g}).toReal ≤ 0 := by
-    apply log_nonpos (by simp)
-    have : m {g} ≤ 1 := prob_le_one
-    simpa using ENNReal.toReal_mono (by simp) this
+  have m_nonpos g : log (m.real {g}) ≤ 0 := log_nonpos (by simp) (by simp)
   have h_abs : ∀ g, m {g} = 0 → (μ : Measure G) {g} = 0 := by
     intro y hy
     have Z := h'_abs y hy
@@ -309,9 +306,9 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     _ ≤ μ'.toMeasure.real {g} * |log (m.real {g})| := by
       gcongr
       apply h₃ _ (by simpa [ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] using hg)
-    _ ≤ ∑ g, ((μ' : Measure G) {g}).toReal * |log ((m {g}).toReal)| := by
+    _ ≤ ∑ g, ((μ' : Measure G) {g}).toReal * |log (m.real {g})| := by
       apply Finset.single_le_sum (a := g) (fun i hi ↦ by positivity) (Finset.mem_univ g)
-    _ = ∑ g, ((μ' : Measure G) {g}).toReal * (-log ((m {g}).toReal)) := by
+    _ = ∑ g, ((μ' : Measure G) {g}).toReal * (-log (m.real {g})) := by
       congr with g
       rw [abs_of_nonpos (m_nonpos g)]
     _ = KL[id ; μ' # Prod.fst + Prod.snd ; ν.prod (uniformOn A)] + H[id ; (μ' : Measure G)] := by
