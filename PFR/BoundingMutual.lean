@@ -136,7 +136,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
     set m := p.m - 1
     have hm' : m+1 = p.m := by omega
     let X'' : Fin (m+1) × Fin (m+1) → Ω' → G := fun (i, j) ↦ X' (i.cast hm', j.cast hm')
-    convert cor_multiDist_chainRule _ X'' (by fun_prop) _ using 1 <;> try infer_instance
+    convert cor_multiDist_chainRule _ X'' (by fun_prop) _ using 1
     · let ι : (Fin (m+1) → G) → (Fin p.m → G) := fun f ↦ f ∘ (Fin.cast hm'.symm)
       have hι : Function.Injective ι := by
         intro f g h; ext i; replace h := congrFun h (i.cast hm'); simpa [ι] using h
