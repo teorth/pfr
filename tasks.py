@@ -35,6 +35,7 @@ def dev(ctx):
         print('Changes detected:', changes)
         bp(ctx)
         web(ctx)
+        all(ctx)
 
     run_process(BP_DIR/'src', target='inv serve', callback=callback,
         watch_filter=DefaultFilter(
