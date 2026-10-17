@@ -28,7 +28,7 @@ lemma map_swapRight (κ : Kernel α (β × γ)) {f : (γ × β) → δ} :
   by_cases hf : Measurable f
   · rw [swapRight_eq, map_map _ measurable_swap hf]
   · have : ¬ Measurable (f ∘ Prod.swap) := by
-      contrapose! hf
+      contrapose hf
       exact hf.comp measurable_swap
     simp [map_of_not_measurable _ hf, map_of_not_measurable _ this]
 
@@ -75,7 +75,7 @@ lemma deleteMiddle_map_prod (κ : Kernel α β) {f : β → γ} {g : β → δ} 
     rw [deleteMiddle_eq, map_map _ (by fun_prop) (by fun_prop)]
     rfl
   · have : ¬ (Measurable (fun b ↦ (f b, g b, g' b))) := by
-      contrapose! hfg'
+      contrapose hfg'
       have T : Measurable g' := hfg'.snd.snd
       have U : Measurable f := hfg'.fst
       exact U.prod T
@@ -134,7 +134,7 @@ lemma deleteRight_map_prod (κ : Kernel α β) {f : β → γ} {g : β → δ} {
     rw [deleteRight_eq, map_map _ (by fun_prop) (by fun_prop)]
     rfl
   · have : ¬ (Measurable (fun b ↦ (f b, g b, g' b))) := by
-      contrapose! hfg
+      contrapose hfg
       have T : Measurable g := hfg.snd.fst
       have U : Measurable f := hfg.fst
       exact U.prod T

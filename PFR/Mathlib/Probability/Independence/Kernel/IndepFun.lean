@@ -108,7 +108,7 @@ lemma iIndepFun.finsets {J : Type*}
           exact h.symm
         · have empty : IsEmpty ((j:ι) ∈ S i') := by
             rw [IsEmpty.prop_iff]
-            contrapose! h
+            contrapose h
             ext
             exact Set.PairwiseDisjoint.elim_finset (f := S) h_disjoint (by trivial) (by trivial) _
               h j.property

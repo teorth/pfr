@@ -298,7 +298,7 @@ lemma sub_condMultiDistance_le {G Ω₀ : Type u} [MeasurableFinGroup G] [Measur
       let hΩ'_cond i := MeasureSpace.mk ℙ[|Y i ⁻¹' {ω i}]
       have hΩ'prob_cond i : IsProbabilityMeasure (hΩ'_cond i).volume := by
         refine cond_isProbabilityMeasure ?_
-        contrapose! hω
+        contrapose hω
         apply Finset.prod_eq_zero (Finset.mem_univ i)
         simp only [measureReal_def, hω, ENNReal.toReal_zero]
       exact sub_multiDistance_le hΩprob hmeasX h_min hΩ'prob_cond hmeasX'

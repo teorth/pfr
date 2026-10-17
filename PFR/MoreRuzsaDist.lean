@@ -1436,7 +1436,7 @@ lemma multidist_ruzsa_IV {m : ℕ} (hm : m ≥ 2) {Ω : Type u} [MeasureSpace Ω
           true_and, exists_eq_right, S] at hd hc ⊢
         intro _
         replace hc := hc.1 hc.2.symm
-        contrapose! hc
+        contrapose hc
         rw [←hc, hd.2]
       have h_disjoint : Set.PairwiseDisjoint Set.univ S := by
         rw [Set.PairwiseDisjoint, Set.Pairwise]
@@ -2422,7 +2422,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
               have h_disjoint : Disjoint T T' := by
                 rw [Finset.disjoint_iff_ne]
                 intro ⟨i₁, j₁⟩ h₁ ⟨i₂, j₂⟩ h₂
-                by_contra! h
+                by_contra h
                 simp only [ge_iff_le, Finset.mem_filter, Finset.mem_univ, true_and, Prod.mk.injEq,
                   T, T'] at h₁ h₂ h
                 rw [h.2] at h₁
@@ -2466,7 +2466,7 @@ lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureS
             have h_disjoint' : Disjoint T T' := by
               rw [Finset.disjoint_iff_ne]
               intro ⟨i₁, j₁⟩ h₁ ⟨i₂, j₂⟩ h₂
-              by_contra! h
+              by_contra h
               simp only [ge_iff_le, Finset.mem_filter, Finset.mem_univ, true_and, Prod.mk.injEq, T,
                 T'] at h₁ h₂ h
               rw [h.2] at h₁

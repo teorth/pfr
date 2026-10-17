@@ -42,7 +42,7 @@ theorem approx_hom_pfr (f : G → G') (K : ℝ) (hK : K > 0)
   classical
   let A := (Set.univ.graphOn f).toFinite.toFinset
   have hA : #A = Nat.card G := by rw [Set.Finite.card_toFinset]; simp [← Nat.card_eq_fintype_card]
-  have hA_nonempty : A.Nonempty := by simp [A]
+  have hA_nonempty : A.Nonempty := by simp [A, Finset.Nonempty]
   have : #{x : G × G | f (x.1 + x.2) = f x.1 + f x.2} = #({ab ∈ A ×ˢ A | ab.1 + ab.2 ∈ A}) := by
     rw [← Nat.card_eq_finsetCard, ← Finset.coe_sort_coe, Finset.coe_filter,
       Set.Finite.toFinset_prod]

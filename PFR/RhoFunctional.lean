@@ -296,7 +296,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     rw [log_div, hm]
     · ring
     · exact h
-    · contrapose! h
+    · contrapose h
       simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h ⊢
       apply h'_abs _ (by simpa [ENNReal.toReal_eq_zero_iff] using h)
   have M g (hg : μ.toMeasure.real {g} ≠ 0) : |log (m.real {g})| ≤ C := by
@@ -333,7 +333,7 @@ private lemma rhoMinus_continuous_aux3 (hA : A.Nonempty) {μ : ProbabilityMeasur
     rw [log_div, hm]
     · ring
     · exact h
-    · contrapose! h
+    · contrapose h
       simp only [measureReal_def, ENNReal.toReal_eq_zero_iff, measure_ne_top, or_false] at h ⊢
       exact h_abs _ h
   _ ≤ - H[id ; (μ : Measure G)] - ∑ g ∈ {g | μ.toMeasure.real {g} ≠ 0},

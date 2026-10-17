@@ -122,7 +122,7 @@ lemma setRuzsaDist_le (A B : Set G) [h'A : Finite A] [h'B : Finite B]
   rw [Measure.map_apply measurable_sub .of_discrete]
   apply measure_mono_null (t := (Aᶜ ×ˢ Set.univ) ∪ (Set.univ ×ˢ Bᶜ))
   · intro (x, y)
-    contrapose!
+    contrapose
     aesop (add unsafe Set.sub_mem_sub, simp not_or)
   apply measure_union_null
   all_goals simp [uniformOn_apply ‹Finite A›, uniformOn_apply ‹Finite B›]

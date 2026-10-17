@@ -938,7 +938,7 @@ lemma torsion_exists_subgroup_subset_card_le {G : Type*} {m : ℕ} (hm : m ≥ 2
     refine ⟨K, hK.2, ?_, hK.1⟩
     rcases LE.le.lt_or_eq hK.1 with heq | heq
     · have hneq : (K:Set G) ≠ (H:Set G) := by
-        contrapose! heq
+        contrapose heq
         simp only [SetLike.coe_set_eq] at heq
         simp only [heq, lt_self_iff_false, not_false_eq_true]
       obtain ⟨a, ha, ha'⟩ := exists_of_ssubset (ssubset_of_subset_of_ne hK.1 hneq)

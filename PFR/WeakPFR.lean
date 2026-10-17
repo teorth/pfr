@@ -321,7 +321,7 @@ lemma PFR_projection'
     obtain ⟨H', hlog', hup'⟩ := app_ent_PFR _ _ _ _ α hent (.comp .of_discrete hX)
       (.comp .of_discrete hY)
     have H_ne_bot : H' ≠ ⊥ := by
-      by_contra!
+      by_contra
       rcases this with rfl
       have inj : Function.Injective (Submodule.mkQ (⊥ : Submodule (ZMod 2) G')) :=
         QuotientAddGroup.quotientBot.symm.injective
@@ -499,9 +499,8 @@ lemma single_fibres {G H Ω Ω' : Type*}
       have h_μ_unif : IsUniform (A_ x) UA μx ∧ IsUniform (B_ y) UB μy := by
         have : _ ∧ _ := ⟨hUA.restrict hUA' (φ.toFun ⁻¹' {x}), hUB.restrict hUB' (φ.toFun ⁻¹' {y})⟩
         rwa [Set.inter_comm _ A, Set.inter_comm _ B] at this
-      rw [setRuzsaDist_eq_rdist h_μ_unif.1 h_μ_unif.2 hUA' hUB']
-      change _ = (Measure.real _ (UA ⁻¹' (_ ⁻¹' _))) * (Measure.real _ (UB ⁻¹' (_ ⁻¹' _))) * _
-      rewrite [hUA_coe.measureReal_preimage hUA', hUB_coe.measureReal_preimage hUB']
+      rw [setRuzsaDist_eq_rdist h_μ_unif.1 h_μ_unif.2 hUA' hUB', Set.preimage_comp,
+        Set.preimage_comp, hUA_coe.measureReal_preimage hUA', hUB_coe.measureReal_preimage hUB']
       simp_rw [p, A_, B_, probReal_univ, one_mul]
       rewrite [mul_div_mul_comm, Set.inter_comm A, Set.inter_comm B]
       simp only [Set.Finite.coe_toFinset, Set.Finite.mem_toFinset]; rfl
