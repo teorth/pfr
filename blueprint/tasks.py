@@ -1,5 +1,6 @@
 import os
 import random
+from contextlib import contextmanager
 from pathlib import Path
 import http.server
 import socketserver
@@ -8,20 +9,26 @@ from invoke import run, task
 
 BP_DIR = Path(__file__).parent
 
+@contextmanager
+def blueprint_directory(path):
+    """Restore the caller's directory even if a build command fails."""
+    cwd = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(cwd)
+
 @task
 def print_bp(ctx):
-    cwd = os.getcwd()
-    os.chdir(BP_DIR)
-    run('mkdir -p print && cd src && xelatex -output-directory=../print print.tex')
-    os.chdir(cwd)
+    with blueprint_directory(BP_DIR):
+        run('mkdir -p print && cd src && xelatex -output-directory=../print print.tex')
 
 @task
 def bp(ctx):
-    cwd = os.getcwd()
-    os.chdir(BP_DIR)
-    run('mkdir -p print && cd src && xelatex -output-directory=../print print.tex')
-    run('cd src && xelatex -output-directory=../print print.tex')
-    os.chdir(cwd)
+    with blueprint_directory(BP_DIR):
+        run('mkdir -p print && cd src && xelatex -output-directory=../print print.tex')
+        run('cd src && xelatex -output-directory=../print print.tex')
 
 @task
 def bptt(ctx):
@@ -32,18 +39,14 @@ def bptt(ctx):
     `~/.local/bin/`
     """
 
-    cwd = os.getcwd()
-    os.chdir(BP_DIR)
-    run('mkdir -p print && cd src && tectonic -Z shell-escape-cwd=. --keep-intermediates --outdir ../print print.tex')
-    # run('cp print/print.bbl src/web.bbl')
-    os.chdir(cwd)
+    with blueprint_directory(BP_DIR):
+        run('mkdir -p print && cd src && tectonic -Z shell-escape-cwd=. --keep-intermediates --outdir ../print print.tex')
+        # run('cp print/print.bbl src/web.bbl')
 
 @task
 def web(ctx):
-    cwd = os.getcwd()
-    os.chdir(BP_DIR/'src')
-    run('plastex -c plastex.cfg web.tex')
-    os.chdir(cwd)
+    with blueprint_directory(BP_DIR/'src'):
+        run('plastex -c plastex.cfg web.tex')
 
 @task
 def serve(ctx, random_port=False):
