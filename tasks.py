@@ -4,7 +4,8 @@ import subprocess
 from pathlib import Path
 from invoke import run, task
 import json
-import re
+from html.parser import HTMLParser
+from urllib.parse import unquote, urlsplit
 
 from blueprint.tasks import web, bp, print_bp, serve
 
@@ -52,13 +53,27 @@ def dev(ctx):
             )
         ))
 
+class LeanDeclarationLinks(HTMLParser):
+    """Collect all declaration links, regardless of attribute order or line wrapping."""
+
+    def __init__(self):
+        super().__init__()
+        self.declarations = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if tag != 'a' or 'lean_decl' not in (attributes.get('class') or '').split():
+            return
+        url = urlsplit(attributes.get('href') or '')
+        if url.path.endswith('/find/') and url.fragment.startswith('doc/'):
+            self.declarations.append(unquote(url.fragment[len('doc/'):]))
+
+
 @task
 def check(ctx):
     """
     Check for broken references in blueprint to Lean declarations
     """
-
-    broken_decls = []
 
     DECLS_FILE = ROOT/'.lake/build/doc/declarations/declaration-data.bmp'
     if not DECLS_FILE.exists():
@@ -73,14 +88,10 @@ def check(ctx):
     with open(DECLS_FILE) as f:
         lean_decls = json.load(f)['declarations']
 
-    with open(DEP_GRAPH_FILE) as f:
-        lean_decl_regex = re.compile(r'lean_decl.*href=".*/find/#doc/([^"]+)"')
-        for line in f:
-            match = lean_decl_regex.search(line)
-            if match and match.lastindex == 1:
-                blueprint_decl = match[1]
-                if blueprint_decl not in lean_decls:
-                    broken_decls.append(blueprint_decl)
+    parser = LeanDeclarationLinks()
+    parser.feed(DEP_GRAPH_FILE.read_text(encoding='utf-8'))
+    parser.close()
+    broken_decls = [decl for decl in dict.fromkeys(parser.declarations) if decl not in lean_decls]
 
     if broken_decls:
         print('[WARN] The following Lean declarations are referenced in the blueprint but not in Lean:\n')

@@ -28,6 +28,11 @@ jobs:
         run: |
           ! (find PFR -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
 
+      - name: Test blueprint declaration links
+        run: |
+          python3 -m pip install invoke
+          python3 -m unittest discover -s tests -p test_blueprint_links.py
+
       - name: Files in PFR.Mathlib can't import PFR files outside PFR.Mathlib
         run: |
           ! (find PFR/Mathlib -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import PFR.(?!Mathlib)')
