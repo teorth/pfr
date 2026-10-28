@@ -860,26 +860,18 @@ lemma conclusion_transfers {A B : Set G} (G' : AddSubgroup G) (A' B' : Set (G' :
 $A'\subseteq A$ and $B'\subseteq B$ such that
 \[\log\frac{\lvert A\rvert\lvert B\rvert}{\lvert A'\rvert\lvert B'\rvert}\leq 34 d[U_A;U_B]\]
 such that $\max(\dim A',\dim B')\leq \frac{40}{\log 2} d[U_A;U_B]$. -/
-lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB : B.Nonempty) :
-    WeakPFRAsymmConclusion A B := by
-  let P (M : ℕ) : Prop := ∀ (G : Type _) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
-    (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G)
-    (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B)
-    (_hA_non : A.Nonempty) (_hB_non : B.Nonempty)
-    (_hM : Nat.card A + Nat.card B ≤ M), WeakPFRAsymmConclusion A B
-  suffices ∀ M, (∀ M', M' < M → P M') → P M by
-    set M := Nat.card A + Nat.card B
-    have hM : Nat.card A + Nat.card B ≤ M := Nat.le_refl _
-    convert (Nat.strong_induction_on (p := P) M this) G ‹_› ‹_› ‹_› ‹_› _ ‹_› A B ‹_› ‹_› ‹_› ‹_› hM
-  intro M h_induct
+lemma weak_PFR_asymm (A B : Set G) (hA : A.Finite) (hB : B.Finite) (hA₀ : A.Nonempty)
+    (hB₀ : B.Nonempty) : WeakPFRAsymmConclusion A B := by
+  set M := Nat.card A + Nat.card B with hM
+  clear_value M
+  induction M using Nat.strong_induction_on generalizing G with | ind M ih
   -- wlog we can assume A, B are not in cosets of a smaller subgroup
-  suffices ∀ (G : Type _) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
+  suffices H : ∀ (G : Type _) (hG_comm : AddCommGroup G) (_hG_free : Module.Free ℤ G)
     (_hG_fin : Module.Finite ℤ G) (_hG_count : Countable G) (hG_mes : MeasurableSpace G)
     (_hG_sing : MeasurableSingletonClass G) (A B : Set G) (_hA_fin : Finite A) (_hB_fin : Finite B)
       (_hA_non : A.Nonempty) (_hB_non : B.Nonempty) (_hM : Nat.card A + Nat.card B ≤ M)
     (_hnot : NotInCoset A B), WeakPFRAsymmConclusion A B by
-    intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non hM
-    obtain ⟨G', A', B', hAA', hBB', hnot'⟩ := wlog_notInCoset hA_non hB_non
+    obtain ⟨G', A', B', hAA', hBB', hnot'⟩ := wlog_notInCoset hA₀ hB₀
     have hG'_fin : Module.Finite ℤ G' :=
       Module.Finite.iff_fg (N := AddSubgroup.toIntSubmodule G').2 (IsNoetherian.noetherian _)
     have hG'_free : Module.Free ℤ G' := by
@@ -890,8 +882,10 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
       Nat.card_image_of_injective Subtype.val_injective _ ▸ hAA'.card_congr
     have hBB'_card : Nat.card B = Nat.card B' :=
       Nat.card_image_of_injective Subtype.val_injective _ ▸ hBB'.card_congr
-    have hA_non' : Nonempty A := Set.nonempty_coe_sort.mpr hA_non
-    have hB_non' : Nonempty B := Set.nonempty_coe_sort.mpr hB_non
+    have : Finite A := hA.to_subtype
+    have : Finite B := hB.to_subtype
+    have : Nonempty A := hA₀.to_subtype
+    have : Nonempty B := hB₀.to_subtype
     rw [hAA'_card, hBB'_card] at hM
     have hA'_nonfin : A'.Nonempty ∧ Finite A' := by
       convert Nat.card_pos_iff.mp ?_
@@ -903,8 +897,8 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
       · simpa [hBB'_card] using Nat.card_pos (α := B)
     obtain ⟨hA'_non, hA'_fin⟩ := hA'_nonfin
     obtain ⟨hB'_non, hB'_fin⟩ := hB'_nonfin
-    replace this := this G' _ hG'_free hG'_fin (by infer_instance) (by infer_instance)
-      (by infer_instance) A' B' hA'_fin hB'_fin hA'_non hB'_non hM hnot'
+    replace this := H G' _ hG'_free hG'_fin (by infer_instance) (by infer_instance)
+      (by infer_instance) A' B' hA'_fin hB'_fin hA'_non hB'_non hM.ge hnot'
     exact conclusion_transfers G' A' B' hAA' hBB' hA'_non hB'_non this
   intro G hG_comm hG_free hG_fin hG_count hG_mes hG_sing A B hA_fin hB_fin hA_non hB_non hM hnot
   obtain ⟨N, x, y, Ax, By, hAx_non, hBy_non, hAx_fin, hBy_fin, hAx, hBy, hdim, hcard⟩ :=
@@ -914,8 +908,8 @@ lemma weak_PFR_asymm (A B : Set G) [Finite A] [Finite B] (hA : A.Nonempty) (hB :
   have hA_pos : (0 : ℝ) < Nat.card A := Nat.cast_pos.mpr (@Nat.card_pos _ hA_non.to_subtype _)
   have hB_pos : (0 : ℝ) < Nat.card B := Nat.cast_pos.mpr (@Nat.card_pos _ hB_non.to_subtype _)
   rcases lt_or_ge (Nat.card Ax + Nat.card By) (Nat.card A + Nat.card B) with h | h
-  · replace h := h_induct (Nat.card Ax + Nat.card By) (h.trans_le hM) G hG_comm hG_free hG_fin
-      hG_count hG_mes hG_sing Ax By (Set.finite_coe_iff.mpr hAx_fin) hBy_fin hAx_non hBy_non le_rfl
+  · replace h := ih (Nat.card Ax + Nat.card By) (h.trans_le hM) Ax By (mod_cast hAx_fin) hBy_fin
+      hAx_non hBy_non rfl
     rcases h with ⟨A', B', hA', hB', hA'_non, hB'_non, hcard_ineq, hdim_ineq⟩
     use A', B'
     have hAx_fin' := Set.finite_coe_iff.mpr hAx_fin
@@ -983,7 +977,8 @@ lemma weak_PFR {A : Set G} [Finite A] {K : ℝ} (hA : A.Nonempty) (hK : 0 < K)
     (hdist : dᵤ[A # A] ≤ log K) :
     ∃ A' : Set G, A' ⊆ A ∧ K^(-17 : ℝ) * Nat.card A ≤ Nat.card A' ∧
       AffineSpace.finrank ℤ A' ≤ (40 / log 2) * log K := by
-  rcases weak_PFR_asymm A A hA hA with ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩
+  obtain ⟨A', A'', hA', hA'', hA'nonempty, hA''nonempty, hcard, hdim⟩ :=
+    weak_PFR_asymm A A (finite_coe_iff.mp ‹_›) (finite_coe_iff.mp ‹_›) hA hA
   have : ∃ B : Set G, B ⊆ A ∧ Nat.card B ≥ Nat.card A' ∧ Nat.card B ≥ Nat.card A''
       ∧ AffineSpace.finrank ℤ B ≤ max (AffineSpace.finrank ℤ A') (AffineSpace.finrank ℤ A'') := by
     rcases lt_or_ge (Nat.card A') (Nat.card A'') with h | h

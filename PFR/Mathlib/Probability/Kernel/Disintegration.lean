@@ -84,7 +84,7 @@ lemma disintegration (κ : Kernel T (S × U)) [IsFiniteKernel κ] :
   ext x s hs
   rw [compProd_apply hs, lintegral_fst]
   swap; · exact measurable_kernel_prodMk_left' hs x
-  rw [lintegral_eq_tsum, ENNReal.tsum_prod']
+  rw [lintegral_eq_tsum, tsum_prod']
   change κ x s = ∑' a : S, ∑' b : U, κ x {(a, b)} * condKernel κ (x, a) (Prod.mk a ⁻¹' s)
   simp_rw [ENNReal.tsum_mul_right, ← measure_preimage_fst_singleton_eq_tsum (κ x)]
   have : ∑' a : S, (κ x (Prod.fst ⁻¹' {a})) * condKernel κ (x, a) (Prod.mk a ⁻¹' s)
@@ -120,7 +120,7 @@ lemma condKernel_compProd_ae_eq
   intro x hx
   rw [condKernel_compProd_apply]
   rw [Measure.compProd_apply (.singleton _), lintegral_eq_tsum] at hx
-  simp only [ne_eq, ENNReal.summable.tsum_eq_zero_iff, mul_eq_zero, not_forall] at hx
+  simp only [ne_eq, CompleteLattice.summable.tsum_eq_zero_iff, mul_eq_zero, not_forall] at hx
   obtain ⟨y, hy⟩ := hx
   push Not at hy
   classical
@@ -161,7 +161,7 @@ lemma condKernel_map_prodMk_left {V : Type*} [Nonempty V] [MeasurableSpace V]
   rw [Filter.EventuallyEq, ae_iff_of_countable]
   intro x hx
   rw [Measure.compProd_apply (.singleton _), lintegral_eq_tsum] at hx
-  simp only [ne_eq, ENNReal.summable.tsum_eq_zero_iff, mul_eq_zero, not_forall, not_or,
+  simp only [ne_eq, CompleteLattice.summable.tsum_eq_zero_iff, mul_eq_zero, not_forall, not_or,
     fst_apply' _ _ (measurable_prodMk_left (.singleton _)), Set.mem_preimage, Set.mem_singleton_iff]
     at hx
   obtain ⟨y, hy⟩ := hx
