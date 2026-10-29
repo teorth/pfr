@@ -1013,10 +1013,10 @@ lemma condRuzsaDist'_of_inj_map [IsProbabilityMeasure μ] [Module (ZMod 2) G]
     map_zero' := by simp
     map_add' := fun a b ↦ by simp only [Prod.snd_add, Prod.fst_add, ZModModule.sub_eq_add]; abel }
   let Y : Fin 4 → Ω → G := ![-X, C, fun _ ↦ 0, B + C]
-  have _ : FiniteRange (Y 0) := by simp [Y]; infer_instance
-  have _ : FiniteRange (Y 1) := by simp [Y]; infer_instance
-  have _ : FiniteRange (Y 2) := by simp [Y]; infer_instance
-  have _ : FiniteRange (Y 3) := by simp [Y]; infer_instance
+  have : FiniteRange (Y 0) := by simp [Y]; infer_instance
+  have : FiniteRange (Y 1) := by simp [Y]; infer_instance
+  have : FiniteRange (Y 2) := by simp [Y]; infer_instance
+  have : FiniteRange (Y 3) := by simp [Y]; infer_instance
   have hY_meas i : Measurable (Y i) := by
     fin_cases i; exacts [hX.neg, hC, measurable_const, hB.add hC]
   calc d[X ; μ # B | B + C ; μ]

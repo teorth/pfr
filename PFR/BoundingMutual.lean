@@ -116,7 +116,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
     I[ fun ω ↦ ( fun j ↦ ∑ i, X' (i, j) ω) : fun ω ↦ ( fun i ↦ ∑ j, X' (i, j) ω) |
   fun ω ↦ ∑ i, ∑ j, X' (i, j) ω ] ≤ p.m * (4*p.m+1) * p.η * D[ X; (fun _ ↦ hΩ)] := by
   have hm := p.hm
-  have _ : NeZero p.m := by rw [neZero_iff]; omega
+  have : NeZero p.m := by rw [neZero_iff]; omega
   have hη := p.hη
   set I₀ := I[ fun ω ↦ ( fun j ↦ ∑ i, X' (i, j) ω) : fun ω ↦ ( fun i ↦ ∑ j, X' (i, j) ω) |
   fun ω ↦ ∑ i, ∑ j, X' (i, j) ω ]

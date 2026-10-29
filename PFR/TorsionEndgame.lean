@@ -111,7 +111,7 @@ lemma torsion_mul_eq {i j : ℤ} (x : G) (h : i ≡ j [ZMOD p.m]) : i • x = j 
 include h_mes h_indep hident h_min in
 lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k := by
   have hm := p.hm
-  have _ : NeZero p.m := by rw [neZero_iff]; linarith
+  have : NeZero p.m := by rw [neZero_iff]; linarith
   let zero : Fin p.m := ⟨0, by linarith [hm]⟩
   let X' : Fin p.m × Fin p.m → Ω' → G := fun (i, j) ω ↦ Y (i-j, j) ω
   have hX'_indep : iIndepFun X' := by
@@ -175,7 +175,7 @@ lemma mutual_information_le_t_23 : I[Z2 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k
 include h_mes h_indep hident h_min in
 lemma mutual_information_le_t_13 : I[Z1 : Z3 | W] ≤ p.m * (4*p.m+1) * p.η * k := by
   have hm := p.hm
-  have _ : NeZero p.m := by rw [neZero_iff]; linarith
+  have : NeZero p.m := by rw [neZero_iff]; linarith
   let zero : Fin p.m := ⟨0, by linarith [hm]⟩
   let X' : Fin p.m × Fin p.m → Ω' → G := fun (i, j) ω ↦ Y (i, j-i) ω
   have hX'_indep : iIndepFun X' := by
@@ -646,7 +646,7 @@ lemma k_eq_zero (hη_eq : p.η = 1 / (32 * p.m ^ 3)) : k = 0 := by
         exact mutual_information_le_t_23 hΩ h_min h_mes h_indep hident
       _ = _ := by ring
   let : MeasureSpace G := ⟨Measure.map W ℙ⟩
-  have _ : IsProbabilityMeasure (ℙ: Measure G) :=
+  have : IsProbabilityMeasure (ℙ: Measure G) :=
     (inferInstance : IsProbabilityMeasure (Measure.map W (ℙ : Measure Ω')))
   let δ' : G → ℝ := fun w ↦ p.m * (2 + p.η / 2) * (δ w) + p.η * ∑ i, d[X i ; ℙ # Z2 ; ℙ[|W ⁻¹' {w}]]
   have main_est {w:G} (hw: ℙ {w} ≠ 0) : k ≤ δ' w := by

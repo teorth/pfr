@@ -213,7 +213,7 @@ theorem card_of_dual_constrained [Finite G] (x : G) (hx : x ≠ 0) :
           clear_value y
           fin_cases y
           all_goals simp; tauto
-        have _ := DFunLike.finite (G →+ ZMod 2)
+        have := DFunLike.finite (G →+ ZMod 2)
         rw [← h_partition, Nat.card_congr <| Equiv.Set.union <| Set.disjoint_left.mpr <| by
           simp +contextual]
         simp
@@ -250,7 +250,7 @@ theorem card_of_slice [Finite G] (A : Set G) :
     ∃ φ : G →+ ZMod 2, 2*Nat.card { x | x ∈ A ∧ φ x = 1 } ≥ (Nat.card A-1) := by
   cases nonempty_fintype G
   classical
-  have _ : Fintype (G →+ ZMod 2) := Fintype.ofEquiv G dual_iso.toEquiv
+  have : Fintype (G →+ ZMod 2) := Fintype.ofEquiv G dual_iso.toEquiv
   have h1 := calc
         2 * ∑ φ : G →+ ZMod 2, Nat.card {x | x ∈ A ∧ φ x = 1}
     _ = 2 * ∑ φ : G →+ ZMod 2, ∑ x ∈ A, if φ x = 1 then 1 else 0 := by simp [Fintype.subtype_card]

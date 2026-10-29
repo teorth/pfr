@@ -89,7 +89,7 @@ private theorem approx_hom_pfr_aux {G G' : Type*} [AddCommGroup G] [AddCommGroup
     ∃ φ : G →+ G',
       (Nat.card G / (2 ^ 144 * K ^ 122) - 1) / 2 ≤ Nat.card {x : G | f x = φ x} := by
   classical
-  have _ : Fintype G := Fintype.ofFinite G
+  have : Fintype G := Fintype.ofFinite G
   have hGcard : (0 : ℝ) < Fintype.card G := by
     exact_mod_cast Fintype.card_pos (α := G)
   have hfilter : Nat.card {x : G × G | f (x.1 + x.2) = f x.1 + f x.2}
