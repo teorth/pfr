@@ -216,7 +216,7 @@ theorem card_of_dual_constrained [Finite G] (x : G) (hx : x ≠ 0) :
         have _ := DFunLike.finite (G →+ ZMod 2)
         rw [← h_partition, Nat.card_congr <| Equiv.Set.union <| Set.disjoint_left.mpr <| by
           simp +contextual]
-        simp [Nat.card, Cardinal.toNat_add]
+        simp
       · simp
     -- Since there are $|G|$ homomorphisms in total, we have $|G| = |H_1| + |H_0|$.
     simp_all only [ne_eq, Set.coe_ofPred, card_of_dual]
