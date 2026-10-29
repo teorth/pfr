@@ -331,13 +331,13 @@ lemma ent_of_proj_le {UH : Ω' → G} [FiniteRange UH]
       calc
         _ ≤ ν' T + ν' U := (measure_mono h_subset).trans (measure_union_le T U)
         _ = ν' T + 0 := congrArg _ <| by
-          simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
+          simp only [ν', ProbabilityTheory.cond, smul_apply, smul_eq_mul]
           rw [nonpos_iff_eq_zero.mp <|
             (restrict_apply_le _ U).trans_eq hunif.measure_preimage_compl, mul_zero]
         _ = 0 := by
           have : restrict ν (π ∘ X' ⁻¹' {x}) T = 0 := by
             simp [restrict_apply .of_discrete, T, π', π]
-          simp only [ν', ProbabilityTheory.cond, Measure.smul_apply, smul_eq_mul]
+          simp only [ν', ProbabilityTheory.cond, smul_apply, smul_eq_mul]
           simp [this]
     have h_one : ∑ x ∈ FiniteRange.toFinset (π ∘ X'), νq.real {x} = 1 := by
       rewrite [sum_measureReal_singleton]

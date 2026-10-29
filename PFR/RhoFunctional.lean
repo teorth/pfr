@@ -150,8 +150,8 @@ private lemma rhoMinus_continuous_aux1 (hA : A.Nonempty)
   have : IsProbabilityMeasure (uniformOn (univ : Set G)) :=
     isProbabilityMeasure_uniformOn finite_univ univ_nonempty
   have P n : IsProbabilityMeasure (ν n) := by
-    simp only [isProbabilityMeasure_iff, coe_add, coe_smul, Pi.add_apply, Pi.smul_apply,
-      measure_univ, smul_eq_mul, mul_one, ν]
+    simp only [isProbabilityMeasure_iff, FunLike.coe_add, FunLike.coe_smul, Pi.add_apply,
+      Pi.smul_apply, measure_univ, smul_eq_mul, mul_one, ν]
     rw [ENNReal.sub_add_eq_add_sub, ENNReal.add_sub_cancel_right]
     · exact ne_of_lt ((u_mem n).2.trans ENNReal.one_lt_top)
     · exact (u_mem n).2.le
@@ -160,8 +160,8 @@ private lemma rhoMinus_continuous_aux1 (hA : A.Nonempty)
   have L : Tendsto νP atTop (𝓝 μ₀) := by
     rw [ProbabilityMeasure.tendsto_iff_forall_apply_tendsto_ennreal]
     intro g
-    simp only [ProbabilityMeasure.coe_mk, coe_add, coe_smul, Pi.add_apply, Pi.smul_apply,
-      smul_eq_mul, νP, ν]
+    simp only [ProbabilityMeasure.coe_mk, FunLike.coe_add, FunLike.coe_smul, Pi.add_apply,
+      Pi.smul_apply, smul_eq_mul, νP, ν]
     have : 𝓝 (μ₀.toMeasure {g}) = 𝓝 ((1 - 0) * μ₀.toMeasure {g} + 0 * (uniformOn univ {g})) := by
       simp
     rw [this]

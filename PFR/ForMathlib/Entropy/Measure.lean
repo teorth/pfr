@@ -264,7 +264,7 @@ lemma measureEntropy_univ_smul : Hm[(μ Set.univ)⁻¹ • μ] = Hm[μ] := by
     simp [hμ_fin]
   cases eq_zero_or_neZero μ with
   | inl hμ => simp [hμ]
-  | inr hμ => simp [measureEntropy]
+  | inr hμ => simp [measureEntropy, ← measureReal_def, measureReal_univ_ne_zero]
 
 lemma measureEntropy_nonneg (μ : Measure S) : 0 ≤ Hm[μ] := by
   by_cases hμ_fin : IsFiniteMeasure μ
