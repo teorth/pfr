@@ -65,7 +65,7 @@ lemma iIndepFun.finsets_comp {f : ∀ i, Ω → β i} {J : Type*}
     {γ : J → Type*} {mγ : ∀ j, MeasurableSpace (γ j)}
     (φ : (j : J) → ((i : S j) → β i) → γ j) (hφ : ∀ j, Measurable (φ j)) :
     iIndepFun (fun (j : J) ↦ fun a ↦ φ j (fun (i : S j) ↦ f i a)) μ :=
-  Kernel.iIndepFun.finsets_comp S h_disjoint hf_Indep hf_meas γ φ hφ
+  (Kernel.iIndepFun.finsets S h_disjoint hf_Indep hf_meas).comp φ hφ
 
 /-- Tuples with pairwise disjoint coordinate ranges are independent.
 Coordinate types may be infinite, and repeated coordinates within each block are allowed. -/
@@ -85,7 +85,7 @@ lemma iIndepFun.blocks_comp {f : ∀ i, Ω → β i} {J : Type*} {K : J → Type
     {γ : J → Type*} {mγ : ∀ j, MeasurableSpace (γ j)}
     (φ : (j : J) → ((k : K j) → β (S j k)) → γ j) (hφ : ∀ j, Measurable (φ j)) :
     iIndepFun (fun j a ↦ φ j (fun k ↦ f (S j k) a)) μ :=
-  Kernel.iIndepFun.blocks_comp S hS hf hmeas φ hφ
+  (Kernel.iIndepFun.blocks S hS hf hmeas).comp φ hφ
 
 lemma iIndepFun.finsetSum [MeasurableSpace β'] [AddCommMonoid β'] [MeasurableAdd₂ β']
     {f : ι → Ω → β'} {J : Type*}
