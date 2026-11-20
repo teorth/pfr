@@ -261,13 +261,18 @@ lemma IdentDistrib.of_isUniform {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measu
       measure_mono_null (fun _ hx ↦ by simp at hx; exact hx.2) hν
     have hinter := measure_inter_add_sdiff E Hf.measurableSet (μ := ν)
     rw [← hinter, hdiff, add_zero]
+    have hcoe : ((E ∩ (Hf : Set S)).toFinite.toFinset : Set S) = E ∩ (Hf : Set S) := by
+      simp [Set.Finite.coe_toFinset]
+    rw [← hcoe]
     exact (sum_measure_singleton (s := (E ∩ (Hf : Set S)).toFinite.toFinset) (μ := ν)).symm
   rw [hsupport (μ.map X) hnull, hsupport (μ'.map X') hnull']
   refine Finset.sum_congr rfl fun x hx ↦ ?_
   have hxH : x ∈ Hf := by
-    simpa [Set.Finite.mem_toFinset, Set.mem_inter_iff] using hx
+    rw [Set.Finite.mem_toFinset, Set.mem_inter_iff] at hx
+    exact hx.2
   rw [map_apply hX (.singleton x), map_apply hX' (.singleton x),
     hX_unif'.measure_preimage_of_mem hX hxH, hX'_unif'.measure_preimage_of_mem hX' hxH]
+  simp [measure_univ]
 
 lemma IsUniform.map_eq_uniformOn [IsProbabilityMeasure μ]
     {H : Set S} (h : IsUniform H X μ) (hX : Measurable X) (hH : H.Finite) (h'H : H.Nonempty) :
