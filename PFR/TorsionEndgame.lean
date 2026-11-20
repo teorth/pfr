@@ -775,7 +775,7 @@ open Real
 /-- A uniform distribution on a set with doubling constant `K` has self Rusza distance
 at most `log K`. -/
 theorem rdist_le_of_isUniform_of_card_add_le' {G : Type*} [AddCommGroup G] {A : Set G}
-    {K : ℝ} [Countable G] [A_fin : Finite A] [MeasurableSpace G]
+    {K : ℝ} [A_fin : Finite A] [MeasurableSpace G]
     [MeasurableSingletonClass G]
     (h₀A : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}

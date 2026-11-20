@@ -108,7 +108,7 @@ lemma PFR_conjecture_pos_aux' {G : Type*} [AddCommGroup G] {A : Set G} (hA : A.F
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hAK)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
-variable {G : Type*} [AddCommGroup G] {A : Set G} {K : ℝ} [Countable G]
+variable {G : Type*} [AddCommGroup G] {A : Set G} {K : ℝ}
 
 /-- A uniform distribution on a set whose difference set has relative size at most `K`
 has self Rusza distance at most `log K`. -/
