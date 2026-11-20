@@ -261,10 +261,8 @@ lemma IdentDistrib.of_isUniform {Ω' : Type*} [MeasurableSpace Ω'] {μ' : Measu
       measure_mono_null (fun _ hx ↦ by simp at hx; exact hx.2) hν
     have hinter := measure_inter_add_sdiff E Hf.measurableSet (μ := ν)
     rw [← hinter, hdiff, add_zero]
-    have hcoe : ((E ∩ (Hf : Set S)).toFinite.toFinset : Set S) = E ∩ (Hf : Set S) := by
-      simp [Set.Finite.coe_toFinset]
-    rw [← hcoe]
-    exact (sum_measure_singleton (s := (E ∩ (Hf : Set S)).toFinite.toFinset) (μ := ν)).symm
+    have hs := sum_measure_singleton (s := (E ∩ (Hf : Set S)).toFinite.toFinset) (μ := ν)
+    simpa [Set.Finite.coe_toFinset] using hs.symm
   rw [hsupport (μ.map X) hnull, hsupport (μ'.map X') hnull']
   refine Finset.sum_congr rfl fun x hx ↦ ?_
   have hxH : x ∈ Hf := by
