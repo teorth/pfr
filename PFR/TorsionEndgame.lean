@@ -776,7 +776,7 @@ open Real
 at most `log K`. -/
 theorem rdist_le_of_isUniform_of_card_add_le' {G : Type*} [AddCommGroup G] {A : Set G}
     {K : ℝ} [A_fin : Finite A] [MeasurableSpace G]
-    [DiscreteMeasurableSpace G] [MeasurableSub₂ G]
+    [DiscreteMeasurableSpace G] [MeasurableSub₂ G] [MeasurableAdd₂ G]
     (h₀A : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # -U₀] ≤ log K := by

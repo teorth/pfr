@@ -173,7 +173,7 @@ section rdist
 
 variable [Countable G] [MeasurableSingletonClass G]
 
-omit [Countable G] in
+omit [Countable G] [MeasurableSingletonClass G] in
 /-- If `X, Y` are independent `G`-random variables then `d[X ; Y] = H[X - Y] - H[X]/2 - H[Y]/2`.
 
 Countability of `G` is not used: subtraction only needs to be measurable, which is
