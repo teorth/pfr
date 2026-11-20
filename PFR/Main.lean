@@ -108,12 +108,12 @@ lemma PFR_conjecture_pos_aux' {G : Type*} [AddCommGroup G] {A : Set G} (hA : A.F
     simpa [Nat.cast_pos, I, and_false, or_false] using mul_pos_iff.1 (card_AA_pos.trans_le hAK)
   exact ⟨KA_pos.2, card_AA_pos, KA_pos.1⟩
 
-variable {G : Type*} [AddCommGroup G] {A : Set G} {K : ℝ} [Countable G]
+variable {G : Type*} [AddCommGroup G] {A : Set G} {K : ℝ}
 
 /-- A uniform distribution on a set whose difference set has relative size at most `K`
 has self Rusza distance at most `log K`. -/
 theorem rdist_le_of_isUniform_of_card_sub_le [A_fin : Finite A] [MeasurableSpace G]
-    [MeasurableSingletonClass G]
+    [DiscreteMeasurableSpace G] [MeasurableSub₂ G]
     (hA₀ : A.Nonempty) (hA : (A - A).ncard ≤ K * A.ncard)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K := by
@@ -138,7 +138,7 @@ variable [Module (ZMod 2) G]
 /-- In characteristic 2, a uniform distribution on a set with doubling constant `K`
 has self Rusza distance at most `log K`. -/
 theorem rdist_le_of_isUniform_of_doubling [A_fin : Finite A] [MeasurableSpace G]
-    [MeasurableSingletonClass G]
+    [DiscreteMeasurableSpace G] [MeasurableSub₂ G]
     (hA₀ : A.Nonempty) (hA : (A + A).ncard ≤ K * A.ncard)
     {Ω : Type*} [MeasureSpace Ω] [IsProbabilityMeasure (ℙ : Measure Ω)] {U₀ : Ω → G}
     (U₀unif : IsUniform A U₀) (U₀meas : Measurable U₀) : d[U₀ # U₀] ≤ log K :=

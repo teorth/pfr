@@ -173,8 +173,13 @@ section rdist
 
 variable [Countable G] [MeasurableSingletonClass G]
 
-/-- If `X, Y` are independent `G`-random variables then `d[X ; Y] = H[X - Y] - H[X]/2 - H[Y]/2`. -/
-lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ]
+omit [Countable G] [MeasurableSingletonClass G] in
+/-- If `X, Y` are independent `G`-random variables then `d[X ; Y] = H[X - Y] - H[X]/2 - H[Y]/2`.
+
+Countability of `G` is not used: subtraction only needs to be measurable, which is
+`MeasurableSub₂`, and the entropy identity is a rewrite. -/
+lemma ProbabilityTheory.IndepFun.rdist_eq [IsFiniteMeasure μ] [DiscreteMeasurableSpace G]
+    [MeasurableSub₂ G]
     {Y : Ω → G} (h : IndepFun X Y μ) (hX : Measurable X) (hY : Measurable Y) :
     d[X ; μ # Y ; μ] = H[X - Y ; μ] - H[X ; μ]/2 - H[Y ; μ]/2 := by
   rw [rdist_def]
