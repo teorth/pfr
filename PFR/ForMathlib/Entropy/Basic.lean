@@ -998,7 +998,7 @@ lemma condMutualInfo_of_inj' {S T U S' T' U' Ω : Type*} [mΩ : MeasurableSpace 
     {g : T → T'} (hg : Function.Injective g)
     {h : U → U'} (hh : Function.Injective h)
     : I[f ∘ X : g ∘ Y | h ∘ Z; μ] = I[X : Y | Z; μ] := calc
-    _ = I[f ∘ X : g ∘ Y | Z; μ] := by rw [condMutualInfo_of_inj _ _ _ _ hh] <;> try fun_prop
+    _ = I[f ∘ X : g ∘ Y | Z; μ] := by rw [condMutualInfo_of_inj _ _ _ _ hh] <;> fun_prop
     _ = I[X : g ∘ Y | Z; μ] := condMutualInfo_of_inj_map hX (by fun_prop) hZ (fun _ ↦ f) fun _ ↦ hf
     _ = I[g ∘ Y : X | Z; μ] := by apply condMutualInfo_comm <;> fun_prop
     _ = I[Y : X | Z; μ] := condMutualInfo_of_inj_map hY (by fun_prop) hZ (fun _ ↦ g) (fun _ ↦ hg)

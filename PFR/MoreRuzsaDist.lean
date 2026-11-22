@@ -585,9 +585,8 @@ private theorem kvm_decomposition_indep_helper {Ω G : Type*} [MeasurableSpace �
   rw [h_sum]
   refine iIndepFun.finsetSum _ h_disjoint ?_ (fun i ↦ by by_cases hi : i ∈ t <;> measurability)
   apply iIndepFun.comp hindep
-  all_goals
-    intro i
-    by_cases hi : i ∈ t <;> measurability
+  intro i
+  by_cases hi : i ∈ t <;> measurability
 
 private theorem entropy_kvm_decomposition {I : Type*} {s t : Finset I} (hdisj : Disjoint s t)
     (X : I → Ω → G) (hX : ∀ i, Measurable (X i))

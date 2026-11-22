@@ -194,7 +194,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       _ = D[fun i ω ↦ X (e i) ω; fun x ↦ hΩ] := by
         apply multiDist_copy _ _ _ _ _
         intro i; exact IdentDistrib.comp (u := fun x ↦ x i) he (by fun_prop)
-      _ = _ := by convert multiDist_of_perm (fun _ ↦ hΩ) _ _ e <;> try infer_instance
+      _ = _ := by convert multiDist_of_perm (fun _ ↦ hΩ) _ _ e <;> infer_instance
   have h2 {j : Fin p.m} (hj: j ∈ Finset.Iio last)
   : A j ≤ p.η * ∑ i, d[ X' (i, j) # X' (i, j) | S i j ] := by
     obtain ⟨e, he⟩ := hperm j
@@ -219,7 +219,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
       apply condRuzsaDist_le' <;> fun_prop
     _ = d[ X' (i, j) # X' (i, j) ] + (H[S i j] - H[S i (j+one) |  X' (i, j) ]) / 2 := by
       congr
-      rw [mutualInfo_comm]
+      rw [mutualInfo_comm (by fun_prop) (by fun_prop)]
       convert mutualInfo_eq_entropy_sub_condEntropy .. using 2 <;> try infer_instance
       all_goals try fun_prop
       rw [←condEntropy_add_left] <;> try fun_prop
@@ -426,7 +426,7 @@ lemma mutual_information_le {G Ωₒ : Type u} [MeasurableFinGroup G] [MeasureSp
     _ = _ := by simp; abel
   have h10 : I₀/p.η ≤ 2 * p.m * ∑ i, d[X i # X i] + p.m * k := by linarith
   have h11 : ∑ i, d[X i # X i] ≤ 2 * p.m * k := by
-    convert multidist_ruzsa_II hm _ _ _ hX _ <;> try infer_instance
+    convert multidist_ruzsa_II hm _ _ _ hX _ <;> infer_instance
   calc
     _ ≤ p.η * (2 * p.m * ∑ i, d[X i # X i] + p.m * k) := by rwa [←div_le_iff₀' (by positivity)]
     _ ≤ p.η * (2 * p.m * (2 * p.m * k) + p.m * k) := by gcongr

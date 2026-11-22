@@ -1189,8 +1189,8 @@ lemma ent_bsg [IsProbabilityMeasure μ] {A B : Ω → G} (hA : Measurable A) (hB
       _ = 2 * H[⟨⟨A, B⟩, Z⟩ ; μ] - H[Z ; μ] := by
         rw [two_mul]
         congr 1
-        congr 1 <;> exact IdentDistrib.entropy_congr ‹_›
-        exact hZZ'.entropy_congr
+        · congr 1 <;> exact IdentDistrib.entropy_congr ‹_›
+        · exact hZZ'.entropy_congr
       _ = 2 * H[⟨A, B⟩ ; μ] - H[Z ; μ] := by
         congr 2
         exact entropy_prod_comp (hA.prodMk hB) _ fun x ↦ x.1 + x.2

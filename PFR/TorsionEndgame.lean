@@ -95,7 +95,7 @@ lemma mutual_information_le_t_12 : I[Z1 : Z2 | W] ≤ p.m * (4*p.m+1) * p.η * k
           Finset.smul_sum]
         rw [Finset.sum_comm]
       simp
-    all_goals try fun_prop
+    all_goals fun_prop
   · apply multiTauMinimizes_of_ident p _ _ _ h_min
     intro i; exact (hident i zero).symm
   intro j; use Equiv.refl _
@@ -440,7 +440,7 @@ lemma sum_of_conditional_distance_le : ∑ i, d[ X i # Z2 | W] ≤ 4 * (p.m^3 - 
     _ ≤ ∑ i, (d[ X i # X i] + (H[Z2] - H[X i])/ 2 + (p.m-1) * k) := by
       apply Finset.sum_le_sum; intro i _; calc
         _ ≤ d[X i # Z2] + I[W:Z2] / 2 := by
-          rw [mutualInfo_comm]
+          rw [mutualInfo_comm (by fun_prop) (by fun_prop)]
           convert condRuzsaDist_le' _ _ _ _ _ <;> try infer_instance
           all_goals fun_prop
         _ ≤ (d[X i # X i] + (H[Z2] - H[X i]) / 2) + (2*(p.m-1) * k)/2 := by
@@ -597,8 +597,8 @@ lemma dist_of_U_add_le {G : Type*} [MeasurableFinGroup G] {Ω : Type u} [hΩ : M
       all_goals fun_prop
     _ ≤ d[Y i # T₂] + δ / 2 := by
       gcongr
-      have : I[T₁ : T₂] ≥ 0 := by apply mutualInfo_nonneg <;> try fun_prop
-      have : I[T₁ : T₃] ≥ 0 := by apply mutualInfo_nonneg <;> try fun_prop
+      have : I[T₁ : T₂] ≥ 0 := by apply mutualInfo_nonneg <;> fun_prop
+      have : I[T₁ : T₃] ≥ 0 := by apply mutualInfo_nonneg <;> fun_prop
       linarith
   set F : G → ℝ := fun z ↦ d[T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}] # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]] +
       α * ∑ i, d[Y i ; ℙ # T₂ ; ℙ[|(T₁ + T₂) ⁻¹' {z}]]
