@@ -1,7 +1,6 @@
 module
 
 public import Mathlib.Data.Set.Card
-public import PFR.Mathlib.Data.Set.Basic
 public import PFR.Mathlib.Data.Set.Insert
 
 public section

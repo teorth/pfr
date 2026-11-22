@@ -3,7 +3,6 @@ module
 public import Mathlib.Data.FunLike.Fintype
 public import Mathlib.Data.Int.Lemmas
 public import PFR.HomPFR
-public import PFR.Mathlib.Data.Finset.Basic
 public import PFR.Mathlib.Data.ZMod.Basic
 
 import AddCombi.BSG

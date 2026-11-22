@@ -40,7 +40,7 @@ lemma exists_isUniform [MeasurableSpace S] [MeasurableSingletonClass S]
     ∃ (Ω : Type uS) (_ : MeasurableSpace Ω) (X : Ω → S) (μ : Measure Ω),
       IsProbabilityMeasure μ ∧ Measurable X ∧ IsUniform H X μ ∧ (∀ ω, X ω ∈ H) ∧ FiniteRange X := by
   refine ⟨H, Subtype.instMeasurableSpace, fun x ↦ x, (Finset.card H : ℝ≥0∞)⁻¹ • ∑ i, .dirac i, ?_,
-    measurable_subtype_coe, ⟨?_, ?_⟩, fun x ↦ x.2, ?_⟩
+    measurable_subtypeVal, ⟨?_, ?_⟩, fun x ↦ x.property, ?_⟩
   · constructor
     simp only [Finset.univ_eq_attach, smul_apply, FunLike.coe_sum, Finset.sum_apply, measure_univ,
       Finset.sum_const, Finset.card_attach, nsmul_eq_mul, mul_one, smul_eq_mul]

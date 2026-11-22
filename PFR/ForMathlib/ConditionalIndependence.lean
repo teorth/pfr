@@ -285,15 +285,15 @@ lemma condIndep_copies' (X : Ω → α) (Y : Ω → β) (hX : Measurable X) (hY 
   obtain ⟨Ω', _, X₁, X₂, Y', ν, _, hX₁, hX₂, hY', hXY, hXY₁, hXY₂⟩ :=
     condIndep_copies X Y hX hY μ
   let i := Subtype.val (p := fun ω ↦ p (X₁ ω) (Y' ω) ∧ p (X₂ ω) (Y' ω))
-  have hi : MeasurableEmbedding i := MeasurableEmbedding.subtype_coe
+  have hi : MeasurableEmbedding i := MeasurableEmbedding.subtypeVal
     ((hp.comp <| hX₁.prodMk hY').and <| hp.comp <| hX₂.prodMk hY').setOf
   have hi' : ∀ᵐ ω ∂ν, ω ∈ range i := by
     simp only [i, mem_ofPred_eq, Subtype.range_coe_subtype, Filter.eventually_and]
     exact ⟨hXY₁.symm.ae_snd (p := uncurry p) hp.setOf hp',
       hXY₂.symm.ae_snd (p := uncurry p) hp.setOf hp'⟩
   refine ⟨{ω // p (X₁ ω) (Y' ω) ∧ p (X₂ ω) (Y' ω)}, inferInstance, X₁ ∘ (↑), X₂ ∘ (↑), Y' ∘ (↑),
-    ν.comap (↑), ?_, hX₁.comp measurable_subtype_coe, hX₂.comp measurable_subtype_coe,
-    hY'.comp measurable_subtype_coe, ?_, ?_, ?_, fun ω ↦ ω.2.1, fun ω ↦ ω.2.2⟩
+    ν.comap (↑), ?_, hX₁.comp measurable_subtypeVal, hX₂.comp measurable_subtypeVal,
+    hY'.comp measurable_subtypeVal, ?_, ?_, ?_, fun ω ↦ ω.property.1, fun ω ↦ ω.property.2⟩
   · exact hi.isProbabilityMeasure_comap hi'
   · exact hXY.comp_right hi hi' hX₁ hX₂ hY'
   · exact hXY₁.comp_left hi hi' <| hX₁.prodMk hY'

@@ -485,7 +485,7 @@ private lemma le_rhoMinus_of_subgroup [IsProbabilityMeasure μ] {H : AddSubgroup
     have : (μ.map U).real {i} = 0 := by
       simp only [ne_eq, measure_ne_top, not_false_eq_true, measureReal_eq_zero_iff] at h'i ⊢
       simp [habs i h'i]
-    simp [hunif'.measureReal_preimage_of_mem' hU hi, (ZeroMemClass.coe_nonempty H).ne_empty, H']
+    simp [hunif'.measureReal_preimage_of_mem' hU hi, H']
       at this
   have : (∑ h ∈ H', 1/(H : Set G).ncard : ℝ) = 1 := by
     simp only [Finset.sum_const, nsmul_eq_mul, ← mul_div_assoc, mul_one]
@@ -888,7 +888,7 @@ lemma condRho_of_injective {S T : Type*}
     have : f ∘ Y ⁻¹' {y} ≠ ∅ := by
       intro h
       simp [h] at hy
-    rcases Set.nonempty_iff_ne_empty.2 this with ⟨a, ha⟩
+    rcases Set.ne_empty_iff_nonempty.1 this with ⟨a, ha⟩
     simp only [mem_preimage, Function.comp_apply, mem_singleton_iff] at ha
     rw [← ha]
     exact mem_range_self (Y a)

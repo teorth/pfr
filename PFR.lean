@@ -32,8 +32,6 @@ import PFR.Mathlib.Algebra.BigOperators.Fin
 import PFR.Mathlib.Algebra.Group.Action.Pointwise.Set.Basic
 import PFR.Mathlib.Analysis.SpecialFunctions.NegMulLog
 import PFR.Mathlib.Data.Fin.Basic
-import PFR.Mathlib.Data.Finset.Basic
-import PFR.Mathlib.Data.Set.Basic
 import PFR.Mathlib.Data.Set.Card
 import PFR.Mathlib.Data.Set.Insert
 import PFR.Mathlib.Data.ZMod.Basic

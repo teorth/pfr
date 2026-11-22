@@ -319,7 +319,7 @@ lemma kvm_ineq_I {I : Type*} {i₀ : I} {s : Finset I} (hs : ¬ i₀ ∈ s)
         simp_all [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one,
           Finset.disjoint_singleton_right, S]
     let φ : (j : J) → ((_ : S j) → G) → G
-      | 0 => fun Ys ↦ ∑ i : s, Ys ⟨i.1, i.2⟩
+      | 0 => fun Ys ↦ ∑ i : s, Ys ⟨i.val, i.property⟩
       | 1 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
       | 2 => fun Ys ↦ Ys ⟨i, by simp [S]⟩
     have hφ : (j : J) → Measurable (φ j) := fun j ↦ .of_discrete
@@ -479,7 +479,7 @@ lemma kvm_ineq_III {I : Type*} {i₀ i₁ : I} {s : Finset I}
   let φ : (j : J) → ((_ : S j) → G) → G
     | 0 => fun Ys ↦ Ys ⟨i₀, by simp [S]⟩
     | 1 => fun Ys ↦ Ys ⟨i₁, by simp [S]⟩
-    | 2 => fun Ys ↦ ∑ i : s, Ys ⟨i.1, i.2⟩
+    | 2 => fun Ys ↦ ∑ i : s, Ys ⟨i.val, i.property⟩
   have hφ : (j : J) → Measurable (φ j) := fun j ↦ .of_discrete
   have h_indep' : iIndepFun ![Y i₀, Y i₁, ∑ i ∈ s, Y i] μ := by
     convert iIndepFun.finsets_comp S h_dis h_indep hY φ hφ with j x
@@ -2221,7 +2221,7 @@ is less than
 where all the multidistances here involve the indexing set `{1, ..., m}`. -/
 lemma cor_multiDist_chainRule [Fintype G] {m : ℕ} {Ω : Type*} (hΩ : MeasureSpace Ω)
     (X : Fin (m + 1) × Fin (m + 1) → Ω → G) (hmes : ∀ i, Measurable (X i)) (h_indep : iIndepFun X)
-    [IsProbabilityMeasure (ℙ : Measure Ω)]:
+    [IsProbabilityMeasure (ℙ : Measure Ω)] :
     I[fun ω ↦ (fun j ↦ ∑ i, X ⟨i, j⟩ ω) : fun ω ↦ (fun i ↦ ∑ j, X ⟨i, j⟩ ω) | ∑ p, X p]
       ≤ ∑ j : Fin m, (D[fun i ↦ X ⟨i, j.castSucc⟩; fun _ ↦ hΩ] - D[fun i ↦ X ⟨i, j.castSucc⟩ |
         fun i ↦ ∑ k ∈ Finset.Ici j.castSucc, X ⟨i, k⟩; fun _ ↦ hΩ]) +

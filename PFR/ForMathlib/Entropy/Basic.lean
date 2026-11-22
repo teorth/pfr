@@ -775,7 +775,7 @@ lemma entropy_pair_eq_add (hX : Measurable X) (hY : Measurable Y) {μ : Measure 
 /-- If `X, Y` are independent, then `H[X, Y] = H[X] + H[Y]`. -/
 protected alias ⟨_, IndepFun.entropy_pair_eq_add⟩ := entropy_pair_eq_add
 
-lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ: MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
+lemma iIndepFun.entropy_eq_add {Ω S : Type*} [hΩ : MeasureSpace Ω] [IsProbabilityMeasure hΩ.volume]
     {m : ℕ} [MeasurableSpace S] [MeasurableSingletonClass S] [Finite S]
     {X : Fin m → Ω → S} (hX : ∀ i, Measurable (X i)) (h_indep : iIndepFun X) :
     H[(fun ω i ↦ X i ω)] = ∑ i, H[X i] := by

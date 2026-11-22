@@ -994,7 +994,7 @@ theorem torsion_PFR {G : Type*} [AddCommGroup G] {m : ℕ} (hm : m ≥ 2)
     have htorsion' : ∀ x : G', m • x = 0 := fun x ↦ by
       ext
       push_cast
-      exact htorsion x.1
+      exact htorsion x.val
     obtain ⟨H', c', hc', hH'fin, hcard, hH'A, hsub⟩ :=
       H htorsion' (Set.toFinite A') (h₀A.preimage' A_rg) hA' inferInstance
     have hHmap : ((H'.map f : AddSubgroup G) : Set G) = ι '' (H' : Set G') := by

@@ -178,7 +178,7 @@ lemma KLDiv_of_comp_inj {H : Type*} [MeasurableSpace H] [DiscreteMeasurableSpace
     have : f ∘ X ⁻¹' {y} ≠ ∅ := by
       intro h
       simp [h] at this
-    obtain ⟨z, hz⟩ := Set.nonempty_iff_ne_empty.2 this
+    obtain ⟨z, hz⟩ := Set.ne_empty_iff_nonempty.1 this
     simp only [Set.mem_preimage, Function.comp_apply, Set.mem_singleton_iff] at hz
     exact Set.mem_range.2 ⟨X z, hz⟩
 
