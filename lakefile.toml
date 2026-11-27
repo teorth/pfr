@@ -26,7 +26,7 @@ git = "https://github.com/leanprover-community/add-combi.git"
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "c47f9ad906c5ec32a953f99911b446cd26dcc123"
+rev = "903b0b6f8adcb9254cd914395f1e1c7902548c2b"
 
 [[lean_lib]]
 name = "PFR"
